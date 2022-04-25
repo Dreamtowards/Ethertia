@@ -12,6 +12,7 @@
 #include <ethertia/util/Log.h>
 #include <ethertia/world/World.h>
 #include <ethertia/util/Timer.h>
+#include <ethertia/client/render/Camera.h>
 
 #include "Window.h"
 
@@ -25,6 +26,7 @@ class Ethertia
     RenderEngine* renderEngine;
     Window window;
     Timer timer;
+    Camera camera;
 
     World* world;
 
@@ -59,13 +61,16 @@ public:
     {
         timer.update(getPreciseTime());
 
-        while (timer.polltick())
+//        while (timer.polltick())
         {
             runTick();
         }
+        Camera::update(camera, window);
 
-        glClearColor(0, 1, 0, 1);
+        glClearColor(0, 0, 0.4, 1);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glEnable(GL_CULL_FACE);
 
         renderEngine->renderWorld(world);
 
@@ -75,15 +80,26 @@ public:
 
     void runTick()
     {
+        float speed = 0.1;
+        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) speed = 1;
+        float a = camera.eulerAngles.y;
+
+        if (window.isKeyDown(GLFW_KEY_W)) camera.position += Camera::diff(a) * speed;
+        if (window.isKeyDown(GLFW_KEY_S)) camera.position += Camera::diff(a+Mth::PI) * speed;
+        if (window.isKeyDown(GLFW_KEY_A)) camera.position += Camera::diff(a+Mth::PI/2) * speed;
+        if (window.isKeyDown(GLFW_KEY_D)) camera.position += Camera::diff(a-Mth::PI/2) * speed;
+
+        if (window.isShiftKeyDown()) camera.position.y -= speed;
+        if (window.isKeyDown(GLFW_KEY_SPACE)) camera.position.y += speed;
+
+
 
         world->onTick();
     }
 
     void destroy()
     {
-
         delete world;
-
         delete renderEngine;
 
         glfwTerminate();
@@ -92,9 +108,11 @@ public:
 
     static void shutdown() { INST->running = false; }
 
-    static Window* getWindow() { return &INST->window; }
-
     static float getPreciseTime() { return (float)Window::getPreciseTime(); }
+
+    static Window* getWindow() { return &INST->window; }
+    static Camera* getCamera() { return &INST->camera; }
+
 
 };
 

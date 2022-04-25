@@ -7,8 +7,8 @@
 
 void World::onTick()
 {
-    glm::vec3 cpos = Chunk::chunkpos(glm::vec3(0));
-    int n = 2;
+    glm::vec3 cpos = Chunk::chunkpos(Ethertia::getCamera()->position);
+    int n = 3;
 
     // load chunks
     for (int dx = -n;dx <= n;dx++) {

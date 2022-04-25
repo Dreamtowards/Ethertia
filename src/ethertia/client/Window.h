@@ -13,6 +13,16 @@ class Window
 {
     GLFWwindow* window;
 
+    float mouseX;
+    float mouseY;
+    float mouseDX;
+    float mouseDY;
+    float scrollDX;
+    float scrollDY;
+
+    float width;
+    float height;
+
 public:
 
     int initWindow()
@@ -23,7 +33,7 @@ public:
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // OSX Required.
 
-        window = glfwCreateWindow(600, 420, "Dysplay", nullptr, nullptr);
+        window = glfwCreateWindow(width=600, height=420, "Dysplay", nullptr, nullptr);
         if (!window)
             throw std::runtime_error("Failed to init GLFW window.");
 
@@ -33,13 +43,18 @@ public:
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             throw std::runtime_error("Failed to init GLAD.");
 
+        glfwSetWindowUserPointer(window, this);
         glfwSetWindowCloseCallback(window, onWindowClose);
+        glfwSetCursorPosCallback(window, onCursorPos);
+        glfwSetWindowSizeCallback(window, onWindowSize);
 
         return 0;
     }
 
     void updateWindow()
     {
+        resetDeltas();
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -52,8 +67,55 @@ public:
         return glfwGetTime();
     }
 
+    float getMouseX() { return mouseX; }
+    float getMouseY() { return mouseY; }
+    float getMouseDX() { return mouseDX; }
+    float getMouseDY() { return mouseDY; }
+    float getScrollDX() { return scrollDX; }
+    float getScrollDY() { return scrollDY; }
+    float getDScroll() { return scrollDX+scrollDY; }
 
-    static void onWindowClose(GLFWwindow* window);
+    float getWidth() { return width; }
+    float getHeight() { return height; }
+
+    bool isKeyDown(int key) {
+        return glfwGetKey(window, key) == GLFW_PRESS;
+    }
+    bool isMouseDown(int button) {
+        return glfwGetMouseButton(window, button) == GLFW_PRESS;
+    }
+
+    bool isShiftKeyDown() {
+        return isKeyDown(GLFW_KEY_LEFT_SHIFT) || isKeyDown(GLFW_KEY_RIGHT_SHIFT);
+    }
+    bool isAltKeyDown() {
+        return isKeyDown(GLFW_KEY_LEFT_ALT) || isKeyDown(GLFW_KEY_RIGHT_ALT);
+    }
+
+    void resetDeltas() {
+        mouseDX = 0;
+        mouseDY = 0;
+        scrollDX = 0;
+        scrollDY = 0;
+    }
+
+    static void onWindowClose(GLFWwindow* _w);
+
+    static void onCursorPos(GLFWwindow* _w, double xpos, double ypos) {
+        Window* w = (Window*)glfwGetWindowUserPointer(_w);
+        float x = (float)xpos;
+        float y = (float)ypos;
+        w->mouseDX = x - w->mouseX;
+        w->mouseDY = y - w->mouseY;
+        w->mouseX = x;
+        w->mouseY = y;
+    }
+
+    static void onWindowSize(GLFWwindow* _w, int wid, int hei) {
+        Window* w = (Window*)glfwGetWindowUserPointer(_w);
+        w->width = wid;
+        w->height = hei;
+    }
 
 };
 

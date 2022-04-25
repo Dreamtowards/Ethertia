@@ -43,13 +43,18 @@ public:
         loadedChunks[chunkpos] = chunk;
 
         Log::info("ChunkLoaded " + glm::to_string(chunkpos));
-        chunk->vao = ChunkMeshGen::genMesh(chunk);
+        ChunkMeshGen::genMesh(chunk);
         return chunk;
     }
 
     void unloadChunk(glm::vec3 p)
     {
-        loadedChunks.erase(Chunk::chunkpos(p));
+        Log::info("Unload Chunk");
+        auto itr = loadedChunks.find(Chunk::chunkpos(p));
+        if (itr == loadedChunks.end())
+            throw std::logic_error("Failed unload chunk. Not exists."+glm::to_string(p));
+        delete itr->second;
+        loadedChunks.erase(itr);
     }
 
     std::unordered_map<glm::vec3, Chunk*>* getLoadedChunks() {

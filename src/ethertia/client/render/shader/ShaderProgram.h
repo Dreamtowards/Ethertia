@@ -7,18 +7,25 @@
 
 #include <stdexcept>
 #include <string>
-#include "glad/glad.h"
+#include <unordered_map>
+
+#include <glad/glad.h>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+
+#include <ethertia/util/QuickTypes.h>
 
 class ShaderProgram {
 
-    int program;
+    uint program;
+    std::unordered_map<const char*, uint> cachedUniformId;
 
 public:
 
     ShaderProgram(const std::string& svsh, const std::string& sfsh) {
 
-        int vsh = loadShader(GL_VERTEX_SHADER, svsh);
-        int fsh = loadShader(GL_FRAGMENT_SHADER, sfsh);
+        uint vsh = loadShader(GL_VERTEX_SHADER, svsh);
+        uint fsh = loadShader(GL_FRAGMENT_SHADER, sfsh);
 
         program = glCreateProgram();
 
@@ -38,8 +45,7 @@ public:
         glDeleteShader(fsh);
     }
 
-    ~ShaderProgram()
-    {
+    ~ShaderProgram() {
         glDeleteProgram(program);
     }
 
@@ -47,9 +53,27 @@ public:
         glUseProgram(program);
     }
 
+    uint getUniformLocation(const char* name) {
+        uint loc = cachedUniformId[name];
+        if (!loc) {
+            return cachedUniformId[name] = glGetUniformLocation(program, name);
+        }
+        return loc;
+    }
+
+    void setVector3f(const char* name, glm::vec3 v) {
+        glUniform3f(getUniformLocation(name), v.x, v.y, v.z);
+    }
+    void setMatrix4f(const char* name, glm::mat4 m) {
+        glUniformMatrix4fv(getUniformLocation(name), 1, false, &m[0][0]);
+    }
+
+
+
+
 private:
-    static int loadShader(GLuint shadertype, const std::string& src) {
-        int s = glCreateShader(shadertype);
+    static uint loadShader(GLuint shadertype, const std::string& src) {
+        uint s = glCreateShader(shadertype);
         const char* cstr = src.c_str();
         glShaderSource(s, 1, &cstr, nullptr);
         glCompileShader(s);

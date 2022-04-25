@@ -12,6 +12,8 @@ add_executable(Ethertia
         lib/glad.c
         src/ethertia/world/World.cpp
         src/ethertia/client/Window.cpp
+        src/ethertia/client/render/renderer/ChunkRenderer.cpp
+        src/ethertia/client/render/chunk/ChunkMeshGen.cpp
         src/ethertia/client/Ethertia.cpp)
 
 target_link_libraries(Ethertia PRIVATE

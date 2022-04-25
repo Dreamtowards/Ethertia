@@ -17,9 +17,10 @@ public:
     void renderWorld(World* world)
     {
 
-
-
-        chunkRenderer.render();
+        for (auto it : *world->getLoadedChunks())
+        {
+            chunkRenderer.render(it.second);
+        }
     }
 
 };

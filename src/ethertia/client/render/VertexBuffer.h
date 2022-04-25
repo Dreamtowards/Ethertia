@@ -7,13 +7,14 @@
 
 #include <vector>
 
+// 3d positions.
 class VertexBuffer
 {
+public:
     std::vector<float> positions;
     std::vector<float> textureCoords;
     std::vector<float> normals;
 
-public:
     void addpos(float x, float y, float z) {
         positions.push_back(x);
         positions.push_back(y);
@@ -29,6 +30,10 @@ public:
         normals.push_back(x);
         normals.push_back(y);
         normals.push_back(z);
+    }
+
+    uint vertexCount() {
+        return positions.size() / 3;
     }
 
 };

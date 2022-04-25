@@ -8,11 +8,50 @@
 #include <ethertia/world/chunk/Chunk.h>
 #include <ethertia/init/Blocks.h>
 #include <ethertia/client/render/VertexBuffer.h>
+#include <ethertia/client/Loader.h>
 
 class ChunkMeshGen
 {
 public:
-    static GLuint genMesh(Chunk* chunk) {
+
+    // Winding:
+    // [2,4] +---+ [1]
+    //       | \ |
+    //   [5] +---+ [0,3]
+    static float CUBE_POS[];
+//    = {
+//            // Left -X
+//            0, 0, 1, 0, 1, 1, 0, 1, 0,
+//            0, 0, 1, 0, 1, 0, 0, 0, 0,
+//            // Right +X
+//            1, 0, 0, 1, 1, 0, 1, 1, 1,
+//            1, 0, 0, 1, 1, 1, 1, 0, 1,
+//            // Bottom -Y
+//            0, 0, 1, 0, 0, 0, 1, 0, 0,
+//            0, 0, 1, 1, 0, 0, 1, 0, 1,
+//            // Bottom +Y
+//            0, 1, 1, 1, 1, 1, 1, 1, 0,
+//            0, 1, 1, 1, 1, 0, 0, 1, 0,
+//            // Front -Z
+//            0, 0, 0, 0, 1, 0, 1, 1, 0,
+//            0, 0, 0, 1, 1, 0, 1, 0, 0,
+//            // Back +Z
+//            1, 0, 1, 1, 1, 1, 0, 1, 1,
+//            1, 0, 1, 0, 1, 1, 0, 0, 1,
+//    };
+    static float CUBE_UV[];
+//    = {
+//            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,  // One Face.
+//            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+//            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+//            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+//            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+//            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+//    };
+
+
+    static void genMesh(Chunk* chunk) {
+        VertexBuffer vbuf;
 
         for (int rx = 0; rx < 16; ++rx) {
             for (int ry = 0; ry < 16; ++ry) {
@@ -21,17 +60,21 @@ public:
                     int blockId = chunk->getBlock(rx, ry, rz);
 
                     if (blockId == Blocks::STONE) {
-
+                        putCube(vbuf, glm::vec3(rx, ry, rz));
                     }
 
                 }
             }
         }
 
+
+        chunk->model = Loader::loadModel(&vbuf);
     }
 
-    static void putCube(VertexBuffer vbuf) {
-
+    static void putCube(VertexBuffer& vbuf, glm::vec3 rpos) {
+        for (int i = 0; i < 6; ++i) {
+            putFace(vbuf, i, rpos);
+        }
     }
 
     static void putFace(VertexBuffer& vbuf, int face, glm::vec3 rpos) {
@@ -46,39 +89,6 @@ public:
             vbuf.adduv(CUBE_UV[bas], CUBE_UV[bas+1]);
         }
     }
-
-    // Winding:
-    // [2,4] +---+ [1]
-    //       | \ |
-    //   [5] +---+ [0,3]
-    static constexpr float CUBE_POS[] = {
-            // Left -X
-            0, 0, 1, 0, 1, 1, 0, 1, 0,
-            0, 0, 1, 0, 1, 0, 0, 0, 0,
-            // Right +X
-            1, 0, 0, 1, 1, 0, 1, 1, 1,
-            1, 0, 0, 1, 1, 1, 1, 0, 1,
-            // Bottom -Y
-            0, 0, 1, 0, 0, 0, 1, 0, 0,
-            0, 0, 1, 1, 0, 0, 1, 0, 1,
-            // Bottom +Y
-            0, 1, 1, 1, 1, 1, 1, 1, 0,
-            0, 1, 1, 1, 1, 0, 0, 1, 0,
-            // Front -Z
-            0, 0, 0, 0, 1, 0, 1, 1, 0,
-            0, 0, 0, 1, 1, 0, 1, 0, 0,
-            // Back +Z
-            1, 0, 1, 1, 1, 1, 0, 1, 1,
-            1, 0, 1, 0, 1, 1, 0, 0, 1,
-    };
-    static constexpr float CUBE_UV[] = {
-            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,  // One Face.
-            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
-            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
-            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
-            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
-            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
-    };
 
 
 };

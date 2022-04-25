@@ -5,11 +5,17 @@
 #ifndef ETHERTIA_NOISEGENERATORPERLIN_H
 #define ETHERTIA_NOISEGENERATORPERLIN_H
 
+#include <glm/vec3.hpp>
+
 class NoiseGeneratorPerlin
 {
-    int[] perm;
+    int permutations[512];
+    glm::vec3 coord;
 
 public:
+    NoiseGeneratorPerlin(JRand rand) {
+
+    }
 
     void grad(int hash, float x) {
 
