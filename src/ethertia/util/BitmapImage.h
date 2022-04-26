@@ -28,6 +28,20 @@ public:
     uint getPixel(uint x, uint y) {
         return pixels[y*width+x];
     }
+    void setPixel(uint x, uint y, uint rgba) {
+        pixels[y*width+x] = rgba;
+    }
+    void setPixels(uint x, uint y, BitmapImage* img) {
+        // todo check size.
+        for (int dx = 0; dx < img->getWidth(); ++dx) {
+            for (int dy = 0; dy < img->getHeight(); ++dy) {
+                setPixel(x+dx, y+dy, img->getPixel(dx, dy));
+            }
+        }
+    }
+    uint* getPixels() {
+        return pixels;
+    }
 
     uint getWidth() { return width; }
     uint getHeight() { return height; }

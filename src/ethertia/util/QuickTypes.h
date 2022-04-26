@@ -9,4 +9,6 @@ typedef unsigned int uint;
 
 typedef unsigned long ulong;
 
+typedef unsigned char ubyte;
+
 #endif //ETHERTIA_QUICKTYPES_H

@@ -17,6 +17,9 @@ public:
     static constexpr double DOUBLE_UNIT = 0x1.0p-53;
 
     long seed;
+    JRand(long sd) {
+        seed = initSeed(sd);
+    }
 
     static long initSeed(long seed) {
         return (seed ^ MULTIPLIER) & MASK;
@@ -50,7 +53,7 @@ public:
         uint h = 0;
         int i = 0;
         char ch;
-        while (ch=str[i]) {
+        while ((ch=str[i])) {
             h = 31 * h + ch;
             i++;
         }

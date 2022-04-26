@@ -85,6 +85,10 @@ public:
         return glfwGetMouseButton(window, button) == GLFW_PRESS;
     }
 
+    void setMouseGrabbed(bool grabbed) {
+        glfwSetInputMode(window, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    }
+
     bool isShiftKeyDown() {
         return isKeyDown(GLFW_KEY_LEFT_SHIFT) || isKeyDown(GLFW_KEY_RIGHT_SHIFT);
     }

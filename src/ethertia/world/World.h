@@ -25,6 +25,13 @@ class World
 
 public:
 
+    unsigned char getBlock(glm::vec3 blockpos) {
+        Chunk* chunk = getLoadedChunk(blockpos);
+        if (!chunk)
+            return 0;
+        return chunk->getBlock(blockpos);
+    }
+
     Chunk* getLoadedChunk(glm::vec3 p) {
         return loadedChunks[Chunk::chunkpos(p)];
     }
@@ -42,23 +49,22 @@ public:
 
         loadedChunks[chunkpos] = chunk;
 
-        Log::info("ChunkLoaded " + glm::to_string(chunkpos));
+        // Log::info("ChunkLoaded " + glm::to_string(chunkpos));
         ChunkMeshGen::genMesh(chunk);
         return chunk;
     }
 
     void unloadChunk(glm::vec3 p)
     {
-        Log::info("Unload Chunk");
         auto itr = loadedChunks.find(Chunk::chunkpos(p));
         if (itr == loadedChunks.end())
-            throw std::logic_error("Failed unload chunk. Not exists."+glm::to_string(p));
+            throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
         delete itr->second;
         loadedChunks.erase(itr);
     }
 
-    std::unordered_map<glm::vec3, Chunk*>* getLoadedChunks() {
-        return &loadedChunks;
+    std::unordered_map<glm::vec3, Chunk*>& getLoadedChunks() {
+        return loadedChunks;
     }
 
 

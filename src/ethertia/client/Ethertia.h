@@ -8,18 +8,19 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <ethertia/client/Window.h>
+#include <ethertia/client/render/Camera.h>
 #include <ethertia/client/render/RenderEngine.h>
+#include <ethertia/util/Timer.h>
 #include <ethertia/util/Log.h>
 #include <ethertia/world/World.h>
-#include <ethertia/util/Timer.h>
-#include <ethertia/client/render/Camera.h>
+#include <ethertia/init/BlockTextures.h>
 
-#include "Window.h"
+// gui, text, audio
 
 class Ethertia
 {
     static Ethertia* INST;
-
 
     bool running = false;
 
@@ -31,7 +32,6 @@ class Ethertia
     World* world;
 
 public:
-    int viewDistanceChunks;
 
     void run()
     {
@@ -55,6 +55,9 @@ public:
 
 
         world = new World();
+
+        BlockTextures::init();
+        Log::info("Initialized.");
     }
 
     void runMainLoop()
@@ -65,15 +68,13 @@ public:
         {
             runTick();
         }
-        Camera::update(camera, window);
+        if (isIngame()) {
+            Camera::update(camera, window);
+        }
+        window.setMouseGrabbed(isIngame());
 
-        glClearColor(0, 0, 0.4, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glEnable(GL_CULL_FACE);
 
         renderEngine->renderWorld(world);
-
 
         window.updateWindow();
     }
@@ -112,6 +113,10 @@ public:
 
     static Window* getWindow() { return &INST->window; }
     static Camera* getCamera() { return &INST->camera; }
+
+    static World* getWorld() { return INST->world; }
+
+    static bool isIngame() { return !getWindow()->isAltKeyDown(); }
 
 
 };

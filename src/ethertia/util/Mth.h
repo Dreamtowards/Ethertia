@@ -14,10 +14,16 @@ class Mth
 {
 public:
     static constexpr float PI = 3.1416;
+    static constexpr float PI_2 = 1.5708;
 
     static inline int floor(float v, int u) {
-        int i = (int)floorf(v / (float)u);
+        int i = (int)floor(v / (float)u);
         return i*u;
+    }
+
+    static inline int floor(float v) {
+        int i = (int)v;
+        return (float)i > v ? i-1 : i;
     }
 
     static inline glm::vec3 floor(glm::vec3 v, int u) {
@@ -27,6 +33,22 @@ public:
     template<typename T>
     static inline T max(T a, T b) {
         return a > b ? a : b;
+    }
+    template<typename T>
+    static inline T min(T a, T b) {
+        return a < b ? a : b;
+    }
+
+    template<typename T>
+    static inline T fade(T t) {
+        return t*t*t*(t*(t*6-15)+10);
+    }
+    template<typename T>
+    static inline T lerp(T t, T a, T b) {
+        return a + t * (b - a);
+    }
+    static inline float clamp(float f, float a, float b) {
+        return min(max(f, a), b);
     }
 
     static glm::mat4 calculateViewMatrix(glm::vec3 position, glm::mat3 rotation) {

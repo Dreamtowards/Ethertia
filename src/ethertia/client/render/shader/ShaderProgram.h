@@ -68,6 +68,10 @@ public:
         glUniformMatrix4fv(getUniformLocation(name), 1, false, &m[0][0]);
     }
 
+    void setInt(const char* name, int i) {
+        glUniform1i(getUniformLocation(name), i);
+    }
+
 
 
 

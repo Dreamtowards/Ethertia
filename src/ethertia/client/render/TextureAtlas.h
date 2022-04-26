@@ -15,7 +15,9 @@
 
 class TextureAtlas
 {
+public:
     class AtlasFragment {
+    public:
         BitmapImage* image;
         glm::vec2 offset;
         glm::vec2 scale;
@@ -58,10 +60,14 @@ public:
         uint dx = 0;
         for (AtlasFragment* frag : atlas) {
             atlasImage.setPixels(dx, 0, frag->image);
+
+            frag->offset = glm::vec2((float)dx / totalWidth, 0);
+            frag->scale = glm::vec2((float)frag->image->getWidth()/totalWidth, (float)frag->image->getHeight()/maxHeight);
+
             dx += frag->image->getWidth();
         }
 
-        atlasTexture = Loader::loadTexture(atlasImage);
+        atlasTexture = Loader::loadTexture(&atlasImage);
     }
 
 };

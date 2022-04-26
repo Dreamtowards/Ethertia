@@ -7,7 +7,12 @@
 
 void ChunkRenderer::render(Chunk* chunk) const {
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, BlockTextures::ATLAS->atlasTexture->getTextureID());
+
     shader->useProgram();
+
+    shader->setInt("diffuseMap", 0);
 
     Camera* cam = Ethertia::getCamera();
     Window* win = Ethertia::getWindow();

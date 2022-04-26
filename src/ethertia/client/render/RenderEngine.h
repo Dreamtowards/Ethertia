@@ -16,13 +16,29 @@ public:
 
     void renderWorld(World* world)
     {
+        glClearColor(0, 0, 0.4, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (auto it : *world->getLoadedChunks())
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+
+        for (auto it : world->getLoadedChunks())
         {
             chunkRenderer.render(it.second);
         }
+
+
+
+        RenderEngine::checkGlError();
     }
 
+    static void checkGlError() {
+        uint err = glGetError();
+        if (err) {
+            Log::info("###### GL Error ######");
+            Log::info("ERR: "+std::to_string(err));
+        }
+    }
 };
 
 #endif //ETHERTIA_RENDERENGINE_H

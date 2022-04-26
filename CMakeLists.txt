@@ -11,6 +11,7 @@ include_directories(include)
 add_executable(Ethertia
         lib/glad.c
         src/ethertia/world/World.cpp
+        src/ethertia/init/BlockTextures.cpp
         src/ethertia/client/Window.cpp
         src/ethertia/client/render/renderer/ChunkRenderer.cpp
         src/ethertia/client/render/chunk/ChunkMeshGen.cpp

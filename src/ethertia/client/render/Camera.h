@@ -7,9 +7,11 @@
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
-#include <ethertia/client/Window.h>
+#include <glm/gtc/matrix_transform.hpp>
 
-#include <cmath>
+#include <ethertia/client/Window.h>
+#include <ethertia/util/Mth.h>
+
 
 class Camera
 {
@@ -20,11 +22,15 @@ public:
     glm::mat4 viewMatrix;
 
     static void update(Camera& cam, Window& window) {
-        cam.eulerAngles.x += -window.getMouseDY() / 200;
-        if (window.isAltKeyDown())
-            cam.eulerAngles.z += window.getMouseDX() / 200;
+        float mx = window.getMouseDX() / 200;
+        float my = window.getMouseDY() / 200;
+
+        cam.eulerAngles.x += -my;
+        if (window.isKeyDown(GLFW_KEY_Z))
+            cam.eulerAngles.z += mx;
         else
-            cam.eulerAngles.y += -window.getMouseDX() / 200;
+            cam.eulerAngles.y += -mx;
+        cam.eulerAngles.x = Mth::clamp(cam.eulerAngles.x, -Mth::PI_2, Mth::PI_2);
 
 
         glm::mat4 rot = glm::mat4(1);

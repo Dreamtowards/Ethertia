@@ -24,7 +24,7 @@ public:
         std::strftime(strtime, sizeof(strtime), "%F.%X", tm_info);
 
 
-        std::cout << "[" << tm_info->tm_zone << "/" << strtime <<"."<< tv.tv_usec << "]["<<std::this_thread::get_id()<<"/INFO]: " << s << std::endl;
+        std::cout << "[" << tm_info->tm_zone << ":" << strtime <<"."<< tv.tv_usec << "]["<<std::this_thread::get_id()<<"/INFO]: " << s << std::endl;
     }
 
 
