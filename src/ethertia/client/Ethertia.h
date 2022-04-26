@@ -13,6 +13,7 @@
 #include <ethertia/client/render/RenderEngine.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Log.h>
+#include <ethertia/util/concurrent/Executor.h>
 #include <ethertia/world/World.h>
 #include <ethertia/init/BlockTextures.h>
 
@@ -28,6 +29,7 @@ class Ethertia
     Window window;
     Timer timer;
     Camera camera;
+    Executor executor{std::this_thread::get_id()};
 
     World* world;
 
@@ -45,6 +47,15 @@ public:
         destroy();
     }
 
+    static void thLoadChunk() {
+        while (true) {
+
+            Ethertia::getWorld()->onTick();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds (100));
+        }
+    }
+
     void start()
     {
         INST = this;
@@ -53,16 +64,24 @@ public:
 
         renderEngine = new RenderEngine();
 
+        executor.exec([]() {
+            Log::info("ScheduTask");
+        });
 
         world = new World();
 
         BlockTextures::init();
+
+        std::thread* threadChunkLoad = new std::thread(thLoadChunk);
+
         Log::info("Initialized.");
     }
 
     void runMainLoop()
     {
         timer.update(getPreciseTime());
+
+        executor.processTasks();
 
 //        while (timer.polltick())
         {
@@ -95,7 +114,7 @@ public:
 
 
 
-        world->onTick();
+//        world->onTick();
     }
 
     void destroy()
@@ -113,6 +132,7 @@ public:
 
     static Window* getWindow() { return &INST->window; }
     static Camera* getCamera() { return &INST->camera; }
+    static Executor* getExecutor() { return &INST->executor; }
 
     static World* getWorld() { return INST->world; }
 

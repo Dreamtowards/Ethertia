@@ -24,6 +24,9 @@ public:
 
         for (auto it : world->getLoadedChunks())
         {
+            if (!it.second)
+                continue;
+            Log::info("Render Chunk: "+std::to_string((size_t)it.second));
             chunkRenderer.render(it.second);
         }
 

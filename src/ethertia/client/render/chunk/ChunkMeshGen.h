@@ -25,25 +25,7 @@ public:
     static float CUBE_NORM[];
 
 
-    static void genMesh(Chunk* chunk) {
-        VertexBuffer vbuf;
-
-        for (int rx = 0; rx < 16; ++rx) {
-            for (int ry = 0; ry < 16; ++ry) {
-                for (int rz = 0; rz < 16; ++rz) {
-
-                    int blockId = chunk->getBlock(rx, ry, rz);
-
-                    if (blockId == Blocks::STONE) {
-                        putCube(vbuf, glm::vec3(rx, ry, rz), chunk);
-                    }
-
-                }
-            }
-        }
-
-        chunk->model = Loader::loadModel(&vbuf);
-    }
+    static void genMesh(Chunk* chunk);
 
     static void putCube(VertexBuffer& vbuf, glm::vec3 rpos, Chunk* chunk);
 

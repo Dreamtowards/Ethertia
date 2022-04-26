@@ -18,7 +18,6 @@ void World::onTick()
             }
         }
     }
-//    provideChunk(glm::vec3(0, 16*0, 0));
 
     // unload chunks
     int lim = n*Chunk::SIZE;

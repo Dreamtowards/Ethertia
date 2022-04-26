@@ -10,10 +10,18 @@
 #include <chrono>
 #include <thread>
 #include <sys/time.h>
+#include <sstream>
 
 class Log
 {
 public:
+
+    template<typename T>
+    static std::string str(T v) {
+        std::stringstream ss;
+        ss << v;
+        return ss.str();
+    }
 
     static void info(const std::string& s)
     {

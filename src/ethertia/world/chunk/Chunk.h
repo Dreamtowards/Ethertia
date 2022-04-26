@@ -14,7 +14,7 @@ class Chunk
 public:
     ubyte blocks[16*16*16] = {};
 
-    Model* model;  // client tmp
+    Model* model = nullptr;  // client tmp
     static constexpr int SIZE = 16;
 
     glm::vec3 position;
