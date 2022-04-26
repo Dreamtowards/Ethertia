@@ -46,9 +46,10 @@ public:
     }
     double fbm(double x, double z) {
         double f = 0;
-        double w = 1.0;
+        double w = 0.5;
         for (int i = 0; i < numgens; ++i) {
-            f += generators[i].noise(x*w,z*w) / w;
+            f += generators[i].noise(x, z) * w;
+            x *= 2.0; z *= 2.0;
             w *= 0.5;
         }
         return f;

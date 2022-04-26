@@ -13,7 +13,7 @@
 #include <ethertia/util/Log.h>
 #include <glm/gtx/string_cast.hpp>
 
-#define samplesY 2
+#define samplesY 4
 
 //[0] = {double} 152.46242676667106  sY=4
 //[1] = {double} 148.83489146911964
@@ -51,9 +51,9 @@ public:
 
         int samplesXZ = 4;
         int sampSizeXZ = 4;
-        int sampSizeY = 8;
+        int sampSizeY = 4;
 
-        double samps[75];  // len: numSampXYZ mul. 5*17*5=425; (samplesXZ+1)*(samplesY+1)*(samplesXZ+1)
+        double samps[125];  // len: numSampXYZ mul. 5*17*5=425; (samplesXZ+1)*(samplesY+1)*(samplesXZ+1)
         int cX = (int)chunkpos.x / 16;
         int cY = (int)chunkpos.y / 16;
         int cZ = (int)chunkpos.z / 16;
@@ -64,11 +64,18 @@ public:
         int tmpi = 0;
         for (int i = 0; i < 5; ++i) {
             for (int j = 0; j < 5; ++j) {
-                for (int l = 0; l < 3; ++l) {
+                for (int l = 0; l < 5; ++l) {
                     double ax = cX*samplesXZ + i;
                     double az = cZ*samplesXZ + j;
                     double ay = cY*samplesY + l;
-                    samps[tmpi++] = octave6_10.fbm(ax/10, ay/10, az/10);
+                    double f = octave6_10.fbm(ax/14, ay/12, az/14);
+
+                    double p = octave4_4.fbm(ax/8, az/8);
+                    p = p-ay/10;
+
+                    p += f* (p<0?12:1);
+
+                    samps[tmpi++] = p;
                 }
             }
         }
