@@ -47,7 +47,8 @@ public:
     static inline T lerp(T t, T a, T b) {
         return a + t * (b - a);
     }
-    static inline float clamp(float f, float a, float b) {
+    template<typename T>
+    static inline T clamp(T f, T a, T b) {
         return min(max(f, a), b);
     }
 

@@ -13,6 +13,11 @@
 #include <ethertia/util/Log.h>
 #include <glm/gtx/string_cast.hpp>
 
+#define samplesY 2
+
+//[0] = {double} 152.46242676667106  sY=4
+//[1] = {double} 148.83489146911964
+//[2] = {double} 162.6399460655372
 class ChunkGenerator
 {
     NoiseGeneratorPerlin noise{};
@@ -20,8 +25,8 @@ class ChunkGenerator
 public:
 
     static int sampIdx(int sX, int sZ, int sY) {
-        int samplesXZ = 4+1, samplesY = 16+1;
-        return (sX * samplesXZ + sZ) * samplesY + sY;
+        int samplesXZ = 4+1;
+        return (sX * samplesXZ + sZ) * (samplesY+1) + sY;
     }
 
     // 4,16 / 4,8; Temperatured.
@@ -45,17 +50,28 @@ public:
         Log::info("Gen Terr "+glm::to_string(chunkpos));
 
         int samplesXZ = 4;
-        int samplesY = 16;
         int sampSizeXZ = 4;
         int sampSizeY = 8;
 
-        double samps[425];  // len: numSampXYZ mul. 5*17*5=425; (samplesXZ+1)*(samplesY+1)*(samplesXZ+1)
+        double samps[75];  // len: numSampXYZ mul. 5*17*5=425; (samplesXZ+1)*(samplesY+1)*(samplesXZ+1)
         int cX = (int)chunkpos.x / 16;
-//        int cY = (int)chunkpos.y / 16;
+        int cY = (int)chunkpos.y / 16;
         int cZ = (int)chunkpos.z / 16;
-        terrgenNoiseGen(samps, cX*samplesXZ,
-                        0, //cY*samplesY,
-                        cZ*samplesXZ, samplesXZ+1, samplesY+1, samplesXZ+1);
+//        terrgenNoiseGen(samps, cX*samplesXZ,
+//                        cY*samplesY,
+//                        cZ*samplesXZ, samplesXZ+1, samplesY+1, samplesXZ+1);
+
+        int tmpi = 0;
+        for (int i = 0; i < 5; ++i) {
+            for (int j = 0; j < 5; ++j) {
+                for (int l = 0; l < 3; ++l) {
+                    double ax = cX*samplesXZ + i;
+                    double az = cZ*samplesXZ + j;
+                    double ay = cY*samplesY + l;
+                    samps[tmpi++] = octave6_10.fbm(ax/10, ay/10, az/10);
+                }
+            }
+        }
 
         if (chunkpos.x == 0 && chunkpos.z == 0) {
 
@@ -109,11 +125,8 @@ public:
 //                                }
 
                                 if (spZsum > 0.0) {
-                                    block = 1;
+                                    chunk->setBlock(sX*sampSizeXZ+dX, sY*sampSizeY+dY, sZ*sampSizeXZ+dZ, 1);
                                 }
-
-                                int blockidx = dX + sX * sampSizeXZ << 11 | dZ+sZ * sampSizeXZ << 7 | sY * sampSizeY + dY;
-                                chunk->blocks[blockidx] = block;
                                 spZsum += spZdiffx0;
                             }
 
@@ -130,66 +143,6 @@ public:
             }
         }
 
-//        for(int sX = 0; sX < samplesXZ; ++sX) {
-//            for(int sZ = 0; sZ < samplesXZ; ++sZ) {
-//                for(int sY = 0; sY < samplesY; ++sY) {
-//                    double sp000sum = samps[sampIdx(sX, sZ, sY)];
-//                    double sp010sum = samps[sampIdx(sX, sZ+1, sY)];
-//                    double sp100sum = samps[sampIdx(sX+1, sZ, sY)];
-//                    double sp110sum = samps[sampIdx(sX+1, sZ+1, sY)];
-//                    double sp001Ydiff = (samps[sampIdx(sX, sZ, sY+1)] - sp000sum) / sampSizeY;
-//                    double sp011Ydiff = (samps[sampIdx(sX, sZ+1, sY+1)] - sp010sum) / sampSizeY;
-//                    double sp101Ydiff = (samps[sampIdx(sX+1, sZ, sY+1)] - sp100sum) / sampSizeY;
-//                    double sp111Ydiff = (samps[sampIdx(sX+1, sZ+1, sY+1)] - sp110sum) / sampSizeY;
-//
-//                    for(int dY = 0; dY < sampSizeY; ++dY) {
-//                        double spXsum0 = sp000sum;
-//                        double spXsum1 = sp010sum;
-//                        double spXdiffz0 = (sp100sum - sp000sum) / sampSizeXZ;
-//                        double spXdiffz1 = (sp110sum - sp010sum) / sampSizeXZ;
-//
-//                        for(int dX = 0; dX < sampSizeXZ; ++dX) {  // X
-//                            double spZsum = spXsum0;
-//                            double spZdiffx0 = (spXsum1 - spXsum0) / sampSizeXZ;
-//
-//                            for(int dZ = 0; dZ < sampSizeXZ; ++dZ) {  // Z   little fill.  one sample-area is 4*4*8=128
-////                                double tmpera = temperature[(sX * sampSizeXZ + dX) * 16 + sZ * sampSizeXZ + dZ];
-//                                int block = 0;
-////                                if (sY * sampSizeY + dY < seaLevel) {
-////                                    if (tmpera < 0.5D && sY * sampSizeY + dY >= seaLevel - 1) {
-////                                        block = Block.ice.blockID;
-////                                    } else {
-////                                        block = Block.waterStill.blockID;
-////                                    }
-////                                }
-//
-//                                if (spZsum > 0.0) {
-////                                    block = Block.dirt.blockID;
-//                                }
-//                                chunk->setBlock(sX*sampSizeXZ+dX, sY*sampSizeY+dY, sZ*sampSizeXZ+dZ, spZsum > 0.0 ? 1 : 0);
-//
-////                                int blockidx = dX + sX * sampSizeXZ << 11 | dZ+sZ * sampSizeXZ << 7 | sY * sampSizeY + dY;
-////                                chunkBlocks[blockidx] = (byte)block;
-////                                spZsum += spZdiffx0;
-//                            }
-//
-////                            spXsum0 += spXdiffz0;
-////                            spXsum1 += spXdiffz1;
-//                        }
-//
-////                        sp000sum += sp001Ydiff;
-////                        sp010sum += sp011Ydiff;
-////                        sp100sum += sp101Ydiff;
-////                        sp110sum += sp111Ydiff;
-//                    }
-//
-//
-//                }
-//            }
-
-            //0..71 = 3
-            //72 = 0
-//        }
 
         return chunk;
     }
@@ -221,7 +174,7 @@ public:
 
     void terrgenNoiseGen(double samps[], int csX, int csY, int csZ, int numSampX, int numSampY, int numSampZ) {
 
-        float mXYZ = 684.412;
+        float mXYZ = 684.412;// * (1/0.176);
 //        double[] temperature = this.worldObj.getWorldChunkManager().temperature;
 //        double[] humidity = this.worldObj.getWorldChunkManager().humidity;
 
@@ -230,9 +183,9 @@ public:
         double terrgenNoise25_1[25] = {};
         double terrgenNoise25_2[25] = {};
         int n425 = numSampX*numSampY*numSampZ;
-        double terrgenNoise425_Small[425] = {};
-        double terrgenNoise425_1[425] = {};
-        double terrgenNoise425_2[425] = {};
+        double terrgenNoise425_Small[75] = {};
+        double terrgenNoise425_1[75] = {};
+        double terrgenNoise425_2[75] = {};
 
         //0 = 181.31595377384392
         //1 = 181.24718370470026
@@ -275,17 +228,17 @@ public:
         octave2_16.generateNoiseOctaves(terrgenNoise425_2, csX, csY, csZ, numSampX, numSampY, numSampZ, mXYZ, mXYZ, mXYZ);
         int idx = 0;
         int idxXZ = 0;
-        int horizonalSampleSize = 16 / numSampX;
+        int sampSizeXZ = 4;
 
         if (csX == 0 && csZ == 0) {
 
         }
 
         for(int sX = 0; sX < numSampX; ++sX) {
-            int sXidx = sX * horizonalSampleSize + horizonalSampleSize / 2;
+            int sXidx = sX * sampSizeXZ + sampSizeXZ / 2;
 
             for(int sZ = 0; sZ < numSampZ; ++sZ) {
-                int sZidx = sZ * horizonalSampleSize + horizonalSampleSize / 2;
+                int sZidx = sZ * sampSizeXZ + sampSizeXZ / 2;
                 double tempera = 0.96f;// temperature[sXidx * 16 + sZidx];
                 double humidi = 0.16f * tempera;//humidity[sXidx * 16 + sZidx] * tempera;
                 double oneMinsHumidi = 1.0f - humidi;
@@ -323,33 +276,28 @@ public:
                 }
 
                 spXZ1 += 0.5;
-                spXZ2 = spXZ2 * (double)numSampY / 16.0f;
-                double spXZ2_nY = (double)numSampY / 2.0f + spXZ2 * 4.0f;
+                spXZ2 = spXZ2 * (double)17 / 16.0f;
+                double spXZ2_nY = (double)17 / 2.0f + spXZ2 * 4.0f;
                 ++idxXZ;
 
                 for(int sY = 0; sY < numSampY; ++sY) {
                     double f = 0.0;
-                    double var36 = ((double)sY - (double)spXZ2_nY) * 12.0f / spXZ1;
+                    double var36 = ((double)(csY*samplesY+sY) - (double)spXZ2_nY) * 12.0f / spXZ1;
                     if (var36 < 0.0) {
                         var36 *= 4.0;
                     }
 
-                    double var38 = terrgenNoise425_1[idx] / 512;
-                    double var40 = terrgenNoise425_2[idx] / 512;
-                    double var42 = (terrgenNoise425_Small[idx] / 10 + 1) / 2;
-                    if (var42 < 0.0) {
-                        f = var38;
-                    } else if (var42 > 1.0) {
-                        f = var40;
-                    } else {
-                        f = var38 + (var40 - var38) * var42;
-                    }
+                    double a = terrgenNoise425_1[idx] / 512;
+                    double b = terrgenNoise425_2[idx] / 512;
+                    double t = (terrgenNoise425_Small[idx] / 10 + 1) / 2;
+                    t = Mth::clamp(t, 0.0, 1.0);
+                    f = Mth::lerp(t, a, b);
 
                     f -= var36;
-                    if (sY > numSampY - 4) {
-                        double var44 = ((double)sY - ((double)numSampY - 4)) / 3.0F;
-                        f = f * (1.0f - var44) + -10.0f * var44;
-                    }
+//                    if (sY > 17.0 - 4) {
+//                        double var44 = ((double)sY - ((double)17.0 - 4)) / 3.0F;
+//                        f = f * (1.0f - var44) + -10.0f * var44;
+//                    }
 
                     samps[idx++] = f;
                 }

@@ -71,9 +71,21 @@ public:
                             Mth::lerp(v, Mth::lerp(u, grad(perm[AA+1], x, y, z-1), grad(perm[BA+1], x-1, y, z-1)),
                                          Mth::lerp(u, grad(perm[AB+1], x, y-1, z-1), grad(perm[BB+1], x-1, y-1, z-1))));
     }
-    // temporary. unnecessary cost.
     float noise(float _x, float _y) {
-        return noise(_x, _y, 0);
+        double x = _x + coord.x;
+        double y = _y + coord.z;  // TempReq: coord.z not y.
+        int ix = Mth::floor(x);
+        int iy = Mth::floor(y);
+        x -= ix;
+        y -= iy;
+        int X = ix & 255;
+        int Y = iy & 255;
+        double u = Mth::fade(x);
+        double v = Mth::fade(y);
+        int A = perm[X],   AA = perm[A] + Y;
+        int B = perm[X+1], BB = perm[B] + Y;
+        return Mth::lerp(v, Mth::lerp(u, grad(perm[AA], x, y), grad(perm[BB], x-1, 0.0, y)),
+                            Mth::lerp(u, grad(perm[AA+1], x, 0.0, y-1), grad(perm[BB + 1], x-1, 0.0, y-1)));
     }
 
 
@@ -87,8 +99,7 @@ public:
         double var38;
         int var40;
         int var41;
-        double var42;
-        int var75;
+        double u;
         if (nY == 1) {
             bool var64 = false;
             bool var65 = false;
@@ -96,7 +107,7 @@ public:
             bool var68 = false;
             double var70 = 0.0;
             double var73 = 0.0;
-            var75 = 0;
+            int var75 = 0;
             double var77 = 1.0 / facInv;
 
             for(int var30 = 0; var30 < nX; ++var30) {
@@ -119,14 +130,14 @@ public:
 
                     var41 = var40 & 255;
                     var38 -= (double)var40;
-                    var42 = var38 * var38 * var38 * (var38 * (var38 * 6.0 - 15.0) + 10.0);
+                    u = var38 * var38 * var38 * (var38 * (var38 * 6.0 - 15.0) + 10.0);
                     var19 = perm[var34] + 0;
                     int var66 = perm[var19] + var41;
                     int var67 = perm[var34 + 1] + 0;
                     var22 = perm[var67] + var41;
                     var70 = Mth::lerp(var35, grad(perm[var66], var31, var38), grad(perm[var22], var31 - 1.0, 0.0, var38));
                     var73 = Mth::lerp(var35, grad(perm[var66 + 1], var31, 0.0, var38 - 1.0), grad(perm[var22 + 1], var31 - 1.0, 0.0, var38 - 1.0));
-                    double var79 = Mth::lerp(var42, var70, var73);
+                    double var79 = Mth::lerp(u, var70, var73);
                     var10001 = var75++;
                     dest[var10001] += var79 * var77;
                 }
@@ -156,7 +167,7 @@ public:
 
                 var41 = var40 & 255;
                 var38 -= (double)var40;
-                var42 = var38 * var38 * var38 * (var38 * (var38 * 6.0 - 15.0) + 10.0);
+                u = var38 * var38 * var38 * (var38 * (var38 * 6.0 - 15.0) + 10.0);
 
                 for(int var44 = 0; var44 < nZ; ++var44) {
                     double var45 = (z + (double)var44) * mZ + coord.z;
@@ -167,35 +178,37 @@ public:
 
                     int var48 = var47 & 255;
                     var45 -= (double)var47;
-                    double var49 = var45 * var45 * var45 * (var45 * (var45 * 6.0 - 15.0) + 10.0);
+                    double v = var45 * var45 * var45 * (var45 * (var45 * 6.0 - 15.0) + 10.0);
 
-                    for(int var51 = 0; var51 < nY; ++var51) {
-                        double var52 = (y + (double)var51) * mY + coord.y;
-                        int var54 = (int)var52;
-                        if (var52 < (double)var54) {
-                            --var54;
+                    for(int dY = 0; dY < nY; ++dY) {
+                        double fy = (y + (double)dY) * mY + coord.y;
+                        int iy = (int)fy;
+                        if (fy < (double)iy) {
+                            --iy;
                         }
 
-                        int var55 = var54 & 255;
-                        var52 -= (double)var54;
-                        double var56 = var52 * var52 * var52 * (var52 * (var52 * 6.0 - 15.0) + 10.0);
-                        if (var51 == 0 || var55 != var22) {
-                            var22 = var55;
-                            int var69 = perm[var41] + var55;
+                        int Y = iy & 255;
+                        fy -= (double)iy;
+                        double w = fy * fy * fy * (fy * (fy * 6.0 - 15.0) + 10.0);
+
+                        // Y Not Continuous.
+//                        if (dY == 0 || Y != var22) {
+                            var22 = Y;
+                            int var69 = perm[var41] + Y;
                             int var71 = perm[var69] + var48;
                             int var72 = perm[var69 + 1] + var48;
-                            int var74 = perm[var41 + 1] + var55;
-                            var75 = perm[var74] + var48;
+                            int var74 = perm[var41 + 1] + Y;
+                            int var75 = perm[var74] + var48;
                             int var76 = perm[var74 + 1] + var48;
-                            var29 = Mth::lerp(var42, grad(perm[var71], var38, var52, var45), grad(perm[var75], var38 - 1.0, var52, var45));
-                            var31 = Mth::lerp(var42, grad(perm[var72], var38, var52 - 1.0, var45), grad(perm[var76], var38 - 1.0, var52 - 1.0, var45));
-                            var33 = Mth::lerp(var42, grad(perm[var71 + 1], var38, var52, var45 - 1.0), grad(perm[var75 + 1], var38 - 1.0, var52, var45 - 1.0));
-                            var35 = Mth::lerp(var42, grad(perm[var72 + 1], var38, var52 - 1.0, var45 - 1.0), grad(perm[var76 + 1], var38 - 1.0, var52 - 1.0, var45 - 1.0));
-                        }
+                            var29 = Mth::lerp(u, grad(perm[var71], var38, fy, var45), grad(perm[var75], var38 - 1.0, fy, var45));
+                            var31 = Mth::lerp(u, grad(perm[var72], var38, fy - 1.0, var45), grad(perm[var76], var38 - 1.0, fy - 1.0, var45));
+                            var33 = Mth::lerp(u, grad(perm[var71 + 1], var38, fy, var45 - 1.0), grad(perm[var75 + 1], var38 - 1.0, fy, var45 - 1.0));
+                            var35 = Mth::lerp(u, grad(perm[var72 + 1], var38, fy - 1.0, var45 - 1.0), grad(perm[var76 + 1], var38 - 1.0, fy - 1.0, var45 - 1.0));
+//                        } // else {
+//                            throw std::exception();
+//                        }
 
-                        double var58 = Mth::lerp(var56, var29, var31);
-                        double var60 = Mth::lerp(var56, var33, var35);
-                        double var62 = Mth::lerp(var49, var58, var60);
+                        double var62 = Mth::lerp(v, Mth::lerp(w, var29, var31), Mth::lerp(w, var33, var35));
                         var10001 = var19++;
                         dest[var10001] += var62 * var20;
                     }

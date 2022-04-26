@@ -29,7 +29,7 @@ public:
         VertexBuffer vbuf;
 
         for (int rx = 0; rx < 16; ++rx) {
-            for (int ry = 0; ry < 128; ++ry) {
+            for (int ry = 0; ry < 16; ++ry) {
                 for (int rz = 0; rz < 16; ++rz) {
 
                     int blockId = chunk->getBlock(rx, ry, rz);

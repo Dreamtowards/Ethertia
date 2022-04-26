@@ -17,14 +17,15 @@ public:
 
     static void info(const std::string& s)
     {
-        char strtime[90];
         struct timeval tv;
         gettimeofday(&tv, nullptr);
-        struct tm* tm_info = localtime(&tv.tv_sec); // std::gmtime(&time); auto time = std::time(nullptr);
-        std::strftime(strtime, sizeof(strtime), "%F.%X", tm_info);
+//        struct tm* tm_info = localtime(&tv.tv_sec); // localtime(&tv.tv_sec);  std::gmtime(&time); auto time = std::time(nullptr);
+//        char strtime[40] = {};
+//        std::strftime(strtime, sizeof(strtime), "%F.%X", tm_info);
 
 
-        std::cout << "[" << tm_info->tm_zone << ":" << strtime <<"."<< tv.tv_usec << "]["<<std::this_thread::get_id()<<"/INFO]: " << s << std::endl;
+        std::cout //<< "[" << tm_info->tm_zone << ":" << strtime <<"."<< tv.tv_usec << "]"
+                  << "["<<std::this_thread::get_id()<<"/INFO]: " << s << std::endl;
     }
 
 
