@@ -131,7 +131,7 @@ public:
             {
                 World::updateViewDistance(getWorld(), getCamera()->position, 4);
 
-                std::this_thread::sleep_for(std::chrono::milliseconds (100));
+                std::this_thread::sleep_for(std::chrono::milliseconds (10));
             }
         });
     }

@@ -15,8 +15,9 @@ class Executor
     std::thread::id _thread;
 
 public:
-    Executor(std::thread::id th) {
+    explicit Executor(std::thread::id th) {
         _thread = th;
+        Log::info("Created Executor "+Log::str(th));
     }
 
     void processTasks()
@@ -31,11 +32,11 @@ public:
     }
 
     void exec(const std::function<void()>& task) {
-//        if (_thread == std::this_thread::get_id()) {  // execute immediately.
-//            task();
-//        } else {  // delay.
+        if (_thread == std::this_thread::get_id()) {  // execute immediately.
+            task();
+        } else {  // delay.
             tasks.push_back(task);
-//        }
+        }
     }
 
 };

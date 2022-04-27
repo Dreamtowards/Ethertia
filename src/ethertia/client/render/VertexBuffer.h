@@ -40,13 +40,12 @@ public:
         return positions.size() / 3;
     }
 
-    void dbg_str() {
-        Log::info("VBuf: ");
-    }
-
-    ~VertexBuffer() {
-        Log::info("VertexBuffer Deleted. pos: "+std::to_string(positions.size())+", vcount: ("+std::to_string(vertexCount())+", lasVC: "+std::to_string(lastVCount));
-    }
+//    void dbg_str() {
+//        Log::info("VBuf: ");
+//    }
+//    ~VertexBuffer() {
+//        Log::info("VertexBuffer Deleted. pos: "+std::to_string(positions.size())+", vcount: ("+std::to_string(vertexCount())+", lasVC: "+std::to_string(lastVCount));
+//    }
 };
 
 #endif //ETHERTIA_VERTEXBUFFER_H
