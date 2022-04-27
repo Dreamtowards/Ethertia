@@ -66,16 +66,14 @@ public:
 
         executor.processTasks();
 
-//        World::updateViewDistance(getWorld(), getCamera()->position, 4);
 //        while (timer.polltick())
         {
             runTick();
         }
-        if (isIngame()) {
-            Camera::update(camera, window);
-        }
-        window.setMouseGrabbed(isIngame());
 
+        if (isIngame())
+            Camera::update(camera, window);
+        window.setMouseGrabbed(isIngame());
 
         renderEngine->renderWorld(world);
 

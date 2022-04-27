@@ -28,10 +28,8 @@ public:
                 // Log::info("NO RENDER Chunk: NULL.");
                 continue;
             }
-            if (!it.second->model) {
-                // Log::info("NO Chunk MODEL: NULL skip render.");
+            if (!it.second->model)
                 continue;
-            }
             chunkRenderer.render(it.second);
         }
 

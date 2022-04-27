@@ -8,16 +8,16 @@
 #include <vector>
 #include <functional>
 
-// todo: Executor. could immediately execute. if in correct Thread.
 class Executor
 {
     std::deque<std::function<void()>> tasks;
     std::thread::id _thread;
 
+    // std::mutex lock;  // needs?
+
 public:
-    explicit Executor(std::thread::id th) {
+    Executor(std::thread::id th) {
         _thread = th;
-        Log::info("Created Executor "+Log::str(th));
     }
 
     void processTasks()
