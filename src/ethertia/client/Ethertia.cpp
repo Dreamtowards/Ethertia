@@ -7,9 +7,6 @@
 
 Ethertia* Ethertia::INST;
 
-#include "../../../lib/_deprecated/JRand.h"
-#include <ethertia/world/gen/NoiseGeneratorPerlin.h>
-
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 

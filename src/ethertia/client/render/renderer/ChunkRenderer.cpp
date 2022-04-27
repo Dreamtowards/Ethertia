@@ -6,9 +6,6 @@
 #include <ethertia/client/Ethertia.h>
 
 void ChunkRenderer::render(Chunk* chunk) const {
-    if (!chunk->model) {
-        return;
-    }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, BlockTextures::ATLAS->atlasTexture->getTextureID());

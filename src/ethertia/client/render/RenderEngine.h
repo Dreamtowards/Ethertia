@@ -24,12 +24,16 @@ public:
 
         for (auto it : world->getLoadedChunks())
         {
-            if (!it.second)
+            if (!it.second){
+                Log::info("NO RENDER Chunk: NULL.");
                 continue;
-            Log::info("Render Chunk: "+std::to_string((size_t)it.second));
+            }
+            if (!it.second->model) {
+                // Log::info("NO Chunk MODEL: NULL skip render.");
+                continue;
+            }
             chunkRenderer.render(it.second);
         }
-
 
 
         RenderEngine::checkGlError();
@@ -38,8 +42,8 @@ public:
     static void checkGlError() {
         uint err = glGetError();
         if (err) {
-            Log::info("###### GL Error ######");
-            Log::info("ERR: "+std::to_string(err));
+            Log::warn("###### GL Error ######");
+            Log::warn("ERR: "+std::to_string(err));
         }
     }
 };

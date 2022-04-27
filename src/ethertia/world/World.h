@@ -63,13 +63,42 @@ public:
         loadedChunks.erase(itr);
     }
 
-    std::unordered_map<glm::vec3, Chunk*>& getLoadedChunks() {
+    std::unordered_map<glm::vec3, Chunk*> getLoadedChunks() {
         return loadedChunks;
     }
 
 
     // Tickable.
-    void onTick();
+    void onTick() {
+
+    }
+
+    static void updateViewDistance(World* world, glm::vec3 p, int n)
+    {
+        glm::vec3 cpos = Chunk::chunkpos(p);
+
+        // load chunks
+        for (int dx = -n;dx <= n;dx++) {
+            for (int dy = -n;dy <= n;dy++) {
+                for (int dz = -n;dz <= n;dz++) {
+                    world->provideChunk(cpos + glm::vec3(dx, dy, dz) * 16.0f);
+                }
+            }
+        }
+
+        // unload chunks
+        int lim = n*Chunk::SIZE;
+        std::vector<glm::vec3> unloads;  // separate iterate / remove
+        for (auto itr : world->getLoadedChunks()) {
+            glm::vec3 cp = itr.first;
+            if (abs(cp.x-cpos.x) > lim || abs(cp.y-cpos.y) > lim || abs(cp.z-cpos.z) > lim) {
+                unloads.push_back(cp);
+            }
+        }
+        for (glm::vec3 cp : unloads) {
+            world->unloadChunk(cp);
+        }
+    }
 };
 
 #endif //ETHERTIA_WORLD_H

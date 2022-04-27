@@ -21,6 +21,12 @@ public:
 
     Chunk() {
     }
+    ~Chunk() {
+        if (model) {
+            // todo: main thread.
+//            delete model;
+        }
+    }
 
     ubyte getBlock(int rx, int ry, int rz) {
         return blocks[blockidx(rx, ry, rz)];

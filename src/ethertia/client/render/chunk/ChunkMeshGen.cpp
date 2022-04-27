@@ -48,17 +48,21 @@ float ChunkMeshGen::CUBE_NORM[] = {
 void ChunkMeshGen::putCube(VertexBuffer &vbuf, glm::vec3 rpos, Chunk* chunk) {
 
     for (int i = 0; i < 6; ++i) {
-        glm::vec3 adjacent = rpos+dirCubeFace(i);
+        glm::vec3 dir = dirCubeFace(i);
+        auto neib = Ethertia::getWorld()->getBlock(chunk->position + rpos + dir);
 
-        if (Chunk::outbound(adjacent) ||
-            chunk->getBlock(adjacent) == 0) {  // use world.getBlock? but local chunk faster.
+        if (//Chunk::outbound(adjacent) ||
+            //chunk->getBlock(adjacent) == 0
+            neib == 0) {
             putFace(vbuf, i, rpos, BlockTextures::SAND);
         }
     }
 }
 
+// invoke from ChunkGen thread.
 void ChunkMeshGen::genMesh(Chunk* chunk)  {
     VertexBuffer* vbuf = new VertexBuffer();
+    Log::info("New Buf: "+std::to_string(vbuf->vertexCount()));
 
     for (int rx = 0; rx < 16; ++rx) {
         for (int ry = 0; ry < 16; ++ry) {
@@ -74,9 +78,15 @@ void ChunkMeshGen::genMesh(Chunk* chunk)  {
         }
     }
 
+    if (vbuf->vertexCount() == 0)
+        return;  // skip empty chunk.
+
     Ethertia::getExecutor()->exec([chunk, vbuf]() {
         chunk->model = Loader::loadModel(vbuf);
-        Log::info("Loaded Chunk Model "+Log::str(chunk->model)+" VAO: "+std::to_string(chunk->model->vaoId));
-//        delete vbuf;
+        Log::info("Loaded Chunk Model "+Log::str(chunk->model)+" VAO: "+std::to_string(chunk->model->vaoId)+" vcount: "+std::to_string(chunk->model->vertexCount));
+
+        // todo: WHY cannot delete?
+        //        delete vbuf;
+
     });
 }

@@ -35,7 +35,7 @@ public:
         Chunk* chunk = new Chunk();
         chunk->position = chunkpos;
 
-        Log::info("Gen Terr "+glm::to_string(chunkpos));
+//        Log::info("Gen Terr "+glm::to_string(chunkpos));
 
         int samples = 4;
         int sampleSize = 4;

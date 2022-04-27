@@ -58,7 +58,7 @@ public:
         stbi_write_png(filename, img->getWidth(), img->getHeight(), 4, img->getPixels(), 0);
     }
 
-    static Model* loadModel(int vcount, const std::vector<std::pair<float*, int>>& vdats) {
+    static Model* loadModel(int vcount, const std::vector<std::pair<float*, int>>& vdats, uint* vbos) {
         GLuint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
@@ -75,6 +75,7 @@ public:
 
             glVertexAttribPointer(i, vlen, GL_FLOAT, false, 0, nullptr);
             glEnableVertexAttribArray(i);
+            if (vbos) vbos[i] = vbo;
             i++;
         }
 
@@ -86,7 +87,10 @@ public:
         ls.emplace_back(&vbuf->textureCoords[0], 2);
         ls.emplace_back(&vbuf->normals[0], 3);
 
-        return loadModel(vbuf->vertexCount(), ls);
+        uint vbos[3];
+        Model* m = loadModel(vbuf->vertexCount(), ls, vbos);
+        m->vbos.insert(m->vbos.begin(), &vbos[0], &vbos[3]);
+        return m;
     }
 
     static Texture* loadTexture(BitmapImage* img) {

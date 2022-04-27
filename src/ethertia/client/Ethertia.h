@@ -17,7 +17,6 @@
 #include <ethertia/world/World.h>
 #include <ethertia/init/BlockTextures.h>
 
-// gui, text, audio
 
 class Ethertia
 {
@@ -47,32 +46,16 @@ public:
         destroy();
     }
 
-    static void thLoadChunk() {
-        while (true) {
-
-            Ethertia::getWorld()->onTick();
-
-            std::this_thread::sleep_for(std::chrono::milliseconds (100));
-        }
-    }
-
     void start()
     {
         INST = this;
         running = true;
         window.initWindow();
-
         renderEngine = new RenderEngine();
-
-        executor.exec([]() {
-            Log::info("ScheduTask");
-        });
-
         world = new World();
 
         BlockTextures::init();
-
-        std::thread* threadChunkLoad = new std::thread(thLoadChunk);
+        initThreadChunkLoad();
 
         Log::info("Initialized.");
     }
@@ -83,6 +66,7 @@ public:
 
         executor.processTasks();
 
+//        World::updateViewDistance(getWorld(), getCamera()->position, 4);
 //        while (timer.polltick())
         {
             runTick();
@@ -127,6 +111,7 @@ public:
 
 
     static void shutdown() { INST->running = false; }
+    static bool isRunning() { return INST->running; }
 
     static float getPreciseTime() { return (float)Window::getPreciseTime(); }
 
@@ -139,6 +124,17 @@ public:
     static bool isIngame() { return !getWindow()->isAltKeyDown(); }
 
 
+    static void initThreadChunkLoad()
+    {
+        new std::thread([]() {
+            while (isRunning())
+            {
+                World::updateViewDistance(getWorld(), getCamera()->position, 4);
+
+                std::this_thread::sleep_for(std::chrono::milliseconds (100));
+            }
+        });
+    }
 };
 
 #endif //ETHERTIA_ETHERTIA_H
