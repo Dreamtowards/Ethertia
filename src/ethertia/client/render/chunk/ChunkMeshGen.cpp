@@ -59,6 +59,10 @@ void ChunkMeshGen::putCube(VertexBuffer &vbuf, glm::vec3 rpos, Chunk* chunk) {
     }
 }
 
+void doLoadModel(void* ptr) {
+
+}
+
 // invoke from ChunkGen thread.
 void ChunkMeshGen::genMesh(Chunk* chunk)  {
     VertexBuffer* vbuf = new VertexBuffer();
@@ -78,15 +82,31 @@ void ChunkMeshGen::genMesh(Chunk* chunk)  {
         }
     }
 
+    if (chunk->model)throw std::logic_error("Already Loaded Model");
+
+
+    if (vbuf->vertexCount() == 0 && vbuf->lastVCount != 0) {
+
+    }
+
     if (vbuf->vertexCount() == 0)
         return;  // skip empty chunk.
 
-    Ethertia::getExecutor()->exec([chunk, vbuf]() {
-        chunk->model = Loader::loadModel(vbuf);
-        Log::info("Loaded Chunk Model "+Log::str(chunk->model)+" VAO: "+std::to_string(chunk->model->vaoId)+" vcount: "+std::to_string(chunk->model->vertexCount));
+    Ethertia::getExecutor()->exec([=]() {
+        Log::info("LOADING Chunk: "+glm::to_string(chunk->position));
+        if (chunk->model)throw std::logic_error("Already Loaded Model");
 
-        // todo: WHY cannot delete?
-        //        delete vbuf;
+        if (vbuf->vertexCount() == 0 && vbuf->lastVCount != 0)
+        {
+
+        }
+//        Log::info("Going to load Model: vcount: "+std::to_string(vbuf->vertexCount()) +", las: "+std::to_string(vbuf->lastVCount));
+        chunk->model = Loader::loadModel(vbuf);
+//        Log::info("Loaded Chunk Model "+Log::str(chunk->model)+" VAO: "+std::to_string(chunk->model->vaoId)+" vcount: "+std::to_string(chunk->model->vertexCount));
+//
+//        // todo: WHY cannot delete?
+                delete vbuf;
+                Log::info("\n\n");
 
     });
 }

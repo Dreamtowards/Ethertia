@@ -25,7 +25,7 @@ public:
         for (auto it : world->getLoadedChunks())
         {
             if (!it.second){
-                Log::info("NO RENDER Chunk: NULL.");
+                // Log::info("NO RENDER Chunk: NULL.");
                 continue;
             }
             if (!it.second->model) {

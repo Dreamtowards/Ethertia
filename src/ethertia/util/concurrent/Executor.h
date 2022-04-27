@@ -11,7 +11,7 @@
 // todo: Executor. could immediately execute. if in correct Thread.
 class Executor
 {
-    std::vector<std::function<void()>> tasks;
+    std::deque<std::function<void()>> tasks;
     std::thread::id _thread;
 
 public:
@@ -23,11 +23,10 @@ public:
     {
         while (!tasks.empty())
         {
-            auto& task = tasks.back();
+            auto& task = tasks.front();
+            tasks.pop_front();
 
             task();
-
-            tasks.pop_back();
         }
     }
 
