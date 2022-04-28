@@ -1,20 +1,20 @@
 cmake_minimum_required(VERSION 3.17)
 project(Ethertia)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 
 
 include_directories(src)
 include_directories(include)
 
+#file(GLOB_RECURSE EthUnits "src/ethertia/*.cpp")
 
 add_executable(Ethertia
         lib/glad.c
-        src/ethertia/world/World.cpp
-        src/ethertia/init/BlockTextures.cpp
-        src/ethertia/client/Window.cpp
         src/ethertia/client/render/renderer/ChunkRenderer.cpp
-        src/ethertia/client/render/chunk/ChunkMeshGen.cpp
+        src/ethertia/client/Window.cpp
+        src/ethertia/world/World.cpp
         src/ethertia/client/Ethertia.cpp)
 
 target_link_libraries(Ethertia PRIVATE

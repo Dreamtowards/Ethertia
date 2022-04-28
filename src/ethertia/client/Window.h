@@ -9,6 +9,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+
 class Window
 {
     GLFWwindow* window;
@@ -77,6 +78,10 @@ public:
 
     float getWidth() { return width; }
     float getHeight() { return height; }
+
+    void setTitle(const char* s) {
+        glfwSetWindowTitle(window, s);
+    }
 
     bool isKeyDown(int key) {
         return glfwGetKey(window, key) == GLFW_PRESS;

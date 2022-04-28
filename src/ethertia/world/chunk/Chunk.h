@@ -31,14 +31,18 @@ public:
     ubyte getBlock(int rx, int ry, int rz) {
         return blocks[blockidx(rx, ry, rz)];
     }
-    ubyte getBlock(glm::vec3 blockpos) { //!MOD
+    ubyte getBlock(glm::vec3 blockpos) {
         return getBlock((int)blockpos.x & 15, (int)blockpos.y & 15, (int)blockpos.z & 15);
     }
-    void setBlock(int rx, int ry, int rz, ubyte blockId) {
-        blocks[blockidx(rx,ry,rz)] = blockId;
+
+    void setBlock(int rx, int ry, int rz, ubyte blockID) {
+        blocks[blockidx(rx,ry,rz)] = blockID;
+    }
+    void setBlock(glm::vec3 blockpos, ubyte blockID) {
+        setBlock((int)blockpos.x & 15, (int)blockpos.y & 15, (int)blockpos.z & 15, blockID);
     }
 
-    glm::vec3 getPosition() {
+    glm::vec3 getPosition() const {
         return position;
     }
 

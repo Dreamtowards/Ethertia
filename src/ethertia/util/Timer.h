@@ -16,14 +16,14 @@ class Timer
 
 
 public:
-    void update(float  currTime)
-    {
+    void update(float currTime) {
         if (lastUpdateTime == 0)
             lastUpdateTime = currTime;
 
         delta = currTime - lastUpdateTime;
 
         elapsedTicks += delta / TPS;
+        lastUpdateTime = currTime;
     }
 
     float getDelta() {

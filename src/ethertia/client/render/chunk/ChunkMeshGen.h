@@ -5,11 +5,13 @@
 #ifndef ETHERTIA_CHUNKMESHGEN_H
 #define ETHERTIA_CHUNKMESHGEN_H
 
-#include <ethertia/world/chunk/Chunk.h>
-#include <ethertia/init/Blocks.h>
 #include <ethertia/client/render/VertexBuffer.h>
 #include <ethertia/client/Loader.h>
 #include <ethertia/client/render/TextureAtlas.h>
+#include <ethertia/world/World.h>
+#include <ethertia/world/chunk/Chunk.h>
+#include <ethertia/init/Blocks.h>
+#include <ethertia/init/BlockTextures.h>
 
 class ChunkMeshGen
 {
@@ -20,14 +22,80 @@ public:
     //       | \ |
     //   [5] +---+ [0,3]
     // Faces: -X, +X, -Y, +Y, -Z, +Z.
-    static float CUBE_POS[];
-    static float CUBE_UV[];
-    static float CUBE_NORM[];
+    inline static float CUBE_POS[] = {
+            // Left -X
+            0, 0, 1, 0, 1, 1, 0, 1, 0,
+            0, 0, 1, 0, 1, 0, 0, 0, 0,
+            // Right +X
+            1, 0, 0, 1, 1, 0, 1, 1, 1,
+            1, 0, 0, 1, 1, 1, 1, 0, 1,
+            // Bottom -Y
+            0, 0, 1, 0, 0, 0, 1, 0, 0,
+            0, 0, 1, 1, 0, 0, 1, 0, 1,
+            // Bottom +Y
+            0, 1, 1, 1, 1, 1, 1, 1, 0,
+            0, 1, 1, 1, 1, 0, 0, 1, 0,
+            // Front -Z
+            0, 0, 0, 0, 1, 0, 1, 1, 0,
+            0, 0, 0, 1, 1, 0, 1, 0, 0,
+            // Back +Z
+            1, 0, 1, 1, 1, 1, 0, 1, 1,
+            1, 0, 1, 0, 1, 1, 0, 0, 1,
+    };
+    inline static float CUBE_UV[] = {
+            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,  // One Face.
+            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+            1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
+    };
+    inline static float CUBE_NORM[] = {
+            -1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,
+            1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+            0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0,
+            0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+            0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1,
+            0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1
+    };
 
 
-    static void genMesh(Chunk* chunk);
+    // invoke from ChunkGen thread.
+    static VertexBuffer* genMesh(Chunk* chunk, World* world) {
+        VertexBuffer* vbuf = new VertexBuffer();
 
-    static void putCube(VertexBuffer& vbuf, glm::vec3 rpos, Chunk* chunk);
+        for (int rx = 0; rx < 16; ++rx) {
+            for (int ry = 0; ry < 16; ++ry) {
+                for (int rz = 0; rz < 16; ++rz) {
+
+                    int blockId = chunk->getBlock(rx, ry, rz);
+
+                    if (blockId == Blocks::STONE) {
+                        putCube(*vbuf, glm::vec3(rx, ry, rz), chunk, world);
+                    }
+
+                }
+            }
+        }
+
+        if (vbuf->vertexCount() == 0)
+            return nullptr;  // skip empty chunk.
+        return vbuf;
+    }
+
+    static void putCube(VertexBuffer& vbuf, glm::vec3 rpos, Chunk* chunk, World* world) {
+
+        for (int i = 0; i < 6; ++i) {
+            glm::vec3 dir = dirCubeFace(i);
+            auto neib = world->getBlock(chunk->position + rpos + dir);
+
+            if (//Chunk::outbound(adjacent) ||
+                //chunk->getBlock(adjacent) == 0
+                    neib == 0) {
+                putFace(vbuf, i, rpos, BlockTextures::GRASS);
+            }
+        }
+    }
 
     static void putFace(VertexBuffer& vbuf, int face, glm::vec3 rpos, TextureAtlas::AtlasFragment* frag) {
         // put pos

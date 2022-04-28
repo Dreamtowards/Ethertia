@@ -13,8 +13,14 @@ class RenderEngine {
 public:
     ChunkRenderer chunkRenderer;
 
+    glm::mat4 projectionMatrix;
 
-    void renderWorld(World* world)
+    void updateProjectionMatrix(float ratio_wdh) {
+        projectionMatrix = glm::perspective(90.0f, ratio_wdh, 0.1f, 1000.0f);
+    }
+
+
+    void renderWorld(World* world) const
     {
         glClearColor(0, 0, 0.4, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

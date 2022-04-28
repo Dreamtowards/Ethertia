@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "Ethertia.h"
 
-void Window::onWindowClose(GLFWwindow* window)
-{
+
+void Window::onWindowClose(GLFWwindow* _w) {
     Ethertia::shutdown();
 }

@@ -20,6 +20,7 @@ public:
 
     void render(Chunk* chunk) const;
 
+
 };
 
 #endif //ETHERTIA_CHUNKRENDERER_H

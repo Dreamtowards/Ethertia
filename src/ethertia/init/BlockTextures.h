@@ -12,12 +12,12 @@ typedef TextureAtlas::AtlasFragment AtlasFrag;
 class BlockTextures
 {
 public:
-    static TextureAtlas* ATLAS;
+    inline static TextureAtlas* ATLAS;
 
-    static AtlasFrag* STONE;
-    static AtlasFrag* DIRT;
-    static AtlasFrag* GRASS;
-    static AtlasFrag* SAND;
+    inline static AtlasFrag* STONE;
+    inline static AtlasFrag* DIRT;
+    inline static AtlasFrag* GRASS;
+    inline static AtlasFrag* SAND;
 
     static void init()
     {

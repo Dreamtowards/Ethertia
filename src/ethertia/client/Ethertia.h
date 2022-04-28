@@ -8,19 +8,20 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <ethertia/client/Window.h>
-#include <ethertia/client/render/Camera.h>
 #include <ethertia/client/render/RenderEngine.h>
+#include <ethertia/client/render/Camera.h>
+#include <ethertia/client/Window.h>
 #include <ethertia/util/Timer.h>
-#include <ethertia/util/Log.h>
 #include <ethertia/util/concurrent/Executor.h>
-#include <ethertia/world/World.h>
+#include <ethertia/util/Log.h>
 #include <ethertia/init/BlockTextures.h>
+#include <ethertia/world/World.h>
+
 
 
 class Ethertia
 {
-    static Ethertia* INST;
+    inline static Ethertia* INST;
 
     bool running = false;
 
@@ -66,37 +67,38 @@ public:
 
         executor.processTasks();
 
-//        while (timer.polltick())
+        while (timer.polltick())
         {
             runTick();
         }
 
-        if (isIngame())
-            Camera::update(camera, window);
+        if (isIngame()) {
+            camera.update(window);
+            updateMovement();
+        }
         window.setMouseGrabbed(isIngame());
+        window.setTitle(("desp. "+std::to_string(1.0/timer.getDelta())).c_str());
+        renderEngine->updateProjectionMatrix(window.getWidth()/window.getHeight());
 
-        renderEngine->renderWorld(world);
+        {
+            renderEngine->renderWorld(world);
+
+            renderGUI();
+        }
 
         window.updateWindow();
     }
 
+    void renderGUI()
+    {
+
+    }
+
     void runTick()
     {
-        float speed = 0.1;
-        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) speed = 1;
-        float a = camera.eulerAngles.y;
-
-        if (window.isKeyDown(GLFW_KEY_W)) camera.position += Camera::diff(a) * speed;
-        if (window.isKeyDown(GLFW_KEY_S)) camera.position += Camera::diff(a+Mth::PI) * speed;
-        if (window.isKeyDown(GLFW_KEY_A)) camera.position += Camera::diff(a+Mth::PI/2) * speed;
-        if (window.isKeyDown(GLFW_KEY_D)) camera.position += Camera::diff(a-Mth::PI/2) * speed;
-
-        if (window.isShiftKeyDown()) camera.position.y -= speed;
-        if (window.isKeyDown(GLFW_KEY_SPACE)) camera.position.y += speed;
 
 
-
-//        world->onTick();
+        // world->onTick();
     }
 
     void destroy()
@@ -113,6 +115,7 @@ public:
 
     static float getPreciseTime() { return (float)Window::getPreciseTime(); }
 
+    static RenderEngine* getRenderEngine() { return INST->renderEngine; }
     static Window* getWindow() { return &INST->window; }
     static Camera* getCamera() { return &INST->camera; }
     static Executor* getExecutor() { return &INST->executor; }
@@ -122,17 +125,68 @@ public:
     static bool isIngame() { return !getWindow()->isAltKeyDown(); }
 
 
-    static void initThreadChunkLoad()
-    {
+    static void initThreadChunkLoad() {
         new std::thread([]() {
             while (isRunning())
             {
-                World::updateViewDistance(getWorld(), getCamera()->position, 4);
+                updateViewDistance(getWorld(), getCamera()->position, 2);
 
                 std::this_thread::sleep_for(std::chrono::milliseconds (10));
             }
         });
     }
+
+    static void updateViewDistance(World* world, glm::vec3 p, int n)
+    {
+        glm::vec3 cpos = Chunk::chunkpos(p);
+
+        // load chunks
+        for (int dx = -n;dx <= n;dx++) {
+            for (int dy = -n;dy <= n;dy++) {
+                for (int dz = -n;dz <= n;dz++) {
+                    world->provideChunk(cpos + glm::vec3(dx, dy, dz) * 16.0f);
+                }
+            }
+        }
+
+        // unload chunks
+        int lim = n*Chunk::SIZE;
+        std::vector<glm::vec3> unloads;  // separate iterate / remove
+        for (auto itr : world->getLoadedChunks()) {
+            glm::vec3 cp = itr.first;
+            if (abs(cp.x-cpos.x) > lim || abs(cp.y-cpos.y) > lim || abs(cp.z-cpos.z) > lim) {
+                unloads.push_back(cp);
+            }
+        }
+        for (glm::vec3 cp : unloads) {
+            world->unloadChunk(cp);
+        }
+    }
+
+    void updateMovement() {
+        float speed = 0.1;
+        if (window.isKeyDown(GLFW_KEY_F)) speed = 1;
+        float a = camera.eulerAngles.y;
+
+        if (window.isKeyDown(GLFW_KEY_W)) camera.position += Camera::diff(a) * speed;
+        if (window.isKeyDown(GLFW_KEY_S)) camera.position += Camera::diff(a+Mth::PI) * speed;
+        if (window.isKeyDown(GLFW_KEY_A)) camera.position += Camera::diff(a+Mth::PI/2) * speed;
+        if (window.isKeyDown(GLFW_KEY_D)) camera.position += Camera::diff(a-Mth::PI/2) * speed;
+
+        if (window.isShiftKeyDown()) camera.position.y -= speed;
+        if (window.isKeyDown(GLFW_KEY_SPACE)) camera.position.y += speed;
+
+    }
 };
+
+// todo ls:
+// text/font rendering
+// gui
+// multi layer cube cloud
+// cube ambient occlusion
+
+// multi block types.
+// block density? for isosurface and even SVO?
+
 
 #endif //ETHERTIA_ETHERTIA_H

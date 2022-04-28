@@ -58,45 +58,42 @@ public:
         stbi_write_png(filename, img->getWidth(), img->getHeight(), 4, img->getPixels(), 0);
     }
 
-    static Model* loadModel(int vcount, const std::vector<std::pair<float*, int>>& vdats, uint* vbos) {
-        GLuint vao;
+    static Model* loadModel(int vcount, const std::vector<std::pair<int, float*>>& vdats) {
+        uint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
+        auto* m = new Model(vao, vcount);
 
         int i = 0;
         for (auto vd : vdats) {
-            float* vdat = vd.first;
-            int vlen = vd.second;
+            int vlen = vd.first;
+            float* vdat = vd.second;
 
-            GLuint vbo;
+            uint vbo;
             glGenBuffers(1, &vbo);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vlen*vcount, vdat, GL_STATIC_DRAW);
 
             glVertexAttribPointer(i, vlen, GL_FLOAT, false, 0, nullptr);
             glEnableVertexAttribArray(i);
-            if (vbos) vbos[i] = vbo;
+            m->vbos.push_back(vbo);
             i++;
         }
-
-        return new Model(vao, vcount);
+        return m;
     }
     static Model* loadModel(VertexBuffer* vbuf) {
-        std::vector<std::pair<float*, int>> ls;
-        ls.emplace_back(&vbuf->positions[0], 3);
-        ls.emplace_back(&vbuf->textureCoords[0], 2);
-        ls.emplace_back(&vbuf->normals[0], 3);
+        std::vector<std::pair<int, float*>> ls;
+        ls.emplace_back(3, &vbuf->positions[0]);
+        ls.emplace_back(2, &vbuf->textureCoords[0]);
+        ls.emplace_back(3, &vbuf->normals[0]);
 
-        uint vbos[3];
-        Model* m = loadModel(vbuf->vertexCount(), ls, vbos);
-        m->vbos.insert(m->vbos.begin(), &vbos[0], &vbos[3]);
-        return m;
+        return loadModel(vbuf->vertexCount(), ls);
     }
 
     static Texture* loadTexture(BitmapImage* img) {
         uint texID;
         glGenTextures(1, &texID);
-        Texture* tex = new Texture(texID, img->getWidth(), img->getHeight());
+        auto* tex = new Texture(texID, img->getWidth(), img->getHeight());
 
         glBindTexture(GL_TEXTURE_2D, texID);
 

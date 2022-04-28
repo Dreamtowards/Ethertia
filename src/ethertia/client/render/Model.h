@@ -13,14 +13,12 @@ class Model
 public:
     uint vaoId;
     uint vertexCount;
-
     std::vector<uint> vbos;
 
     Model(uint vao, uint vcount) : vaoId(vao), vertexCount(vcount) {}
 
     ~Model() {
         glDeleteBuffers(vbos.size(), &vbos[0]);
-
         glDeleteVertexArrays(1, &vaoId);
     }
 };
