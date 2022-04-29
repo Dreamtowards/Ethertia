@@ -71,6 +71,10 @@ public:
 //        return glm::transpose(m);
         return glm::perspective(fov, w/h, near, far);
     }
+
+    static glm::vec2 ndc(float x, float y, float w, float h) {
+        return glm::vec2(x/w, 1.0f - y/h) * 2.0f - 1.0f;
+    }
 };
 
 #endif //ETHERTIA_MTH_H

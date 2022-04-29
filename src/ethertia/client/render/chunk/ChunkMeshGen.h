@@ -23,23 +23,17 @@ public:
     //   [5] +---+ [0,3]
     // Faces: -X, +X, -Y, +Y, -Z, +Z.
     inline static float CUBE_POS[] = {
-            // Left -X
-            0, 0, 1, 0, 1, 1, 0, 1, 0,
+            0, 0, 1, 0, 1, 1, 0, 1, 0,  // Left -X
             0, 0, 1, 0, 1, 0, 0, 0, 0,
-            // Right +X
-            1, 0, 0, 1, 1, 0, 1, 1, 1,
+            1, 0, 0, 1, 1, 0, 1, 1, 1,  // Right +X
             1, 0, 0, 1, 1, 1, 1, 0, 1,
-            // Bottom -Y
-            0, 0, 1, 0, 0, 0, 1, 0, 0,
+            0, 0, 1, 0, 0, 0, 1, 0, 0,  // Bottom -Y
             0, 0, 1, 1, 0, 0, 1, 0, 1,
-            // Bottom +Y
-            0, 1, 1, 1, 1, 1, 1, 1, 0,
+            0, 1, 1, 1, 1, 1, 1, 1, 0,  // Bottom +Y
             0, 1, 1, 1, 1, 0, 0, 1, 0,
-            // Front -Z
-            0, 0, 0, 0, 1, 0, 1, 1, 0,
+            0, 0, 0, 0, 1, 0, 1, 1, 0,  // Front -Z
             0, 0, 0, 1, 1, 0, 1, 0, 0,
-            // Back +Z
-            1, 0, 1, 1, 1, 1, 0, 1, 1,
+            1, 0, 1, 1, 1, 1, 0, 1, 1,  // Back +Z
             1, 0, 1, 0, 1, 1, 0, 0, 1,
     };
     inline static float CUBE_UV[] = {
@@ -51,7 +45,7 @@ public:
             1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
     };
     inline static float CUBE_NORM[] = {
-            -1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,
+           -1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,
             1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
             0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0, 0,-1, 0,
             0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
@@ -62,18 +56,16 @@ public:
 
     // invoke from ChunkGen thread.
     static VertexBuffer* genMesh(Chunk* chunk, World* world) {
-        VertexBuffer* vbuf = new VertexBuffer();
+        auto* vbuf = new VertexBuffer();
 
         for (int rx = 0; rx < 16; ++rx) {
             for (int ry = 0; ry < 16; ++ry) {
                 for (int rz = 0; rz < 16; ++rz) {
+                    int blockID = chunk->getBlock(rx, ry, rz);
 
-                    int blockId = chunk->getBlock(rx, ry, rz);
-
-                    if (blockId == Blocks::STONE) {
+                    if (blockID) {
                         putCube(*vbuf, glm::vec3(rx, ry, rz), chunk, world);
                     }
-
                 }
             }
         }
@@ -91,7 +83,7 @@ public:
 
             if (//Chunk::outbound(adjacent) ||
                 //chunk->getBlock(adjacent) == 0
-                    neib == 0) {
+                neib == 0) {
                 putFace(vbuf, i, rpos, BlockTextures::GRASS);
             }
         }
@@ -111,7 +103,6 @@ public:
                        CUBE_UV[bas+1] * frag->scale.y + frag->offset.y);
         }
     }
-
 
     static glm::vec3 dirCubeFace(int face) {
         int bas = face*18;

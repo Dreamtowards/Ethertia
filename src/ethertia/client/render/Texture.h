@@ -15,6 +15,8 @@ class Texture
     uint height;
 
 public:
+    inline static Texture* UNIT;  // 1x1 pixel, RGBA=1 white tex.
+
     Texture(uint texId, uint w, uint h) : textureID(texId), width(w), height(h) {}
 
     ~Texture() {

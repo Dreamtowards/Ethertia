@@ -11,15 +11,12 @@
 
 class ChunkRenderer {
 
-    ShaderProgram* shader = new ShaderProgram(Loader::loadAssetsStr("shaders/chunk/chunk.vsh"),
-                                              Loader::loadAssetsStr("shaders/chunk/chunk.fsh"));
-
-
+    ShaderProgram shader{Loader::loadAssetsStr("shaders/chunk/chunk.vsh"),
+                         Loader::loadAssetsStr("shaders/chunk/chunk.fsh")};
 
 public:
 
-    void render(Chunk* chunk) const;
-
+    void render(Chunk* chunk);
 
 };
 

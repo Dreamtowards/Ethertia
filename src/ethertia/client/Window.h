@@ -6,8 +6,10 @@
 #define ETHERTIA_WINDOW_H
 
 #include <stdexcept>
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <ethertia/util/Log.h>
 
 
 class Window
@@ -23,6 +25,8 @@ class Window
 
     float width;
     float height;
+
+    // float windowContentScale;
 
 public:
 
@@ -44,6 +48,10 @@ public:
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             throw std::runtime_error("Failed to init GLAD.");
 
+        Log::info("WindowInit. GLFW: {}; GLAD linked.", glfwGetVersionString());
+
+        centralize();
+
         glfwSetWindowUserPointer(window, this);
         glfwSetWindowCloseCallback(window, onWindowClose);
         glfwSetCursorPosCallback(window, onCursorPos);
@@ -62,6 +70,13 @@ public:
 
     bool isCloseRequested() {
         return glfwWindowShouldClose(window);
+    }
+
+    void centralize() {
+        const GLFWvidmode* vmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        glfwSetWindowPos(window, (vmode->width - w) / 2, (vmode->height - h) / 2);
     }
 
     static double getPreciseTime() {

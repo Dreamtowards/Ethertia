@@ -7,20 +7,29 @@
 
 #include <ethertia/world/World.h>
 #include <ethertia/client/render/renderer/ChunkRenderer.h>
+#include <ethertia/client/render/renderer/gui/GuiRenderer.h>
+#include <ethertia/client/render/renderer/gui/FontRenderer.h>
 
 class RenderEngine {
 
 public:
     ChunkRenderer chunkRenderer;
+    GuiRenderer guiRenderer;
+    FontRenderer fontRenderer;
 
     glm::mat4 projectionMatrix;
+
+    RenderEngine() {
+
+        Log::info("RenderEngine initialized. GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
+    }
 
     void updateProjectionMatrix(float ratio_wdh) {
         projectionMatrix = glm::perspective(90.0f, ratio_wdh, 0.1f, 1000.0f);
     }
 
 
-    void renderWorld(World* world) const
+    void renderWorld(World* world)
     {
         glClearColor(0, 0, 0.4, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -47,7 +56,7 @@ public:
         uint err = glGetError();
         if (err) {
             Log::warn("###### GL Error ######");
-            Log::warn("ERR: "+std::to_string(err));
+            Log::warn("ERR: {}", err);
         }
     }
 };

@@ -8,6 +8,7 @@
 #include <initializer_list>
 #include <utility>
 #include <fstream>
+#include <array>
 
 #include <glad/glad.h>
 #include <stb/stb_image.h>
@@ -22,43 +23,47 @@
 class Loader {
 
 public:
+    class memblock
+    {
+        void* ptr;
+        uint len;
+    };
 
-    static char* loadAssets(const std::string& p, size_t* len_out)
+    static std::pair<char*, uint> loadAssets(const std::string& p)
     {
         std::string abspath = "../src/assets/" + p;
         std::ifstream infile(abspath, std::ios_base::binary);
         if (!infile.is_open())
             throw std::runtime_error("Failed open file. "+abspath);
         infile.seekg(0, std::ios_base::end);
-        size_t len = infile.tellg();
+        uint len = infile.tellg();
         infile.seekg(0, std::ios_base::beg);
 
         char* buf = new char[len];
         infile.read(buf, len);
         infile.close();
 
-        if (len_out) {
-            *len_out = len;
-        }
-        return buf;
+        return std::pair(buf, len);
     }
 
     static std::string loadAssetsStr(const std::string& p) {
-        size_t len;
-        char* dat = loadAssets(p, &len);
-        return std::string(dat, len);
+        auto m = loadAssets(p);
+        return std::string(m.first, m.second);
     }
 
-    static BitmapImage* loadPNG(const void* data, size_t len) {
+    static BitmapImage* loadPNG(const void* data, uint len) {
         int width, height, channels;
         void* pixels = stbi_load_from_memory((unsigned char*)data, len, &width, &height, &channels, 4);
         return new BitmapImage(width, height, (unsigned int*)pixels);
+    }
+    static BitmapImage* loadPNG(std::pair<void*, uint> m) {
+        return loadPNG(m.first, m.second);
     }
     static void savePNG(BitmapImage* img, const char* filename) {
         stbi_write_png(filename, img->getWidth(), img->getHeight(), 4, img->getPixels(), 0);
     }
 
-    static Model* loadModel(int vcount, const std::vector<std::pair<int, float*>>& vdats) {
+    static Model* loadModel(uint vcount, const std::vector<std::pair<uint, float*>>& vdats) {
         uint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
@@ -82,18 +87,23 @@ public:
         return m;
     }
     static Model* loadModel(VertexBuffer* vbuf) {
-        std::vector<std::pair<int, float*>> ls;
+        std::vector<std::pair<uint, float*>> ls;
         ls.emplace_back(3, &vbuf->positions[0]);
         ls.emplace_back(2, &vbuf->textureCoords[0]);
         ls.emplace_back(3, &vbuf->normals[0]);
 
         return loadModel(vbuf->vertexCount(), ls);
     }
+    static Model* loadModel(uint vcount, std::initializer_list<std::pair<uint, float*>> vdats) {
+        return loadModel(vcount, std::vector(vdats));
+    }
 
     static Texture* loadTexture(BitmapImage* img) {
         uint texID;
         glGenTextures(1, &texID);
-        auto* tex = new Texture(texID, img->getWidth(), img->getHeight());
+        uint w = img->getWidth();
+        uint h = img->getHeight();
+        auto* tex = new Texture(texID, w, h);
 
         glBindTexture(GL_TEXTURE_2D, texID);
 
@@ -112,9 +122,10 @@ public:
 //            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
 //         }
 
-        void* pixels = img->getPixels();
+        uint pixels[w*h];
+        img->getVerticalFlippedPixels(pixels);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->getWidth(), img->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
         // glTexSubImage2D();
 
         glGenerateMipmap(GL_TEXTURE_2D);

@@ -33,9 +33,7 @@ public:
     }
 
     static AtlasFrag* load(const char* p) {
-        size_t len;
-        char* data = Loader::loadAssets(p, &len);
-        return ATLAS->addAtlas(Loader::loadPNG(data, len));
+        return ATLAS->addAtlas(Loader::loadPNG(Loader::loadAssets(p)));
     }
 };
 

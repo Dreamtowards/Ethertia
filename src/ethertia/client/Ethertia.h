@@ -15,8 +15,9 @@
 #include <ethertia/util/concurrent/Executor.h>
 #include <ethertia/util/Log.h>
 #include <ethertia/init/BlockTextures.h>
+#include <ethertia/init/Init.h>
 #include <ethertia/world/World.h>
-
+#include <ethertia/util/Colors.h>
 
 
 class Ethertia
@@ -55,10 +56,9 @@ public:
         renderEngine = new RenderEngine();
         world = new World();
 
-        BlockTextures::init();
-        initThreadChunkLoad();
+        Init::initialize();
 
-        Log::info("Initialized.");
+        initThreadChunkLoad();
     }
 
     void runMainLoop()
@@ -76,7 +76,7 @@ public:
             camera.update(window);
             updateMovement();
         }
-        window.setMouseGrabbed(isIngame());
+//        window.setMouseGrabbed(isIngame());
         window.setTitle(("desp. "+std::to_string(1.0/timer.getDelta())).c_str());
         renderEngine->updateProjectionMatrix(window.getWidth()/window.getHeight());
 
@@ -91,7 +91,15 @@ public:
 
     void renderGUI()
     {
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        renderEngine->guiRenderer.render(10, 10, 100, 100, glm::vec4(0.8), BlockTextures::ATLAS->atlasTexture);
+
+        renderEngine->fontRenderer.renderString(10, 110, "Test yo wassaup", Colors::WHITE, 16);
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     void runTick()
@@ -112,6 +120,7 @@ public:
 
     static void shutdown() { INST->running = false; }
     static bool isRunning() { return INST->running; }
+    static bool isIngame() { return !getWindow()->isAltKeyDown(); }
 
     static float getPreciseTime() { return (float)Window::getPreciseTime(); }
 
@@ -119,10 +128,7 @@ public:
     static Window* getWindow() { return &INST->window; }
     static Camera* getCamera() { return &INST->camera; }
     static Executor* getExecutor() { return &INST->executor; }
-
     static World* getWorld() { return INST->world; }
-
-    static bool isIngame() { return !getWindow()->isAltKeyDown(); }
 
 
     static void initThreadChunkLoad() {

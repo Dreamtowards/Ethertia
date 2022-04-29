@@ -11,7 +11,7 @@ void main()
 {
     vec3 lightDir = normalize(vec3(3, -9, 7));
 
-    float f = max(0.4, dot(-lightDir, Norm));
+    float lightf = max(0.4, dot(-lightDir, Norm));
 
-    FragColor = vec4(0.8) * f * vec4(texture(diffuseMap, TexCoord).rgb, 1.0);
+    FragColor = vec4(vec3(lightf), 1.0) * texture(diffuseMap, TexCoord);
 }

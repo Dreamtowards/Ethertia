@@ -42,6 +42,14 @@ public:
     uint* getPixels() {
         return pixels;
     }
+    void getVerticalFlippedPixels(uint* dst) {  // for OpenGL internal
+        for (int y = 0; y < height; ++y) {
+            uint bas = (height-1-y) * width;
+            for (int x = 0; x < width; ++x) {
+                dst[y*width+x] = pixels[bas+x];
+            }
+        }
+    }
 
     uint getWidth() { return width; }
     uint getHeight() { return height; }
