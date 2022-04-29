@@ -11,6 +11,7 @@
 #include <ethertia/client/render/RenderEngine.h>
 #include <ethertia/client/render/Camera.h>
 #include <ethertia/client/Window.h>
+#include <ethertia/client/audio/AudioEngine.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/concurrent/Executor.h>
 #include <ethertia/util/Log.h>
@@ -27,6 +28,7 @@ class Ethertia
     bool running = false;
 
     RenderEngine* renderEngine;
+    AudioEngine audioEngine;
     Window window;
     Timer timer;
     Camera camera;

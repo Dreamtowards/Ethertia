@@ -48,7 +48,7 @@ public:
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             throw std::runtime_error("Failed to init GLAD.");
 
-        Log::info("WindowInit. GLFW: {}; GLAD linked.", glfwGetVersionString());
+        Log::info("WindowInit. GLFW {}; GLAD linked.", glfwGetVersionString());
 
         centralize();
 

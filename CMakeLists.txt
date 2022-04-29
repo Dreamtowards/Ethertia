@@ -4,6 +4,7 @@ project(Ethertia)
 set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 
+find_package(OpenAL REQUIRED)
 
 include_directories(src)
 include_directories(include)
@@ -22,5 +23,6 @@ target_link_libraries(Ethertia PRIVATE
         "-framework Cocoa"
         "-framework OpenGL"
         "-framework IOKit"
+        "-framework OpenAL"
         ${CMAKE_SOURCE_DIR}/lib/libglfw3.a)
 

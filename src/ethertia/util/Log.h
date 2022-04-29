@@ -49,7 +49,7 @@ public:
     template<typename A>
     static void log(std::ostream& out, const std::string& pat, A a) {
         int i = pat.find("{}");
-        out << (i==-1? pat : pat.substr(0,i)) << a << std::endl;
+        out << (i==-1? pat : pat.substr(0,i)) << a << (i==-1? "" : pat.substr(i+2)) << std::endl;
     }
 
     template<typename A, typename... ARGS>

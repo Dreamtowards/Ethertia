@@ -65,7 +65,7 @@ public:
             ubyte ch = str.at(i);
             shader.setInt(UNIFORM_CHARS[i], ch);
             shader.setVector2f(UNIFORM_OFFSET[i], Mth::ndc(x,y,ww,wh));
-            x += fontHeight*glyphWidths[ch];
+            x += fontHeight*glyphWidths[ch]*1.02f;
         }
         shader.setVector2f("scale", glm::vec2(fontHeight/ww, fontHeight/wh));
         shader.setVector4f("color", color);
