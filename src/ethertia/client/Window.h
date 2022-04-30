@@ -10,6 +10,15 @@
 #include <GLFW/glfw3.h>
 
 #include <ethertia/util/Log.h>
+#include <ethertia/event/EventBus.h>
+#include <ethertia/event/client/MouseButtonEvent.h>
+#include <ethertia/event/client/KeyboardEvent.h>
+#include <ethertia/event/client/MouseMoveEvent.h>
+#include <ethertia/event/client/WindowResizeEvent.h>
+#include <ethertia/event/client/CharInputEvent.h>
+#include <ethertia/event/client/WindowDropEvent.h>
+#include <ethertia/event/client/WindowFocusEvent.h>
+#include <ethertia/event/client/MouseScrollEvent.h>
 
 
 class Window
@@ -36,6 +45,8 @@ public:
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // OSX Required.
 
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+
         window = glfwCreateWindow(width=600, height=420, "Dysplay", nullptr, nullptr);
         if (!window)
             throw std::runtime_error("Failed to init GLFW window.");
@@ -51,9 +62,17 @@ public:
         centralize();
 
         glfwSetWindowUserPointer(window, this);
+
         glfwSetWindowCloseCallback(window, onWindowClose);
-        glfwSetCursorPosCallback(window, onCursorPos);
         glfwSetWindowSizeCallback(window, onWindowSize);
+        glfwSetDropCallback(window, onWindowDropPath);
+        glfwSetWindowFocusCallback(window, onWindowFocus);
+
+        glfwSetCursorPosCallback(window, onCursorPos);
+        glfwSetMouseButtonCallback(window, onMouseButton);
+        glfwSetScrollCallback(window, onScroll);
+        glfwSetKeyCallback(window, onKeyboardKey);
+        glfwSetCharCallback(window, onCharInput);
 
         return 0;
     }
@@ -103,6 +122,13 @@ public:
         return glfwGetMouseButton(window, button) == GLFW_PRESS;
     }
 
+    const char* getClipboard() {
+        return glfwGetClipboardString(window);
+    }
+    void setClipboard(const char* str) {
+        glfwSetClipboardString(window, str);
+    }
+
     void setMouseGrabbed(bool grabbed) {
         glfwSetInputMode(window, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
@@ -123,6 +149,27 @@ public:
 
     static void onWindowClose(GLFWwindow* _w);
 
+    static void onWindowSize(GLFWwindow* _w, int wid, int hei) {
+        Window* w = (Window*)glfwGetWindowUserPointer(_w);
+        w->width = wid;
+        w->height = hei;
+
+        WindowResizeEvent e;
+        EventBus::EVENT_BUS.post(&e);
+    }
+
+    static void onWindowDropPath(GLFWwindow* _w, int count, const char** paths) {
+
+        WindowDropEvent e(count, paths);
+        EventBus::EVENT_BUS.post(&e);
+    }
+
+    static void onWindowFocus(GLFWwindow* _w, int focused) {
+
+        WindowFocusEvent e;
+        EventBus::EVENT_BUS.post(&e);
+    }
+
     static void onCursorPos(GLFWwindow* _w, double xpos, double ypos) {
         Window* w = (Window*)glfwGetWindowUserPointer(_w);
         float x = (float)xpos;
@@ -131,14 +178,37 @@ public:
         w->mouseDY = y - w->mouseY;
         w->mouseX = x;
         w->mouseY = y;
+
+        MouseMoveEvent e;
+        EventBus::EVENT_BUS.post(&e);
     }
 
-    static void onWindowSize(GLFWwindow* _w, int wid, int hei) {
+    static void onMouseButton(GLFWwindow* _w, int button, int action, int mods) {
+
+        MouseButtonEvent e;
+        EventBus::EVENT_BUS.post(&e);
+    }
+
+    static void onScroll(GLFWwindow* _w, double xoffset, double yoffset) {
         Window* w = (Window*)glfwGetWindowUserPointer(_w);
-        w->width = wid;
-        w->height = hei;
+        w->scrollDX = (float)xoffset;
+        w->scrollDY = (float)yoffset;
+
+        MouseScrollEvent e;
+        EventBus::EVENT_BUS.post(&e);
     }
 
+    static void onKeyboardKey(GLFWwindow* _w, int key, int scancode, int action, int mods) {
+
+        KeyboardEvent e;
+        EventBus::EVENT_BUS.post(&e);
+    }
+
+    static void onCharInput(GLFWwindow* _w, unsigned int codepoint) {
+
+        CharInputEvent e;
+        EventBus::EVENT_BUS.post(&e);
+    }
 };
 
 #endif //ETHERTIA_WINDOW_H

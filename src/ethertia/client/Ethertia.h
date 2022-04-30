@@ -12,13 +12,14 @@
 #include <ethertia/client/render/Camera.h>
 #include <ethertia/client/Window.h>
 #include <ethertia/client/audio/AudioEngine.h>
+#include <ethertia/client/gui/GuiRoot.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/concurrent/Executor.h>
 #include <ethertia/util/Log.h>
+#include <ethertia/util/Colors.h>
 #include <ethertia/init/BlockTextures.h>
 #include <ethertia/init/Init.h>
 #include <ethertia/world/World.h>
-#include <ethertia/util/Colors.h>
 
 
 class Ethertia
@@ -35,6 +36,7 @@ class Ethertia
     Executor executor{std::this_thread::get_id()};
 
     World* world;
+    GuiRoot* rootGUI = new GuiRoot();
 
 public:
 
@@ -60,6 +62,7 @@ public:
 
         Init::initialize();
 
+//        EventBus::EVENT_BUS = new EventBus();
         initThreadChunkLoad();
     }
 
@@ -113,6 +116,7 @@ public:
 
     void destroy()
     {
+        delete rootGUI;
         delete world;
         delete renderEngine;
 
@@ -131,6 +135,7 @@ public:
     static Camera* getCamera() { return &INST->camera; }
     static Executor* getExecutor() { return &INST->executor; }
     static World* getWorld() { return INST->world; }
+    static GuiRoot* getRootGUI() { return INST->rootGUI; }
 
 
     static void initThreadChunkLoad() {

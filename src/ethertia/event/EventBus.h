@@ -11,6 +11,7 @@
 
 #include <ethertia/event/Event.h>
 #include <ethertia/event/EventPriority.h>
+#include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>
 
 
@@ -55,20 +56,23 @@ class EventBus
 public:
 
     template<typename E>
-    void post(E* e) const {
+    bool post(E* e) const {
         uint eventId = InternalUtil::GetEventId<E>();
 
         auto it = listeners.find(eventId);
         if (it == listeners.end())
-            return;
+            return false;
 
-        for (const auto& lsr : it->second)
-        {
-            if (lsr.eventId == eventId) {
+        try {
+            for (const auto& lsr : it->second)
+            {
                 lsr.function(e);
             }
+        } catch (ERR_CANCEL) {
+            return true;
         }
 
+        return false;
     }
 
 #define FUNC_EL const std::function<void(E*)>&
@@ -84,15 +88,24 @@ public:
         return &lsr;
     }
 
+    // static funcptr.
     template<typename E>
     Listener* listen(void (*funcptr)(E*)) {
         return listen<E>((FUNC_EL)funcptr);
     }
 
+    // non-static funcptr
+    template<typename E, typename T>
+    Listener* listen(void (T::* funcptr)(E*), T* inst) {
+        return listen<E>(std::bind(funcptr, inst, std::placeholders::_1));
+    }
+
+    // lambda object.
     template<typename Lambda, typename E = InternalUtil::GetLambdaEventType<Lambda>>
     Listener* listen(Lambda l) {
         return listen<E>((FUNC_EL)l);
     }
+
 
     void unlisten(Listener* lsr) {
         auto& ls = listeners[lsr->eventId];
@@ -105,6 +118,17 @@ public:
         listeners[eventId].clear();
     }
 
+    void unlistenAll() {
+        listeners.clear();
+    }
+
+    std::unordered_map<uint, std::vector<Listener>>* getListeners() {
+        return &listeners;
+    }
+
+    static EventBus EVENT_BUS;
+
+    static constexpr struct ERR_CANCEL {} FORCE_CANCEL;
 };
 
 #endif //ETHERTIA_EVENTBUS_H

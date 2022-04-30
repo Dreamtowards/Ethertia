@@ -10,7 +10,7 @@
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/QuickTypes.h>
 #include <ethertia/util/Collections.h>
-
+#include <ethertia/event/EventBus.h>
 
 class Gui
 {
@@ -34,7 +34,8 @@ class Gui
 
     void* tag;
 
-    // eventbus?
+protected:
+    EventBus eventbus;
     // Events: OnClick, OnHoverChanged, OnPressChanged, OnFocusChanged, OnAttachChanged, OnVisibleChanged
     // OnMouseIn/Out, OnDraw, OnLayout
 
@@ -43,6 +44,8 @@ public:
     static constexpr float NaN = Mth::NaN;
     static constexpr float Inf = Mth::Inf;
 
+    struct OnClick {};
+    struct OnFocusChanged {};
 
     ////////////// SIZES //////////////
 
@@ -92,7 +95,7 @@ public:
         children.push_back(g);
         children.insert(children.begin()+idx, g);
         g->parent = this;
-        // fireEvent OnAttached
+        // broadcastEvent OnAttached
         // requestLayout
     }
     void addGui(Gui* g) {
@@ -103,7 +106,7 @@ public:
         auto it = children.begin()+idx;
         children.erase(it);
         (*it)->parent = nullptr;
-        // fireEvent OnDetached
+        // broadcastEvent OnDetached ??
     }
     void removeGui(Gui* g) {
         removeGui(Collections::indexOf(children, g));
@@ -153,10 +156,6 @@ public:
             mx.y = Mth::max(mx.y, g->getRelativeY() + g->getHeight());
         }
         childbound = mx;
-    }
-
-    void fireEvent() {
-
     }
 
 };
