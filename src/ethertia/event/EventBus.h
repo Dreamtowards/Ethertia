@@ -24,7 +24,7 @@ class EventBus
 
         std::function<void(void*)> function;
 
-        // int priority = EventPriority::NORMAL;  // higher value, higher priority.
+         int priority = EventPriority::NORMAL;  // higher value, higher priority.
     };
 
     std::unordered_map<uint, std::vector<Listener>> listeners;
@@ -51,6 +51,10 @@ class EventBus
         static DstType ultimate_cast(SrcType src) {
             return *reinterpret_cast<DstType*>(&src);
         }
+    };
+
+    std::function<bool(const Listener&, const Listener&)> COMP_LSR_PRIORITY = [](const Listener& lhs, const Listener& rhs) {
+        return lhs.priority < rhs.priority;
     };
 
 public:
@@ -126,9 +130,25 @@ public:
         return &listeners;
     }
 
+    void updateListener(Listener* lsr) {
+        auto& ls = listeners[lsr->eventId];
+        // check exists
+        if (Collections::indexOf(ls, lsr) == -1)
+            throw std::logic_error("No such listener exists in the eventbus.");
+
+        // update priority.
+        std::sort(ls.begin(), ls.end(), COMP_LSR_PRIORITY);
+    }
+
+
+
     static EventBus EVENT_BUS;
 
     static constexpr struct ERR_CANCEL {} FORCE_CANCEL;
 };
+
+// todo
+// priority sort
+// event cancel. and 'ignoreCancelled' listeners
 
 #endif //ETHERTIA_EVENTBUS_H
