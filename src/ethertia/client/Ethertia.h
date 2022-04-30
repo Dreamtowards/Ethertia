@@ -28,7 +28,7 @@ class Ethertia
     bool running = false;
 
     RenderEngine* renderEngine;
-    AudioEngine audioEngine;
+    // AudioEngine audioEngine;
     Window window;
     Timer timer;
     Camera camera;
@@ -108,7 +108,7 @@ public:
     {
 
 
-        // world->onTick();
+         // world->onTick();
     }
 
     void destroy()

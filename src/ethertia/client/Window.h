@@ -26,8 +26,6 @@ class Window
     float width;
     float height;
 
-    // float windowContentScale;
-
 public:
 
     int initWindow()

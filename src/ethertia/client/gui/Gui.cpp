@@ -12,3 +12,9 @@ float Gui::maxWidth() {
 float Gui::maxHeight() {
     return Ethertia::getWindow()->getHeight();
 }
+
+
+bool Gui::isMouseOver() {
+    auto* w = Ethertia::getWindow();
+    return isPointOver(w->getMouseX(), w->getMouseY());
+}

@@ -16,6 +16,13 @@ public:
     static constexpr float PI = 3.1416;
     static constexpr float PI_2 = 1.5708;
 
+    static constexpr float NaN = NAN;
+    static constexpr float Inf = INFINITY;
+
+    static inline bool isnan(float f) {
+        return std::isnan(f);
+    }
+
     static inline int floor(float v, int u) {
         int i = (int)floor(v / (float)u);
         return i*u;

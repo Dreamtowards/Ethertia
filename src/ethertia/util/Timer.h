@@ -16,6 +16,7 @@ class Timer
 
 
 public:
+
     void update(float currTime) {
         if (lastUpdateTime == 0)
             lastUpdateTime = currTime;

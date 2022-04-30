@@ -23,7 +23,7 @@ class FontRenderer
 
     const char** UNIFORM_CHARS = Renderer::_GenArrayNames("chars[%i]", 128);
     const char** UNIFORM_OFFSET = Renderer::_GenArrayNames("offset[%i]", 128);
-    const char** UNIFORM_SCALE = Renderer::_GenArrayNames("scale[%i]", 128);
+    // const char** UNIFORM_SCALE = Renderer::_GenArrayNames("scale[%i]", 128);
 
     const char** UNIFORM_GLYPH_WIDTHS = Renderer::_GenArrayNames("glyphWidths[%i]", 256);
 public:
@@ -53,6 +53,8 @@ public:
     void renderString(float x, float y, const std::string& str, glm::vec4 color, float fontHeight)
     {
         uint len = str.length();
+        if (len >= 128)
+            throw std::out_of_range("Batched rendering chars out of range.");
         float ww = Gui::maxWidth();
         float wh = Gui::maxHeight();
 
