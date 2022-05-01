@@ -13,7 +13,7 @@ public:
     {
         BlockTextures::init();
 
-        BitmapImage img(1, 1, new uint[1]{1});
+        BitmapImage img(1, 1, new uint[1]{(uint)~0});
         Texture::UNIT = Loader::loadTexture(&img);
 
         Log::info("Initialized.");

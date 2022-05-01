@@ -23,11 +23,6 @@
 class Loader {
 
 public:
-    class memblock
-    {
-        void* ptr;
-        uint len;
-    };
 
     static std::pair<char*, uint> loadAssets(const std::string& p)
     {

@@ -14,11 +14,12 @@
 #include <ethertia/event/client/MouseButtonEvent.h>
 #include <ethertia/event/client/KeyboardEvent.h>
 #include <ethertia/event/client/MouseMoveEvent.h>
-#include <ethertia/event/client/WindowResizeEvent.h>
+#include <ethertia/event/client/WindowResizedEvent.h>
 #include <ethertia/event/client/CharInputEvent.h>
 #include <ethertia/event/client/WindowDropEvent.h>
 #include <ethertia/event/client/WindowFocusEvent.h>
 #include <ethertia/event/client/MouseScrollEvent.h>
+#include <glm/vec2.hpp>
 
 
 class Window
@@ -44,8 +45,15 @@ public:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // OSX Required.
+        // glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 
-        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+        glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
         window = glfwCreateWindow(width=600, height=420, "Dysplay", nullptr, nullptr);
         if (!window)
@@ -74,6 +82,9 @@ public:
         glfwSetKeyCallback(window, onKeyboardKey);
         glfwSetCharCallback(window, onCharInput);
 
+        // init very first event.
+        onWindowSize(window, width, height);
+
         return 0;
     }
 
@@ -100,13 +111,15 @@ public:
         return glfwGetTime();
     }
 
-    float getMouseX() { return mouseX; }
-    float getMouseY() { return mouseY; }
-    float getMouseDX() { return mouseDX; }
-    float getMouseDY() { return mouseDY; }
-    float getScrollDX() { return scrollDX; }
-    float getScrollDY() { return scrollDY; }
-    float getDScroll() { return scrollDX+scrollDY; }
+    float getMouseX() const { return mouseX; }
+    float getMouseY() const { return mouseY; }
+    float getMouseDX() const { return mouseDX; }
+    float getMouseDY() const { return mouseDY; }
+    float getScrollDX() const { return scrollDX; }
+    float getScrollDY() const { return scrollDY; }
+    float getDScroll() const { return scrollDX+scrollDY; }
+
+    glm::vec2 getMousePos() { return glm::vec2(mouseX, mouseY); }
 
     float getWidth() { return width; }
     float getHeight() { return height; }
@@ -154,7 +167,7 @@ public:
         w->width = wid;
         w->height = hei;
 
-        WindowResizeEvent e;
+        WindowResizedEvent e(wid, hei);
         EventBus::EVENT_BUS.post(&e);
     }
 
@@ -185,7 +198,7 @@ public:
 
     static void onMouseButton(GLFWwindow* _w, int button, int action, int mods) {
 
-        MouseButtonEvent e;
+        MouseButtonEvent e(button, action==GLFW_PRESS);
         EventBus::EVENT_BUS.post(&e);
     }
 

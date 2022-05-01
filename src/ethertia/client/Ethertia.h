@@ -20,6 +20,7 @@
 #include <ethertia/init/BlockTextures.h>
 #include <ethertia/init/Init.h>
 #include <ethertia/world/World.h>
+#include <ethertia/client/gui/GuiButton.h>
 
 
 class Ethertia
@@ -62,8 +63,16 @@ public:
 
         Init::initialize();
 
-//        EventBus::EVENT_BUS = new EventBus();
         initThreadChunkLoad();
+
+        rootGUI->addGuis({
+            (new GuiButton("Button"))->exec([](GuiButton* g) {
+                g->setWidth(300);
+                g->setRelativeXY(0, 0);
+            })
+        });
+
+
     }
 
     void runMainLoop()
@@ -77,13 +86,7 @@ public:
             runTick();
         }
 
-        if (isIngame()) {
-            camera.update(window);
-            updateMovement();
-        }
-//        window.setMouseGrabbed(isIngame());
-        window.setTitle(("desp. "+std::to_string(1.0/timer.getDelta())).c_str());
-        renderEngine->updateProjectionMatrix(window.getWidth()/window.getHeight());
+        clientUpdate();
 
         {
             renderEngine->renderWorld(world);
@@ -96,15 +99,29 @@ public:
 
     void renderGUI()
     {
+        rootGUI->updateHovers(window.getMousePos());
+
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        renderEngine->guiRenderer.render(10, 10, 100, 100, glm::vec4(0.8), BlockTextures::ATLAS->atlasTexture);
+        rootGUI->onDraw();
 
-        renderEngine->fontRenderer.renderString(10, 110, "Test yo wassaup", Colors::WHITE, 16);
+//        Gui::drawString(Gui::maxWidth()/2, 110, "Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?",
+//                        Colors::WHITE, 32, 1);
 
         glEnable(GL_DEPTH_TEST);
+    }
+
+    void clientUpdate()
+    {
+        if (isIngame()) {
+            camera.update(window);
+            updateMovement();
+        }
+//        window.setMouseGrabbed(isIngame());
+        window.setTitle(("desp. "+std::to_string(1.0/timer.getDelta())).c_str());
+        renderEngine->updateProjectionMatrix(window.getWidth()/window.getHeight());
     }
 
     void runTick()
@@ -195,11 +212,13 @@ public:
 // todo ls:
 // text/font rendering
 // gui
+
 // multi layer cube cloud
 // cube ambient occlusion
-
 // multi block types.
 // block density? for isosurface and even SVO?
+
+// Fog.
 
 
 #endif //ETHERTIA_ETHERTIA_H

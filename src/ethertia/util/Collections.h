@@ -12,7 +12,7 @@ class Collections
 {
 public:
     template<typename T>
-    static int indexOf(const std::vector<T>& ls, T el) {
+    static int indexOf(const std::vector<T>& ls, const T& el) {
         int i;
         for (auto it = ls.begin(); it != ls.end(); ++it) {
             if (*it == el)
@@ -25,6 +25,11 @@ public:
     template<typename T>
     static size_t indexOf(const std::vector<T>& ls, T* p) {
         return ((size_t)p - (size_t)ls.data()) / sizeof(T);
+    }
+
+    template<typename T>
+    static bool contains(const std::vector<T>& ls, const T& e) {
+        return std::find(ls.begin(), ls.end(), e) != ls.end();
     }
 
 private:

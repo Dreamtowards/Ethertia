@@ -16,6 +16,12 @@ class ChunkRenderer {
 
 public:
 
+    ChunkRenderer() {
+
+        shader.useProgram();
+        shader.setInt("diffuseMap", 0);
+    }
+
     void render(Chunk* chunk);
 
 };

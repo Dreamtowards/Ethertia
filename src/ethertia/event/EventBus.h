@@ -24,11 +24,12 @@ class EventBus
 
         std::function<void(void*)> function;
 
-         int priority = EventPriority::NORMAL;  // higher value, higher priority.
+        int priority = EventPriority::NORMAL;  // higher value, higher priority.
     };
 
     std::unordered_map<uint, std::vector<Listener>> listeners;
 
+public:
     class InternalUtil
     {
     public:
@@ -79,6 +80,7 @@ public:
         return false;
     }
 
+
 #define FUNC_EL const std::function<void(E*)>&
 
     template<typename E>
@@ -113,7 +115,8 @@ public:
 
     void unlisten(Listener* lsr) {
         auto& ls = listeners[lsr->eventId];
-        ls.erase(ls.begin() + Collections::indexOf(ls, lsr));
+        int i = Collections::indexOf(ls, lsr); assert(i != -1);
+        ls.erase(ls.begin() + i);
     }
 
     template<typename E>

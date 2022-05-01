@@ -11,31 +11,77 @@
 
 class GuiRoot : public Gui
 {
+    void onMouseButton(MouseButtonEvent* e)
+    {
+
+        updateFocused();
+
+        updatePressed(e->isPressed());
+    }
+
+    void onWindowResized(WindowResizedEvent* e) {
+
+        setWidth(e->getWidth());
+        setHeight(e->getHeight());
+    }
+
 public:
     GuiRoot() {
 
-        Log::info("Registered MouseButton Lsr");
         EventBus::EVENT_BUS.listen(&GuiRoot::onMouseButton, this);
+        EventBus::EVENT_BUS.listen(&GuiRoot::onWindowResized, this);
+    }
 
-        EventBus::EVENT_BUS.listen([](WindowDropEvent* e) {
-            Log::info("Window Drop Paths: {}", e->count());
-            for (int i = 0; i < e->count(); ++i) {
-                Log::info("Path {}: {}", i, e->path(i));
+    /**
+     * call every frame. not just when mouse move.
+     * because hovered status might change regardless mouse move, e.g. gui pos/size change.
+     */
+    void updateHovers(glm::vec2 mpos) {
+        Gui* innermost = Gui::pointing(this, mpos);
+
+        std::vector<Gui*> hovered;
+        if (innermost) {
+            Gui::forParents(innermost, [&hovered](Gui *g) {
+                g->setHover(true);
+                hovered.push_back(g);
+            });
+        }
+
+        Gui::forChildren(this, [&hovered](Gui* g) {
+            if (g->isHover() && !Collections::contains(hovered, g)) {
+                g->setHover(false);
             }
         });
+    }
 
-        EventBus::EVENT_BUS.listen([](WindowCloseEvent* e) {
-            static int i = 0;
-            Log::info("Window Close: ", i);
-            if (i++ < 10)
-                throw EventBus::FORCE_CANCEL;
+    /**
+     * call only when MouseButton Down.
+     */
+    void updateFocused() {
+
+        Gui::forChildren(this, [](Gui* g) {
+            g->setFocused(g->isHover());
         });
     }
 
-    void onMouseButton(MouseButtonEvent* e) {
-
-        Log::info("MouseButton Fired");
+    /**
+     * call only when MouseButton Down/Up.
+     */
+    void updatePressed(bool pressed)
+    {
+        if (pressed) {
+            Gui::forChildren(this, [](Gui* g) {
+                if (g->isHover())
+                    g->setPressed(true);
+            });
+        } else {
+            Gui::forChildren(this, [](Gui* g) {
+                if (g->isPressed())
+                    g->setPressed(false);
+            });
+        }
     }
+
 };
 
 #endif //ETHERTIA_GUIROOT_H

@@ -5,19 +5,17 @@
 #ifndef ETHERTIA_WINDOWDROPEVENT_H
 #define ETHERTIA_WINDOWDROPEVENT_H
 
-#include <ccomplex>
-
 class WindowDropEvent
 {
-    uint _count;
-    const char** _paths;
+    uint count;
+    const char** paths;
 
 public:
-    WindowDropEvent(const uint& _count, const char** _paths) : _count(_count), _paths(_paths) {}
+    WindowDropEvent(const uint& count, const char** paths) : count(count), paths(paths) {}
 
-    uint count() const { return _count; }
+    uint getCount() const { return count; }
 
-    const char* path(uint i) const { return _paths[i]; }
+    const char* getPath(uint i) const { return paths[i]; }
 };
 
 #endif //ETHERTIA_WINDOWDROPEVENT_H

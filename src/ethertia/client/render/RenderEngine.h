@@ -31,7 +31,7 @@ public:
 
     void renderWorld(World* world)
     {
-        glClearColor(0, 0, 0.4, 1);
+        glClearColor(0.6*.6, 0.7*.6, 0.8*.6, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);
@@ -39,7 +39,7 @@ public:
 
         for (auto it : world->getLoadedChunks())
         {
-            if (!it.second){
+            if (!it.second) {
                 // Log::info("NO RENDER Chunk: NULL.");
                 continue;
             }
