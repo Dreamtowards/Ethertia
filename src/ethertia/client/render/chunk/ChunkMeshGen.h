@@ -66,9 +66,11 @@ public:
                     if (blockID) {
                         AtlasFrag* frag = nullptr;
                         if (blockID == Blocks::GRASS) frag = BlockTextures::GRASS;
-                        else if (blockID == Blocks::DIRT) frag = BlockTextures::DIRT;
+                        else if (blockID == Blocks::DIRT)  frag = BlockTextures::DIRT;
                         else if (blockID == Blocks::STONE) frag = BlockTextures::STONE;
-                        else if (blockID == Blocks::SAND) frag = BlockTextures::SAND;
+                        else if (blockID == Blocks::SAND)  frag = BlockTextures::SAND;
+                        else if (blockID == Blocks::WATER) frag = BlockTextures::WATER;
+                        else throw std::exception();
 
                         putCube(*vbuf, glm::vec3(rx, ry, rz), chunk, world, frag);
                     }

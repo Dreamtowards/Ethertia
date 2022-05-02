@@ -9,23 +9,27 @@
 
 class GuiStack : public GuiCollection
 {
-    glm::vec2 direction;
-    glm::vec2 gap;
+    int direction;
+    float gap;
 
 public:
-    GuiStack(float dirX, float dirY) : direction(glm::vec2(dirX, dirY)) {}
-    GuiStack(float dirX, float dirY, float gapX, float gapY) : direction(glm::vec2(dirX, dirY)), gap(glm::vec2(gapX, gapY)) {}
+    static constexpr int D_HORIZONTAL = 0;
+    static constexpr int D_VERTICAL = 1;
+
+    GuiStack(int dir) : direction(dir) {}
+    GuiStack(int dir, float gap) : direction(dir), gap(gap) {}
 
     void onLayout() override
     {
-        float x = 0;
-        float y = 0;
+        float dif = 0;
         for (Gui* g : children()) {
-            g->setRelativeX(x);
-            g->setRelativeY(y);
-
-            x += g->getWidth() * direction.x + gap.x;
-            y += g->getHeight() * direction.y + gap.y;
+            if (direction == D_HORIZONTAL)   {
+                g->setRelativeX(dif);
+                dif += g->getWidth();
+            } else if (direction == D_VERTICAL) {
+                g->setRelativeY(dif);
+                dif += g->getHeight();
+            }
         }
 
         Gui::onLayout();

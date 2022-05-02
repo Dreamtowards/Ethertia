@@ -18,6 +18,7 @@ public:
     inline static AtlasFrag* DIRT;
     inline static AtlasFrag* GRASS;
     inline static AtlasFrag* SAND;
+    inline static AtlasFrag* WATER;
 
     static void init()
     {
@@ -27,6 +28,7 @@ public:
         DIRT = load("blocks/dirt.png");
         GRASS = load("blocks/grass.png");
         SAND = load("blocks/sand.png");
+        WATER = load("blocks/water_still.png");
 
         ATLAS->buildAtlas();
         Loader::savePNG(Texture::glfGetTexImage(ATLAS->atlasTexture), "atlas.png");

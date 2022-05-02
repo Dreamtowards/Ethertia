@@ -59,12 +59,15 @@ public:
 
         uint dx = 0;
         for (AtlasFragment* frag : atlas) {
-            atlasImage.setPixels(dx, 0, frag->image);
+            BitmapImage* img = frag->image;
+            float wid = img->getWidth();
+            float hei = img->getHeight();
+            atlasImage.setPixels(dx, maxHeight - hei, img);
 
             frag->offset = glm::vec2((float)dx / totalWidth, 0);
-            frag->scale = glm::vec2((float)frag->image->getWidth()/totalWidth, (float)frag->image->getHeight()/maxHeight);
+            frag->scale = glm::vec2(wid / totalWidth, hei / maxHeight);
 
-            dx += frag->image->getWidth();
+            dx += wid;
         }
 
         atlasTexture = Loader::loadTexture(&atlasImage);

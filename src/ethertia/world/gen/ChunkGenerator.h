@@ -16,9 +16,9 @@
 
 class ChunkGenerator
 {
+public:
     NoiseGeneratorPerlin noise{};
 
-public:
 
     ChunkGenerator() {
         noise.initPermutations(1);
@@ -112,8 +112,14 @@ public:
 //                                    }
 //                                }
 
+                                ubyte bl = 0;
                                 if (spZsum > 0.0) {
-                                    chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, Blocks::STONE);
+                                    bl = Blocks::STONE;
+                                } else if (chunkpos.y+sY*sampleSize+dY < 0) {
+                                    bl = Blocks::WATER;
+                                }
+                                if (bl) {
+                                    chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, bl);
                                 }
                                 spZsum += spZdiffx0;
                             }

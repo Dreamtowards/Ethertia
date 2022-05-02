@@ -65,7 +65,6 @@ public:
 
     static void populate(World* world, glm::vec3 chunkpos)
     {
-
         for (int dx = 0; dx < 16; ++dx) {
             for (int dz = 0; dz < 16; ++dz) {
                 int x = chunkpos.x + dx;
@@ -74,7 +73,8 @@ public:
 
                 for (int dy = 0; dy < 16; ++dy) {
                     int y = chunkpos.y + dy;
-                    if (world->getBlock(x, y, z) == 0)
+                    ubyte tmpbl = world->getBlock(x, y, z);
+                    if (tmpbl == 0 || tmpbl == Blocks::WATER)
                         continue;
 
                     if (nextAir < dy) {
@@ -89,9 +89,11 @@ public:
                     int nextToAir = nextAir - dy;
 
                     ubyte replace = Blocks::STONE;
-                    if (nextToAir == 1) {
+                    if (y < 3 && nextToAir < 3 && world->chunkGenerator.noise.noise(x/60.0, y/60.0, z/60.0) > 0.1) {
+                        replace = Blocks::SAND;
+                    } else if (nextToAir == 1) {
                         replace = Blocks::GRASS;
-                    } else if (nextToAir < 3) {
+                    } else if (nextToAir < 4) {
                         replace = Blocks::DIRT;
                     }
                     world->setBlock(x, y, z, replace);

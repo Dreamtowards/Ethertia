@@ -18,10 +18,11 @@ public:
 
     void onDraw() override
     {
+        float rad = 0;
         Gui::drawRect(getX(), getY(), getWidth(), getHeight(),
-                      isPressed() ? Colors::BLACK80 : Colors::BLACK, nullptr, 3.0);
+                      isPressed() ? Colors::BLACK80 : Colors::BLACK30, nullptr, rad);
         Gui::drawRect(getX(), getY(), getWidth(), getHeight(),
-                      isPressed() ? Colors::RED : isHover() ? Colors::GRAY : Colors::WHITE30, nullptr, 3, 2);
+                      isPressed() ? Colors::RED : isHover() ? Colors::GRAY : Colors::WHITE30, nullptr, rad, 2);
 
         Gui::drawString(getX()+getWidth()/2, getY()+(getHeight()-16)/2, text,
                         isPressed() ? Colors::RED : isHover() ? Colors::YELLOW : Colors::WHITE,

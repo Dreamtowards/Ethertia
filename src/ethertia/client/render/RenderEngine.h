@@ -31,7 +31,7 @@ public:
 
     void renderWorld(World* world)
     {
-        glClearColor(0.6*.6, 0.7*.6, 0.8*.6, 1);
+        glClearColor(0.6*.9, 0.7*.9, 0.8*.9, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);

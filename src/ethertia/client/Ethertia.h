@@ -123,7 +123,7 @@ public:
 
         rootGUI->onDraw();
 
-//        Gui::drawRect(100, 100, 200, 100, Colors::WHITE, nullptr, 2, 4);
+//        Gui::drawRect(100, 100, 200, 100, Colors::WHITE, BlockTextures::ATLAS->atlasTexture, 20);
 //        Gui::drawRect(100, 100, 10, 10, Colors::GREEN);
 
 //        Gui::drawString(Gui::maxWidth()/2, 110, "Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?",
