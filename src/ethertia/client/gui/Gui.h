@@ -13,6 +13,7 @@
 #include <ethertia/event/EventBus.h>
 #include <ethertia/client/render/Texture.h>
 #include <ethertia/util/Colors.h>
+#include <ethertia/util/IndexIterable.h>
 
 class Gui
 {
@@ -21,6 +22,7 @@ class Gui
     float width = 0;
     float height = 0;
 
+    Gui* parent = nullptr;
     glm::vec2 childbound{0};
 
     bool hovered = false;
@@ -33,9 +35,6 @@ class Gui
 
     void* tag = nullptr;
 
-protected:
-    Gui* parent = nullptr;
-    std::vector<Gui*> children;
 
 public:
     EventBus eventbus;
@@ -45,28 +44,6 @@ public:
     // cachedAbsXY?
     // 1. active: update-child-cachedpos when setPos
     // 2. lazy: Child-CachedPosInvalid, lazy getXY ToUpdate
-
-    class Contentable
-    {
-        static Gui* get(Gui* g) {
-            assert(g->count() <= 1);
-            return g->count() ? g->getGui(0) : nullptr;
-        }
-        static void set(Gui* g, Gui* content) {
-            g->removeAllGuis();
-            g->addGui(content);
-        }
-
-    public:
-        virtual Gui* getContent() {
-            return Contentable::get((Gui*)this);
-        }
-
-        virtual Gui* setContent(Gui* content) {
-            Contentable::set((Gui*)this, content);
-            return (Gui*)this;
-        }
-    };
 
 public:
     static constexpr float NaN = Mth::NaN;
@@ -120,19 +97,19 @@ public:
         setRelativeY(_y - py);
     }
 
-    float getWidth() const {
+    virtual float getWidth() const {
         if (!visible) return 0;
         if (width == -Inf) return childbound.x;
-        if (width == Inf) return parent->getWidth();  // sub x?
+        if (width == Inf) return parent->getWidth() - x;  // sub x?
         return width;
     }
     void setWidth(float w) {
         width = w;
     }
-    float getHeight() const {
+    virtual float getHeight() const {
         if (!visible) return 0;
         if (height == -Inf) return childbound.y;
-        if (height == Inf) return parent->getHeight();  // sub y?
+        if (height == Inf) return parent->getHeight() - y;  // sub y?
         return height;
     }
     void setHeight(float h) {
@@ -144,60 +121,50 @@ public:
     static float maxHeight();
 
 
+    // Universal Interface for Initiative Iteration
+
+    virtual int count() const {
+        return 0;
+    }
+    virtual Gui* at(int i) {
+        return nullptr;
+    }
+
+    class _GIterable {public:
+        Gui* g;
+        _GIterable(Gui *g) : g(g) {}
+        class Iter {public:
+            Gui* g;
+            int i;
+            Iter(Gui *g, int i) : g(g), i(i) {}
+            Gui* operator*() const { return g->at(i); }
+            Iter operator++() { ++i; return *this; }
+            Iter operator--() { --i; return *this; }
+            friend bool operator!=(const Iter& lhs, const Iter& rhs) { return lhs.i!=rhs.i || lhs.g!=rhs.g; }
+        };
+        Iter begin() const { return Iter(g, 0); }
+        Iter end() const { return Iter(g, g->count()); }
+    };
+
+    _GIterable children() {
+        return _GIterable(this);
+    }
+
+
     ////////////// CHILDREN //////////////
 
     Gui* getParent() const {
         return parent;
     }
-    uint count() const {
-        return children.size();
+    void detach() {
+        parent = nullptr;
     }
-    Gui* getGui(uint idx) {
-        return children[idx];
+    void attach(Gui* p) {
+        parent = p;
     }
-
-    void addGui(Gui* g, uint idx) {
-        if (g->parent) throw std::logic_error("Cannot attach. it belongs to another.");
-        children.insert(children.begin()+idx, g);
-        g->parent = this;
-        // broadcastEvent OnAttached
-        // requestLayout
-    }
-    void addGui(Gui* g) {
-        addGui(g, count());
-    }
-    Gui* addGuis(std::initializer_list<Gui*> ls) {
-        for (Gui* g : ls) {
-            addGui(g);
-        }
-        return this;
-    }
-
-    void removeGui(int idx) {
-        auto it = children.begin()+idx;
-        children.erase(it);
-        (*it)->parent = nullptr;
-        // broadcastEvent OnDetached ??
-    }
-    void removeGui(Gui* g) {
-        removeGui(Collections::indexOf(children, g));
-    }
-    void removeLastGui() {
-        removeGui(count()-1);
-    }
-    void removeAllGuis() {
-        while (count()) {
-            removeLastGui();
-        }
-    }
-
-    void setGui(uint idx, Gui* g) {
-        removeGui(idx);
-        addGui(g, idx);
-    }
-
 
     static void forParents(Gui* g, const std::function<void(Gui*)>& visitor) {
+        if (!g) return;
         visitor(g);
 
         while ((g=g->parent)) {
@@ -206,9 +173,10 @@ public:
     }
 
     static void forChildren(Gui* g, const std::function<void(Gui*)>& visitor) {
+        if (!g) return;
         visitor(g);
 
-        for (Gui* child : g->children) {
+        for (Gui* child : g->children()) {
             Gui::forChildren(child, visitor);
         }
     }
@@ -240,6 +208,7 @@ public:
 
         fireEvent<OnFocus>();
     }
+
 
 
 
@@ -278,7 +247,7 @@ public:
             return nullptr;
 
         for (int i = g->count()-1; i >= 0; --i) {
-            if (Gui* r = pointing(g->getGui(i), p))
+            if (Gui* r = pointing(g->at(i), p))
                 return r;
         }
         // except GuiAlign. which just an adjuster regardless self-size/interaction.
@@ -295,7 +264,7 @@ public:
 
     virtual void onDraw()
     {
-        for (Gui* g : children)
+        for (Gui* g : children())
         {
             g->onDraw();
         }
@@ -306,23 +275,23 @@ public:
     {
         _update_childbound();
 
-        for (Gui* g : children)
+        for (Gui* g : children())
         {
             g->onLayout();
         }
     }
 
+
     void _update_childbound() {
         if (width != -Inf && height != -Inf)
             return;
         glm::vec2 mx(0);
-        for (auto* g : children) {
+        for (auto* g : children()) {
             mx.x = Mth::max(mx.x, g->getRelativeX() + g->getWidth());  // what if child size is MATCH_PARENT? then should ignore size but consider pos, or throw logical exception
             mx.y = Mth::max(mx.y, g->getRelativeY() + g->getHeight());
         }
         childbound = mx;
     }
-
 
 
 
@@ -338,17 +307,30 @@ public:
                            float align =0,
                            bool drawShadow =true);
 
-//    static void drawRectBorder(float x, float y, float w, float h, float thinkness, glm::vec4 color) {
-//        drawRect(x, y, w, thinkness, color);  // top
-//        drawRect(x, y+h-thinkness, w, thinkness, color);  // bottom
-//        drawRect(x, y+thinkness, thinkness, h-2*thinkness, color);  // left
-//        drawRect(x+w-thinkness, y+thinkness, thinkness, h-2*thinkness, color);  // right
-//    }
 
-
-// drawViewpoint(glm::vec3 worldpos);
 // drawCornerStretchTexture
-// drawRectBorder
+
+// needs GuiGroup?
+// what if a Gui only have one content-child?, or non-child, then children shows confuse, waste and logical non-compact.
+// but if separate GuiGroup, then the Overall-Through-Iteration might become a problem. since interface diff.
+
+// Gui* getSub() {
+// }
+
+// GuiCheckBox
+// GuiComboBox
+// GuiDrag
+// GuiExpander
+// GuiTexture
+// GuiPopupMenu
+// GuiRadioButton
+// GuiScrollbar
+// GuiScrollBox
+// GuiSlider
+// GuiSwitch
+// GuiText
+// GuiTextBox
+
 };
 
 #endif //ETHERTIA_GUI_H

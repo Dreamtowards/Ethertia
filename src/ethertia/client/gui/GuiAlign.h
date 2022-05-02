@@ -7,7 +7,7 @@
 
 #include "Gui.h"
 
-class GuiAlign : public Gui, public Gui::Contentable
+class GuiAlign : public GuiDelegate
 {
 public:
     float ratioX = Inf;
@@ -18,13 +18,17 @@ public:
     float right  = Inf;
     float bottom = Inf;
 
-    GuiAlign() : Gui(0, 0, Inf, Inf) { }
-
-    GuiAlign(float ratioX, float ratioY) : ratioX(ratioX), ratioY(ratioY), Gui(0, 0, Inf, Inf) { }
+    GuiAlign() {
+        Log::info("DefCons");
+    }
+    GuiAlign(float ratioX, float ratioY) : ratioX(ratioX), ratioY(ratioY) {}
 
     void onLayout() override
     {
-        Gui* g = getGui(0);
+        setWidth(Inf);
+        setHeight(Inf);
+
+        Gui* g = getContent();
         if (g) {
             if (ratioX != Inf) g->setRelativeX((getWidth() - g->getWidth()) * ratioX);
             if (ratioY != Inf) g->setRelativeY((getHeight() - g->getHeight()) * ratioY);
@@ -45,17 +49,6 @@ public:
         Gui::onLayout();
     }
 
-
-    // Duplicated Code.
-    Gui* getContent() override {
-        return count() ? getGui(0) : nullptr;
-    }
-
-    Gui* setContent(Gui* content) override {
-        removeAllGuis();
-        addGui(content);
-        return this;
-    }
 };
 
 #endif //ETHERTIA_GUIALIGN_H

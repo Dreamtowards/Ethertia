@@ -7,20 +7,19 @@
 
 #include "Gui.h"
 
-class GuiRow : public Gui
+class GuiRow : public GuiCollection
 {
 public:
-    GuiRow() : Gui(0, 0, -Inf, -Inf) {}
 
     void onLayout() override
     {
         float x = 0;
-        for (Gui* g : children) {
+        for (Gui* g : children()) {
             g->setRelativeX(x);
             x += g->getWidth();
         }
 
-        Gui::onLayout();
+        GuiCollection::onLayout();
     }
 };
 

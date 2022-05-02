@@ -6,8 +6,9 @@
 #define ETHERTIA_GUIPADDING_H
 
 #include "Gui.h"
+#include "GuiDelegate.h"
 
-class GuiPadding : public Gui, public Gui::Contentable
+class GuiPadding : public GuiDelegate
 {
     float left;
     float top;
@@ -39,15 +40,6 @@ public:
         bottom = ltrb.w;
     }
 
-    Gui* getContent() override {
-        return count() ? getGui(0) : nullptr;
-    }
-
-    Gui* setContent(Gui* content) override {
-        removeAllGuis();
-        addGui(content);
-        return this;
-    }
 };
 
 #endif //ETHERTIA_GUIPADDING_H

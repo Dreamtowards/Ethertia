@@ -7,20 +7,19 @@
 
 #include "Gui.h"
 
-class GuiColumn : public Gui
+class GuiColumn : public GuiCollection
 {
 public:
-    GuiColumn() : Gui(0, 0, -Inf, -Inf) {}
 
     void onLayout() override
     {
         float y = 0;
-        for (Gui* g : children) {
+        for (Gui* g : children()) {
             g->setRelativeY(y);
             y += g->getHeight();
         }
 
-        Gui::onLayout();
+        GuiCollection::onLayout();
     }
 
 };

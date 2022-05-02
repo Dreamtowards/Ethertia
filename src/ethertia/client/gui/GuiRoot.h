@@ -6,10 +6,11 @@
 #define ETHERTIA_GUIROOT_H
 
 #include "Gui.h"
+#include "GuiCollection.h"
 #include <ethertia/event/client/MouseButtonEvent.h>
 #include <ethertia/event/client/WindowCloseEvent.h>
 
-class GuiRoot : public Gui
+class GuiRoot : public GuiCollection
 {
     void onMouseButton(MouseButtonEvent* e)
     {
@@ -40,12 +41,10 @@ public:
         Gui* innermost = Gui::pointing(this, mpos);
 
         std::vector<Gui*> hovered;
-        if (innermost) {
-            Gui::forParents(innermost, [&hovered](Gui *g) {
-                g->setHover(true);
-                hovered.push_back(g);
-            });
-        }
+        Gui::forParents(innermost, [&hovered](Gui *g) {
+            g->setHover(true);
+            hovered.push_back(g);
+        });
 
         Gui::forChildren(this, [&hovered](Gui* g) {
             if (g->isHover() && !Collections::contains(hovered, g)) {
