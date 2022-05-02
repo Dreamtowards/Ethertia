@@ -213,7 +213,7 @@ public:
 
     static void onKeyboardKey(GLFWwindow* _w, int key, int scancode, int action, int mods) {
 
-        KeyboardEvent e;
+        KeyboardEvent e(key, action==GLFW_PRESS);
         EventBus::EVENT_BUS.post(&e);
     }
 

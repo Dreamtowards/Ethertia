@@ -21,11 +21,10 @@
 #include <ethertia/init/Init.h>
 #include <ethertia/world/World.h>
 #include <ethertia/client/gui/GuiButton.h>
-#include <ethertia/client/gui/GuiColumn.h>
-#include <ethertia/client/gui/GuiRow.h>
 #include <ethertia/client/gui/GuiPadding.h>
 #include <ethertia/client/gui/GuiAlign.h>
 #include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
+#include <ethertia/client/gui/screen/GuiIngame.h>
 
 
 class Ethertia
@@ -70,7 +69,24 @@ public:
 
         initThreadChunkLoad();
 
-        rootGUI->addGui(new GuiScreenMainMenu());
+        GuiIngame::INST = new GuiIngame();
+        GuiScreenMainMenu::INST = new GuiScreenMainMenu();
+
+        rootGUI->addGui(GuiIngame::INST);
+        rootGUI->addGui(GuiScreenMainMenu::INST);
+
+        EventBus::EVENT_BUS.listen([](KeyboardEvent* e) {
+            if (e->isPressed()) {
+                if (e->getKey() == GLFW_KEY_ESCAPE) {
+                    Gui* g = getRootGUI()->last();
+                    if (g != GuiIngame::INST) {
+                        getRootGUI()->removeGui(g);
+                    } else {
+                        getRootGUI()->addGui(GuiScreenMainMenu::INST);
+                    }
+                }
+            }
+        });
     }
 
     void runMainLoop()
@@ -119,10 +135,10 @@ public:
     void clientUpdate()
     {
         if (isIngame()) {
-            camera.update(window);
             updateMovement();
+            camera.update(window);
         }
-//        window.setMouseGrabbed(isIngame());
+        window.setMouseGrabbed(isIngame());
         window.setTitle(("desp. "+std::to_string(1.0/timer.getDelta())).c_str());
         renderEngine->updateProjectionMatrix(window.getWidth()/window.getHeight());
     }
@@ -146,7 +162,7 @@ public:
 
     static void shutdown() { INST->running = false; }
     static bool isRunning() { return INST->running; }
-    static bool isIngame() { return !getWindow()->isAltKeyDown(); }
+    static bool isIngame() { return getRootGUI()->last() == GuiIngame::INST && !getWindow()->isAltKeyDown(); }
 
     static float getPreciseTime() { return (float)Window::getPreciseTime(); }
 

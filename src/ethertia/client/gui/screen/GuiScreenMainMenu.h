@@ -13,6 +13,8 @@
 class GuiScreenMainMenu : public GuiCollection
 {
 public:
+    inline static GuiScreenMainMenu* INST;
+
     GuiScreenMainMenu()
     {
         setWidth(Inf);

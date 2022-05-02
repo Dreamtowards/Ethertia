@@ -19,7 +19,7 @@ public:
     glm::vec3 position;
     glm::vec3 eulerAngles;  // ORDER: YXZ
 
-    glm::mat4 viewMatrix;
+    glm::mat4 viewMatrix{1};
 
     void update(Window& window) {
         float mx = window.getMouseDX() / 200;

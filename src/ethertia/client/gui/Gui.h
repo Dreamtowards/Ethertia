@@ -162,6 +162,7 @@ public:
     void attach(Gui* p) {
         parent = p;
     }
+//    void removeFromParent() {}
 
     static void forParents(Gui* g, const std::function<void(Gui*)>& visitor) {
         if (!g) return;

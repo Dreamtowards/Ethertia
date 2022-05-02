@@ -23,6 +23,9 @@ public:
     Gui* at(int i) override {
         return _children.at(i);
     }
+    Gui* last() {
+        return at(count()-1);
+    }
 
     void addGui(Gui* g, uint idx) {
         if (g->getParent()) throw std::logic_error("Cannot attach. it belongs to another.");
