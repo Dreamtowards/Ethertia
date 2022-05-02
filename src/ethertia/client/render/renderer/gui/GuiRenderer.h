@@ -28,12 +28,13 @@ public:
         });
     }
 
-    void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex)
+    void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex =nullptr, float round =0, float border =FLT_MAX)
     {
-        if (tex) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, tex->getTextureID());
-        }
+        if (!tex)
+            tex = Texture::UNIT;
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex->getTextureID());
+
         float ww = Gui::maxWidth();  // window width.
         float wh = Gui::maxHeight();
 
@@ -41,6 +42,10 @@ public:
 
         shader.setVector2f("offset", Mth::ndc(x, y, ww, wh));
         shader.setVector2f("scale", glm::vec2(w/ww, h/wh));
+
+        shader.setVector2f("PixSize", glm::vec2(w, h));
+        shader.setFloat("border", border);
+        shader.setFloat("round", round);
 
         shader.setVector4f("color", color);
 

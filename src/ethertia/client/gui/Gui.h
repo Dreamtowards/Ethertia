@@ -21,9 +21,6 @@ class Gui
     float width = 0;
     float height = 0;
 
-    Gui* parent = nullptr;
-    std::vector<Gui*> children;
-
     glm::vec2 childbound{0};
 
     bool hovered = false;
@@ -37,6 +34,10 @@ class Gui
     void* tag = nullptr;
 
 protected:
+    Gui* parent = nullptr;
+    std::vector<Gui*> children;
+
+public:
     EventBus eventbus;
     // Events: OnClick, OnHoverChanged, OnPressChanged, OnFocusChanged, OnAttachChanged, OnVisibleChanged
     // OnMouseIn/Out, OnDraw, OnLayout
@@ -44,6 +45,28 @@ protected:
     // cachedAbsXY?
     // 1. active: update-child-cachedpos when setPos
     // 2. lazy: Child-CachedPosInvalid, lazy getXY ToUpdate
+
+    class Contentable
+    {
+        static Gui* get(Gui* g) {
+            assert(g->count() <= 1);
+            return g->count() ? g->getGui(0) : nullptr;
+        }
+        static void set(Gui* g, Gui* content) {
+            g->removeAllGuis();
+            g->addGui(content);
+        }
+
+    public:
+        virtual Gui* getContent() {
+            return Contentable::get((Gui*)this);
+        }
+
+        virtual Gui* setContent(Gui* content) {
+            Contentable::set((Gui*)this, content);
+            return (Gui*)this;
+        }
+    };
 
 public:
     static constexpr float NaN = Mth::NaN;
@@ -135,7 +158,6 @@ public:
 
     void addGui(Gui* g, uint idx) {
         if (g->parent) throw std::logic_error("Cannot attach. it belongs to another.");
-        children.push_back(g);
         children.insert(children.begin()+idx, g);
         g->parent = this;
         // broadcastEvent OnAttached
@@ -144,13 +166,14 @@ public:
     void addGui(Gui* g) {
         addGui(g, count());
     }
-    void addGuis(const std::initializer_list<Gui*>& ls) {
+    Gui* addGuis(std::initializer_list<Gui*> ls) {
         for (Gui* g : ls) {
             addGui(g);
         }
+        return this;
     }
 
-    void removeGui(uint idx) {
+    void removeGui(int idx) {
         auto it = children.begin()+idx;
         children.erase(it);
         (*it)->parent = nullptr;
@@ -220,6 +243,9 @@ public:
 
 
 
+    EventBus& getEventBus() {
+        return eventbus;
+    }
 
     template<typename E>
     void fireEvent() {
@@ -250,6 +276,7 @@ public:
     static Gui* pointing(Gui* g, glm::vec2 p) {
         if (!g->isPointOver(p))
             return nullptr;
+
         for (int i = g->count()-1; i >= 0; --i) {
             if (Gui* r = pointing(g->getGui(i), p))
                 return r;
@@ -275,9 +302,14 @@ public:
     }
 
 
-    void onLayout()
+    virtual void onLayout()
     {
+        _update_childbound();
 
+        for (Gui* g : children)
+        {
+            g->onLayout();
+        }
     }
 
     void _update_childbound() {
@@ -295,8 +327,9 @@ public:
 
 
     static void drawRect(float x, float y, float w, float h, glm::vec4 color,
-                         Texture* tex =Texture::UNIT,
-                         float round =0);
+                         Texture* tex =nullptr,
+                         float round =0,
+                         float border =99999);
 
 
     static void drawString(float x, float y, const std::string& str,
@@ -304,6 +337,13 @@ public:
                            float textHeight =16,
                            float align =0,
                            bool drawShadow =true);
+
+//    static void drawRectBorder(float x, float y, float w, float h, float thinkness, glm::vec4 color) {
+//        drawRect(x, y, w, thinkness, color);  // top
+//        drawRect(x, y+h-thinkness, w, thinkness, color);  // bottom
+//        drawRect(x, y+thinkness, thinkness, h-2*thinkness, color);  // left
+//        drawRect(x+w-thinkness, y+thinkness, thinkness, h-2*thinkness, color);  // right
+//    }
 
 
 // drawViewpoint(glm::vec3 worldpos);

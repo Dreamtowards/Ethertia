@@ -21,6 +21,10 @@
 #include <ethertia/init/Init.h>
 #include <ethertia/world/World.h>
 #include <ethertia/client/gui/GuiButton.h>
+#include <ethertia/client/gui/GuiColumn.h>
+#include <ethertia/client/gui/GuiRow.h>
+#include <ethertia/client/gui/GuiPadding.h>
+#include <ethertia/client/gui/GuiAlign.h>
 
 
 class Ethertia
@@ -66,13 +70,25 @@ public:
         initThreadChunkLoad();
 
         rootGUI->addGuis({
-            (new GuiButton("Button"))->exec([](GuiButton* g) {
-                g->setWidth(300);
-                g->setRelativeXY(0, 0);
-            })
+         (new GuiAlign(0.5, 0.5))->exec([](GuiAlign* g){
+
+         })->setContent(
+           (new GuiRow())->addGuis({
+             (new GuiButton("Button"))->exec([](GuiButton* g) {
+
+                 g->getEventBus().listen([](Gui::OnReleased* e) {
+                     Log::info("Released?");
+                 });
+             }),
+             (new GuiButton("Button 2"))->exec([](GuiButton* g) {
+
+                 g->getEventBus().listen([](Gui::OnReleased* e) {
+                     Log::info("Released?");
+                 });
+             })
+           })
+          )
         });
-
-
     }
 
     void runMainLoop()
@@ -99,6 +115,8 @@ public:
 
     void renderGUI()
     {
+        rootGUI->onLayout();
+
         rootGUI->updateHovers(window.getMousePos());
 
         glDisable(GL_DEPTH_TEST);
@@ -106,6 +124,9 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         rootGUI->onDraw();
+
+//        Gui::drawRect(100, 100, 200, 100, Colors::WHITE, nullptr, 2, 4);
+//        Gui::drawRect(100, 100, 10, 10, Colors::GREEN);
 
 //        Gui::drawString(Gui::maxWidth()/2, 110, "Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?",
 //                        Colors::WHITE, 32, 1);

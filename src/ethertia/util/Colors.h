@@ -18,6 +18,11 @@ public:
     inline static constexpr glm::vec4 BLACK = glm::vec4(0, 0, 0, 1);
     inline static constexpr glm::vec4 TRANSPARENT = glm::vec4(0, 0, 0, 0);
 
+    inline static constexpr glm::vec4 WHITE20 = glm::vec4(1, 1, 1, 0.2);
+    inline static constexpr glm::vec4 WHITE30 = glm::vec4(1, 1, 1, 0.4);
+
+    inline static constexpr glm::vec4 BLACK80 = glm::vec4(0, 0, 0, 0.8);
+
     inline static constexpr glm::vec4 R = glm::vec4(1, 0, 0, 1);
     inline static constexpr glm::vec4 G = glm::vec4(0, 1, 0, 1);
     inline static constexpr glm::vec4 B = glm::vec4(0, 0, 1, 1);

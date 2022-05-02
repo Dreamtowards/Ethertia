@@ -25,7 +25,8 @@ Chunk* World::provideChunk(glm::vec3 p) {
 
     auto* vbuf = ChunkMeshGen::genMesh(chunk, this);
     if (vbuf) {
-        Ethertia::getExecutor()->exec([=]() {
+        Ethertia::getExecutor()->exec([chunk, vbuf]() {
+            delete chunk->model;
             chunk->model = Loader::loadModel(vbuf);
             delete vbuf;
         });
