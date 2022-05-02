@@ -123,6 +123,10 @@ public:
 
         rootGUI->onDraw();
 
+        std::stringstream ss;
+        Log::log(ss, "camp: {}\ndt/ {}, {}fs", glm::to_string(camera.position), timer.getDelta(), 1.0/timer.getDelta());
+        Gui::drawString(0, 32, ss.str(), Colors::WHITE, 16, 0, false);
+
 //        Gui::drawRect(100, 100, 200, 100, Colors::WHITE, BlockTextures::ATLAS->atlasTexture, 20);
 //        Gui::drawRect(100, 100, 10, 10, Colors::GREEN);
 
@@ -178,7 +182,7 @@ public:
         new std::thread([]() {
             while (isRunning())
             {
-                updateViewDistance(getWorld(), getCamera()->position, 2);
+                updateViewDistance(getWorld(), getCamera()->position, 3);
 
                 std::this_thread::sleep_for(std::chrono::milliseconds (10));
             }
@@ -237,7 +241,13 @@ public:
 // multi block types.
 // block density? for isosurface and even SVO?
 
-// Fog.
+// Sky gradient.
+
+// Self-spread chunkload order
+// population directions/updates correct
+
+// Frustum
+// opt Sliders ViewDist,FOV,Colors..
 
 
 #endif //ETHERTIA_ETHERTIA_H
