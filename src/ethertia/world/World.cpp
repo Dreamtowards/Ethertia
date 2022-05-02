@@ -9,6 +9,16 @@
 #include <ethertia/client/Ethertia.h>
 
 
+void tmpDoRebuildModel(Chunk* chunk, World* world) {
+    auto* vbuf = ChunkMeshGen::genMesh(chunk, world);
+    if (vbuf) {
+        Ethertia::getExecutor()->exec([chunk, vbuf]() {
+            delete chunk->model;
+            chunk->model = Loader::loadModel(vbuf);
+            delete vbuf;
+        });
+    }
+}
 
 Chunk* World::provideChunk(glm::vec3 p) {
     Chunk* chunk = getLoadedChunk(p);
@@ -23,13 +33,14 @@ Chunk* World::provideChunk(glm::vec3 p) {
 
     loadedChunks[chunkpos] = chunk;
 
-    auto* vbuf = ChunkMeshGen::genMesh(chunk, this);
-    if (vbuf) {
-        Ethertia::getExecutor()->exec([chunk, vbuf]() {
-            delete chunk->model;
-            chunk->model = Loader::loadModel(vbuf);
-            delete vbuf;
-        });
+    // check populates
+    Chunk* down = getLoadedChunk(chunkpos - glm::vec3(0, 16, 0));
+    if (down && !down->populated) {
+        populate(this, down->position);
+        down->populated = true;
+        Log::info("Populated");
+        tmpDoRebuildModel(down, this);
     }
+
     return chunk;
 }

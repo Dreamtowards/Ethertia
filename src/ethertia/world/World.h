@@ -7,8 +7,10 @@
 
 #include <unordered_map>
 #include <glm/vec3.hpp>
+
 #include <ethertia/world/chunk/Chunk.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
+#include <ethertia/init/Blocks.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/hash.hpp"
@@ -27,11 +29,17 @@ public:
         if (!chunk) return 0;
         return chunk->getBlock(blockpos);
     }
+    ubyte getBlock(int x, int y, int z) {
+        return getBlock(glm::vec3(x,y,z));
+    }
 
     void setBlock(glm::vec3 blockpos, ubyte blockID) {
         Chunk* chunk = getLoadedChunk(blockpos);
         if (!chunk) return;
         chunk->setBlock(blockpos, blockID);
+    }
+    void setBlock(int x, int y, int z, ubyte blockID) {
+        setBlock(glm::vec3(x,y,z), blockID);
     }
 
     Chunk* provideChunk(glm::vec3 p);
@@ -52,6 +60,46 @@ public:
         return loadedChunks;
     }
 
+
+
+
+    static void populate(World* world, glm::vec3 chunkpos)
+    {
+
+        for (int dx = 0; dx < 16; ++dx) {
+            for (int dz = 0; dz < 16; ++dz) {
+                int x = chunkpos.x + dx;
+                int z = chunkpos.z + dz;
+                int nextAir = -1;
+
+                for (int dy = 0; dy < 16; ++dy) {
+                    int y = chunkpos.y + dy;
+                    if (world->getBlock(x, y, z) == 0)
+                        continue;
+
+                    if (nextAir < dy) {
+                        for (int i = 0;; ++i) {
+                            if (world->getBlock(x, y+i, z) == 0) {
+                                nextAir = dy+i;
+                                break;
+                            }
+                        }
+                    }
+
+                    int nextToAir = nextAir - dy;
+
+                    ubyte replace = Blocks::STONE;
+                    if (nextToAir == 1) {
+                        replace = Blocks::GRASS;
+                    } else if (nextToAir < 3) {
+                        replace = Blocks::DIRT;
+                    }
+                    world->setBlock(x, y, z, replace);
+                }
+            }
+        }
+
+    }
 };
 
 #endif //ETHERTIA_WORLD_H

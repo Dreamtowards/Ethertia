@@ -6,11 +6,12 @@
 #define ETHERTIA_CHUNKGENERATOR_H
 
 #include <glm/vec3.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <ethertia/world/chunk/Chunk.h>
 #include <ethertia/world/gen/NoiseGeneratorPerlin.h>
 #include <ethertia/util/Log.h>
-#include <glm/gtx/string_cast.hpp>
+#include <ethertia/init/Blocks.h>
 
 
 class ChunkGenerator
@@ -19,10 +20,8 @@ class ChunkGenerator
 
 public:
 
-    static const long SEED_Glacier = 1772835215;
-
     ChunkGenerator() {
-        noise.initPermutations(SEED_Glacier);
+        noise.initPermutations(1);
 
     }
 
@@ -114,7 +113,7 @@ public:
 //                                }
 
                                 if (spZsum > 0.0) {
-                                    chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, 1);
+                                    chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, Blocks::STONE);
                                 }
                                 spZsum += spZdiffx0;
                             }
@@ -135,6 +134,7 @@ public:
 
         return chunk;
     }
+
 };
 
 #endif //ETHERTIA_CHUNKGENERATOR_H

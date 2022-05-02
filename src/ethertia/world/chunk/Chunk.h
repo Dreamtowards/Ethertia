@@ -19,6 +19,8 @@ public:
 
     glm::vec3 position;
 
+    bool populated = false;
+
     Chunk() {
     }
     ~Chunk() {

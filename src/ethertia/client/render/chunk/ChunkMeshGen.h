@@ -64,7 +64,13 @@ public:
                     int blockID = chunk->getBlock(rx, ry, rz);
 
                     if (blockID) {
-                        putCube(*vbuf, glm::vec3(rx, ry, rz), chunk, world);
+                        AtlasFrag* frag = nullptr;
+                        if (blockID == Blocks::GRASS) frag = BlockTextures::GRASS;
+                        else if (blockID == Blocks::DIRT) frag = BlockTextures::DIRT;
+                        else if (blockID == Blocks::STONE) frag = BlockTextures::STONE;
+                        else if (blockID == Blocks::SAND) frag = BlockTextures::SAND;
+
+                        putCube(*vbuf, glm::vec3(rx, ry, rz), chunk, world, frag);
                     }
                 }
             }
@@ -75,7 +81,7 @@ public:
         return vbuf;
     }
 
-    static void putCube(VertexBuffer& vbuf, glm::vec3 rpos, Chunk* chunk, World* world) {
+    static void putCube(VertexBuffer& vbuf, glm::vec3 rpos, Chunk* chunk, World* world, AtlasFrag* frag) {
 
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = dirCubeFace(i);
@@ -84,12 +90,12 @@ public:
             if (//Chunk::outbound(adjacent) ||
                 //chunk->getBlock(adjacent) == 0
                 neib == 0) {
-                putFace(vbuf, i, rpos, BlockTextures::GRASS);
+                putFace(vbuf, i, rpos, frag);
             }
         }
     }
 
-    static void putFace(VertexBuffer& vbuf, int face, glm::vec3 rpos, TextureAtlas::AtlasFragment* frag) {
+    static void putFace(VertexBuffer& vbuf, int face, glm::vec3 rpos, AtlasFrag* frag) {
         // put pos
         for (int i = 0; i < 6; ++i) {  // 6 pos vecs.
             int bas = face*18+i*3;  // 18 = 6vec * 3scalar

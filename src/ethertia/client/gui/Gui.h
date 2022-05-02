@@ -13,7 +13,6 @@
 #include <ethertia/event/EventBus.h>
 #include <ethertia/client/render/Texture.h>
 #include <ethertia/util/Colors.h>
-#include <ethertia/util/IndexIterable.h>
 
 class Gui
 {
