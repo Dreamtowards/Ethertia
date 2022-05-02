@@ -19,7 +19,7 @@ public:
             x += g->getWidth();
         }
 
-        GuiCollection::onLayout();
+        Gui::onLayout();
     }
 };
 

@@ -6,6 +6,7 @@
 #define ETHERTIA_GUIALIGN_H
 
 #include "Gui.h"
+#include "GuiDelegate.h"
 
 class GuiAlign : public GuiDelegate
 {
@@ -18,9 +19,7 @@ public:
     float right  = Inf;
     float bottom = Inf;
 
-    GuiAlign() {
-        Log::info("DefCons");
-    }
+    GuiAlign() {}
     GuiAlign(float ratioX, float ratioY) : ratioX(ratioX), ratioY(ratioY) {}
 
     void onLayout() override

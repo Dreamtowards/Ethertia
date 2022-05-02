@@ -19,7 +19,7 @@ public:
             y += g->getHeight();
         }
 
-        GuiCollection::onLayout();
+        Gui::onLayout();
     }
 
 };

@@ -100,7 +100,7 @@ public:
     virtual float getWidth() const {
         if (!visible) return 0;
         if (width == -Inf) return childbound.x;
-        if (width == Inf) return parent->getWidth() - x;  // sub x?
+        if (width == Inf) { assert(parent->width != -Inf); return parent->getWidth() - x; } // sub x?
         return width;
     }
     void setWidth(float w) {
@@ -109,7 +109,7 @@ public:
     virtual float getHeight() const {
         if (!visible) return 0;
         if (height == -Inf) return childbound.y;
-        if (height == Inf) return parent->getHeight() - y;  // sub y?
+        if (height == Inf) { assert(parent->height != -Inf); return parent->getHeight() - y; }
         return height;
     }
     void setHeight(float h) {
@@ -280,7 +280,6 @@ public:
             g->onLayout();
         }
     }
-
 
     void _update_childbound() {
         if (width != -Inf && height != -Inf)

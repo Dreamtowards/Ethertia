@@ -9,7 +9,7 @@
 
 class GuiDelegate : public Gui
 {
-    Gui* content;
+    Gui* content = nullptr;
 
 public:
     int count() const override {

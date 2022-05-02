@@ -25,6 +25,7 @@
 #include <ethertia/client/gui/GuiRow.h>
 #include <ethertia/client/gui/GuiPadding.h>
 #include <ethertia/client/gui/GuiAlign.h>
+#include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
 
 
 class Ethertia
@@ -69,26 +70,7 @@ public:
 
         initThreadChunkLoad();
 
-        rootGUI->addGuis({
-         (new GuiAlign(0.5, 0.5))->exec([](GuiAlign* g){
-
-         })->setContent(
-           (new GuiRow())->addGuis({
-             (new GuiButton("Button"))->exec([](GuiButton* g) {
-
-                 g->getEventBus().listen([](Gui::OnReleased* e) {
-                     Log::info("Released?");
-                 });
-             }),
-             (new GuiButton("Button 2"))->exec([](GuiButton* g) {
-
-                 g->getEventBus().listen([](Gui::OnReleased* e) {
-                     Log::info("Released?");
-                 });
-             })
-           })
-          )
-        });
+        rootGUI->addGui(new GuiScreenMainMenu());
     }
 
     void runMainLoop()
