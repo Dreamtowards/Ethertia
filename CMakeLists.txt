@@ -18,6 +18,7 @@ add_executable(Ethertia
         src/ethertia/client/Window.cpp
         src/ethertia/event/EventBus.cpp
         src/ethertia/world/World.cpp
+        src/ethertia/lang/lexer/TokenType.cpp
         src/ethertia/client/Ethertia.cpp)
 
 target_link_libraries(Ethertia PRIVATE

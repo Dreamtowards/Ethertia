@@ -64,6 +64,8 @@ public:
                 frustumCulled++;
                 continue;
             }
+
+            // Rendering Call.
             chunkRenderer.render(chunk);
         }
         Log::info("Rendering Chunks: {}/{}, culled: {}", total-frustumCulled, total, frustumCulled);
