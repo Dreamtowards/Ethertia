@@ -140,8 +140,12 @@ public:
     {
         if (isIngame()) {
             updateMovement();
-            camera.update(window);
+            camera.update(window, renderEngine->viewMatrix);
         }
+        if (!window.isKeyDown(GLFW_KEY_P))
+        renderEngine->updateViewFrustum();
+
+
         window.setMouseGrabbed(isIngame());
         window.setTitle(("desp. "+std::to_string(1.0/timer.getDelta())).c_str());
         renderEngine->updateProjectionMatrix(window.getWidth()/window.getHeight());

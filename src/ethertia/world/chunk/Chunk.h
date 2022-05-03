@@ -60,6 +60,11 @@ public:
                p.x < 0 || p.y < 0 || p.z < 0;
     }
 
+    void getAABB(glm::vec3& min, glm::vec3& max) {
+        min = position;
+        max = position + glm::vec3(16);
+    }
+
 };
 
 #endif //ETHERTIA_CHUNK_H

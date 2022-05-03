@@ -19,9 +19,7 @@ public:
     glm::vec3 position;
     glm::vec3 eulerAngles;  // ORDER: YXZ
 
-    glm::mat4 viewMatrix{1};
-
-    void update(Window& window) {
+    void update(Window& window, glm::mat4& viewMatrixOut) {
         float mx = window.getMouseDX() / 200;
         float my = window.getMouseDY() / 200;
 
@@ -41,7 +39,7 @@ public:
         rot = glm::rotate(rot, eulerAngles.x, glm::vec3(1, 0, 0));
         rot = glm::rotate(rot, eulerAngles.z, glm::vec3(0, 0, 1));
 
-        viewMatrix = glm::inverse(rot);
+        viewMatrixOut = glm::inverse(rot);
     }
 
     static glm::vec3 diff(float angle) {

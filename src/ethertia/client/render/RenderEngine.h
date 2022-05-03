@@ -9,6 +9,7 @@
 #include <ethertia/client/render/renderer/ChunkRenderer.h>
 #include <ethertia/client/render/renderer/gui/GuiRenderer.h>
 #include <ethertia/client/render/renderer/gui/FontRenderer.h>
+#include <ethertia/util/Frustum.h>
 
 class RenderEngine {
 
@@ -17,7 +18,12 @@ public:
     GuiRenderer guiRenderer;
     FontRenderer fontRenderer;
 
-    glm::mat4 projectionMatrix;
+    glm::mat4 projectionMatrix{1};
+    glm::mat4 viewMatrix{1};
+
+    Frustum viewFrustum;
+
+    float fov = 90;
 
     RenderEngine() {
 
@@ -25,9 +31,12 @@ public:
     }
 
     void updateProjectionMatrix(float ratio_wdh) {
-        projectionMatrix = glm::perspective(90.0f, ratio_wdh, 0.1f, 1000.0f);
+        projectionMatrix = glm::perspective(fov, ratio_wdh, 0.1f, 1000.0f);
     }
 
+    void updateViewFrustum() {
+        viewFrustum.set(projectionMatrix * viewMatrix);
+    }
 
     void renderWorld(World* world)
     {
@@ -36,17 +45,28 @@ public:
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
+        int frustumCulled = 0;
+        int total = 0;
 
-        for (auto it : world->getLoadedChunks())
-        {
-            if (!it.second) {
-                // Log::info("NO RENDER Chunk: NULL.");
+        for (auto it : world->getLoadedChunks()) {
+            if (!it.second) { // Log::info("NO RENDER Chunk: NULL.");
                 continue;
             }
-            if (!it.second->model)
+            Chunk* chunk = it.second;
+            if (!chunk->model)
                 continue;
-            chunkRenderer.render(it.second);
+
+            // Frustum Culling
+            total++;
+            glm::vec3 min, max;
+            chunk->getAABB(min, max);
+            if (!viewFrustum.intersects(min, max)) {
+                frustumCulled++;
+                continue;
+            }
+            chunkRenderer.render(chunk);
         }
+        Log::info("Rendering Chunks: {}/{}, culled: {}", total-frustumCulled, total, frustumCulled);
 
 
         RenderEngine::checkGlError();
