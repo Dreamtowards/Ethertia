@@ -15,7 +15,6 @@ public:
     TokenType() { ALL.push_back(this); }
     TokenType(const char* text) : text(text) { ALL.push_back(this); }
 
-
     static std::vector<TokenType*> ALL;
 
     static TokenType EoF;
@@ -29,6 +28,19 @@ public:
     static TokenType L_CHAR;
     static TokenType L_STRING;
     // bool
+
+
+    static constexpr TokenType* DEF_I = &L_I32;
+    static constexpr TokenType* DEF_F = &L_F32;
+
+    static bool isFp(TokenType* tk) {
+        return tk == &L_F32 || tk == &L_F64;
+    }
+    static bool isNumber(TokenType* tk) {
+        return isFp(tk) ||
+               tk == &L_U32 || tk == &L_U64 ||
+               tk == &L_I32 || tk == &L_I64;
+    }
 
     static TokenType SIZEOF;
     static TokenType NAMESPACE;

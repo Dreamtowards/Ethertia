@@ -6,6 +6,7 @@
 #define ETHERTIA_LEXER_H
 
 #include <string>
+#include <sstream>
 
 #include "TokenType.h"
 
@@ -18,10 +19,10 @@ public:
     int rdi_begin;  // read index of read-started.
 
     // result from read.
-    TokenType* r_tk;  // Predicted TokenType.
-    long r_integer;
-    double r_floatpoint;
-    char* r_string;
+    TokenType* r_tk;    // Predicted TokenType.
+    long r_integer;     // u8, u16, u32, u64, i8, i16, i32, i64, charliteral.
+    double r_fp;        // f32, f64.
+    std::string r_str;  // stringliteral, identifier.
 
     /**
      * expected: ptr of TokenType static enums.
@@ -37,10 +38,22 @@ public:
         
         if (expected)  // Expected TokenType. read or error.
         {
-            if (expected->text) {  // is 'constant'
+            if (expected->text) {  // is 'constant token'.
                 return startsWith(expected->text);
-            } else if (expected == TokenType::L_I32) {
-                return readInteger(&r_integer) == 32;
+            } else if (expected == TokenType::L_IDENTIFIER) {
+                r_str = readIdentifier();
+                return true;
+            } else if (expected = TokenType::L_CHAR) {
+                r_integer = readChar();
+                return true;
+            } else if (expected == TokenType::L_STRING) {
+                r_str = readQuote('"');
+                return true;
+            } else if (TokenType::isNumber(expected)) {
+
+                return readNumber(&r_integer, &r_fp) == expected;
+            } else {
+                throw "Unknown TokenType.";
             }
         }
         else  // Predict TokenType.
@@ -52,26 +65,34 @@ public:
                 }
             }
 
-            char ch = src.at(rdi);
+            int ch = charAt(rdi);
             if (isIdentifierChar(ch, true)) {
-                // readIdentifier();
+                r_tk = TokenType::L_IDENTIFIER;
+                r_str = readIdentifier();
             } else if (ch == '\'') {
-                // readQuote()
-                // s.len==1, r_integer->;
+                r_tk = TokenType::L_CHAR;
+                r_integer = readChar();
             } else if (ch == '"') {
-                // readQuote()
-            } else if (isDecimalChar(ch) || (ch=='.' && isDecimalChar(charAt(rdi+1))) ||
-                    (ch == '-' && isDecimalChar(charAt(rdi+1))) || (ch == '-' && charAt(rdi+1) == '.' && isDecimalChar(charAt(rdi+2))) ) {
-                // readNumber()  // float or integer.
-                // int: ("0x"(0-F)+| "0b[01]+" | [1-9][0-9]+) [Ll]?
-                // float: [0-9]* '.' [0-9]+ [Dd]?
-                // '_' are allowed among digits
+                r_tk = TokenType::L_STRING;
+                r_str - readQuote('"');
+            } else if (_briefStartsWithNumber()) {
+                r_tk = readNumber(&r_integer, &r_fp);
+            } else {
+                throw "Unrecognizable input or character.";
             }
+            return true;
         }
     }
 
+    bool _briefStartsWithNumber() {
+        int ch = charAt(rdi);
+        int ch1 = charAt(rdi+1);
+        return isDecimalChar(ch) || (ch=='.' && isDecimalChar(ch1)) ||
+                (ch == '-' && isDecimalChar(ch1)) || (ch == '-' && ch1 == '.' && isDecimalChar(charAt(rdi+2)));
+    }
+
     inline bool eof() {
-        return rdi < src.length();
+        return rdi >= src.length();
     }
 
     int charAt(int i) const {
@@ -130,161 +151,159 @@ public:
     }
 
     TokenType* readNumber(long* numI, double* numFP) {
+        bool neg = false;
+        if (charAt(rdi) == '-') {
+            rdi++;
+            neg = true;
+        }
         int ch1 = charAt(rdi);
         if (!isDecimalChar(ch) && ch1 != '.')
             throw "Bad number format: not a number.";
 
-        TokenType* typ = &TokenType::L_I32;
+        TokenType* typ = TokenType::DEF_I;
 
-        const int IR_DECIMAL = 10, IR_HEX = 16, IR_BINARY = 2;  // integer radix/format.
-        int irdx = IR_DECIMAL;
+        const int FMT_DECIMAL = 10, FMT_HEX = 16, FMT_BINARY = 2;  // hex/bin radix/format is for integers. float point number can only use Decimal format.
+        int fmt = FMT_DECIMAL;
 
-        if (ch1 == '0') {
+        if (ch1 == '0') {  // format read for integers.
             int ch2 = charAt(rdi+1);
             if (ch2 == 'x') {
-                irdx = IR_HEX;
+                fmt = FMT_HEX;
                 rdi += 2;
             } else if (ch2 == 'b') {
-                irdx = IR_BINARY;
+                fmt = FMT_BINARY;
                 rdi += 2;
             } else if (isDecimalChar(ch2)) {
                 throw "Bad number format: leading 0 decimal.";
             }
         }
 
-        int nbegin = rdi;
-        int nend = -1;
+        int begin = rdi;
+        int end = -1;
         bool dot = false;
         while (!eof()) {
             int ch = charAt(rdi);
             if (ch == '.' && isDecimalChar(charAt(rdi+1)) && !dot) {
                 dot = true;
-                typ = TokenType::L_F32;
-            } else if (isDigit(ch, irdx) || ch == '_') {
+                typ = TokenType::DEF_F;
+                rdi++;
+            } else if (isDigit(ch, fmt) || ch == '_') {
                 rdi++;
             } else {
-                nend = rdi;
+                end = rdi;
+
+                if (ch == 'E') {  // FP exponent.
+                    typ = TokenType::DEF_F;
+                    rdi++;
+                    if (charAt(rdi) == '-') rdi++;
+                    if (!isDecimalChar(charAt(rdi)))
+                        throw "Bad number format: bad fp exponent, not a decimal number.";
+
+                    while (!eof() && isDecimalChar(charAt(rdi))) {
+                        rdi++;
+                    }
+                }
+
                 // u8, u16, u32, u64; i8, i16, i32, i64; f32, f64
-                     if (startsWith_Jmp("u32")) typ = TokenType::L_U32;
-                else if (startsWith_Jmp("u64")) typ = TokenType::L_U64;
-                else if (startsWith_Jmp("i32")) typ = TokenType::L_I32;
-                else if (startsWith_Jmp("i64")) typ = TokenType::L_I64;
-                else if (startsWith_Jmp("f32")) typ = TokenType::L_F32;
-                else if (startsWith_Jmp("f64")) typ = TokenType::L_F64;
+                TokenType* suftyp = typ;
+                     if (startsWith_Jmp("u32")) suftyp = TokenType::L_U32;
+                else if (startsWith_Jmp("u64")) suftyp = TokenType::L_U64;
+                else if (startsWith_Jmp("i32")) suftyp = TokenType::L_I32;
+                else if (startsWith_Jmp("i64")) suftyp = TokenType::L_I64;
+                else if (startsWith_Jmp("f32")) suftyp = TokenType::L_F32;
+                else if (startsWith_Jmp("f64")) suftyp = TokenType::L_F64;
+
+                if (TokenType::isFp(typ) && !TokenType::isFp(suftyp))
+                    throw "Bad number format: illegal suffix, FP cannot as integer.";
+                typ = suftyp;
+
                 break;
             }
         }
-        if ((typ == TokenType::L_F32 || typ == TokenType::L_F64) && irdx != IR_DECIMAL)
+        if (TokenType::isFp(typ) && fmt != FMT_DECIMAL)
             throw "Bad number format: float point number can only use decimal 10 radix format.";
-        if (charAt(nbegin) == '_' || charAt(nend-1) == '_')
+        if (charAt(begin) == '_' || charAt(end-1) == '_')  // need this limitation?
             throw "Bad number format: underscores cannot be on digit boundaries.";
 
-        std::string nstr = src.substr(nbegin, nend-nbegin).replace("_", "");
-        
+        std::string nstr = src.substr(begin, end-begin).replace("_", "");
+        if (nstr.length() == 0)
+            throw "Bad number format: no digit.";
+
         if (typ == &TokenType::L_F32 || typ == &TokenType::L_F64) {
             // *numFP = ;
-        } else if (irdx == IR_DECIMAL) {
+        } else if (fmt == FMT_DECIMAL) {
             // *numI = ;
-        } else if (irdx == IR_HEX) {
+        } else if (fmt == FMT_HEX) {
             // *numI = ;
-        } else if (irdx == IR_BINARY) {
+        } else if (fmt == FMT_BINARY) {
             // *numI = ;
         }
 
         return typ;
     }
 
-    int readInteger(long* num) {
-        int ch1 = charAt(rdi);
-        if(!isDecimalChar(ch1))
-            throw "Bad integer format: not an integer.";
-
-        const int RDX_DECIMAL = 10, RDX_HEX = 16, RDX_BINARY = 2;
-        int rdx = RDX_DECIMAL;  // radix / format
-
-        const int TYP_I32 = 32, TYP_I64 = 64;
-        int typ = TYP_I32;
-
-        if (ch1 == '0') {
-            int ch2 = charAt(rdi+1);
-            if (ch2 == 'x') {
-                rdx = RDX_HEX;
-            } else if (ch2 == 'b') {
-                rdx = RDX_BINARY;
-            } else if (isDecimalChar(ch2)) {
-                throw "Bad integer format: leading 0 decimal.";
-            }
-            rdi += 2;
+    std::string readIdentifier() {
+        int begin = rdi;
+        if (isIdentifierChar(charAt(begin), true)) {
+            rdi++;
+        } else {
+            throw "Bad identifier: not an identifier.";
         }
-
-        int numBegin = rdi;
-        int numEnd = -1;
         while (!eof()) {
             int ch = charAt(rdi);
-            if (isDigit(ch, rdx) || ch == '_') {
+            if (isIdentifierChar(ch, false)) {
                 rdi++;
             } else {
-                numEnd = rdi;
-                if (ch == 'L') {
-                    typ = TYP_I64;
-                    rdi++;
-                }
                 break;
             }
         }
-        if (charAt(numBegin) == '_' || charAt(numEnd-1) == '_')
-            throw "Bad integer format: underscores cannot be on digit boundaries.";
-
-        std::string numStr = src.substr(numBegin, numEnd).replace("_", "");
-        if (rdx == RDX_DECIMAL) {
-
-            // *num = ;
-        } else if (rdx == RDX_HEX) {
-
-        } else {  // rdx == RDX_BINARY
-
-        }
-
-        return typ;
+        return src.substr(begin, rdi-begin);
     }
 
-    int readFloat(double* num) {
-        int ch1 = charAt(rdi);
-        if (!isDecimalChar(ch1) && ch1 != '.')
-            throw "Bad FP format: not a FP number.";
-        if (ch1 == '0' && isDecimalChar(charAt(rdi+1)))
-            throw "Bad FP format: leading 0 decimal.";
 
-        const int TYP_F32 = 32, TYP_F64 = 64;
-        int typ = TYP_F32;
+    // linebreak char is allowed.
+    std::string readQuote(int quote) {
+        if (charAt(rdi) != quote)
+            throw "Bad quote: wrong begin.";  // ...
+        rdi++;
 
-        int numBegin = rdi;
-        int numEnd = -1;
-        bool dot = false;
+        std::stringstream buf;
+
         while (!eof()) {
             int ch = charAt(rdi);
-            if (ch == '.' && !dot) {
-                dot = true;
+            if (ch == quote) {  // enclose.
                 rdi++;
-            } else if (isDecimalChar(ch) || ch =='_') {
-                rdi++;
-            } else {
-                numEnd = rdi;
-                if (ch == 'D') {
-                    typ = TYP_F64;
-                    rdi++;
-                }
                 break;
+            } else if (ch == '\\') {  // escape.
+                int ch1 = charAt(rdi+1);
+                rdi += 2;
+
+                     if (ch1 == '\\') buf << '\\';  // backslash
+                else if (ch1 == 'n')  buf << '\n';  // linebreak
+                else if (ch1 == 't')  buf << '\t';  // tab
+                else if (ch1 == '\'') buf << '\'';  // single quote
+                else if (ch1 == '"')  buf << '"';   // double quote
+                else if (ch1 == '0')  buf << '\0';  // end of str.
+                else if (ch1 == '\n') {}            // nop. ignore linebreak.
+                else if (ch1 == 'u') {  // character unicode. 4 hex representation.
+                    throw "character codepoint is unsupported.";
+                } else {
+                    throw "Illegal escape.";
+                }
+            } else {
+                buf << ch;
+                rdi++;
             }
         }
-        if (charAt(numBegin) == '_' || charAt(numEnd-1) == '_')
-            throw "Bad FP format: underscores cannot be on digit boundaries.";
 
-        std::string numStr = src.substr(numBegin, numEnd-numBegin).replace("_", "");
+        return buf.str();
+    }
 
-        // *num = ;
-
-        return typ;
+    int readChar() {
+        std::string s = readQuote('\'');
+        if (s.length() != 1)
+            throw "Bad character literal: should be one char.";
+        return s.at(0);
     }
 
 };
