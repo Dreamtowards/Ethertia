@@ -20,8 +20,12 @@ public:
 
     static TokenType EoF;
     static TokenType L_IDENTIFIER;
+    static TokenType L_U32;
+    static TokenType L_U64;
     static TokenType L_I32;
-    static TokenType L_F32;  // I64, F64
+    static TokenType L_I64;
+    static TokenType L_F32;
+    static TokenType L_F64;
     static TokenType L_CHAR;
     static TokenType L_STRING;
     // bool

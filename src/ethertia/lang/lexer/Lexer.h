@@ -20,6 +20,7 @@ public:
     // result from read.
     TokenType* r_tk;  // Predicted TokenType.
     long r_integer;
+    double r_floatpoint;
     char* r_string;
 
     /**
@@ -79,6 +80,14 @@ public:
     bool startsWith(const char* s) const {
         return src.find(s, rdi) == rdi;
     }
+    bool startsWith_Jmp(const char* s) const {
+        if (startsWith(s)) {
+            rdi += strlen(s);
+            return true;
+        } else {
+            return false;
+        }
+    }
     int encloseOrEnd(const char* search) const {  // findt: find and return the trailing pos. i.e. find(s, search)+strlen(search)
         int i = src.find(search, rdi);
         if (i == std::string::npos)
@@ -110,7 +119,7 @@ public:
         } else if (radix == 10) {
             return isDecimalChar(ch);
         } else if (radix == 16) {
-
+            return (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F');
         }
     }
 
@@ -120,9 +129,75 @@ public:
         return isDecimalChar(ch) || ch=='_' || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
     }
 
+    TokenType* readNumber(long* numI, double* numFP) {
+        int ch1 = charAt(rdi);
+        if (!isDecimalChar(ch) && ch1 != '.')
+            throw "Bad number format: not a number.";
+
+        TokenType* typ = &TokenType::L_I32;
+
+        const int IR_DECIMAL = 10, IR_HEX = 16, IR_BINARY = 2;  // integer radix/format.
+        int irdx = IR_DECIMAL;
+
+        if (ch1 == '0') {
+            int ch2 = charAt(rdi+1);
+            if (ch2 == 'x') {
+                irdx = IR_HEX;
+                rdi += 2;
+            } else if (ch2 == 'b') {
+                irdx = IR_BINARY;
+                rdi += 2;
+            } else if (isDecimalChar(ch2)) {
+                throw "Bad number format: leading 0 decimal.";
+            }
+        }
+
+        int nbegin = rdi;
+        int nend = -1;
+        bool dot = false;
+        while (!eof()) {
+            int ch = charAt(rdi);
+            if (ch == '.' && isDecimalChar(charAt(rdi+1)) && !dot) {
+                dot = true;
+                typ = TokenType::L_F32;
+            } else if (isDigit(ch, irdx) || ch == '_') {
+                rdi++;
+            } else {
+                nend = rdi;
+                // u8, u16, u32, u64; i8, i16, i32, i64; f32, f64
+                     if (startsWith_Jmp("u32")) typ = TokenType::L_U32;
+                else if (startsWith_Jmp("u64")) typ = TokenType::L_U64;
+                else if (startsWith_Jmp("i32")) typ = TokenType::L_I32;
+                else if (startsWith_Jmp("i64")) typ = TokenType::L_I64;
+                else if (startsWith_Jmp("f32")) typ = TokenType::L_F32;
+                else if (startsWith_Jmp("f64")) typ = TokenType::L_F64;
+                break;
+            }
+        }
+        if ((typ == TokenType::L_F32 || typ == TokenType::L_F64) && irdx != IR_DECIMAL)
+            throw "Bad number format: float point number can only use decimal 10 radix format.";
+        if (charAt(nbegin) == '_' || charAt(nend-1) == '_')
+            throw "Bad number format: underscores cannot be on digit boundaries.";
+
+        std::string nstr = src.substr(nbegin, nend-nbegin).replace("_", "");
+        
+        if (typ == &TokenType::L_F32 || typ == &TokenType::L_F64) {
+            // *numFP = ;
+        } else if (irdx == IR_DECIMAL) {
+            // *numI = ;
+        } else if (irdx == IR_HEX) {
+            // *numI = ;
+        } else if (irdx == IR_BINARY) {
+            // *numI = ;
+        }
+
+        return typ;
+    }
+
     int readInteger(long* num) {
         int ch1 = charAt(rdi);
-        assert(isDecimalChar(ch1));
+        if(!isDecimalChar(ch1))
+            throw "Bad integer format: not an integer.";
 
         const int RDX_DECIMAL = 10, RDX_HEX = 16, RDX_BINARY = 2;
         int rdx = RDX_DECIMAL;  // radix / format
@@ -136,8 +211,8 @@ public:
                 rdx = RDX_HEX;
             } else if (ch2 == 'b') {
                 rdx = RDX_BINARY;
-            } else {
-                throw "Bad number format. leading 0 but not Hex nor Binary.";
+            } else if (isDecimalChar(ch2)) {
+                throw "Bad integer format: leading 0 decimal.";
             }
             rdi += 2;
         }
@@ -146,7 +221,7 @@ public:
         int numEnd = -1;
         while (!eof()) {
             int ch = charAt(rdi);
-            if (ch == '_' || isDigit(ch, rdx)) {
+            if (isDigit(ch, rdx) || ch == '_') {
                 rdi++;
             } else {
                 numEnd = rdi;
@@ -157,13 +232,10 @@ public:
                 break;
             }
         }
-        // if (numBegin == numEnd)  // btw: this is logical impossible.
-        //     throw "Bad number format: empty.";
         if (charAt(numBegin) == '_' || charAt(numEnd-1) == '_')
-            throw "Bad number format: underscores cannot be on digit boundaries.";
+            throw "Bad integer format: underscores cannot be on digit boundaries.";
 
         std::string numStr = src.substr(numBegin, numEnd).replace("_", "");
-
         if (rdx == RDX_DECIMAL) {
 
             // *num = ;
@@ -172,6 +244,45 @@ public:
         } else {  // rdx == RDX_BINARY
 
         }
+
+        return typ;
+    }
+
+    int readFloat(double* num) {
+        int ch1 = charAt(rdi);
+        if (!isDecimalChar(ch1) && ch1 != '.')
+            throw "Bad FP format: not a FP number.";
+        if (ch1 == '0' && isDecimalChar(charAt(rdi+1)))
+            throw "Bad FP format: leading 0 decimal.";
+
+        const int TYP_F32 = 32, TYP_F64 = 64;
+        int typ = TYP_F32;
+
+        int numBegin = rdi;
+        int numEnd = -1;
+        bool dot = false;
+        while (!eof()) {
+            int ch = charAt(rdi);
+            if (ch == '.' && !dot) {
+                dot = true;
+                rdi++;
+            } else if (isDecimalChar(ch) || ch =='_') {
+                rdi++;
+            } else {
+                numEnd = rdi;
+                if (ch == 'D') {
+                    typ = TYP_F64;
+                    rdi++;
+                }
+                break;
+            }
+        }
+        if (charAt(numBegin) == '_' || charAt(numEnd-1) == '_')
+            throw "Bad FP format: underscores cannot be on digit boundaries.";
+
+        std::string numStr = src.substr(numBegin, numEnd-numBegin).replace("_", "");
+
+        // *num = ;
 
         return typ;
     }
