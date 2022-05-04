@@ -12,8 +12,9 @@ class Strings
 {
 public:
 
-    static std::string erase(const std::string& str, int ch) {
+    static std::string erase(std::string& str, char ch) {
         str.erase(std::remove(str.begin(), str.end(), ch), str.end());
+        return str;
     }
 };
 

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <sstream>
+#include <ethertia/util/Strings.h>
 
 #include "TokenType.h"
 
@@ -30,7 +31,9 @@ public:
     bool read(TokenType* expected)
     {
         // clean previous result.
-        r_tk=nullptr; r_integer=0; r_string=nullptr;
+        r_tk=nullptr; r_integer=0; r_fp=0; r_str.clear();
+
+        if (eof()) return false;
 
         // reach the next valid char/symbol.
         skipBlanksAndComments();
@@ -39,14 +42,15 @@ public:
         if (expected)  // Expected TokenType. read or error.
         {
             if (expected->text) {  // is 'constant token'.
+                rdi += strlen(expected->text);
                 return startsWith(expected->text);
-            } else if (expected == TokenType::L_IDENTIFIER) {
+            } else if (expected == &TokenType::L_IDENTIFIER) {
                 r_str = readIdentifier();
                 return true;
-            } else if (expected = TokenType::L_CHAR) {
+            } else if (expected == &TokenType::L_CHAR) {
                 r_integer = readChar();
                 return true;
-            } else if (expected == TokenType::L_STRING) {
+            } else if (expected == &TokenType::L_STRING) {
                 r_str = readQuote('"');
                 return true;
             } else if (TokenType::isNumber(expected)) {
@@ -61,20 +65,21 @@ public:
             for (TokenType* tk : TokenType::ALL) {  // check constant tokens. notice that keywords before identifier.
                 if (tk->text && startsWith(tk->text)) {
                     r_tk = tk;
+                    rdi += strlen(tk->text);
                     return true;
                 }
             }
 
             int ch = charAt(rdi);
             if (isIdentifierChar(ch, true)) {
-                r_tk = TokenType::L_IDENTIFIER;
+                r_tk = &TokenType::L_IDENTIFIER;
                 r_str = readIdentifier();
             } else if (ch == '\'') {
-                r_tk = TokenType::L_CHAR;
+                r_tk = &TokenType::L_CHAR;
                 r_integer = readChar();
             } else if (ch == '"') {
-                r_tk = TokenType::L_STRING;
-                r_str - readQuote('"');
+                r_tk = &TokenType::L_STRING;
+                r_str = readQuote('"');
             } else if (_briefStartsWithNumber()) {
                 r_tk = readNumber(&r_integer, &r_fp);
             } else {
@@ -101,7 +106,7 @@ public:
     bool startsWith(const char* s) const {
         return src.find(s, rdi) == rdi;
     }
-    bool startsWith_Jmp(const char* s) const {
+    bool startsWith_Jmp(const char* s) {
         if (startsWith(s)) {
             rdi += strlen(s);
             return true;
@@ -141,6 +146,8 @@ public:
             return isDecimalChar(ch);
         } else if (radix == 16) {
             return (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F');
+        } else {
+            throw "Unsupported radix.";
         }
     }
 
@@ -157,7 +164,7 @@ public:
             neg = true;
         }
         int ch1 = charAt(rdi);
-        if (!isDecimalChar(ch) && ch1 != '.')
+        if (!isDecimalChar(ch1) && ch1 != '.')
             throw "Bad number format: not a number.";
 
         TokenType* typ = TokenType::DEF_I;
@@ -206,12 +213,12 @@ public:
 
                 // u8, u16, u32, u64; i8, i16, i32, i64; f32, f64
                 TokenType* suftyp = typ;
-                     if (startsWith_Jmp("u32")) suftyp = TokenType::L_U32;
-                else if (startsWith_Jmp("u64")) suftyp = TokenType::L_U64;
-                else if (startsWith_Jmp("i32")) suftyp = TokenType::L_I32;
-                else if (startsWith_Jmp("i64")) suftyp = TokenType::L_I64;
-                else if (startsWith_Jmp("f32")) suftyp = TokenType::L_F32;
-                else if (startsWith_Jmp("f64")) suftyp = TokenType::L_F64;
+                     if (startsWith_Jmp("u32")) suftyp = &TokenType::L_U32;
+                else if (startsWith_Jmp("u64")) suftyp = &TokenType::L_U64;
+                else if (startsWith_Jmp("i32")) suftyp = &TokenType::L_I32;
+                else if (startsWith_Jmp("i64")) suftyp = &TokenType::L_I64;
+                else if (startsWith_Jmp("f32")) suftyp = &TokenType::L_F32;
+                else if (startsWith_Jmp("f64")) suftyp = &TokenType::L_F64;
 
                 if (TokenType::isFp(typ) && !TokenType::isFp(suftyp))
                     throw "Bad number format: illegal suffix, FP cannot as integer.";
@@ -225,17 +232,19 @@ public:
         if (charAt(begin) == '_' || charAt(end-1) == '_')  // need this limitation?
             throw "Bad number format: underscores cannot be on digit boundaries.";
 
-        std::string nstr = src.substr(begin, end-begin).replace("_", "");
+        std::string nstr = src.substr(begin, end-begin);
+        Strings::erase(nstr, '_');
+
         if (nstr.length() == 0)
             throw "Bad number format: no digit.";
 
-        if (typ == &TokenType::L_F32 || typ == &TokenType::L_F64) {
+        if (TokenType::isFp(typ)) {
             // *numFP = ;
         } else if (fmt == FMT_DECIMAL) {
             // *numI = ;
         } else if (fmt == FMT_HEX) {
             // *numI = ;
-        } else if (fmt == FMT_BINARY) {
+        } else { assert(fmt == FMT_BINARY);
             // *numI = ;
         }
 
@@ -291,7 +300,7 @@ public:
                     throw "Illegal escape.";
                 }
             } else {
-                buf << ch;
+                buf << (char)ch;
                 rdi++;
             }
         }

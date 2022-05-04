@@ -8,8 +8,12 @@ std::vector<TokenType*> TokenType::ALL;
 
 TokenType TokenType::EoF{};
 TokenType TokenType::L_IDENTIFIER{};
+TokenType TokenType::L_U32{};
+TokenType TokenType::L_U64{};
 TokenType TokenType::L_I32{};
-TokenType TokenType::L_F32{};  // I64, F64
+TokenType TokenType::L_I64{};
+TokenType TokenType::L_F32{};
+TokenType TokenType::L_F64{};
 TokenType TokenType::L_CHAR{};
 TokenType TokenType::L_STRING{};
 
