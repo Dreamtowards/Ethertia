@@ -17,7 +17,6 @@ public:
 
     static std::vector<TokenType*> ALL;
 
-    static TokenType EoF;
     static TokenType L_IDENTIFIER;
     static TokenType L_U32;
     static TokenType L_U64;
@@ -27,7 +26,6 @@ public:
     static TokenType L_F64;
     static TokenType L_CHAR;
     static TokenType L_STRING;
-    // bool
 
 
     static constexpr TokenType* DEF_I = &L_I32;
@@ -75,7 +73,7 @@ public:
     static TokenType BAR;
     static TokenType COLCOL;
     static TokenType COL;
-    static TokenType ELLIPSIS;
+    static TokenType DOTDOTDOT;
     static TokenType DOT;
     static TokenType PLUSEQ;
     static TokenType PLUSPLUS;

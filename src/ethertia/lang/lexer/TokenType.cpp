@@ -6,7 +6,7 @@
 
 std::vector<TokenType*> TokenType::ALL;
 
-TokenType TokenType::EoF{};
+
 TokenType TokenType::L_IDENTIFIER{};
 TokenType TokenType::L_U32{};
 TokenType TokenType::L_U64{};
@@ -48,7 +48,7 @@ TokenType TokenType::BARBAR{"||"};
 TokenType TokenType::BAR{"|"};
 TokenType TokenType::COLCOL{"::"};
 TokenType TokenType::COL{":"};
-TokenType TokenType::ELLIPSIS{"..."};
+TokenType TokenType::DOTDOTDOT{"..."};
 TokenType TokenType::DOT{"."};
 TokenType TokenType::PLUSEQ{"+="};
 TokenType TokenType::PLUSPLUS{"++"};
@@ -78,7 +78,7 @@ TokenType TokenType::PERCENT{"%"};
 TokenType TokenType::COMMA{","};
 TokenType TokenType::STAR{"*"};
 TokenType TokenType::SLASH{"/"};
-TokenType TokenType::SEMI{"}"};
+TokenType TokenType::SEMI{";"};
 
 TokenType TokenType::LPAREN{"("};
 TokenType TokenType::RPAREN{")"};

@@ -14,7 +14,7 @@
 class Lexer
 {
 public:
-    int rdi;  // read index.
+    int rdi = 0;  // read index.
     std::string src;
 
     int rdi_begin;  // read index of read-started.
@@ -42,8 +42,7 @@ public:
         if (expected)  // Expected TokenType. read or error.
         {
             if (expected->text) {  // is 'constant token'.
-                rdi += strlen(expected->text);
-                return startsWith(expected->text);
+                return startsWith_Jmp(expected->text);
             } else if (expected == &TokenType::L_IDENTIFIER) {
                 r_str = readIdentifier();
                 return true;
@@ -88,6 +87,42 @@ public:
             return true;
         }
     }
+
+    // match and move
+    void next(TokenType* tk) {
+        read(tk);  // might error.
+    }
+    // move
+    void next() {
+        read(nullptr);
+    }
+    // move if match.
+    bool nexting(TokenType* tk) {
+        int mark = rdi;
+        if (read(tk)) {
+            return true;
+        } else {
+            rdi = mark;
+            return false;
+        }
+    }
+
+    // test match, not move
+    bool peeking(TokenType* tk) {
+        int mark = rdi;
+        bool r = read(tk);
+        rdi = mark;
+        return r;
+    }
+    // get next, not move
+    TokenType* peek() {
+        int mark = rdi;
+        read(nullptr);
+        rdi = mark;
+        return r_tk;
+    }
+
+
 
     bool _briefStartsWithNumber() {
         int ch = charAt(rdi);
@@ -313,6 +348,37 @@ public:
         if (s.length() != 1)
             throw "Bad character literal: should be one char.";
         return s.at(0);
+    }
+
+
+
+
+
+
+
+    class SourceSegment {
+    public:
+        Lexer* lex;
+        int begin;
+        int end;
+    };
+
+    int rdi_clean() {
+        skipBlanksAndComments();
+        return rdi;
+    }
+
+    std::stack<int> rdi_stack;
+
+    int push_rdic() {
+        int i = rdi_clean();
+        rdi_stack.push(i);
+        return i;
+    }
+    SourceSegment pop_rdic() {
+        int beg = rdi_stack.top();
+        rdi_stack.pop();
+        return {this, beg, rdi};
     }
 
 };
