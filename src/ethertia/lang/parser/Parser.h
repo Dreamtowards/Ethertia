@@ -54,7 +54,7 @@ public:
     }
 
     static AstExpr* tmpParsePathName(Lexer* lx) {
-        AstExpr* lhs = parseExpression(lx);
+        AstExpr* lhs = parseExprIdentifier(lx);
         while (lx->nexting(TK::COLCOL)) {
             AstExpr* rhs = parseExprIdentifier(lx);
             lhs = new AstExprMemberAccess(lhs, rhs, AstExprMemberAccess::T_PATH);
@@ -81,7 +81,7 @@ public:
 
         std::vector<AstStmt*> stmts;
         if (lx->nexting(TK::SEMI)) {
-            while (!lx->nexting(TK::NAMESPACE)) {
+            while (!lx->nexting(TK::NAMESPACE) && !lx->eof()) {
                 stmts.push_back(parseStatement(lx));
             }
         } else {

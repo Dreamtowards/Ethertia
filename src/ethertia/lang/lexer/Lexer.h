@@ -90,7 +90,8 @@ public:
 
     // match and move
     void next(TokenType* tk) {
-        read(tk);  // might error.
+        if (!read(tk))  // might error.
+            throw "Unexpected token.";
     }
     // move
     void next() {
@@ -131,7 +132,7 @@ public:
                 (ch == '-' && isDecimalChar(ch1)) || (ch == '-' && ch1 == '.' && isDecimalChar(charAt(rdi+2)));
     }
 
-    inline bool eof() {
+    inline bool eof() const {
         return rdi >= src.length();
     }
 

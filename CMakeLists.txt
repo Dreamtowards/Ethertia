@@ -16,6 +16,7 @@ add_executable(Ethertia
         src/ethertia/client/gui/Gui.cpp
         src/ethertia/client/render/renderer/ChunkRenderer.cpp
         src/ethertia/client/Window.cpp
+        src/ethertia/block/Block.cpp
         src/ethertia/event/EventBus.cpp
         src/ethertia/world/World.cpp
         src/ethertia/lang/lexer/TokenType.cpp

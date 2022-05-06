@@ -20,6 +20,25 @@ void tmpDoRebuildModel(Chunk* chunk, World* world) {
     }
 }
 
+bool isNeighboursAllLoaded(World* world, glm::vec3 chunkpos) {
+    return world->getLoadedChunk(chunkpos + glm::vec3(-16, 0, 0)) &&
+           world->getLoadedChunk(chunkpos + glm::vec3(16, 0, 0)) &&
+           world->getLoadedChunk(chunkpos + glm::vec3(0, -16, 0)) &&
+           world->getLoadedChunk(chunkpos + glm::vec3(0, 16, 0)) &&
+           world->getLoadedChunk(chunkpos + glm::vec3(0, 0, -16)) &&
+           world->getLoadedChunk(chunkpos + glm::vec3(0, 0, 16));
+}
+
+void tryPopulate(World* world, glm::vec3 chunkpos) {
+    Chunk* c = world->getLoadedChunk(chunkpos);
+    if (c && !c->populated && isNeighboursAllLoaded(world, chunkpos)) {  // && isNeighbourAllLoaded()
+        World::populate(world, chunkpos);
+        c->populated = true;
+
+        tmpDoRebuildModel(c, world);
+    }
+}
+
 Chunk* World::provideChunk(glm::vec3 p) {
     Chunk* chunk = getLoadedChunk(p);
     if (chunk) return chunk;
@@ -34,13 +53,14 @@ Chunk* World::provideChunk(glm::vec3 p) {
     loadedChunks[chunkpos] = chunk;
 
     // check populates
-    Chunk* down = getLoadedChunk(chunkpos - glm::vec3(0, 16, 0));
-    if (down && !down->populated) {
-        populate(this, down->position);
-        down->populated = true;
-        Log::info("Populated");
-        tmpDoRebuildModel(down, this);
-    }
+    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
+    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
 
     return chunk;
 }
+
+

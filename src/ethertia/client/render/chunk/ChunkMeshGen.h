@@ -63,16 +63,9 @@ public:
                 for (int rz = 0; rz < 16; ++rz) {
                     int blockID = chunk->getBlock(rx, ry, rz);
 
-                    if (blockID) {
-                        AtlasFrag* frag = nullptr;
-                        if (blockID == Blocks::GRASS) frag = BlockTextures::GRASS;
-                        else if (blockID == Blocks::DIRT)  frag = BlockTextures::DIRT;
-                        else if (blockID == Blocks::STONE) frag = BlockTextures::STONE;
-                        else if (blockID == Blocks::SAND)  frag = BlockTextures::SAND;
-                        else if (blockID == Blocks::WATER) frag = BlockTextures::WATER;
-                        else throw std::exception();
-
-                        putCube(*vbuf, glm::vec3(rx, ry, rz), chunk, world, frag);
+                    if (blockID)
+                    {
+                        Blocks::REGISTRY[blockID]->getVertexData(vbuf, world, chunk->position, glm::vec3(rx, ry, rz));
                     }
                 }
             }
@@ -83,8 +76,7 @@ public:
         return vbuf;
     }
 
-    static void putCube(VertexBuffer& vbuf, glm::vec3 rpos, Chunk* chunk, World* world, AtlasFrag* frag) {
-
+    static void putCube(VertexBuffer *vbuf, glm::vec3 rpos, Chunk *chunk, World *world, AtlasFrag* frag) {
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = dirCubeFace(i);
             auto neib = world->getBlock(chunk->position + rpos + dir);
@@ -97,17 +89,17 @@ public:
         }
     }
 
-    static void putFace(VertexBuffer& vbuf, int face, glm::vec3 rpos, AtlasFrag* frag) {
+    static void putFace(VertexBuffer* vbuf, int face, glm::vec3 rpos, AtlasFrag* frag) {
         // put pos
         for (int i = 0; i < 6; ++i) {  // 6 pos vecs.
             int bas = face*18+i*3;  // 18 = 6vec * 3scalar
-            vbuf.addpos(CUBE_POS[bas]+rpos.x, CUBE_POS[bas+1]+rpos.y, CUBE_POS[bas+2]+rpos.z);
-            vbuf.addnorm(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
+            vbuf->addpos(CUBE_POS[bas]+rpos.x, CUBE_POS[bas+1]+rpos.y, CUBE_POS[bas+2]+rpos.z);
+            vbuf->addnorm(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
         }
         // put uv
         for (int i = 0; i < 6; ++i) {
             int bas = face*12 + i*2 ;  // 12=6vec*2f
-            vbuf.adduv(CUBE_UV[bas]   * frag->scale.x + frag->offset.x,
+            vbuf->adduv(CUBE_UV[bas]   * frag->scale.x + frag->offset.x,
                        CUBE_UV[bas+1] * frag->scale.y + frag->offset.y);
         }
     }

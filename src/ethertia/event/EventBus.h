@@ -9,14 +9,23 @@
 #include <unordered_map>
 #include <functional>
 
-#include <ethertia/event/Event.h>
-#include <ethertia/event/EventPriority.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>
 
 
 class EventBus
 {
+    class EventPriority
+    {
+    public:
+        static constexpr int LOWEST = 3;
+        static constexpr int LOW = 4;
+        static constexpr int NORMAL = 5;
+        static constexpr int HIGH = 6;
+        static constexpr int HIGHEST = 7;
+        static constexpr int MONITOR = 8;
+    };
+
     class Listener
     {
     public:

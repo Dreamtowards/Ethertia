@@ -5,6 +5,8 @@
 #ifndef ETHERTIA_ASTEXPR_H
 #define ETHERTIA_ASTEXPR_H
 
+#include <utility>
+
 #include "Ast.h"
 
 class AstExpr : public Ast {
@@ -44,7 +46,7 @@ class AstExprTypeCast : public AstExpr {};
 class AstExprIdentifier : public AstExpr {
 public:
     std::string name;
-    explicit AstExprIdentifier(const std::string& name) : name(name) {}
+    explicit AstExprIdentifier(std::string  name) : name(std::move(name)) {}
 };
 
 class AstExprLiteralConstant : public AstExpr {};

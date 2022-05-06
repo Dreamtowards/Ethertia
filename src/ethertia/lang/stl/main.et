@@ -1,15 +1,25 @@
 
 
 
+int i = using {
+        Gui* g = GuiButton::new();
+        return g;
+    }
+
 namespace eth::block {
 
-    struct Block {
-        u8 getId() {  }
+    std::array_list<Block*> REGISTRY;
 
-        void getVertexData(VertexBuffer* vbuf, World* world, vec3 chunkpos, vec3 rpos) {
+    class Block {
 
-        }
-    };
+        void getVertexData(this, VertexBuffer* vbuf, World* world, vec3 chunkpos, vec3 rpos);
+    }
+
+    struct BlockStone : Block {
+
+
+
+    }
 }
 
 namespace eth::entity {
@@ -25,6 +35,34 @@ namespace eth::entity {
 
 
 
+    }
+
+}
+
+namespace std::rtti {
+
+    class Decl {
+        std::string qualifiedName;
+        std::string simpleName;
+        int modifier;
+
+        class Func : Decl {
+            std::array_list<DeclVar> parameters;
+            Type* returnType;
+
+        }
+        class Var : Decl {
+            Type* type;
+        }
+        class Type : Decl {
+            Type*[] patches;
+            Decl*[] declarations;
+
+        }
+    }
+
+    struct TypeInfo {
+        void*[] funcptrs;
     }
 
 }

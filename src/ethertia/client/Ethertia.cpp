@@ -10,13 +10,36 @@
 
 #include <ethertia/lang/parser/Parser.h>
 
+class A
+{
+public:
+    int i = 10;
+    void sth() {
+
+        Log::info("Sth1");
+    }
+};
+
+class Mid : public A {
+
+};
+class Mid2 : public A {
+
+};
+
+class B : public Mid, public Mid2 {
+public:
+    void sth() {
+        Log::info("Sth2");
+    }
+};
+
 int main()
 {
 //    Ethertia().run();
 
     Lexer lx;
-    lx.src = "_SomeId of src 100.0 + \"STR content\\\nbr\"5 'a'";
-
+    lx.src = "namespace some::ofns;";
     auto a = Parser::parseCompilationUnit(&lx);
 
 
