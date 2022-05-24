@@ -6,8 +6,9 @@
 #define ETHERTIA_CHUNK_H
 
 #include <ethertia/util/Mth.h>
-#include <ethertia/util/QuickTypes.h>
+#include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/client/render/Model.h>
+#include <ethertia/util/AABB.h>
 
 class Chunk
 {
@@ -60,9 +61,8 @@ public:
                p.x < 0 || p.y < 0 || p.z < 0;
     }
 
-    void getAABB(glm::vec3& min, glm::vec3& max) {
-        min = position;
-        max = position + glm::vec3(16);
+    [[nodiscard]] AABB getAABB() const {
+        return AABB(position, position + glm::vec3(16));
     }
 
 };

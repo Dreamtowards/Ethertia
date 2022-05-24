@@ -10,6 +10,7 @@
 class Ast
 {
     virtual void a() {};
+
     // SourceSegment
 };
 

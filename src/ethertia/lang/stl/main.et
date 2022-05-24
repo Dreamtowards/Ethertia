@@ -2,15 +2,75 @@
 
 
 int i = using {
-        Gui* g = GuiButton::new();
+        Gui* g = GuiButton();
         return g;
     }
 
+namespace std {
+
+    // std/mth
+
+    template<typename T>
+    class vec3 {
+        T x;
+        T y;
+        T z;
+
+        get vec2<T> xy(this) => vec2<T>(x, y);
+        get vec2<T> xz(this) => vec2<T>(x, z);
+        get vec2<T> yz(this) => vec2<T>(y, z);
+
+    }
+
+    template<typename... Fields fields>
+    class tuple {
+
+        {Fields fields;}...
+
+    }
+
+    template<typename R, typename... Params params>
+    class function {
+        private
+        void* funcptr;
+
+        R operator() (this, (Fields params)...) {
+            return this->funcptr(params...);
+        }
+    }
+
+
+    class Log {
+
+        void log(Out* out, const* char* pat) {
+            out->append(pat);
+        }
+
+        template<typename Out, typename A, typename... Args>
+        void log(Out* out, const* char* pat, A arg, Args... args) {
+            for (;;) {
+                char ch = *pat;
+                if (ch == '{' && *(pat+1) == '}') {
+                    out->append(arg);
+                    pat += 2;
+                    log(out, pat  args...);
+                    return;
+                } else if (ch == '\0') (
+                    return;
+                )
+                out->append(ch);
+                ++pat;
+            }
+        }
+    }
+
+}
+
 namespace eth::block {
 
-    std::array_list<Block*> REGISTRY;
-
     class Block {
+
+        std::array_list<Block*> REGISTRY;
 
         void getVertexData(this, VertexBuffer* vbuf, World* world, vec3 chunkpos, vec3 rpos);
     }
@@ -64,11 +124,6 @@ namespace std::rtti {
     struct TypeInfo {
         void*[] funcptrs;
     }
-
-}
-
-
-int operator +=() {
 
 }
 

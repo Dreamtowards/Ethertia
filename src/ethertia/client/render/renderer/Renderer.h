@@ -5,6 +5,8 @@
 #ifndef ETHERTIA_RENDERER_H
 #define ETHERTIA_RENDERER_H
 
+#include <ethertia/client/render/shader/ShaderProgram.h>
+
 // Marker.
 class Renderer {
 
@@ -20,6 +22,11 @@ public:
         }
         return arr;
     }
+
+    static void setShaderMVP(ShaderProgram* shader, glm::mat4 matModel);
+
+    static void setShaderCamPos(ShaderProgram* shader);
+
 };
 
 

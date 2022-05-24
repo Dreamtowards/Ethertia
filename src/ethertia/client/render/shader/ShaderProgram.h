@@ -13,7 +13,7 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
-#include <ethertia/util/QuickTypes.h>
+#include <ethertia/util/UnifiedTypes.h>
 
 class ShaderProgram {
 

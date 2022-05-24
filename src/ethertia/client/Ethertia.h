@@ -33,14 +33,14 @@ class Ethertia
 
     bool running = false;
 
-    RenderEngine* renderEngine;
+    RenderEngine* renderEngine = nullptr;
     // AudioEngine audioEngine;
-    Window window;
-    Timer timer;
-    Camera camera;
+    Window window{};
+    Timer timer{};
+    Camera camera{};
     Executor executor{std::this_thread::get_id()};
 
-    World* world;
+    World* world = nullptr;
     GuiRoot* rootGUI = new GuiRoot();
 
 public:
@@ -237,8 +237,6 @@ public:
 };
 
 // todo ls:
-// text/font rendering
-// gui
 
 // multi layer cube cloud
 // cube ambient occlusion
@@ -248,12 +246,15 @@ public:
 // Sky gradient.
 
 // Self-spread chunkload order
-// population directions/updates correct
 
-// Frustum
 // opt Sliders ViewDist,FOV,Colors..
 
 // Framebuffer
+
+// Basic Collision Detection
+// Entities
+
+// Trees TerrGen
 
 
 #endif //ETHERTIA_ETHERTIA_H

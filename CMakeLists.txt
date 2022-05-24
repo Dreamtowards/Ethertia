@@ -14,11 +14,12 @@ include_directories(include)
 add_executable(Ethertia
         lib/glad.c
         src/ethertia/client/gui/Gui.cpp
-        src/ethertia/client/render/renderer/ChunkRenderer.cpp
+        src/ethertia/client/render/renderer/Renderer.cpp
         src/ethertia/client/Window.cpp
         src/ethertia/block/Block.cpp
         src/ethertia/event/EventBus.cpp
         src/ethertia/world/World.cpp
+        src/ethertia/util/Eth.cpp
         src/ethertia/lang/lexer/TokenType.cpp
         src/ethertia/client/Ethertia.cpp)
 

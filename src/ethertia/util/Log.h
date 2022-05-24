@@ -42,19 +42,19 @@ public:
             << "["<<std::this_thread::get_id()<<"/INFO]: ";
     }
 
-    template<typename S>
-    static void log(S& out, const std::string& pat) {
+    template<typename OUT>
+    static void log(OUT& out, const std::string& pat) {
         out << pat << std::endl;
     }
 
-    template<typename S, typename A>
-    static void log(S& out, const std::string& pat, A a) {
-        int i = pat.find("{}");
-        out << (i==-1? pat : pat.substr(0,i)) << a << (i==-1? "" : pat.substr(i+2)) << std::endl;
-    }
+//    template<typename S, typename A>
+//    static void log(S& out, const std::string& pat, A a) {
+//        int i = pat.find("{}");
+//        out << (i==-1? pat : pat.substr(0,i)) << a << (i==-1? "" : pat.substr(i+2)) << std::endl;
+//    }
 
-    template<typename S, typename A, typename... ARGS>
-    static void log(S& out, const std::string& pat, A a, ARGS... args) {
+    template<typename OUT, typename A, typename... ARGS>
+    static void log(OUT& out, const std::string& pat, A a, ARGS... args) {
         int i = pat.find("{}");
         out << (i==-1? pat : pat.substr(0,i)) << a;
         log(out, i==-1? "" : pat.substr(i+2), args...);

@@ -10,6 +10,7 @@
 #include <ethertia/client/render/renderer/gui/GuiRenderer.h>
 #include <ethertia/client/render/renderer/gui/FontRenderer.h>
 #include <ethertia/util/Frustum.h>
+#include <ethertia/client/render/renderer/SkyGradientRenderer.h>
 
 class RenderEngine {
 
@@ -18,10 +19,12 @@ public:
     GuiRenderer guiRenderer;
     FontRenderer fontRenderer;
 
+    SkyGradientRenderer skyGradientRenderer;
+
     glm::mat4 projectionMatrix{1};
     glm::mat4 viewMatrix{1};
 
-    Frustum viewFrustum;
+    Frustum viewFrustum{};
 
     float fov = 90;
 
@@ -45,31 +48,23 @@ public:
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
-        int frustumCulled = 0;
-        int total = 0;
+
+        skyGradientRenderer.render();
 
         for (auto it : world->getLoadedChunks()) {
-            if (!it.second) { // Log::info("NO RENDER Chunk: NULL.");
-                continue;
-            }
             Chunk* chunk = it.second;
+            if (!chunk)  // Log::info("NO RENDER Chunk: NULL.");
+                continue;
             if (!chunk->model)
                 continue;
 
             // Frustum Culling
-            total++;
-            glm::vec3 min, max;
-            chunk->getAABB(min, max);
-            if (!viewFrustum.intersects(min, max)) {
-                frustumCulled++;
+            if (!viewFrustum.intersects(chunk->getAABB()))
                 continue;
-            }
 
             // Rendering Call.
             chunkRenderer.render(chunk);
         }
-        Log::info("Rendering Chunks: {}/{}, culled: {}", total-frustumCulled, total, frustumCulled);
-
 
         RenderEngine::checkGlError();
     }

@@ -59,14 +59,14 @@ public:
         return min(max(f, a), b);
     }
 
-    static glm::mat4 calculateViewMatrix(glm::vec3 position, glm::mat3 rotation) {
-        glm::mat4 view = glm::mat4(1);// = glm::mat4(rotation);
-
-        view = glm::translate(view, position);
-
-        return glm::inverse(view);
-    }
-    static glm::mat4 calculatePerspectiveProjectionMatrix(float fov, float w, float h, float near, float far) {
+//    static glm::mat4 calculateViewMatrix(glm::vec3 position, glm::mat3 rotation) {
+//        glm::mat4 view = glm::mat4(1);// = glm::mat4(rotation);
+//
+//        view = glm::translate(view, position);
+//
+//        return glm::inverse(view);
+//    }
+//    static glm::mat4 calculatePerspectiveProjectionMatrix(float fov, float w, float h, float near, float far) {
 //        float aspectRatio = w / h;
 //        float scaleY = 1.0f / tan(fov / 2.0f);
 //        float scaleX = scaleY / aspectRatio;
@@ -76,7 +76,26 @@ public:
 //              0, 0, -((near+far) / frustumLen), -((2.0f*near*far) / frustumLen),
 //              0, 0, -1.0f, 0};
 //        return glm::transpose(m);
-        return glm::perspective(fov, w/h, near, far);
+//        return glm::perspective(fov, w/h, near, far);
+//    }
+
+    static glm::mat4 matModel(glm::vec3 position) {  //, glm::vec3 scale, glm::vec4 rotation
+        glm::mat4 mat{1};
+
+        mat = glm::translate(mat, position);
+
+
+
+        return mat;
+    }
+    static glm::mat4 matModel(glm::vec3 position, glm::vec3 scale) {  //, , glm::vec4 rotation
+        glm::mat4 mat{1};
+
+        mat = glm::translate(mat, position);
+
+        mat = glm::scale(mat, scale);
+
+        return mat;
     }
 
     static glm::vec2 ndc(float x, float y, float w, float h) {

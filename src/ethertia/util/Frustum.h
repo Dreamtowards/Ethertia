@@ -38,8 +38,8 @@ public:
                ps[5].x * x + ps[5].y * y + ps[5].z * z + ps[5].w >= 0;
     }
 
-    bool intersects(glm::vec3 min, glm::vec3 max) {
-        float minX=min.x, minY=min.y, minZ=min.z, maxX=max.x, maxY=max.y, maxZ=max.z;
+    bool intersects(AABB aabb) {
+        float minX=aabb.min.x, minY=aabb.min.y, minZ=aabb.min.z, maxX=aabb.max.x, maxY=aabb.max.y, maxZ=aabb.max.z;
         return ps[0].x * (ps[0].x < 0 ? minX : maxX) + ps[0].y * (ps[0].y < 0 ? minY : maxY) + ps[0].z * (ps[0].z < 0 ? minZ : maxZ) >= -ps[0].w &&
                ps[1].x * (ps[1].x < 0 ? minX : maxX) + ps[1].y * (ps[1].y < 0 ? minY : maxY) + ps[1].z * (ps[1].z < 0 ? minZ : maxZ) >= -ps[1].w &&
                ps[2].x * (ps[2].x < 0 ? minX : maxX) + ps[2].y * (ps[2].y < 0 ? minY : maxY) + ps[2].z * (ps[2].z < 0 ? minZ : maxZ) >= -ps[2].w &&

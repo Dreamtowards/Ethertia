@@ -8,6 +8,8 @@
 #include <ethertia/client/render/shader/ShaderProgram.h>
 #include <ethertia/client/Loader.h>
 #include <ethertia/world/chunk/Chunk.h>
+#include <ethertia/init/BlockTextures.h>
+#include "Renderer.h"
 
 class ChunkRenderer {
 
@@ -22,7 +24,20 @@ public:
         shader.setInt("diffuseMap", 0);
     }
 
-    void render(Chunk* chunk);
+
+    void render(Chunk* chunk) {
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, BlockTextures::ATLAS->atlasTexture->getTextureID());
+
+        shader.useProgram();
+
+        Renderer::setShaderCamPos(&shader);
+        Renderer::setShaderMVP(&shader, Mth::matModel(chunk->getPosition()));
+
+        glBindVertexArray(chunk->model->vaoId);
+        glDrawArrays(GL_TRIANGLES, 0, chunk->model->vertexCount);
+    }
 
 };
 

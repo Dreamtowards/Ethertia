@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <ethertia/util/Mth.h>
-#include <ethertia/util/QuickTypes.h>
+#include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/event/EventBus.h>
 #include <ethertia/client/render/Texture.h>
