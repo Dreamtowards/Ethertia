@@ -9,14 +9,9 @@
 
 class Ast
 {
-    virtual void a() {};
+    virtual void vir() {};
 
     // SourceSegment
 };
-
-
-
-// Modifiers, Modifiable
-// Annotation
 
 #endif //ETHERTIA_AST_H

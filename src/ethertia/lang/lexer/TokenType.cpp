@@ -24,6 +24,9 @@ TokenType TokenType::NEW{"new"};
 TokenType TokenType::IS{"is"};
 TokenType TokenType::AS{"as"};
 TokenType TokenType::CLASS{"class"};
+TokenType TokenType::FN{"fn"};
+TokenType TokenType::VAR{"var"};
+
 
 TokenType TokenType::STATIC{"static"};
 TokenType TokenType::CONST{"const"};

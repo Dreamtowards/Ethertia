@@ -53,7 +53,6 @@ public:
                 r_str = readQuote('"');
                 return true;
             } else if (TokenType::isNumber(expected)) {
-
                 return readNumber(&r_integer, &r_fp) == expected;
             } else {
                 throw "Unknown TokenType.";
@@ -97,7 +96,7 @@ public:
     void next() {
         read(nullptr);
     }
-    // move if match.
+    // move if match. trynext()
     bool nexting(TokenType* tk) {
         int mark = rdi;
         if (read(tk)) {
@@ -106,6 +105,14 @@ public:
             rdi = mark;
             return false;
         }
+    }
+
+    TokenType* trynext(const std::vector<TokenType*>& ls) {
+        for (TokenType* tk : ls) {
+            if (nexting(tk))
+                return tk;
+        }
+        return nullptr;
     }
 
     // test match, not move
@@ -367,6 +374,11 @@ public:
     int rdi_clean() {
         skipBlanksAndComments();
         return rdi;
+    }
+
+    bool clean_eof() {
+        rdi_clean();
+        return eof();
     }
 
     std::stack<int> rdi_stack;

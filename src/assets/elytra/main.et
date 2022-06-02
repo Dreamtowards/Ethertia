@@ -1,0 +1,47 @@
+
+
+namespace std;
+
+int i = 10;
+
+void main() {
+
+    int i = 10;
+
+    i = 10 + 2;
+}
+
+/*
+@deprecated("some", some: 100, args: 100)
+void main<T>() {
+
+    vec3(z: 100);
+
+    var int i;
+
+    i = 3 + 1;
+
+}
+
+
+template<T>
+void log(string* patt) {
+
+}
+
+template<typename T, int N>
+class vec {
+    T[N] v;
+}
+
+class vec<T, int N> {
+    T[N] v;
+}
+
+
+
+
+
+[[deprecated("some")]]
+
+*/

@@ -1,14 +1,7 @@
 
 
 
-int i = using {
-        Gui* g = GuiButton();
-        return g;
-    }
-
 namespace std {
-
-    // std/mth
 
     template<typename T>
     class vec3 {
@@ -16,7 +9,7 @@ namespace std {
         T y;
         T z;
 
-        get vec2<T> xy(this) => vec2<T>(x, y);
+        get vec2<T> xy(this) { return vec2<T>(x, y); }
         get vec2<T> xz(this) => vec2<T>(x, z);
         get vec2<T> yz(this) => vec2<T>(y, z);
 
@@ -184,3 +177,12 @@ struct Tuple {
     }
 
 }
+
+
+/*
+int i = using {
+    Gui* g = GuiButton();
+    return g;
+};
+
+*/

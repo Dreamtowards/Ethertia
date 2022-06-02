@@ -47,6 +47,8 @@ public:
     static TokenType IS;
     static TokenType AS;
     static TokenType CLASS;
+    static TokenType FN;
+    static TokenType VAR;
 
     static TokenType STATIC;
     static TokenType CONST;
@@ -112,6 +114,11 @@ public:
     static TokenType LBRACKET;
     static TokenType RBRACKET;
 
+
+    inline static std::vector<TokenType*> MODIFIERS = {
+            &CONST,
+            &STATIC  // &GET, &SET
+    };
 
 };
 

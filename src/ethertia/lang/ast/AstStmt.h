@@ -19,9 +19,17 @@ class AstExpr;
 
 class AstStmtBlank : public AstStmt {};
 
-class AstStmtBlock : public AstStmt {};
+class AstStmtBlock : public AstStmt {
+public:
+    std::vector<AstStmt*> stmts;
+    AstStmtBlock(std::vector<AstStmt*> stmts) : stmts(std::move(stmts)) {}
+};
 
-class AstStmtExpr : public AstStmt {};
+class AstStmtExpr : public AstStmt {
+public:
+    AstExpr* expr;
+    AstStmtExpr(AstExpr* expr) : expr(expr) {}
+};
 
 
 class AstStmtIf : public AstStmt {
@@ -45,14 +53,44 @@ class AstStmtBreak : public AstStmt {};
 
 class AstStmtContinue : public AstStmt {};
 
-class AstStmtReturn : public AstStmt {};
+class AstStmtReturn : public AstStmt {
+public:
+    AstExpr* ret;
+    AstStmtReturn(AstExpr *ret) : ret(ret) {}
+};
 
 
-class AstStmtDefClass : public AstStmt {};
+class AstStmtDefClass : public AstStmt {
+public:
+    std::string name;
+    std::vector<AstExpr*> superclasses;
+    std::vector<AstStmt*> stmts;
 
-class AstStmtDefFunc : public AstStmt {};
+    AstStmtDefClass(std::string name,
+                    std::vector<AstExpr*> superclasses,
+                    std::vector<AstStmt*> stmts) : name(std::move(name)), superclasses(std::move(superclasses)), stmts(std::move(stmts)) {}
 
-class AstStmtDefVar : public AstStmt {};
+};
+
+class AstStmtDefVar : public AstStmt {
+public:
+    AstExpr* type;
+    std::string name;
+    AstExpr* init;
+    AstStmtDefVar(AstExpr* type, std::string name, AstExpr* init) : type(type), name(std::move(name)), init(init) {}
+};
+
+class AstStmtDefFunc : public AstStmt {
+public:
+    AstExpr* retType;
+    std::string name;
+    std::vector<AstStmtDefVar*> params;
+    AstStmtBlock* body;
+    AstStmtDefFunc(AstExpr* retType,
+                   std::string name,
+                   std::vector<AstStmtDefVar*> params,
+                   AstStmtBlock* body) : retType(retType), name(std::move(name)), params(std::move(params)), body(body) {}
+};
 
 class AstStmtUsing : public AstStmt {
 public:
@@ -68,15 +106,6 @@ public:
     std::vector<AstStmt*> stmts;
 
     AstStmtNamespace(AstExpr* name, std::vector<AstStmt*> stmts) : name(name), stmts(std::move(stmts)) {}
-};
-
-
-class AstCompilationUnit : public Ast
-{
-    std::vector<AstStmt*> stmts;
-
-public:
-    explicit AstCompilationUnit(std::vector<AstStmt *> stmts) : stmts(std::move(stmts)) {}
 };
 
 
