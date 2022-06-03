@@ -14,4 +14,6 @@ class Ast
     // SourceSegment
 };
 
+#define CAST(type) auto* c = dynamic_cast<type>(a)
+
 #endif //ETHERTIA_AST_H

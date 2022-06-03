@@ -13,16 +13,12 @@ void main() {
 
 /*
 @deprecated("some", some: 100, args: 100)
-void main<T>() {
+void main<T, u8 N>() {
 
     vec3(z: 100);
-
     var int i;
-
     i = 3 + 1;
-
 }
-
 
 template<T>
 void log(string* patt) {

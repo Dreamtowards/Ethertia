@@ -19,12 +19,12 @@ class Parser
 {
 public:
 
-    static AstCompilationUnit parseCompilationUnit(Lexer* lx) {
+    static AstCompilationUnit* parseCompilationUnit(Lexer* lx) {
         std::vector<AstStmt*> stmts;
-        while (!lx->eof()) {
+        while (!lx->clean_eof()) {
             stmts.push_back(parseStatement(lx));
         }
-        return AstCompilationUnit(stmts);
+        return new AstCompilationUnit(stmts);
     }
 
     // spec for Namespace
@@ -82,10 +82,23 @@ public:
         }
     }
 
-    static AstStmt* parseTemplate(Lexer* lx) {
+    static AstTemplate* parseTemplate(Lexer* lx) {
         lx->next(TK::LT);
 
+        std::vector<std::pair<std::string, std::string>> temps;
+        do {
+            std::string typname = "typename";
+            std::string name = parseIdentifier(lx);
+
+            if (lx->peeking(TK::L_IDENTIFIER)) {
+                typname = name;
+                name = parseIdentifier(lx);
+            }
+            temps.emplace_back(typname, name);
+        } while (lx->nexting(TK::COMMA));
+
         lx->next(TK::GT);
+        return new AstTemplate(temps);
     }
 
     // Proc-Control Statements.
@@ -158,15 +171,15 @@ public:
     // using intlist = std::vector<int>;   // intlist sth;
     static AstStmt* parseStmtUsing(Lexer* lx) {
         lx->nexting(TK::USING);
-        AstExpr* refer = parseTypename(lx);
+        AstExpr* used = parseTypename(lx);
 
-        std::string alias;
+        std::string name = AstExprMemberAccess::namesExpand(used).end().operator*();
         if (lx->nexting(TK::EQ)) {
-            alias = ((AstExprIdentifier*)refer)->name;
-            refer = parseTypename(lx);
+            name = ((AstExprIdentifier*)used)->name;
+            used = parseTypename(lx);
         }
         lx->next(TK::SEMI);
-        return new AstStmtUsing(refer, alias);
+        return new AstStmtUsing(used, name);
     }
 
     static AstStmtNamespace* parseStmtNamespace(Lexer* lx) {
@@ -175,7 +188,7 @@ public:
 
         std::vector<AstStmt*> stmts;
         if (lx->nexting(TK::SEMI)) {
-            while (!lx->nexting(TK::NAMESPACE) && lx->clean_eof()) {
+            while (!lx->nexting(TK::NAMESPACE) && !lx->clean_eof()) {
                 stmts.push_back(parseStatement(lx));
             }
         } else {
@@ -273,10 +286,10 @@ public:
             }
 
             int mark = lx->rdi;
-            bool tan = isPass(lx, parseTypename) && isPass(lx, parseIdentifier);
-            bool fn = lx->peeking(TK::LPAREN);
+            bool prelead = isPass(lx, parseTypename) && isPass(lx, parseIdentifier);
+            bool fn = lx->peeking(TK::LPAREN) || lx->peeking(TK::LT);
             lx->rdi = mark;  // setback.
-            if (tan) {
+            if (prelead) {
                 if (fn) {  // DefFunc.
                     return parseStmtDefFunc(lx);
                 } else {   // DefVar
@@ -306,6 +319,7 @@ public:
     static AstExpr* parseExprPrimary(Lexer* lx) {
         TokenType* tk = lx->peek();
 
+        // new, sizeof
         if (tk == TK::L_IDENTIFIER) {
             return parseExprIdentifier(lx);
         } else if (tk == TK::L_STRING) {

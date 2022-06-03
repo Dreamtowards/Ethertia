@@ -94,10 +94,10 @@ public:
 
 class AstStmtUsing : public AstStmt {
 public:
-    AstExpr* refer;
-    std::string alias;
+    AstExpr* used;
+    std::string name;
 
-    AstStmtUsing(AstExpr* refer, std::string alias) : refer(refer), alias(std::move(alias)) {}
+    AstStmtUsing(AstExpr* used, std::string name) : used(used), name(std::move(name)) {}
 };
 
 class AstStmtNamespace : public AstStmt {
@@ -106,6 +106,7 @@ public:
     std::vector<AstStmt*> stmts;
 
     AstStmtNamespace(AstExpr* name, std::vector<AstStmt*> stmts) : name(name), stmts(std::move(stmts)) {}
+
 };
 
 

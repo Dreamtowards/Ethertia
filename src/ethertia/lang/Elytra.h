@@ -8,11 +8,18 @@
 #include <ethertia/lang/parser/Parser.h>
 #include <ethertia/client/Loader.h>
 
+#include <ethertia/lang/symbol/Cymbal.h>
+
 void et() {
 
     Lexer lx;
     lx.src = Loader::loadAssetsStr("elytra/main.et");
-    auto a = Parser::parseCompilationUnit(&lx);
+    auto* a = Parser::parseCompilationUnit(&lx);
+
+    Scope s(nullptr);
+    Cymbal::visitCompilationUnit(&s, a);
+
+
 
 }
 

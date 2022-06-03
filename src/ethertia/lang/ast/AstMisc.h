@@ -34,4 +34,12 @@ public:
     AstModifiers(std::vector<TokenType*> modifiers) : modifiers(std::move(modifiers)) {}
 };
 
+class AstTemplate : public Ast
+{
+public:
+    std::vector<std::pair<std::string, std::string>> templates;
+
+    AstTemplate(std::vector<std::pair<std::string, std::string>> templates) : templates(std::move(templates)) {}
+};
+
 #endif //ETHERTIA_ASTMISC_H

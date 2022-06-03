@@ -8,10 +8,52 @@
 #include <utility>
 
 #include "Ast.h"
+#include <ethertia/lang/symbol/Symbol.h>
 
-class AstExpr : public Ast {
+class AstExpr : public Ast
+{
+    Symbol* symbol;
+
+public:
+
+    void setSymbol(Symbol* sym) {
+        symbol = sym;
+    }
+
+    Symbol* getSymbol() {
+        return symbol;
+    }
 
 };
+
+
+class AstExprIdentifier : public AstExpr {
+public:
+    std::string name;
+    explicit AstExprIdentifier(std::string  name) : name(std::move(name)) {}
+};
+
+class AstExprLString : public AstExpr {
+public:
+    std::string str;
+    AstExprLString(std::string str) : str(std::move(str)) {}
+};
+
+class AstExprLNumber : public AstExpr {
+public:
+    TokenType* typ;
+    union num {
+        float f32;
+        double f64;
+        int i32;
+        long i64;
+        unsigned int u32;
+        unsigned long u64;
+    } num;
+    AstExprLNumber(TokenType* typ) : typ(typ) {}
+};
+
+
 
 class AstExprBinaryOp : public AstExpr {
 public:
@@ -56,11 +98,27 @@ public:
     std::string memb;
     TokenType* typ;
     AstExprMemberAccess(AstExpr* lhs, std::string memb, TokenType* typ) : lhs(lhs), memb(std::move(memb)), typ(typ) {}
+
+
+    static std::vector<std::string> namesExpand(AstExpr* name) {
+        std::vector<std::string> names;
+        namesExpand(&names, name);
+        return names;
+    }
+
+    static void namesExpand(std::vector<std::string>* out, AstExpr* a) {
+        if (CAST(AstExprMemberAccess*)) {
+            namesExpand(out, c->lhs);
+            out->push_back(c->memb);
+        } else if (CAST(AstExprIdentifier*)) {
+            out->push_back(c->name);
+        } else throw "Illegal namespace name tree";
+    }
 };
 
-class AstExprNew : public AstExpr {};
-
-class AstExprSizeOf : public AstExpr {};
+//class AstExprNew : public AstExpr {};
+//
+//class AstExprSizeOf : public AstExpr {};
 
 class AstExprTypeCast : public AstExpr {
 public:
@@ -69,33 +127,5 @@ public:
 
     AstExprTypeCast(AstExpr* type, AstExpr* expr) : type(type), expr(expr) {}
 };
-
-class AstExprIdentifier : public AstExpr {
-public:
-    std::string name;
-    explicit AstExprIdentifier(std::string  name) : name(std::move(name)) {}
-};
-
-class AstExprLString : public AstExpr {
-public:
-    std::string str;
-    AstExprLString(std::string str) : str(std::move(str)) {}
-};
-
-class AstExprLNumber : public AstExpr {
-public:
-    TokenType* typ;
-    union num {
-        float f32;
-        double f64;
-        int i32;
-        long i64;
-        unsigned int u32;
-        unsigned long u64;
-    } num;
-    AstExprLNumber(TokenType* typ) : typ(typ) {}
-};
-
-
 
 #endif //ETHERTIA_ASTEXPR_H
