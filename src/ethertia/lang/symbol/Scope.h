@@ -19,15 +19,20 @@ public:
     explicit Scope(Scope* parent) : parent(parent) {}
 
     void define(const std::string& name, Symbol* sym) {
-        assert(defs.find(name) == defs.end());  // already existed.
+        assert(!resolve(name));  // already existed.
 
         defs[name] = sym;
+    }
+    void define(Symbol* sym) {
+        define(sym->getSimpleName(), sym);
     }
 
     Symbol* resolve(const std::string& name) {
         auto it = defs.find(name);
-        if (it == defs.end())
-            return nullptr;
+        if (it == defs.end()) {
+            if (parent) return parent->resolve(name);
+            else return nullptr;
+        }
         return it->second;
     }
 };

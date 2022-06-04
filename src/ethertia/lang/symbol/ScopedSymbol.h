@@ -2,12 +2,12 @@
 // Created by Dreamtowards on 2022/6/3.
 //
 
-#ifndef ETHERTIA_SYMBOLSCOPED_H
-#define ETHERTIA_SYMBOLSCOPED_H
+#ifndef ETHERTIA_SCOPEDSYMBOL_H
+#define ETHERTIA_SCOPEDSYMBOL_H
 
 #include <ethertia/lang/symbol/Scope.h>
 
-class SymbolScoped
+class ScopedSymbol
 {
     Scope* scope = nullptr;
 
@@ -19,9 +19,9 @@ public:
     }
 
 
-    void _set_symtab(Scope* s) {
+    void __symtab(Scope* s) {
         scope = s;
     }
 };
 
-#endif //ETHERTIA_SYMBOLSCOPED_H
+#endif //ETHERTIA_SCOPEDSYMBOL_H

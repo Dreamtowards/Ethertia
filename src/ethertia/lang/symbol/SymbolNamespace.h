@@ -6,14 +6,15 @@
 #define ETHERTIA_SYMBOLNAMESPACE_H
 
 #include <ethertia/lang/symbol/Symbol.h>
-#include <ethertia/lang/symbol/SymbolScoped.h>
+#include <ethertia/lang/symbol/ScopedSymbol.h>
 
-class SymbolNamespace : public Symbol, public SymbolScoped
+class SymbolNamespace : public Symbol, public ScopedSymbol
 {
 public:
 
-    SymbolNamespace(Scope* nscope) {
-        _set_symtab(nscope);
+    SymbolNamespace(const std::string& name, Scope* nscope) {
+        __name(name);
+        __symtab(nscope);
     }
 };
 

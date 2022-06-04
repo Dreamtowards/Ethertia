@@ -12,10 +12,12 @@
 #include <ethertia/lang/symbol/SymbolVariable.h>
 #include <ethertia/lang/symbol/SymbolFunction.h>
 #include <ethertia/lang/symbol/SymbolClass.h>
+#include <ethertia/lang/symbol/SymbolInternalTypes.h>
 
 class Cymbal
 {
 public:
+    static std::map<std::string, AstStmtDefFunc*> functions;
 
     static void visitCompilationUnit(Scope* s, AstCompilationUnit* a) {
         visitStmts(s, a->stmts);
@@ -87,8 +89,8 @@ public:
         for (const std::string& name : AstExprMemberAccess::namesExpand(a->name)) {
             SymbolNamespace* sn = (SymbolNamespace*)lat->resolve(name);
             if (!sn) {
-                sn = new SymbolNamespace(new Scope(lat));
-                lat->define(name, sn);
+                sn = new SymbolNamespace(name, new Scope(lat));
+                lat->define(sn);
             }
             lat = sn->getSymtab();
         }
@@ -98,7 +100,7 @@ public:
 
     static void visitStmtDefClass(Scope* s, AstStmtDefClass* a) {
 
-        s->define(a->name, new SymbolClass());
+        s->define(new SymbolClass(a->name));
 
         for (AstExpr* supcl : a->superclasses) {
             visitExpression(s, supcl);
@@ -113,7 +115,7 @@ public:
         // typename
         visitExpression(s, a->type);
         // decl var
-        s->define(a->name, new SymbolVariable());
+        s->define(a->vsymbol = new SymbolVariable(a->name, a->type->getSymbolType()));
 
         // expr.
         if (a->init) {
@@ -125,7 +127,8 @@ public:
         // typename
         visitExpression(s, a->retType);
         // decl func
-        s->define(a->name, new SymbolFunction());
+        SymbolFunction* fsymbol = new SymbolFunction(a->name);
+        s->define(fsymbol);
 
         Scope* fscope = new Scope(s);
 
@@ -135,6 +138,8 @@ public:
         }
         // body
         visitStmts(fscope, a->body->stmts);
+
+        Cymbal::functions[fsymbol->getSimpleName()] = a;
     }
 
     static void visitStmtExpr(Scope* s, AstStmtExpr* a) {
@@ -147,27 +152,34 @@ public:
 
 
     static void visitExpression(Scope* s, AstExpr* a) {
-        if (CAST(AstExprIdentifier*)) {
-            a->setSymbol(s->resolve(c->name));
-        } else if (CAST(AstExprLNumber*)) {
-            // visitExprLNumber(s, c);  // BuiltinTypes
-        } else if (CAST(AstExprLString*)) {
-            // sy = ;  // ptr u16
-        } else if (CAST(AstExprMemberAccess*)) {
-            visitExprMemberAccess(s, c);
-        } else if (CAST(AstExprFuncCall*)) {
-            visitExprFuncCall(s, c);
-        } else if (CAST(AstExprUnaryOp*)) {
-            visitExprUnaryOp(s, c);
-        } else if (CAST(AstExprBinaryOp*)) {
-            visitExprBinaryOp(s, c);
-        } else if (CAST(AstExprTypeCast*)) {
-            // visitExprTypeCast(s, c);
-        } else if (CAST(AstExprTriCond*)) {
-            // visitExprTriCond(s, c);
-        } else {
-            throw "Unsupported expression.";
-        }
+             if (CAST(AstExprIdentifier*))   { visitExprIdentifier(s, c); }
+        else if (CAST(AstExprLNumber*))      { visitExprLNumber(s, c);    }
+        else if (CAST(AstExprLString*))      { }
+        else if (CAST(AstExprMemberAccess*)) { visitExprMemberAccess(s, c);}
+        else if (CAST(AstExprFuncCall*))     { visitExprFuncCall(s, c); }
+        else if (CAST(AstExprUnaryOp*))      { visitExprUnaryOp(s, c); }
+        else if (CAST(AstExprBinaryOp*))     { visitExprBinaryOp(s, c); }
+        else if (CAST(AstExprTypeCast*))     { /* visitExprTypeCast(s, c); */ }
+        else if (CAST(AstExprTriCond*))      { /* visitExprTriCond(s, c);*/ }
+        else { throw "Unsupported expression."; }
+    }
+
+    static void visitExprIdentifier(Scope* s, AstExprIdentifier* a) {
+        Symbol* sym = s->resolve(a->name);
+        if (!sym)
+            throw "Couldn't found such symbol";
+        a->setSymbol(sym);
+    }
+
+    static void visitExprLNumber(Scope* s, AstExprLNumber* a) {
+        TokenType* typ = a->typ;
+
+        TypeSymbol* st = nullptr;
+             if (typ == TK::L_I32) { st = &SymbolInternalTypes::I32; }
+        else if (typ == TK::L_I64) { st = &SymbolInternalTypes::I64; }
+        else { throw "Unsupported literal number."; }
+
+        a->setSymbol(SymbolVariable::new_rvalue(st));
     }
 
     static void visitExprMemberAccess(Scope* s, AstExprMemberAccess* a) {
@@ -218,9 +230,20 @@ public:
     static void visitExprBinaryOp(Scope* s, AstExprBinaryOp* a) {
         visitExpression(s, a->lhs);
         visitExpression(s, a->rhs);
+        SymbolVariable* lhss = a->lhs->getSymbolVar();
+        SymbolVariable* rhss = a->rhs->getSymbolVar();
 
         TokenType* typ = a->typ;
+        if (typ == TK::EQ) {
+            assert(lhss->lvalue());  // lhs must be lvalue.
+            assert(lhss->getType()->getTypesize() == rhss->getType()->getTypesize());
 
+            a->setSymbol(lhss);
+        } else if (typ == TK::PLUS) {
+            assert(lhss->getType() == rhss->getType());
+
+            a->setSymbol(SymbolVariable::new_rvalue(lhss->getType()));
+        }
     }
 };
 

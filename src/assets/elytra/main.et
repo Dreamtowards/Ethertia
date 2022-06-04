@@ -2,14 +2,21 @@
 
 namespace std;
 
-int i = 10;
-
 void main() {
 
-    int i = 10;
+    i32 i = 10;
 
     i = 10 + 2;
 }
+
+
+
+
+
+
+
+
+
 
 /*
 @deprecated("some", some: 100, args: 100)

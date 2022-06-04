@@ -9,14 +9,22 @@
 
 class Symbol
 {
+    std::string name;
+
 public:
 
     virtual std::string getQualifiedName() {
-
+        throw "Unsupported";
     }
 
-    virtual std::string getSimpleName() {
+    std::string getSimpleName() const {
+        if (name.empty())
+            throw "illegal name";
+        return name;
+    }
 
+    void __name(const std::string& s) {
+        name = s;
     }
 
 };

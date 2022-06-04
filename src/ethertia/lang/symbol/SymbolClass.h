@@ -6,10 +6,16 @@
 #define ETHERTIA_SYMBOLCLASS_H
 
 #include <ethertia/lang/symbol/Symbol.h>
-#include <ethertia/lang/symbol/SymbolScoped.h>
+#include <ethertia/lang/symbol/ScopedSymbol.h>
+#include <ethertia/lang/symbol/TypeSymbol.h>
 
-class SymbolClass : public Symbol, public SymbolScoped
+class SymbolClass : public Symbol, public ScopedSymbol, public TypeSymbol
 {
+public:
+
+    SymbolClass(const std::string& name) {
+        __name(name);
+    }
 
 };
 

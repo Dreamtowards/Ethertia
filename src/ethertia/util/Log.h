@@ -24,12 +24,21 @@ class Log
 {
 public:
 
-//    template<typename T>
-//    static std::string str(T v) {
-//        std::stringstream ss;
-//        ss << v;
-//        return ss.str();
-//    }
+    template<typename T>
+    static std::string str(T v) {
+        std::stringstream ss;
+        ss << v;
+        return ss.str();
+    }
+    template<typename... ARGS>
+    static std::string str(const std::string& pat, ARGS... args)
+    {
+        std::stringstream ss;
+        log(ss, pat, args...);
+        return ss.str();
+    }
+
+
 
     static void log_head(std::ostream& out) {
         struct timeval tv{};

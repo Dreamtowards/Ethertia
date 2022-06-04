@@ -9,21 +9,28 @@
 
 #include "Ast.h"
 #include <ethertia/lang/symbol/Symbol.h>
+#include <ethertia/lang/symbol/SymbolVariable.h>
 
 class AstExpr : public Ast
 {
-    Symbol* symbol;
+    Symbol* symbol = nullptr;
 
 public:
 
     void setSymbol(Symbol* sym) {
+        assert(sym);  // nonnull
         symbol = sym;
     }
 
     Symbol* getSymbol() {
         return symbol;
     }
-
+    SymbolVariable* getSymbolVar() {
+        return dynamic_cast<SymbolVariable*>(symbol);
+    }
+    TypeSymbol* getSymbolType() {
+        return dynamic_cast<TypeSymbol*>(symbol);
+    }
 };
 
 

@@ -7,6 +7,9 @@
 
 #include <utility>
 
+#include <ethertia/lang/symbol/SymbolVariable.h>
+#include <ethertia/lang/symbol/SymbolFunction.h>
+
 #include "Ast.h"
 
 class AstStmt : public Ast
@@ -22,12 +25,14 @@ class AstStmtBlank : public AstStmt {};
 class AstStmtBlock : public AstStmt {
 public:
     std::vector<AstStmt*> stmts;
+
     AstStmtBlock(std::vector<AstStmt*> stmts) : stmts(std::move(stmts)) {}
 };
 
 class AstStmtExpr : public AstStmt {
 public:
     AstExpr* expr;
+
     AstStmtExpr(AstExpr* expr) : expr(expr) {}
 };
 
@@ -56,6 +61,7 @@ class AstStmtContinue : public AstStmt {};
 class AstStmtReturn : public AstStmt {
 public:
     AstExpr* ret;
+
     AstStmtReturn(AstExpr *ret) : ret(ret) {}
 };
 
@@ -65,6 +71,8 @@ public:
     std::string name;
     std::vector<AstExpr*> superclasses;
     std::vector<AstStmt*> stmts;
+
+
 
     AstStmtDefClass(std::string name,
                     std::vector<AstExpr*> superclasses,
@@ -77,6 +85,9 @@ public:
     AstExpr* type;
     std::string name;
     AstExpr* init;
+
+    SymbolVariable* vsymbol;
+
     AstStmtDefVar(AstExpr* type, std::string name, AstExpr* init) : type(type), name(std::move(name)), init(init) {}
 };
 
@@ -86,6 +97,9 @@ public:
     std::string name;
     std::vector<AstStmtDefVar*> params;
     AstStmtBlock* body;
+
+    SymbolFunction* fsymbol;
+
     AstStmtDefFunc(AstExpr* retType,
                    std::string name,
                    std::vector<AstStmtDefVar*> params,
