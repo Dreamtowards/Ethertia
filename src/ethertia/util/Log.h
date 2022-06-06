@@ -24,6 +24,39 @@ class Log
 {
 public:
 
+    template<typename OUT>
+    static void log(OUT& out, const std::string& pat) {
+        out << pat;
+    }
+
+    template<typename OUT, typename A, typename... ARGS>
+    static void log(OUT& out, const std::string& pat, A a, ARGS... args) {
+        int beg = pat.find('{');
+        int end = pat.find('}', beg);
+        int padding = 0;
+        if (beg != -1 && beg+1 != end) {
+            std::string slen = pat.substr(beg+1, end-(beg+1));
+            padding = std::stoi(slen);
+        }
+
+        // pre
+        out << (beg==-1? pat : pat.substr(0,beg));
+        // val
+        long vbeg = out.tellp();
+        out << a;
+        if (padding) {
+            int vlen = (long)out.tellp() - vbeg;
+            int pad = padding - vlen;
+            for (int i = 0; i < pad; ++i) {
+                out << ' ';
+            }
+        }
+
+        // post
+        log(out, beg==-1? "" : pat.substr(end+1), args...);
+    }
+
+
     template<typename T>
     static std::string str(T v) {
         std::stringstream ss;
@@ -31,13 +64,11 @@ public:
         return ss.str();
     }
     template<typename... ARGS>
-    static std::string str(const std::string& pat, ARGS... args)
-    {
+    static std::string str(const std::string& pat, ARGS... args) {
         std::stringstream ss;
         log(ss, pat, args...);
         return ss.str();
     }
-
 
 
     static void log_head(std::ostream& out) {
@@ -51,36 +82,22 @@ public:
             << "["<<std::this_thread::get_id()<<"/INFO]: ";
     }
 
-    template<typename OUT>
-    static void log(OUT& out, const std::string& pat) {
-        out << pat << std::endl;
-    }
-
-//    template<typename S, typename A>
-//    static void log(S& out, const std::string& pat, A a) {
-//        int i = pat.find("{}");
-//        out << (i==-1? pat : pat.substr(0,i)) << a << (i==-1? "" : pat.substr(i+2)) << std::endl;
-//    }
-
-    template<typename OUT, typename A, typename... ARGS>
-    static void log(OUT& out, const std::string& pat, A a, ARGS... args) {
-        int i = pat.find("{}");
-        out << (i==-1? pat : pat.substr(0,i)) << a;
-        log(out, i==-1? "" : pat.substr(i+2), args...);
-    }
-
     template<typename... ARGS>
     static void info(const std::string& pat, ARGS... args)
     {
-        Log::log_head(std::cout);
-        log(std::cout, pat, args...);
+        std::stringstream ss;
+        Log::log_head(ss);
+        log(ss, pat, args...);
+        std::cout << ss.str() << std::endl;
     }
 
     template<typename... ARGS>
     static void warn(const std::string& pat, ARGS... args)
     {
-        Log::log_head(std::cerr);
-        log(std::cerr, pat, args...);
+        std::stringstream ss;
+        Log::log_head(ss);
+        log(ss, pat, args...);
+        std::cerr << ss.str() << std::endl;
     }
 
 

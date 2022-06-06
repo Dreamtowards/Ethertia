@@ -11,7 +11,7 @@
 class SymbolFunction : public Symbol
 {
 public:
-    CodeBuf codebuf;
+    CodeBuf codebuf{};
 
     SymbolFunction(const std::string& name) {
         __name(name);

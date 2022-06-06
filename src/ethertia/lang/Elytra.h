@@ -5,19 +5,21 @@
 #ifndef ETHERTIA_ELYTRA_H
 #define ETHERTIA_ELYTRA_H
 
-#include <ethertia/lang/parser/Parser.h>
 #include <ethertia/client/Loader.h>
 
+#include <ethertia/lang/parser/Parser.h>
 #include <ethertia/lang/symbol/Cymbal.h>
-#include <ethertia/lang/compiler/CodeGen.h>
-#include <ethertia/lang/machine/Machine.h>
-
 #include <ethertia/lang/symbol/SymbolInternalTypes.h>
+#include <ethertia/lang/compiler/CodeGen.h>
+#include <ethertia/lang/machine/Macedure.h>
 
 void et() {
 
     Lexer lx;
     lx.src = Loader::loadAssetsStr("elytra/main.et");
+    lx.src_name = "elytra/main.et";
+
+    Log::info("stdc tellp", std::cout.tellp());
 
     // Parse Syntax, Lexical.
     AstCompilationUnit* a = Parser::parseCompilationUnit(&lx);
@@ -42,7 +44,7 @@ void et() {
         CodeBuf* cbuf = &Cymbal::functions["main"]->fsymbol->codebuf;
 
         // VM
-        Machine::run(cbuf);
+        Macedure::run(cbuf, 4);
     }
 
 

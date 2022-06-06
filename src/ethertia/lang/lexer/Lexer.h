@@ -16,6 +16,7 @@ class Lexer
 public:
     int rdi = 0;  // read index.
     std::string src;
+    std::string src_name;  // just memo desc.
 
     int rdi_begin;  // read index of read-started.
 

@@ -23,7 +23,7 @@ public:
         visitStmts(cbuf, a->body->stmts);
     }
 
-    static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {
+    static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {  cbuf->_verbo(Log::str("S:DefVar {}", a->str()));
         cbuf->defvar(a->vsymbol);
 
         if (a->init) {

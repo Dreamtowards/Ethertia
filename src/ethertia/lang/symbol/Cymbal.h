@@ -17,7 +17,7 @@
 class Cymbal
 {
 public:
-    static std::map<std::string, AstStmtDefFunc*> functions;
+    inline static std::map<std::string, AstStmtDefFunc*> functions;
 
     static void visitCompilationUnit(Scope* s, AstCompilationUnit* a) {
         visitStmts(s, a->stmts);
@@ -129,6 +129,7 @@ public:
         // decl func
         SymbolFunction* fsymbol = new SymbolFunction(a->name);
         s->define(fsymbol);
+        a->fsymbol = fsymbol;
 
         Scope* fscope = new Scope(s);
 

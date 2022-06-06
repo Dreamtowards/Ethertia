@@ -75,6 +75,15 @@ public:
     }
 
 
+    void _verbo(std::string_view s) {
+        cpush8(Opcodes::VERBO);
+        cpush8(s.length());
+        for (char i : s) {
+            cpush8(i);
+        }
+    }
+
+
     // append code
     void cpush8(u8 v) {
         buf.push_back(v);
