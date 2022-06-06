@@ -24,7 +24,6 @@ void et() {
     // Parse Syntax, Lexical.
     AstCompilationUnit* a = Parser::parseCompilationUnit(&lx);
 
-
     {
         Scope rt(nullptr);
         SymbolInternalTypes::initInternalTypes(&rt);

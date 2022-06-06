@@ -12,6 +12,7 @@
 class CodeGen
 {
 public:
+    static const u8 PTR_SIZE = 4;
 
 
     static void visitStmtDefFunc(CodeBuf* cbuf, AstStmtDefFunc* a) {
@@ -21,9 +22,11 @@ public:
         }
 
         visitStmts(cbuf, a->body->stmts);
+
+        cbuf->_nop();
     }
 
-    static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {  cbuf->_verbo(Log::str("S:DefVar {}", a->str()));
+    static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {  cbuf->_verbo(a->str_v());
         cbuf->defvar(a->vsymbol);
 
         if (a->init) {
@@ -46,7 +49,7 @@ public:
         }
     }
 
-    static void visitStmtExpr(CodeBuf* cbuf, AstStmtExpr* a) {
+    static void visitStmtExpr(CodeBuf* cbuf, AstStmtExpr* a) {  cbuf->_verbo(a->str_v());
         visitExpression(cbuf, a->expr);
         cbuf->_pop(a->expr->getSymbolVar()->getType()->getTypesize());
     }
@@ -110,6 +113,7 @@ public:
 
         if (typ == TK::EQ) {
             visitExpression(cbuf, a->lhs);  // dstptr loaded.
+            cbuf->_dup_ptr();
             mov(cbuf, a->rhs);  // load src, mov to dst.
         } else if (typ == TK::PLUS) {
             visitExpression(cbuf, a->lhs);

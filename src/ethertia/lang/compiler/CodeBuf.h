@@ -74,6 +74,14 @@ public:
         cpush8(Opcodes::ADD_I32);
     }
 
+    void _dup(u16 sz) {
+        cpush8(Opcodes::DUP);
+        cpush16(sz);
+    }
+    void _dup_ptr() {
+        _dup(4);
+    }
+
 
     void _verbo(std::string_view s) {
         cpush8(Opcodes::VERBO);
@@ -83,6 +91,9 @@ public:
         }
     }
 
+    void _nop() {
+        cpush8(Opcodes::NOP);
+    }
 
     // append code
     void cpush8(u8 v) {

@@ -71,7 +71,7 @@ public:
             u32 begp = ip;
             u8 len = code[ip+1]; ip+=2;
             std::stringstream ss; for (int i = 0; i < len; ++i) ss << code[ip++];
-            std::cout << Log::str("#{5} {20}  % {}", begp, "VERBO", ss.str()) << std::endl;
+            std::cout << Log::str("#{5} {20}  ; % {}\n", begp, "VERBO", ss.str());
             continue;
         } else {
             std::stringstream strfs; for (int i = 0; i < esp-ebp; ++i) { IO::hex(strfs, MEM[ebp+i]); strfs << ' '; }
@@ -109,6 +109,15 @@ public:
             case Opcodes::POP: {
                 u16 sz = IO::ld_16(&code[ip]); ip += 2;
                 esp -= sz;
+                break;
+            }
+            case Opcodes::DUP: {
+                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                memcpy(esp-sz, esp, sz);
+                esp += sz;
+            }
+            case Opcodes::VERBO:
+            case Opcodes::NOP: {
                 break;
             }
             default: {

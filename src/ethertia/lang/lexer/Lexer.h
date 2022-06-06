@@ -283,13 +283,10 @@ public:
             throw "Bad number format: no digit.";
 
         if (TokenType::isFp(typ)) {
-            // *numFP = ;
-        } else if (fmt == FMT_DECIMAL) {
-            // *numI = ;
-        } else if (fmt == FMT_HEX) {
-            // *numI = ;
-        } else { assert(fmt == FMT_BINARY);
-            // *numI = ;
+            // *numFP = std::stod(nstr);  // 10.2e-2
+            throw "FP literal unsupported";
+        } else {
+            *numI = std::stol(nstr, 0, fmt);
         }
 
         return typ;
