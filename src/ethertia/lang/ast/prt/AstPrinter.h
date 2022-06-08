@@ -61,6 +61,9 @@ public:
         else if (CAST(AstStmtExpr*))     { printStmtExpr(s, c); }
         else if (CAST(AstStmtUsing*))    { printStmtUsing(s, c); }
         else if (CAST(AstStmtIf*))       { printStmtIf(s, c); }
+        else if (CAST(AstStmtWhile*))    { printStmtWhile(s, c); }
+        else if (CAST(AstStmtContinue*)) { printStmtContinue(s, c); }
+        else if (CAST(AstStmtBreak*))    { printStmtBreak(s, c); }
 
         else { throw "Unsupported stmt"; }
     }
@@ -135,6 +138,17 @@ public:
         }
     }
 
+    static void printStmtWhile(Prt& s, AstStmtWhile* a) {
+        s.begline();
+        s.ad("while (");
+        printExpression(s, a->cond);
+        s.ad(")");
+        s.endline();
+
+        printIndentStmt(s, a->body);
+
+    }
+
     static void printStmtBlock(Prt& s, AstStmtBlock* a) {
         s.line("{");
         s.pushIndent();
@@ -150,6 +164,14 @@ public:
         s.ad(" = ");
         printExpression(s, a->used);
         s.ad(";\n");
+    }
+
+    static void printStmtContinue(Prt& s, AstStmtContinue* a) {
+        s.line("continue;");
+    }
+
+    static void printStmtBreak(Prt& s, AstStmtBreak* a) {
+        s.line("break;");
     }
 
 

@@ -64,7 +64,7 @@ public:
         }
         std::cout << Log::str("::PROC <ebp:{}, esp:{}>\n", ebp, esp); int i100 = 0;
 
-        while (ip < cbuf->buf.size()) {  if (i100++ > 200) break;
+        while (ip < cbuf->buf.size()) {  //if (i100++ > 200) break;
 
         if (code[ip] == Opcodes::VERBO) {
             u32 begp = ip;
@@ -91,11 +91,9 @@ public:
                 if (typ == Opcodes::ICMP_I32) {
                     i32 rhs = pop_i32();
                     i32 lhs = pop_i32();
-                    if (cond == Opcodes::ICMP_SGT) {
-                        push_8(lhs > rhs);
-                    } else {
-                        throw "unsupp icmp cond";
-                    }
+                    if (cond == Opcodes::ICMP_SGT) push_8(lhs > rhs);
+                    else if (cond == Opcodes::ICMP_SLT) push_8(lhs < rhs);
+                    else throw "unsupp icmp cond";
                 } else {
                     throw "unsupp icmp typ";
                 }
@@ -121,15 +119,23 @@ public:
                 memcpy(src_ptr, dst_ptr, tsize);
                 break;
             }
-            case Opcodes::POP: {
+            case Opcodes::MOV_PUSH: {
                 u16 sz = IO::ld_16(&code[ip]); ip += 2;
-                esp -= sz;
+                u32 src_ptr = pop_ptr();
+                u32 dst_ptr = esp;
+                memcpy(src_ptr, dst_ptr, sz);
+                esp += sz;
                 break;
             }
             case Opcodes::DUP: {
                 u16 sz = IO::ld_16(&code[ip]); ip += 2;
                 memcpy(esp-sz, esp, sz);
                 esp += sz;
+                break;
+            }
+            case Opcodes::POP: {
+                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                esp -= sz;
                 break;
             }
             case Opcodes::GOTO: {

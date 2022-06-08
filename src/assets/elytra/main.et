@@ -7,13 +7,21 @@ using int = i32;
 void main() {
 
     int i = 10 + 2;
+    i = 0;
 
-    i = 1 + 10;
+    while (i < 3) {
 
-    if (i > 30) {
-        i = 3;
-    } else
-        i = 2;
+        if (i < 2) {
+            i = 2;
+            continue;
+        }
+        if (i < 3) {
+            i = 0xFF;
+            break;
+        }
+        i = i + 1;
+
+    }
 
 }
 

@@ -15,10 +15,11 @@ public:
                     ICMP    = 2,
 
                     MOV     = 10,  // cpy only.        // u16 size; usize src_ptr, usize dst_ptr
-                    MOV_POP = 11,                      // u16 size; usize dst_ptr
-                    POP     = 12,  // just sub esp.    // u16 size;
+                    MOV_POP = 11,  // pop->add         // u16 size; usize dst_ptr
+                    MOV_PUSH= 12,  // addr->push       // u16 size; usize src_ptr
                     DUP     = 13,  // dup stack top    // u16 size;
-                    NOP     = 14,  // none,
+                    POP     = 14,  // just sub esp.    // u16 size;
+                    NOP     = 15,  // none,
 
                     LDL     = 20,  // load local var.  // u8 l_idx  // ? %ebp+lpos
                     LDC     = 21,  // load constant    // u8 type, u8[] data
@@ -67,6 +68,7 @@ public:
             case ADD_I32: *stp = 1; return Log::str("add_i32");
             case MOV:     *stp = 3; return Log::str("mov %{}", IO::ld_16(&p[1]));
             case MOV_POP: *stp = 3; return Log::str("mov_pop %{}", IO::ld_16(&p[1]));
+            case MOV_PUSH:*stp = 3; return Log::str("mov_push %{}", IO::ld_16(&p[1]));
             case POP:     *stp = 3; return Log::str("pop %{}", IO::ld_16(&p[1]));
             case DUP:     *stp = 3; return Log::str("dup %{}", IO::ld_16(&p[1]));
             case NOP:     *stp = 1; return "nop";
@@ -82,6 +84,7 @@ public:
                 const char* styp = "";
                 if (cond == ICMP_SGT) scond = "sgt";
                 else if (cond == ICMP_SGE) scond = "sge";
+                else if (cond == ICMP_SLT) scond = "slt";
                 if (typ == ICMP_I32) styp = "i32";
                 return Log::str("icmp @{} {}", scond, styp);
             }

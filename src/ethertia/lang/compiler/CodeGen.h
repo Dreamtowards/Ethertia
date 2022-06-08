@@ -25,7 +25,7 @@ public:
         cbuf->_nop();
     }
 
-    static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {  cbuf->_verbo(a->str_v());
+    static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {  cbuf->_verbo(a->str_v()+" :defvar_init");
         cbuf->defvar(a->vsymbol);
 
         if (a->init) {
@@ -48,12 +48,12 @@ public:
         }
     }
 
-    static void visitStmtExpr(CodeBuf* cbuf, AstStmtExpr* a) {  cbuf->_verbo(a->str_v());
+    static void visitStmtExpr(CodeBuf* cbuf, AstStmtExpr* a) {  cbuf->_verbo(a->str_v()+" :stexpr");
         visitExpression(cbuf, a->expr);
         cbuf->_pop(a->expr->getSymbolVar()->getType()->getTypesize());
     }
 
-    static void visitStmtIf(CodeBuf* cbuf, AstStmtIf* a) {  cbuf->_verbo(a->cond->str_v());
+    static void visitStmtIf(CodeBuf* cbuf, AstStmtIf* a) {  cbuf->_verbo(a->cond->str_v()+" :if_cond");
         // cond
         visitExpression(cbuf, a->cond);
         if (a->cond->getSymbolVar()->getType()->getTypesize() != 1)
@@ -74,11 +74,42 @@ public:
             visitStatement(cbuf, a->els);
 
             IO::st_16(cbuf->bufptr(m_endelse), cbuf->bufpos());  // endelse
-//            u16 p = IO::ld_16((u8*)ip_endelse);
-//            cbuf->_verbo("end else "+std::to_string(p)+", pos: "+std::to_string(endThenPos));
-//            cbuf->_verbo(Log::str("DUP: ", IO::dump(&cbuf->buf[endThenPos], 4)));
+        }
+    }
+
+    static void visitStmtWhile(CodeBuf* cbuf, AstStmtWhile* a) {  cbuf->_verbo(a->cond->str_v()+" :while_cond");
+        // begloop
+        u16 begwhile = cbuf->bufpos();
+
+        t_ip old_loopbeg = cbuf->loop_beg;
+        std::vector<t_ip> old_loopendms = cbuf->loop_end_mgoto;
+        cbuf->loop_beg = begwhile;
+        cbuf->loop_end_mgoto = {};
+
+        // cond
+        visitExpression(cbuf, a->cond);
+        cbuf->loop_end_mgoto.push_back(cbuf->_goto_f());
+
+        // body
+        visitStatement(cbuf, a->body);
+        cbuf->_goto(begwhile);
+
+        t_ip ip_endwhile = cbuf->bufpos();
+        for (t_ip end_mgoto : cbuf->loop_end_mgoto) {
+            IO::st_16(cbuf->bufptr(end_mgoto), ip_endwhile);
         }
 
+        cbuf->loop_beg = old_loopbeg;
+        cbuf->loop_end_mgoto = old_loopendms;
+    }
+
+    static void visitStmtContinue(CodeBuf* cbuf, AstStmtContinue* a) {  cbuf->_verbo(a->str_v());
+        // check have enclosing loop.
+        cbuf->_goto(cbuf->loop_beg);
+    }
+
+    static void visitStmtBreak(CodeBuf* cbuf, AstStmtBreak* a) {  cbuf->_verbo(a->str_v());
+        cbuf->loop_end_mgoto.push_back(cbuf->_goto());
     }
 
     static void visitStmts(CodeBuf* cbuf, const std::vector<AstStmt*>& stmts) {
@@ -90,9 +121,9 @@ public:
     static void visitStatement(CodeBuf* cbuf, AstStmt* a) {
              if (CAST(AstStmtBlock*))     { visitStmts(cbuf, c->stmts);  }
         else if (CAST(AstStmtIf*))        { visitStmtIf(cbuf, c);        }
-//        else if (CAST(AstStmtWhile*))     { visitStmtWhile(cbuf, c);     }
-        else if (CAST(AstStmtBreak*))     { }
-        else if (CAST(AstStmtContinue*))  { }
+        else if (CAST(AstStmtWhile*))     { visitStmtWhile(cbuf, c);     }
+        else if (CAST(AstStmtContinue*))  { visitStmtContinue(cbuf, c); }
+        else if (CAST(AstStmtBreak*))     { visitStmtBreak(cbuf, c); }
         else if (CAST(AstStmtUsing*))     { }
 //        else if (CAST(AstStmtReturn*))    { visitStmtReturn(cbuf, c);    }
         else if (CAST(AstStmtDefVar*))    { visitStmtDefVar(cbuf, c);    }
@@ -135,6 +166,15 @@ public:
         }
     }
 
+    static void makesure_rvalue(CodeBuf* cbuf, AstExpr* a) {
+
+        SymbolVariable* sv = a->getSymbolVar();
+        if (sv->lvalue()) {
+
+            cbuf->_mov_push(sv->getType()->getTypesize());
+        }
+    }
+
     static void visitExprBinaryOp(CodeBuf* cbuf, AstExprBinaryOp* a) {
         TokenType* typ = a->typ;
 
@@ -142,18 +182,19 @@ public:
             visitExpression(cbuf, a->lhs);  // dstptr loaded.
             cbuf->_dup_ptr();
             mov(cbuf, a->rhs);  // load src, mov to dst.
-        } else if (typ == TK::PLUS) {
-            visitExpression(cbuf, a->lhs);
-            visitExpression(cbuf, a->rhs);
-
-            cbuf->_add_i32();
-        } else if (typ == TK::GT) {
-            visitExpression(cbuf, a->lhs);
-            visitExpression(cbuf, a->rhs);
-
-            cbuf->_icmp(Opcodes::ICMP_SGT, Opcodes::ICMP_I32);
         } else {
-            throw "Unknown binary op";
+            visitExpression(cbuf, a->lhs);  makesure_rvalue(cbuf, a->lhs);
+            visitExpression(cbuf, a->rhs);  makesure_rvalue(cbuf, a->rhs);
+
+            if (typ == TK::PLUS) {
+                cbuf->_add_i32();
+            } else if (typ == TK::GT) {
+                cbuf->_icmp(Opcodes::ICMP_SGT, Opcodes::ICMP_I32);
+            } else if (typ == TK::LT) {
+                cbuf->_icmp(Opcodes::ICMP_SLT, Opcodes::ICMP_I32);
+            } else {
+                throw "Unknown binary op";
+            }
         }
     }
 

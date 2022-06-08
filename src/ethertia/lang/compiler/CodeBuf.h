@@ -9,6 +9,9 @@
 
 #include <ethertia/lang/compiler/Opcodes.h>
 
+typedef u16 t_ip;  // instruction/opcode pos/index
+typedef u32 t_ptr;
+
 class CodeBuf
 {
 public:
@@ -16,6 +19,9 @@ public:
     std::vector<SymbolVariable*> localvars;
 
     std::vector<u8> buf;
+
+    t_ip loop_beg = -1;
+    std::vector<t_ip> loop_end_mgoto;
 
 
     void defvar(SymbolVariable* sv) {
@@ -52,6 +58,10 @@ public:
         cpush8(Opcodes::MOV_POP);
         cpush16(size);
     }
+    void _mov_push(u16 size) {
+        cpush8(Opcodes::MOV_PUSH);
+        cpush16(size);
+    }
 
     void _ldc_(u8 type) {
         cpush8(Opcodes::LDC);
@@ -83,17 +93,21 @@ public:
     }
 
     [[nodiscard]]
-    u16 _goto() {
+    t_ip _goto() {
         cpush8(Opcodes::GOTO);
-        u16 ip = bufpos();
+        t_ip ip = bufpos();
         cpush16(0);
         return ip;
     }
+    void _goto(t_ip ip) {
+        cpush8(Opcodes::GOTO);
+        cpush16(ip);
+    }
 
     [[nodiscard]]
-    u16 _goto_f() {
+    t_ip _goto_f() {
         cpush8(Opcodes::GOTO_F);
-        u16 ip = bufpos();
+        t_ip ip = bufpos();
         cpush16(0);
         return ip;
     }
@@ -135,11 +149,11 @@ public:
 //    void* bufeptr() {
 //        return &buf.back();
 //    }
-    u16 bufpos() {
+    t_ip bufpos() {
         return buf.size();
     }
 
-    u8* bufptr(u16 ip) {
+    u8* bufptr(t_ip ip) {
         return &buf[ip];
     }
 };

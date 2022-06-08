@@ -42,7 +42,7 @@ public:
         else if (CAST(AstStmtBlank*))     { }
         else if (CAST(AstStmtIf*))        { visitStmtIf(s, c);        }
         else if (CAST(AstStmtWhile*))     { visitStmtWhile(s, c);     }
-        else if (CAST(AstStmtBreak*))     { }
+        else if (CAST(AstStmtBreak*))     { }  // validate enclosing loop.
         else if (CAST(AstStmtContinue*))  { }
         else if (CAST(AstStmtReturn*))    { visitStmtReturn(s, c);    }
         else if (CAST(AstStmtNamespace*)) { visitStmtNamespace(s, c); }
@@ -258,7 +258,7 @@ public:
             assert(lhss->getType() == rhss->getType());
 
             a->setSymbol(SymbolVariable::new_rvalue(lhss->getType()));
-        } else if (typ == TK::GT) {
+        } else if (typ == TK::GT || typ == TK::LT) {
 
             a->setSymbol(SymbolVariable::new_rvalue(&SymbolInternalTypes::U8));
         }
