@@ -12,6 +12,7 @@
 #include <ethertia/lang/symbol/SymbolInternalTypes.h>
 #include <ethertia/lang/compiler/CodeGen.h>
 #include <ethertia/lang/machine/Macedure.h>
+#include <ethertia/lang/ast/prt/AstPrinter.h>
 
 void et() {
 
@@ -23,6 +24,11 @@ void et() {
 
     // Parse Syntax, Lexical.
     AstCompilationUnit* a = Parser::parseCompilationUnit(&lx);
+
+
+    AstPrinter::Prt prt;
+    AstPrinter::printCompilationUnit(prt, a);
+    Log::info("Prt: \n", prt.ss.str());
 
     {
         Scope rt(nullptr);
@@ -41,6 +47,14 @@ void et() {
 
     {
         CodeBuf* cbuf = &Cymbal::functions["main"]->fsymbol->codebuf;
+
+        u32 ip = 0;
+        while (ip < cbuf->buf.size()) {
+            u8 stp;
+            std::cout << Log::str("#{5}  ", ip) << Opcodes::str(&cbuf->buf[ip], &stp) << "\n";
+            ip += stp;
+        }
+        std::cout << "END ASM.\n\n\n";
 
         // VM
         Macedure::run(cbuf, 4);

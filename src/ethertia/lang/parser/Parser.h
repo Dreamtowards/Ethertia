@@ -54,17 +54,19 @@ public:
         lx->next(TK::L_IDENTIFIER);
         return lx->r_str;
     }
+    // @typename | @typename(arg1, normal_funccall_constructor, argname: val)
     static AstAttribute* parseAttribute(Lexer* lx) {  ABEG;
         lx->next(TK::AT);
-        AstExpr* type = parseTypename(lx);
+        AstExpr* attr = parseExpr1_AccessCall(lx);
+//        AstExpr* type = parseTypename(lx);
+//
+//        // maybe there only need a parseExprAccessCall, no matter what syntax, just check on Symbolization.
+//        std::vector<AstExpr*> args;  int beg_f = lx->rdi_clean();
+//        if (lx->peeking(TK::LPAREN))
+//            args = parseExprFuncCallArgs(lx);
+//        AstExprFuncCall* init = initlc(new AstExprFuncCall(type, args), beg_f, lx);
 
-        // maybe there only need a parseExprAccessCall, no matter what syntax, just check on Symbolization.
-        std::vector<AstExpr*> args;  int beg_f = lx->rdi_clean();
-        if (lx->peeking(TK::LPAREN))
-            args = parseExprFuncCallArgs(lx);
-        AstExprFuncCall* init = initlc(new AstExprFuncCall(type, args), beg_f, lx);
-
-        return AEND(new AstAttribute(init));
+        return AEND(new AstAttribute(attr));
     }
     static std::vector<AstAttribute*> parseAttributes(Lexer* lx) {
         std::vector<AstAttribute*> attrs;
@@ -184,7 +186,7 @@ public:
         lx->nexting(TK::USING);
         AstExpr* used = parseTypename(lx);
 
-        std::string name = *(AstExprMemberAccess::namesExpand(used).end());
+        std::string name = AstExprMemberAccess::namesLast(used);
         if (lx->nexting(TK::EQ)) {
             name = ((AstExprIdentifier*)used)->name;
             used = parseTypename(lx);

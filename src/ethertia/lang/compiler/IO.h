@@ -23,6 +23,21 @@ public:
         return s;
     }
 
+    static std::string dump(u8* p, size_t len) {
+        std::stringstream ss;
+        for (int i = 0; i < len; ++i) {
+            IO::hex(ss, p[i]);
+            ss << ' ';
+        }
+        return ss.str();
+    }
+
+    // Memory Address Arrange is Platform-Dependent, dont use (u64*)p = ...; to assign, it cause PlatDep/UB
+
+    static void st_16(u8* p, u16 v) {
+        p[0] = v >> 8;
+        p[1] = v;
+    }
     static u16 ld_16(const u8* p) {
         return (p[0] << 8) | p[1];
     }

@@ -23,6 +23,20 @@ public:
         visitStmts(s, a->stmts);
     }
 
+    static void visitAttribute(Scope* s, AstAttribute* a) {
+        AstExpr* expr = a->expr;
+        visitExpression(s, expr);
+
+        Symbol* sym = expr->getSymbol();
+        if (SymbolClass* sc = dynamic_cast<SymbolClass*>(sym)) {
+
+        } else if (SymbolFunction* sf = dynamic_cast<SymbolFunction*>(sym)) {
+
+        } else {
+            throw "Illegal attribute symbol";
+        }
+    }
+
     static void visitStatement(Scope* s, AstStmt* a) {
              if (CAST(AstStmtBlock*))     { visitStmtBlock(s, c);     }
         else if (CAST(AstStmtBlank*))     { }
@@ -244,6 +258,9 @@ public:
             assert(lhss->getType() == rhss->getType());
 
             a->setSymbol(SymbolVariable::new_rvalue(lhss->getType()));
+        } else if (typ == TK::GT) {
+
+            a->setSymbol(SymbolVariable::new_rvalue(&SymbolInternalTypes::U8));
         }
     }
 };

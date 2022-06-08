@@ -82,6 +82,29 @@ public:
         _dup(4);
     }
 
+    [[nodiscard]]
+    u16 _goto() {
+        cpush8(Opcodes::GOTO);
+        u16 ip = bufpos();
+        cpush16(0);
+        return ip;
+    }
+
+    [[nodiscard]]
+    u16 _goto_f() {
+        cpush8(Opcodes::GOTO_F);
+        u16 ip = bufpos();
+        cpush16(0);
+        return ip;
+    }
+
+
+    void _icmp(u8 cond, u8 typ) {
+        cpush8(Opcodes::ICMP);
+        cpush8(cond);
+        cpush8(typ);
+    }
+
 
     void _verbo(std::string_view s) {
         cpush8(Opcodes::VERBO);
@@ -108,6 +131,16 @@ public:
         buf.push_back(v >> 16);
         buf.push_back(v >> 8);
         buf.push_back(v);
+    }
+//    void* bufeptr() {
+//        return &buf.back();
+//    }
+    u16 bufpos() {
+        return buf.size();
+    }
+
+    u8* bufptr(u16 ip) {
+        return &buf[ip];
     }
 };
 

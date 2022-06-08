@@ -112,6 +112,11 @@ public:
         namesExpand(&names, name);
         return names;
     }
+    static std::string namesLast(AstExpr* name) {
+        std::vector<std::string> names;
+        namesExpand(&names, name);
+        return names[names.size()-1];
+    }
 
     static void namesExpand(std::vector<std::string>* out, AstExpr* a) {
         if (CAST(AstExprMemberAccess*)) {

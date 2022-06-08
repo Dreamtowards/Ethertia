@@ -1,12 +1,20 @@
 
 
-namespace std;
+namespace std::_test::_1;
+
+using int = i32;
 
 void main() {
 
-    i32 i = 10;
+    int i = 10 + 2;
 
-    i = 0b1 + 0xF;
+    i = 1 + 10;
+
+    if (i > 30) {
+        i = 3;
+    } else
+        i = 2;
+
 }
 
 

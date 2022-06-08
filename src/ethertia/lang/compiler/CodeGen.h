@@ -12,7 +12,6 @@
 class CodeGen
 {
 public:
-    static const u8 PTR_SIZE = 4;
 
 
     static void visitStmtDefFunc(CodeBuf* cbuf, AstStmtDefFunc* a) {
@@ -54,6 +53,33 @@ public:
         cbuf->_pop(a->expr->getSymbolVar()->getType()->getTypesize());
     }
 
+    static void visitStmtIf(CodeBuf* cbuf, AstStmtIf* a) {  cbuf->_verbo(a->cond->str_v());
+        // cond
+        visitExpression(cbuf, a->cond);
+        if (a->cond->getSymbolVar()->getType()->getTypesize() != 1)
+            throw "Failed if condition. not a byte/boolean";
+        u16 m_endthen = cbuf->_goto_f();  // if cond fail, goto endthen.
+        u16 m_endelse;
+
+        // then
+        visitStatement(cbuf, a->then);
+
+        if (a->els) {
+            m_endelse = cbuf->_goto();
+        }
+        IO::st_16(cbuf->bufptr(m_endthen), cbuf->bufpos());  // endthen
+
+        // else
+        if (a->els) {
+            visitStatement(cbuf, a->els);
+
+            IO::st_16(cbuf->bufptr(m_endelse), cbuf->bufpos());  // endelse
+//            u16 p = IO::ld_16((u8*)ip_endelse);
+//            cbuf->_verbo("end else "+std::to_string(p)+", pos: "+std::to_string(endThenPos));
+//            cbuf->_verbo(Log::str("DUP: ", IO::dump(&cbuf->buf[endThenPos], 4)));
+        }
+
+    }
 
     static void visitStmts(CodeBuf* cbuf, const std::vector<AstStmt*>& stmts) {
         for (AstStmt* stmt : stmts) {
@@ -63,10 +89,11 @@ public:
 
     static void visitStatement(CodeBuf* cbuf, AstStmt* a) {
              if (CAST(AstStmtBlock*))     { visitStmts(cbuf, c->stmts);  }
-//        else if (CAST(AstStmtIf*))        { visitStmtIf(cbuf, c);        }
+        else if (CAST(AstStmtIf*))        { visitStmtIf(cbuf, c);        }
 //        else if (CAST(AstStmtWhile*))     { visitStmtWhile(cbuf, c);     }
         else if (CAST(AstStmtBreak*))     { }
         else if (CAST(AstStmtContinue*))  { }
+        else if (CAST(AstStmtUsing*))     { }
 //        else if (CAST(AstStmtReturn*))    { visitStmtReturn(cbuf, c);    }
         else if (CAST(AstStmtDefVar*))    { visitStmtDefVar(cbuf, c);    }
         else if (CAST(AstStmtExpr*))      { visitStmtExpr(cbuf, c);      }
@@ -120,6 +147,11 @@ public:
             visitExpression(cbuf, a->rhs);
 
             cbuf->_add_i32();
+        } else if (typ == TK::GT) {
+            visitExpression(cbuf, a->lhs);
+            visitExpression(cbuf, a->rhs);
+
+            cbuf->_icmp(Opcodes::ICMP_SGT, Opcodes::ICMP_I32);
         } else {
             throw "Unknown binary op";
         }

@@ -21,9 +21,9 @@ public:
 class AstAttribute : public Ast
 {
 public:
-    AstExprFuncCall* cons;
+    AstExpr* expr;
 
-    AstAttribute(AstExprFuncCall *cons) : cons(cons) {}
+    AstAttribute(AstExpr* expr) : expr(expr) {}
 };
 
 class AstModifiers : public Ast

@@ -62,11 +62,10 @@ public:
             locals[i] = esp;
             esp += cbuf->localvars[i]->getType()->getTypesize();
         }
-        std::cout << Log::str("::PROC <ebp:{}, esp:{}>\n", ebp, esp);
+        std::cout << Log::str("::PROC <ebp:{}, esp:{}>\n", ebp, esp); int i100 = 0;
 
-        while (ip < cbuf->buf.size()) {
+        while (ip < cbuf->buf.size()) {  if (i100++ > 200) break;
 
-        std::string opstr = Opcodes::str(&code[ip]);
         if (code[ip] == Opcodes::VERBO) {
             u32 begp = ip;
             u8 len = code[ip+1]; ip+=2;
@@ -74,8 +73,8 @@ public:
             std::cout << Log::str("#{5} {20}  ; % {}\n", begp, "VERBO", ss.str());
             continue;
         } else {
-            std::stringstream strfs; for (int i = 0; i < esp-ebp; ++i) { IO::hex(strfs, MEM[ebp+i]); strfs << ' '; }
-            std::cout << Log::str("#{5} {20}  ; {}\n", ip, IO::uppercase(opstr), strfs.str());
+            std::string opstr = Opcodes::str(&code[ip]);
+            std::cout << Log::str("#{5} {20}  ; {}\n", ip, IO::uppercase(opstr), IO::dump(&MEM[ebp], esp-ebp));
         }
 
         u8 opc = code[ip++];
@@ -84,6 +83,22 @@ public:
                 i32 rhs = pop_i32();
                 i32 lhs = pop_i32();
                 push_i32(lhs+rhs);
+                break;
+            }
+            case Opcodes::ICMP: {
+                u8 cond = code[ip++];
+                u8 typ  = code[ip++];
+                if (typ == Opcodes::ICMP_I32) {
+                    i32 rhs = pop_i32();
+                    i32 lhs = pop_i32();
+                    if (cond == Opcodes::ICMP_SGT) {
+                        push_8(lhs > rhs);
+                    } else {
+                        throw "unsupp icmp cond";
+                    }
+                } else {
+                    throw "unsupp icmp typ";
+                }
                 break;
             }
             case Opcodes::LDL: {
@@ -115,6 +130,20 @@ public:
                 u16 sz = IO::ld_16(&code[ip]); ip += 2;
                 memcpy(esp-sz, esp, sz);
                 esp += sz;
+                break;
+            }
+            case Opcodes::GOTO: {
+                u16 dst_ip = IO::ld_16(&code[ip]); ip += 2;
+                ip = dst_ip;
+                break;
+            }
+            case Opcodes::GOTO_F: {
+                u16 dst_ip = IO::ld_16(&code[ip]); ip += 2;
+                u8 cond = pop_8();
+                if (cond == 0) {
+                    ip = dst_ip;
+                }
+                break;
             }
             case Opcodes::VERBO:
             case Opcodes::NOP: {
