@@ -64,6 +64,9 @@ public:
         else if (CAST(AstStmtWhile*))    { printStmtWhile(s, c); }
         else if (CAST(AstStmtContinue*)) { printStmtContinue(s, c); }
         else if (CAST(AstStmtBreak*))    { printStmtBreak(s, c); }
+        else if (CAST(AstStmtLabel*))    { printStmtLabel(s, c); }
+        else if (CAST(AstStmtGoto*))     { printStmtGoto(s, c); }
+        else if (CAST(AstStmtReturn*))   { printStmtReturn(s, c); }
 
         else { throw "Unsupported stmt"; }
     }
@@ -174,6 +177,24 @@ public:
         s.line("break;");
     }
 
+    static void printStmtLabel(Prt& s, AstStmtLabel* a) {
+        s.line(a->name+":");
+    }
+    static void printStmtGoto(Prt& s, AstStmtGoto* a) {
+        s.line("goto "+a->name+";");
+    }
+
+    static void printStmtReturn(Prt& s, AstStmtReturn* a) {
+        s.begline();
+        s.ad("return");
+        if (a->ret) {
+            s.ad(" ");
+            printExpression(s, a->ret);
+        }
+        s.ad(";");
+        s.endline();
+    }
+
 
 
     static void printExpression(Prt& s, AstExpr* a) {
@@ -181,6 +202,7 @@ public:
         else if (CAST(AstExprLNumber*))      { printExprLNumber(s, c); }
         else if (CAST(AstExprMemberAccess*)) { printExprMemberAccess(s, c); }
         else if (CAST(AstExprBinaryOp*))     { printExprBinaryOp(s, c); }
+        else if (CAST(AstExprFuncCall*))     { printExprFuncCall(s, c); }
         else { throw "Unsupported expr"; }
     }
 
@@ -204,6 +226,16 @@ public:
         } else {
             throw "unsupported liternal number";
         }
+    }
+
+    static void printExprFuncCall(Prt& s, AstExprFuncCall* a) {
+        printExpression(s, a->expr);
+        s.ad("(");
+        for (int i = 0; i < a->args.size(); ++i) {
+            if (i != 0) s.ad(" ,");
+            printExpression(s, a->args[i]);
+        }
+        s.ad(")");
     }
 };
 

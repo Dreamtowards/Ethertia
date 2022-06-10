@@ -16,6 +16,7 @@
 
 void et() {
 
+
     Lexer lx;
     lx.src = Loader::loadAssetsStr("elytra/main.et");
     lx.src_name = "elytra/main.et";
@@ -24,7 +25,6 @@ void et() {
 
     // Parse Syntax, Lexical.
     AstCompilationUnit* a = Parser::parseCompilationUnit(&lx);
-
 
     AstPrinter::Prt prt;
     AstPrinter::printCompilationUnit(prt, a);
@@ -41,26 +41,36 @@ void et() {
     {
         for (auto& it : Cymbal::functions) {  AstStmtDefFunc* func = it.second;
             // CodeGen
-            CodeGen::visitStmtDefFunc(&func->fsymbol->codebuf, func);
+            CodeBuf* cbuf = &func->fsymbol->codebuf;
+            CodeGen::visitStmtDefFunc(cbuf, func);
+
+            int len = cbuf->bufpos();
+            memcpy(&Macedure::MEM[Macedure::stp], cbuf->bufptr(0), len);
+            Macedure::stp += len;
         }
     }
+
 
     {
         CodeBuf* cbuf = &Cymbal::functions["main"]->fsymbol->codebuf;
 
         u32 ip = 0;
         while (ip < cbuf->buf.size()) {
-            u8 stp;
-            std::cout << Log::str("#{5}  ", ip) << Opcodes::str(&cbuf->buf[ip], &stp) << "\n";
-            ip += stp;
+            u8 step;
+            std::cout << Log::str("#{5}  ", ip) << Opcodes::str(&cbuf->buf[ip], &step) << "\n";
+            ip += step;
         }
         std::cout << "END ASM.\n\n\n";
 
         // VM
-        Macedure::run(cbuf, 4);
+        Macedure::run(512, 0);
     }
 
 
 }
+
+/*
+ * stmts: Labels, Goto
+ */
 
 #endif //ETHERTIA_ELYTRA_H

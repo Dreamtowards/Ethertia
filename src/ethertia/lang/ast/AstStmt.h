@@ -123,5 +123,19 @@ public:
 
 };
 
+class AstStmtLabel : public AstStmt {
+public:
+    std::string name;
+
+    AstStmtLabel(std::string name) : name(std::move(name)) {}
+};
+
+class AstStmtGoto : public AstStmt {
+public:
+    std::string name;
+
+    AstStmtGoto(std::string name) : name(std::move(name)) {}
+};
+
 
 #endif //ETHERTIA_ASTSTMT_H

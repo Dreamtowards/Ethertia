@@ -44,6 +44,8 @@ public:
         else if (CAST(AstStmtWhile*))     { visitStmtWhile(s, c);     }
         else if (CAST(AstStmtBreak*))     { }  // validate enclosing loop.
         else if (CAST(AstStmtContinue*))  { }
+        else if (CAST(AstStmtGoto*))      { }  // check on CodeGen. labels have no their symbol-table.
+        else if (CAST(AstStmtLabel*))     { }
         else if (CAST(AstStmtReturn*))    { visitStmtReturn(s, c);    }
         else if (CAST(AstStmtNamespace*)) { visitStmtNamespace(s, c); }
         else if (CAST(AstStmtUsing*))     { visitStmtUsing(s, c);     }
@@ -61,7 +63,21 @@ public:
     }
 
     static void visitStmtBlock(Scope* s, AstStmtBlock* a) {
-        visitStmts(s, a->stmts);
+        Scope* bscope = new Scope(s);
+
+        visitStmts(bscope, a->stmts);
+
+//        if (currFunction)  // inside a function.
+//        {
+//            int old_localvp = currLocalvarp;
+//
+//
+//            currLocalvarp = old_localvp;
+//        }
+//        else
+//        {
+//            visitStmts(s, a->stmts);
+//        }
     }
 
     static void visitStmtIf(Scope* s, AstStmtIf* a) {
@@ -84,9 +100,15 @@ public:
     }
 
     static void visitStmtReturn(Scope* s, AstStmtReturn* a) {
+        // TypeSymbol* funcRet = s->findEnclosingFunction().getReturnType();
+
         // ret expr.
         if (a->ret) {
             visitExpression(s, a->ret);
+
+            // assert(funcRet == a->ret->getSymbolVar()->getType());
+        } else {
+            // assert(funcRet == VOID);
         }
     }
 
@@ -101,7 +123,7 @@ public:
         // init scopes.
         Scope* lat = s;
         for (const std::string& name : AstExprMemberAccess::namesExpand(a->name)) {
-            SymbolNamespace* sn = (SymbolNamespace*)lat->resolve(name);
+            SymbolNamespace* sn = (SymbolNamespace*)lat->findlocal(name);
             if (!sn) {
                 sn = new SymbolNamespace(name, new Scope(lat));
                 lat->define(sn);
@@ -124,12 +146,19 @@ public:
         visitStmts(cscope, a->stmts);
     }
 
+//    inline static int currLocalvarp = 0;
+//    inline static SymbolFunction* currFunction = nullptr;
 
     static void visitStmtDefVar(Scope* s, AstStmtDefVar* a) {
         // typename
         visitExpression(s, a->type);
         // decl var
-        s->define(a->vsymbol = new SymbolVariable(a->name, a->type->getSymbolType()));
+        SymbolVariable* vsymbol = new SymbolVariable(a->name, a->type->getSymbolType());
+        s->define(vsymbol);
+        a->vsymbol = vsymbol;
+
+//        vsymbol->localpos = currLocalvarp;
+//        currLocalvarp += vsymbol->getType()->getTypesize();
 
         // expr.
         if (a->init) {
@@ -141,9 +170,11 @@ public:
         // typename
         visitExpression(s, a->retType);
         // decl func
-        SymbolFunction* fsymbol = new SymbolFunction(a->name);
+        SymbolFunction* fsymbol = new SymbolFunction(a->name, a->retType->getSymbolType());
         s->define(fsymbol);
         a->fsymbol = fsymbol;
+//                SymbolFunction* oldfunc = currFunction;
+//                currFunction = fsymbol;
 
         Scope* fscope = new Scope(s);
 
@@ -152,8 +183,9 @@ public:
             visitStmtDefVar(fscope, param);
         }
         // body
-        visitStmts(fscope, a->body->stmts);
+        visitStmtBlock(fscope, a->body);  // StmtBlock Dependency. for localvar.
 
+//                currFunction = oldfunc;
         Cymbal::functions[fsymbol->getSimpleName()] = a;
     }
 
@@ -221,11 +253,13 @@ public:
 
         if (SymbolFunction* sf = dynamic_cast<SymbolFunction*>(lhs)) {  // func call
 
-            // sy = sf.getReturnType();
-        } else if (SymbolVariable* sv = dynamic_cast<SymbolVariable*>(lhs)) {  // () operator invoke
-
+            a->setSymbol(SymbolVariable::new_rvalue(sf->getReturnType()));
         } else if (SymbolClass* sc = dynamic_cast<SymbolClass*>(lhs)) {  // object init.
 
+            throw "unsupp ctor";
+        } else if (SymbolVariable* sv = dynamic_cast<SymbolVariable*>(lhs)) {  // () operator invoke
+
+            throw "unsupp oper overload";
         } else {
             throw "illegal lhs symol.";
         }

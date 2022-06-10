@@ -14,6 +14,9 @@ class SymbolVariable : public Symbol
     bool rval = false;
 
 public:
+    int localpos = -1;  // rvalue only. in bytes. offset reside of ebp.
+
+public:
     SymbolVariable(const std::string& name, TypeSymbol* type) : type(type) {
         __name(name);
     }

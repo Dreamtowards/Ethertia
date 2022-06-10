@@ -11,11 +11,18 @@
 class SymbolFunction : public Symbol
 {
 public:
+    TypeSymbol* retType;
+
     CodeBuf codebuf{};
 
-    SymbolFunction(const std::string& name) {
+    SymbolFunction(const std::string& name, TypeSymbol* retType) : retType(retType) {
         __name(name);
     }
+
+    TypeSymbol* getReturnType() {
+        return retType;
+    }
+
 };
 
 #endif //ETHERTIA_SYMBOLFUNCTION_H

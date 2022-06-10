@@ -9,31 +9,47 @@
 #include <ethertia/lang/ast/AstMisc.h>
 #include <ethertia/lang/symbol/Scope.h>
 
+#include <set>
+
 class CodeGen
 {
 public:
 
 
-    static void visitStmtDefFunc(CodeBuf* cbuf, AstStmtDefFunc* a) {
-
-        for (AstStmtDefVar* param : a->params) {
-            visitStmtDefVar(cbuf, param);
-        }
-
-        visitStmts(cbuf, a->body->stmts);
-
-        cbuf->_nop();
+    static void visitStatement(CodeBuf* cbuf, AstStmt* a) {
+        if (CAST(AstStmtBlock*))          { visitStmtBlock(cbuf, c);  }
+        else if (CAST(AstStmtIf*))        { visitStmtIf(cbuf, c);        }
+        else if (CAST(AstStmtWhile*))     { visitStmtWhile(cbuf, c);     }
+        else if (CAST(AstStmtContinue*))  { visitStmtContinue(cbuf, c); }
+        else if (CAST(AstStmtBreak*))     { visitStmtBreak(cbuf, c); }
+        else if (CAST(AstStmtLabel*))     { visitStmtLabel(cbuf, c); }
+        else if (CAST(AstStmtGoto*))      { visitStmtGoto(cbuf, c); }
+        else if (CAST(AstStmtUsing*))     { }
+        else if (CAST(AstStmtReturn*))    { visitStmtReturn(cbuf, c);    }
+        else if (CAST(AstStmtDefVar*))    { visitStmtDefVar(cbuf, c);    }
+        else if (CAST(AstStmtExpr*))      { visitStmtExpr(cbuf, c);      }
+        else { throw "Unsupported statement."; }
     }
 
-    static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {  cbuf->_verbo(a->str_v()+" :defvar_init");
-        cbuf->defvar(a->vsymbol);
-
-        if (a->init) {
-            AstExpr* expr = a->init;
-            // assign
-            cbuf->_ldl(a->vsymbol);
-            mov(cbuf, expr);
+    static void visitStmts(CodeBuf* cbuf, const std::vector<AstStmt*>& stmts) {
+        for (AstStmt* stmt : stmts) {
+            visitStatement(cbuf, stmt);
         }
+    }
+
+
+    inline static std::set<std::string> traceUniqueLocalVars;
+    inline static int localvarp = 0;
+
+    static void visitStmtBlock(CodeBuf* cbuf, AstStmtBlock* a) {
+        int old_localvp = localvarp;
+
+        visitStmts(cbuf, a->stmts);
+
+        u32 blocksize = localvarp - old_localvp;
+        cbuf->_pop(blocksize);
+
+        localvarp = old_localvp;
     }
 
     static void mov(CodeBuf* cbuf, AstExpr* expr) {
@@ -45,6 +61,47 @@ public:
             cbuf->_mov_pop(tsize);
         } else {
             cbuf->_mov(tsize);
+        }
+    }
+
+    static void visitStmtDefFunc(CodeBuf* cbuf, AstStmtDefFunc* a) {
+
+        for (AstStmtDefVar* param : a->params) {
+            visitStmtDefVar(cbuf, param);
+        }
+
+        assert(localvarp == 0);
+        traceUniqueLocalVars.clear();
+
+        visitStmtBlock(cbuf, a->body);
+
+        cbuf->_ret();
+
+        // complete stmt_goto dst_ips.
+        for (auto& mgoto : cbuf->labels_mgotos) {
+            auto it = cbuf->labels.find(mgoto.second);
+            if (it == cbuf->labels.end()) throw "goto unknown label";
+            t_ip dst_ip = it->second;
+            IO::st_16(cbuf->bufptr(mgoto.first), dst_ip);
+        }
+    }
+
+    static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {  cbuf->_verbo(a->str_v()+" :defvar_init");
+        u32 tsize = a->vsymbol->getType()->getTypesize();
+        a->vsymbol->localpos = localvarp;
+        localvarp += tsize;
+
+        if (traceUniqueLocalVars.find(a->name) != traceUniqueLocalVars.end())
+            throw "Local var name already defined";
+        traceUniqueLocalVars.insert(a->name);
+
+        cbuf->_push(tsize);
+
+        if (a->init) {
+            AstExpr* expr = a->init;
+            // assign
+            cbuf->_ldl(a->vsymbol);
+            mov(cbuf, expr);
         }
     }
 
@@ -112,24 +169,37 @@ public:
         cbuf->loop_end_mgoto.push_back(cbuf->_goto());
     }
 
-    static void visitStmts(CodeBuf* cbuf, const std::vector<AstStmt*>& stmts) {
-        for (AstStmt* stmt : stmts) {
-            visitStatement(cbuf, stmt);
+    static void visitStmtLabel(CodeBuf* cbuf, AstStmtLabel* a) {
+        if (cbuf->labels.find(a->name) != cbuf->labels.end())  // check on CodeGen instead of SymPhase. cuz labels have no their symtab.
+            throw "label name had already defined.";
+
+        cbuf->labels[a->name] = cbuf->bufpos();
+    }
+
+    static void visitStmtGoto(CodeBuf* cbuf, AstStmtGoto* a) {
+
+        cbuf->labels_mgotos.emplace_back(
+            cbuf->_goto(),
+            a->name
+        );
+    }
+
+    static void visitStmtReturn(CodeBuf* cbuf, AstStmtReturn* a) {
+        u32 localsz = 0;
+        for (SymbolVariable* sv : cbuf->localvars) {
+            localsz += sv->getType()->getTypesize();
+        }
+        cbuf->_pop(localsz);
+        // pop all localvars? ofc. but its better to pop-vars at every scope-end? and alloc vars by scopes.
+
+        if (a->ret) {
+            visitExpression(cbuf, a->ret);  makesure_rvalue(cbuf, a->ret);
         }
     }
 
-    static void visitStatement(CodeBuf* cbuf, AstStmt* a) {
-             if (CAST(AstStmtBlock*))     { visitStmts(cbuf, c->stmts);  }
-        else if (CAST(AstStmtIf*))        { visitStmtIf(cbuf, c);        }
-        else if (CAST(AstStmtWhile*))     { visitStmtWhile(cbuf, c);     }
-        else if (CAST(AstStmtContinue*))  { visitStmtContinue(cbuf, c); }
-        else if (CAST(AstStmtBreak*))     { visitStmtBreak(cbuf, c); }
-        else if (CAST(AstStmtUsing*))     { }
-//        else if (CAST(AstStmtReturn*))    { visitStmtReturn(cbuf, c);    }
-        else if (CAST(AstStmtDefVar*))    { visitStmtDefVar(cbuf, c);    }
-        else if (CAST(AstStmtExpr*))      { visitStmtExpr(cbuf, c);      }
-        else { throw "Unsupported statement."; }
-    }
+
+
+
 
 
     static void visitExpression(CodeBuf* cbuf, AstExpr* a) {
@@ -137,7 +207,7 @@ public:
         else if (CAST(AstExprLNumber*))      { visitExprLNumber(cbuf, c);    }
         else if (CAST(AstExprLString*))      { throw "unsupp"; }
 //        else if (CAST(AstExprMemberAccess*)) { visitExprMemberAccess(cbuf, c);}
-//        else if (CAST(AstExprFuncCall*))     { visitExprFuncCall(s, c); }
+        else if (CAST(AstExprFuncCall*))     { visitExprFuncCall(cbuf, c); }
 //        else if (CAST(AstExprUnaryOp*))      { visitExprUnaryOp(s, c); }
         else if (CAST(AstExprBinaryOp*))     { visitExprBinaryOp(cbuf, c); }
         else if (CAST(AstExprTypeCast*))     { /* visitExprTypeCast(s, c); */ }
@@ -146,14 +216,8 @@ public:
     }
 
     static void visitExprIdentifier(CodeBuf* cbuf, AstExprIdentifier* a) {
-        SymbolVariable* sv = a->getSymbolVar();
 
-        int local = cbuf->ldvar(sv);
-        if (local != -1) {
-            cbuf->_ldl(local);
-        } else {
-            throw "Unsupported variable. not local var.";
-        }
+        cbuf->_ldl(a->getSymbolVar());
     }
 
     static void visitExprLNumber(CodeBuf* cbuf, AstExprLNumber* a) {
@@ -198,6 +262,14 @@ public:
         }
     }
 
+    static void visitExprFuncCall(CodeBuf* cbuf, AstExprFuncCall* a) {
+
+//        u32 args_bytes = 0;
+//        for (AstExpr* arg : a->args) {
+//            args_bytes += arg->getSymbolVar()->getType()->getTypesize();
+//        }
+//        cbuf->_call();
+    }
 
 
 };

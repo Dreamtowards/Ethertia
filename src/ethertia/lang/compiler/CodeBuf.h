@@ -23,6 +23,9 @@ public:
     t_ip loop_beg = -1;
     std::vector<t_ip> loop_end_mgoto;
 
+    std::map<std::string, t_ip> labels;
+    std::vector<std::pair<t_ip, std::string>> labels_mgotos;  // pair<t_ip goto_mark, string lname>
+
 
     void defvar(SymbolVariable* sv) {
         assert(ldvar(sv) == -1);
@@ -43,11 +46,14 @@ public:
 
 
     void _ldl(SymbolVariable* sv) {
-        _ldl(ldvar(sv));
+        u32 lpos = sv->localpos;
+        if (lpos == -1)
+            throw "Unsupported variable. not local var.";
+        _ldl(lpos);
     }
-    void _ldl(u8 lidx) {
+    void _ldl(u16 lpos) {
         cpush8(Opcodes::LDL);
-        cpush8(lidx);
+        cpush16(lpos);
     }
 
     void _mov(u16 size) {
@@ -76,6 +82,10 @@ public:
 
     void _pop(u16 size) {
         cpush8(Opcodes::POP);
+        cpush16(size);
+    }
+    void _push(u16 size) {
+        cpush8(Opcodes::PUSH);
         cpush16(size);
     }
 
@@ -112,6 +122,19 @@ public:
         return ip;
     }
 
+    void _call(u8 args_bytes, const std::string& fname) {
+        cpush8(Opcodes::CALL);
+        cpush8(args_bytes);
+        cpush8(fname.length());
+        for (char ch : fname) {
+            cpush8(ch);
+        }
+    }
+
+    void _ret() {
+        cpush8(Opcodes::RET);
+    }
+
 
     void _icmp(u8 cond, u8 typ) {
         cpush8(Opcodes::ICMP);
@@ -131,6 +154,7 @@ public:
     void _nop() {
         cpush8(Opcodes::NOP);
     }
+
 
     // append code
     void cpush8(u8 v) {

@@ -47,7 +47,6 @@ public:
     static TokenType IS;
     static TokenType AS;
     static TokenType CLASS;
-    static TokenType FN;
     static TokenType VAR;
 
     static TokenType STATIC;
@@ -60,6 +59,7 @@ public:
     static TokenType BREAK;
     static TokenType RETURN;
     static TokenType FOR;
+    static TokenType GOTO;
     // case catch default do enum goto switch throw try void
     // private protected public super transient volatile
 

@@ -12,13 +12,15 @@
 class Macedure
 {
 public:
-    inline static u8 MEM[1024];
-    inline static u32 esp = 0;
-    inline static u32 ebp = 0;
 
-    static const u32 M_HEAP = 512;
-    static const u32 M_LSTRING = 700;
-    static const u32 M_STATIC = 900;
+    static const t_ptr M_HEAP = 512;     // Heap Top. head address is descending increasing..
+    static const t_ptr M_STATIC = M_HEAP;
+
+
+    inline static u8 MEM[2048];
+    inline static t_ptr esp = 0;
+    inline static t_ptr ebp = 0;
+    inline static t_ptr stp = M_STATIC;  // static storage pointer
 
 
     static void push_i32(i32 i) {
@@ -39,32 +41,33 @@ public:
         return MEM[esp];
     }
 
-    static void push_ptr(u32 p) {
+    static void push_ptr(t_ptr p) {
         push_i32(p);
     }
-    static u32 pop_ptr() {
+    static t_ptr pop_ptr() {
         return pop_i32();
     }
 
-    static void memcpy(u32 src, u32 dst, u16 len) {
+    static void memcpy(t_ptr src, t_ptr dst, u16 len) {
         for (int i = 0; i < len; ++i) {
             MEM[dst+i] = MEM[src+i];
         }
     }
 
-    static void run(CodeBuf* cbuf, u32 ebp) {
-        u8* code = cbuf->buf.data();
-        u32 ip = 0;
+    static void run(t_ptr ip_ptr, const t_ptr ebp) {
+        u8* code = &MEM[ip_ptr];
+        t_ip ip = 0;
 
-        esp = ebp;
-        u32 locals[cbuf->localvars.size()];
-        for (int i = 0; i < cbuf->localvars.size(); ++i) {
-            locals[i] = esp;
-            esp += cbuf->localvars[i]->getType()->getTypesize();
-        }
+//        esp = ebp;
+//        u32 locals[cbuf->localvars.size()];
+//        for (int i = 0; i < cbuf->localvars.size(); ++i) {
+//            locals[i] = esp;
+//            esp += cbuf->localvars[i]->getType()->getTypesize();
+//        }
+
         std::cout << Log::str("::PROC <ebp:{}, esp:{}>\n", ebp, esp); int i100 = 0;
 
-        while (ip < cbuf->buf.size()) {  //if (i100++ > 200) break;
+        while (true) {  //if (i100++ > 200) break;
 
         if (code[ip] == Opcodes::VERBO) {
             u32 begp = ip;
@@ -100,8 +103,8 @@ public:
                 break;
             }
             case Opcodes::LDL: {
-                u8 lidx = code[ip++];
-                push_ptr(locals[lidx]);
+                u16 lpos = IO::ld_16(&code[ip]); ip += 2;
+                push_ptr(ebp + lpos);
                 break;
             }
             case Opcodes::LDC: {
@@ -138,6 +141,11 @@ public:
                 esp -= sz;
                 break;
             }
+            case Opcodes::PUSH: {
+                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                esp += sz;
+                break;
+            }
             case Opcodes::GOTO: {
                 u16 dst_ip = IO::ld_16(&code[ip]); ip += 2;
                 ip = dst_ip;
@@ -155,6 +163,10 @@ public:
             case Opcodes::NOP: {
                 break;
             }
+            case Opcodes::RET: {
+
+                return;
+            }
             default: {
                 throw Log::str("Unknown opcode: ", (int)opc);
             }
@@ -163,5 +175,10 @@ public:
     }
 
 };
+
+// deprecate LDL, use EBP+N loadup.  scope-dependent local vars.
+// return pop/dector
+
+// function call, ??all use funcptr
 
 #endif //ETHERTIA_MACEDURE_H

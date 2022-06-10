@@ -58,14 +58,7 @@ public:
     static AstAttribute* parseAttribute(Lexer* lx) {  ABEG;
         lx->next(TK::AT);
         AstExpr* attr = parseExpr1_AccessCall(lx);
-//        AstExpr* type = parseTypename(lx);
-//
-//        // maybe there only need a parseExprAccessCall, no matter what syntax, just check on Symbolization.
-//        std::vector<AstExpr*> args;  int beg_f = lx->rdi_clean();
-//        if (lx->peeking(TK::LPAREN))
-//            args = parseExprFuncCallArgs(lx);
-//        AstExprFuncCall* init = initlc(new AstExprFuncCall(type, args), beg_f, lx);
-
+        // validate on symbol-phase.
         return AEND(new AstAttribute(attr));
     }
     static std::vector<AstAttribute*> parseAttributes(Lexer* lx) {
@@ -160,6 +153,12 @@ public:
         lx->next(TK::CONTINUE);
         lx->next(TK::SEMI);
         return AEND(new AstStmtContinue());
+    }
+    static AstStmtGoto* parseStmtGoto(Lexer* lx) {  ABEG;
+        lx->next(TK::GOTO);
+        std::string lname = parseIdentifier(lx);
+        lx->next(TK::SEMI);
+        return AEND(new AstStmtGoto(lname));
     }
 
     static AstStmtBlank* parseStmtBlank(Lexer* lx) {  ABEG;
@@ -289,7 +288,20 @@ public:
             return parseStmtUsing(lx);
         } else if (tk == TK::NAMESPACE) {
             return parseStmtNamespace(lx);
+        } else if (tk == TK::GOTO) {
+            return parseStmtGoto(lx);
         } else {
+            {
+                int beg_label = lx->rdi;
+                if (lx->nexting(TK::L_IDENTIFIER)) {
+                    std::string lname = lx->r_str;
+                    if (lx->nexting(TK::COL)) {
+                        return initlc(new AstStmtLabel(lname), beg_label, lx);
+                    }
+                }
+                lx->rdi = beg_label;  // is not stmt_label.
+            }
+
             parseAttributes(lx);
             parseModifiers(lx);
 

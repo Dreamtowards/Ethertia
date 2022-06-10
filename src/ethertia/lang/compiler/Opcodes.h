@@ -19,15 +19,18 @@ public:
                     MOV_PUSH= 12,  // addr->push       // u16 size; usize src_ptr
                     DUP     = 13,  // dup stack top    // u16 size;
                     POP     = 14,  // just sub esp.    // u16 size;
-                    NOP     = 15,  // none,
+                    PUSH    = 15,  // just add esp     // u16 size;
+                    NOP     = 16,  // none,
 
-                    LDL     = 20,  // load local var.  // u8 l_idx  // ? %ebp+lpos
+                    LDL     = 20,  // load local var.  // u16 lpos.    // %ebp+lpos
                     LDC     = 21,  // load constant    // u8 type, u8[] data
 
                     VERBO   = 30,  // debug comment    // u8 strlen u8[] str_ascii
 
                     GOTO    = 40,
-                    GOTO_F  = 41;  // goto if false    //
+                    GOTO_F  = 41,  // goto if false    //
+                    CALL    = 45,                      // u8 len, u8[] fname
+                    RET     = 46;  // terminate exec. since opcode have no boundary but just exec-pointer, need a code to do terminate.
 
 
     // LDC constant types.
@@ -70,9 +73,11 @@ public:
             case MOV_POP: *stp = 3; return Log::str("mov_pop %{}", IO::ld_16(&p[1]));
             case MOV_PUSH:*stp = 3; return Log::str("mov_push %{}", IO::ld_16(&p[1]));
             case POP:     *stp = 3; return Log::str("pop %{}", IO::ld_16(&p[1]));
+            case PUSH:    *stp = 3; return Log::str("push %{}", IO::ld_16(&p[1]));
             case DUP:     *stp = 3; return Log::str("dup %{}", IO::ld_16(&p[1]));
             case NOP:     *stp = 1; return "nop";
-            case LDL:     *stp = 2; return Log::str("ldl ${}", (int)p[1]);
+            case RET:     *stp = 1; return "ret";
+            case LDL:     *stp = 3; return Log::str("ldl ${}", IO::ld_16(&p[1]));
             case GOTO:    *stp = 3; return Log::str("goto #{}", IO::ld_16(&p[1]));
             case GOTO_F:  *stp = 3; return Log::str("goto_f #{}", IO::ld_16(&p[1]));
             case LDC: { u8 typ = p[1];

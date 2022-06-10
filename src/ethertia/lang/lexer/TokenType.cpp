@@ -24,7 +24,6 @@ TokenType TokenType::NEW{"new"};
 TokenType TokenType::IS{"is"};
 TokenType TokenType::AS{"as"};
 TokenType TokenType::CLASS{"class"};
-TokenType TokenType::FN{"fn"};
 TokenType TokenType::VAR{"var"};
 
 
@@ -38,6 +37,7 @@ TokenType TokenType::CONTINUE{"continue"};
 TokenType TokenType::BREAK{"break"};
 TokenType TokenType::RETURN{"return"};
 TokenType TokenType::FOR{"for"};
+TokenType TokenType::GOTO{"goto"};
 
 TokenType TokenType::TRUE{"true"};
 TokenType TokenType::FALSE{"false"};

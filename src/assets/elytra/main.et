@@ -4,16 +4,27 @@ namespace std::_test::_1;
 
 using int = i32;
 
+//i32 func2() {
+//    i32 i = 100;
+//    return i + 28;
+//}
+
 void main() {
 
     int i = 10 + 2;
-    i = 0;
+    // i = func2();
+
+    {
+        int i = 1;
+        int j;
+
+    }
 
     while (i < 3) {
 
         if (i < 2) {
-            i = 2;
-            continue;
+            i = 0xF1;
+            goto labek;
         }
         if (i < 3) {
             i = 0xFF;
@@ -23,6 +34,8 @@ void main() {
 
     }
 
+
+    labek:
 }
 
 
