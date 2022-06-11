@@ -80,6 +80,7 @@ public:
             case LDL:     *stp = 3; return Log::str("ldl ${}", IO::ld_16(&p[1]));
             case GOTO:    *stp = 3; return Log::str("goto #{}", IO::ld_16(&p[1]));
             case GOTO_F:  *stp = 3; return Log::str("goto_f #{}", IO::ld_16(&p[1]));
+            case CALL:    *stp = 5; return Log::str("call %{} @{}", IO::ld_16(&p[1]), IO::ld_16(&p[3]));
             case LDC: { u8 typ = p[1];
                 if (typ == LDC_I32) { *stp = 6; return Log::str("ldc i32 %{}", IO::ld_32(&p[2])); }
                 else return "ldc ?";

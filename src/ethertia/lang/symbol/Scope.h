@@ -41,6 +41,8 @@ public:
             return parent->resolve(name);
         return nullptr;
     }
+
+    Symbol* resolve(std::vector<std::string> ls);
 };
 
 #endif //ETHERTIA_SCOPE_H

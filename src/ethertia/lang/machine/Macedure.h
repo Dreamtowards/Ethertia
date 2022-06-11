@@ -65,7 +65,7 @@ public:
 //            esp += cbuf->localvars[i]->getType()->getTypesize();
 //        }
 
-        std::cout << Log::str("::PROC <ebp:{}, esp:{}>\n", ebp, esp); int i100 = 0;
+        std::cout << Log::str("::PROC <ip_ptr: {}, ebp:{}, esp:{}>\n", ip_ptr, ebp, esp); int i100 = 0;
 
         while (true) {  //if (i100++ > 200) break;
 
@@ -130,6 +130,13 @@ public:
                 esp += sz;
                 break;
             }
+            case Opcodes::MOV: {
+                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                t_ptr src_ptr = pop_ptr();
+                t_ptr dst_ptr = pop_ptr();
+                memcpy(src_ptr, dst_ptr, sz);
+                break;
+            }
             case Opcodes::DUP: {
                 u16 sz = IO::ld_16(&code[ip]); ip += 2;
                 memcpy(esp-sz, esp, sz);
@@ -159,12 +166,23 @@ public:
                 }
                 break;
             }
-            case Opcodes::VERBO:
-            case Opcodes::NOP: {
+            case Opcodes::CALL: {
+                u16 f_args_bytes = IO::ld_16(&code[ip]); ip += 2;
+                u16 fpos = IO::ld_16(&code[ip]); ip += 2;
+
+                t_ptr f_ebp = esp - f_args_bytes;
+                t_ptr f_ip = M_STATIC + fpos;
+
+                run(f_ip, f_ebp);
+
                 break;
             }
+            case Opcodes::VERBO:
+            case Opcodes::NOP:
+                break;
             case Opcodes::RET: {
 
+                std::cout << Log::str("::END_PROC <ip_ptr: {}, ebp: {}, esp: {}>\n", ip_ptr, ebp, esp);
                 return;
             }
             default: {

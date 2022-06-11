@@ -14,6 +14,7 @@ public:
     TypeSymbol* retType;
 
     CodeBuf codebuf{};
+    int code_fpos = -1;
 
     SymbolFunction(const std::string& name, TypeSymbol* retType) : retType(retType) {
         __name(name);

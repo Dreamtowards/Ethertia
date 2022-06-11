@@ -177,24 +177,32 @@ public:
     }
 
     static void visitStmtGoto(CodeBuf* cbuf, AstStmtGoto* a) {
-
+        // later fill.
         cbuf->labels_mgotos.emplace_back(
             cbuf->_goto(),
             a->name
         );
     }
 
-    static void visitStmtReturn(CodeBuf* cbuf, AstStmtReturn* a) {
-        u32 localsz = 0;
-        for (SymbolVariable* sv : cbuf->localvars) {
-            localsz += sv->getType()->getTypesize();
-        }
-        cbuf->_pop(localsz);
-        // pop all localvars? ofc. but its better to pop-vars at every scope-end? and alloc vars by scopes.
+    static void visitStmtReturn(CodeBuf* cbuf, AstStmtReturn* a) {  cbuf->_verbo(a->str_v());
 
         if (a->ret) {
+            u16 ret_sz = a->ret->getSymbolVar()->getType()->getTypesize();
+
             visitExpression(cbuf, a->ret);  makesure_rvalue(cbuf, a->ret);
+
+            cbuf->_ldl((u16)0);  // func-stack-begin ptr.
+
+            cbuf->_ldl(localvarp);  // stack-top ptr.
+
+            // mov to func-stack-begin
+            cbuf->_mov(ret_sz);
         }
+
+        // pop
+        cbuf->_pop(localvarp);
+
+        cbuf->_ret();
     }
 
 
@@ -264,11 +272,17 @@ public:
 
     static void visitExprFuncCall(CodeBuf* cbuf, AstExprFuncCall* a) {
 
-//        u32 args_bytes = 0;
-//        for (AstExpr* arg : a->args) {
-//            args_bytes += arg->getSymbolVar()->getType()->getTypesize();
-//        }
-//        cbuf->_call();
+        // makesure desurgared
+        u16 args_bytes = 0;
+        for (AstExpr* arg : a->args) {
+            args_bytes += arg->getSymbolVar()->getType()->getTypesize();
+            // put arg.
+            visitExpression(cbuf, arg);
+        }
+        int stloc_fn = ((SymbolFunction*)a->expr->getSymbol())->code_fpos;
+        if (stloc_fn == -1)
+            throw "Undefined func";
+        cbuf->_call(args_bytes, stloc_fn);
     }
 
 

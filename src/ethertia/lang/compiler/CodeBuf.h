@@ -16,7 +16,7 @@ class CodeBuf
 {
 public:
 
-    std::vector<SymbolVariable*> localvars;
+//    std::vector<SymbolVariable*> localvars;
 
     std::vector<u8> buf;
 
@@ -27,18 +27,18 @@ public:
     std::vector<std::pair<t_ip, std::string>> labels_mgotos;  // pair<t_ip goto_mark, string lname>
 
 
-    void defvar(SymbolVariable* sv) {
-        assert(ldvar(sv) == -1);
-
-        localvars.push_back(sv);
-    }
-    int ldvar(SymbolVariable* sv) {
-        for (int i = 0; i < localvars.size(); ++i) {
-            if (localvars[i]->getSimpleName() == sv->getSimpleName())
-                return i;
-        }
-        return -1;
-    }
+//    void defvar(SymbolVariable* sv) {
+//        assert(ldvar(sv) == -1);
+//
+//        localvars.push_back(sv);
+//    }
+//    int ldvar(SymbolVariable* sv) {
+//        for (int i = 0; i < localvars.size(); ++i) {
+//            if (localvars[i]->getSimpleName() == sv->getSimpleName())
+//                return i;
+//        }
+//        return -1;
+//    }
 
 
 
@@ -122,13 +122,10 @@ public:
         return ip;
     }
 
-    void _call(u8 args_bytes, const std::string& fname) {
+    void _call(u16 args_bytes, u16 fpos) {
         cpush8(Opcodes::CALL);
-        cpush8(args_bytes);
-        cpush8(fname.length());
-        for (char ch : fname) {
-            cpush8(ch);
-        }
+        cpush16(args_bytes);
+        cpush16(fpos);
     }
 
     void _ret() {
@@ -179,6 +176,17 @@ public:
 
     u8* bufptr(t_ip ip) {
         return &buf[ip];
+    }
+
+
+    static void print(CodeBuf* cbuf) {
+        u32 ip = 0;
+        while (ip < cbuf->buf.size()) {
+            u8 step;
+            std::cout << Log::str("#{5}  ", ip) << Opcodes::str(&cbuf->buf[ip], &step) << "\n";
+            ip += step;
+        }
+        std::cout << "END ASM.\n\n\n";
     }
 };
 

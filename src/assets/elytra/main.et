@@ -4,18 +4,22 @@ namespace std::_test::_1;
 
 using int = i32;
 
-//i32 func2() {
-//    i32 i = 100;
-//    return i + 28;
-//}
+
+i32 sth() {
+    i32 someVar = 10;
+
+    return 5 + 1;
+    i32 ltr;
+}
 
 void main() {
 
     int i = 10 + 2;
     // i = func2();
+    int k = sth();
 
     {
-        int i = 1;
+        int i2 = 1;
         int j;
 
     }
@@ -33,7 +37,6 @@ void main() {
         i = i + 1;
 
     }
-
 
     labek:
 }

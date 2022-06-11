@@ -30,40 +30,20 @@ void et() {
     AstPrinter::printCompilationUnit(prt, a);
     Log::info("Prt: \n", prt.ss.str());
 
-    {
-        Scope rt(nullptr);
-        SymbolInternalTypes::initInternalTypes(&rt);
 
-        // Symbol
-        Cymbal::visitCompilationUnit(&rt, a);
-    }
+    Scope rt(nullptr);
+    SymbolInternalTypes::initInternalTypes(&rt);
 
-    {
-        for (auto& it : Cymbal::functions) {  AstStmtDefFunc* func = it.second;
-            // CodeGen
-            CodeBuf* cbuf = &func->fsymbol->codebuf;
-            CodeGen::visitStmtDefFunc(cbuf, func);
-
-            int len = cbuf->bufpos();
-            memcpy(&Macedure::MEM[Macedure::stp], cbuf->bufptr(0), len);
-            Macedure::stp += len;
-        }
-    }
+    // Symbol
+    Cymbal::visitCompilationUnit(&rt, a);
 
 
     {
-        CodeBuf* cbuf = &Cymbal::functions["main"]->fsymbol->codebuf;
-
-        u32 ip = 0;
-        while (ip < cbuf->buf.size()) {
-            u8 step;
-            std::cout << Log::str("#{5}  ", ip) << Opcodes::str(&cbuf->buf[ip], &step) << "\n";
-            ip += step;
-        }
-        std::cout << "END ASM.\n\n\n";
+        SymbolFunction* sf = dynamic_cast<SymbolFunction*>(rt.resolve({"std", "_test", "_1", "main"}));
+        CodeBuf::print(&sf->codebuf);
 
         // VM
-        Macedure::run(512, 0);
+        Macedure::run(Macedure::M_STATIC+sf->code_fpos, 0);
     }
 
 

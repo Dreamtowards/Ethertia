@@ -13,11 +13,13 @@
 #include <ethertia/lang/symbol/SymbolFunction.h>
 #include <ethertia/lang/symbol/SymbolClass.h>
 #include <ethertia/lang/symbol/SymbolInternalTypes.h>
+#include <ethertia/lang/compiler/CodeGen.h>
+#include <ethertia/lang/machine/Macedure.h>
 
 class Cymbal
 {
 public:
-    inline static std::map<std::string, AstStmtDefFunc*> functions;
+//    inline static std::map<std::string, AstStmtDefFunc*> functions;
 
     static void visitCompilationUnit(Scope* s, AstCompilationUnit* a) {
         visitStmts(s, a->stmts);
@@ -186,7 +188,16 @@ public:
         visitStmtBlock(fscope, a->body);  // StmtBlock Dependency. for localvar.
 
 //                currFunction = oldfunc;
-        Cymbal::functions[fsymbol->getSimpleName()] = a;
+//        Cymbal::functions[fsymbol->getSimpleName()] = a;
+
+
+        CodeBuf* cbuf = &fsymbol->codebuf;
+        CodeGen::visitStmtDefFunc(cbuf, a);
+
+        fsymbol->code_fpos = Macedure::stp - Macedure::M_STATIC;
+        int len = cbuf->bufpos();
+        memcpy(&Macedure::MEM[Macedure::stp], cbuf->bufptr(0), len);
+        Macedure::stp += len;
     }
 
     static void visitStmtExpr(Scope* s, AstStmtExpr* a) {
