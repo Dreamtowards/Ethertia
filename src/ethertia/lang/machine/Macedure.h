@@ -19,8 +19,7 @@ public:
 
     inline static u8 MEM[2048];
     inline static t_ptr esp = 0;
-    inline static t_ptr ebp = 0;
-    inline static t_ptr stp = M_STATIC;  // static storage pointer
+    // inline static t_ptr stp = M_STATIC;  // static storage pointer
 
 
     static void push_i32(i32 i) {
@@ -109,25 +108,29 @@ public:
             }
             case Opcodes::LDC: {
                 u8 typ = code[ip++];
-                if (typ == Opcodes::LDC_U8)       { push_8(code[ip++]);                }
+                if (typ == Opcodes::LDC_I8)       { push_8(code[ip++]);                }
                 else if (typ == Opcodes::LDC_I32) { push_i32(IO::ld_32(&code[ip])); ip+=4; }
                 else { throw "Unsupported constant type"; }
                 break;
             }
-            case Opcodes::MOV_POP: {
+            case Opcodes::LDS: {
+                u16 spos = IO::ld_16(&code[ip]); ip += 2;
+                push_ptr(M_STATIC+spos);
+                break;
+            }
+            case Opcodes::LDV: {
+                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                u32 src_ptr = pop_ptr();
+                memcpy(src_ptr, esp, sz);
+                esp += sz;
+                break;
+            }
+            case Opcodes::POP_MOV: {
                 u16 tsize = IO::ld_16(&code[ip]); ip += 2;
                 esp -= tsize;
                 u32 src_ptr = esp;
                 u32 dst_ptr = pop_ptr();
                 memcpy(src_ptr, dst_ptr, tsize);
-                break;
-            }
-            case Opcodes::MOV_PUSH: {
-                u16 sz = IO::ld_16(&code[ip]); ip += 2;
-                u32 src_ptr = pop_ptr();
-                u32 dst_ptr = esp;
-                memcpy(src_ptr, dst_ptr, sz);
-                esp += sz;
                 break;
             }
             case Opcodes::MOV: {
@@ -153,12 +156,12 @@ public:
                 esp += sz;
                 break;
             }
-            case Opcodes::GOTO: {
+            case Opcodes::JMP: {
                 u16 dst_ip = IO::ld_16(&code[ip]); ip += 2;
                 ip = dst_ip;
                 break;
             }
-            case Opcodes::GOTO_F: {
+            case Opcodes::JMP_F: {
                 u16 dst_ip = IO::ld_16(&code[ip]); ip += 2;
                 u8 cond = pop_8();
                 if (cond == 0) {

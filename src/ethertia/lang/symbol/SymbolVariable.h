@@ -7,6 +7,7 @@
 
 #include <ethertia/lang/symbol/Symbol.h>
 #include <ethertia/lang/symbol/TypeSymbol.h>
+#include <ethertia/lang/symbol/Modifiers.h>
 
 class SymbolVariable : public Symbol
 {
@@ -14,10 +15,13 @@ class SymbolVariable : public Symbol
     bool rval = false;
 
 public:
-    int localpos = -1;  // rvalue only. in bytes. offset reside of ebp.
+    t_mod mods = 0;
+    u32 var_spos = -1;  // static variable only.
+
+    int var_lpos = -1;  // local variable only. offset reside of ebp. in bytes.
 
 public:
-    SymbolVariable(const std::string& name, TypeSymbol* type) : type(type) {
+    SymbolVariable(const std::string& name, TypeSymbol* type, t_mod mods = 0) : type(type), mods(mods) {
         __name(name);
     }
 
@@ -32,12 +36,19 @@ public:
         return type;
     }
 
-    SymbolVariable* new_rvalue() {
-        return SymbolVariable::new_rvalue(type);
-    }
+//    static SymbolVariable* var(TypeSymbol* st) {
+//        auto* v = new SymbolVariable("", st);
+//        v->rval = true;
+//        return v;
+//    }
     static SymbolVariable* new_rvalue(TypeSymbol* st) {
         auto* v = new SymbolVariable("", st);
         v->rval = true;
+        return v;
+    }
+    static SymbolVariable* new_lvalue(TypeSymbol* st) {
+        auto* v = new SymbolVariable("", st);
+        v->rval = false;
         return v;
     }
 

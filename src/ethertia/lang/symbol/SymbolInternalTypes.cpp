@@ -35,3 +35,5 @@ SymbolInternalTypes SymbolInternalTypes::I64{"i64", 8};
 
 SymbolInternalTypes SymbolInternalTypes::F32{"f32", 4};
 SymbolInternalTypes SymbolInternalTypes::F64{"f64", 8};
+
+SymbolInternalTypes SymbolInternalTypes::BOOL{"bool", 1};

@@ -13,14 +13,14 @@
 #include <ethertia/lang/ast/AstExpr.h>
 #include <ethertia/lang/ast/AstMisc.h>
 
-#define TK &TokenType
+#include <ethertia/lang/symbol/Scope.h>
+
+#define AEND(a) initlc(a, beg, lx)
+#define ABEG int beg = lx->rdi_clean()
 
 class Parser
 {
 public:
-
-#define AEND(a) initlc(a, beg, lx)
-#define ABEG int beg = lx->rdi_clean()
 
     template<typename T>
     static T* initlc(T* a, int beg, Lexer* lx) {
@@ -46,8 +46,13 @@ public:
         return lhs;
     }
     // redirect to parseExprSpec.
-    static AstExpr* parseTypename(Lexer* lx) {
-        return parsePathname(lx);
+    static AstExpr* parseTypename(Lexer* lx) {  ABEG;
+        AstExpr* lhs = parseExpr1_AccessCall(lx);
+
+        while (lx->trynext(TK::STAR)) {
+            lhs = AEND(new AstExprUnaryOp(lhs, true, TK::STAR));
+        }
+        return lhs;
     }
 
     static std::string parseIdentifier(Lexer* lx) {
@@ -69,6 +74,8 @@ public:
         return attrs;
     }
 
+    // static, const, get, set, override
+    // operator+, operator-, operator*, operator/
     static AstModifiers* parseModifiers(Lexer* lx) {  ABEG;
         std::vector<TokenType*> modifiers;
         TokenType* tk;
@@ -200,7 +207,7 @@ public:
 
         std::vector<AstStmt*> stmts;
         if (lx->nexting(TK::SEMI)) {
-            while (!lx->nexting(TK::NAMESPACE) && !lx->clean_eof()) {
+            while (!lx->clean_eof()) {
                 stmts.push_back(parseStatement(lx));
             }
         } else {
@@ -229,7 +236,9 @@ public:
         return AEND(new AstStmtDefClass(name, superclasses, stmts));
     }
 
-    static AstStmtDefVar* parseStmtDefVar(Lexer* lx) {  ABEG;
+    static AstStmtDefVar* parseStmtDefVarPre(Lexer* lx) {  ABEG;
+        AstModifiers* mods = parseModifiers(lx);
+
         AstExpr* type = parseTypename(lx);
         std::string name = parseIdentifier(lx);
 
@@ -237,8 +246,12 @@ public:
         if (lx->nexting(TK::EQ)) {
             init = parseExpression(lx);
         }
+        return AEND(new AstStmtDefVar(type, name, init, mods));
+    }
+    static AstStmtDefVar* parseStmtDefVar(Lexer* lx) {  ABEG;
+        AstStmtDefVar* a = parseStmtDefVarPre(lx);
         lx->next(TK::SEMI);
-        return AEND(new AstStmtDefVar(type, name, init));
+        return AEND(a);
     }
 
     static AstStmtDefFunc* parseStmtDefFunc(Lexer* lx) {  ABEG;
@@ -248,9 +261,9 @@ public:
         std::vector<AstStmtDefVar*> params;
         lx->next(TK::LPAREN);
         if (!lx->peeking(TK::RPAREN)) {
-            params.push_back(parseStmtDefVar(lx));
-            while (lx->peeking(TK::COMMA)) {
-                params.push_back(parseStmtDefVar(lx));
+            params.push_back(parseStmtDefVarPre(lx));
+            while (lx->nexting(TK::COMMA)) {
+                params.push_back(parseStmtDefVarPre(lx));
             }
         }
         lx->next(TK::RPAREN);
@@ -293,24 +306,24 @@ public:
         } else {
             {
                 int beg_label = lx->rdi;
-                if (lx->nexting(TK::L_IDENTIFIER)) {
+                if (lx->trynext(TK::L_IDENTIFIER)) {
                     std::string lname = lx->r_str;
-                    if (lx->nexting(TK::COL)) {
+                    if (lx->trynext(TK::COL)) {
                         return initlc(new AstStmtLabel(lname), beg_label, lx);
                     }
                 }
                 lx->rdi = beg_label;  // is not stmt_label.
             }
 
+            int mark = lx->rdi;
             parseAttributes(lx);
             parseModifiers(lx);
 
-            if (tk == TK::CLASS) {
-                auto* r = parseStmtDefClass(lx);
-                return r;
+            if (lx->peeking(TK::CLASS)) {
+                lx->rdi = mark;
+                return parseStmtDefClass(lx);
             }
 
-            int mark = lx->rdi;
             bool prelead = isPass(lx, parseTypename) && isPass(lx, parseIdentifier);
             bool fn = lx->peeking(TK::LPAREN) || lx->peeking(TK::LT);
             lx->rdi = mark;  // setback.
@@ -350,6 +363,12 @@ public:
         } else if (tk == TK::L_STRING) {
             lx->next(TK::L_STRING);
             return AEND(new AstExprLString(lx->r_str));
+        } else if (tk == TK::SIZEOF) {
+            lx->next(TK::SIZEOF);
+            lx->next(TK::LPAREN);
+            AstExpr* expr = parseExpression(lx);
+            lx->next(TK::RPAREN);
+            return AEND(new AstExprSizeOf(expr));
         } else {  // Numerical Literal
             lx->next();
             auto* n = AEND(new AstExprLNumber(tk));
@@ -397,8 +416,8 @@ public:
     static AstExpr* parseExpr2_UnaryPost(Lexer* lx) {  ABEG;
         AstExpr* lhs = parseExpr1_AccessCall(lx);
         TokenType* tk;
-        while ((tk=lx->peek()) == TK::PLUSPLUS || tk == TK::SUBSUB) {
-            lx->next();
+        while ((tk=lx->trynext({TK::PLUSPLUS, TK::SUBSUB})) ||
+               (dynamic_cast<TypeSymbol*>(lhs->getSymbol()) && (tk=lx->trynext(TK::STAR)))) {
             lhs = AEND(new AstExprUnaryOp(lhs, true, tk));
         }
         return lhs;
@@ -413,13 +432,18 @@ public:
             AstExpr* rhs = parseExpr3_UnaryPre(lx);
             return AEND(new AstExprUnaryOp(rhs, false, tk));
         } else if (tk == TK::LPAREN) {
-            AstExpr* type = parseTypename(lx);
-            lx->next(TK::RPAREN);
-            AstExpr* rhs = parseExpr3_UnaryPre(lx);
-            return AEND(new AstExprTypeCast(type, rhs));
-        } else {
-            return parseExpr2_UnaryPost(lx);
+            int mk = lx->rdi;
+            try {
+                lx->next(TK::LPAREN);
+                AstExpr* type = parseTypename(lx);
+                lx->next(TK::RPAREN);
+                AstExpr* rhs = parseExpr3_UnaryPre(lx);
+                return AEND(new AstExprTypeCast(type, rhs));
+            } catch (...) {
+                lx->rdi = mk;
+            }
         }
+        return parseExpr2_UnaryPost(lx);
     }
 
     static AstExpr* _parseBinOp_LR(Lexer* lx, const std::function<AstExpr*(Lexer*)>& psrfac, std::initializer_list<TokenType*> opers) {  ABEG;

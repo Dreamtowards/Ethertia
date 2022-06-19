@@ -42,7 +42,7 @@ TokenType TokenType::GOTO{"goto"};
 TokenType TokenType::TRUE{"true"};
 TokenType TokenType::FALSE{"false"};
 TokenType TokenType::NULLPTR{"nullptr"};
-TokenType TokenType::THIS{"this"};
+//TokenType TokenType::THIS{"this"};
 
 
 TokenType TokenType::AMPAMP{"&&"};

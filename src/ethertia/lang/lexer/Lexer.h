@@ -9,7 +9,7 @@
 #include <sstream>
 #include <ethertia/util/Strings.h>
 
-#include "TokenType.h"
+#include <ethertia/lang/lexer/TokenType.h>
 
 class Lexer
 {
@@ -109,10 +109,21 @@ public:
     }
 
     TokenType* trynext(const std::vector<TokenType*>& ls) {
+        int mark = rdi;
+        next();
         for (TokenType* tk : ls) {
-            if (nexting(tk))
+            if (tk == r_tk)
                 return tk;
         }
+        rdi = mark;
+        return nullptr;
+    }
+    TokenType* trynext(TokenType* tk) {
+        int mark = rdi;
+        next();
+        if (tk == r_tk)
+            return r_tk;
+        rdi = mark;
         return nullptr;
     }
 

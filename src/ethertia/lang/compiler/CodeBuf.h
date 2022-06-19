@@ -44,9 +44,13 @@ public:
 
 
 
+    void _lds(u16 spos) {
+        cpush8(Opcodes::LDS);
+        cpush16(spos);
+    }
 
     void _ldl(SymbolVariable* sv) {
-        u32 lpos = sv->localpos;
+        u32 lpos = sv->var_lpos;
         if (lpos == -1)
             throw "Unsupported variable. not local var.";
         _ldl(lpos);
@@ -60,12 +64,12 @@ public:
         cpush8(Opcodes::MOV);
         cpush16(size);
     }
-    void _mov_pop(u16 size) {
-        cpush8(Opcodes::MOV_POP);
+    void _pop_mov(u16 size) {
+        cpush8(Opcodes::POP_MOV);
         cpush16(size);
     }
-    void _mov_push(u16 size) {
-        cpush8(Opcodes::MOV_PUSH);
+    void _ldv(u16 size) {
+        cpush8(Opcodes::LDV);
         cpush16(size);
     }
 
@@ -74,9 +78,13 @@ public:
         cpush8(type);
         // And Data
     }
-    void _ldc_i32(i32 i) {
+    void _ldc_i32(i32 v) {
         _ldc_(Opcodes::LDC_I32);
-        cpush32(i);
+        cpush32(v);
+    }
+    void _ldc_i8(i8 v) {
+        _ldc_(Opcodes::LDC_I8);
+        cpush8(v);
     }
 
 
@@ -103,20 +111,20 @@ public:
     }
 
     [[nodiscard]]
-    t_ip _goto() {
-        cpush8(Opcodes::GOTO);
+    t_ip _jmp() {
+        cpush8(Opcodes::JMP);
         t_ip ip = bufpos();
         cpush16(0);
         return ip;
     }
-    void _goto(t_ip ip) {
-        cpush8(Opcodes::GOTO);
+    void _jmp(t_ip ip) {
+        cpush8(Opcodes::JMP);
         cpush16(ip);
     }
 
     [[nodiscard]]
-    t_ip _goto_f() {
-        cpush8(Opcodes::GOTO_F);
+    t_ip _jmp_f() {
+        cpush8(Opcodes::JMP_F);
         t_ip ip = bufpos();
         cpush16(0);
         return ip;

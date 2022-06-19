@@ -18,6 +18,8 @@ class AstStmt : public Ast
 };
 
 class AstExpr;
+class AstModifiers;
+class AstAttribute;
 
 
 class AstStmtBlank : public AstStmt {};
@@ -87,8 +89,9 @@ public:
     AstExpr* init;
 
     SymbolVariable* vsymbol;
+    AstModifiers* mods;
 
-    AstStmtDefVar(AstExpr* type, std::string name, AstExpr* init) : type(type), name(std::move(name)), init(init) {}
+    AstStmtDefVar(AstExpr* type, std::string name, AstExpr* init, AstModifiers* mods) : type(type), name(std::move(name)), init(init), mods(mods) {}
 };
 
 class AstStmtDefFunc : public AstStmt {

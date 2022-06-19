@@ -13,6 +13,7 @@
 #include <ethertia/lang/symbol/SymbolFunction.h>
 #include <ethertia/lang/symbol/SymbolClass.h>
 #include <ethertia/lang/symbol/SymbolInternalTypes.h>
+#include <ethertia/lang/symbol/SymbolIntlPointer.h>
 #include <ethertia/lang/compiler/CodeGen.h>
 #include <ethertia/lang/machine/Macedure.h>
 
@@ -20,6 +21,10 @@ class Cymbal
 {
 public:
 //    inline static std::map<std::string, AstStmtDefFunc*> functions;
+
+    // static write pos.
+    inline static u32 spos = 0;
+    inline static u8 sbuf[2048];
 
     static void visitCompilationUnit(Scope* s, AstCompilationUnit* a) {
         visitStmts(s, a->stmts);
@@ -138,13 +143,13 @@ public:
 
     static void visitStmtDefClass(Scope* s, AstStmtDefClass* a) {
 
-        s->define(new SymbolClass(a->name));
+        Scope* cscope = new Scope(s);
+        s->define(new SymbolClass(a->name, cscope));
 
         for (AstExpr* supcl : a->superclasses) {
             visitExpression(s, supcl);
         }
 
-        Scope* cscope = new Scope(s);
         visitStmts(cscope, a->stmts);
     }
 
@@ -155,9 +160,14 @@ public:
         // typename
         visitExpression(s, a->type);
         // decl var
-        SymbolVariable* vsymbol = new SymbolVariable(a->name, a->type->getSymbolType());
+        SymbolVariable* vsymbol = new SymbolVariable(a->name, a->type->getSymbolType(), Modifiers::of(a->mods->modifiers));
         s->define(vsymbol);
         a->vsymbol = vsymbol;
+
+        if (Modifiers::isStatic(vsymbol->mods)) {
+            vsymbol->var_spos = spos;
+            spos += vsymbol->getType()->getTypesize();
+        }
 
 //        vsymbol->localpos = currLocalvarp;
 //        currLocalvarp += vsymbol->getType()->getTypesize();
@@ -171,19 +181,23 @@ public:
     static void visitStmtDefFunc(Scope* s, AstStmtDefFunc* a) {
         // typename
         visitExpression(s, a->retType);
+
+        Scope* fscope = new Scope(s);
+
+        // params
+        std::vector<SymbolVariable*> params;
+        for (AstStmtDefVar* param : a->params) {
+            visitStmtDefVar(fscope, param);
+            params.push_back(param->vsymbol);
+        }
+
         // decl func
-        SymbolFunction* fsymbol = new SymbolFunction(a->name, a->retType->getSymbolType());
+        SymbolFunction* fsymbol = new SymbolFunction(a->name, a->retType->getSymbolType(), params);
         s->define(fsymbol);
         a->fsymbol = fsymbol;
 //                SymbolFunction* oldfunc = currFunction;
 //                currFunction = fsymbol;
 
-        Scope* fscope = new Scope(s);
-
-        // params
-        for (AstStmtDefVar* param : a->params) {
-            visitStmtDefVar(fscope, param);
-        }
         // body
         visitStmtBlock(fscope, a->body);  // StmtBlock Dependency. for localvar.
 
@@ -194,10 +208,10 @@ public:
         CodeBuf* cbuf = &fsymbol->codebuf;
         CodeGen::visitStmtDefFunc(cbuf, a);
 
-        fsymbol->code_fpos = Macedure::stp - Macedure::M_STATIC;
+        fsymbol->code_spos = spos;
         int len = cbuf->bufpos();
-        memcpy(&Macedure::MEM[Macedure::stp], cbuf->bufptr(0), len);
-        Macedure::stp += len;
+        memcpy(&sbuf[spos], cbuf->bufptr(0), len);
+        spos += len;
     }
 
     static void visitStmtExpr(Scope* s, AstStmtExpr* a) {
@@ -217,8 +231,9 @@ public:
         else if (CAST(AstExprFuncCall*))     { visitExprFuncCall(s, c); }
         else if (CAST(AstExprUnaryOp*))      { visitExprUnaryOp(s, c); }
         else if (CAST(AstExprBinaryOp*))     { visitExprBinaryOp(s, c); }
-        else if (CAST(AstExprTypeCast*))     { /* visitExprTypeCast(s, c); */ }
+        else if (CAST(AstExprTypeCast*))     { visitExprTypeCast(s, c); }
         else if (CAST(AstExprTriCond*))      { /* visitExprTriCond(s, c);*/ }
+        else if (CAST(AstExprSizeOf*))       { visitExprSizeOf(s, c); }
         else { throw "Unsupported expression."; }
     }
 
@@ -229,12 +244,27 @@ public:
         a->setSymbol(sym);
     }
 
+    static void visitExprSizeOf(Scope* s, AstExprSizeOf* a) {
+        visitExpression(s, a->expr);
+
+        a->setSymbol(SymbolVariable::new_rvalue(&SymbolInternalTypes::U32));
+    }
+
+    static void visitExprTypeCast(Scope* s, AstExprTypeCast* a) {
+        visitExpression(s, a->expr);
+        visitExpression(s, a->type);
+
+        a->setSymbol(SymbolVariable::new_rvalue(a->type->getSymbolType()));
+    }
+
     static void visitExprLNumber(Scope* s, AstExprLNumber* a) {
         TokenType* typ = a->typ;
 
         TypeSymbol* st = nullptr;
              if (typ == TK::L_I32) { st = &SymbolInternalTypes::I32; }
         else if (typ == TK::L_I64) { st = &SymbolInternalTypes::I64; }
+        else if (typ == TK::TRUE)  { st = &SymbolInternalTypes::BOOL; }
+        else if (typ == TK::FALSE) { st = &SymbolInternalTypes::BOOL; }
         else { throw "Unsupported literal number."; }
 
         a->setSymbol(SymbolVariable::new_rvalue(st));
@@ -248,10 +278,13 @@ public:
         if (SymbolVariable* sv = dynamic_cast<SymbolVariable*>(lhs)) {
             // DOT, object access
             // ARROW, dereference, object access.
+            throw "unsupp";
         } else if (SymbolClass* sc = dynamic_cast<SymbolClass*>(lhs)) {
             // COLCOL, scope access
+            throw "unsupp";
         } else if (SymbolNamespace* sn = dynamic_cast<SymbolNamespace*>(lhs)) {
             // COLCOL, scope access
+            throw "unsupp";
         } else {
             throw "illegal lhs symbol.";
         }
@@ -262,7 +295,16 @@ public:
         visitExpression(s, a->expr);
         Symbol* lhs = a->expr->getSymbol();
 
+        // args
+        for (AstExpr* arg : a->args) {
+            visitExpression(s, arg);
+        }
+
         if (SymbolFunction* sf = dynamic_cast<SymbolFunction*>(lhs)) {  // func call
+            assert(a->args.size() == sf->getParameters().size());
+            for (int i = 0; i < a->args.size(); ++i) {
+                assert(a->args[i]->getSymbolVar()->getType() == sf->getParameters()[i]->getType());
+            }
 
             a->setSymbol(SymbolVariable::new_rvalue(sf->getReturnType()));
         } else if (SymbolClass* sc = dynamic_cast<SymbolClass*>(lhs)) {  // object init.
@@ -281,9 +323,23 @@ public:
 
         TokenType* typ = a->typ;
         if (a->post) {
-
+            if (typ == TK::STAR) {
+                a->setSymbol(SymbolIntlPointer::of(a->expr->getSymbolType()));
+            } else {
+                throw "Unsupported post unary";
+            }
         } else {
-
+            if (typ == TK::AMP) {
+                SymbolVariable* sv = a->expr->getSymbolVar();
+                assert(sv->lvalue());
+                a->setSymbol(SymbolVariable::new_rvalue(SymbolIntlPointer::of(sv->getType())));
+            } else if (typ == TK::STAR) {
+                SymbolVariable* sv = a->expr->getSymbolVar();
+                SymbolIntlPointer* sp = (SymbolIntlPointer*)sv->getType();
+                a->setSymbol(SymbolVariable::new_lvalue(sp->getPointerType()));
+            } else {
+                throw "unsupp pre unary";
+            }
         }
     }
 

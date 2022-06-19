@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#define TK &TokenType
+
 class TokenType
 {
 public:
@@ -66,7 +68,7 @@ public:
     static TokenType TRUE;
     static TokenType FALSE;
     static TokenType NULLPTR;
-    static TokenType THIS;
+    //static TokenType THIS;
 
 
     static TokenType AMPAMP;

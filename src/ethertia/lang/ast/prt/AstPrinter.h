@@ -43,6 +43,12 @@ public:
         }
     };
 
+    static std::string printCompilationUnit(AstCompilationUnit* a) {
+        AstPrinter::Prt prt;
+        printCompilationUnit(prt, a);
+        return prt.ss.str();
+    }
+
     static void printCompilationUnit(Prt& s, AstCompilationUnit* a) {
         printStmts(s, a->stmts);
     }
@@ -67,6 +73,7 @@ public:
         else if (CAST(AstStmtLabel*))    { printStmtLabel(s, c); }
         else if (CAST(AstStmtGoto*))     { printStmtGoto(s, c); }
         else if (CAST(AstStmtReturn*))   { printStmtReturn(s, c); }
+        else if (CAST(AstStmtDefClass*)) { printStmtDefClass(s, c); }
 
         else { throw "Unsupported stmt"; }
     }
@@ -87,6 +94,7 @@ public:
         s.ad(a->name);
         s.ad("(");
         for (AstStmtDefVar* defv : a->params) {
+            if (defv != a->params.front()) s.ad(", ");
             printStmtDefVar(s, defv, false);
         }
         s.ad(")");
@@ -95,9 +103,17 @@ public:
         printStmtBlock(s, a->body);
     }
 
+    static void printModifiers(Prt& s, AstModifiers* a) {
+        for (TokenType* tk : a->modifiers) {
+            s.ad(tk->text);
+            s.ad(" ");
+        }
+    }
+
     static void printStmtDefVar(Prt& s, AstStmtDefVar* a, bool semi = true) {
         if (semi)
             s.begline();
+        printModifiers(s, a->mods);
         printExpression(s, a->type);
         s.ad(" ");
         s.ad(a->name);
@@ -153,9 +169,12 @@ public:
     }
 
     static void printStmtBlock(Prt& s, AstStmtBlock* a) {
+        printStmtBlockStmts(s, a->stmts);
+    }
+    static void printStmtBlockStmts(Prt& s, std::vector<AstStmt*>& stmts) {
         s.line("{");
         s.pushIndent();
-        printStmts(s, a->stmts);
+        printStmts(s, stmts);
         s.popIndent();
         s.line("}");
     }
@@ -195,6 +214,15 @@ public:
         s.endline();
     }
 
+    static void printStmtDefClass(Prt& s, AstStmtDefClass* a) {
+        s.begline();
+        s.ad("class ");
+        s.ad(a->name);
+        s.endline();
+
+        printStmtBlockStmts(s, a->stmts);
+    }
+
 
 
     static void printExpression(Prt& s, AstExpr* a) {
@@ -202,7 +230,10 @@ public:
         else if (CAST(AstExprLNumber*))      { printExprLNumber(s, c); }
         else if (CAST(AstExprMemberAccess*)) { printExprMemberAccess(s, c); }
         else if (CAST(AstExprBinaryOp*))     { printExprBinaryOp(s, c); }
+        else if (CAST(AstExprUnaryOp*))      { printExprUnaryOp(s, c); }
         else if (CAST(AstExprFuncCall*))     { printExprFuncCall(s, c); }
+        else if (CAST(AstExprSizeOf*))       { printExprSizeOf(s, c); }
+        else if (CAST(AstExprTypeCast*))     { printExprTypeCast(s, c); }
         else { throw "Unsupported expr"; }
     }
 
@@ -220,22 +251,44 @@ public:
         printExpression(s, a->rhs);
     }
 
-    static void printExprLNumber(Prt& s, AstExprLNumber* a) {
-        if (a->typ == TK::L_I32) {
-            s.ad(std::to_string(a->num.i32));
+    static void printExprUnaryOp(Prt& s, AstExprUnaryOp* a) {
+        if (a->post) {
+            printExpression(s, a->expr);
+            s.ad(a->typ->text);
         } else {
-            throw "unsupported liternal number";
+            s.ad(a->typ->text);
+            printExpression(s, a->expr);
         }
+    }
+
+    static void printExprLNumber(Prt& s, AstExprLNumber* a) {
+        if (a->typ == TK::L_I32)      { s.ad(std::to_string(a->num.i32)); }
+        else if (a->typ == TK::TRUE)  { s.ad("true");  }
+        else if (a->typ == TK::FALSE) { s.ad("false"); }
+        else { throw "unsupported liternal number"; }
     }
 
     static void printExprFuncCall(Prt& s, AstExprFuncCall* a) {
         printExpression(s, a->expr);
         s.ad("(");
         for (int i = 0; i < a->args.size(); ++i) {
-            if (i != 0) s.ad(" ,");
+            if (i != 0) s.ad(", ");
             printExpression(s, a->args[i]);
         }
         s.ad(")");
+    }
+
+    static void printExprSizeOf(Prt& s, AstExprSizeOf* a) {
+        s.ad("sizeof(");
+        printExpression(s, a->expr);
+        s.ad(")");
+    }
+
+    static void printExprTypeCast(Prt& s, AstExprTypeCast* a) {
+        s.ad("(");
+        printExpression(s, a->type);
+        s.ad(")");
+        printExpression(s, a->expr);
     }
 };
 

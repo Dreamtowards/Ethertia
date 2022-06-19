@@ -23,7 +23,8 @@ public:
                                I32,
                                I64,
                                F32,
-                               F64;
+                               F64,
+                               BOOL;
 
     explicit SymbolInternalTypes(const std::string& name, u16 sz) {
         __name(name);
@@ -46,6 +47,8 @@ public:
 
         s->define(&F32);
         s->define(&F64);
+
+        s->define(&BOOL);
     }
 
 

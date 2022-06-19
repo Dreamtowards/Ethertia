@@ -8,20 +8,27 @@
 #include <ethertia/lang/symbol/Symbol.h>
 #include <ethertia/lang/compiler/CodeBuf.h>
 
+#include <utility>
+
 class SymbolFunction : public Symbol
 {
 public:
     TypeSymbol* retType;
+    std::vector<SymbolVariable*> parameters;
 
     CodeBuf codebuf{};
-    int code_fpos = -1;
+    int code_spos = -1;
 
-    SymbolFunction(const std::string& name, TypeSymbol* retType) : retType(retType) {
+    SymbolFunction(const std::string& name, TypeSymbol* retType, std::vector<SymbolVariable*> parameters) : retType(retType), parameters(std::move(parameters)) {
         __name(name);
     }
 
-    TypeSymbol* getReturnType() {
+    TypeSymbol* getReturnType() const {
         return retType;
+    }
+
+    [[nodiscard]] const std::vector<SymbolVariable*>& getParameters() const {
+        return parameters;
     }
 
 };

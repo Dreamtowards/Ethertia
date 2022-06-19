@@ -1,45 +1,109 @@
 
-
-namespace std::_test::_1;
-
-using int = i32;
+// operator i32 _(string lhs, string rhs) { }
 
 
-i32 sth() {
-    i32 someVar = 10;
+//using GLFW::*;
+//using GL::*;
+//using std::mth::vec3;
 
-    return 5 + 1;
-    i32 ltr;
+//using ethertia::util::Timer;
+
+
+
+namespace ethertia::client;
+
+class Window {
+
+    f32 width;
+    f32 height;
+    f32 mouseX;
+    f32 mouseY;
+    f32 mouseDX;
+    f32 mouseDY;
+    f32 scrollDX;
+    f32 scrollDY;
+
+    f32 getDScroll(Window* this) {
+        // return this->scrollDX + this->scrollDY;
+        return 0;
+    }
+
 }
 
-void main() {
+class Ethertia {
 
-    int i = 10 + 2;
-    // i = func2();
-    int k = sth();
+    static bool running = false;
 
+    //RenderEngine renderEngine;
+    //AudioEngine audioEngine;
+
+    //Camera camera;
+    Window window;
+    //Timer timer;
+    //Scheduler scheduler;  // or Executor? executor feels not intuitive.
+
+    //World world;
+    //GuiRoot rootGUI;
+
+    void init() {
+
+        running = false;
+        //window.initWindow();
+        //renderEngine.init();
+
+        //Init::init();
+
+    }
+
+    void runTick() {
+
+    }
+
+    void renderGUI() {
+
+    }
+
+    void runMainLoop() {
+
+        // timer.update(Ethertia::getPreciseTime());
+
+        // scheduler.processTasks();
+
+        // while (timer.tickpoll())
+        // {
+        //     runTick();
+        // }
+
+        // handle();
+        // {
+        //     renderEngine.renderWorld(&world);
+
+        //     renderGUI();
+        // }
+
+        // window.updateWindow();
+    }
+
+    void destroy() {
+
+
+
+    }
+
+    void run()
     {
-        int i2 = 1;
-        int j;
+        init();
 
+        while (running)
+        {
+            runMainLoop();
+        }
+
+        destroy();
     }
 
-    while (i < 3) {
-
-        if (i < 2) {
-            i = 0xF1;
-            goto labek;
-        }
-        if (i < 3) {
-            i = 0xFF;
-            break;
-        }
-        i = i + 1;
-
-    }
-
-    labek:
 }
+
 
 
 
@@ -77,5 +141,31 @@ class vec<T, int N> {
 
 
 [[deprecated("some")]]
+
+class iterable<E> {
+
+    iterator iterator();
+
+}
+class iterator<E> {
+
+    E get<T=>(instance);
+
+    void next();
+
+    bool has();
+
+}
+
+class array_list<E> : iterable {
+
+    class iterator : std::iterator {
+
+        E get(this) {
+
+        }
+
+    }
+}
 
 */

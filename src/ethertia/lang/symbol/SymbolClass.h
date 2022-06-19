@@ -13,8 +13,9 @@ class SymbolClass : public Symbol, public ScopedSymbol, public TypeSymbol
 {
 public:
 
-    SymbolClass(const std::string& name) {
+    SymbolClass(const std::string& name, Scope* cscope) {
         __name(name);
+        __symtab(cscope);
     }
 
 };

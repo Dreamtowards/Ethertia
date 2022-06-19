@@ -26,6 +26,18 @@ public:
         }
         return ss.str();
     }
+
+    static std::vector<std::string> split(const std::string& str, const std::string& delimiter) {
+        std::vector<std::string> ls;
+        u64 beg = 0;
+        u64 end;
+        while ((end = str.find(delimiter, beg)) != std::string::npos) {
+            ls.push_back(str.substr(beg, end-beg));
+            beg = end + delimiter.length();
+        }
+        ls.push_back(str.substr(beg));
+        return ls;
+    }
 };
 
 #endif //ETHERTIA_STRINGS_H

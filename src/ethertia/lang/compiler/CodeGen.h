@@ -40,6 +40,7 @@ public:
 
     inline static std::set<std::string> traceUniqueLocalVars;
     inline static int localvarp = 0;
+    inline static bool isVisitParameters = false;
 
     static void visitStmtBlock(CodeBuf* cbuf, AstStmtBlock* a) {
         int old_localvp = localvarp;
@@ -47,7 +48,8 @@ public:
         visitStmts(cbuf, a->stmts);
 
         u32 blocksize = localvarp - old_localvp;
-        cbuf->_pop(blocksize);
+        if (blocksize != 0)
+            cbuf->_pop(blocksize);
 
         localvarp = old_localvp;
     }
@@ -58,7 +60,7 @@ public:
         SymbolVariable* sv = expr->getSymbolVar();
         u8 tsize = sv->getType()->getTypesize();
         if (sv->rvalue()) {
-            cbuf->_mov_pop(tsize);
+            cbuf->_pop_mov(tsize);
         } else {
             cbuf->_mov(tsize);
         }
@@ -66,12 +68,13 @@ public:
 
     static void visitStmtDefFunc(CodeBuf* cbuf, AstStmtDefFunc* a) {
 
+        localvarp = 0;
+        traceUniqueLocalVars.clear();
+        isVisitParameters = true;
         for (AstStmtDefVar* param : a->params) {
             visitStmtDefVar(cbuf, param);
         }
-
-        assert(localvarp == 0);
-        traceUniqueLocalVars.clear();
+        isVisitParameters = false;
 
         visitStmtBlock(cbuf, a->body);
 
@@ -88,14 +91,15 @@ public:
 
     static void visitStmtDefVar(CodeBuf* cbuf, AstStmtDefVar* a) {  cbuf->_verbo(a->str_v()+" :defvar_init");
         u32 tsize = a->vsymbol->getType()->getTypesize();
-        a->vsymbol->localpos = localvarp;
+        a->vsymbol->var_lpos = localvarp;
         localvarp += tsize;
 
         if (traceUniqueLocalVars.find(a->name) != traceUniqueLocalVars.end())
             throw "Local var name already defined";
         traceUniqueLocalVars.insert(a->name);
 
-        cbuf->_push(tsize);
+        if (!isVisitParameters)
+            cbuf->_push(tsize);
 
         if (a->init) {
             AstExpr* expr = a->init;
@@ -106,23 +110,30 @@ public:
     }
 
     static void visitStmtExpr(CodeBuf* cbuf, AstStmtExpr* a) {  cbuf->_verbo(a->str_v()+" :stexpr");
+
         visitExpression(cbuf, a->expr);
-        cbuf->_pop(a->expr->getSymbolVar()->getType()->getTypesize());
+
+        SymbolVariable* sv = a->expr->getSymbolVar();
+        if (sv->lvalue()) {
+            cbuf->_pop(SymbolIntlPointer::PTR_SIZE);
+        } else {
+            cbuf->_pop(sv->getType()->getTypesize());
+        }
     }
 
     static void visitStmtIf(CodeBuf* cbuf, AstStmtIf* a) {  cbuf->_verbo(a->cond->str_v()+" :if_cond");
         // cond
-        visitExpression(cbuf, a->cond);
+        visitExpression(cbuf, a->cond);  makesure_rvalue(cbuf, a->cond);
         if (a->cond->getSymbolVar()->getType()->getTypesize() != 1)
             throw "Failed if condition. not a byte/boolean";
-        u16 m_endthen = cbuf->_goto_f();  // if cond fail, goto endthen.
+        u16 m_endthen = cbuf->_jmp_f();  // if cond fail, goto endthen.
         u16 m_endelse;
 
         // then
         visitStatement(cbuf, a->then);
 
         if (a->els) {
-            m_endelse = cbuf->_goto();
+            m_endelse = cbuf->_jmp();
         }
         IO::st_16(cbuf->bufptr(m_endthen), cbuf->bufpos());  // endthen
 
@@ -144,12 +155,12 @@ public:
         cbuf->loop_end_mgoto = {};
 
         // cond
-        visitExpression(cbuf, a->cond);
-        cbuf->loop_end_mgoto.push_back(cbuf->_goto_f());
+        visitExpression(cbuf, a->cond);  makesure_rvalue(cbuf, a->cond);
+        cbuf->loop_end_mgoto.push_back(cbuf->_jmp_f());
 
         // body
         visitStatement(cbuf, a->body);
-        cbuf->_goto(begwhile);
+        cbuf->_jmp(begwhile);
 
         t_ip ip_endwhile = cbuf->bufpos();
         for (t_ip end_mgoto : cbuf->loop_end_mgoto) {
@@ -162,11 +173,11 @@ public:
 
     static void visitStmtContinue(CodeBuf* cbuf, AstStmtContinue* a) {  cbuf->_verbo(a->str_v());
         // check have enclosing loop.
-        cbuf->_goto(cbuf->loop_beg);
+        cbuf->_jmp(cbuf->loop_beg);
     }
 
     static void visitStmtBreak(CodeBuf* cbuf, AstStmtBreak* a) {  cbuf->_verbo(a->str_v());
-        cbuf->loop_end_mgoto.push_back(cbuf->_goto());
+        cbuf->loop_end_mgoto.push_back(cbuf->_jmp());
     }
 
     static void visitStmtLabel(CodeBuf* cbuf, AstStmtLabel* a) {
@@ -179,7 +190,7 @@ public:
     static void visitStmtGoto(CodeBuf* cbuf, AstStmtGoto* a) {
         // later fill.
         cbuf->labels_mgotos.emplace_back(
-            cbuf->_goto(),
+            cbuf->_jmp(),
             a->name
         );
     }
@@ -187,16 +198,13 @@ public:
     static void visitStmtReturn(CodeBuf* cbuf, AstStmtReturn* a) {  cbuf->_verbo(a->str_v());
 
         if (a->ret) {
-            u16 ret_sz = a->ret->getSymbolVar()->getType()->getTypesize();
 
             visitExpression(cbuf, a->ret);  makesure_rvalue(cbuf, a->ret);
 
-            cbuf->_ldl((u16)0);  // func-stack-begin ptr.
+            cbuf->_ldl((u16)0);  // dst-ptr: func-stack-begin
+            cbuf->_ldl(localvarp);  // src-ptr: stmt-begin.
 
-            cbuf->_ldl(localvarp);  // stack-top ptr.
-
-            // mov to func-stack-begin
-            cbuf->_mov(ret_sz);
+            cbuf->_mov(a->ret->getSymbolVar()->getType()->getTypesize());
         }
 
         // pop
@@ -216,26 +224,31 @@ public:
         else if (CAST(AstExprLString*))      { throw "unsupp"; }
 //        else if (CAST(AstExprMemberAccess*)) { visitExprMemberAccess(cbuf, c);}
         else if (CAST(AstExprFuncCall*))     { visitExprFuncCall(cbuf, c); }
-//        else if (CAST(AstExprUnaryOp*))      { visitExprUnaryOp(s, c); }
+        else if (CAST(AstExprUnaryOp*))      { visitExprUnaryOp(cbuf, c); }
         else if (CAST(AstExprBinaryOp*))     { visitExprBinaryOp(cbuf, c); }
-        else if (CAST(AstExprTypeCast*))     { /* visitExprTypeCast(s, c); */ }
+        else if (CAST(AstExprTypeCast*))     { visitExpression(cbuf, c->expr);  }
+        else if (CAST(AstExprSizeOf*))       { visitExprSizeOf(cbuf, c); }
         else if (CAST(AstExprTriCond*))      { /* visitExprTriCond(s, c);*/ }
         else { throw "Unsupported expression."; }
     }
 
     static void visitExprIdentifier(CodeBuf* cbuf, AstExprIdentifier* a) {
+        SymbolVariable* sv = a->getSymbolVar();
 
-        cbuf->_ldl(a->getSymbolVar());
+        if (Modifiers::isStatic(sv->mods)) {
+            cbuf->_lds(sv->var_spos);
+        } else {
+            cbuf->_ldl(sv);
+        }
     }
 
     static void visitExprLNumber(CodeBuf* cbuf, AstExprLNumber* a) {
         TokenType* typ = a->typ;
 
-        if (typ == TK::L_I32) {
-            cbuf->_ldc_i32(a->num.i32);
-        } else {
-            throw "Unknown literal number type";
-        }
+        if (typ == TK::L_I32)       { cbuf->_ldc_i32(a->num.i32); }
+        else if (typ == TK::TRUE)   { cbuf->_ldc_i8(1); }
+        else if (typ == TK::FALSE)  { cbuf->_ldc_i8(0); }
+        else { throw "Unknown literal number type"; }
     }
 
     static void makesure_rvalue(CodeBuf* cbuf, AstExpr* a) {
@@ -243,7 +256,7 @@ public:
         SymbolVariable* sv = a->getSymbolVar();
         if (sv->lvalue()) {
 
-            cbuf->_mov_push(sv->getType()->getTypesize());
+            cbuf->_ldv(sv->getType()->getTypesize());
         }
     }
 
@@ -270,6 +283,22 @@ public:
         }
     }
 
+    static void visitExprUnaryOp(CodeBuf* cbuf, AstExprUnaryOp* a) {
+        TokenType* typ = a->typ;
+
+        if (a->post) {
+            throw "Unsupp";
+        } else {
+            if (typ == TK::AMP) {
+                visitExpression(cbuf, a->expr);
+            } else if (typ == TK::STAR) {
+                visitExpression(cbuf, a->expr);  makesure_rvalue(cbuf, a->expr);
+            } else {
+                throw "unsupp";
+            }
+        }
+    }
+
     static void visitExprFuncCall(CodeBuf* cbuf, AstExprFuncCall* a) {
 
         // makesure desurgared
@@ -279,10 +308,17 @@ public:
             // put arg.
             visitExpression(cbuf, arg);
         }
-        int stloc_fn = ((SymbolFunction*)a->expr->getSymbol())->code_fpos;
+        int stloc_fn = ((SymbolFunction*)a->expr->getSymbol())->code_spos;
         if (stloc_fn == -1)
             throw "Undefined func";
         cbuf->_call(args_bytes, stloc_fn);
+    }
+
+    static void visitExprSizeOf(CodeBuf* cbuf, AstExprSizeOf* a) {
+        TypeSymbol* st = a->expr->getSymbolType();
+
+        int size = st->getTypesize();
+        cbuf->_ldc_i32(size);  // u32
     }
 
 

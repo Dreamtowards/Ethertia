@@ -1,0 +1,15 @@
+
+
+
+
+
+
+class GLFW {
+
+    static const u32 GLFW_KEY_A = 1000,
+                     GLFW_KEY_B = 1001;
+
+    u32 glfwInit();
+
+
+}

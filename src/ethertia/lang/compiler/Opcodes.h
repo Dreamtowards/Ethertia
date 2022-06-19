@@ -15,20 +15,22 @@ public:
                     ICMP    = 2,
 
                     MOV     = 10,  // cpy only.        // u16 size; usize src_ptr, usize dst_ptr
-                    MOV_POP = 11,  // pop->add         // u16 size; usize dst_ptr
-                    MOV_PUSH= 12,  // addr->push       // u16 size; usize src_ptr
-                    DUP     = 13,  // dup stack top    // u16 size;
-                    POP     = 14,  // just sub esp.    // u16 size;
-                    PUSH    = 15,  // just add esp     // u16 size;
-                    NOP     = 16,  // none,
+                    DUP     = 11,  // dup stack top    // u16 size;
+                    POP_MOV = 12,  // pop->addr        // u16 size; usize dst_ptr
+                    POP     = 13,  // just sub esp.    // u16 size;
+                    PUSH    = 14,  // just add esp     // u16 size;
+                    NOP     = 15,  // none,
 
                     LDL     = 20,  // load local var.  // u16 lpos.    // %ebp+lpos
                     LDC     = 21,  // load constant    // u8 type, u8[] data
+                    LDS     = 22,  // load static pos  // u16 spos.    // reside of runtime-static-base
+                    LDV     = 23,  // load ptr val     // u16 tsize
+
 
                     VERBO   = 30,  // debug comment    // u8 strlen u8[] str_ascii
 
-                    GOTO    = 40,
-                    GOTO_F  = 41,  // goto if false    //
+                    JMP     = 40,
+                    JMP_F   = 41,  // goto if false    //
                     CALL    = 45,                      // u8 len, u8[] fname
                     RET     = 46;  // terminate exec. since opcode have no boundary but just exec-pointer, need a code to do terminate.
 
@@ -70,19 +72,21 @@ public:
         switch (p[0]) {
             case ADD_I32: *stp = 1; return Log::str("add_i32");
             case MOV:     *stp = 3; return Log::str("mov %{}", IO::ld_16(&p[1]));
-            case MOV_POP: *stp = 3; return Log::str("mov_pop %{}", IO::ld_16(&p[1]));
-            case MOV_PUSH:*stp = 3; return Log::str("mov_push %{}", IO::ld_16(&p[1]));
+            case POP_MOV: *stp = 3; return Log::str("stv %{}", IO::ld_16(&p[1]));
+            case LDV:     *stp = 3; return Log::str("ldv %{}", IO::ld_16(&p[1]));
             case POP:     *stp = 3; return Log::str("pop %{}", IO::ld_16(&p[1]));
             case PUSH:    *stp = 3; return Log::str("push %{}", IO::ld_16(&p[1]));
             case DUP:     *stp = 3; return Log::str("dup %{}", IO::ld_16(&p[1]));
             case NOP:     *stp = 1; return "nop";
             case RET:     *stp = 1; return "ret";
             case LDL:     *stp = 3; return Log::str("ldl ${}", IO::ld_16(&p[1]));
-            case GOTO:    *stp = 3; return Log::str("goto #{}", IO::ld_16(&p[1]));
-            case GOTO_F:  *stp = 3; return Log::str("goto_f #{}", IO::ld_16(&p[1]));
+            case LDS:     *stp = 3; return Log::str("lds +${}", IO::ld_16(&p[1]));
+            case JMP:    *stp = 3; return Log::str("jmp #{}", IO::ld_16(&p[1]));
+            case JMP_F:  *stp = 3; return Log::str("jmp_f #{}", IO::ld_16(&p[1]));
             case CALL:    *stp = 5; return Log::str("call %{} @{}", IO::ld_16(&p[1]), IO::ld_16(&p[3]));
             case LDC: { u8 typ = p[1];
                 if (typ == LDC_I32) { *stp = 6; return Log::str("ldc i32 %{}", IO::ld_32(&p[2])); }
+                else if (typ == LDC_I8) {  *stp = 3; return Log::str("ldc i8 %{}", (int)p[2]); }
                 else return "ldc ?";
             }
             case ICMP: { u8 cond = p[1];  u8 typ = p[2];   *stp = 3;

@@ -1,0 +1,29 @@
+
+namespace ethertia::util;
+
+
+class Timer {
+
+    u32 tps = 20;
+
+    f32 last;
+    f32 delta;
+    f32 ticks;
+
+    void update(this, f32 rtime) {
+
+        this.delta = rtime - this.last;
+
+        ticks = delta * tps;
+
+        last = rtime;
+    }
+
+    bool tickpoll(this) {
+        if (this.ticks < 1.0)
+            return false;
+        this.ticks -= 1.0;
+        return true;
+    }
+
+}

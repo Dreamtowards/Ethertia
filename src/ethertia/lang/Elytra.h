@@ -14,6 +14,9 @@
 #include <ethertia/lang/machine/Macedure.h>
 #include <ethertia/lang/ast/prt/AstPrinter.h>
 
+#include <ethertia/lang/parser/SymbolScanner.h>
+#include "ethertia/lang/ast/AstVisitor.h"
+
 void et() {
 
 
@@ -21,29 +24,29 @@ void et() {
     lx.src = Loader::loadAssetsStr("elytra/main.et");
     lx.src_name = "elytra/main.et";
 
-    Log::info("stdc tellp", std::cout.tellp());
 
     // Parse Syntax, Lexical.
     AstCompilationUnit* a = Parser::parseCompilationUnit(&lx);
 
-    AstPrinter::Prt prt;
-    AstPrinter::printCompilationUnit(prt, a);
-    Log::info("Prt: \n", prt.ss.str());
-
 
     Scope rt(nullptr);
     SymbolInternalTypes::initInternalTypes(&rt);
+
+    Log::info("Prt: \n", AstPrinter::printCompilationUnit(a));
+
 
     // Symbol
     Cymbal::visitCompilationUnit(&rt, a);
 
 
     {
-        SymbolFunction* sf = dynamic_cast<SymbolFunction*>(rt.resolve({"std", "_test", "_1", "main"}));
+        SymbolFunction* sf = dynamic_cast<SymbolFunction*>(rt.resolve(Strings::split("ethertia::client::Ethertia::run", "::")));
         CodeBuf::print(&sf->codebuf);
 
+        memcpy(&Macedure::MEM[Macedure::M_STATIC], Cymbal::sbuf, Cymbal::spos);
+
         // VM
-        Macedure::run(Macedure::M_STATIC+sf->code_fpos, 0);
+        Macedure::run(Macedure::M_STATIC + sf->code_spos, 0);
     }
 
 

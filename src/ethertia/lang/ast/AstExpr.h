@@ -28,6 +28,9 @@ public:
     SymbolVariable* getSymbolVar() {
         return dynamic_cast<SymbolVariable*>(symbol);
     }
+    TypeSymbol* getSymbolVarType() {
+        return getSymbolVar()->getType();
+    }
     TypeSymbol* getSymbolType() {
         return dynamic_cast<TypeSymbol*>(symbol);
     }
@@ -130,7 +133,12 @@ public:
 
 //class AstExprNew : public AstExpr {};
 //
-//class AstExprSizeOf : public AstExpr {};
+class AstExprSizeOf : public AstExpr {
+public:
+    AstExpr* expr;
+
+    AstExprSizeOf(AstExpr* expr) : expr(expr) {}
+};
 
 class AstExprTypeCast : public AstExpr {
 public:

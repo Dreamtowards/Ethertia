@@ -1,0 +1,7 @@
+
+add_executable(
+    ./main.et
+    ./lib/std*.et
+    ./lib/GLFW.et
+    ./lib/GL.et
+)
