@@ -29,6 +29,7 @@ TokenType TokenType::VAR{"var"};
 
 TokenType TokenType::STATIC{"static"};
 TokenType TokenType::CONST{"const"};
+TokenType TokenType::NATIVE{"native"};
 
 TokenType TokenType::IF{"if"};
 TokenType TokenType::ELSE{"else"};
@@ -79,7 +80,9 @@ TokenType TokenType::TILDE{"~"};
 TokenType TokenType::AT{"@"};
 TokenType TokenType::PERCENT{"%"};
 TokenType TokenType::COMMA{","};
+TokenType TokenType::STAREQ{"*="};
 TokenType TokenType::STAR{"*"};
+TokenType TokenType::SLASHEQ{"/="};
 TokenType TokenType::SLASH{"/"};
 TokenType TokenType::SEMI{";"};
 

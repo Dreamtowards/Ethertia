@@ -135,6 +135,11 @@ public:
         cpush16(args_bytes);
         cpush16(fpos);
     }
+    void _calli(u16 args_bytes, const std::string& fname) {
+        cpush8(Opcodes::CALLI);
+        cpush16(args_bytes);
+        cpush_str8(fname);
+    }
 
     void _ret() {
         cpush8(Opcodes::RET);
@@ -150,10 +155,7 @@ public:
 
     void _verbo(std::string_view s) {
         cpush8(Opcodes::VERBO);
-        cpush8(s.length());
-        for (char i : s) {
-            cpush8(i);
-        }
+        cpush_str8(s);
     }
 
     void _nop() {
@@ -174,6 +176,18 @@ public:
         buf.push_back(v >> 16);
         buf.push_back(v >> 8);
         buf.push_back(v);
+    }
+    void cpush_str8(std::string_view str) {
+        cpush8(str.length());
+        for (char c : str) {
+            cpush8(c);
+        }
+    }
+    void cpush_str16(std::string_view str) {
+        cpush16(str.length());
+        for (char c : str) {
+            cpush8(c);
+        }
     }
 //    void* bufeptr() {
 //        return &buf.back();

@@ -15,11 +15,12 @@ class SymbolFunction : public Symbol
 public:
     TypeSymbol* retType;
     std::vector<SymbolVariable*> parameters;
+    t_mod mods;
 
     CodeBuf codebuf{};
     int code_spos = -1;
 
-    SymbolFunction(const std::string& name, TypeSymbol* retType, std::vector<SymbolVariable*> parameters) : retType(retType), parameters(std::move(parameters)) {
+    SymbolFunction(const std::string& name, TypeSymbol* retType, std::vector<SymbolVariable*> parameters, t_mod mods) : retType(retType), parameters(std::move(parameters)), mods(mods) {
         __name(name);
     }
 

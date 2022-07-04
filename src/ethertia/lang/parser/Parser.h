@@ -250,11 +250,21 @@ public:
     }
     static AstStmtDefVar* parseStmtDefVar(Lexer* lx) {  ABEG;
         AstStmtDefVar* a = parseStmtDefVarPre(lx);
+        while (lx->trynext(TK::COMMA)) {
+            std::string vname = parseIdentifier(lx);
+            AstExpr* vinit = nullptr;
+            if (lx->trynext(TK::EQ)) {
+                vinit = parseExpression(lx);
+            }
+            a->followingdecls.push_back(vname);  // todo: uncomplete
+        }
         lx->next(TK::SEMI);
         return AEND(a);
     }
 
     static AstStmtDefFunc* parseStmtDefFunc(Lexer* lx) {  ABEG;
+        AstModifiers* mods = parseModifiers(lx);
+
         AstExpr* retType = parseTypename(lx);
         std::string name = parseIdentifier(lx);
 
@@ -268,9 +278,12 @@ public:
         }
         lx->next(TK::RPAREN);
 
-        AstStmtBlock* body = parseStmtBlock(lx);
+        AstStmtBlock* body = nullptr;
+        if (!lx->trynext(TK::SEMI)) {
+            body = parseStmtBlock(lx);
+        }
 
-        return AEND(new AstStmtDefFunc(retType, name, params, body));
+        return AEND(new AstStmtDefFunc(retType, name, params, body, mods));
     }
 
     static AstStmtExpr* parseStmtExpr(Lexer* lx) {  ABEG;
@@ -376,6 +389,7 @@ public:
             else if (tk == TK::TRUE)   n->num.i32 = 1;
             else if (tk == TK::FALSE)  n->num.i32 = 0;
             else if (tk == TK::L_I32)  n->num.i32 = lx->r_integer;
+            else if (tk == TK::L_F32)  n->num.f32 = lx->r_fp;
             else throw "Unknown literal number type";
             return n;
         }
@@ -500,9 +514,10 @@ public:
 
     static AstExpr* parse12_Assign(Lexer* lx) {  ABEG;
         AstExpr* lhs = parse11_TriCond(lx);
-        if (lx->nexting(TK::EQ)) {
+        TokenType* tk;
+        if ((tk=lx->trynext({TK::EQ, TK::PLUSEQ, TK::SUBEQ, TK::STAREQ, TK::SLASHEQ}))) {
             AstExpr* rhs = parse12_Assign(lx);
-            return AEND(new AstExprBinaryOp(lhs, rhs, TK::EQ));
+            return AEND(new AstExprBinaryOp(lhs, rhs, tk));
         } else {
             return lhs;
         }

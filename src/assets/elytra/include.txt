@@ -1,7 +1,9 @@
 
-add_executable(
-    ./main.et
-    ./lib/std*.et
-    ./lib/GLFW.et
-    ./lib/GL.et
-)
+
+./main.et
+./lib/std/stdio.et
+./lib/stdx/glfw/GLFW.et
+./lib/stdx/opengl/GL.et
+
+
+# ./lib/std*.et

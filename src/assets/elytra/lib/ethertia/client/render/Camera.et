@@ -4,8 +4,8 @@ namespace ethertia::client::render;
 using std::mth::vec3;
 using std::mth::mat3;
 
-class Camera
-{
+class Camera {
+
     vec3 position;
     mat3 rotation;
 

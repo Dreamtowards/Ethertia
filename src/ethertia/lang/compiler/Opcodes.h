@@ -31,8 +31,9 @@ public:
 
                     JMP     = 40,
                     JMP_F   = 41,  // goto if false    //
-                    CALL    = 45,                      // u8 len, u8[] fname
-                    RET     = 46;  // terminate exec. since opcode have no boundary but just exec-pointer, need a code to do terminate.
+                    CALL    = 45,                      // u16 args_size, u8[] fname
+                    RET     = 46,  // terminate exec. since opcode have no boundary but just exec-pointer, need a code to do terminate.
+                    CALLI   = 47;  // calli internal   // u16 args_size, u8* fname
 
 
     // LDC constant types.
@@ -84,6 +85,13 @@ public:
             case JMP:    *stp = 3; return Log::str("jmp #{}", IO::ld_16(&p[1]));
             case JMP_F:  *stp = 3; return Log::str("jmp_f #{}", IO::ld_16(&p[1]));
             case CALL:    *stp = 5; return Log::str("call %{} @{}", IO::ld_16(&p[1]), IO::ld_16(&p[3]));
+            case CALLI: {
+                u8 len = p[3];
+                std::stringstream ss;
+                for (int i = 0; i < len; ++i) ss << p[4+i];
+                *stp = 4 + len;
+                return Log::str("calli %{} @{}", IO::ld_16(&p[1]), ss.str());
+            }
             case LDC: { u8 typ = p[1];
                 if (typ == LDC_I32) { *stp = 6; return Log::str("ldc i32 %{}", IO::ld_32(&p[2])); }
                 else if (typ == LDC_I8) {  *stp = 3; return Log::str("ldc i8 %{}", (int)p[2]); }
@@ -91,7 +99,7 @@ public:
             }
             case ICMP: { u8 cond = p[1];  u8 typ = p[2];   *stp = 3;
                 const char* scond = "?";
-                const char* styp = "";
+                const char* styp = "?";
                 if (cond == ICMP_SGT) scond = "sgt";
                 else if (cond == ICMP_SGE) scond = "sge";
                 else if (cond == ICMP_SLT) scond = "slt";

@@ -1,0 +1,23 @@
+
+namespace std;
+
+class string {
+
+    static const u32 npos = -1;
+
+    u8* ptr;
+    u32 len;
+
+    string substr(string& this, u32 begin, u32 end) {
+
+    }
+
+    u32 find(string* self, string* str, u32 begin, u32 end) {
+
+    }
+
+    string trim() {
+        
+    }
+
+}

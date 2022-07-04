@@ -10,11 +10,16 @@
 class Symbol
 {
     std::string name;
+    std::string qualname;
 
 public:
 
-    virtual std::string getQualifiedName() {
-        throw "Unsupported";
+    virtual void _makev() {};
+
+    std::string getQualifiedName() const {
+        if (qualname.empty())
+            throw "illegal qualified name";
+        return qualname;
     }
 
     std::string getSimpleName() const {
@@ -26,6 +31,10 @@ public:
     void __name(const std::string& s) {
         name = s;
     }
+    void __qualname(const std::string& s) {
+        qualname = s;
+    }
+
 
 };
 

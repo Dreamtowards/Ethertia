@@ -98,9 +98,12 @@ public:
             printStmtDefVar(s, defv, false);
         }
         s.ad(")");
+        if (!a->body) s.ad(";");
         s.endline();
 
-        printStmtBlock(s, a->body);
+        if (a->body) {
+            printStmtBlock(s, a->body);
+        }
     }
 
     static void printModifiers(Prt& s, AstModifiers* a) {
@@ -228,6 +231,7 @@ public:
     static void printExpression(Prt& s, AstExpr* a) {
         if (CAST(AstExprIdentifier*))        { s.ad(c->name); }
         else if (CAST(AstExprLNumber*))      { printExprLNumber(s, c); }
+        else if (CAST(AstExprLString*))      { s.ad("\""); s.ad(c->str); s.ad("\""); }
         else if (CAST(AstExprMemberAccess*)) { printExprMemberAccess(s, c); }
         else if (CAST(AstExprBinaryOp*))     { printExprBinaryOp(s, c); }
         else if (CAST(AstExprUnaryOp*))      { printExprUnaryOp(s, c); }
@@ -263,6 +267,7 @@ public:
 
     static void printExprLNumber(Prt& s, AstExprLNumber* a) {
         if (a->typ == TK::L_I32)      { s.ad(std::to_string(a->num.i32)); }
+        else if (a->typ == TK::L_F32) { s.ad(std::to_string(a->num.f32)); }
         else if (a->typ == TK::TRUE)  { s.ad("true");  }
         else if (a->typ == TK::FALSE) { s.ad("false"); }
         else { throw "unsupported liternal number"; }

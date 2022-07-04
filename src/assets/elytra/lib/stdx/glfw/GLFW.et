@@ -1,0 +1,26 @@
+
+
+namespace stdx::glfw;
+
+class GLFW {
+
+    //class Functions {
+    //    u8* _libname = "/Users/dreamtowards/Downloads/glfw.dylib";
+    //    static const void* glfwInit       = CLinker::lookup(_glfw, "glfwInit"),
+    //                       glfwWindowHint = CLinker::lookup(_glfw, "glfwWindowHint");
+    //}
+
+    static const u32 GLFW_KEY_A = 1000,
+                     GLFW_KEY_B = 1001;
+
+    native u32 glfwInit(i32 a1);
+
+    void glfwWindowHint(u32 hint, i32 value) {
+
+        // std::mth::cos(sth):void
+        // callintl Functions::glfwWindowHint();
+        // CLinker::call(Functions::glfwWindowHint, );
+        // u8 succ = std::intl::call(Functions::glfwWindowHint, hint, value);
+    }
+
+}

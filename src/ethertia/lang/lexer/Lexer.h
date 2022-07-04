@@ -294,8 +294,7 @@ public:
             throw "Bad number format: no digit.";
 
         if (TokenType::isFp(typ)) {
-            // *numFP = std::stod(nstr);  // 10.2e-2
-            throw "FP literal unsupported";
+            *numFP = std::stod(nstr);  // 10.2e-2
         } else {
             *numI = std::stol(nstr, 0, fmt);
         }

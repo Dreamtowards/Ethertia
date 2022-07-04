@@ -17,43 +17,54 @@
 #include <ethertia/lang/parser/SymbolScanner.h>
 #include "ethertia/lang/ast/AstVisitor.h"
 
-void et() {
+void et() {//try{
 
+    std::vector<std::pair<AstCompilationUnit*, std::string>> sources = {
+            {nullptr, "elytra/lib/stdx/glfw/GLFW.et"},
+            {nullptr, "elytra/lib/ethertia/client/Window.et"},
+            // {nullptr, "elytra/lib/ethertia/util/Timer.et"},
+            {nullptr, "elytra/main.et"},
+    };
 
-    Lexer lx;
-    lx.src = Loader::loadAssetsStr("elytra/main.et");
-    lx.src_name = "elytra/main.et";
+    // Parse AST.
+    for (auto& s : sources) {
+        std::string& src = s.second;
 
+        Lexer lx;
+        lx.src = Loader::loadAssetsStr(src);
+        lx.src_name = src;
 
-    // Parse Syntax, Lexical.
-    AstCompilationUnit* a = Parser::parseCompilationUnit(&lx);
+        // Parse Syntax, Lexical.
+        AstCompilationUnit* a = Parser::parseCompilationUnit(&lx);
+        s.first = a;
 
+        Log::info("Prt: [{}] \n{}", src, AstPrinter::printCompilationUnit(a));
+    }
 
     Scope rt(nullptr);
     SymbolInternalTypes::initInternalTypes(&rt);
 
-    Log::info("Prt: \n", AstPrinter::printCompilationUnit(a));
+    // Semantic
+    for (auto& s : sources)
+    {
+        Cymbal::visitCompilationUnit(&rt, s.first);
+    }
 
-
-    // Symbol
-    Cymbal::visitCompilationUnit(&rt, a);
-
-
+    // CodeGen
     {
         SymbolFunction* sf = dynamic_cast<SymbolFunction*>(rt.resolve(Strings::split("ethertia::client::Ethertia::run", "::")));
         CodeBuf::print(&sf->codebuf);
 
+        // load code
         memcpy(&Macedure::MEM[Macedure::M_STATIC], Cymbal::sbuf, Cymbal::spos);
 
         // VM
         Macedure::run(Macedure::M_STATIC + sf->code_spos, 0);
     }
 
-
+//    } catch (const char* err) {
+//        Log::warn("ERR: ", err);
+//    }
 }
-
-/*
- * stmts: Labels, Goto
- */
 
 #endif //ETHERTIA_ELYTRA_H

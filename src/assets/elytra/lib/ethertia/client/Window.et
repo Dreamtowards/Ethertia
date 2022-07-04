@@ -1,0 +1,34 @@
+
+namespace ethertia::client;
+
+using stdx::glfw::GLFW;
+
+class Window {
+
+    f32 width;
+    f32 height;
+    f32 mouseX;
+    f32 mouseY;
+    f32 mouseDX;
+    f32 mouseDY;
+    f32 scrollDX;
+    f32 scrollDY;
+
+    u64 window;
+
+
+    f32 getDScroll(Window* self) {
+        // return this->scrollDX + this->scrollDY;
+        return 0;
+    }
+
+    void initWindow(Window* self) {
+
+        GLFW::glfwInit(2);
+        //GLFW::glfwWindowHint(GLFW::GLFW_CONTEXT_VERSION_MAJOR, 3);
+        //GLFW::glfwWindowHint(GLFW::GLFW_CONTEXT_VERSION_MINOR, 3);
+
+
+    }
+
+}

@@ -308,10 +308,20 @@ public:
             // put arg.
             visitExpression(cbuf, arg);
         }
-        int stloc_fn = ((SymbolFunction*)a->expr->getSymbol())->code_spos;
-        if (stloc_fn == -1)
-            throw "Undefined func";
-        cbuf->_call(args_bytes, stloc_fn);
+
+        SymbolFunction* sf = (SymbolFunction*)a->expr->getSymbol();
+
+        if (Modifiers::isNative(sf->mods)) {
+            std::string fname = sf->getQualifiedName();
+
+            cbuf->_calli(args_bytes, fname);
+        } else {
+            int stloc_fn = sf->code_spos;
+            if (stloc_fn == -1)
+                throw "Undefined func";
+            cbuf->_call(args_bytes, stloc_fn);
+        }
+
     }
 
     static void visitExprSizeOf(CodeBuf* cbuf, AstExprSizeOf* a) {

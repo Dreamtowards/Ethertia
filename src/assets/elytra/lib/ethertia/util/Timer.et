@@ -4,25 +4,25 @@ namespace ethertia::util;
 
 class Timer {
 
-    u32 tps = 20;
+    static const u32 tps = 20;
 
     f32 last;
     f32 delta;
     f32 ticks;
 
-    void update(this, f32 rtime) {
+    void update(Timer* self, f32 rtime) {
 
-        this.delta = rtime - this.last;
+        self.delta = rtime - self.last;
 
         ticks = delta * tps;
 
         last = rtime;
     }
 
-    bool tickpoll(this) {
-        if (this.ticks < 1.0)
+    bool tickpoll(Timer* self) {
+        if (self.ticks < 1.0)
             return false;
-        this.ticks -= 1.0;
+        self.ticks -= 1.0;
         return true;
     }
 

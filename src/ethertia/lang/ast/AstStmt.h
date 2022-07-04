@@ -91,6 +91,8 @@ public:
     SymbolVariable* vsymbol;
     AstModifiers* mods;
 
+    std::vector<std::string> followingdecls;
+
     AstStmtDefVar(AstExpr* type, std::string name, AstExpr* init, AstModifiers* mods) : type(type), name(std::move(name)), init(init), mods(mods) {}
 };
 
@@ -99,14 +101,16 @@ public:
     AstExpr* retType;
     std::string name;
     std::vector<AstStmtDefVar*> params;
-    AstStmtBlock* body;
+    AstStmtBlock* body = nullptr;
 
     SymbolFunction* fsymbol;
+    AstModifiers* mods;
 
     AstStmtDefFunc(AstExpr* retType,
                    std::string name,
                    std::vector<AstStmtDefVar*> params,
-                   AstStmtBlock* body) : retType(retType), name(std::move(name)), params(std::move(params)), body(body) {}
+                   AstStmtBlock* body,
+                   AstModifiers* mods) : retType(retType), name(std::move(name)), params(std::move(params)), body(body), mods(mods) {}
 };
 
 class AstStmtUsing : public AstStmt {

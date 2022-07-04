@@ -53,6 +53,7 @@ public:
 
     static TokenType STATIC;
     static TokenType CONST;
+    static TokenType NATIVE;
 
     static TokenType IF;
     static TokenType ELSE;
@@ -105,7 +106,9 @@ public:
     static TokenType AT;
     static TokenType PERCENT;
     static TokenType COMMA;
+    static TokenType STAREQ;
     static TokenType STAR;
+    static TokenType SLASHEQ;
     static TokenType SLASH;
     static TokenType SEMI;
 
@@ -119,7 +122,8 @@ public:
 
     inline static std::vector<TokenType*> MODIFIERS = {
             &CONST,
-            &STATIC  // &GET, &SET
+            &STATIC,  // &GET, &SET,
+            &NATIVE
     };
 
 };

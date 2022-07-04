@@ -1,34 +1,18 @@
 
 // operator i32 _(string lhs, string rhs) { }
 
-
 //using GLFW::*;
-//using GL::*;
-//using std::mth::vec3;
+//using stdx::glfw::GLFW::*;
 
-//using ethertia::util::Timer;
+//using std::mth::vec3;
 
 
 
 namespace ethertia::client;
 
-class Window {
+//using ethertia::client::Window;
+//using ethertia::util::Timer;
 
-    f32 width;
-    f32 height;
-    f32 mouseX;
-    f32 mouseY;
-    f32 mouseDX;
-    f32 mouseDY;
-    f32 scrollDX;
-    f32 scrollDY;
-
-    f32 getDScroll(Window* this) {
-        // return this->scrollDX + this->scrollDY;
-        return 0;
-    }
-
-}
 
 class Ethertia {
 
@@ -86,7 +70,7 @@ class Ethertia {
 
     void destroy() {
 
-
+        // GLFW::glfwTerminate();
 
     }
 
@@ -94,14 +78,26 @@ class Ethertia {
     {
         init();
 
-        while (running)
-        {
-            runMainLoop();
-        }
+        u32 val = GLFW::glfwInit(2);
 
-        destroy();
+        //init();
+
+        //while (running)
+        //{
+        //    runMainLoop();
+        //}
+
+        //destroy();
     }
 
+
+
+    void shutdown() {
+        running = false;
+    }
+    bool isIngame() {
+        return false;
+    }
 }
 
 

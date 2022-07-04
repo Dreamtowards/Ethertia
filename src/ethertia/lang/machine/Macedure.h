@@ -9,6 +9,8 @@
 
 #include "../compiler/IO.h"
 
+#include <dlfcn.h>
+
 class Macedure
 {
 public:
@@ -53,9 +55,42 @@ public:
         }
     }
 
+
+//    inline static std::map<std::string, void*> _libs;
+//    inline static std::map<std::string, std::function<void>> _proc;
+//
+//    static void* _librarylookup(char* libname, char* fname) {
+//        auto it = _libs.find(libname);
+//        void* lib_handle = nullptr;
+//        if (it == _libs.end()) {
+//            lib_handle = dlopen(libname, RTLD_LAZY);
+//            _libs[libname] = lib_handle;
+//        } else {
+//            lib_handle = it->second;
+//        }
+//
+//        void* f = dlsym(lib_handle, fname);
+//    }
+
+    static u16 ld_16(u8*& ip) {
+        u16 v = IO::ld_16(ip);
+        ip += 2;
+        return v;
+    }
+    static std::string ld_str(u8*& ip) {
+        u8 len = *ip++;//  ld_16(ip);
+
+        std::stringstream ss;
+        for (int i = 0; i < len; ++i)
+            ss << *ip++;
+        return ss.str();
+    }
+
     static void run(t_ptr ip_ptr, const t_ptr ebp) {
-        u8* code = &MEM[ip_ptr];
-        t_ip ip = 0;
+        u8* base_ip = &MEM[ip_ptr];;
+        u8* ip = base_ip;
+
+        // libglfw.so glfwWindowHint 3 2
 
 //        esp = ebp;
 //        u32 locals[cbuf->localvars.size()];
@@ -67,19 +102,21 @@ public:
         std::cout << Log::str("::PROC <ip_ptr: {}, ebp:{}, esp:{}>\n", ip_ptr, ebp, esp); int i100 = 0;
 
         while (true) {  //if (i100++ > 200) break;
+        t_ptr rip = ip - &MEM[ip_ptr];
 
-        if (code[ip] == Opcodes::VERBO) {
-            u32 begp = ip;
-            u8 len = code[ip+1]; ip+=2;
-            std::stringstream ss; for (int i = 0; i < len; ++i) ss << code[ip++];
-            std::cout << Log::str("#{5} {20}  ; % {}\n", begp, "VERBO", ss.str());
+        if (*ip == Opcodes::VERBO) {
+            ip++;
+            std::string vb = ld_str(ip);
+//            u8 len = ip[1]; ip+=2;
+//            std::stringstream ss; for (int i = 0; i < len; ++i) ss << *ip++;
+            std::cout << Log::str("#{5} {24} ; % {}\n", rip, "VERBO", vb);
             continue;
         } else {
-            std::string opstr = Opcodes::str(&code[ip]);
-            std::cout << Log::str("#{5} {20}  ; {}\n", ip, IO::uppercase(opstr), IO::dump(&MEM[ebp], esp-ebp));
+            std::string opstr = Opcodes::str(ip);
+            std::cout << Log::str("#{5} {24} ; {}\n", ip-base_ip, IO::uppercase(opstr, ' '), IO::dump(&MEM[ebp], esp-ebp));
         }
 
-        u8 opc = code[ip++];
+        u8 opc = *ip++;
         switch (opc) {
             case Opcodes::ADD_I32: {
                 i32 rhs = pop_i32();
@@ -88,8 +125,8 @@ public:
                 break;
             }
             case Opcodes::ICMP: {
-                u8 cond = code[ip++];
-                u8 typ  = code[ip++];
+                u8 cond = *ip++;
+                u8 typ  = *ip++;
                 if (typ == Opcodes::ICMP_I32) {
                     i32 rhs = pop_i32();
                     i32 lhs = pop_i32();
@@ -102,31 +139,31 @@ public:
                 break;
             }
             case Opcodes::LDL: {
-                u16 lpos = IO::ld_16(&code[ip]); ip += 2;
+                u16 lpos = ld_16(ip);
                 push_ptr(ebp + lpos);
                 break;
             }
             case Opcodes::LDC: {
-                u8 typ = code[ip++];
-                if (typ == Opcodes::LDC_I8)       { push_8(code[ip++]);                }
-                else if (typ == Opcodes::LDC_I32) { push_i32(IO::ld_32(&code[ip])); ip+=4; }
+                u8 typ = *ip++;
+                if (typ == Opcodes::LDC_I8)       { push_8(*ip++);                }
+                else if (typ == Opcodes::LDC_I32) { push_i32(IO::ld_32(ip)); ip+=4; }
                 else { throw "Unsupported constant type"; }
                 break;
             }
             case Opcodes::LDS: {
-                u16 spos = IO::ld_16(&code[ip]); ip += 2;
+                u16 spos = ld_16(ip);
                 push_ptr(M_STATIC+spos);
                 break;
             }
             case Opcodes::LDV: {
-                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                u16 sz = ld_16(ip);
                 u32 src_ptr = pop_ptr();
                 memcpy(src_ptr, esp, sz);
                 esp += sz;
                 break;
             }
             case Opcodes::POP_MOV: {
-                u16 tsize = IO::ld_16(&code[ip]); ip += 2;
+                u16 tsize = ld_16(ip);
                 esp -= tsize;
                 u32 src_ptr = esp;
                 u32 dst_ptr = pop_ptr();
@@ -134,49 +171,62 @@ public:
                 break;
             }
             case Opcodes::MOV: {
-                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                u16 sz = ld_16(ip);
                 t_ptr src_ptr = pop_ptr();
                 t_ptr dst_ptr = pop_ptr();
                 memcpy(src_ptr, dst_ptr, sz);
                 break;
             }
             case Opcodes::DUP: {
-                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                u16 sz = ld_16(ip);
                 memcpy(esp-sz, esp, sz);
                 esp += sz;
                 break;
             }
             case Opcodes::POP: {
-                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                u16 sz = ld_16(ip);
                 esp -= sz;
                 break;
             }
             case Opcodes::PUSH: {
-                u16 sz = IO::ld_16(&code[ip]); ip += 2;
+                u16 sz = ld_16(ip);
                 esp += sz;
                 break;
             }
             case Opcodes::JMP: {
-                u16 dst_ip = IO::ld_16(&code[ip]); ip += 2;
-                ip = dst_ip;
+                u16 dst_ip = ld_16(ip);
+                ip = base_ip + dst_ip;
                 break;
             }
             case Opcodes::JMP_F: {
-                u16 dst_ip = IO::ld_16(&code[ip]); ip += 2;
+                u16 dst_ip = ld_16(ip);
                 u8 cond = pop_8();
                 if (cond == 0) {
-                    ip = dst_ip;
+                    ip = base_ip + dst_ip;
                 }
                 break;
             }
             case Opcodes::CALL: {
-                u16 f_args_bytes = IO::ld_16(&code[ip]); ip += 2;
-                u16 fpos = IO::ld_16(&code[ip]); ip += 2;
+                u16 args_bytes = ld_16(ip);
+                u16 fpos = ld_16(ip);
 
-                t_ptr f_ebp = esp - f_args_bytes;
+                t_ptr f_ebp = esp - args_bytes;
                 t_ptr f_ip = M_STATIC + fpos;
 
                 run(f_ip, f_ebp);
+
+                break;
+            }
+            case Opcodes::CALLI: {
+                u16 args_bytes = ld_16(ip);
+                std::string fname = ld_str(ip);
+
+                t_ptr f_ebp = esp - args_bytes;
+
+                IO::st_32(f_ebp, 8);
+                esp = f_ebp + 4;
+
+                Log::info("Call Native ", fname);
 
                 break;
             }

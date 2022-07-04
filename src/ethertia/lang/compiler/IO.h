@@ -18,8 +18,11 @@ public:
         ss << digits[v >> 4] << digits[v & 0xF];
     }
 
-    static std::string& uppercase(std::string& s) {
-        for (auto& c : s) c = (char)toupper(c);
+    static std::string& uppercase(std::string& s, char till = '\0') {
+        for (auto& c : s) {
+            if (c == till) break;
+            c = (char)toupper(c);
+        }
         return s;
     }
 

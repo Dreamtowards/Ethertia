@@ -13,9 +13,11 @@ class Scope
 {
     std::map<std::string, Symbol*> defs;
 
+public:
     Scope* parent = nullptr;
 
-public:
+    Symbol* sym_linked = nullptr;
+
     explicit Scope(Scope* parent) : parent(parent) {}
 
     void define(const std::string& name, Symbol* sym) {
@@ -43,6 +45,7 @@ public:
     }
 
     Symbol* resolve(std::vector<std::string> ls);
+
 };
 
 #endif //ETHERTIA_SCOPE_H

@@ -134,6 +134,7 @@ public:
             if (!sn) {
                 sn = new SymbolNamespace(name, new Scope(lat));
                 lat->define(sn);
+                sn->getSymtab()->sym_linked = sn;
             }
             lat = sn->getSymtab();
         }
@@ -144,7 +145,10 @@ public:
     static void visitStmtDefClass(Scope* s, AstStmtDefClass* a) {
 
         Scope* cscope = new Scope(s);
-        s->define(new SymbolClass(a->name, cscope));
+        SymbolClass* csymbol = new SymbolClass(a->name, cscope);
+        s->define(csymbol);
+
+        cscope->sym_linked = csymbol;
 
         for (AstExpr* supcl : a->superclasses) {
             visitExpression(s, supcl);
@@ -178,6 +182,20 @@ public:
         }
     }
 
+
+
+    static std::string qualname(Scope* s) {
+        std::vector<std::string> names;
+        while (s) {
+            if (s->sym_linked) {
+                std::string name = s->sym_linked->getSimpleName();
+                names.insert(names.begin(), name);
+            }
+            s = s->parent;
+        }
+        return Strings::join("::", names);
+    }
+
     static void visitStmtDefFunc(Scope* s, AstStmtDefFunc* a) {
         // typename
         visitExpression(s, a->retType);
@@ -192,17 +210,20 @@ public:
         }
 
         // decl func
-        SymbolFunction* fsymbol = new SymbolFunction(a->name, a->retType->getSymbolType(), params);
+        SymbolFunction* fsymbol = new SymbolFunction(a->name, a->retType->getSymbolType(), params, Modifiers::of(a->mods->modifiers));
         s->define(fsymbol);
         a->fsymbol = fsymbol;
+        fscope->sym_linked = fsymbol;
 //                SymbolFunction* oldfunc = currFunction;
 //                currFunction = fsymbol;
 
-        // body
-        visitStmtBlock(fscope, a->body);  // StmtBlock Dependency. for localvar.
+        fsymbol->__qualname(qualname(fscope));
 
-//                currFunction = oldfunc;
-//        Cymbal::functions[fsymbol->getSimpleName()] = a;
+        // body
+        if (!a->body)
+            return;
+
+        visitStmtBlock(fscope, a->body);  // StmtBlock Dependency. for localvar.
 
 
         CodeBuf* cbuf = &fsymbol->codebuf;
@@ -280,11 +301,11 @@ public:
             // ARROW, dereference, object access.
             throw "unsupp";
         } else if (SymbolClass* sc = dynamic_cast<SymbolClass*>(lhs)) {
-            // COLCOL, scope access
-            throw "unsupp";
-        } else if (SymbolNamespace* sn = dynamic_cast<SymbolNamespace*>(lhs)) {
-            // COLCOL, scope access
-            throw "unsupp";
+            Symbol* rhs = sc->getSymtab()->findlocal(a->memb);
+            a->setSymbol(rhs);
+        } else if (SymbolNamespace* sn = dynamic_cast<SymbolNamespace*>(lhs)) {  // COLCOL, scope access
+            Symbol* rhs = sn->getSymtab()->findlocal(a->memb);  // could be namespace, class
+            a->setSymbol(rhs);
         } else {
             throw "illegal lhs symbol.";
         }
