@@ -15,45 +15,55 @@ class Macedure
 {
 public:
 
-    static const t_ptr M_HEAP = 512;     // Heap Top. head address is descending increasing..
-    static const t_ptr M_STATIC = M_HEAP;
 
 
     inline static u8 MEM[2048];
-    inline static t_ptr esp = 0;
+    inline static u8* esp = MEM;
+
+    inline static u8* const beg_heap = MEM + 512;     // Heap Top. head address is descending increasing..
+    inline static u8* const beg_static = beg_heap;
+
     // inline static t_ptr stp = M_STATIC;  // static storage pointer
 
+    static void push_i64(i64 i) {
+        IO::st_64(esp, i);
+        esp += 8;
+    }
+    static u64 pop_i64() {
+        esp -= 8;
+        return IO::ld_64(esp);
+    }
 
     static void push_i32(i32 i) {
-        IO::st_32(&MEM[esp], i);
+        IO::st_32(esp, i);
         esp += 4;
     }
     static i32 pop_i32() {
         esp -= 4;
-        return IO::ld_32(&MEM[esp]);
+        return IO::ld_32(esp);
     }
 
     static void push_8(u8 v) {
-        MEM[esp] = v;
+        *esp = v;
         ++esp;
     }
     static u8 pop_8() {
         --esp;
-        return MEM[esp];
+        return *esp;
     }
 
-    static void push_ptr(t_ptr p) {
-        push_i32(p);
+    static void push_ptr(const u8* p) {
+        push_i64((u64)p);
     }
-    static t_ptr pop_ptr() {
-        return pop_i32();
+    static u8* pop_ptr() {
+        return (u8*)pop_i64();
     }
 
-    static void memcpy(t_ptr src, t_ptr dst, u16 len) {
-        for (int i = 0; i < len; ++i) {
-            MEM[dst+i] = MEM[src+i];
-        }
-    }
+//    static void memcpy(t_ptr src, t_ptr dst, u16 len) {
+//        for (int i = 0; i < len; ++i) {
+//            MEM[dst+i] = MEM[src+i];
+//        }
+//    }
 
 
 //    inline static std::map<std::string, void*> _libs;
@@ -86,8 +96,7 @@ public:
         return ss.str();
     }
 
-    static void run(t_ptr ip_ptr, const t_ptr ebp) {
-        u8* base_ip = &MEM[ip_ptr];;
+    static void run(u8* base_ip, const u8* ebp) {
         u8* ip = base_ip;
 
         // libglfw.so glfwWindowHint 3 2
@@ -99,21 +108,21 @@ public:
 //            esp += cbuf->localvars[i]->getType()->getTypesize();
 //        }
 
-        std::cout << Log::str("::PROC <ip_ptr: {}, ebp:{}, esp:{}>\n", ip_ptr, ebp, esp); int i100 = 0;
+        std::cout << Log::str("::PROC <ip_ptr: {}, ebp:{}, esp:+{}>\n", (void*)base_ip, (void*)ebp, (int)(esp-ebp)); int i100 = 0;
 
         while (true) {  //if (i100++ > 200) break;
-        t_ptr rip = ip - &MEM[ip_ptr];
+        t_ptr rip = ip - base_ip;
 
         if (*ip == Opcodes::VERBO) {
             ip++;
             std::string vb = ld_str(ip);
 //            u8 len = ip[1]; ip+=2;
 //            std::stringstream ss; for (int i = 0; i < len; ++i) ss << *ip++;
-            std::cout << Log::str("#{5} {24} ; % {}\n", rip, "VERBO", vb);
+            std::cout << Log::str("#{5} {40} ; % {}\n", rip, "VERBO", vb);
             continue;
         } else {
             std::string opstr = Opcodes::str(ip);
-            std::cout << Log::str("#{5} {24} ; {}\n", ip-base_ip, IO::uppercase(opstr, ' '), IO::dump(&MEM[ebp], esp-ebp));
+            std::cout << Log::str("#{5} {40} ; {}\n", ip-base_ip, IO::uppercase(opstr, ' '), IO::dump(ebp, esp-ebp));
         }
 
         u8 opc = *ip++;
@@ -152,34 +161,34 @@ public:
             }
             case Opcodes::LDS: {
                 u16 spos = ld_16(ip);
-                push_ptr(M_STATIC+spos);
+                push_ptr(beg_static+spos);
                 break;
             }
             case Opcodes::LDV: {
                 u16 sz = ld_16(ip);
-                u32 src_ptr = pop_ptr();
-                memcpy(src_ptr, esp, sz);
+                u8* src_ptr = pop_ptr();
+                memcpy(esp, src_ptr, sz);
                 esp += sz;
                 break;
             }
             case Opcodes::POP_MOV: {
                 u16 tsize = ld_16(ip);
                 esp -= tsize;
-                u32 src_ptr = esp;
-                u32 dst_ptr = pop_ptr();
-                memcpy(src_ptr, dst_ptr, tsize);
+                u8* src_ptr = esp;
+                u8* dst_ptr = pop_ptr();
+                memcpy(dst_ptr, src_ptr, tsize);
                 break;
             }
             case Opcodes::MOV: {
                 u16 sz = ld_16(ip);
-                t_ptr src_ptr = pop_ptr();
-                t_ptr dst_ptr = pop_ptr();
-                memcpy(src_ptr, dst_ptr, sz);
+                u8* src_ptr = pop_ptr();
+                u8* dst_ptr = pop_ptr();
+                memcpy(dst_ptr, src_ptr, sz);
                 break;
             }
             case Opcodes::DUP: {
                 u16 sz = ld_16(ip);
-                memcpy(esp-sz, esp, sz);
+                memcpy(esp, esp-sz, sz);
                 esp += sz;
                 break;
             }
@@ -210,8 +219,8 @@ public:
                 u16 args_bytes = ld_16(ip);
                 u16 fpos = ld_16(ip);
 
-                t_ptr f_ebp = esp - args_bytes;
-                t_ptr f_ip = M_STATIC + fpos;
+                u8* f_ebp = esp - args_bytes;
+                u8* f_ip = const_cast<u8*>(beg_static + fpos);
 
                 run(f_ip, f_ebp);
 
@@ -221,7 +230,7 @@ public:
                 u16 args_bytes = ld_16(ip);
                 std::string fname = ld_str(ip);
 
-                t_ptr f_ebp = esp - args_bytes;
+                u8* f_ebp = esp - args_bytes;
 
                 IO::st_32(f_ebp, 8);
                 esp = f_ebp + 4;
@@ -235,7 +244,7 @@ public:
                 break;
             case Opcodes::RET: {
 
-                std::cout << Log::str("::END_PROC <ip_ptr: {}, ebp: {}, esp: {}>\n", ip_ptr, ebp, esp);
+                std::cout << Log::str("::END_PROC <ip_ptr: {}, ebp:{}, esp:+{}>\n", (void*)base_ip, (void*)ebp, (int)(esp-ebp));
                 return;
             }
             default: {

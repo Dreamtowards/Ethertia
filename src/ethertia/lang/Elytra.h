@@ -56,10 +56,10 @@ void et() {//try{
         CodeBuf::print(&sf->codebuf);
 
         // load code
-        memcpy(&Macedure::MEM[Macedure::M_STATIC], Cymbal::sbuf, Cymbal::spos);
+        memcpy(Macedure::beg_static, Cymbal::sbuf, Cymbal::spos);
 
         // VM
-        Macedure::run(Macedure::M_STATIC + sf->code_spos, 0);
+        Macedure::run(Macedure::beg_static + sf->code_spos, Macedure::MEM);
     }
 
 //    } catch (const char* err) {

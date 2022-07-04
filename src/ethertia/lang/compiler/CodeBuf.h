@@ -8,6 +8,7 @@
 #include <map>
 
 #include <ethertia/lang/compiler/Opcodes.h>
+#include <ethertia/lang/symbol/SymbolIntlPointer.h>
 
 typedef u16 t_ip;  // instruction/opcode pos/index
 typedef u32 t_ptr;
@@ -107,7 +108,7 @@ public:
         cpush16(sz);
     }
     void _dup_ptr() {
-        _dup(4);
+        _dup(SymbolIntlPointer::PTR_SIZE);
     }
 
     [[nodiscard]]

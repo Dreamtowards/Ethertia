@@ -11,7 +11,7 @@
 class SymbolIntlPointer : public Symbol, public TypeSymbol
 {
 public:
-    static const u8 PTR_SIZE = 4;
+    static const u8 PTR_SIZE = 8;
 
     TypeSymbol* ptype = nullptr;
 
