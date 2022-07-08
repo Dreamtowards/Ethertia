@@ -20,7 +20,7 @@
 void et() {//try{
 
     std::vector<std::pair<AstCompilationUnit*, std::string>> sources = {
-            {nullptr, "elytra/lib/stdx/glfw/GLFW.et"},
+            {nullptr, "elytra/lib/stdx/glfw/glfw3.et"},
             {nullptr, "elytra/lib/ethertia/client/Window.et"},
             // {nullptr, "elytra/lib/ethertia/util/Timer.et"},
             {nullptr, "elytra/main.et"},

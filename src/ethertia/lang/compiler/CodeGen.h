@@ -40,7 +40,7 @@ public:
 
     inline static std::set<std::string> traceUniqueLocalVars;
     inline static int localvarp = 0;
-    inline static bool isVisitParameters = false;
+    inline static bool disableVarDefGrow = false;  // now only when visiting FuncParams
 
     static void visitStmtBlock(CodeBuf* cbuf, AstStmtBlock* a) {
         int old_localvp = localvarp;
@@ -60,7 +60,7 @@ public:
         SymbolVariable* sv = expr->getSymbolVar();
         u8 tsize = sv->getType()->getTypesize();
         if (sv->rvalue()) {
-            cbuf->_pop_mov(tsize);
+            cbuf->_stv(tsize);
         } else {
             cbuf->_mov(tsize);
         }
@@ -70,13 +70,16 @@ public:
 
         localvarp = 0;
         traceUniqueLocalVars.clear();
-        isVisitParameters = true;
+        disableVarDefGrow = true;
         for (AstStmtDefVar* param : a->params) {
             visitStmtDefVar(cbuf, param);
         }
-        isVisitParameters = false;
+        disableVarDefGrow = false;
 
         visitStmtBlock(cbuf, a->body);
+
+        if (localvarp != 0)
+            cbuf->_pop(localvarp); // pop parameters.
 
         cbuf->_ret();
 
@@ -98,7 +101,7 @@ public:
             throw "Local var name already defined";
         traceUniqueLocalVars.insert(a->name);
 
-        if (!isVisitParameters)
+        if (!disableVarDefGrow)
             cbuf->_push(tsize);
 
         if (a->init) {
@@ -117,7 +120,9 @@ public:
         if (sv->lvalue()) {
             cbuf->_pop(SymbolIntlPointer::PTR_SIZE);
         } else {
-            cbuf->_pop(sv->getType()->getTypesize());
+            int es = sv->getType()->getTypesize();
+            if (es != 0)
+                cbuf->_pop(es);
         }
     }
 
@@ -222,7 +227,7 @@ public:
              if (CAST(AstExprIdentifier*))   { visitExprIdentifier(cbuf, c); }
         else if (CAST(AstExprLNumber*))      { visitExprLNumber(cbuf, c);    }
         else if (CAST(AstExprLString*))      { throw "unsupp"; }
-//        else if (CAST(AstExprMemberAccess*)) { visitExprMemberAccess(cbuf, c);}
+        else if (CAST(AstExprMemberAccess*)) { visitExprMemberAccess(cbuf, c);}
         else if (CAST(AstExprFuncCall*))     { visitExprFuncCall(cbuf, c); }
         else if (CAST(AstExprUnaryOp*))      { visitExprUnaryOp(cbuf, c); }
         else if (CAST(AstExprBinaryOp*))     { visitExprBinaryOp(cbuf, c); }
@@ -230,6 +235,26 @@ public:
         else if (CAST(AstExprSizeOf*))       { visitExprSizeOf(cbuf, c); }
         else if (CAST(AstExprTriCond*))      { /* visitExprTriCond(s, c);*/ }
         else { throw "Unsupported expression."; }
+    }
+
+    static void visitExprMemberAccess(CodeBuf* cbuf, AstExprMemberAccess* a) {
+        TypeSymbol* lhs_t = a->lhs->getSymbolVarType();
+
+        if (a->typ == TK::ARROW) {
+            visitExpression(cbuf, a->lhs);  makesure_rvalue(cbuf, a->lhs);
+
+            SymbolClass* sc = dynamic_cast<SymbolClass*>(dynamic_cast<SymbolIntlPointer*>(lhs_t)->getPointerType());
+            cbuf->_ldc_i64(sc->sizepOf(a->memb));
+            cbuf->_iadd_i64();
+        } else if (a->typ == TK::DOT) {
+            assert(a->lhs->getSymbolVar()->lvalue());
+            visitExpression(cbuf, a->lhs);
+            // add offset(FIELD)
+
+            SymbolClass* sc = dynamic_cast<SymbolClass*>(lhs_t);
+            cbuf->_ldc_i64(sc->sizepOf(a->memb));
+            cbuf->_iadd_i64();
+        } else throw "unsup";
     }
 
     static void visitExprIdentifier(CodeBuf* cbuf, AstExprIdentifier* a) {
@@ -272,11 +297,11 @@ public:
             visitExpression(cbuf, a->rhs);  makesure_rvalue(cbuf, a->rhs);
 
             if (typ == TK::PLUS) {
-                cbuf->_add_i32();
+                cbuf->_iadd_i32();
             } else if (typ == TK::GT) {
-                cbuf->_icmp(Opcodes::ICMP_SGT, Opcodes::ICMP_I32);
+                cbuf->_icmp(Opcodes::ICMP_SGT, Opcodes::T_I32);
             } else if (typ == TK::LT) {
-                cbuf->_icmp(Opcodes::ICMP_SLT, Opcodes::ICMP_I32);
+                cbuf->_icmp(Opcodes::ICMP_SLT, Opcodes::T_I32);
             } else {
                 throw "Unknown binary op";
             }

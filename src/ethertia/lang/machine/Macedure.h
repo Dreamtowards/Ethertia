@@ -127,16 +127,23 @@ public:
 
         u8 opc = *ip++;
         switch (opc) {
-            case Opcodes::ADD_I32: {
-                i32 rhs = pop_i32();
-                i32 lhs = pop_i32();
-                push_i32(lhs+rhs);
+            case Opcodes::IADD: {
+                u8 typ  = *ip++;
+                if (typ == Opcodes::T_I32) {
+                    i32 rhs = pop_i32();
+                    i32 lhs = pop_i32();
+                    push_i32(lhs+rhs);
+                } else if (typ == Opcodes::T_I64) {
+                    i64 rhs = pop_i64();
+                    i64 lhs = pop_i64();
+                    push_i64(lhs+rhs);
+                }
                 break;
             }
             case Opcodes::ICMP: {
                 u8 cond = *ip++;
                 u8 typ  = *ip++;
-                if (typ == Opcodes::ICMP_I32) {
+                if (typ == Opcodes::T_I32) {
                     i32 rhs = pop_i32();
                     i32 lhs = pop_i32();
                     if (cond == Opcodes::ICMP_SGT) push_8(lhs > rhs);
@@ -156,6 +163,7 @@ public:
                 u8 typ = *ip++;
                 if (typ == Opcodes::LDC_I8)       { push_8(*ip++);                }
                 else if (typ == Opcodes::LDC_I32) { push_i32(IO::ld_32(ip)); ip+=4; }
+                else if (typ == Opcodes::LDC_I64) { push_i64(IO::ld_64(ip)); ip+=8; }
                 else { throw "Unsupported constant type"; }
                 break;
             }
@@ -171,7 +179,7 @@ public:
                 esp += sz;
                 break;
             }
-            case Opcodes::POP_MOV: {
+            case Opcodes::STV: {
                 u16 tsize = ld_16(ip);
                 esp -= tsize;
                 u8* src_ptr = esp;

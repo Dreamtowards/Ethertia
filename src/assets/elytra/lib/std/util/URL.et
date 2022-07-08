@@ -1,0 +1,17 @@
+
+namespace std::util;
+
+class URL {
+
+    String encode(String str);
+
+    String decode(String urlenc);
+
+
+    HashMap<String, String> parameters(String url);
+
+    String protocol(String url);
+
+
+}
+

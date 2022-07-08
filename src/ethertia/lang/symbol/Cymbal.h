@@ -144,17 +144,20 @@ public:
 
     static void visitStmtDefClass(Scope* s, AstStmtDefClass* a) {
 
-        Scope* cscope = new Scope(s);
-        SymbolClass* csymbol = new SymbolClass(a->name, cscope);
-        s->define(csymbol);
-
-        cscope->sym_linked = csymbol;
-
         for (AstExpr* supcl : a->superclasses) {
             visitExpression(s, supcl);
         }
 
+        Scope* cscope = new Scope(s);
+
+        SymbolClass* csymbol = new SymbolClass(a->name, cscope);
+        cscope->sym_linked = csymbol;
+        s->define(csymbol);
+
         visitStmts(cscope, a->stmts);
+
+        csymbol->__typesize(csymbol->sizepOf(""));
+
     }
 
 //    inline static int currLocalvarp = 0;
@@ -297,9 +300,19 @@ public:
         Symbol* lhs = a->lhs->getSymbol();
 
         if (SymbolVariable* sv = dynamic_cast<SymbolVariable*>(lhs)) {
-            // DOT, object access
-            // ARROW, dereference, object access.
-            throw "unsupp";
+            // DOT, object access  // ARROW, dereference, object access.
+            if (a->typ == TK::ARROW) {
+                SymbolIntlPointer* sp = dynamic_cast<SymbolIntlPointer*>(sv->getType());
+                SymbolClass* sc = dynamic_cast<SymbolClass*>(sp->getPointerType());
+                Symbol* rhs = sc->getSymtab()->findlocal(a->memb);
+                a->setSymbol(rhs);
+            } else if (a->typ == TK::DOT){
+                SymbolClass* sc = dynamic_cast<SymbolClass*>(sv->getType());
+                Symbol* rhs = sc->getSymtab()->findlocal(a->memb);
+                a->setSymbol(rhs);
+            } else {
+                throw "unsupp";
+            }
         } else if (SymbolClass* sc = dynamic_cast<SymbolClass*>(lhs)) {
             Symbol* rhs = sc->getSymtab()->findlocal(a->memb);
             a->setSymbol(rhs);
@@ -322,10 +335,22 @@ public:
         }
 
         if (SymbolFunction* sf = dynamic_cast<SymbolFunction*>(lhs)) {  // func call
+
+            AstExprMemberAccess* ma = dynamic_cast<AstExprMemberAccess*>(a->expr);
+            if (ma && (ma->typ == TK::DOT || ma->typ == TK::ARROW)) {
+                // v.func(arg1) -> func(&v, arg1)
+                AstExprUnaryOp* rf = new AstExprUnaryOp(ma->lhs, false, TK::AMP);
+                rf->setSymbol(SymbolVariable::new_lvalue(SymbolIntlPointer::of(ma->lhs->getSymbolVarType())));
+                a->args.insert(a->args.begin(), rf);
+                // todo: should remove lhs chain?
+            }
+
             assert(a->args.size() == sf->getParameters().size());
             for (int i = 0; i < a->args.size(); ++i) {
-                assert(a->args[i]->getSymbolVar()->getType() == sf->getParameters()[i]->getType());
+                assert(a->args[i]->getSymbolVar()->getType()->getTypesize() == sf->getParameters()[i]->getType()->getTypesize());
             }
+
+
 
             a->setSymbol(SymbolVariable::new_rvalue(sf->getReturnType()));
         } else if (SymbolClass* sc = dynamic_cast<SymbolClass*>(lhs)) {  // object init.

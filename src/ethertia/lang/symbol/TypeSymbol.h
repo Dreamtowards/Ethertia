@@ -11,6 +11,7 @@ class TypeSymbol
 {
     u16 typsize = 0;
 
+    virtual void makv() {}
 public:
 
     // size in bytes.

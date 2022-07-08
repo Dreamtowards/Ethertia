@@ -18,6 +18,19 @@ public:
         __symtab(cscope);
     }
 
+    int sizepOf(const std::string& field) {
+        int p = 0;
+        for (const auto& it : getSymtab()->defs) {
+            if (it.first == field) {
+                return p;
+            }
+            if (SymbolVariable* sv = dynamic_cast<SymbolVariable*>(it.second)) {
+                p += sv->getType()->getTypesize();
+            }
+        }
+        return p;
+    }
+
 };
 
 #endif //ETHERTIA_SYMBOLCLASS_H

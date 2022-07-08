@@ -11,9 +11,10 @@
 
 class Scope
 {
-    std::map<std::string, Symbol*> defs;
 
 public:
+    std::map<std::string, Symbol*> defs;
+
     Scope* parent = nullptr;
 
     Symbol* sym_linked = nullptr;

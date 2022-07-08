@@ -65,8 +65,8 @@ public:
         cpush8(Opcodes::MOV);
         cpush16(size);
     }
-    void _pop_mov(u16 size) {
-        cpush8(Opcodes::POP_MOV);
+    void _stv(u16 size) {
+        cpush8(Opcodes::STV);
         cpush16(size);
     }
     void _ldv(u16 size) {
@@ -78,6 +78,10 @@ public:
         cpush8(Opcodes::LDC);
         cpush8(type);
         // And Data
+    }
+    void _ldc_i64(i64 v) {
+        _ldc_(Opcodes::LDC_I64);
+        cpush64(v);
     }
     void _ldc_i32(i32 v) {
         _ldc_(Opcodes::LDC_I32);
@@ -99,8 +103,13 @@ public:
     }
 
 
-    void _add_i32() {
-        cpush8(Opcodes::ADD_I32);
+    void _iadd_i32() {
+        cpush8(Opcodes::IADD);
+        cpush8(Opcodes::T_I32);
+    }
+    void _iadd_i64() {
+        cpush8(Opcodes::IADD);
+        cpush8(Opcodes::T_I64);
     }
 
     void _dup(u16 sz) {
@@ -173,6 +182,16 @@ public:
         buf.push_back(v);
     }
     void cpush32(u32 v) {
+        buf.push_back(v >> 24);
+        buf.push_back(v >> 16);
+        buf.push_back(v >> 8);
+        buf.push_back(v);
+    }
+    void cpush64(u64 v) {
+        buf.push_back(v >> 56);
+        buf.push_back(v >> 48);
+        buf.push_back(v >> 40);
+        buf.push_back(v >> 32);
         buf.push_back(v >> 24);
         buf.push_back(v >> 16);
         buf.push_back(v >> 8);

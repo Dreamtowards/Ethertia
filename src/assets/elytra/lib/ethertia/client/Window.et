@@ -1,7 +1,7 @@
 
 namespace ethertia::client;
 
-using stdx::glfw::GLFW;
+using stdx::glfw::glfwInit;
 
 class Window {
 
@@ -24,7 +24,7 @@ class Window {
 
     void initWindow(Window* self) {
 
-        GLFW::glfwInit(2);
+        //GLFW::glfwInit(2);
         //GLFW::glfwWindowHint(GLFW::GLFW_CONTEXT_VERSION_MAJOR, 3);
         //GLFW::glfwWindowHint(GLFW::GLFW_CONTEXT_VERSION_MINOR, 3);
 

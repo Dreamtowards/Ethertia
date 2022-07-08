@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenAL REQUIRED)
 
 include_directories(src)
-include_directories(include)
+include_directories(lib/include)
 
 #file(GLOB_RECURSE EthUnits "src/ethertia/*.cpp")
 
