@@ -315,7 +315,14 @@ public:
             throw "Unsupp";
         } else {
             if (typ == TK::AMP) {
-                visitExpression(cbuf, a->expr);
+                Symbol* sym = a->expr->getSymbol();
+                if (SymbolFunction* sf = dynamic_cast<SymbolFunction*>(sym)) {
+
+                    cbuf->_ldc_i64(sf->code_spos);
+                } else {
+                    // SymbolVariable*.
+                    visitExpression(cbuf, a->expr);
+                }
             } else if (typ == TK::STAR) {
                 visitExpression(cbuf, a->expr);  makesure_rvalue(cbuf, a->expr);
             } else {
@@ -331,7 +338,7 @@ public:
         for (AstExpr* arg : a->args) {
             args_bytes += arg->getSymbolVar()->getType()->getTypesize();
             // put arg.
-            visitExpression(cbuf, arg);
+            visitExpression(cbuf, arg); makesure_rvalue(cbuf, arg);
         }
 
         SymbolFunction* sf = (SymbolFunction*)a->expr->getSymbol();

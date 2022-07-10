@@ -22,6 +22,8 @@ public:
 
     bool populated = false;
 
+    bool needUpdateModel = true;
+
     Chunk() {
     }
     ~Chunk() {
@@ -40,6 +42,7 @@ public:
 
     void setBlock(int rx, int ry, int rz, ubyte blockID) {
         blocks[blockidx(rx,ry,rz)] = blockID;
+        needUpdateModel = true;
     }
     void setBlock(glm::vec3 blockpos, ubyte blockID) {
         setBlock((int)blockpos.x & 15, (int)blockpos.y & 15, (int)blockpos.z & 15, blockID);

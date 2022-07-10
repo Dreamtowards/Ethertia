@@ -13,23 +13,27 @@
 #include <ethertia/block/BlockGrass.h>
 #include <ethertia/block/BlockSand.h>
 #include <ethertia/block/BlockWater.h>
+#include <ethertia/block/BlockLog.h>
+#include <ethertia/block/BlockLeaves.h>
 
 class Blocks
 {
 public:
     inline static std::vector<Block*> REGISTRY;
 
-    static ubyte regBlock(Block* bl) {
+    static u8 regBlock(Block* bl) {
         Blocks::REGISTRY.push_back(bl);
         return Blocks::REGISTRY.size()-1;
     }
 
-    inline static ubyte AIR = regBlock(nullptr);
-    inline static ubyte STONE = regBlock(new BlockStone());
-    inline static ubyte DIRT = regBlock(new BlockDirt());
-    inline static ubyte GRASS = regBlock(new BlockGrass());
-    inline static ubyte SAND = regBlock(new BlockSand());
-    inline static ubyte WATER = regBlock(new BlockWater());
+    inline static u8 AIR = regBlock(nullptr);
+    inline static u8 STONE = regBlock(new BlockStone());
+    inline static u8 DIRT = regBlock(new BlockDirt());
+    inline static u8 GRASS = regBlock(new BlockGrass());
+    inline static u8 SAND = regBlock(new BlockSand());
+    inline static u8 WATER = regBlock(new BlockWater());
+    inline static u8 LOG = regBlock(new BlockLog());
+    inline static u8 LEAVES = regBlock(new BlockLeaves());
 
 };
 

@@ -10,6 +10,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 
+#include "UnifiedTypes.h"
+
 class Mth
 {
 public:
@@ -47,6 +49,17 @@ public:
     }
 
     template<typename T>
+    static inline T abs(T a) {
+        return a < 0 ? -a : a;
+    }
+
+    template<typename T>
+    static inline T sq(T a) {
+        return a * a;
+    }
+
+
+    template<typename T>
     static inline T fade(T t) {
         return t*t*t*(t*(t*6-15)+10);
     }
@@ -57,6 +70,11 @@ public:
     template<typename T>
     static inline T clamp(T f, T a, T b) {
         return min(max(f, a), b);
+    }
+
+    static f32 hash(u32 i) {
+        i = (i << 13) ^ i;
+        return (((i * i * 15731 + 789221) * i + 1376312589) & 0xffffffff) / (float)0xffffffff;
     }
 
 //    static glm::mat4 calculateViewMatrix(glm::vec3 position, glm::mat3 rotation) {

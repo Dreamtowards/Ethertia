@@ -338,10 +338,13 @@ public:
 
             AstExprMemberAccess* ma = dynamic_cast<AstExprMemberAccess*>(a->expr);
             if (ma && (ma->typ == TK::DOT || ma->typ == TK::ARROW)) {
-                // v.func(arg1) -> func(&v, arg1)
+                //  v.func(arg1) => func(&v, arg1)
+                // p->func(arg1) => func(p,  arg1)
+
                 AstExprUnaryOp* rf = new AstExprUnaryOp(ma->lhs, false, TK::AMP);
-                rf->setSymbol(SymbolVariable::new_lvalue(SymbolIntlPointer::of(ma->lhs->getSymbolVarType())));
+                rf->setSymbol(SymbolVariable::new_rvalue(SymbolIntlPointer::of(ma->lhs->getSymbolVarType())));
                 a->args.insert(a->args.begin(), rf);
+
                 // todo: should remove lhs chain?
             }
 
@@ -367,6 +370,8 @@ public:
     static void visitExprUnaryOp(Scope* s, AstExprUnaryOp* a) {
         visitExpression(s, a->expr);
 
+        Symbol* sym = a->expr->getSymbol();
+
         TokenType* typ = a->typ;
         if (a->post) {
             if (typ == TK::STAR) {
@@ -376,9 +381,14 @@ public:
             }
         } else {
             if (typ == TK::AMP) {
-                SymbolVariable* sv = a->expr->getSymbolVar();
-                assert(sv->lvalue());
-                a->setSymbol(SymbolVariable::new_rvalue(SymbolIntlPointer::of(sv->getType())));
+                if (SymbolFunction* sf = dynamic_cast<SymbolFunction*>(sym)) {
+                    // todo: void -> func type.
+                    a->setSymbol(SymbolVariable::new_rvalue(SymbolIntlPointer::of(&SymbolInternalTypes::VOID)));
+                } else if (SymbolVariable* sv = dynamic_cast<SymbolVariable*>(sym)) {
+                    assert(sv->lvalue());
+                    a->setSymbol(SymbolVariable::new_rvalue(SymbolIntlPointer::of(sv->getType())));
+                } else
+                    throw "unsupp";
             } else if (typ == TK::STAR) {
                 SymbolVariable* sv = a->expr->getSymbolVar();
                 SymbolIntlPointer* sp = (SymbolIntlPointer*)sv->getType();

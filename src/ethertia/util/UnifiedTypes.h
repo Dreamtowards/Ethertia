@@ -21,4 +21,10 @@ typedef long  i64;
 typedef float  f32;
 typedef double f64;
 
+
+template<typename D, typename S>
+static D direct_cast(S s) {
+    return *reinterpret_cast<D*>(&s);
+}
+
 #endif //ETHERTIA_UNIFIEDTYPES_H

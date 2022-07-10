@@ -139,8 +139,13 @@ static const u32 GLFW_VERSION_MAJOR     = 3,
                  GLFW_KEY_RIGHT_ALT     = 346,
                  GLFW_KEY_RIGHT_SUPER   = 347,
                  GLFW_KEY_MENU          = 348,
+                 GLFW_KEY_LAST          = GLFW_KEY_MENU,
 
-                 GLFW_KEY_LAST          = GLFW_KEY_MENU;
+                 GLFW_FOCUSED           = 0x00020001,
+                 GLFW_ICONIFIED         = 0x00020002,
+                 GLFW_RESIZABLE         = 0x00020003,
+                 GLFW_VISIBLE           = 0x00020004,
+                 GLFW_DECORATED         = 0x00020005;
 
 
 class GLFWvidmode {
@@ -152,6 +157,8 @@ class GLFWvidmode {
     u32 refreshRate;
 }
 
+class GLFWwindow {}
+
 native u32 glfwInit();
 
 native void glfwTerminate();
@@ -160,4 +167,9 @@ native u8* getVersionString();
 
 native void glfwWindowHint(u32 hint, i32 value);
 
-//native void glfwCreateWindow(u32 width, u32 height, u8* title, );
+native void* glfwCreateWindow(u32 width, u32 height);
+
+native void glfwPollEvents();
+
+
+native void glfwSetWindowCloseCallback(void* window, void* callback);

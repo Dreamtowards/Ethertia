@@ -2,6 +2,14 @@
 namespace ethertia::client;
 
 using stdx::glfw::glfwInit;
+using stdx::glfw::glfwWindowHint;
+using stdx::glfw::glfwCreateWindow;
+using stdx::glfw::glfwPollEvents;
+
+using stdx::glfw::glfwSetWindowCloseCallback;
+
+//using stdx::glfw::GLFW_RESIZABLE;
+//using stdx::glfw::GLFW_VISIBLE;
 
 class Window {
 
@@ -14,21 +22,44 @@ class Window {
     f32 scrollDX;
     f32 scrollDY;
 
-    u64 window;
+    void* window;
+
+    void _on_window_close() {
+
+        std::exit(4);
+    }
+
+    void initWindow(Window* self) {
+
+        glfwInit();
+
+        //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);  // OSX Required.
+
+        //glfwWindowHint(GLFW_RESIZABLE,  true);
+        //glfwWindowHint(GLFW_VISIBLE,    true);
+        //glfwWindowHint(GLFW_DECORATION, true);
+        //glfwWindowHint(GLFW_FOCUSED,    true);
+
+        self->window = glfwCreateWindow(600, 300);
+
+        //_on_window_close();
+
+        glfwSetWindowCloseCallback(self->window, &_on_window_close);
+    }
+
+    void updateWindow(Window* self) {
+
+
+        glfwPollEvents();
+    }
 
 
     f32 getDScroll(Window* self) {
         // return this->scrollDX + this->scrollDY;
         return 0;
-    }
-
-    void initWindow(Window* self) {
-
-        //GLFW::glfwInit(2);
-        //GLFW::glfwWindowHint(GLFW::GLFW_CONTEXT_VERSION_MAJOR, 3);
-        //GLFW::glfwWindowHint(GLFW::GLFW_CONTEXT_VERSION_MINOR, 3);
-
-
     }
 
 }

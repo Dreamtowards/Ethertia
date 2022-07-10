@@ -186,11 +186,25 @@ public:
         new std::thread([]() {
             while (isRunning())
             {
-                updateViewDistance(getWorld(), getCamera()->position, 3);
+                updateViewDistance(getWorld(), getCamera()->position, 4);
+
+                checkChunksModelUpdate(getWorld());
 
                 std::this_thread::sleep_for(std::chrono::milliseconds (10));
             }
         });
+    }
+
+    static void checkChunksModelUpdate(World* world) {
+
+        for (auto& it : world->getLoadedChunks()) {
+            Chunk* chunk = it.second;
+            if (chunk->needUpdateModel) {
+                chunk->needUpdateModel = false;
+                World::tmpDoRebuildModel(chunk, world);
+            }
+        }
+
     }
 
     static void updateViewDistance(World* world, glm::vec3 p, int n)

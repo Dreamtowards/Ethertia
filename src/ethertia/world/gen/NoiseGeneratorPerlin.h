@@ -26,13 +26,13 @@ public:
         }
     }
 
-    double grad(int hash, double x, double y, double z) {
+    static double grad(int hash, double x, double y, double z) {
         int h = hash & 15;
         double u = h < 8 ? x : y;
         double v = h < 4 ? y : (h != 12 && h != 14 ? z : x);
         return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
     }
-    double grad(int hash, double x, double y) {
+    static double grad(int hash, double x, double y) {
         int h = hash & 15;
         double u = (1 - ((h & 8) >> 3)) * x;
         double v = h < 4 ? 0 : (h != 12 && h != 14 ? y : x);

@@ -9,7 +9,7 @@
 #include <ethertia/client/Ethertia.h>
 
 
-void tmpDoRebuildModel(Chunk* chunk, World* world) {
+void World::tmpDoRebuildModel(Chunk* chunk, World* world) {
     auto* vbuf = ChunkMeshGen::genMesh(chunk, world);
     if (vbuf) {
         Ethertia::getExecutor()->exec([chunk, vbuf]() {
@@ -35,7 +35,7 @@ void tryPopulate(World* world, glm::vec3 chunkpos) {
         World::populate(world, chunkpos);
         c->populated = true;
 
-        tmpDoRebuildModel(c, world);
+        World::tmpDoRebuildModel(c, world);
     }
 }
 
@@ -53,6 +53,7 @@ Chunk* World::provideChunk(glm::vec3 p) {
     loadedChunks[chunkpos] = chunk;
 
     // check populates
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
     tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
     tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
     tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));

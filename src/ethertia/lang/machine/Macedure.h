@@ -25,6 +25,56 @@ public:
 
     // inline static t_ptr stp = M_STATIC;  // static storage pointer
 
+
+//    inline static std::map<std::string, void*> _libs;
+    inline static std::map<std::string, std::function<int(void*)>> _proc;
+
+    inline static u8* ffp;
+    static void ffpcb(GLFWwindow* w) {
+
+        run(ffp, esp);
+    }
+
+    static void initproc() {
+
+        _proc["stdx::glfw::glfwInit"] = [](void* ebp) {
+            int r = glfwInit();
+            *(u32*)ebp = r;
+            return 4;
+        };
+        _proc["stdx::glfw::glfwCreateWindow"] = [](void* ebp) {
+            int* p = (int*)ebp;
+            int w = IO::ld_32((u8*)ebp);
+            int h = IO::ld_32((u8*)ebp+4);
+            void* win = glfwCreateWindow(w, h, "", nullptr, nullptr);
+            Log::info("Created Win: ", win);
+
+            IO::st_64((u8*)ebp, (u64)win);
+            return 8;
+        };
+        _proc["stdx::glfw::glfwPollEvents"] = [](void* ebp) {
+            glfwPollEvents();
+            return 0;
+        };
+
+        _proc["stdx::glfw::glfwSetWindowCloseCallback"] = [](void* ebp) {
+            GLFWwindow* win = (GLFWwindow*)IO::ld_64((u8*)ebp);
+            u64 fpos = IO::ld_64((u8*)ebp+8);
+            ffp = beg_static + fpos;
+            Log::info("Callback Func: ", ffp);
+
+            glfwSetWindowCloseCallback(win, ffpcb);
+            return 0;
+        };
+
+        _proc["std::exit"] = [](void* ebp) {
+            i32 i = IO::ld_32((u8*)ebp);
+            exit(i);
+            return 0;
+        };
+
+    }
+
     static void push_i64(i64 i) {
         IO::st_64(esp, i);
         esp += 8;
@@ -65,9 +115,6 @@ public:
 //        }
 //    }
 
-
-//    inline static std::map<std::string, void*> _libs;
-//    inline static std::map<std::string, std::function<void>> _proc;
 //
 //    static void* _librarylookup(char* libname, char* fname) {
 //        auto it = _libs.find(libname);
@@ -240,11 +287,17 @@ public:
 
                 u8* f_ebp = esp - args_bytes;
 
-                IO::st_32(f_ebp, 8);
-                esp = f_ebp + 4;
+//                IO::st_32(f_ebp, 8);
+//                esp = f_ebp + 4;
 
-                Log::info("Call Native ", fname);
+                auto it = _proc.find(fname);
+                if (it == _proc.end()) {
+                    throw "Failed call, no such native";
+                } else {
 
+                    int rw = it->second(f_ebp);
+                    esp = f_ebp + rw;
+                }
                 break;
             }
             case Opcodes::VERBO:

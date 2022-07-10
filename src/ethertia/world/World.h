@@ -24,21 +24,21 @@ class World
 
 public:
 
-    ubyte getBlock(glm::vec3 blockpos) {
+    u8 getBlock(glm::vec3 blockpos) {
         Chunk* chunk = getLoadedChunk(blockpos);
         if (!chunk) return 0;
         return chunk->getBlock(blockpos);
     }
-    ubyte getBlock(int x, int y, int z) {
+    u8 getBlock(int x, int y, int z) {
         return getBlock(glm::vec3(x,y,z));
     }
 
-    void setBlock(glm::vec3 blockpos, ubyte blockID) {
+    void setBlock(glm::vec3 blockpos, u8 blockID) {
         Chunk* chunk = getLoadedChunk(blockpos);
         if (!chunk) return;
         chunk->setBlock(blockpos, blockID);
     }
-    void setBlock(int x, int y, int z, ubyte blockID) {
+    void setBlock(int x, int y, int z, u8 blockID) {
         setBlock(glm::vec3(x,y,z), blockID);
     }
 
@@ -63,6 +63,8 @@ public:
 
 
 
+    static void tmpDoRebuildModel(Chunk* chunk, World* world);
+
     static void populate(World* world, glm::vec3 chunkpos)
     {
         for (int dx = 0; dx < 16; ++dx) {
@@ -75,6 +77,8 @@ public:
                     int y = chunkpos.y + dy;
                     ubyte tmpbl = world->getBlock(x, y, z);
                     if (tmpbl == 0 || tmpbl == Blocks::WATER)
+                        continue;
+                    if (tmpbl != Blocks::STONE)
                         continue;
 
                     if (nextAir < dy) {
@@ -97,6 +101,40 @@ public:
                         replace = Blocks::DIRT;
                     }
                     world->setBlock(x, y, z, replace);
+                }
+            }
+
+        }
+
+        for (int dx = 0; dx < 16; ++dx) {
+            for (int dz = 0; dz < 16; ++dz) {
+                int x = chunkpos.x + dx;
+                int z = chunkpos.z + dz;
+
+                if (Mth::hash(x*z) < (2.5/256.0f)) {
+                    for (int dy = 0; dy < 16; ++dy) {
+                        int y = chunkpos.y + dy;
+                        if (world->getBlock(x, y, z) == Blocks::GRASS) {
+
+                            float f = Mth::hash(x*z*y);
+                            int h = 3+f*8;
+                            int r = 3;
+                            for (int lx = -r; lx <= r; ++lx) {
+                                for (int lz = -r; lz <= r; ++lz) {
+                                    for (int ly = -r; ly <= r*f*3; ++ly) {
+                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly*f)) > r*r)
+                                            continue;
+                                        world->setBlock(x+lx, y+ly+h+Mth::hash(y)*4, z+lz, Blocks::LEAVES);
+                                    }
+                                }
+                            }
+                            for (int i = 0; i < h; ++i) {
+
+                                world->setBlock(x, y+i+1, z, Blocks::LOG);
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }

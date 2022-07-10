@@ -19,7 +19,7 @@ class Ethertia {
     //AudioEngine audioEngine;
 
     //Camera camera;
-    Window window;
+    static Window window;
     //Timer timer;
     //Scheduler scheduler;  // or Executor? executor feels not intuitive.
 
@@ -29,8 +29,8 @@ class Ethertia {
 
     void init() {
 
-        running = false;
-        //window.initWindow();
+        running = true;
+        window.initWindow();
         //renderEngine.init();
 
         //Init::init();
@@ -63,41 +63,25 @@ class Ethertia {
         //     renderGUI();
         // }
 
-        // window.updateWindow();
+        window.updateWindow();
     }
 
     void destroy() {
 
-        // GLFW::glfwTerminate();
+        // glfwTerminate();
 
     }
-
-
-    class Oop {
-        u32 dat;
-        void doSth(Oop* self, i32 add) {
-            self->dat = 9 + add;
-        }
-    }
-    using stdx::glfw::glfwInit;
 
     void run()
     {
-        glfwInit();
+        init();
 
-        Oop o;
-        o.dat = 3;
-        o.doSth(2);
+        while (running)
+        {
+            runMainLoop();
+        }
 
-
-        //init();
-
-        //while (running)
-        //{
-        //    runMainLoop();
-        //}
-
-        //destroy();
+        destroy();
     }
 
 
