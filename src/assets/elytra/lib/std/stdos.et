@@ -2,5 +2,6 @@
 
 namespace std;
 
+
 native void exit(i32 i);
 

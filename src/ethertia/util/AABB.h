@@ -16,6 +16,10 @@ public:
     AABB(const glm::vec3 &min, const glm::vec3 &max) : min(min), max(max) {}
 
     AABB() : min(0), max(0) {}
+
+    static bool intersects(const glm::vec3& min, const glm::vec3& max, glm::vec3 p, int axis) {
+        return p[axis] >= min[axis] && p[axis] < max[axis];
+    }
 };
 
 #endif //ETHERTIA_AABB_H

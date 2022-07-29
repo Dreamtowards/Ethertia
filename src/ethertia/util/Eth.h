@@ -9,6 +9,7 @@
 
 class Camera;
 class RenderEngine;
+class Window;
 
 class Eth
 {
@@ -16,6 +17,8 @@ public:
     static Camera* getCamera();
 
     static RenderEngine* getRenderEngine();
+
+    static Window* getWindow();
 };
 
 #endif //ETHERTIA_ETH_H

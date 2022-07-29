@@ -9,9 +9,14 @@
 
 class Entity
 {
+public:
     glm::vec3 position;
 
+    glm::vec3 velocity;
 
+    std::string name;
+
+    glm::vec3 prevposition;
 
 
 };

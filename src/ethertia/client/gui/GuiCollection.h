@@ -49,7 +49,7 @@ public:
         (*it)->detach();
     }
     void removeGui(Gui* g) {
-        removeGui(Collections::indexOf(_children, g));
+        removeGui(Collections::find(_children, g));
     }
     void removeLastGui() {
         removeGui(count()-1);

@@ -20,6 +20,7 @@
 #include <ethertia/init/BlockTextures.h>
 #include <ethertia/init/Init.h>
 #include <ethertia/world/World.h>
+#include <ethertia/entity/Entity.h>
 #include <ethertia/client/gui/GuiButton.h>
 #include <ethertia/client/gui/GuiPadding.h>
 #include <ethertia/client/gui/GuiAlign.h>
@@ -41,6 +42,7 @@ class Ethertia
     Executor executor{std::this_thread::get_id()};
 
     World* world = nullptr;
+    Entity* player = new Entity();
     GuiRoot* rootGUI = new GuiRoot();
 
 public:
@@ -64,6 +66,7 @@ public:
         window.initWindow();
         renderEngine = new RenderEngine();
         world = new World();
+        world->addEntity(player);
 
         Init::initialize();
 
@@ -124,7 +127,11 @@ public:
         rootGUI->onDraw();
 
         std::stringstream ss;
-        Log::log(ss, "camp: {}\ndt/ {}, {}fs", glm::to_string(camera.position), timer.getDelta(), 1.0/timer.getDelta());
+        Log::log(ss,
+                 "camp: {}, pvel: {}\n"
+                      "dt/ {}, {}fs",
+                      glm::to_string(camera.position), glm::length(player->velocity),
+                      timer.getDelta(), 1.0/timer.getDelta());
         Gui::drawString(0, 32, ss.str(), Colors::WHITE, 16, 0, false);
 
 //        Gui::drawRect(100, 100, 200, 100, Colors::WHITE, BlockTextures::ATLAS->atlasTexture, 20);
@@ -133,6 +140,11 @@ public:
 //        Gui::drawString(Gui::maxWidth()/2, 110, "Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?",
 //                        Colors::WHITE, 32, 1);
 
+        Gui::drawWorldpoint(player->position, [](glm::vec2 p) {
+
+            Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
+        });
+
         glEnable(GL_DEPTH_TEST);
     }
 
@@ -140,10 +152,10 @@ public:
     {
         if (isIngame()) {
             updateMovement();
-            camera.update(window, renderEngine->viewMatrix);
+            camera.update(window, timer.getDelta(), renderEngine->viewMatrix);
         }
         if (!window.isKeyDown(GLFW_KEY_P))
-        renderEngine->updateViewFrustum();
+            renderEngine->updateViewFrustum();
 
 
         window.setMouseGrabbed(isIngame());
@@ -154,8 +166,7 @@ public:
     void runTick()
     {
 
-
-         // world->onTick();
+        world->tick();
     }
 
     void destroy()
@@ -235,17 +246,26 @@ public:
     }
 
     void updateMovement() {
-        float speed = 0.1;
-        if (window.isKeyDown(GLFW_KEY_F)) speed = 1;
+        static bool sprint = false;
+
+        float speed = 0.8;
+        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
+        if (sprint) speed = 1.8;
         float a = camera.eulerAngles.y;
 
-        if (window.isKeyDown(GLFW_KEY_W)) camera.position += Camera::diff(a) * speed;
-        if (window.isKeyDown(GLFW_KEY_S)) camera.position += Camera::diff(a+Mth::PI) * speed;
-        if (window.isKeyDown(GLFW_KEY_A)) camera.position += Camera::diff(a+Mth::PI/2) * speed;
-        if (window.isKeyDown(GLFW_KEY_D)) camera.position += Camera::diff(a-Mth::PI/2) * speed;
+        if (window.isKeyDown(GLFW_KEY_W)) player->velocity += Mth::angleh(a) * speed;
+        if (window.isKeyDown(GLFW_KEY_S)) player->velocity += Mth::angleh(a+Mth::PI) * speed;
+        if (window.isKeyDown(GLFW_KEY_A)) player->velocity += Mth::angleh(a+Mth::PI/2) * speed;
+        if (window.isKeyDown(GLFW_KEY_D)) player->velocity += Mth::angleh(a-Mth::PI/2) * speed;
 
-        if (window.isShiftKeyDown()) camera.position.y -= speed;
-        if (window.isKeyDown(GLFW_KEY_SPACE)) camera.position.y += speed;
+        if (window.isShiftKeyDown()) player->velocity.y -= speed;
+        if (window.isKeyDown(GLFW_KEY_SPACE)) player->velocity.y += speed;
+
+        if (!window.isKeyDown(GLFW_KEY_W)) {
+            sprint = false;
+        }
+
+        camera.position = Mth::lerp(timer.getPartialTick(), player->prevposition, player->position);
 
     }
 };

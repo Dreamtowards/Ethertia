@@ -50,16 +50,16 @@ Chunk* World::provideChunk(glm::vec3 p) {
         chunk = chunkGenerator.generateChunk(chunkpos);
     }
 
-    loadedChunks[chunkpos] = chunk;
+    chunks[chunkpos] = chunk;
 
     // check populates
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
 
     return chunk;
 }

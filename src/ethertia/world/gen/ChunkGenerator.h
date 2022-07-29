@@ -36,6 +36,9 @@ public:
 
 //        Log::info("Gen Terr "+glm::to_string(chunkpos));
 
+chunk->setBlock(0,0,0,Blocks::GRASS);
+        return chunk;
+
         int samples = 4;
         int sampleSize = 4;
 

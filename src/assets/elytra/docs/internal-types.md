@@ -6,6 +6,12 @@ Internal Types
 - f32, f64
 - bool, void
 
+
 - array<i8, 10>
 - tuple<std::string host, u16 port ...>
 - function<RetType, ParamType1, ParamType2 ...>
+
+
+- *Pointers*
+- *References*
+

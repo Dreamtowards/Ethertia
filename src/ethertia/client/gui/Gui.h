@@ -306,6 +306,8 @@ public:
                            float align =0,
                            bool drawShadow =true);
 
+    static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
+
 
 // drawCornerStretchTexture
 

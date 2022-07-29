@@ -11,6 +11,7 @@
 
 #include <ethertia/client/Window.h>
 #include <ethertia/util/Mth.h>
+#include <ethertia/util/SmoothValue.h>
 
 
 class Camera
@@ -19,31 +20,41 @@ public:
     glm::vec3 position;
     glm::vec3 eulerAngles;  // ORDER: YXZ
 
-    void update(Window& window, glm::mat4& viewMatrixOut) {
+    glm::vec3 direction;  // produced by EulerAngles.
+    float len;
+
+
+    void update(Window& window, float dt, glm::mat4& out_viewMatrix) {
         float mx = window.getMouseDX() / 200;
         float my = window.getMouseDY() / 200;
 
         eulerAngles.x += -my;
-        if (window.isKeyDown(GLFW_KEY_Z))
-            eulerAngles.z += mx;
-        else
-            eulerAngles.y += -mx;
+        if (window.isKeyDown(GLFW_KEY_Z)) eulerAngles.z += mx;
+        else eulerAngles.y += -mx;
+
+        static SmoothValue smX, smY;
+
+        float stp = dt / 0.5f;
+
+        smY.target += -mx;
+        eulerAngles.y = smY.current;
+        smY.update(stp);
+
+        smX.target += -my;
+        eulerAngles.x = smX.current;
+        smX.update(stp);
+
         eulerAngles.x = Mth::clamp(eulerAngles.x, -Mth::PI_2, Mth::PI_2);
 
 
-        glm::mat4 rot = glm::mat4(1);
+        direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
 
-        rot = glm::translate(rot, position);
+        len += window.getDScroll();
+        len = Mth::clamp(len, 0.0f, 100.0f);
 
-        rot = glm::rotate(rot, eulerAngles.y, glm::vec3(0, 1, 0));
-        rot = glm::rotate(rot, eulerAngles.x, glm::vec3(1, 0, 0));
-        rot = glm::rotate(rot, eulerAngles.z, glm::vec3(0, 0, 1));
+        glm::vec3 pos = position + -direction * len;
 
-        viewMatrixOut = glm::inverse(rot);
-    }
-
-    static glm::vec3 diff(float angle) {
-        return glm::rotate(glm::mat4(1), angle, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1.0);
+        out_viewMatrix = Mth::viewMatrix(pos, eulerAngles);
     }
 
 };

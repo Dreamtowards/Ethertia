@@ -45,9 +45,9 @@ class Window {
 
         self->window = glfwCreateWindow(600, 300);
 
-        //_on_window_close();
 
         glfwSetWindowCloseCallback(self->window, &_on_window_close);
+
     }
 
     void updateWindow(Window* self) {
@@ -58,8 +58,7 @@ class Window {
 
 
     f32 getDScroll(Window* self) {
-        // return this->scrollDX + this->scrollDY;
-        return 0;
+        return self->scrollDX + self->scrollDY;
     }
 
 }

@@ -12,10 +12,10 @@ class Collections
 {
 public:
     template<typename T>
-    static int indexOf(const std::vector<T>& ls, const T& el) {
+    static int find(const std::vector<T>& ls, const T& val) {
         int i;
         for (auto it = ls.begin(); it != ls.end(); ++it) {
-            if (*it == el)
+            if (*it == val)
                 return i;
             i++;
         }
@@ -30,6 +30,11 @@ public:
     template<typename T>
     static bool contains(const std::vector<T>& ls, const T& e) {
         return std::find(ls.begin(), ls.end(), e) != ls.end();
+    }
+
+    template<typename T>
+    static void erase(std::vector<T>& ls, const T& r) {
+        ls.erase(ls.begin() + find(ls, r));
     }
 
 private:

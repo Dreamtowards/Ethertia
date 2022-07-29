@@ -7,13 +7,14 @@
 
 class Timer
 {
+public:
     static constexpr int TPS = 20;
+    static constexpr float T_DELTA = 1.0f / TPS;
 
     float delta;
     float lastUpdateTime = 0;
 
     float elapsedTicks;
-
 
 public:
 
@@ -23,12 +24,16 @@ public:
 
         delta = currTime - lastUpdateTime;
 
-        elapsedTicks += delta / TPS;
+        elapsedTicks += delta * TPS;
         lastUpdateTime = currTime;
     }
 
     float getDelta() {
         return delta;
+    }
+
+    float getPartialTick() {
+        return elapsedTicks - (int)elapsedTicks;
     }
 
     bool polltick() {

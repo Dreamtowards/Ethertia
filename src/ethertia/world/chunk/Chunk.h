@@ -37,7 +37,7 @@ public:
         return blocks[blockidx(rx, ry, rz)];
     }
     ubyte getBlock(glm::vec3 blockpos) {
-        return getBlock((int)blockpos.x & 15, (int)blockpos.y & 15, (int)blockpos.z & 15);
+        return getBlock(Mth::floor(blockpos.x) & 15, Mth::floor(blockpos.y) & 15, Mth::floor(blockpos.z) & 15);
     }
 
     void setBlock(int rx, int ry, int rz, ubyte blockID) {

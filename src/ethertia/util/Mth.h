@@ -8,6 +8,7 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <cmath>
 
 #include "UnifiedTypes.h"
@@ -33,6 +34,9 @@ public:
     static inline int floor(float v) {
         int i = (int)v;
         return (float)i > v ? i-1 : i;
+    }
+    static inline int ceil(float v) {
+        return floor(v)+1;
     }
 
     static inline glm::vec3 floor(glm::vec3 v, int u) {
@@ -64,7 +68,7 @@ public:
         return t*t*t*(t*(t*6-15)+10);
     }
     template<typename T>
-    static inline T lerp(T t, T a, T b) {
+    static inline T lerp(float t, T a, T b) {
         return a + t * (b - a);
     }
     template<typename T>
@@ -75,6 +79,46 @@ public:
     static f32 hash(u32 i) {
         i = (i << 13) ^ i;
         return (((i * i * 15731 + 789221) * i + 1376312589) & 0xffffffff) / (float)0xffffffff;
+    }
+
+    static glm::vec3 angleh(float angle) {
+        return glm::rotate(glm::mat4(1), angle, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1.0);
+    }
+
+    static float pow(float base, float exp) {
+        return std::pow(base, exp);
+    }
+
+
+    static glm::mat4 viewMatrix(glm::vec3 position, glm::vec3 eulerAngles) {
+        glm::mat4 rot = glm::mat4(1);
+
+        rot = glm::translate(rot, position);
+
+        rot = glm::rotate(rot, eulerAngles.y, glm::vec3(0, 1, 0));
+        rot = glm::rotate(rot, eulerAngles.x, glm::vec3(1, 0, 0));
+        rot = glm::rotate(rot, eulerAngles.z, glm::vec3(0, 0, 1));
+
+        return glm::inverse(rot);
+    }
+
+    static glm::vec3 eulerDirection(float yaw, float pitch) {
+        float f0 = std::cos(-yaw - Mth::PI);
+        float f1 = std::sin(-yaw - Mth::PI);
+        float f2 = std::cos(-pitch);
+        float f3 = std::sin(-pitch);
+        return glm::normalize(glm::vec3(f1 * f2, f3, f0 * f2));
+    }
+
+    static glm::vec3 projectWorldpoint(const glm::vec3& worldpos, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
+        glm::vec4 p = projectionMatrix * viewMatrix * glm::vec4(worldpos, 1.0f);
+        p.x /= p.w;
+        p.y /= p.w;
+
+        p.x =        (p.x + 1.0f) / 2.0f;
+        p.y = 1.0f - (p.y + 1.0f) / 2.0f;
+
+        return glm::vec3(p);
     }
 
 //    static glm::mat4 calculateViewMatrix(glm::vec3 position, glm::mat3 rotation) {
@@ -101,8 +145,6 @@ public:
         glm::mat4 mat{1};
 
         mat = glm::translate(mat, position);
-
-
 
         return mat;
     }

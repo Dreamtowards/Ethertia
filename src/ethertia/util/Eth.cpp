@@ -13,3 +13,7 @@ Camera* Eth::getCamera() {
 RenderEngine* Eth::getRenderEngine() {
     return Ethertia::getRenderEngine();
 }
+
+Window* Eth::getWindow() {
+    return Ethertia::getWindow();
+}

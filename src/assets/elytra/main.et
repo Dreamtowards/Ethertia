@@ -13,12 +13,10 @@ class Ethertia {
 
     static bool running = false;
 
-    // array<i8, 20> arr;
-
     //RenderEngine renderEngine;
     //AudioEngine audioEngine;
 
-    //Camera camera;
+//    static Camera camera;
     static Window window;
     //Timer timer;
     //Scheduler scheduler;  // or Executor? executor feels not intuitive.
