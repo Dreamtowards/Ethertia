@@ -78,10 +78,35 @@ public:
         Collections::erase(entities, e);
     }
 
-    static void collideAABB(glm::vec3& p, glm::vec3& v, glm::vec3 min, glm::vec3 max) {
+    static void collideAABB(const AABB& self, glm::vec3& d, const AABB& coll) {
 
 
+        if (d.y != 0 && AABB::intersectsAxis(self, coll, 0) && AABB::intersectsAxis(self, coll, 2)) {
+            if (d.y < 0 && self.min.y >= coll.max.y) {
+                d.y = absmin(d.y, coll.max.y - self.min.y);
+            } else if (d.y > 0 && self.max.y <= coll.min.y) {
+                d.y = absmin(d.y, coll.min.y - self.max.y);
+            }
+        }
+        if (d.x != 0 && AABB::intersectsAxis(self, coll, 1) && AABB::intersectsAxis(self, coll, 2)) {
+            if (d.x < 0 && self.min.x >= coll.max.x) {
+                d.x = absmin(d.x, coll.max.x - self.min.x);
+            } else if (d.x > 0 && self.max.x <= coll.min.x) {
+                d.x = absmin(d.x, coll.min.x - self.max.x);
+            }
+        }
+        if (d.z != 0 && AABB::intersectsAxis(self, coll, 0) && AABB::intersectsAxis(self, coll, 1)) {
+            if (d.z < 0 && self.min.z >= coll.max.z) {
+                d.z = absmin(d.z, coll.max.z - self.min.z);
+            } else if (d.z > 0 && self.max.z <= coll.min.z) {
+                d.z = absmin(d.z, coll.min.z - self.max.z);
+            }
+        }
 
+    }
+
+    static float absmin(float a, float b) {
+        return Mth::abs(a) < Mth::abs(b) ? a : b;
     }
 
     void tick() {
@@ -110,88 +135,40 @@ public:
 //            }
 
             {
-                u8 b = getBlock(e->position);
-                if (b && !Eth::getWindow()->isAltKeyDown()) {
+                if (!Eth::getWindow()->isAltKeyDown()) {
                     glm::vec3& v = e->velocity;
 
                     glm::vec3 pp = e->prevposition;
+                    AABB self = AABB({pp - glm::vec3(0.5f)},
+                                     {pp + glm::vec3(0.5f)});
+
                     glm::vec3 d = e->position - e->prevposition;
+                    const glm::vec3 od = d;
 
-                    glm::vec3 min = Mth::floor(e->position, 1);
-                    glm::vec3 max = min + glm::vec3(1);
+                    glm::vec3 bmin = glm::floor(glm::min(e->position, e->prevposition) - glm::vec3(0.5f));
+                    glm::vec3 bmax = glm::ceil(glm::max(e->position, e->prevposition) + glm::vec3(0.5f));
 
+                    for (int dx = bmin.x; dx < bmax.x; ++dx) {
+                        for (int dy = bmin.y; dy < bmax.y; ++dy) {
+                            for (int dz = bmin.z; dz < bmax.z; ++dz) {
 
-//                    e->velocity *= 0;
-//                    e->position = e->prevposition;
+                                glm::vec3 min(dx, dy, dz);
+                                glm::vec3 max = min + glm::vec3(1);
 
-                    // minimal penetration
+                                u8 b = getBlock(min);
+                                if (!b) continue;
 
-//                    float pn[6] = {min.x - p.x,
-//                                   max.x - p.x,
-//                                   min.y - p.y,
-//                                   max.y - p.y,
-//                                   min.z - p.z,
-//                                   max.z - p.z};
-//
-//                    int mp = 0;
-//                    for (int i = 1; i < 6; ++i) {
-//                        if (Mth::abs(pn[i]) < Mth::abs(pn[mp]))
-//                            mp = i;
-//                    }
-//
-//                    Log::info("Coll T{}", mp);
-//
-//
-//                    if (mp == 0) {
-//                        p.x = min.x;
-//                        v.x = 0;
-//                    } else if (mp == 1) {
-//                        p.x = max.x;
-//                        v.x = 0;
-//                    } else if (mp == 2) {
-//                        p.y = min.y;
-//                        v.y = 0;
-//                    } else if (mp == 3) {
-//                        p.y = max.y;
-//                        v.y = 0;
-//                    } else if (mp == 4) {
-//                        p.z = min.z;
-//                        v.z = 0;
-//                    } else if (mp == 5) {
-//                        p.z = max.z;
-//                        v.z = 0;
-//                    }
-
-                    if (v.y != 0 && AABB::intersects(min, max, pp, 0) && AABB::intersects(min, max, pp, 2)) {
-                        if (v.y < 0 && pp.y <= max.y) {
-                            dp.y = max.y;
-                            v.y = 0;
-                        } else if (v.y > 0 && p.y >= min.y) {
-                            dp.y = min.y;
-                            v.y = 0;
-                        }
-                        Log::info("Coll Y{}");
-                    }
-                    if (v.x != 0 && AABB::intersects(min, max, dp, 1) && AABB::intersects(min, max, dp, 2)) {
-                        if (v.x < 0 && p.x <= max.x) {
-                            dp.x = max.x;
-                            v.x = 0;
-                        } else if (v.x > 0 && p.x >= min.x) {
-                            dp.x = min.x;
-                            v.x = 0;
-                        }
-                    }
-                    if (v.z != 0 && AABB::intersects(min, max, dp, 0), AABB::intersects(min, max, dp, 1)) {
-                        if (v.z < 0 && p.z <= max.z) {
-                            dp.z = max.z;
-                            v.z = 0;
-                        } else if (v.z > 0 && p.z >= min.z) {
-                            dp.z = min.z;
-                            v.z = 0;
+                                collideAABB(self, d, AABB(min, max));
+                            }
                         }
                     }
 
-                    e->position = dp;
+
+                    if (d.x != od.x) v.x = 0;
+                    if (d.y != od.y) v.y = 0;
+                    if (d.z != od.z) v.z = 0;
+
+                    e->position = e->prevposition + d;
 
                 }
             }

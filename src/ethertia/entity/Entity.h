@@ -17,6 +17,7 @@ public:
     std::string name;
 
     glm::vec3 prevposition;
+    glm::vec3 intpposition;
 
 
 };

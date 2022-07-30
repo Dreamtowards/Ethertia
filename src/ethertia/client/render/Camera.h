@@ -28,9 +28,7 @@ public:
         float mx = window.getMouseDX() / 200;
         float my = window.getMouseDY() / 200;
 
-        eulerAngles.x += -my;
         if (window.isKeyDown(GLFW_KEY_Z)) eulerAngles.z += mx;
-        else eulerAngles.y += -mx;
 
         static SmoothValue smX, smY;
 
@@ -41,10 +39,10 @@ public:
         smY.update(stp);
 
         smX.target += -my;
+        smX.target = Mth::clamp(smX.target, -Mth::PI_2, Mth::PI_2);
         eulerAngles.x = smX.current;
         smX.update(stp);
 
-        eulerAngles.x = Mth::clamp(eulerAngles.x, -Mth::PI_2, Mth::PI_2);
 
 
         direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);

@@ -39,6 +39,9 @@ public:
         return floor(v)+1;
     }
 
+    static inline glm::vec3 floor(glm::vec3 v) {
+        return floor(v, 1);
+    }
     static inline glm::vec3 floor(glm::vec3 v, int u) {
         return glm::vec3(floor(v.x, u), floor(v.y, u), floor(v.z, u));
     }

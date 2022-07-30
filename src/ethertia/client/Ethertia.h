@@ -67,6 +67,7 @@ public:
         renderEngine = new RenderEngine();
         world = new World();
         world->addEntity(player);
+        player->position = glm::vec3(-10, 10, -10);
 
         Init::initialize();
 
@@ -140,7 +141,7 @@ public:
 //        Gui::drawString(Gui::maxWidth()/2, 110, "Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?",
 //                        Colors::WHITE, 32, 1);
 
-        Gui::drawWorldpoint(player->position, [](glm::vec2 p) {
+        Gui::drawWorldpoint(player->intpposition, [](glm::vec2 p) {
 
             Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
         });
@@ -181,7 +182,7 @@ public:
 
     static void shutdown() { INST->running = false; }
     static bool isRunning() { return INST->running; }
-    static bool isIngame() { return getRootGUI()->last() == GuiIngame::INST && !getWindow()->isAltKeyDown(); }
+    static bool isIngame() { return getRootGUI()->last() == GuiIngame::INST; }
 
     static float getPreciseTime() { return (float)Window::getPreciseTime(); }
 
@@ -265,7 +266,7 @@ public:
             sprint = false;
         }
 
-        camera.position = Mth::lerp(timer.getPartialTick(), player->prevposition, player->position);
+        camera.position = player->intpposition = Mth::lerp(timer.getPartialTick(), player->prevposition, player->position);
 
     }
 };
