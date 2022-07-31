@@ -12,9 +12,9 @@
 
 int main()
 {
-    Ethertia().run();
+//    Ethertia().run();
 
-//    et();
+    et();
 
     return 0;
 }

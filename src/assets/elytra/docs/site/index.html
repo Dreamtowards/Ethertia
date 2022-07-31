@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Elytra Programming Language</title>
+    <link rel="icon" type="image/x-icon" href="res/elytra-fi-tint.png">
+
+    <link href="//cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/mono-blue.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+
+    <link rel="stylesheet" href="res/style.css">
+</head>
+<body>
+<header>
+    <a class="fw-bold text-black text-decoration-none fs-5" href="/">
+        <img src="res/elytra-lg-tint.png" style="height: 29px;">
+<!--        Elytra-->
+    </a>
+
+    <div class="float-end nav">
+<!-- Get Started, Playground, Guides, Overview Introduction -->
+        <a href="docs/misc/get_started">Get Started</a>
+        <a>Documentation</a>
+<!--        <a>Guides</a>-->
+<!--        <a>Playground</a>-->
+        <a>Download</a>
+    </div>
+</header>
+
+<div id="main" class="d-flex flex-row">
+    <div id="navlist" class="my-4" style="/*overflow-y: scroll;*/ width: 15%;">
+
+    </div>
+    <script>
+        function toggleNavPart(e) {
+            let ls = e.parentNode.children[1];
+            if (ls.style.display === "none") {
+                ls.style.display = "block";
+                e.innerHTML = e.innerHTML.replace("▾", "▴");
+            } else {
+                ls.style.display = "none";
+                e.innerHTML = e.innerHTML.replace("▴", "▾");
+            }
+        }
+        (function () {
+            // Design Comment.
+            let navs = {
+                "Getting started+": {
+                    "Hello world": "docs/getting_started/hello_world.md",
+                    "Playground": "",
+                    "Code samples": {
+                        "Variables": "",
+                        "Functions": "",
+                        "Classes": ""
+                    },
+                    "Dev examples": {
+                        "JSON": "",  // Configs
+                        "XML": "",
+                        "HTTP Server": "",  // Network
+                        "WebSocket Server": "",
+                        "MP3": "",  // Media
+                        "ZIP": "",  //
+                        "OpenGL": "",
+                        "OpenAL": "",
+                        "GLFW": ""
+                    },
+                },
+                "Language+": {
+                    "Tour": "",
+                    "Overview": "",
+                    "Built-in Types": "",
+                    "Variables": "",
+                    "Functions": "",
+                    "Comments": "",
+                    "SDK": {
+                        "bin/elytra": "",
+                        "elytra run": "",
+                        "elytra build": "",
+                        "elyrta init": "",
+                        "elytra analysis/pub/test/stat": ""
+                    },
+                    "Specifications": {
+
+                    },
+                    "Macedure VM": ""
+                },
+                "Libraries+": {
+                    "std::io::net": "",
+                    "std::io::files": "",
+                    "std::mth": "",
+                    "std::util": "",
+                    "stdx::glfw": "",
+                    "stdx::opengl": "",
+                    "stdx::openal": "",
+                },
+                "Resources+": {
+                    "API references": "",
+                    "Latest SDK": "docs/sdk-latest.md",
+                    "IDEs": "",
+                    "Playground": "",
+                    "Package site": "",
+                    "Books": "",
+                    "Blog": "",
+                    "FAQ": "",
+                    "About": ""
+                },
+                "About": ""
+            };
+            function navHtml(navs) {
+                let html = "";
+                for (let key in navs) {
+                    let val = navs[key];
+
+                    if (typeof val === "string") {
+                        html += `<span class="d-block my-1"><a href="?p=${val}" class="non-link" style="font-size: 13px;">${key}</a></span>`;
+                    } else {
+                        let collapsed = true;
+                        if (key.endsWith("+")) {
+                            key = key.substr(0, key.length - 1);
+                            collapsed = false;
+                        }
+                        html += "<div class='navlist-ls'>";
+                        html +=   `<span class="my-1 d-block text-muted fs-small" style="cursor: default; padding-top: 2.5px;" onclick="toggleNavPart(this)">${key} ${collapsed ? "▾" : "▴"}</span>`;
+                        html +=   `<div class="ms-2 mb-2" style="display: ${collapsed ? "none" : "block"}">`;
+                        html +=     navHtml(val);
+                        html +=   "</div>";
+                        html += "</div>";
+                    }
+
+                }
+                return html;
+            }
+
+            // let html = "";
+//             for (let partKey in navs) {
+//                 html +=  `<div class="mb-4 mt-2">
+// <span class="d-block text-muted fs-small " style="cursor: default;" onclick="toggleNavPart(this)">${partKey} ▴</span>
+// <div>`;
+//                 let partVal = navs[partKey];
+//                 for (let chapKey in partVal) {
+//                     let chapVal = partVal[chapKey];
+//                     if (typeof(chapVal) === "string") {
+//                         html += `<div class="my-1 ms-2"><a href="${chapVal}" class="non-link" style="font-size: 13px;">${chapKey}</a></div>`;
+//                     } else {
+//                         html += `<div class="my-1 ms-2"><span class="d-block text-muted  " style="cursor: default;font-size: 13px; padding-top: 2px;" onclick="toggleNavPart(this)">${chapKey} ▴</span></div>`;
+//                     }
+//                 }
+//                 html += `</div></div>`;
+//
+//                 // html +=  `<div class="mb-4 mt-2"><span class="d-block text-black mb-2">${partKey}</span>`;
+//                 // for (let chap in navs[partKey]) {
+//                 //     html += `<div class="my-1"><a href="#" class="non-link" style="font-size: 13px;">${chap}</a></div>`;
+//                 // }
+//                 // html += `</div>`;
+//             }
+            document.querySelector("#navlist").innerHTML = navHtml(navs);
+        })();
+    </script>
+
+    <div id="content" class="" style="margin-left: 32px; width: 65%">
+
+<!--        <div class="mt-5">-->
+<!--            <div class="float-end">-->
+<!--                <button class="btn btn-light p-4 px-5">Get Started</button>-->
+<!--            </div>-->
+
+<!--            <h1>Pursuit of Simplicity</h1>-->
+<!--            <p>-->
+<!--                Its all about Procedural and States.-->
+<!--            </p>-->
+
+<!--        </div>-->
+
+<!--        <div style="margin-top: 120px;">-->
+<!--            <h4>Overview</h4>-->
+
+<!--            <p>-->
+<!--                The Pursuit of Simplicity, Consistency and Essential is our goal.-->
+<!--            </p>-->
+<!--            Minimal Keywords-->
+<!--        </div>-->
+
+    <!--    <div style="margin-top: 120px;">-->
+    <!--        <h4>Fundamental Abstraction</h4>-->
+
+    <!--        <p>-->
+    <!--            Elytra 主张程序由过程和状态组成。<br>-->
+    <!--            从根本角度，程序是一系列操作与操作数 另见ASM. <br>-->
+    <!--            Elytra 的语法，由语句与表达式构成。-->
+    <!--        </p>-->
+    <!--    </div>-->
+
+    </div>
+    <script>
+
+        (function () {
+            var md = window.markdownit("default", {
+                html: true,
+                linkify: true,
+                highlight: (str, lang) => {
+                    if (lang && hljs.getLanguage(lang)) {
+                        try {
+                            return hljs.highlight(str, { language: lang }).value;
+                        } catch (__) {}
+                    }
+                    return ''; // use external default escaping
+                }
+            });
+
+            let xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    let r = xhr.responseText;
+                    let html = md.render(r);
+                    document.querySelector("#content").innerHTML = html;
+                    console.log("MD Loaded: " + r);
+                }
+            };
+            let pathurl = new URLSearchParams(window.location.search).get("p");
+            let intlurl = "<?php echo $_SERVER[REQUEST_URI]; ?>";
+            if (intlurl.length) {
+                pathurl = intlurl;
+            }
+            if (!pathurl.length) {
+                pathurl = "404";
+            }
+
+            xhr.open("GET", pathurl, true);
+            xhr.send(null);
+        })();
+    </script>
+</div>
+
+<footer class="py-5">
+    <div class="d-inline-block col-2">
+<!--        <h4><b>Elytra</b></h4>-->
+        <img src="res/elytra-lg-tint.png" style="height: 29px;">
+    </div>
+    <div class="sitemaps d-inline-block">
+        <div class="footer-col">
+            <span>Community</span>
+            <a>IRC Channel</a>
+        </div>
+        <div class="footer-col">
+            <span>Development</span>
+            <a>Blogs</a>
+            <a>Version History</a>
+        </div>
+        <div class="footer-col">
+            <span>About</span>
+            <a>FAQ</a>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <div>
+        <div class="footer-right-decls float-end text-muted fs-small">
+            <a>Terms of Use</a>
+            <a>Privacy & Security</a>
+            <a>Legal</a>
+
+            <div class="vr mx-3 align-top mt-1"></div>
+
+            <div class="d-inline-block text-decoration-underline">
+                <a>Sweden</a>
+                <a style="margin-left: 18px;">English</a>
+            </div>
+        </div>
+
+        <span class="text-muted fs-small">
+            <span>Copyright © Ethertia, Elytra. Partial rights reserved.</span>
+            <small class="d-block mt-2">
+                Except as otherwise noted, this site is licensed under a Creative Commons Attribution 4.0 International License, and <br>
+            code samples are licensed under the 3-Clause BSD License.
+            </small>
+        </span>
+
+    </div>
+</footer>
+
+
+</body>
+</html>
+
+<!--  https://developer.apple.com/design/human-interface-guidelines/macos/overview/whats-new-in-macos/  -->
+<!--  https://www.lwjgl.org/guide  -->

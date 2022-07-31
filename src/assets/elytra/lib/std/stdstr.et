@@ -8,7 +8,7 @@ class string {
     u8* ptr;
     u32 len;
 
-    string substr(string& this, u32 begin, u32 end) {
+    string substr(string* self, u32 begin, u32 end) {
 
     }
 

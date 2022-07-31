@@ -20,8 +20,7 @@ public:
         setWidth(Inf);
         setHeight(Inf);
 
-        addGui((new GuiAlign(0, 1))->setContent(
-            (new GuiStack(GuiStack::D_HORIZONTAL))->addGuis({
+        addGui((new GuiAlign(0, 1))->setContent((new GuiStack(GuiStack::D_HORIZONTAL))->addGuis({
                 new GuiButton("LD"),
                 new GuiButton("Opts"),
             })
