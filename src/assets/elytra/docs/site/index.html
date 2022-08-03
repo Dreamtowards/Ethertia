@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Elytra Programming Language</title>
-    <link rel="icon" type="image/x-icon" href="res/elytra-fi-tint.png">
+    <link rel="icon" type="image/x-icon" href="/res/elytra-fi-tint.png">
 
     <link href="//cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
 
@@ -12,12 +12,12 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/mono-blue.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
 
-    <link rel="stylesheet" href="res/style.css">
+    <link rel="stylesheet" href="/res/style.css">
 </head>
 <body>
 <header>
     <a class="fw-bold text-black text-decoration-none fs-5" href="/">
-        <img src="res/elytra-lg-tint.png" style="height: 29px;">
+        <img src="/res/elytra-lg-tint.png" style="height: 29px;">
 <!--        Elytra-->
     </a>
 
@@ -50,7 +50,7 @@
             // Design Comment.
             let navs = {
                 "Getting started+": {
-                    "Hello world": "docs/getting_started/hello_world.md",
+                    "Hello world": "/docs/getting_started/hello_world.md",
                     "Playground": "",
                     "Code samples": {
                         "Variables": "",
@@ -99,7 +99,7 @@
                 },
                 "Resources+": {
                     "API references": "",
-                    "Latest SDK": "docs/sdk-latest.md",
+                    "Latest SDK": "/docs/sdk-latest.md",
                     "IDEs": "",
                     "Playground": "",
                     "Package site": "",
@@ -116,7 +116,7 @@
                     let val = navs[key];
 
                     if (typeof val === "string") {
-                        html += `<span class="d-block my-1"><a href="?p=${val}" class="non-link" style="font-size: 13px;">${key}</a></span>`;
+                        html += `<span class="d-block my-1"><a href="${val}" class="non-link" style="font-size: 13px;">${key}</a></span>`;
                     } else {
                         let collapsed = true;
                         if (key.endsWith("+")) {
@@ -210,27 +210,37 @@
                     return ''; // use external default escaping
                 }
             });
+            function loadContent(mds) {
+                mds = mds.trim();
+                document.querySelector("#content").innerHTML = md.render(mds);
 
-            let xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    let r = xhr.responseText;
-                    let html = md.render(r);
-                    document.querySelector("#content").innerHTML = html;
-                    console.log("MD Loaded: " + r);
+                let title = "Elytra Programming Language";
+                if (mds.startsWith("# ")) {
+                    title = mds.substr(1, mds.indexOf("\n"));
+                    title = title+" - Elytra Programming Language";
                 }
-            };
-            let pathurl = new URLSearchParams(window.location.search).get("p");
-            let intlurl = "<?php echo $_SERVER[REQUEST_URI]; ?>";
-            if (intlurl.length) {
-                pathurl = intlurl;
-            }
-            if (!pathurl.length) {
-                pathurl = "404";
+                document.title = title
             }
 
-            xhr.open("GET", pathurl, true);
-            xhr.send(null);
+            loadContent(`<?php
+            $p = $_GET['p'];
+            if (substr($p, 0, 1) == '/') { $p = substr($p, 1); }
+            if ($p == "") $p = "home.md";
+            echo str_replace('`', '\\`', file_get_contents($p));
+            ?>`);
+
+            // let xhr = new XMLHttpRequest();
+            // xhr.onreadystatechange = () => {
+            //     if (xhr.readyState === 4 && xhr.status === 200) {
+            //         loadContent(xhr.responseText);
+            //     }
+            // };
+            // let pathurl = new URLSearchParams(window.location.search).get("p");
+            // if (!pathurl.length) {
+            //     pathurl = "404";
+            // }
+            // xhr.open("GET", pathurl, true);
+            // xhr.send(null);
         })();
     </script>
 </div>
@@ -238,7 +248,7 @@
 <footer class="py-5">
     <div class="d-inline-block col-2">
 <!--        <h4><b>Elytra</b></h4>-->
-        <img src="res/elytra-lg-tint.png" style="height: 29px;">
+        <img src="/res/elytra-lg-tint.png" style="height: 29px;">
     </div>
     <div class="sitemaps d-inline-block">
         <div class="footer-col">
@@ -284,6 +294,7 @@
 </footer>
 
 
+    <script src="//recordism.net/atag.js?s=6" async></script>
 </body>
 </html>
 

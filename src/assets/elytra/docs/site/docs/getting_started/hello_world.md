@@ -10,7 +10,7 @@ If you want to quick try Elytra online without any download/setup,
 
 ## 1. Download SDK for your System
 
-<a class="button" href="https://elytra.dev/sdk-latest">Download SDK</a>
+<a class="btn btn-primary text-white" href="https://elytra.dev/sdk-latest">Download SDK</a>
 
 
 Choose a SDK capable for your System
