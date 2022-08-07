@@ -17,22 +17,20 @@
 <body>
 <header>
     <a class="fw-bold text-black text-decoration-none fs-5" href="/">
-        <img src="/res/elytra-lg-tint.png" style="height: 29px;">
+        <img src="//elytra.dev/res/elytra-lg-tint.png" style="height: 29px;">
 <!--        Elytra-->
     </a>
 
     <div class="float-end nav">
 <!-- Get Started, Playground, Guides, Overview Introduction -->
-        <a href="docs/misc/get_started">Get Started</a>
-        <a>Documentation</a>
-<!--        <a>Guides</a>-->
-<!--        <a>Playground</a>-->
-        <a>Download</a>
+        <a href="/docs/getting_started/hello_world">Get Started</a>
+        <a href="/docs">Documentation</a>
+        <a href="/download">Download</a>
     </div>
 </header>
 
 <div id="main" class="d-flex flex-row">
-    <div id="navlist" class="my-4" style="/*overflow-y: scroll;*/ width: 15%;">
+    <div id="navlist" class="my-4" style="/*overflow-y: scroll;*/ width: 15%; margin-right: 32px; ">
 
     </div>
     <script>
@@ -50,8 +48,8 @@
             // Design Comment.
             let navs = {
                 "Getting started+": {
-                    "Hello world": "/docs/getting_started/hello_world.md",
-                    "Playground": "",
+                    "Hello world": "/docs/getting_started/hello_world",
+                    "Playground": "/playground",
                     "Code samples": {
                         "Variables": "",
                         "Functions": "",
@@ -70,9 +68,9 @@
                     },
                 },
                 "Language+": {
-                    "Tour": "",
+                    "Tour": "/docs/lang/tour",
                     "Overview": "",
-                    "Built-in Types": "",
+                    "Built-in Types": "/docs/lang/internal-types",
                     "Variables": "",
                     "Functions": "",
                     "Comments": "",
@@ -108,7 +106,8 @@
                     "FAQ": "",
                     "About": ""
                 },
-                "About": ""
+                "- Eldrine Le Prismarine": "/~pris",
+                "- Ethertia": "/ethertia"
             };
             function navHtml(navs) {
                 let html = "";
@@ -135,97 +134,62 @@
                 return html;
             }
 
-            // let html = "";
-//             for (let partKey in navs) {
-//                 html +=  `<div class="mb-4 mt-2">
-// <span class="d-block text-muted fs-small " style="cursor: default;" onclick="toggleNavPart(this)">${partKey} ▴</span>
-// <div>`;
-//                 let partVal = navs[partKey];
-//                 for (let chapKey in partVal) {
-//                     let chapVal = partVal[chapKey];
-//                     if (typeof(chapVal) === "string") {
-//                         html += `<div class="my-1 ms-2"><a href="${chapVal}" class="non-link" style="font-size: 13px;">${chapKey}</a></div>`;
-//                     } else {
-//                         html += `<div class="my-1 ms-2"><span class="d-block text-muted  " style="cursor: default;font-size: 13px; padding-top: 2px;" onclick="toggleNavPart(this)">${chapKey} ▴</span></div>`;
-//                     }
-//                 }
-//                 html += `</div></div>`;
-//
-//                 // html +=  `<div class="mb-4 mt-2"><span class="d-block text-black mb-2">${partKey}</span>`;
-//                 // for (let chap in navs[partKey]) {
-//                 //     html += `<div class="my-1"><a href="#" class="non-link" style="font-size: 13px;">${chap}</a></div>`;
-//                 // }
-//                 // html += `</div>`;
-//             }
             document.querySelector("#navlist").innerHTML = navHtml(navs);
         })();
     </script>
 
-    <div id="content" class="" style="margin-left: 32px; width: 65%">
+    <div id="content" class="" style="width: 65%">
 
-<!--        <div class="mt-5">-->
-<!--            <div class="float-end">-->
-<!--                <button class="btn btn-light p-4 px-5">Get Started</button>-->
-<!--            </div>-->
 
-<!--            <h1>Pursuit of Simplicity</h1>-->
-<!--            <p>-->
-<!--                Its all about Procedural and States.-->
-<!--            </p>-->
-
-<!--        </div>-->
-
-<!--        <div style="margin-top: 120px;">-->
-<!--            <h4>Overview</h4>-->
-
-<!--            <p>-->
-<!--                The Pursuit of Simplicity, Consistency and Essential is our goal.-->
-<!--            </p>-->
-<!--            Minimal Keywords-->
-<!--        </div>-->
-
-    <!--    <div style="margin-top: 120px;">-->
-    <!--        <h4>Fundamental Abstraction</h4>-->
-
-    <!--        <p>-->
-    <!--            Elytra 主张程序由过程和状态组成。<br>-->
-    <!--            从根本角度，程序是一系列操作与操作数 另见ASM. <br>-->
-    <!--            Elytra 的语法，由语句与表达式构成。-->
-    <!--        </p>-->
-    <!--    </div>-->
 
     </div>
+    <div id="ut-title-text-extract" class="d-none"></div>
     <script>
 
-        (function () {
-            var md = window.markdownit("default", {
-                html: true,
-                linkify: true,
-                highlight: (str, lang) => {
-                    if (lang && hljs.getLanguage(lang)) {
-                        try {
-                            return hljs.highlight(str, { language: lang }).value;
-                        } catch (__) {}
-                    }
-                    return ''; // use external default escaping
+        var md = window.markdownit("default", {
+            html: true,
+            linkify: true,
+            highlight: (str, lang) => {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(str, { language: lang }).value;
+                    } catch (__) {}
                 }
-            });
-            function loadContent(mds) {
-                mds = mds.trim();
-                document.querySelector("#content").innerHTML = md.render(mds);
-
-                let title = "Elytra Programming Language";
-                if (mds.startsWith("# ")) {
-                    title = mds.substr(1, mds.indexOf("\n"));
-                    title = title+" - Elytra Programming Language";
-                }
-                document.title = title
+                return ''; // use external default escaping
             }
+        });
+        function loadContent(mds) {
+            mds = mds.trim();
+
+            if (mds.startsWith("!FP")) {  // Fullsize page.
+                mds = mds.substr(3);
+                document.querySelector("#navlist").style.display = "none";
+                document.querySelector("#content").style.width = "100%";
+            } else {
+                document.querySelector("#navlist").style.display = "block";
+                document.querySelector("#content").style.width = "75%";
+            }
+
+            document.querySelector("#content").innerHTML = md.render(mds);
+
+
+            let title = "Elytra Programming Language";
+            if (mds.startsWith("# ")) {
+                title = mds.substr(1, mds.indexOf("\n"));
+                title = title+" - Elytra Programming Language";
+            }
+            let tte = document.querySelector("#ut-title-text-extract");
+            tte.innerHTML = title; title = tte.innerText;  // to ignore xml tags.
+            document.title = title
+        }
+        (function () {
 
             loadContent(`<?php
             $p = $_GET['p'];
+            if ($p == "") $p = "/home.md";
             if (substr($p, 0, 1) == '/') { $p = substr($p, 1); }
-            if ($p == "") $p = "home.md";
+            $n = strlen($p);
+            if (substr($p, $n-3, $n) != '.md') { $p = $p . ".md"; }
             echo str_replace('`', '\\`', file_get_contents($p));
             ?>`);
 
@@ -244,6 +208,13 @@
         })();
     </script>
 </div>
+<div style="display: none; position: fixed; bottom: 0; width: 100%;">
+    <button onclick="loadContent(document.querySelector('#md-editor').value)" class="w-100">Apply</button><br>
+    <textarea id="md-editor" style="width: 100%; height: 300px;"></textarea>
+</div>
+<script>
+    if (window.location.href.includes('mde')) document.querySelector('#md-editor').parentElement.style.display = 'block';
+</script>
 
 <footer class="py-5">
     <div class="d-inline-block col-2">
@@ -293,6 +264,7 @@
     </div>
 </footer>
 
+    <script async src="//platform.twitter.com/widgets.js"></script>
 
     <script src="//recordism.net/atag.js?s=6" async></script>
 </body>

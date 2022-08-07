@@ -1,6 +1,6 @@
 
 
-# Hello Word™   
+# Hello World™   
 
 In this article, we'll see how to setup Elyrta SDK on your System & make a "Hello World" program.  
 Elytra SDK contains Runtime, Compiler, Libraries, DevTools(Package Management Tool, etc). 
@@ -57,13 +57,26 @@ void main() {
 
 Terminal run:
 ```shell
-$ ./elytra-sdk/bin/elytra build ./test.et
-$ ./elytra-sdk/bin/elytra run ./test.o
+$ elytra build ./test.et
+$ elytra run ./test.o
 Hello Word
 ```
 
+> If you doesn't set "Variable Path" etc yet, could use actual path to the executive like
+> e.g. `./elytra-sdk/bin/elytra run ./test.o` or `./elytra run ./test.o`
 
 
+
+<!--
+> [Ignorable] Why Hello Word instead of "Hello World"?  
+> We knows hello world all the day, the point of the test is to output something as expect,
+> we want avoid 'rigid' which repeat things all around. 
+> in some aspect, give the world some diff fun & style is our rule and life attitude.
+
+> 我们整天都知道Hello world，测试的重点是输出任何符合预期的东西。我们不想呆板，每天重复一样的事情。
+> 给这个世界一些不同和乐趣某种程度上是我们的规则和生活的态度。  
+> 如某黑客自称Hecker (BelugaHKR)，因为他想表达字面意思 但不想显得呆板。
+-->
 
 
 

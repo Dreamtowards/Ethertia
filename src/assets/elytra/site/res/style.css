@@ -1,6 +1,7 @@
 
 * {
     --content-margin: 64px;
+    --bs-btn-bg: #0071e3;
 }
 
 /* Header */
@@ -87,11 +88,12 @@ h1, h2, h3, h4, h5, h6 {
     font-family: Helvetica, Arial, freesans, sans-serif;
     line-height: 1.6;
 }
-#content a {
+
+#content a:not(.btn) {
     color: rgba(36, 112, 179, 255.0);
     text-decoration: none;
 }
-#content a:hover {
+#content a:not(.btn):hover {
     text-decoration: underline;
 }
 
