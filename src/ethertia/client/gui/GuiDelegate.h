@@ -12,6 +12,10 @@ class GuiDelegate : public Gui
     Gui* content = nullptr;
 
 public:
+    GuiDelegate(Gui* content) : content(content) {}
+
+    GuiDelegate() {}
+
     int count() const override {
         return content ? 1 : 0;
     }

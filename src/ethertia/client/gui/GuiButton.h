@@ -18,17 +18,21 @@ public:
 
     void onDraw() override
     {
-        float rad = 2;
-        Gui::drawRect(getX(), getY(), getWidth(), getHeight(),
-                      isPressed() ? Colors::BLACK80 : Colors::BLACK30, nullptr, rad);
-//        Gui::drawRect(getX(), getY(), getWidth(), getHeight(),
-//                      isPressed() ? Colors::RED : isHover() ? Colors::GRAY : Colors::WHITE30, nullptr, rad, 2);
+        float x = getX(), y = getY(), w = getWidth(), h = getHeight();
 
-        Gui::drawString(getX()+getWidth()/2, getY()+(getHeight()-16)/2, text,
-                        isPressed() ? Colors::RED : isHover() ? Colors::YELLOW : Colors::WHITE,
+        drawButtonBackground(this);
+
+        Gui::drawString(x+w/2, y+(h-16)/2, text,
+                        isPressed() ? Colors::GOLD : isHover() ? Colors::YELLOW : Colors::WHITE,
                         16, 0.5, true);
 
         Gui::onDraw();
+    }
+
+    static void drawButtonBackground(Gui* g) {
+
+        Gui::drawRect(g->getX(), g->getY(), g->getWidth(), g->getHeight(),
+                      g->isPressed() ? Colors::BLACK50 : g->isHover() ? Colors::BLACK40 : Colors::BLACK30);
     }
 };
 

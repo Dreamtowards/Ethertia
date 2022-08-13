@@ -16,7 +16,7 @@ class Block
 
 public:
 
-    virtual bool isOpaque() {
+    static bool isOpaque() {
         return true;
     }
 
@@ -26,10 +26,15 @@ public:
     // getResistance
     // replaceable
 
-    virtual void getVertexData(VertexBuffer* vbuf, World* world, glm::vec3 chunkpos, glm::vec3 rpos) = 0;
+    /// vbuf: produced vertices buffer. positions: InChunk Coordinate.
+    /// rpos: InChunk blockpos
+    /// chunk: could get world, chunkpos
+    virtual void getVertexData(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk) = 0;
 
 
-    void internalPutCube(VertexBuffer* vbuf, World* world, glm::vec3 chunkpos, glm::vec3 rpos, TextureAtlas::AtlasFragment* frag);
+    void internalPutCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag);
+
+    void internalPutLeaves(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag);
 };
 
 #endif //ETHERTIA_BLOCK_H

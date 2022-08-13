@@ -36,6 +36,10 @@ public:
             1, 0, 1, 1, 1, 1, 0, 1, 1,  // Back +Z
             1, 0, 1, 0, 1, 1, 0, 0, 1,
     };
+    inline static float CUBE_POS_CENT[] = {
+            0,-0.5, 0.5f,  0, 0.5f, 0.5f,  0, 0.5f,-0.5f,  // Left -X
+            0,-0.5, 0.5f,  0, 0.5f,-0.5f,  0,-0.5f,-0.5f
+    };
     inline static float CUBE_UV[] = {
             1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,  // One Face.
             1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0,
@@ -65,7 +69,7 @@ public:
 
                     if (blockID)
                     {
-                        Blocks::REGISTRY[blockID]->getVertexData(vbuf, world, chunk->position, glm::vec3(rx, ry, rz));
+                        Blocks::REGISTRY[blockID]->getVertexData(vbuf, glm::vec3(rx, ry, rz), chunk);
                     }
                 }
             }
@@ -76,20 +80,28 @@ public:
         return vbuf;
     }
 
-    static void putCube(VertexBuffer *vbuf, glm::vec3 rpos, Chunk *chunk, World *world, AtlasFrag* frag) {
+    static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, AtlasFrag* frag) {
+//        putCubeFace(vbuf, 2, rpos, frag);
+//        return;
+u8 blk = chunk->world->getBlock(chunk->position + rpos);
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = dirCubeFace(i);
-            auto neib = world->getBlock(chunk->position + rpos + dir);
+            u8 neib = chunk->world->getBlock(chunk->position + rpos + dir);
 
-            if (//Chunk::outbound(adjacent) ||
+            bool opaq = neib == Blocks::LEAVES || (neib == Blocks::WATER && neib != blk);
+//            if (blk == Blocks::WATER && neib == blk)
+//                opaq = false;
+
+            if (neib == 0 || opaq
+                    //Chunk::outbound(adjacent) ||
                 //chunk->getBlock(adjacent) == 0
-                neib == 0) {
-                putFace(vbuf, i, rpos, frag);
+                ) {
+                putCubeFace(vbuf, i, rpos, frag);
             }
         }
     }
 
-    static void putFace(VertexBuffer* vbuf, int face, glm::vec3 rpos, AtlasFrag* frag) {
+    static void putCubeFace(VertexBuffer* vbuf, int face, glm::vec3 rpos, AtlasFrag* frag) {
         // put pos
         for (int i = 0; i < 6; ++i) {  // 6 pos vecs.
             int bas = face*18+i*3;  // 18 = 6vec * 3scalar
@@ -107,6 +119,32 @@ public:
     static glm::vec3 dirCubeFace(int face) {
         int bas = face*18;
         return glm::vec3(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
+    }
+
+    static void putFace(VertexBuffer* vbuf, glm::vec3 rpos, glm::mat4 trans, AtlasFrag* frag) {
+        using glm::vec3;
+        using glm::vec2;
+        for (int i = 0; i < 6; ++i) {  // 6 vertices
+            // Pos
+            float* _p = &CUBE_POS_CENT[i*3];
+            vec3 p = vec3(_p[0], _p[1], _p[2]);
+            p = trans * glm::vec4(p, 1.0f);
+            vbuf->addpos(rpos.x + p.x, rpos.y + p.y, rpos.z + p.z);
+
+            // Norm
+            float* _n = &CUBE_NORM[i*3];
+            vec3 n = vec3(_n[0], _n[1], _n[2]);
+            n = trans * glm::vec4(n, 0.0f);
+            n = glm::normalize(n);
+            vbuf->addnorm(n.x, n.y, n.z);
+
+            // UV
+            float* _u = &CUBE_UV[i*2];
+            vec2 u = vec2(_u[0], _u[1]);
+            u = u * frag->scale + frag->offset;
+            vbuf->adduv(u.x, u.y);
+        }
+
     }
 
 };

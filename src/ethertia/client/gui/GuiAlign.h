@@ -20,7 +20,7 @@ public:
     float bottom = Inf;
 
     GuiAlign() {}
-    GuiAlign(float ratioX, float ratioY) : ratioX(ratioX), ratioY(ratioY) {}
+    GuiAlign(float ratioX, float ratioY, Gui* content) : ratioX(ratioX), ratioY(ratioY), GuiDelegate(content) {}
 
     void onLayout() override
     {

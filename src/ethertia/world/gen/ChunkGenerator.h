@@ -30,13 +30,14 @@ public:
         return (sX * samples + sZ) * samples + sY;
     }
 
-    Chunk* generateChunk(glm::vec3 chunkpos) {
+    Chunk* generateChunk(glm::vec3 chunkpos, World* world) {
         Chunk* chunk = new Chunk();
         chunk->position = chunkpos;
+        chunk->world = world;
 
 //        Log::info("Gen Terr "+glm::to_string(chunkpos));
 
-//chunk->setBlock(0,0,0,Blocks::STONE);
+//chunk->setBlock(0,0,0,Blocks::LEAVES);
 //        return chunk;
 
         int samples = 4;

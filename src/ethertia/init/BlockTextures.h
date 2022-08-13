@@ -21,6 +21,8 @@ public:
     inline static AtlasFrag* WATER;
     inline static AtlasFrag* LOG;
     inline static AtlasFrag* LEAVES;
+    inline static AtlasFrag* GLASS;
+    inline static AtlasFrag* LEAVES_2;
 
     static void init()
     {
@@ -33,6 +35,8 @@ public:
         WATER = load("blocks/water_still.png");
         LOG = load("blocks/log.png");
         LEAVES = load("blocks/leaves.png");
+        GLASS = load("blocks/glass.png");
+        LEAVES_2 = load("blocks/leaves_3.png");
 
         ATLAS->buildAtlas();
         Loader::savePNG(Texture::glfGetTexImage(ATLAS->atlasTexture), "atlas.png");

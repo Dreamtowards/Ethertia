@@ -23,36 +23,41 @@ public:
     glm::vec3 direction;  // produced by EulerAngles.
     float len;
 
+    /// Smoothness of Camera's Pitch and Yaw.
+    /// value is Seconds to the actual Destination Rotation., 0 accidentally means non-smooth.
+    float smoothness = 1.5f;
 
-    void update(Window& window, float dt, glm::mat4& out_viewMatrix) {
+    void updateMovement(Window& window, float dt) {
         float mx = window.getMouseDX() / 200;
         float my = window.getMouseDY() / 200;
-
         if (window.isKeyDown(GLFW_KEY_Z)) eulerAngles.z += mx;
 
-        static SmoothValue smX, smY;
+        static SmoothValue sX, sY;
 
-        float stp = dt / 0.5f;
+        float t = smoothness == 0.0f ? 1.0f : dt / smoothness;
 
-        smY.target += -mx;
-        eulerAngles.y = smY.current;
-        smY.update(stp);
+        sY.target += -mx;
+        sY.update(t);
+        eulerAngles.y = sY.current;
 
-        smX.target += -my;
-        smX.target = Mth::clamp(smX.target, -Mth::PI_2, Mth::PI_2);
-        eulerAngles.x = smX.current;
-        smX.update(stp);
-
-
-
-        direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
+        sX.target += -my;
+        sX.target = Mth::clamp(sX.target, -Mth::PI_2, Mth::PI_2);
+        sX.update(t);
+        eulerAngles.x = sX.current;
 
         len += window.getDScroll();
         len = Mth::clamp(len, 0.0f, 100.0f);
 
-        glm::vec3 pos = position + -direction * len;
+    }
 
-        out_viewMatrix = Mth::viewMatrix(pos, eulerAngles);
+    void compute(glm::vec3 centerpos, glm::mat4& out_viewMatrix) {
+
+        direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
+        // assert(glm::length(direction) == 1.0f);
+
+        position = centerpos + -direction * len;
+
+        out_viewMatrix = Mth::viewMatrix(position, eulerAngles);
     }
 
 };

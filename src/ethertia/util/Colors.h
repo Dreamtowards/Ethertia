@@ -22,7 +22,12 @@ public:
     inline static constexpr glm::vec4 WHITE30 = glm::vec4(1, 1, 1, 0.4);
 
     inline static constexpr glm::vec4 BLACK80 = glm::vec4(0, 0, 0, 0.8);
+    inline static constexpr glm::vec4 BLACK60 = glm::vec4(0, 0, 0, 0.6);
+    inline static constexpr glm::vec4 BLACK50 = glm::vec4(0, 0, 0, 0.5);
+    inline static constexpr glm::vec4 BLACK40 = glm::vec4(0, 0, 0, 0.4);
     inline static constexpr glm::vec4 BLACK30 = glm::vec4(0, 0, 0, 0.3);
+    inline static constexpr glm::vec4 BLACK20 = glm::vec4(0, 0, 0, 0.2);
+    inline static constexpr glm::vec4 BLACK10 = glm::vec4(0, 0, 0, 0.1);
 
     inline static constexpr glm::vec4 R = glm::vec4(1, 0, 0, 1);
     inline static constexpr glm::vec4 G = glm::vec4(0, 1, 0, 1);

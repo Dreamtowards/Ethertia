@@ -19,11 +19,13 @@ void main()
 
     float viewLen = length(CameraPos - FragPos);
 
-    FragColor = vec4(vec3(lightf) * texture(diffuseMap, TexCoord).rgb, 1.0);
+    FragColor = vec4(vec3(lightf), 1.0) * texture(diffuseMap, TexCoord);
+
+    if (FragColor.a != 1.0f)
+        discard;
 
     float fogf = clamp(pow(viewLen * fogDensity, fogGradient), 0.0, 1.0);
     vec3 fogColor = vec3(0.5, 0.6, 0.8) * 0.8;
     FragColor.rgb = mix(FragColor.rgb, fogColor, fogf);
 
-//    FragColor.rgb = vec3(viewLen / 100);
 }

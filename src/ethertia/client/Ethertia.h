@@ -26,6 +26,7 @@
 #include <ethertia/client/gui/GuiAlign.h>
 #include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
 #include <ethertia/client/gui/screen/GuiIngame.h>
+#include <ethertia/client/render/chunk/ChunkMeshGen.h>
 
 
 class Ethertia
@@ -79,7 +80,7 @@ public:
         rootGUI->addGui(GuiIngame::INST);
         rootGUI->addGui(GuiScreenMainMenu::INST);
 
-        EventBus::EVENT_BUS.listen([](KeyboardEvent* e) {
+        EventBus::EVENT_BUS.listen([&](KeyboardEvent* e) {
             if (e->isPressed()) {
                 if (e->getKey() == GLFW_KEY_ESCAPE) {
                     Gui* g = getRootGUI()->last();
@@ -88,6 +89,9 @@ public:
                     } else {
                         getRootGUI()->addGui(GuiScreenMainMenu::INST);
                     }
+                }
+                if (e->getKey() == GLFW_KEY_R) {
+                    world->raycast(camera.position, camera.direction);
                 }
             }
         });
@@ -146,6 +150,9 @@ public:
             Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
         });
 
+        Gui::drawRect(Gui::maxWidth()/2, Gui::maxHeight()/2,
+                      4, 4, Colors::WHITE);
+
         glEnable(GL_DEPTH_TEST);
     }
 
@@ -153,8 +160,12 @@ public:
     {
         if (isIngame()) {
             updateMovement();
-            camera.update(window, timer.getDelta(), renderEngine->viewMatrix);
+            camera.updateMovement(window, timer.getDelta());
         }
+
+        player->intpposition = Mth::lerp(timer.getPartialTick(), player->prevposition, player->position);
+        camera.compute(player->intpposition, renderEngine->viewMatrix);
+
         if (!window.isKeyDown(GLFW_KEY_P))
             renderEngine->updateViewFrustum();
 
@@ -198,7 +209,7 @@ public:
         new std::thread([]() {
             while (isRunning())
             {
-                updateViewDistance(getWorld(), getCamera()->position, 4);
+                updateViewDistance(getWorld(), getCamera()->position, 3);
 
                 checkChunksModelUpdate(getWorld());
 
@@ -213,7 +224,16 @@ public:
             Chunk* chunk = it.second;
             if (chunk->needUpdateModel) {
                 chunk->needUpdateModel = false;
-                World::tmpDoRebuildModel(chunk, world);
+                // World::tmpDoRebuildModel(chunk, world);
+
+                auto* vbuf = ChunkMeshGen::genMesh(chunk, world);
+                if (vbuf) {
+                    Ethertia::getExecutor()->exec([chunk, vbuf]() {
+                        delete chunk->model;
+                        chunk->model = Loader::loadModel(vbuf);
+                        delete vbuf;
+                    });
+                }
             }
         }
 
@@ -252,12 +272,12 @@ public:
         float speed = 0.8;
         if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
         if (sprint) speed = 1.8;
-        float a = camera.eulerAngles.y;
+        float yaw = camera.eulerAngles.y;
 
-        if (window.isKeyDown(GLFW_KEY_W)) player->velocity += Mth::angleh(a) * speed;
-        if (window.isKeyDown(GLFW_KEY_S)) player->velocity += Mth::angleh(a+Mth::PI) * speed;
-        if (window.isKeyDown(GLFW_KEY_A)) player->velocity += Mth::angleh(a+Mth::PI/2) * speed;
-        if (window.isKeyDown(GLFW_KEY_D)) player->velocity += Mth::angleh(a-Mth::PI/2) * speed;
+        if (window.isKeyDown(GLFW_KEY_W)) player->velocity += Mth::angleh(yaw) * speed;
+        if (window.isKeyDown(GLFW_KEY_S)) player->velocity += Mth::angleh(yaw + Mth::PI) * speed;
+        if (window.isKeyDown(GLFW_KEY_A)) player->velocity += Mth::angleh(yaw + Mth::PI / 2) * speed;
+        if (window.isKeyDown(GLFW_KEY_D)) player->velocity += Mth::angleh(yaw - Mth::PI / 2) * speed;
 
         if (window.isShiftKeyDown()) player->velocity.y -= speed;
         if (window.isKeyDown(GLFW_KEY_SPACE)) player->velocity.y += speed;
@@ -265,9 +285,6 @@ public:
         if (!window.isKeyDown(GLFW_KEY_W)) {
             sprint = false;
         }
-
-        camera.position = player->intpposition = Mth::lerp(timer.getPartialTick(), player->prevposition, player->position);
-
     }
 };
 

@@ -10,9 +10,9 @@
 class BlockDirt : public Block
 {
 
-    void getVertexData(VertexBuffer* vbuf, World* world, glm::vec3 chunkpos, glm::vec3 rpos) override {
+    void getVertexData(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk) override {
 
-        internalPutCube(vbuf, world, chunkpos, rpos, BlockTextures::DIRT);
+        internalPutCube(vbuf, rpos, chunk, BlockTextures::DIRT);
     }
 };
 

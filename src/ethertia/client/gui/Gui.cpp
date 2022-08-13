@@ -13,6 +13,14 @@ float Gui::maxHeight() {
     return Ethertia::getWindow()->getHeight();
 }
 
+float Gui::cursorX() {
+    return Ethertia::getWindow()->getMouseX();
+}
+
+float Gui::cursorY() {
+    return Ethertia::getWindow()->getMouseY();
+}
+
 bool Gui::isMouseOver() {
     auto* w = Ethertia::getWindow();
     return isPointOver(w->getMouseX(), w->getMouseY());

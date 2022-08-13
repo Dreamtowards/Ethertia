@@ -10,18 +10,22 @@
 #include <ethertia/client/render/Model.h>
 #include <ethertia/util/AABB.h>
 
+class World;
+
 class Chunk
 {
 public:
-    ubyte blocks[16*16*16] = {};
+    static const int SIZE = 16;
 
-    Model* model = nullptr;  // client tmp
-    static constexpr int SIZE = 16;
+    u8 blocks[16*16*16] = {};
+
 
     glm::vec3 position;
+    World* world;
 
     bool populated = false;
 
+    Model* model = nullptr;  // client tmp
     bool needUpdateModel = true;
 
     Chunk() {
@@ -33,19 +37,24 @@ public:
         }
     }
 
-    ubyte getBlock(int rx, int ry, int rz) {
+    u8 getBlock(int rx, int ry, int rz) {
         return blocks[blockidx(rx, ry, rz)];
     }
-    ubyte getBlock(glm::vec3 blockpos) {
-        return getBlock(Mth::floor(blockpos.x) & 15, Mth::floor(blockpos.y) & 15, Mth::floor(blockpos.z) & 15);
+    u8 getBlock(glm::ivec3 rp) {
+        return getBlock(rp.x, rp.y, rp.z);
     }
 
-    void setBlock(int rx, int ry, int rz, ubyte blockID) {
+    void setBlock(int rx, int ry, int rz, u8 blockID) {
         blocks[blockidx(rx,ry,rz)] = blockID;
-        needUpdateModel = true;
     }
-    void setBlock(glm::vec3 blockpos, ubyte blockID) {
-        setBlock((int)blockpos.x & 15, (int)blockpos.y & 15, (int)blockpos.z & 15, blockID);
+    void setBlock(glm::ivec3 rp, u8 block) {
+        setBlock(rp.x, rp.y, rp.z, block);
+    }
+
+    static glm::ivec3 rpos(glm::vec3 p) {
+        return glm::ivec3(Mth::floor(p.x) & 15,
+                          Mth::floor(p.y) & 15,
+                          Mth::floor(p.z) & 15);
     }
 
     glm::vec3 getPosition() const {
@@ -64,8 +73,12 @@ public:
                p.x < 0 || p.y < 0 || p.z < 0;
     }
 
-    [[nodiscard]] AABB getAABB() const {
+    AABB getAABB() const {
         return AABB(position, position + glm::vec3(16));
+    }
+
+    void requestRemodel() {
+        needUpdateModel = true;
     }
 
 };

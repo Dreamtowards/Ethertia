@@ -36,16 +36,27 @@ public:
     u8 getBlock(glm::vec3 blockpos) {
         Chunk* chunk = getLoadedChunk(blockpos);
         if (!chunk) return 0;
-        return chunk->getBlock(blockpos);
+        return chunk->getBlock(Chunk::rpos(blockpos));
     }
     u8 getBlock(int x, int y, int z) {
         return getBlock(glm::vec3(x,y,z));
     }
 
-    void setBlock(glm::vec3 blockpos, u8 blockID) {
-        Chunk* chunk = getLoadedChunk(blockpos);
+    void setBlock(glm::vec3 p, u8 blockID) {
+        Chunk* chunk = getLoadedChunk(p);
         if (!chunk) return;
-        chunk->setBlock(blockpos, blockID);
+        glm::ivec3 bp = Chunk::rpos(p);
+        chunk->setBlock(bp, blockID);
+
+        chunk->requestRemodel();
+
+        Chunk* tmp = nullptr;
+        if (bp.x == 0 && (tmp=getLoadedChunk(p - glm::vec3(1, 0, 0)))) tmp->requestRemodel();
+        if (bp.x == 15 && (tmp=getLoadedChunk(p + glm::vec3(1, 0, 0)))) tmp->requestRemodel();
+        if (bp.y == 0 && (tmp=getLoadedChunk(p - glm::vec3(0, 1, 0)))) tmp->requestRemodel();
+        if (bp.y == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 1, 0)))) tmp->requestRemodel();
+        if (bp.z == 0 && (tmp=getLoadedChunk(p - glm::vec3(0, 0, 1)))) tmp->requestRemodel();
+        if (bp.z == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 0, 1)))) tmp->requestRemodel();
     }
     void setBlock(int x, int y, int z, u8 blockID) {
         setBlock(glm::vec3(x,y,z), blockID);
@@ -70,12 +81,54 @@ public:
     }
 
     void addEntity(Entity* e) {
-
         entities.push_back(e);
     }
 
     void removeEntity(Entity* e) {
         Collections::erase(entities, e);
+    }
+
+    // http://www.cse.yorku.ca/~amana/research/grid.pdf
+    // Impl of Grid Voxel Raycast.
+    void raycast(glm::vec3 rpos, glm::vec3 rdir) {
+        using glm::vec3;
+
+        vec3 step = glm::sign(rdir);
+
+        vec3 tMax = glm::abs( (glm::fract(rpos)) - glm::max(step, 0.0f)) / glm::abs(rdir);
+
+        vec3 tDelta = 1.0f / glm::abs(rdir);
+
+        glm::vec3 p = glm::floor(rpos);
+
+        int itr = 0;
+        while (++itr < 100) {
+            int face;
+            if (tMax.x < tMax.y && tMax.x < tMax.z) {
+                p.x += step.x;
+                tMax.x += tDelta.x;
+                face = step.x > 0 ? 0 : 1;
+            } else if (tMax.y < tMax.z) {
+                p.y += step.y;
+                tMax.y += tDelta.y;
+                face = step.y > 0 ? 2 : 3;
+            } else {
+                p.z += step.z;
+                tMax.z += tDelta.z;
+                face = step.z > 0 ? 4 : 5;
+            }
+
+            u8 b = getBlock(p);
+            if (b) {
+                if (Eth::getWindow()->isAltKeyDown())
+                    setBlock(p + Mth::QFACES[face], Blocks::STONE);
+                else
+                    setBlock(p, 0);
+                Log::info("Cast Face ", face);
+                return;
+            }
+        }
+
     }
 
     static void collideAABB(const AABB& self, glm::vec3& d, const AABB& coll) {
@@ -180,8 +233,6 @@ public:
     }
 
 
-    static void tmpDoRebuildModel(Chunk* chunk, World* world);
-
     static void populate(World* world, glm::vec3 chunkpos)
     {
         for (int dx = 0; dx < 16; ++dx) {
@@ -223,6 +274,7 @@ public:
 
         }
 
+        // Trees
         for (int dx = 0; dx < 16; ++dx) {
             for (int dz = 0; dz < 16; ++dz) {
                 int x = chunkpos.x + dx;
@@ -234,12 +286,12 @@ public:
                         if (world->getBlock(x, y, z) == Blocks::GRASS) {
 
                             float f = Mth::hash(x*z*y);
-                            int h = 3+f*8;
+                            int h = 2+f*8;
                             int r = 3;
                             for (int lx = -r; lx <= r; ++lx) {
                                 for (int lz = -r; lz <= r; ++lz) {
-                                    for (int ly = -r; ly <= r*f*3; ++ly) {
-                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly*f)) > r*r)
+                                    for (int ly = -r; ly <= r+f*8; ++ly) {
+                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly)) > r*r)
                                             continue;
                                         world->setBlock(x+lx, y+ly+h+Mth::hash(y)*4, z+lz, Blocks::LEAVES);
                                     }

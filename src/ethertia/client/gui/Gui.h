@@ -53,6 +53,10 @@ public:
     class OnPressed {};
     class OnReleased {};
     class OnClick {};
+    // OnAttached, OnDetached
+
+    struct OnDraw { Gui* gui; };
+    class OnLayout {};
 
     Gui() {}
 
@@ -114,10 +118,6 @@ public:
     void setHeight(float h) {
         height = h;
     }
-
-
-    static float maxWidth();
-    static float maxHeight();
 
 
     // Universal Interface for Initiative Iteration
@@ -189,7 +189,7 @@ public:
         if (h == hovered) return;
         hovered = h;
 
-        fireEvent<OnHover>();
+        fireEvent(OnHover());
     }
 
     bool isPressed() { return pressed; }
@@ -197,8 +197,8 @@ public:
         if (p == pressed) return;
         pressed = p;
 
-        if (p) fireEvent<OnPressed>();
-        else   fireEvent<OnReleased>();
+        if (p) fireEvent(OnPressed());
+        else   fireEvent(OnReleased());
     }
 
     bool isFocused() const { return focused; }
@@ -206,7 +206,7 @@ public:
         if (f == focused) return;
         focused = f;
 
-        fireEvent<OnFocus>();
+        fireEvent(OnFocus());
     }
 
 
@@ -217,8 +217,7 @@ public:
     }
 
     template<typename E>
-    void fireEvent() {
-        E e{};
+    void fireEvent(E e) {
         eventbus.post(&e);
     }
 
@@ -264,6 +263,8 @@ public:
 
     virtual void onDraw()
     {
+        fireEvent(OnDraw{this});
+
         for (Gui* g : children())
         {
             g->onDraw();
@@ -293,6 +294,26 @@ public:
     }
 
 
+
+    void addOnDrawListener(const std::function<void(OnDraw*)>& lsr) {
+
+        eventbus.listen(lsr);
+    }
+    void addDrawBackground(glm::vec4 color) {
+        addOnDrawListener([=](OnDraw* e){
+            Gui* g = e->gui;
+            Gui::drawRect(g->getX(), g->getY(), g->getWidth(), g->getHeight(), color);
+        });
+    }
+
+
+
+
+    static float maxWidth();
+    static float maxHeight();
+
+    static float cursorX();
+    static float cursorY();
 
     static void drawRect(float x, float y, float w, float h, glm::vec4 color,
                          Texture* tex =nullptr,

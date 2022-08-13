@@ -16,8 +16,7 @@ public:
     static constexpr int D_HORIZONTAL = 0;
     static constexpr int D_VERTICAL = 1;
 
-    GuiStack(int dir) : direction(dir) {}
-    GuiStack(int dir, float gap) : direction(dir), gap(gap) {}
+    GuiStack(int dir, float gap = 0) : direction(dir), gap(gap) {}
 
     void onLayout() override
     {
@@ -30,6 +29,7 @@ public:
                 g->setRelativeY(dif);
                 dif += g->getHeight();
             }
+            dif += gap;
         }
 
         Gui::onLayout();

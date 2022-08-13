@@ -16,8 +16,8 @@
 class Mth
 {
 public:
-    static constexpr float PI = 3.1416;
-    static constexpr float PI_2 = 1.5708;
+    static constexpr float PI = 3.14159265359f;
+    static constexpr float PI_2 = 1.57079632679f;
 
     static constexpr float NaN = NAN;
     static constexpr float Inf = INFINITY;
@@ -26,17 +26,23 @@ public:
         return std::isnan(f);
     }
 
+
+    static inline int floor(float v) {
+        int i = (int)v;
+        return (float)i>v ? i-1 : i;
+    }
     static inline int floor(float v, int u) {
         int i = (int)floor(v / (float)u);
         return i*u;
     }
-
-    static inline int floor(float v) {
-        int i = (int)v;
-        return (float)i > v ? i-1 : i;
-    }
     static inline int ceil(float v) {
         return floor(v)+1;
+    }
+
+    /// u: unit
+    static float round(float v, float u) {
+        float f = std::round(v / u);
+        return f*u;
     }
 
     static inline glm::vec3 floor(glm::vec3 v) {
@@ -79,6 +85,10 @@ public:
         return min(max(f, a), b);
     }
 
+    static inline float rlerp(float v, float a, float b) {
+        return (v - a) / (b - a);
+    }
+
     static f32 hash(u32 i) {
         i = (i << 13) ^ i;
         return (((i * i * 15731 + 789221) * i + 1376312589) & 0xffffffff) / (float)0xffffffff;
@@ -92,15 +102,49 @@ public:
         return std::pow(base, exp);
     }
 
+    static float signal(float v) {
+        return v < 0 ? -1.0f :
+              (v > 0 ?  1.0f : 0.0f);
+    }
+
+    static float frac(float v) {
+        return v - Mth::floor(v);
+    }
+
+    // to radians
+    static float radians(float deg) {
+        return deg * 0.01745329251f;  // * 1/180.0 * PI
+    }
+    // to degrees
+    static float degrees(float rad) {
+        return rad * 57.2957795131f;// 1/PI * 180.0
+    }
+
+    static constexpr glm::vec3 QFACES[6] = {
+            glm::vec3(-1, 0, 0),
+            glm::vec3( 1, 0, 0),
+            glm::vec3( 0,-1, 0),
+            glm::vec3( 0, 1, 0),
+            glm::vec3( 0, 0,-1),
+            glm::vec3( 0, 0, 1),
+    };
+
+    static glm::mat4 matEulerAngles(glm::vec3 eulerAngles) {
+        glm::mat4 rot = glm::mat4(1);
+
+        if (eulerAngles.y != 0) rot = glm::rotate(rot, eulerAngles.y, glm::vec3(0, 1, 0));
+        if (eulerAngles.x != 0) rot = glm::rotate(rot, eulerAngles.x, glm::vec3(1, 0, 0));
+        if (eulerAngles.z != 0) rot = glm::rotate(rot, eulerAngles.z, glm::vec3(0, 0, 1));
+
+        return rot;
+    }
 
     static glm::mat4 viewMatrix(glm::vec3 position, glm::vec3 eulerAngles) {
         glm::mat4 rot = glm::mat4(1);
 
         rot = glm::translate(rot, position);
 
-        rot = glm::rotate(rot, eulerAngles.y, glm::vec3(0, 1, 0));
-        rot = glm::rotate(rot, eulerAngles.x, glm::vec3(1, 0, 0));
-        rot = glm::rotate(rot, eulerAngles.z, glm::vec3(0, 0, 1));
+        rot = rot * matEulerAngles(eulerAngles);
 
         return glm::inverse(rot);
     }
@@ -144,14 +188,26 @@ public:
 //        return glm::perspective(fov, w/h, near, far);
 //    }
 
-    static glm::mat4 matModel(glm::vec3 position) {  //, glm::vec3 scale, glm::vec4 rotation
+    static glm::mat4 matModel(glm::vec3 position) {
         glm::mat4 mat{1};
 
         mat = glm::translate(mat, position);
 
         return mat;
     }
-    static glm::mat4 matModel(glm::vec3 position, glm::vec3 scale) {  //, , glm::vec4 rotation
+    static glm::mat4 matModel(glm::vec3 position, glm::mat3 rotation, glm::vec3 scale) {
+        glm::mat4 mat{1};
+
+        mat = glm::translate(mat, position);
+
+        mat = mat * glm::mat4(rotation);
+
+        mat = glm::scale(mat, scale);
+
+
+        return mat;
+    }
+    static glm::mat4 matModel(glm::vec3 position, glm::vec3 scale) {
         glm::mat4 mat{1};
 
         mat = glm::translate(mat, position);
