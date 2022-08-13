@@ -6,24 +6,25 @@
 #define ETHERTIA_TEXTURE_H
 
 #include <glad/glad.h>
+
 #include <ethertia/util/BitmapImage.h>
 
 class Texture
 {
-    uint textureID;
-    uint width;
-    uint height;
+    u32 textureID;
+    u32 width;
+    u32 height;
 
 public:
     inline static Texture* UNIT;  // 1x1 pixel, RGBA=1 white tex.
 
-    Texture(uint texId, uint w, uint h) : textureID(texId), width(w), height(h) {}
+    Texture(u32 texId, u32 w, u32 h) : textureID(texId), width(w), height(h) {}
 
     ~Texture() {
         glDeleteTextures(1, &textureID);
     }
 
-    uint getTextureID() const {
+    u32 getTextureID() const {
         return textureID;
     }
 

@@ -11,7 +11,7 @@
 #include <ethertia/client/render/RenderEngine.h>
 #include <ethertia/client/render/Camera.h>
 #include <ethertia/client/Window.h>
-#include <ethertia/client/audio/AudioEngine.h>
+//#include <ethertia/client/audio/AudioEngine.h>
 #include <ethertia/client/gui/GuiRoot.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/concurrent/Executor.h>
@@ -169,10 +169,10 @@ public:
         if (!window.isKeyDown(GLFW_KEY_P))
             renderEngine->updateViewFrustum();
 
-
         window.setMouseGrabbed(isIngame());
         window.setTitle(("desp. "+std::to_string(1.0/timer.getDelta())).c_str());
-        renderEngine->updateProjectionMatrix(window.getWidth()/window.getHeight());
+
+        renderEngine->updateProjectionMatrix(getAspectRatio());
     }
 
     void runTick()
@@ -196,6 +196,10 @@ public:
     static bool isIngame() { return getRootGUI()->last() == GuiIngame::INST; }
 
     static float getPreciseTime() { return (float)Window::getPreciseTime(); }
+    static float getAspectRatio() {
+        Window* w = getWindow(); if (w->getHeight() == 0) return 0;
+        return w->getWidth() / w->getHeight();
+    }
 
     static RenderEngine* getRenderEngine() { return INST->renderEngine; }
     static Window* getWindow() { return &INST->window; }

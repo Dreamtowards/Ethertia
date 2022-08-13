@@ -13,7 +13,7 @@ class Collections
 public:
     template<typename T>
     static int find(const std::vector<T>& ls, const T& val) {
-        int i;
+        int i = 0;
         for (auto it = ls.begin(); it != ls.end(); ++it) {
             if (*it == val)
                 return i;

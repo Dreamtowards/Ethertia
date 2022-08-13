@@ -9,7 +9,7 @@
 
 #include "../compiler/IO.h"
 
-#include <dlfcn.h>
+//#include <dlfcn.h>
 
 class Macedure
 {

@@ -10,7 +10,7 @@
 class Colors
 {
 public:
-    static const glm::vec4 fromRGB(ubyte r, ubyte g, ubyte b) {
+    static const glm::vec4 fromRGB(u8 r, u8 g, u8 b) {
         return glm::vec4(r/255.0f, g/255.0f, b/255.0f, 1.0f);
     }
 

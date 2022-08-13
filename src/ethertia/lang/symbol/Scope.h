@@ -6,8 +6,10 @@
 #define ETHERTIA_SCOPE_H
 
 #include <map>
+#include <cassert>
 
 #include <ethertia/lang/symbol/Symbol.h>
+#include <vector>
 
 class Scope
 {
@@ -46,7 +48,6 @@ public:
     }
 
     Symbol* resolve(std::vector<std::string> ls);
-
 };
 
 #endif //ETHERTIA_SCOPE_H

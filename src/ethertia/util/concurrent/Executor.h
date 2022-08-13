@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <functional>
+#include <deque>
 
 class Executor
 {
@@ -25,9 +26,10 @@ public:
         while (!tasks.empty())
         {
             auto& task = tasks.front();
-            tasks.pop_front();
 
             task();
+
+            tasks.pop_front();
         }
     }
 

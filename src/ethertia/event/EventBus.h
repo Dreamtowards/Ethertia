@@ -9,8 +9,10 @@
 #include <unordered_map>
 #include <functional>
 
+#include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>
+#include <cassert>
 
 
 class EventBus
@@ -29,14 +31,14 @@ class EventBus
     class Listener
     {
     public:
-        uint eventId;
+        u32 eventId;
 
         std::function<void(void*)> function;
 
         int priority = EventPriority::NORMAL;  // higher value, higher priority.
     };
 
-    std::unordered_map<uint, std::vector<Listener>> listeners;
+    std::unordered_map<u32, std::vector<Listener>> listeners;
 
 public:
     class InternalUtil
@@ -52,7 +54,7 @@ public:
 
         // (Event) "TypeId". unique for each type.
         template<typename E>
-        static uint GetEventId() {
+        static u32 GetEventId() {
             static char val = 0;
             return (size_t)&val;
         }
@@ -71,7 +73,7 @@ public:
 
     template<typename E>
     bool post(E* e) const {
-        uint eventId = InternalUtil::GetEventId<E>();
+        u32 eventId = InternalUtil::GetEventId<E>();
 
         auto it = listeners.find(eventId);
         if (it == listeners.end())
@@ -94,8 +96,8 @@ public:
 
     template<typename E>
     Listener* listen(FUNC_EL lsrfunc) {
-        uint eventId = InternalUtil::GetEventId<E>();
-        Listener& lsr = listeners[eventId].emplace_back();
+        u32 eventId = InternalUtil::GetEventId<E>();
+        Listener& lsr =  listeners[eventId].emplace_back();
 
         lsr.eventId = eventId;
         lsr.function = InternalUtil::ultimate_cast<std::function<void(void*)>>(lsrfunc);
@@ -130,7 +132,7 @@ public:
 
     template<typename E>
     void unlistenAll() {
-        uint eventId = InternalUtil::GetEventId<E>();
+        u32 eventId = InternalUtil::GetEventId<E>();
         listeners[eventId].clear();
     }
 
@@ -138,7 +140,7 @@ public:
         listeners.clear();
     }
 
-    std::unordered_map<uint, std::vector<Listener>>* getListeners() {
+    std::unordered_map<u32, std::vector<Listener>>* getListeners() {
         return &listeners;
     }
 
@@ -156,7 +158,7 @@ public:
 
     static EventBus EVENT_BUS;
 
-    static constexpr struct ERR_CANCEL {} FORCE_CANCEL;
+    static constexpr struct ERR_CANCEL {} FORCE_CANCEL{};
 };
 
 // todo

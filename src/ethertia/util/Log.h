@@ -78,7 +78,8 @@ public:
         char strtime[40] = {};
         std::strftime(strtime, sizeof(strtime), "%F.%X", tm_info);
 
-        out << "[" << tm_info->tm_zone << ":" << strtime <<"."<< tv.tv_usec << "]"
+        //  << tm_info->tm_zone << ":"
+        out << "[" << strtime <<"."<< tv.tv_usec << "]"
             << "["<<std::this_thread::get_id()<<"/INFO]: ";
     }
 

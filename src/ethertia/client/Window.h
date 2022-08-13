@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec2.hpp>
 
 #include <ethertia/util/Log.h>
 #include <ethertia/event/EventBus.h>
@@ -19,7 +20,6 @@
 #include <ethertia/event/client/WindowDropEvent.h>
 #include <ethertia/event/client/WindowFocusEvent.h>
 #include <ethertia/event/client/MouseScrollEvent.h>
-#include <glm/vec2.hpp>
 
 
 class Window
@@ -59,6 +59,8 @@ public:
         if (!window)
             throw std::runtime_error("Failed to init GLFW window.");
 
+        centralize();
+
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
 
@@ -66,8 +68,6 @@ public:
             throw std::runtime_error("Failed to init GLAD.");
 
         Log::info("WindowInit. GLFW {}; GLAD linked.", glfwGetVersionString());
-
-        centralize();
 
         glfwSetWindowUserPointer(window, this);
 
@@ -167,6 +167,7 @@ public:
         w->width = wid;
         w->height = hei;
 
+        glViewport(0, 0, wid, hei);
         WindowResizedEvent e(wid, hei);
         EventBus::EVENT_BUS.post(&e);
     }

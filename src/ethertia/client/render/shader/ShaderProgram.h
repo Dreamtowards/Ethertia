@@ -14,18 +14,19 @@
 #include <glm/mat4x4.hpp>
 
 #include <ethertia/util/UnifiedTypes.h>
+#include <ethertia/util/Log.h>
 
 class ShaderProgram {
 
-    uint program;
-    std::unordered_map<const char*, uint> cachedUniformId;
+    u32 program;
+    std::unordered_map<const char*, u32> cachedUniformId;
 
 public:
 
     ShaderProgram(const std::string& svsh, const std::string& sfsh) {
 
-        uint vsh = loadShader(GL_VERTEX_SHADER, svsh);
-        uint fsh = loadShader(GL_FRAGMENT_SHADER, sfsh);
+        u32 vsh = loadShader(GL_VERTEX_SHADER, svsh);
+        u32 fsh = loadShader(GL_FRAGMENT_SHADER, sfsh);
 
         program = glCreateProgram();
 
@@ -38,7 +39,7 @@ public:
         if (!succ) {
             char infolog[512];
             glGetProgramInfoLog(program, 512, nullptr, infolog);
-            throw std::logic_error(std::strstr("Failed to link the shader program:\n", infolog));
+            throw std::logic_error(Log::str("Failed to link the shader program:\n", infolog));
         }
 
         glDeleteShader(vsh);
@@ -97,7 +98,7 @@ private:
         if (!succ) {
             char infolog[512];
             glGetShaderInfoLog(s, 512, nullptr, infolog);
-            throw std::logic_error(std::strstr("Failed to compile the shader:\n", infolog));
+            throw std::logic_error(Log::str("Failed to compile the shader:\n", infolog));
         }
         return s;
     }

@@ -116,7 +116,7 @@ public:
 //                                    }
 //                                }
 
-                                ubyte bl = 0;
+                                u8 bl = 0;
                                 if (spZsum > 0.0) {
                                     bl = Blocks::STONE;
                                 } else if (chunkpos.y+sY*sampleSize+dY < 0) {

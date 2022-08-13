@@ -260,7 +260,7 @@ public:
 
                     int nextToAir = nextAir - dy;
 
-                    ubyte replace = Blocks::STONE;
+                    u8 replace = Blocks::STONE;
                     if (y < 3 && nextToAir < 3 && world->chunkGenerator.noise.noise(x/60.0, y/60.0, z/60.0) > 0.1) {
                         replace = Blocks::SAND;
                     } else if (nextToAir == 1) {

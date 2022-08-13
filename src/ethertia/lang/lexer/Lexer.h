@@ -7,8 +7,9 @@
 
 #include <string>
 #include <sstream>
-#include <ethertia/util/Strings.h>
+#include <stack>
 
+#include <ethertia/util/Strings.h>
 #include <ethertia/lang/lexer/TokenType.h>
 
 class Lexer
