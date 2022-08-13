@@ -28,12 +28,13 @@ add_executable(Ethertia
 
         src/ethertia/client/Ethertia.cpp )
 
-#target_link_libraries(Ethertia PRIVATE
-#        "-framework Cocoa"
-#        "-framework OpenGL"
-#        "-framework IOKit"
-#        "-framework OpenAL"
-#        ${CMAKE_SOURCE_DIR}/lib/libglfw3.a)
+if (APPLE)
+target_link_libraries(Ethertia PRIVATE
+        "-framework Cocoa"
+        "-framework OpenGL"
+        "-framework IOKit"
+        "-framework OpenAL")
+endif()
 
 add_subdirectory(lib/glfw)
 target_link_libraries(Ethertia PRIVATE glfw)
