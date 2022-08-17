@@ -28,6 +28,8 @@ public:
 
     float fov = 90;
 
+    inline static float viewDistance = 3;
+
     RenderEngine() {
 
         Log::info("RenderEngine initialized. GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
@@ -43,7 +45,8 @@ public:
 
     void renderWorld(World* world)
     {
-        glClearColor(0.6*.9, 0.7*.9, 0.8*.9, 1);
+        glm::vec4 _s = Colors::fromRGB(132, 205, 240);  // 0.517, 0.8, 0.94
+        glClearColor(_s.x, _s.y, _s.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);

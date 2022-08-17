@@ -186,10 +186,15 @@
 
             loadContent(`<?php
             $p = $_GET['p'];
-            if ($p == "") $p = "/home.md";
+            if ($p == "") $p = "home.md";
+
             if (substr($p, 0, 1) == '/') { $p = substr($p, 1); }
-            $n = strlen($p);
-            if (substr($p, $n-3, $n) != '.md') { $p = $p . ".md"; }
+            if (substr($p, strlen($p)-1) == '/') { $p = substr($p, 0, strlen($p)-1); }
+
+            if (is_dir($p)) { $p = $p . "/index.md"; }
+
+            if (substr($p, strlen($p)-3) != '.md') { $p = $p . ".md"; }
+
             echo str_replace('`', '\\`', file_get_contents($p));
             ?>`);
 

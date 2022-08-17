@@ -21,19 +21,23 @@ class Blocks
 public:
     inline static std::vector<Block*> REGISTRY;
 
-    static u8 regBlock(Block* bl) {
+    static u8 regblock(Block* bl) {
         Blocks::REGISTRY.push_back(bl);
         return Blocks::REGISTRY.size()-1;
     }
 
-    inline static u8 AIR = regBlock(nullptr);
-    inline static u8 STONE = regBlock(new BlockStone());
-    inline static u8 DIRT = regBlock(new BlockDirt());
-    inline static u8 GRASS = regBlock(new BlockGrass());
-    inline static u8 SAND = regBlock(new BlockSand());
-    inline static u8 WATER = regBlock(new BlockWater());
-    inline static u8 LOG = regBlock(new BlockLog());
-    inline static u8 LEAVES = regBlock(new BlockLeaves());
+    inline static u8 AIR = regblock(nullptr);
+    inline static u8 STONE = regblock(new BlockStone());
+    inline static u8 DIRT = regblock(new BlockDirt());
+    inline static u8 GRASS = regblock(new BlockGrass());
+    inline static u8 SAND = regblock(new BlockSand());
+    inline static u8 WATER = regblock(new BlockWater());
+    inline static u8 LOG = regblock(new BlockLog());
+    inline static u8 LEAVES = regblock(new BlockLeaves(BlockTextures::LEAVES_2));
+    inline static u8 TALL_GRASS = regblock(new BlockLeaves(BlockTextures::TALL_GRASS));
+    inline static u8 RED_TULIP = regblock(new BlockLeaves(BlockTextures::RED_TULIP));
+    inline static u8 SHRUB = regblock(new BlockLeaves(BlockTextures::SHRUB));
+    inline static u8 FERN = regblock(new BlockLeaves(BlockTextures::FERN));
 
 };
 

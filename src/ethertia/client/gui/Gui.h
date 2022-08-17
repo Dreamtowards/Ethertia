@@ -209,6 +209,16 @@ public:
         fireEvent(OnFocus());
     }
 
+    bool isVisible() {
+        return visible;
+    }
+    void setVisible(bool v) {
+        if (v == visible) return;
+        visible = v;
+
+//        fireEvent(OnVisible());
+    }
+
 
 
 
@@ -263,6 +273,8 @@ public:
 
     virtual void onDraw()
     {
+        if (!visible) return;
+
         fireEvent(OnDraw{this});
 
         for (Gui* g : children())
@@ -274,6 +286,8 @@ public:
 
     virtual void onLayout()
     {
+        if (!visible) return;
+
         _update_childbound();
 
         for (Gui* g : children())
@@ -304,6 +318,10 @@ public:
             Gui* g = e->gui;
             Gui::drawRect(g->getX(), g->getY(), g->getWidth(), g->getHeight(), color);
         });
+    }
+    void addOnClickListener(const std::function<void(OnReleased*)>& lsr) {
+
+        eventbus.listen(lsr);
     }
 
 

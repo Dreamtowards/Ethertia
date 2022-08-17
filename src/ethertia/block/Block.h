@@ -16,7 +16,7 @@ class Block
 
 public:
 
-    static bool isOpaque() {
+    virtual bool isOpaque() {
         return true;
     }
 

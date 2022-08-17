@@ -66,7 +66,7 @@ class Ethertia {
 
     void destroy() {
 
-        // glfwTerminate();
+        stdx::glfw::glfwTerminate();
 
     }
 

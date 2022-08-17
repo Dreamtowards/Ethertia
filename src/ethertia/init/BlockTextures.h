@@ -12,38 +12,43 @@ typedef TextureAtlas::AtlasFragment AtlasFrag;
 class BlockTextures
 {
 public:
-    inline static TextureAtlas* ATLAS;
-
-    inline static AtlasFrag* STONE;
-    inline static AtlasFrag* DIRT;
-    inline static AtlasFrag* GRASS;
-    inline static AtlasFrag* SAND;
-    inline static AtlasFrag* WATER;
-    inline static AtlasFrag* LOG;
-    inline static AtlasFrag* LEAVES;
-    inline static AtlasFrag* GLASS;
-    inline static AtlasFrag* LEAVES_2;
-
-    static void init()
-    {
-        ATLAS = new TextureAtlas();
-
-        STONE = load("blocks/stone.png");
-        DIRT = load("blocks/dirt.png");
-        GRASS = load("blocks/grass.png");
-        SAND = load("blocks/sand.png");
-        WATER = load("blocks/water_still.png");
-        LOG = load("blocks/log.png");
-        LEAVES = load("blocks/leaves.png");
-        GLASS = load("blocks/glass.png");
-        LEAVES_2 = load("blocks/leaves_3.png");
-
-        ATLAS->buildAtlas();
-        Loader::savePNG(Texture::glfGetTexImage(ATLAS->atlasTexture), "atlas.png");
-    }
 
     static AtlasFrag* load(const char* p) {
         return ATLAS->addAtlas(Loader::loadPNG(Loader::loadAssets(p)));
+    }
+
+    inline static TextureAtlas* ATLAS = new TextureAtlas();
+
+    inline static AtlasFrag* STONE = load("blocks/stone.png");
+    inline static AtlasFrag* DIRT  = load("blocks/dirt.png");
+    inline static AtlasFrag* GRASS = load("blocks/grass.png");
+    inline static AtlasFrag* SAND  = load("blocks/sand.png");
+    inline static AtlasFrag* WATER = load("blocks/water_still.png");
+    inline static AtlasFrag* LOG   = load("blocks/log.png");
+    inline static AtlasFrag* LEAVES= load("blocks/leaves.png");
+    inline static AtlasFrag* GLASS = load("blocks/glass.png");
+    inline static AtlasFrag* LEAVES_2 = load("blocks/leaves_3.png");
+    inline static AtlasFrag* RED_TULIP = load("blocks/red_tulip.png");;
+    inline static AtlasFrag* SHRUB = load("blocks/shrub.png");
+    inline static AtlasFrag* FERN  = load("blocks/fern.png");
+    inline static AtlasFrag* TALL_GRASS = load("blocks/grass_2.png");
+
+    static void init()
+    {
+//        ATLAS = new TextureAtlas();
+//
+//        STONE = load("blocks/stone.png");
+//        DIRT = load("blocks/dirt.png");
+//        GRASS = load("blocks/grass.png");
+//        SAND = load("blocks/sand.png");
+//        WATER = load("blocks/water_still.png");
+//        LOG = load("blocks/log.png");
+//        LEAVES = load("blocks/leaves.png");
+//        GLASS = load("blocks/glass.png");
+//        LEAVES_2 = load("blocks/leaves_3.png");
+
+        ATLAS->buildAtlas();
+        Loader::savePNG(Texture::glfGetTexImage(ATLAS->atlasTexture), "atlas.png");
     }
 };
 

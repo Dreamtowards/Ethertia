@@ -9,12 +9,21 @@
 
 class BlockLeaves : public Block
 {
+public:
+
+    AtlasFrag* frag;
+
+    BlockLeaves(AtlasFrag* frag) : frag(frag) {}
+
+    bool isOpaque() override {
+        return false;
+    }
 
     void getVertexData(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk) override {
 
 //        internalPutCube(vbuf, rpos, chunk, BlockTextures::GLASS);
 
-        internalPutLeaves(vbuf, rpos, chunk, BlockTextures::LEAVES_2);
+        internalPutLeaves(vbuf, rpos, chunk, frag);
     }
 };
 

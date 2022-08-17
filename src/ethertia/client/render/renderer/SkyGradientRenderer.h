@@ -35,7 +35,7 @@ public:
         Renderer::setShaderCamPos(&shader);
         // CamPos+
         Renderer::setShaderMVP(&shader, Mth::matModel(
-                Eth::getCamera()->position + glm::vec3{0, -100, 0},
+                Eth::getCamera()->position + glm::vec3{0, 80, 0},
                 glm::vec3 {500}));
 
         glBindVertexArray(M_PLANE->vaoId);

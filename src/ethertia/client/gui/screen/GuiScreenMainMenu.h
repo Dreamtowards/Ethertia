@@ -22,26 +22,6 @@ public:
         setWidth(Inf);
         setHeight(Inf);
 
-        GuiCollection* lsTopbar = new GuiCollection();
-        {
-            lsTopbar->setWidth(Inf);
-            lsTopbar->setHeight(20);
-
-            {
-                GuiStack* barRight = new GuiStack(GuiStack::D_HORIZONTAL);
-                auto btnOpts = new GuiButton("Opts");
-                btnOpts->setWidth(45);
-                barRight->addGui(btnOpts);
-
-                auto btnExit = new GuiButton("Exit");
-                btnExit->setWidth(45);
-                barRight->addGui(btnExit);
-
-                lsTopbar->addGui(new GuiAlign(1.0f, 0.0f, barRight));
-            }
-            lsTopbar->addDrawBackground(Colors::BLACK10);
-        }
-
         // Options
         GuiStack* opts = new GuiStack(GuiStack::D_VERTICAL, 5);
         {
@@ -54,10 +34,38 @@ public:
             opts->addGui(new GuiSlider("FOV", 15, 165, &rde->fov, 5.0f));
 
             opts->addGui(new GuiSlider("Camera Smoothness", 0, 5, &cam->smoothness, 0.5f));
-
             opts->addGui(new GuiSlider("Camera Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
 
+            opts->addGui(new GuiSlider("View Distance", 0, 16, &RenderEngine::viewDistance, 1.0f));
+
+            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &rde->chunkRenderer.fogDensity, 0.001f));
+            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &rde->chunkRenderer.fogGradient, 0.01f));
+
             opts->addDrawBackground(Colors::BLACK10);
+        }
+
+        GuiCollection* lsTopbar = new GuiCollection();
+        {
+            lsTopbar->setWidth(Inf);
+            lsTopbar->setHeight(20);
+
+            {
+                GuiStack* barRight = new GuiStack(GuiStack::D_HORIZONTAL);
+                auto btnOpts = new GuiButton("Opts");
+                btnOpts->setWidth(45);
+                btnOpts->addOnClickListener([opts](OnReleased* e){
+
+                    opts->setVisible(!opts->isVisible());
+                });
+                barRight->addGui(btnOpts);
+
+                auto btnExit = new GuiButton("Exit");
+                btnExit->setWidth(45);
+                barRight->addGui(btnExit);
+
+                lsTopbar->addGui(new GuiAlign(1.0f, 0.0f, barRight));
+            }
+            lsTopbar->addDrawBackground(Colors::BLACK10);
         }
 
         addGui(lsTopbar);

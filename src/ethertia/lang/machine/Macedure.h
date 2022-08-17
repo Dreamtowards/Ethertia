@@ -29,12 +29,6 @@ public:
 //    inline static std::map<std::string, void*> _libs;
     inline static std::map<std::string, std::function<int(void*)>> _proc;
 
-    inline static u8* ffp;
-    static void ffpcb(GLFWwindow* w) {
-
-        run(ffp, esp);
-    }
-
     static void initproc() {
 
         _proc["stdx::glfw::glfwInit"] = [](void* ebp) {
@@ -60,16 +54,32 @@ public:
         _proc["stdx::glfw::glfwSetWindowCloseCallback"] = [](void* ebp) {
             GLFWwindow* win = (GLFWwindow*)IO::ld_64((u8*)ebp);
             u64 fpos = IO::ld_64((u8*)ebp+8);
-            ffp = beg_static + fpos;
+            static u8* ffp = beg_static + fpos;
             Log::info("Callback Func: ", ffp);
 
-            glfwSetWindowCloseCallback(win, ffpcb);
+            glfwSetWindowCloseCallback(win, [](GLFWwindow* _w) {
+                run(ffp, esp);
+            });
+            return 0;
+        };
+
+        _proc["stdx::glfw::glfwTerminate"] = [](void* ebp) {
+
+            glfwTerminate();
             return 0;
         };
 
         _proc["std::exit"] = [](void* ebp) {
             i32 i = IO::ld_32((u8*)ebp);
             exit(i);
+            return 0;
+        };
+
+        _proc["std::sleep"] = [](void* ebp) {
+            u32 ms = IO::ld_32((u8*)ebp);
+
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(ms));
             return 0;
         };
 
@@ -146,30 +156,22 @@ public:
     static void run(u8* base_ip, const u8* ebp) {
         u8* ip = base_ip;
 
-        // libglfw.so glfwWindowHint 3 2
-
-//        esp = ebp;
-//        u32 locals[cbuf->localvars.size()];
-//        for (int i = 0; i < cbuf->localvars.size(); ++i) {
-//            locals[i] = esp;
-//            esp += cbuf->localvars[i]->getType()->getTypesize();
-//        }
-
         std::cout << Log::str("::PROC <ip_ptr: {}, ebp:{}, esp:+{}>\n", (void*)base_ip, (void*)ebp, (int)(esp-ebp)); int i100 = 0;
 
         while (true) {  //if (i100++ > 200) break;
         t_ptr rip = ip - base_ip;
 
+        bool VM_VERBO = true;
+        if (VM_VERBO) {
         if (*ip == Opcodes::VERBO) {
             ip++;
             std::string vb = ld_str(ip);
-//            u8 len = ip[1]; ip+=2;
-//            std::stringstream ss; for (int i = 0; i < len; ++i) ss << *ip++;
             std::cout << Log::str("#{5} {40} ; % {}\n", rip, "VERBO", vb);
             continue;
         } else {
             std::string opstr = Opcodes::str(ip);
             std::cout << Log::str("#{5} {40} ; {}\n", ip-base_ip, IO::uppercase(opstr, ' '), IO::dump(ebp, esp-ebp));
+        }
         }
 
         u8 opc = *ip++;

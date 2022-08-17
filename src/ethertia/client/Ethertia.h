@@ -27,6 +27,7 @@
 #include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
 #include <ethertia/client/gui/screen/GuiIngame.h>
 #include <ethertia/client/render/chunk/ChunkMeshGen.h>
+#include <ethertia/util/testing/BenchmarkTimer.h>
 
 
 class Ethertia
@@ -90,8 +91,22 @@ public:
                         getRootGUI()->addGui(GuiScreenMainMenu::INST);
                     }
                 }
-                if (e->getKey() == GLFW_KEY_R) {
-                    world->raycast(camera.position, camera.direction);
+            }
+        });
+        EventBus::EVENT_BUS.listen([=](MouseButtonEvent* e) {
+            if (e->isPressed()) {
+                u8 face;
+                glm::vec3 pos;
+                world->raycast(camera.position, camera.direction, pos, face);
+                static u8 placingBlock = Blocks::STONE;
+
+                int btn = e->getButton();
+                if (btn == GLFW_MOUSE_BUTTON_1) {
+                    world->setBlock(pos, 0);
+                } else if (btn == GLFW_MOUSE_BUTTON_2) {
+                    world->setBlock(pos + Mth::QFACES[face], placingBlock);
+                } else if (btn == GLFW_MOUSE_BUTTON_3) {
+                    placingBlock = world->getBlock(pos);
                 }
             }
         });
@@ -119,6 +134,8 @@ public:
         window.updateWindow();
     }
 
+    inline static std::string chunkBuildStat = "Uninitialized";
+
     void renderGUI()
     {
         rootGUI->onLayout();
@@ -134,9 +151,11 @@ public:
         std::stringstream ss;
         Log::log(ss,
                  "camp: {}, pvel: {}\n"
-                      "dt/ {}, {}fs",
+                      "dt/ {}, {}fs\n"
+                      "ChunkStat: {}",
                       glm::to_string(camera.position), glm::length(player->velocity),
-                      timer.getDelta(), 1.0/timer.getDelta());
+                      timer.getDelta(), 1.0/timer.getDelta(),
+                      chunkBuildStat);
         Gui::drawString(0, 32, ss.str(), Colors::WHITE, 16, 0, false);
 
 //        Gui::drawRect(100, 100, 200, 100, Colors::WHITE, BlockTextures::ATLAS->atlasTexture, 20);
@@ -209,13 +228,17 @@ public:
     static GuiRoot* getRootGUI() { return INST->rootGUI; }
 
 
+
     static void initThreadChunkLoad() {
         new std::thread([]() {
             while (isRunning())
             {
-                updateViewDistance(getWorld(), getCamera()->position, 3);
+                chunkBuildStat = "ChunkLoad";
+                updateViewDistance(getWorld(), getCamera()->position, (int)RenderEngine::viewDistance);
 
+                chunkBuildStat = "ChunkModelUpdate";
                 checkChunksModelUpdate(getWorld());
+                chunkBuildStat = "None";
 
                 std::this_thread::sleep_for(std::chrono::milliseconds (10));
             }
@@ -223,24 +246,37 @@ public:
     }
 
     static void checkChunksModelUpdate(World* world) {
+        glm::vec3 vpos = getCamera()->position;
 
-        for (auto& it : world->getLoadedChunks()) {
-            Chunk* chunk = it.second;
-            if (chunk->needUpdateModel) {
-                chunk->needUpdateModel = false;
-                // World::tmpDoRebuildModel(chunk, world);
-
-                auto* vbuf = ChunkMeshGen::genMesh(chunk, world);
-                if (vbuf) {
-                    Ethertia::getExecutor()->exec([chunk, vbuf]() {
-                        delete chunk->model;
-                        chunk->model = Loader::loadModel(vbuf);
-                        delete vbuf;
-                    });
+        int i = 0;
+        while (true) {
+            Chunk* chunk = nullptr;
+            float minLen = Mth::Inf;
+            for (auto& it : world->getLoadedChunks()) {
+                Chunk* c = it.second;
+                if (c && c->needUpdateModel) {
+                    float len = glm::length(c->position - vpos);
+                    if (len < minLen) {
+                        minLen = len;
+                        chunk = c;
+                    }
                 }
             }
-        }
+            if (chunk == nullptr)
+                break;
 
+            chunk->needUpdateModel = false;
+            // World::tmpDoRebuildModel(chunk, world);
+
+            VertexBuffer* vbuf = ChunkMeshGen::genMesh(chunk, world);
+            if (vbuf) {
+                Ethertia::getExecutor()->exec([chunk, vbuf]() {
+                    delete chunk->model;
+                    chunk->model = Loader::loadModel(vbuf);
+                    delete vbuf;
+                });
+            }
+        }
     }
 
     static void updateViewDistance(World* world, glm::vec3 p, int n)
@@ -249,9 +285,13 @@ public:
 
         // load chunks
         for (int dx = -n;dx <= n;dx++) {
-            for (int dy = -n;dy <= n;dy++) {
-                for (int dz = -n;dz <= n;dz++) {
-                    world->provideChunk(cpos + glm::vec3(dx, dy, dz) * 16.0f);
+            for (int dz = -n;dz <= n;dz++) {
+                for (int dy = -n;dy <= n;dy++) {
+                    glm::vec3 p = cpos + glm::vec3(dx, dy, dz) * 16.0f;
+                    Chunk* c = world->getLoadedChunk(p);
+                    if (!c) {
+                        world->provideChunk(p);
+                    }
                 }
             }
         }

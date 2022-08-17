@@ -58,9 +58,9 @@ public:
                     double ax = cX*samples + i;
                     double az = cZ*samples + j;
                     double ay = cY*samples + l;
-                    double f = noise.fbm(ax/14, ay/12, az/14, 10);
+                    double f = noise.fbm(ax/14, ay/12, az/14, 4);
 
-                    double p = noise.fbm(ax/8, az/8, 4);
+                    double p = noise.fbm(ax/8, az/8, 1);
                     p = p-ay/10;
 
                     p += f* (p<0?12:1);

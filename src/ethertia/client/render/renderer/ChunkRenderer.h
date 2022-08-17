@@ -18,6 +18,9 @@ class ChunkRenderer {
 
 public:
 
+    float fogDensity = 0.02f;
+    float fogGradient = 1.5f;
+
     ChunkRenderer() {
 
         shader.useProgram();
@@ -31,6 +34,9 @@ public:
         glBindTexture(GL_TEXTURE_2D, BlockTextures::ATLAS->atlasTexture->getTextureID());
 
         shader.useProgram();
+
+        shader.setFloat("fogDensity", fogDensity);
+        shader.setFloat("fogGradient", fogGradient);
 
         Renderer::setShaderCamPos(&shader);
         Renderer::setShaderMVP(&shader, Mth::matModel(chunk->getPosition()));

@@ -9,8 +9,8 @@ in vec3 FragPos;
 uniform sampler2D diffuseMap;
 uniform vec3 CameraPos;
 
-const float fogDensity = 0.02f;
-const float fogGradient = 1.5f;
+uniform float fogDensity;
+uniform float fogGradient;
 
 void main()
 {
@@ -26,6 +26,8 @@ void main()
 
     float fogf = clamp(pow(viewLen * fogDensity, fogGradient), 0.0, 1.0);
     vec3 fogColor = vec3(0.5, 0.6, 0.8) * 0.8;
+    fogColor = vec3(0.235, 0.557, 0.8) * 0.9;
+
     FragColor.rgb = mix(FragColor.rgb, fogColor, fogf);
 
 }

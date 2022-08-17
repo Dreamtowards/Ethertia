@@ -53,7 +53,9 @@ void et() {//try{
 
     // CodeGen
     {
-        SymbolFunction* sf = dynamic_cast<SymbolFunction*>(rt.resolve(Strings::split("ethertia::client::Ethertia::run", "::")));
+        SymbolFunction* sf = dynamic_cast<SymbolFunction*>(rt.resolve(
+                Strings::split("ethertia::client::Ethertia::run", "::")
+        ));
         CodeBuf::print(&sf->codebuf);
 
         // load code

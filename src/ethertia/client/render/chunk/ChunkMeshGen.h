@@ -88,14 +88,14 @@ u8 blk = chunk->world->getBlock(chunk->position + rpos);
             glm::vec3 dir = dirCubeFace(i);
             u8 neib = chunk->world->getBlock(chunk->position + rpos + dir);
 
-            bool opaq = neib == Blocks::LEAVES || (neib == Blocks::WATER && neib != blk);
+//            bool opaq = neib == Blocks::LEAVES || (neib == Blocks::WATER && neib != blk);
 //            if (blk == Blocks::WATER && neib == blk)
 //                opaq = false;
 
-            if (neib == 0 || opaq
-                    //Chunk::outbound(adjacent) ||
-                //chunk->getBlock(adjacent) == 0
-                ) {
+            if (neib == 0 || !Blocks::REGISTRY[neib]->isOpaque() ) {
+                if (neib == Blocks::WATER && neib == blk) {
+                    continue;
+                }
                 putCubeFace(vbuf, i, rpos, frag);
             }
         }

@@ -73,6 +73,7 @@ public:
 
         glfwSetWindowCloseCallback(window, onWindowClose);
         glfwSetWindowSizeCallback(window, onWindowSize);
+        glfwSetFramebufferSizeCallback(window, onFramebufferSize);
         glfwSetDropCallback(window, onWindowDropPath);
         glfwSetWindowFocusCallback(window, onWindowFocus);
 
@@ -162,12 +163,16 @@ public:
 
     static void onWindowClose(GLFWwindow* _w);
 
+    static void onFramebufferSize(GLFWwindow* _w, int wid, int hei) {
+
+        glViewport(0, 0, wid, hei);
+    }
+
     static void onWindowSize(GLFWwindow* _w, int wid, int hei) {
         Window* w = (Window*)glfwGetWindowUserPointer(_w);
         w->width = wid;
         w->height = hei;
 
-        glViewport(0, 0, wid, hei);
         WindowResizedEvent e(wid, hei);
         EventBus::EVENT_BUS.post(&e);
     }

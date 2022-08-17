@@ -90,7 +90,7 @@ public:
 
     // http://www.cse.yorku.ca/~amana/research/grid.pdf
     // Impl of Grid Voxel Raycast.
-    void raycast(glm::vec3 rpos, glm::vec3 rdir) {
+    bool raycast(glm::vec3 rpos, glm::vec3 rdir, glm::vec3& _pos, u8& _face) {
         using glm::vec3;
 
         vec3 step = glm::sign(rdir);
@@ -120,15 +120,12 @@ public:
 
             u8 b = getBlock(p);
             if (b) {
-                if (Eth::getWindow()->isAltKeyDown())
-                    setBlock(p + Mth::QFACES[face], Blocks::STONE);
-                else
-                    setBlock(p, 0);
-                Log::info("Cast Face ", face);
-                return;
+                _pos = p;
+                _face = face;
+                return true;
             }
         }
-
+        return false;
     }
 
     static void collideAABB(const AABB& self, glm::vec3& d, const AABB& coll) {
@@ -272,6 +269,30 @@ public:
                 }
             }
 
+        }
+
+        // Grass
+        for (int dx = 0; dx < 16; ++dx) {
+            for (int dz = 0; dz < 16; ++dz) {
+                int x = chunkpos.x + dx;
+                int z = chunkpos.z + dz;
+
+                float f = Mth::hash(x * z * 100);
+                if (f < (60 / 256.0f)) {
+
+                    for (int dy = 0; dy < 16; ++dy) {
+                        int y = chunkpos.y + dy;
+                        if (world->getBlock(x, y, z) == Blocks::GRASS) {
+                            u8 b = Blocks::TALL_GRASS;
+                            if (f < (4/256.0f)) b = Blocks::RED_TULIP;
+                            else if (f < (30/256.0f)) b = Blocks::SHRUB;
+                            else if (f < (40/256.0f)) b = Blocks::FERN;
+
+                            world->setBlock(x, y+1, z, b);
+                        }
+                    }
+                }
+            }
         }
 
         // Trees

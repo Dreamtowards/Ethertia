@@ -25,7 +25,7 @@ public:
 
     /// Smoothness of Camera's Pitch and Yaw.
     /// value is Seconds to the actual Destination Rotation., 0 accidentally means non-smooth.
-    float smoothness = 1.5f;
+    float smoothness = 0.0f;
 
     void updateMovement(Window& window, float dt) {
         float mx = window.getMouseDX() / 200;
@@ -46,7 +46,7 @@ public:
         eulerAngles.x = sX.current;
 
         len += window.getDScroll();
-        len = Mth::clamp(len, 0.0f, 100.0f);
+        len = Mth::clamp(len, 0.0f, 1000.0f);
 
     }
 
@@ -55,9 +55,10 @@ public:
         direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
         // assert(glm::length(direction) == 1.0f);
 
-        position = centerpos + -direction * len;
+        position = centerpos;
+        glm::vec3 p = centerpos + -direction * len;
 
-        out_viewMatrix = Mth::viewMatrix(position, eulerAngles);
+        out_viewMatrix = Mth::viewMatrix(p, eulerAngles);
     }
 
 };

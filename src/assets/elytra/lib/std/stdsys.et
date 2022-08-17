@@ -2,5 +2,9 @@
 
 namespace std;
 
+
+
 native void exit(i32 i);
+
+native void sleep(i32 ms);
 
