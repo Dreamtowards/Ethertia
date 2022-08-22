@@ -5,21 +5,30 @@
 #ifndef ETHERTIA_RENDERENGINE_H
 #define ETHERTIA_RENDERENGINE_H
 
-#include <ethertia/world/World.h>
-#include <ethertia/client/render/renderer/ChunkRenderer.h>
-#include <ethertia/client/render/renderer/gui/GuiRenderer.h>
-#include <ethertia/client/render/renderer/gui/FontRenderer.h>
+#include <glm/glm.hpp>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+class ChunkRenderer;
+class GuiRenderer;
+class FontRenderer;
+class EntityRenderer;
+class SkyGradientRenderer;
+
+class World;
+
 #include <ethertia/util/Frustum.h>
-#include <ethertia/client/render/renderer/SkyGradientRenderer.h>
+#include <ethertia/util/Mth.h>
+#include <ethertia/util/Log.h>
 
 class RenderEngine {
 
 public:
-    ChunkRenderer chunkRenderer;
-    GuiRenderer guiRenderer;
-    FontRenderer fontRenderer;
-
-    SkyGradientRenderer skyGradientRenderer;
+    ChunkRenderer* chunkRenderer             = nullptr;
+    GuiRenderer* guiRenderer                 = nullptr;
+    FontRenderer* fontRenderer               = nullptr;
+    EntityRenderer* entityRenderer           = nullptr;
+    SkyGradientRenderer* skyGradientRenderer = nullptr;
 
     glm::mat4 projectionMatrix{1};
     glm::mat4 viewMatrix{1};
@@ -27,13 +36,10 @@ public:
     Frustum viewFrustum{};
 
     float fov = 90;
+    float viewDistance = 3;
 
-    inline static float viewDistance = 3;
-
-    RenderEngine() {
-
-        Log::info("RenderEngine initialized. GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
-    }
+    RenderEngine();
+    ~RenderEngine();
 
     void updateProjectionMatrix(float ratio_wdh) {
         projectionMatrix = glm::perspective(Mth::radians(fov), ratio_wdh, 0.1f, 1000.0f);
@@ -43,45 +49,9 @@ public:
         viewFrustum.set(projectionMatrix * viewMatrix);
     }
 
-    void renderWorld(World* world)
-    {
-        glm::vec4 _s = Colors::fromRGB(132, 205, 240);  // 0.517, 0.8, 0.94
-        glClearColor(_s.x, _s.y, _s.z, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    void renderWorld(World* world);
 
-        glEnable(GL_DEPTH_TEST);
-        // glEnable(GL_CULL_FACE);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        skyGradientRenderer.render();
-
-        for (auto it : world->getLoadedChunks()) {
-            Chunk* chunk = it.second;
-            if (!chunk)  // Log::info("NO RENDER Chunk: NULL.");
-                continue;
-            if (!chunk->model)
-                continue;
-
-            // Frustum Culling
-            if (!viewFrustum.intersects(chunk->getAABB()))
-                continue;
-
-            // Rendering Call.
-            chunkRenderer.render(chunk);
-        }
-
-        RenderEngine::checkGlError();
-    }
-
-    static void checkGlError() {
-        uint err = glGetError();
-        if (err) {
-            Log::warn("###### GL Error ######");
-            Log::warn("ERR: {}", err);
-        }
-    }
+    static void checkGlError();
 };
 
 #endif //ETHERTIA_RENDERENGINE_H

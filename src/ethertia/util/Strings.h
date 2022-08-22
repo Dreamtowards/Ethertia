@@ -38,6 +38,38 @@ public:
         ls.push_back(str.substr(beg));
         return ls;
     }
+
+
+    static size_t findChar(const std::string_view& str, char ch, int beg) {
+        for (int i = beg; i < str.length(); ++i) {
+            if (str[i] == ch)
+                return i;
+        }
+        return std::string::npos;
+    }
+    static size_t findNonChar(const std::string_view& str, char ch, int beg) {
+        for (int i = beg; i < str.length(); ++i) {
+            if (str[i] != ch)
+                return i;
+        }
+        return std::string::npos;
+    }
+
+    static std::vector<std::string> splitConnected(const std::string& str, char ch) {
+        std::vector<std::string> ls;
+        u64 beg = findNonChar(str, ch, 0);
+        if (beg == std::string::npos) return {};
+
+        u64 end;
+        while ((end = findChar(str, ch, beg)) != std::string::npos) {
+            ls.push_back(str.substr(beg, end-beg));
+            beg = findNonChar(str, ch, end);
+            if (beg == std::string::npos)
+                return ls;
+        }
+        ls.push_back(str.substr(beg));
+        return ls;
+    }
 };
 
 #endif //ETHERTIA_STRINGS_H

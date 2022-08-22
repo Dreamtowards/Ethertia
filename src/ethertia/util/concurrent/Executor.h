@@ -17,7 +17,7 @@ class Executor
     // std::mutex lock;  // needs?
 
 public:
-    Executor(std::thread::id th) {
+    explicit Executor(std::thread::id th) {
         _thread = th;
     }
 

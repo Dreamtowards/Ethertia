@@ -32,6 +32,7 @@ public:
     inline static AtlasFrag* SHRUB = load("blocks/shrub.png");
     inline static AtlasFrag* FERN  = load("blocks/fern.png");
     inline static AtlasFrag* TALL_GRASS = load("blocks/grass_2.png");
+    inline static AtlasFrag* VINE = load("blocks/vine_3d.png");
 
     static void init()
     {

@@ -13,10 +13,10 @@
 
 class ChunkRenderer {
 
+public:
     ShaderProgram shader{Loader::loadAssetsStr("shaders/chunk/chunk.vsh"),
                          Loader::loadAssetsStr("shaders/chunk/chunk.fsh")};
 
-public:
 
     float fogDensity = 0.02f;
     float fogGradient = 1.5f;

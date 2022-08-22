@@ -38,6 +38,7 @@ public:
     inline static u8 RED_TULIP = regblock(new BlockLeaves(BlockTextures::RED_TULIP));
     inline static u8 SHRUB = regblock(new BlockLeaves(BlockTextures::SHRUB));
     inline static u8 FERN = regblock(new BlockLeaves(BlockTextures::FERN));
+    inline static u8 VINE = regblock(new BlockLeaves(BlockTextures::VINE));
 
 };
 

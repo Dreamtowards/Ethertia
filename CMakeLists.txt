@@ -14,18 +14,17 @@ include_directories(lib/glfw/include)
 
 add_executable(Ethertia
         lib/glad/glad.c
-        src/ethertia/client/gui/Gui.cpp
-        src/ethertia/client/render/renderer/Renderer.cpp
-        src/ethertia/client/Window.cpp
-        src/ethertia/block/Block.cpp
         src/ethertia/event/EventBus.cpp
+        src/ethertia/client/render/renderer/Renderer.cpp
+        src/ethertia/block/Block.cpp
         src/ethertia/world/World.cpp
-        src/ethertia/util/Eth.cpp
 
         src/ethertia/lang/symbol/Scope.cpp
         src/ethertia/lang/lexer/TokenType.cpp
         src/ethertia/lang/symbol/SymbolInternalTypes.cpp
 
+        src/ethertia/client/gui/Gui.cpp
+        src/ethertia/client/render/RenderEngine.cpp
         src/ethertia/client/Ethertia.cpp )
 
 if (APPLE)

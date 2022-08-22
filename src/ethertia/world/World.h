@@ -16,7 +16,7 @@
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Mth.h>
 
-#include "ethertia/util/Eth.h"
+#include <ethertia/client/Ethertia.h>
 #include "ethertia/client/Window.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -31,8 +31,8 @@ class World
 
     ChunkGenerator chunkGenerator;
 
-public:
 
+public:
     u8 getBlock(glm::vec3 blockpos) {
         Chunk* chunk = getLoadedChunk(blockpos);
         if (!chunk) return 0;
@@ -86,6 +86,10 @@ public:
 
     void removeEntity(Entity* e) {
         Collections::erase(entities, e);
+    }
+
+    std::vector<Entity*>& getEntities() {
+        return entities;
     }
 
     // http://www.cse.yorku.ca/~amana/research/grid.pdf
@@ -185,7 +189,7 @@ public:
 //            }
 
             {
-                if (!Eth::getWindow()->isAltKeyDown()) {
+                if (!Ethertia::getWindow()->isAltKeyDown()) {
                     glm::vec3& v = e->velocity;
 
                     glm::vec3 pp = e->prevposition;
@@ -289,6 +293,31 @@ public:
                             else if (f < (40/256.0f)) b = Blocks::FERN;
 
                             world->setBlock(x, y+1, z, b);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Vines
+        for (int dx = 0; dx < 16; ++dx) {
+            for (int dz = 0; dz < 16; ++dz) {
+                int x = chunkpos.x + dx;
+                int z = chunkpos.z + dz;
+
+                if (Mth::hash(x * z * 2349242) < (6.0f / 256.0f)) {
+                    for (int dy = 0; dy < 16; ++dy) {
+                        int y = chunkpos.y + dy;
+                        if (world->getBlock(x, y, z) == Blocks::STONE &&
+                            world->getBlock(x, y-1, z) == 0) {
+
+
+                            for (int i = 0; i < 32 * Mth::hash(x*y*47923); ++i) {
+
+                                world->setBlock(x, y-1-i, z, Blocks::VINE);
+                            }
+
+                            break;
                         }
                     }
                 }

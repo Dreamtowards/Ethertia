@@ -8,7 +8,6 @@
 #include <ethertia/client/render/shader/ShaderProgram.h>
 #include <ethertia/client/Loader.h>
 #include <ethertia/client/render/Model.h>
-#include <ethertia/util/Eth.h>
 #include <ethertia/client/render/Camera.h>
 
 class SkyGradientRenderer
@@ -35,7 +34,7 @@ public:
         Renderer::setShaderCamPos(&shader);
         // CamPos+
         Renderer::setShaderMVP(&shader, Mth::matModel(
-                Eth::getCamera()->position + glm::vec3{0, 80, 0},
+                Ethertia::getCamera()->position + glm::vec3{0, 80, 0},
                 glm::vec3 {500}));
 
         glBindVertexArray(M_PLANE->vaoId);

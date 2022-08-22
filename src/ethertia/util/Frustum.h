@@ -8,6 +8,8 @@
 #include <glm/vec4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <ethertia/util/AABB.h>
+
 // http://www.cs.otago.ac.nz/postgrads/alexis/planeExtraction.pdf
 // https://www.flipcode.com/archives/Frustum_Culling.shtml
 // https://iquilezles.org/www/articles/frustumcorrect/frustumcorrect.htm

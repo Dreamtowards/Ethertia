@@ -20,6 +20,10 @@ public:
     glm::vec3 intpposition;
 
 
+    Model* model = nullptr;
+    Texture* diffuseMap = nullptr;
+
+
 };
 
 #endif //ETHERTIA_ENTITY_H

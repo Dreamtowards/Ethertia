@@ -12,29 +12,31 @@
 
 #include <ethertia/util/Log.h>
 #include <ethertia/event/EventBus.h>
-#include <ethertia/event/client/MouseButtonEvent.h>
 #include <ethertia/event/client/KeyboardEvent.h>
-#include <ethertia/event/client/MouseMoveEvent.h>
-#include <ethertia/event/client/WindowResizedEvent.h>
 #include <ethertia/event/client/CharInputEvent.h>
+#include <ethertia/event/client/MouseButtonEvent.h>
+#include <ethertia/event/client/MouseMoveEvent.h>
+#include <ethertia/event/client/MouseScrollEvent.h>
+#include <ethertia/event/client/WindowResizedEvent.h>
 #include <ethertia/event/client/WindowDropEvent.h>
 #include <ethertia/event/client/WindowFocusEvent.h>
-#include <ethertia/event/client/MouseScrollEvent.h>
+#include <ethertia/event/client/WindowCloseEvent.h>
+#include <ethertia/client/Ethertia.h>
 
 
 class Window
 {
-    GLFWwindow* window;
+    GLFWwindow* window = nullptr;
 
-    float mouseX;
-    float mouseY;
-    float mouseDX;
-    float mouseDY;
-    float scrollDX;
-    float scrollDY;
+    float mouseX = 0;
+    float mouseY = 0;
+    float mouseDX = 0;
+    float mouseDY = 0;
+    float scrollDX = 0;
+    float scrollDY = 0;
 
-    float width;
-    float height;
+    float width = 0;
+    float height = 0;
 
 public:
 
@@ -161,7 +163,13 @@ public:
         scrollDY = 0;
     }
 
-    static void onWindowClose(GLFWwindow* _w);
+    static void onWindowClose(GLFWwindow* _w) {
+        WindowCloseEvent e;
+        if (EventBus::EVENT_BUS.post(&e))
+            return;
+
+        Ethertia::shutdown();
+    }
 
     static void onFramebufferSize(GLFWwindow* _w, int wid, int hei) {
 

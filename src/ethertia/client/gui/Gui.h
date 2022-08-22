@@ -14,6 +14,10 @@
 #include <ethertia/client/render/Texture.h>
 #include <ethertia/util/Colors.h>
 
+#include <ethertia/client/Ethertia.h>
+#include <ethertia/client/Window.h>
+#include <ethertia/client/render/RenderEngine.h>
+
 class Gui
 {
     float x = 0;
@@ -249,7 +253,6 @@ public:
     bool isPointOver(const glm::vec2& p) {
         return isPointOver(p.x, p.y);
     }
-    bool isMouseOver();
 
     static Gui* pointing(Gui* g, glm::vec2 p) {
         if (!g->isPointOver(p))
@@ -327,11 +330,16 @@ public:
 
 
 
-    static float maxWidth();
-    static float maxHeight();
+    static float maxWidth() { return Ethertia::getWindow()->getWidth(); }
+    static float maxHeight() { return Ethertia::getWindow()->getHeight(); }
 
-    static float cursorX();
-    static float cursorY();
+    static float cursorX() { return Ethertia::getWindow()->getMouseX(); }
+    static float cursorY() { return Ethertia::getWindow()->getMouseY(); }
+
+    bool isCursorOver()  {
+        auto* w = Ethertia::getWindow();
+        return isPointOver(w->getMouseX(), w->getMouseY());
+    }
 
     static void drawRect(float x, float y, float w, float h, glm::vec4 color,
                          Texture* tex =nullptr,
@@ -342,10 +350,20 @@ public:
     static void drawString(float x, float y, const std::string& str,
                            glm::vec4 color =Colors::WHITE,
                            float textHeight =16,
-                           float align =0,
+                           float alignX =0,
                            bool drawShadow =true);
 
-    static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
+    static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn)
+    {
+        glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getRenderEngine()->viewMatrix, Ethertia::getRenderEngine()->projectionMatrix);
+
+        p.x = p.x * Gui::maxWidth();
+        p.y = p.y * Gui::maxHeight();
+
+        if (p.z > 0) {
+            fn(glm::vec2(p.x, p.y));
+        }
+    }
 
 
 // drawCornerStretchTexture

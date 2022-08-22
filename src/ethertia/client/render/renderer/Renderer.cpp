@@ -5,7 +5,8 @@
 
 #include "Renderer.h"
 #include <ethertia/client/Ethertia.h>
-
+#include <ethertia/client/render/RenderEngine.h>
+#include <ethertia/client/render/Camera.h>
 
 void Renderer::setShaderMVP(ShaderProgram* shader, glm::mat4 matModel) {
 
