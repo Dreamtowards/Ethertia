@@ -149,11 +149,18 @@ public:
         glfwSetInputMode(window, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
 
+    void setStickyKeys(bool s) {
+        glfwSetInputMode(window, GLFW_STICKY_KEYS, s ? GLFW_TRUE : GLFW_FALSE);
+    }
+
     bool isShiftKeyDown() {
         return isKeyDown(GLFW_KEY_LEFT_SHIFT) || isKeyDown(GLFW_KEY_RIGHT_SHIFT);
     }
     bool isAltKeyDown() {
         return isKeyDown(GLFW_KEY_LEFT_ALT) || isKeyDown(GLFW_KEY_RIGHT_ALT);
+    }
+    bool isCtrlKeyDown() {
+        return isKeyDown(GLFW_KEY_LEFT_CONTROL) || isKeyDown(GLFW_KEY_RIGHT_CONTROL);
     }
 
     void resetDeltas() {
@@ -233,7 +240,7 @@ public:
 
     static void onCharInput(GLFWwindow* _w, unsigned int codepoint) {
 
-        CharInputEvent e;
+        CharInputEvent e(codepoint);
         EventBus::EVENT_BUS.post(&e);
     }
 };

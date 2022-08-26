@@ -105,18 +105,70 @@ public:
         return w;
     }
 
-    glm::vec2 calculateTextBound(const std::string& str, float textHeight) {
+    int textIdx(const std::string& str, float textHeight, float pX, float pY) {
+        if (pX < 0 || pY < 0) return 0;
+
+        float lineHeight = textHeight * (1.0f+GAP_LINE_PERC);
+        float x = 0;
+        float y = 0;
+        for (int i = 0; i < str.length(); ++i) {
+            char ch = str[i];
+            float chWidth = charFullWidth(ch, textHeight);
+
+            if (pY >= y && pY < y+lineHeight) {
+                if (ch == '\n' && pX >= x) {
+                    return i;
+                } else if (pX >= x && pX < x+chWidth) {
+                    bool pre = pX < x+chWidth*0.5f;
+                    return pre ? i : i+1;
+                }
+            }
+
+            if (ch == '\n') {
+                x = 0;
+                y += lineHeight;
+            } else {
+                x += chWidth;
+            }
+        }
+        return str.length();
+    }
+
+    // if use as Bound, please +lineHeight to y.
+    glm::vec2 textPos(const std::string& str, float textHeight, int until = -1) {
+        float lineHeight = textHeight * (1.0f+GAP_LINE_PERC);
+        float x = 0;
+        float y = 0;
+        if (until == -1) until = str.length();
+        for (int i = 0; i < until; ++i) {
+            char ch = str[i];
+            float chWidth = charFullWidth(ch, textHeight);
+
+            if (ch == '\n') {
+                x = 0;
+                y += lineHeight;
+            } else {
+                x += chWidth;
+            }
+        }
+        return glm::vec2(x, y);
+    }
+
+    // there 3 same traversal proc, need an common abstraction, but not now
+    glm::vec2 textBound(const std::string& str, float textHeight) {
         float lineHeight = textHeight * (1.0f+GAP_LINE_PERC);
         float maxX = 0;
         float x = 0;
         float y = 0;
-        for (uint ch : str) {
+        for (int i = 0; i < str.length(); ++i) {
+            char ch = str[i];
+
             if (ch == '\n') {
-                maxX = Mth::max(maxX, x);
                 x = 0;
                 y += lineHeight;
             } else {
                 x += charFullWidth(ch, textHeight);
+                maxX = Mth::max(maxX, x);
             }
         }
         return glm::vec2(maxX, y+lineHeight);

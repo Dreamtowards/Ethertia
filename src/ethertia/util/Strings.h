@@ -70,6 +70,14 @@ public:
         ls.push_back(str.substr(beg));
         return ls;
     }
+    static std::vector<std::string> splitSpaces(const std::string& str) {
+        return splitConnected(str, ' ');
+    }
+
+    // split command parts by spaces. quoted by " or ' will be seen as a whole part.
+//    static std::vector<std::string> splitCommand(const std::string& str) {
+//
+//    }
 };
 
 #endif //ETHERTIA_STRINGS_H

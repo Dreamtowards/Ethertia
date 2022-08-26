@@ -9,6 +9,7 @@
 #include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/client/render/Model.h>
 #include <ethertia/util/AABB.h>
+#include <ethertia/block/stat/BlockState.h>
 
 class World;
 
@@ -17,7 +18,7 @@ class Chunk
 public:
     static const int SIZE = 16;
 
-    u8 blocks[16*16*16] = {};
+    BlockState blocks[16*16*16] = {};
 
 
     glm::vec3 position;
@@ -29,6 +30,7 @@ public:
     bool needUpdateModel = true;
 
     Chunk() {
+
     }
     ~Chunk() {
         if (model) {
@@ -37,17 +39,17 @@ public:
         }
     }
 
-    u8 getBlock(int rx, int ry, int rz) {
+    BlockState& getBlock(int rx, int ry, int rz) {
         return blocks[blockidx(rx, ry, rz)];
     }
-    u8 getBlock(glm::ivec3 rp) {
+    BlockState& getBlock(glm::ivec3 rp) {
         return getBlock(rp.x, rp.y, rp.z);
     }
 
-    void setBlock(int rx, int ry, int rz, u8 blockID) {
-        blocks[blockidx(rx,ry,rz)] = blockID;
+    void setBlock(int rx, int ry, int rz, const BlockState& block) {
+        blocks[blockidx(rx,ry,rz)] = block;
     }
-    void setBlock(glm::ivec3 rp, u8 block) {
+    void setBlock(glm::ivec3 rp, const BlockState& block) {
         setBlock(rp.x, rp.y, rp.z, block);
     }
 
@@ -57,12 +59,8 @@ public:
                           Mth::floor(p.z) & 15);
     }
 
-    glm::vec3 getPosition() const {
-        return position;
-    }
-
     static inline int blockidx(int x, int y, int z) {
-        assert(x >= 0 && x < 16 && y >= 0 && y < 16 && z >= 0 && z < 16);
+        // assert(x >= 0 && x < 16 && y >= 0 && y < 16 && z >= 0 && z < 16);
         return x << 8 | y << 4 | z;
     }
     static inline glm::vec3 chunkpos(glm::vec3 p) {

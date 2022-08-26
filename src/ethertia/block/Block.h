@@ -34,7 +34,7 @@ public:
 
     void internalPutCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag);
 
-    void internalPutLeaves(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag);
+    void internalPutLeaves(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag, float randf = 0.65f);
 };
 
 #endif //ETHERTIA_BLOCK_H

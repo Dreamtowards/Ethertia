@@ -15,7 +15,9 @@ class GuiRoot : public GuiCollection
     void onMouseButton(MouseButtonEvent* e)
     {
 
-        updateFocused();
+        if (e->isPressed()) {  // mouse release should not effect the focus stat
+            updateFocused();
+        }
 
         updatePressed(e->isPressed());
     }

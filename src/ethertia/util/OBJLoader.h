@@ -25,8 +25,7 @@ public:
         std::string line;
         while (std::getline(in, line))
         {
-            std::vector<std::string> c = Strings::splitConnected(line, ' ');
-            //Log::info("V{}: {} {} {} {}", f.size(), f[0], f[1], f[2], f[3]);
+            std::vector<std::string> c = Strings::splitSpaces(line);
 
             if (line.find("v ") == 0) {
                 assert(c.size() == 4); assert(!f_started);

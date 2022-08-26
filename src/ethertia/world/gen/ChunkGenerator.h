@@ -37,8 +37,27 @@ public:
 
 //        Log::info("Gen Terr "+glm::to_string(chunkpos));
 
-//chunk->setBlock(0,0,0,Blocks::LEAVES);
+//chunk->setBlock(0,0,0,BlockState(Blocks::STONE, 0.5));
+////        chunk->setBlock(1,0,0,BlockState(Blocks::STONE, 0.5));
 //        return chunk;
+
+        using glm::vec3;
+        {
+            for (int rx = 0; rx < 16; ++rx) {
+                for (int ry = 0; ry < 16; ++ry) {  // /tp -630 166 9
+                    for (int rz = 0; rz < 16; ++rz) {
+                        vec3 rp = vec3(rx, ry, rz);
+                        vec3 p = chunkpos + rp;
+
+                        float f = noise.noise(p.x / 6.5f, p.y / 4.4f, p.z / 6.53f);
+
+                        if (f > -0.3f)
+                        chunk->setBlock(rp, BlockState(Blocks::STONE, f));
+                    }
+                }
+            }
+        }
+        return chunk;
 
         int samples = 4;
         int sampleSize = 4;
@@ -115,6 +134,7 @@ public:
 //                                        block = Block.waterStill.blockID;
 //                                    }
 //                                }
+                                //Log::info("F: ", spZsum);
 
                                 u8 bl = 0;
                                 if (spZsum > 0.0) {
@@ -123,7 +143,7 @@ public:
                                     bl = Blocks::WATER;
                                 }
                                 if (bl) {
-                                    chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, bl);
+                                    chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, BlockState(bl, spZsum, 0));
                                 }
                                 spZsum += spZdiffx0;
                             }

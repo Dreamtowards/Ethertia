@@ -7,6 +7,15 @@
 
 class CharInputEvent {
 
+    u32 _char;
+
+public:
+    CharInputEvent(u32 _char) : _char(_char) {}
+
+    u32 getChar() {
+        return _char;
+    }
+
 };
 
 #endif //ETHERTIA_CHARINPUTEVENT_H

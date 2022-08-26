@@ -2,8 +2,8 @@
 // Created by Dreamtowards on 2022/4/22.
 //
 
-#ifndef ETHERTIA_CHUNKMESHGEN_H
-#define ETHERTIA_CHUNKMESHGEN_H
+#ifndef ETHERTIA_BLOCKYCHUNKMESHGEN_H
+#define ETHERTIA_BLOCKYCHUNKMESHGEN_H
 
 #include <ethertia/client/render/VertexBuffer.h>
 #include <ethertia/client/Loader.h>
@@ -13,7 +13,7 @@
 #include <ethertia/init/Blocks.h>
 #include <ethertia/init/BlockTextures.h>
 
-class ChunkMeshGen
+class BlockyChunkMeshGen
 {
 public:
 
@@ -65,11 +65,11 @@ public:
         for (int rx = 0; rx < 16; ++rx) {
             for (int ry = 0; ry < 16; ++ry) {
                 for (int rz = 0; rz < 16; ++rz) {
-                    int blockID = chunk->getBlock(rx, ry, rz);
+                    BlockState& block = chunk->getBlock(rx, ry, rz);
 
-                    if (blockID)
+                    if (block.id)
                     {
-                        Blocks::REGISTRY[blockID]->getVertexData(vbuf, glm::vec3(rx, ry, rz), chunk);
+                        Blocks::REGISTRY[block.id]->getVertexData(vbuf, glm::vec3(rx, ry, rz), chunk);
                     }
                 }
             }
@@ -83,10 +83,11 @@ public:
     static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, AtlasFrag* frag) {
 //        putCubeFace(vbuf, 2, rpos, frag);
 //        return;
-u8 blk = chunk->world->getBlock(chunk->position + rpos);
+        u8 blk = chunk->getBlock(rpos).id;
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = dirCubeFace(i);
-            u8 neib = chunk->world->getBlock(chunk->position + rpos + dir);
+            glm::vec3 np = rpos + dir;
+            u8 neib = Chunk::outbound(np) ? 0 : chunk->getBlock(np).id;
 
 //            bool opaq = neib == Blocks::LEAVES || (neib == Blocks::WATER && neib != blk);
 //            if (blk == Blocks::WATER && neib == blk)
@@ -149,4 +150,4 @@ u8 blk = chunk->world->getBlock(chunk->position + rpos);
 
 };
 
-#endif //ETHERTIA_CHUNKMESHGEN_H
+#endif //ETHERTIA_BLOCKYCHUNKMESHGEN_H

@@ -23,15 +23,22 @@ class ShaderProgram {
 
 public:
 
-    ShaderProgram(const std::string& svsh, const std::string& sfsh) {
+    ShaderProgram(const std::string& vsh_src, const std::string& fsh_src, const std::string& gsh_src = "") {
 
-        u32 vsh = loadShader(GL_VERTEX_SHADER, svsh);
-        u32 fsh = loadShader(GL_FRAGMENT_SHADER, sfsh);
+        u32 vsh = loadShader(GL_VERTEX_SHADER, vsh_src);
+        u32 fsh = loadShader(GL_FRAGMENT_SHADER, fsh_src);
+        u32 gsh = 0;
+        if (gsh_src.length()) {
+            gsh = loadShader(GL_GEOMETRY_SHADER, gsh_src);
+        }
 
         program = glCreateProgram();
 
         glAttachShader(program, vsh);
         glAttachShader(program, fsh);
+        if (gsh) glAttachShader(program, gsh);
+
+
         glLinkProgram(program);
 
         int succ;
@@ -44,6 +51,7 @@ public:
 
         glDeleteShader(vsh);
         glDeleteShader(fsh);
+        if (gsh) glDeleteShader(gsh);
     }
 
     ~ShaderProgram() {

@@ -38,11 +38,19 @@ public:
     static inline int ceil(float v) {
         return floor(v)+1;
     }
+    static inline float floor(float v, float u) {
+        return floor(v / u) * u;
+    }
 
     /// u: unit
     static float round(float v, float u) {
         float f = std::round(v / u);
         return f*u;
+    }
+    static glm::vec3 round(glm::vec3 v, float u) {
+        return glm::vec3(round(v.x, u),
+                         round(v.y, u),
+                         round(v.z, u));
     }
 
     static inline glm::vec3 floor(glm::vec3 v) {
@@ -71,6 +79,9 @@ public:
         return a * a;
     }
 
+    static inline float mod(float v, float u) {
+        return std::fmod(v, u);
+    }
 
     template<typename T>
     static inline T fade(T t) {
@@ -118,6 +129,15 @@ public:
     // to degrees
     static float degrees(float rad) {
         return rad * 57.2957795131f;// 1/PI * 180.0
+    }
+
+    static inline glm::vec3 vec3(const float* base) {
+        return glm::vec3(base[0], base[1], base[2]);
+    }
+    static inline void vec3out(const glm::vec3& v, float* base) {
+        base[0] = v.x;
+        base[1] = v.y;
+        base[2] = v.z;
     }
 
     static constexpr glm::vec3 QFACES[6] = {

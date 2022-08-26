@@ -33,7 +33,9 @@ public:
     inline static u8 SAND = regblock(new BlockSand());
     inline static u8 WATER = regblock(new BlockWater());
     inline static u8 LOG = regblock(new BlockLog());
-    inline static u8 LEAVES = regblock(new BlockLeaves(BlockTextures::LEAVES_2));
+    inline static u8 LEAVES = regblock(new BlockLeaves(BlockTextures::LEAVES_2, 1.8f));
+    inline static u8 LEAVES_JUNGLE = regblock(new BlockLeaves(BlockTextures::LEAVES_JUNGLE, 1.8f));
+    inline static u8 LEAVES_APPLE = regblock(new BlockLeaves(BlockTextures::LEAVES_APPLE, 1.8f));
     inline static u8 TALL_GRASS = regblock(new BlockLeaves(BlockTextures::TALL_GRASS));
     inline static u8 RED_TULIP = regblock(new BlockLeaves(BlockTextures::RED_TULIP));
     inline static u8 SHRUB = regblock(new BlockLeaves(BlockTextures::SHRUB));

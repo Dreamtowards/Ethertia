@@ -23,9 +23,11 @@ public:
     inline static AtlasFrag* DIRT  = load("blocks/dirt.png");
     inline static AtlasFrag* GRASS = load("blocks/grass.png");
     inline static AtlasFrag* SAND  = load("blocks/sand.png");
-    inline static AtlasFrag* WATER = load("blocks/water_still.png");
+    inline static AtlasFrag* WATER = load("blocks/water_still_opaque_blu.png");  //water_still_opaque_blu
     inline static AtlasFrag* LOG   = load("blocks/log.png");
     inline static AtlasFrag* LEAVES= load("blocks/leaves.png");
+    inline static AtlasFrag* LEAVES_JUNGLE= load("blocks/leaves_jungle.png");
+    inline static AtlasFrag* LEAVES_APPLE= load("blocks/rose_bush_top.png");
     inline static AtlasFrag* GLASS = load("blocks/glass.png");
     inline static AtlasFrag* LEAVES_2 = load("blocks/leaves_3.png");
     inline static AtlasFrag* RED_TULIP = load("blocks/red_tulip.png");;

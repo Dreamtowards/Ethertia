@@ -12,7 +12,7 @@ class BlockWater : public Block
 
     void getVertexData(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk) override {
 
-        internalPutCube(vbuf, rpos, chunk, BlockTextures::LEAVES);
+        internalPutCube(vbuf, rpos, chunk, BlockTextures::WATER);
     }
 };
 

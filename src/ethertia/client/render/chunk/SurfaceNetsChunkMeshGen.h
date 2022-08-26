@@ -1,0 +1,13 @@
+//
+// Created by Dreamtowards on 2022/8/23.
+//
+
+#ifndef ETHERTIA_SURFACENETSCHUNKMESHGEN_H
+#define ETHERTIA_SURFACENETSCHUNKMESHGEN_H
+
+class SurfaceNetsMeshGen
+{
+
+};
+
+#endif //ETHERTIA_SURFACENETSCHUNKMESHGEN_H

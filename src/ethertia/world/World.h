@@ -19,7 +19,7 @@
 #include <ethertia/client/Ethertia.h>
 #include "ethertia/client/Window.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
+//#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/hash.hpp"
 #include "glm/gtx/string_cast.hpp"
 
@@ -33,20 +33,31 @@ class World
 
 
 public:
-    u8 getBlock(glm::vec3 blockpos) {
+    std::mutex chunklock;
+
+    BlockState getBlock(glm::vec3 blockpos) {
         Chunk* chunk = getLoadedChunk(blockpos);
-        if (!chunk) return 0;
+        if (!chunk) return BlockState();  // AIR
         return chunk->getBlock(Chunk::rpos(blockpos));
     }
-    u8 getBlock(int x, int y, int z) {
+    BlockState getBlock(int x, int y, int z) {
         return getBlock(glm::vec3(x,y,z));
     }
 
-    void setBlock(glm::vec3 p, u8 blockID) {
+    void setBlock(glm::vec3 p, BlockState blockID) {
         Chunk* chunk = getLoadedChunk(p);
         if (!chunk) return;
         glm::ivec3 bp = Chunk::rpos(p);
         chunk->setBlock(bp, blockID);
+
+    }
+    void setBlock(int x, int y, int z, BlockState blockID) {
+        setBlock(glm::vec3(x,y,z), blockID);
+    }
+    void requestRemodel(glm::vec3 p) {
+        Chunk* chunk = getLoadedChunk(p);
+        if (!chunk) return;
+        glm::ivec3 bp = Chunk::rpos(p);
 
         chunk->requestRemodel();
 
@@ -57,9 +68,6 @@ public:
         if (bp.y == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 1, 0)))) tmp->requestRemodel();
         if (bp.z == 0 && (tmp=getLoadedChunk(p - glm::vec3(0, 0, 1)))) tmp->requestRemodel();
         if (bp.z == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 0, 1)))) tmp->requestRemodel();
-    }
-    void setBlock(int x, int y, int z, u8 blockID) {
-        setBlock(glm::vec3(x,y,z), blockID);
     }
 
     Chunk* provideChunk(glm::vec3 p);
@@ -122,8 +130,8 @@ public:
                 face = step.z > 0 ? 4 : 5;
             }
 
-            u8 b = getBlock(p);
-            if (b) {
+            BlockState b = getBlock(p);
+            if (b.id) {
                 _pos = p;
                 _face = face;
                 return true;
@@ -189,7 +197,7 @@ public:
 //            }
 
             {
-                if (!Ethertia::getWindow()->isAltKeyDown()) {
+                if (false ) {  // || !Ethertia::getWindow()->isAltKeyDown()
                     glm::vec3& v = e->velocity;
 
                     glm::vec3 pp = e->prevposition;
@@ -209,8 +217,8 @@ public:
                                 glm::vec3 min(dx, dy, dz);
                                 glm::vec3 max = min + glm::vec3(1);
 
-                                u8 b = getBlock(min);
-                                if (!b) continue;
+                                BlockState b = getBlock(min);
+                                if (!b.id) continue;
 
                                 collideAABB(self, d, AABB(min, max));
                             }
@@ -244,15 +252,15 @@ public:
 
                 for (int dy = 0; dy < 16; ++dy) {
                     int y = chunkpos.y + dy;
-                    u8 tmpbl = world->getBlock(x, y, z);
-                    if (tmpbl == 0 || tmpbl == Blocks::WATER)
+                    BlockState tmpbl = world->getBlock(x, y, z);
+                    if (tmpbl.id == 0 || tmpbl.id == Blocks::WATER)
                         continue;
-                    if (tmpbl != Blocks::STONE)
+                    if (tmpbl.id != Blocks::STONE)
                         continue;
 
                     if (nextAir < dy) {
                         for (int i = 0;; ++i) {
-                            if (world->getBlock(x, y+i, z) == 0) {
+                            if (world->getBlock(x, y+i, z).id == 0) {
                                 nextAir = dy+i;
                                 break;
                             }
@@ -269,7 +277,7 @@ public:
                     } else if (nextToAir < 4) {
                         replace = Blocks::DIRT;
                     }
-                    world->setBlock(x, y, z, replace);
+                    world->setBlock(x, y, z, BlockState(replace));
                 }
             }
 
@@ -286,13 +294,13 @@ public:
 
                     for (int dy = 0; dy < 16; ++dy) {
                         int y = chunkpos.y + dy;
-                        if (world->getBlock(x, y, z) == Blocks::GRASS) {
+                        if (world->getBlock(x, y, z).id == Blocks::GRASS) {
                             u8 b = Blocks::TALL_GRASS;
                             if (f < (4/256.0f)) b = Blocks::RED_TULIP;
                             else if (f < (30/256.0f)) b = Blocks::SHRUB;
                             else if (f < (40/256.0f)) b = Blocks::FERN;
 
-                            world->setBlock(x, y+1, z, b);
+                            world->setBlock(x, y+1, z, BlockState(b));
                         }
                     }
                 }
@@ -308,13 +316,13 @@ public:
                 if (Mth::hash(x * z * 2349242) < (6.0f / 256.0f)) {
                     for (int dy = 0; dy < 16; ++dy) {
                         int y = chunkpos.y + dy;
-                        if (world->getBlock(x, y, z) == Blocks::STONE &&
-                            world->getBlock(x, y-1, z) == 0) {
+                        if (world->getBlock(x, y, z).id == Blocks::STONE &&
+                            world->getBlock(x, y-1, z).id == 0) {
 
 
                             for (int i = 0; i < 32 * Mth::hash(x*y*47923); ++i) {
 
-                                world->setBlock(x, y-1-i, z, Blocks::VINE);
+                                world->setBlock(x, y-1-i, z, BlockState(Blocks::VINE));
                             }
 
                             break;
@@ -333,23 +341,33 @@ public:
                 if (Mth::hash(x*z) < (2.5/256.0f)) {
                     for (int dy = 0; dy < 16; ++dy) {
                         int y = chunkpos.y + dy;
-                        if (world->getBlock(x, y, z) == Blocks::GRASS) {
+                        if (world->getBlock(x, y, z).id == Blocks::GRASS) {
 
                             float f = Mth::hash(x*z*y);
                             int h = 2+f*8;
                             int r = 3;
+
+                            u8 _leaf = Blocks::LEAVES;
+                            if (f > 0.8f) {
+                                h *= 1.6f;
+                                _leaf = Blocks::LEAVES_JUNGLE;
+                            } else if (f < 0.2f) _leaf = Blocks::LEAVES_APPLE;
+
+
                             for (int lx = -r; lx <= r; ++lx) {
                                 for (int lz = -r; lz <= r; ++lz) {
                                     for (int ly = -r; ly <= r+f*8; ++ly) {
                                         if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly)) > r*r)
                                             continue;
-                                        world->setBlock(x+lx, y+ly+h+Mth::hash(y)*4, z+lz, Blocks::LEAVES);
+                                        if (_leaf == Blocks::LEAVES && Mth::hash(x*y*z) < 0.2f)
+                                            _leaf = Blocks::LEAVES_APPLE;
+                                        world->setBlock(x+lx, y+ly+h+Mth::hash(y)*4, z+lz, BlockState(_leaf));
                                     }
                                 }
                             }
                             for (int i = 0; i < h; ++i) {
 
-                                world->setBlock(x, y+i+1, z, Blocks::LOG);
+                                world->setBlock(x, y+i+1, z, BlockState(Blocks::LOG));
                             }
                             break;
                         }

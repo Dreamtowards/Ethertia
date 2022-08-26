@@ -26,7 +26,7 @@ public:
 
         double d = duration * 0.001 * 0.001;
 
-        std::cout << "\"" << name << "\" test done. used " << d << " ms." << std::endl;
+        std::cout << "\"" << name << "\" done. used " << d << " ms." << std::endl;
     }
 };
 

@@ -39,7 +39,7 @@ public:
         shader.setFloat("fogGradient", fogGradient);
 
         Renderer::setShaderCamPos(&shader);
-        Renderer::setShaderMVP(&shader, Mth::matModel(chunk->getPosition()));
+        Renderer::setShaderMVP(&shader, Mth::matModel(chunk->position));
 
         glBindVertexArray(chunk->model->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, chunk->model->vertexCount);

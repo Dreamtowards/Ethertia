@@ -12,8 +12,9 @@ class BlockLeaves : public Block
 public:
 
     AtlasFrag* frag;
+    float randf;
 
-    BlockLeaves(AtlasFrag* frag) : frag(frag) {}
+    BlockLeaves(AtlasFrag* frag, float randf = 0.65f) : frag(frag), randf(randf) {}
 
     bool isOpaque() override {
         return false;

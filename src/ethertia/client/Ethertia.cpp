@@ -10,10 +10,13 @@
 #include <ethertia/entity/Entity.h>
 #include <ethertia/client/gui/GuiRoot.h>
 
-#include <ethertia/client/render/chunk/ChunkMeshGen.h>
+#include <ethertia/client/render/chunk/BlockyChunkMeshGen.h>
 #include <ethertia/client/gui/screen/GuiIngame.h>
 #include <ethertia/init/Init.h>
 #include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
+#include <ethertia/util/Strings.h>
+#include <ethertia/client/gui/screen/GuiScreenChat.h>
+#include <ethertia/client/render/chunk/MarchingCubesMeshGen.h>
 
 //#include <ethertia/lang/Elytra.h>
 
@@ -28,6 +31,19 @@ int main()
     Ethertia::run();
 
 //    et();
+
+//    using glm::vec3;
+//    Log::info("Ang: ", glm::angle(vec3(0, -1, 0), vec3(1, 0, 0)));
+
+//    using glm::vec3;
+//    vec3 v0 = vec3(0,0,0);
+//    vec3 v1 = vec3(0, 0, 1);
+//    vec3 v2 = vec3(0, 1, 1);
+//    vec3 v0v1 = (v1 - v0);
+//    vec3 v0v2 = (v2 - v0);
+//    float w0 = glm::dot(glm::normalize(v1 - v0), glm::normalize(v2 - v0));  // 0, 1.57, 0
+//    float w1 = glm::dot(glm::normalize(v2 - v1), glm::normalize(v0 - v1));
+//    float w2 = glm::dot(glm::normalize(v0 - v2), glm::normalize(v1 - v2));
 
     return 0;
 }
@@ -82,6 +98,8 @@ void Ethertia::runMainLoop()
 
     if (world)
     {
+        glPolygonMode(GL_FRONT_AND_BACK, window.isAltKeyDown() ? GL_LINE : GL_FILL);
+
         renderEngine->renderWorld(world);
     }
 
@@ -102,24 +120,30 @@ void Ethertia::start() {
 
     GuiIngame::INST = new GuiIngame();
     GuiScreenMainMenu::INST = new GuiScreenMainMenu();
+    GuiScreenChat::INST = new GuiScreenChat();
 
     rootGUI->addGui(GuiIngame::INST);
     rootGUI->addGui(GuiScreenMainMenu::INST);
 
+    Ethertia::loadWorld();
+
     EventBus::EVENT_BUS.listen([&](KeyboardEvent* e) {
         if (e->isPressed()) {
-            if (e->getKey() == GLFW_KEY_ESCAPE) {
+            int key = e->getKey();
+            if (key == GLFW_KEY_ESCAPE) {
                 Gui* g = getRootGUI()->last();
                 if (g != GuiIngame::INST) {
                     getRootGUI()->removeGui(g);
                 } else {
                     getRootGUI()->addGui(GuiScreenMainMenu::INST);
                 }
+            } else if (key == GLFW_KEY_SLASH && isIngame()) {
+                getRootGUI()->addGui(GuiScreenChat::INST);
             }
         }
     });
     EventBus::EVENT_BUS.listen([=](MouseButtonEvent* e) {
-        if (e->isPressed() && world) {
+        if (e->isPressed() && world && isIngame()) {
             u8 face;
             glm::vec3 pos;
             world->raycast(camera.position, camera.direction, pos, face);
@@ -127,11 +151,13 @@ void Ethertia::start() {
 
             int btn = e->getButton();
             if (btn == GLFW_MOUSE_BUTTON_1) {
-                world->setBlock(pos, 0);
+                world->setBlock(pos, BlockState());
+                world->requestRemodel(pos);
             } else if (btn == GLFW_MOUSE_BUTTON_2) {
-                world->setBlock(pos + Mth::QFACES[face], placingBlock);
+                world->setBlock(pos + Mth::QFACES[face], BlockState(placingBlock, 0.5f));
+                world->requestRemodel(pos);
             } else if (btn == GLFW_MOUSE_BUTTON_3) {
-                placingBlock = world->getBlock(pos);
+                placingBlock = world->getBlock(pos).id;
             }
         }
     });
@@ -196,8 +222,12 @@ void renderGUI()
         Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
     });
 
-    Gui::drawRect(Gui::maxWidth()/2, Gui::maxHeight()/2,
-                  4, 4, Colors::WHITE);
+    Gui::drawRect(Gui::maxWidth()/2 -2, Gui::maxHeight()/2 -2,
+                  3, 3, Colors::WHITE);
+
+    Ethertia::getRenderEngine()->renderDebugBasis();
+
+    Ethertia::getRenderEngine()->renderDebugWorldBasis();
 
     glEnable(GL_DEPTH_TEST);
 }
@@ -212,7 +242,7 @@ void updateMovement() {
 
     float speed = 0.8;
     if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
-    if (sprint) speed = 1.8;
+    if (sprint) speed = 3.8;
     float yaw = camera.eulerAngles.y;
 
     if (window.isKeyDown(GLFW_KEY_W)) player->velocity += Mth::angleh(yaw) * speed;
@@ -249,6 +279,7 @@ void handleInput()
         renderEngine->updateViewFrustum();
 
     window.setMouseGrabbed(Ethertia::isIngame());
+    window.setStickyKeys(!Ethertia::isIngame());
     window.setTitle(("desp. "+std::to_string(1.0/dt)).c_str());
 
     renderEngine->updateProjectionMatrix(Ethertia::getAspectRatio());
@@ -286,6 +317,16 @@ void Ethertia::unloadWorld() {
     delete world;
     Log::info("world: ", world);
     world = nullptr;
+}
+
+void Ethertia::dispatchCommand(const std::string& cmdline) {
+    std::vector<std::string> args = Strings::splitSpaces(cmdline);
+
+    std::string& cmd = args[0];
+    if (cmd == "/tp") {
+        // /tp <x> <y> <z>
+        Ethertia::getPlayer()->position = glm::vec3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3]));
+    }
 }
 
 
@@ -328,10 +369,21 @@ static void checkChunksModelUpdate(World* world) {
         chunk->needUpdateModel = false;
         // World::tmpDoRebuildModel(chunk, world);
 
-        VertexBuffer* vbuf = ChunkMeshGen::genMesh(chunk, world);
+        VertexBuffer* vbuf = nullptr;
+//        vbuf = BlockyChunkMeshGen::genMesh(chunk, world);
+//        vbuf->initnorm();
+//        if (vbuf) {dd
+//            vbuf->normals.clear();
+//            vbuf->initnorm();
+//        }
+
+        vbuf = MarchingCubesMeshGen::genMesh(chunk, world);
+
+        vbuf->avgnorm();
         if (vbuf) {
             Ethertia::getExecutor()->exec([chunk, vbuf]() {
-                delete chunk->model;
+//                if (chunk->model)
+//                    delete chunk->model;
                 chunk->model = Loader::loadModel(vbuf);
                 delete vbuf;
             });
@@ -352,6 +404,9 @@ static void updateViewDistance(World* world, glm::vec3 p, int n)
                 Chunk* c = world->getLoadedChunk(p);
                 if (!c) {
                     world->provideChunk(p);
+                    for (int i = 0; i < 6; ++i) {
+                        world->requestRemodel(p + Mth::QFACES[i] * 16.0f);
+                    }
                     if (++num > 10)
                         goto skip;
                 }
@@ -380,12 +435,16 @@ void initThreadChunkLoad() {
         {
             World* world = Ethertia::getWorld();
             if (world) {
-                chunkBuildStat = "ChunkLoad";
-                updateViewDistance(world, Ethertia::getCamera()->position, (int)Ethertia::getRenderEngine()->viewDistance);
+                {
+                    std::lock_guard<std::mutex> guard(world->chunklock);
+                    chunkBuildStat = "ChunkLoad";
+//                    updateViewDistance(world, glm::vec3(0), 0);
+                    updateViewDistance(world, Ethertia::getCamera()->position, (int)Ethertia::getRenderEngine()->viewDistance);
 
-                chunkBuildStat = "ChunkModelUpdate";
-                checkChunksModelUpdate(world);
-                chunkBuildStat = "None";
+                    chunkBuildStat = "ChunkModelUpdate";
+                    checkChunksModelUpdate(world);
+                    chunkBuildStat = "None";
+                }
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds (10));

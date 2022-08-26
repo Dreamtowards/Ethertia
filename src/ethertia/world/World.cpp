@@ -5,7 +5,7 @@
 #include "World.h"
 
 #include <ethertia/client/Loader.h>
-#include <ethertia/client/render/chunk/ChunkMeshGen.h>
+#include <ethertia/client/render/chunk/BlockyChunkMeshGen.h>
 #include <ethertia/client/Ethertia.h>
 
 
@@ -51,13 +51,13 @@ Chunk* World::provideChunk(glm::vec3 p) {
     chunks[chunkpos] = chunk;
 
     // check populates
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
 
     return chunk;
 }

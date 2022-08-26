@@ -311,7 +311,7 @@
                 let html = "";
                 for (let i = 0;i < 60;++i) {
                     let showdate = i % 10 === 0;
-                    html += `<div class="log-sq"`+(showdate || Math.random() > 0.6 ? "" : `style="background-image: url('res/bg${(i+1) % 33}.png')"`)+`>`;
+                    html += `<div class="log-sq"`+(showdate || true || Math.random() > 0.6 ? "" : `style="background-image: url('res/bg${(i+1) % 33}.png')"`)+`>`;
 
                     if (showdate) {
                         html +=
