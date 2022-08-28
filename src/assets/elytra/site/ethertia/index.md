@@ -7,7 +7,10 @@ _[sorry for my plastic english]_
 
 ## 'Final Fantasy'
 
-I want to have a software that can build some buildings intuitively, conveniently and interestingly. e.g. schools, cities, theaters, subways. Could dynamically modify terrain content, items, creatures.
+I want to have a software that has the freedom of building and intuitive operation like Minecraft,
+the details like GTA-V, and the immersive interaction like VRChat.
+
+Could build some buildings intuitively, conveniently and interestingly. e.g. schools, cities, theaters, subways. Could dynamically modify terrain content, items, creatures.
 
 Could view natural landscapes, coasts, jungles, cliffs, fields, trains, or some supernatural sights. World Tree Ancient towns.
 

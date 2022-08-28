@@ -9,20 +9,20 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(src)
 include_directories(lib)
 include_directories(lib/glfw/include)
+include_directories(lib/bullet3/src)
 
 #file(GLOB_RECURSE EthUnits "src/ethertia/*.cpp")
 
 add_executable(Ethertia
         lib/glad/glad.c
         src/ethertia/event/EventBus.cpp
-        src/ethertia/client/render/renderer/Renderer.cpp
-        src/ethertia/block/Block.cpp
-        src/ethertia/world/World.cpp
 
         src/ethertia/lang/symbol/Scope.cpp
         src/ethertia/lang/lexer/TokenType.cpp
         src/ethertia/lang/symbol/SymbolInternalTypes.cpp
 
+        src/ethertia/client/render/renderer/Renderer.cpp
+        src/ethertia/block/Block.cpp
         src/ethertia/client/gui/Gui.cpp
         src/ethertia/client/render/RenderEngine.cpp
         src/ethertia/client/Ethertia.cpp )
@@ -38,3 +38,6 @@ endif()
 add_subdirectory(lib/glfw)
 target_link_libraries(Ethertia PRIVATE glfw)
 
+add_subdirectory(lib/bullet3)
+target_link_libraries(Ethertia PRIVATE BulletCollision BulletDynamics LinearMath)
+# [examples, Extras, test, build3] are disabled.

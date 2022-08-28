@@ -8,7 +8,7 @@
 #include <glm/vec3.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include <ethertia/world/chunk/Chunk.h>
+#include <ethertia/world/Chunk.h>
 #include <ethertia/world/gen/NoiseGeneratorPerlin.h>
 #include <ethertia/util/Log.h>
 #include <ethertia/init/Blocks.h>
@@ -31,33 +31,42 @@ public:
     }
 
     Chunk* generateChunk(glm::vec3 chunkpos, World* world) {
-        Chunk* chunk = new Chunk();
-        chunk->position = chunkpos;
+        Chunk* chunk = new Chunk(chunkpos);
         chunk->world = world;
 
 //        Log::info("Gen Terr "+glm::to_string(chunkpos));
-
-//chunk->setBlock(0,0,0,BlockState(Blocks::STONE, 0.5));
-////        chunk->setBlock(1,0,0,BlockState(Blocks::STONE, 0.5));
-//        return chunk;
-
         using glm::vec3;
-        {
+
             for (int rx = 0; rx < 16; ++rx) {
-                for (int ry = 0; ry < 16; ++ry) {  // /tp -630 166 9
+                for (int ry = 0; ry < 16; ++ry) {
                     for (int rz = 0; rz < 16; ++rz) {
                         vec3 rp = vec3(rx, ry, rz);
                         vec3 p = chunkpos + rp;
 
-                        float f = noise.noise(p.x / 6.5f, p.y / 4.4f, p.z / 6.53f);
-
-                        if (f > -0.3f)
-                        chunk->setBlock(rp, BlockState(Blocks::STONE, f));
+                        if (p.y < 0)
+                            chunk->setBlock(rp,BlockState(Blocks::STONE, 0.5));
                     }
                 }
             }
-        }
+
         return chunk;
+
+//        {
+//            for (int rx = 0; rx < 16; ++rx) {
+//                for (int ry = 0; ry < 16; ++ry) {
+//                    for (int rz = 0; rz < 16; ++rz) {
+//                        vec3 rp = vec3(rx, ry, rz);
+//                        vec3 p = chunkpos + rp;
+//
+//                        float f = noise.noise(p.x / 16.5f, p.y / 24.4f, p.z / 16.53f);
+//
+//                        if (f > -0.3f)
+//                        chunk->setBlock(rp, BlockState(Blocks::STONE, f));
+//                    }
+//                }
+//            }
+//        }
+//        return chunk;
 
         int samples = 4;
         int sampleSize = 4;
@@ -142,9 +151,9 @@ public:
                                 } else if (chunkpos.y+sY*sampleSize+dY < 0) {
                                     bl = Blocks::WATER;
                                 }
-                                if (bl) {
+//                                if (bl) {
                                     chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, BlockState(bl, spZsum, 0));
-                                }
+//                                }
                                 spZsum += spZdiffx0;
                             }
 

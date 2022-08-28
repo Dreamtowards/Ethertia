@@ -40,7 +40,7 @@ public:
     Frustum viewFrustum{};
 
     float fov = 90;
-    float viewDistance = 3;
+    float viewDistance = 1;
 
     float debugChunkGeo = false;
 

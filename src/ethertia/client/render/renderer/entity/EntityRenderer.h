@@ -17,15 +17,16 @@ public:
 
     void render(Entity* entity, ShaderProgram& shader)
     {
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, entity->diffuseMap->getTextureID());
+        if (entity->diffuseMap) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, entity->diffuseMap->getTextureID());
+        }
 
         shader.useProgram();
 
 
         Renderer::setShaderCamPos(&shader);
-        Renderer::setShaderMVP(&shader, Mth::matModel(entity->intpposition));
+        Renderer::setShaderMVP(&shader, Mth::matModel(entity->getPosition(), entity->getRotation(), glm::vec3(1.0f)));
 
         glBindVertexArray(entity->model->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, entity->model->vertexCount);

@@ -47,31 +47,32 @@ void RenderEngine::renderWorld(World* world)
 
     skyGradientRenderer->render();
 
-    {
-        std::lock_guard<std::mutex> guard(world->chunklock);
-
-        for (auto it : world->getLoadedChunks()) {
-            Chunk* chunk = it.second;
-            if (!chunk)  // Log::info("NO RENDER Chunk: NULL.");
-                continue;
-            if (!chunk->model)
-                continue;
-
-            // Frustum Culling
-            if (!viewFrustum.intersects(chunk->getAABB()))
-                continue;
-
-            // Rendering Call.
-            chunkRenderer->render(chunk);
-
-            if (debugChunkGeo)
-                renderDebugGeo(chunk->model, chunk->position);
-        }
-    }
+//    {
+//        std::lock_guard<std::mutex> guard(world->chunklock);
+//
+//        for (auto it : world->getLoadedChunks()) {
+//            Chunk* chunk = it.second;
+//            if (!chunk)  // Log::info("NO RENDER Chunk: NULL.");
+//                continue;
+//            if (!chunk->model)
+//                continue;
+//
+//            // Frustum Culling
+//            if (!viewFrustum.intersects(chunk->getAABB()))
+//                continue;
+//
+//            // Rendering Call.
+//            chunkRenderer->render(chunk);
+//
+//            if (debugChunkGeo)
+//                renderDebugGeo(chunk->model, chunk->position);
+//        }
+//    }
 
     for (Entity* entity : world->getEntities()) {
         // frustum test.
-
+        if (!entity)
+            continue;
         if (!entity->model)
             continue;
 

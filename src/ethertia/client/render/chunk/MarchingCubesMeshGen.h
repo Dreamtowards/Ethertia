@@ -329,9 +329,6 @@ public:
                 }
             }
         }
-
-        vbuf->initnorm();
-
         return vbuf;
     }
 };

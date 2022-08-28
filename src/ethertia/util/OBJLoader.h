@@ -51,7 +51,8 @@ public:
                 for (int i = 0; i < 3; ++i) {
                     // vertices:
                     std::vector<std::string> idxs = Strings::split(c[1+i], "/");
-                    Log::info("Face{}: {} {} {}", i, idxs[0], idxs[1], idxs[2]);
+                    // Log::info("Face{}: {} {} {}", i, idxs[0], idxs[1], idxs[2]);
+
                     int idx_pos = std::stoi(idxs[0])-1;
                     float* pos_base = &objpos[idx_pos*3];
                     vbuf->addpos(pos_base[0], pos_base[1], pos_base[2]);

@@ -13,10 +13,10 @@ out vec3 FragPos;
 
 void main()
 {
-    vec4 worldpos = matModel * vec4(in_pos.xyz, 1.0);
+    vec4 worldpos = matModel * vec4(in_pos, 1.0);
     gl_Position = matProjection * matView * worldpos;
 
-    Norm = in_norm;
+    Norm = normalize(vec3(matModel * vec4(in_norm, 0.0f)));
     TexCoord = in_texCoord;
     FragPos = worldpos.xyz;
 }

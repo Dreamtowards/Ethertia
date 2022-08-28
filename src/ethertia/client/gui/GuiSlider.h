@@ -42,7 +42,7 @@ public:
 
         // Text
         Gui::drawString(x+w/2, y+(h-16)/2,
-                        label+": "+Log::str(getValue()),
+                        Strings::fmt("{}: {}", label, getValue()),
                         isPressed() ? Colors::GOLD : isHover() ? Colors::YELLOW : Colors::WHITE,
                         16, 0.5, true);
 

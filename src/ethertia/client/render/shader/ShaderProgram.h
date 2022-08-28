@@ -15,6 +15,7 @@
 
 #include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/util/Log.h>
+#include <ethertia/util/Strings.h>
 
 class ShaderProgram {
 
@@ -46,7 +47,7 @@ public:
         if (!succ) {
             char infolog[512];
             glGetProgramInfoLog(program, 512, nullptr, infolog);
-            throw std::logic_error(Log::str("Failed to link the shader program:\n", infolog));
+            throw std::logic_error(Strings::fmt("Failed to link the shader program:\n", infolog));
         }
 
         glDeleteShader(vsh);
@@ -106,7 +107,7 @@ private:
         if (!succ) {
             char infolog[512];
             glGetShaderInfoLog(s, 512, nullptr, infolog);
-            throw std::logic_error(Log::str("Failed to compile the shader:\n", infolog));
+            throw std::logic_error(Strings::fmt("Failed to compile the shader:\n", infolog));
         }
         return s;
     }

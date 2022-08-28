@@ -9,8 +9,10 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <sys/time.h>
 #include <sstream>
+#include <iomanip>
+
+#include <ethertia/util/Strings.h>
 
 template<typename T>
 static std::string lstr(T v) {
@@ -24,63 +26,73 @@ class Log
 {
 public:
 
-    template<typename OUT>
-    static void log(OUT& out, const std::string& pat) {
-        out << pat;
-    }
-
-    template<typename OUT, typename A, typename... ARGS>
-    static void log(OUT& out, const std::string& pat, A a, ARGS... args) {
-        int beg = pat.find('{');
-        int end = pat.find('}', beg);
-        int padding = 0;
-        if (beg != -1 && beg+1 != end) {
-            std::string slen = pat.substr(beg+1, end-(beg+1));
-            padding = std::stoi(slen);
-        }
-
-        // pre
-        out << (beg==-1? pat : pat.substr(0,beg));
-        // val
-        long vbeg = out.tellp();
-        out << a;
-        if (padding) {
-            int vlen = (long)out.tellp() - vbeg;
-            int pad = padding - vlen;
-            for (int i = 0; i < pad; ++i) {
-                out << ' ';
-            }
-        }
-
-        // post
-        log(out, beg==-1? "" : pat.substr(end+1), args...);
-    }
-
-
-    template<typename T>
-    static std::string str(T v) {
-        std::stringstream ss;
-        ss << v;
-        return ss.str();
-    }
-    template<typename... ARGS>
-    static std::string str(const std::string& pat, ARGS... args) {
-        std::stringstream ss;
-        log(ss, pat, args...);
-        return ss.str();
-    }
+//    template<typename OUT>
+//    static void log(OUT& out, const std::string& pat) {
+//        out << pat;
+//    }
+//
+//    template<typename OUT, typename A, typename... ARGS>
+//    static void log(OUT& out, const std::string& pat, A a, ARGS... args) {
+//        int beg = pat.find('{');
+//        int end = pat.find('}', beg);
+//        int padding = 0;
+//        if (beg != -1 && beg+1 != end) {
+//            std::string slen = pat.substr(beg+1, end-(beg+1));
+//            padding = std::stoi(slen);
+//        }
+//
+//        // pre
+//        out << (beg==-1? pat : pat.substr(0,beg));
+//        // val
+//        long vbeg = out.tellp();
+//        out << a;
+//        if (padding) {
+//            int vlen = (long)out.tellp() - vbeg;
+//            int pad = padding - vlen;
+//            for (int i = 0; i < pad; ++i) {
+//                out << ' ';
+//            }
+//        }
+//
+//        // post
+//        log(out, beg==-1? "" : pat.substr(end+1), args...);
+//    }
+//
+//
+//    template<typename T>
+//    static std::string str(T v) {
+//        std::stringstream ss;
+//        ss << v;
+//        return ss.str();
+//    }
+//    template<typename... ARGS>
+//    static std::string str(const std::string& pat, ARGS... args) {
+//        std::stringstream ss;
+//        log(ss, pat, args...);
+//        return ss.str();
+//    }
 
 
     static void log_head(std::ostream& out) {
-        struct timeval tv{};
-        gettimeofday(&tv, nullptr);
-        struct tm* tm_info = localtime(&tv.tv_sec); // localtime(&tv.tv_sec);  std::gmtime(&time); auto time = std::time(nullptr);
-        char strtime[40] = {};
-        std::strftime(strtime, sizeof(strtime), "%F.%X", tm_info);
+        std::time_t t = std::time(nullptr);
+        struct tm* tm_info = std::localtime(&t);
 
-        //  << tm_info->tm_zone << ":"
-        out << "[" << strtime <<"."<< tv.tv_usec << "]"
+        std::chrono::time_point<std::chrono::high_resolution_clock> ht = std::chrono::high_resolution_clock::now();
+        double ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(ht).time_since_epoch().count();
+        double ms = ns * 0.000001;
+
+        out << "[" << std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S") << "." << ms << "]"
             << "["<<std::this_thread::get_id()<<"/INFO]: ";
+
+//        struct timeval tv{};
+//        gettimeofday(&tv, nullptr);
+//        struct tm* tm_info = localtime(&tv.tv_sec); // localtime(&tv.tv_sec);  std::gmtime(&time); auto time = std::time(nullptr);
+//        char strtime[40] = {};
+//        std::strftime(strtime, sizeof(strtime), "%F.%X", tm_info);
+//
+//        //  << tm_info->tm_zone << ":"
+//        out << "[" << strtime <<"."<< tv.tv_usec << "]"
+//            << "["<<std::this_thread::get_id()<<"/INFO]: ";
     }
 
     template<typename... ARGS>
@@ -88,7 +100,7 @@ public:
     {
         std::stringstream ss;
         Log::log_head(ss);
-        log(ss, pat, args...);
+        Strings::_fmt(ss, pat, args...);
         std::cout << ss.str() << std::endl;
     }
 
@@ -97,7 +109,7 @@ public:
     {
         std::stringstream ss;
         Log::log_head(ss);
-        log(ss, pat, args...);
+        Strings::_fmt(ss, pat, args...);
         std::cerr << ss.str() << std::endl;
     }
 

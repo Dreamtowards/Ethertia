@@ -9,7 +9,7 @@
 #include <ethertia/client/Loader.h>
 #include <ethertia/client/render/TextureAtlas.h>
 #include <ethertia/world/World.h>
-#include <ethertia/world/chunk/Chunk.h>
+#include <ethertia/world/Chunk.h>
 #include <ethertia/init/Blocks.h>
 #include <ethertia/init/BlockTextures.h>
 

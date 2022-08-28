@@ -52,7 +52,7 @@ public:
 
                 Ethertia::dispatchCommand(line);
             } else {
-                std::string msg = Log::str("<{}>: {}", Ethertia::getPlayer()->name, line);
+                std::string msg = Strings::fmt("<{}>: {}", Ethertia::getPlayer()->name, line);
 
                 appendMessage(msg);
             }

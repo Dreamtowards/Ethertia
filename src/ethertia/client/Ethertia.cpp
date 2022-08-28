@@ -74,7 +74,7 @@ Camera Ethertia::camera{};
 Executor Ethertia::executor{std::this_thread::get_id()};
 
 World* Ethertia::world = nullptr;
-Entity* Ethertia::player = new Entity();
+Entity* Ethertia::player = nullptr;
 GuiRoot* Ethertia::rootGUI = new GuiRoot();
 
 
@@ -98,7 +98,7 @@ void Ethertia::runMainLoop()
 
     if (world)
     {
-        glPolygonMode(GL_FRONT_AND_BACK, window.isAltKeyDown() ? GL_LINE : GL_FILL);
+        world->dynamicsWorld->stepSimulation(getDelta());
 
         renderEngine->renderWorld(world);
     }
@@ -125,7 +125,12 @@ void Ethertia::start() {
     rootGUI->addGui(GuiIngame::INST);
     rootGUI->addGui(GuiScreenMainMenu::INST);
 
+
+    player = new Entity();
+    player->setPosition({0, 10, 0});
+
     Ethertia::loadWorld();
+
 
     EventBus::EVENT_BUS.listen([&](KeyboardEvent* e) {
         if (e->isPressed()) {
@@ -201,15 +206,14 @@ void renderGUI()
 
     rootGUI->onDraw();
 
-    std::stringstream ss;
-    Log::log(ss,
-             "camp: {}, pvel: {}\n"
+    std::string dbg_s = Strings::fmt(
+             "camp: {}, Entities: {}\n"
              "dt/ {}, {}fs\n"
              "ChunkStat: {}",
-             glm::to_string(camera.position), glm::length(player->velocity),
+             glm::to_string(camera.position), Ethertia::getWorld()->getEntities().size(),
              dt, 1.0/dt,
              chunkBuildStat);
-    Gui::drawString(0, 32, ss.str(), Colors::WHITE, 16, 0, false);
+    Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
 
 //        Gui::drawRect(100, 100, 200, 100, Colors::WHITE, BlockTextures::ATLAS->atlasTexture, 20);
 //        Gui::drawRect(100, 100, 10, 10, Colors::GREEN);
@@ -217,10 +221,10 @@ void renderGUI()
 //        Gui::drawString(Gui::maxWidth()/2, 110, "Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?",
 //                        Colors::WHITE, 32, 1);
 
-    Gui::drawWorldpoint(player->intpposition, [](glm::vec2 p) {
-
-        Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
-    });
+//    Gui::drawWorldpoint(player->intpposition, [](glm::vec2 p) {
+//
+//        Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
+//    });
 
     Gui::drawRect(Gui::maxWidth()/2 -2, Gui::maxHeight()/2 -2,
                   3, 3, Colors::WHITE);
@@ -245,13 +249,16 @@ void updateMovement() {
     if (sprint) speed = 3.8;
     float yaw = camera.eulerAngles.y;
 
-    if (window.isKeyDown(GLFW_KEY_W)) player->velocity += Mth::angleh(yaw) * speed;
-    if (window.isKeyDown(GLFW_KEY_S)) player->velocity += Mth::angleh(yaw + Mth::PI) * speed;
-    if (window.isKeyDown(GLFW_KEY_A)) player->velocity += Mth::angleh(yaw + Mth::PI / 2) * speed;
-    if (window.isKeyDown(GLFW_KEY_D)) player->velocity += Mth::angleh(yaw - Mth::PI / 2) * speed;
+    glm::vec3 vel(0);
+    if (window.isKeyDown(GLFW_KEY_W)) vel += Mth::angleh(yaw) * speed;
+    if (window.isKeyDown(GLFW_KEY_S)) vel += Mth::angleh(yaw + Mth::PI) * speed;
+    if (window.isKeyDown(GLFW_KEY_A)) vel += Mth::angleh(yaw + Mth::PI / 2) * speed;
+    if (window.isKeyDown(GLFW_KEY_D)) vel += Mth::angleh(yaw - Mth::PI / 2) * speed;
 
-    if (window.isShiftKeyDown()) player->velocity.y -= speed;
-    if (window.isKeyDown(GLFW_KEY_SPACE)) player->velocity.y += speed;
+    if (window.isShiftKeyDown())          vel.y -= speed;
+    if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
+
+    player->applyLinearVelocity(vel * 4.0f);
 
     if (!window.isKeyDown(GLFW_KEY_W)) {
         sprint = false;
@@ -272,11 +279,10 @@ void handleInput()
         camera.updateMovement(window, dt);
     }
 
-    player->intpposition = Mth::lerp(Ethertia::getTimer()->getPartialTick(), player->prevposition, player->position);
+    player->intpposition = /*Mth::lerp(Ethertia::getTimer()->getPartialTick(), player->prevposition, */player->getPosition();//);
     camera.compute(player->intpposition, renderEngine->viewMatrix);
 
-    if (!window.isKeyDown(GLFW_KEY_P))
-        renderEngine->updateViewFrustum();
+    renderEngine->updateViewFrustum();
 
     window.setMouseGrabbed(Ethertia::isIngame());
     window.setStickyKeys(!Ethertia::isIngame());
@@ -308,7 +314,6 @@ void Ethertia::loadWorld() {
 
     world = new World();
     world->addEntity(player);
-    player->position = glm::vec3(-10, 10, -10);
 }
 
 void Ethertia::unloadWorld() {
@@ -325,13 +330,13 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     std::string& cmd = args[0];
     if (cmd == "/tp") {
         // /tp <x> <y> <z>
-        Ethertia::getPlayer()->position = glm::vec3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3]));
+        Ethertia::getPlayer()->setPosition(glm::vec3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3])));
     }
 }
 
 
 
-bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST; }
+bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST && !window.isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
 
 float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
 float Ethertia::getAspectRatio() {
@@ -365,26 +370,25 @@ static void checkChunksModelUpdate(World* world) {
         }
         if (chunk == nullptr)  // nothing to update
             break;
-
         chunk->needUpdateModel = false;
-        // World::tmpDoRebuildModel(chunk, world);
+
 
         VertexBuffer* vbuf = nullptr;
+
 //        vbuf = BlockyChunkMeshGen::genMesh(chunk, world);
 //        vbuf->initnorm();
-//        if (vbuf) {dd
-//            vbuf->normals.clear();
-//            vbuf->initnorm();
-//        }
 
         vbuf = MarchingCubesMeshGen::genMesh(chunk, world);
+        vbuf->initnorm(true);
 
-        vbuf->avgnorm();
+
         if (vbuf) {
             Ethertia::getExecutor()->exec([chunk, vbuf]() {
-//                if (chunk->model)
-//                    delete chunk->model;
+                if (chunk->model) delete chunk->model;
+
                 chunk->model = Loader::loadModel(vbuf);
+                chunk->proxy->setMesh(chunk->model, vbuf->positions.data());
+
                 delete vbuf;
             });
         }
@@ -464,8 +468,6 @@ void initThreadChunkLoad() {
 // Sky gradient.
 
 // Self-spread chunkload order
-
-// opt Sliders ViewDist,FOV,Colors..
 
 // Framebuffer
 

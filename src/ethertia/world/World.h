@@ -8,7 +8,8 @@
 #include <unordered_map>
 #include <glm/vec3.hpp>
 
-#include <ethertia/world/chunk/Chunk.h>
+#include <ethertia/world/Chunk.h>
+#include <ethertia/world/ChunkLoader.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/init/Blocks.h>
 #include <ethertia/entity/Entity.h>
@@ -17,7 +18,15 @@
 #include <ethertia/util/Mth.h>
 
 #include <ethertia/client/Ethertia.h>
-#include "ethertia/client/Window.h"
+#include <ethertia/client/Window.h>
+
+#include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
+#include <BulletCollision/BroadphaseCollision/btDbvtBroadphase.h>
+#include <ethertia/entity/EntityMesh.h>
+#include <ethertia/util/concurrent/Executor.h>
+
+#include "btBulletCollisionCommon.h"
+#include "btBulletDynamicsCommon.h"
 
 //#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/hash.hpp"
@@ -31,9 +40,37 @@ class World
 
     ChunkGenerator chunkGenerator;
 
+    ChunkLoader chunkLoader{"saves/dim-1/"};
 
 public:
+    btDiscreteDynamicsWorld* dynamicsWorld;
+
     std::mutex chunklock;
+
+    World() {
+
+        // init physics
+
+        {
+            btCollisionConfiguration* collconf = new btDefaultCollisionConfiguration();
+            btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collconf);
+
+            btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+
+            btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+
+            dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collconf);
+        }
+    }
+
+    ~World() {
+
+        delete dynamicsWorld->getConstraintSolver();
+        delete dynamicsWorld->getBroadphase();
+        delete dynamicsWorld->getDispatcher();
+        delete dynamicsWorld;
+    }
+
 
     BlockState getBlock(glm::vec3 blockpos) {
         Chunk* chunk = getLoadedChunk(blockpos);
@@ -70,14 +107,85 @@ public:
         if (bp.z == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 0, 1)))) tmp->requestRemodel();
     }
 
-    Chunk* provideChunk(glm::vec3 p);
+
+
+
+
+
+
+
+
+
+    Chunk* provideChunk(glm::vec3 p) {
+        Chunk* chunk = getLoadedChunk(p);
+        if (chunk) return chunk;
+        glm::vec3 chunkpos = Chunk::chunkpos(p);
+
+        chunk = chunkLoader.loadChunk(chunkpos, this);
+
+        if (!chunk) {
+            chunk = chunkGenerator.generateChunk(chunkpos, this);
+        }
+
+        assert(chunk);
+
+        chunks[chunkpos] = chunk;
+
+        Ethertia::getExecutor()->exec([=]() {
+
+            addEntity(chunk->proxy);
+        });
+
+        // check populates
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
+
+        return chunk;
+    }
+
+    bool isNeighbourChunksAllLoaded(World* world, glm::vec3 chunkpos) {
+        return world->getLoadedChunk(chunkpos + glm::vec3(-16, 0, 0)) &&
+               world->getLoadedChunk(chunkpos + glm::vec3(16, 0, 0)) &&
+               world->getLoadedChunk(chunkpos + glm::vec3(0, -16, 0)) &&
+               world->getLoadedChunk(chunkpos + glm::vec3(0, 16, 0)) &&
+               world->getLoadedChunk(chunkpos + glm::vec3(0, 0, -16)) &&
+               world->getLoadedChunk(chunkpos + glm::vec3(0, 0, 16));
+    }
+    void tryPopulate(World* world, glm::vec3 chunkpos) {
+        Chunk* c = world->getLoadedChunk(chunkpos);
+        if (c && !c->populated && isNeighbourChunksAllLoaded(world, chunkpos)) {  // && isNeighbourAllLoaded()
+            World::populate(world, chunkpos);
+            c->populated = true;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 
     void unloadChunk(glm::vec3 p) {
         auto itr = chunks.find(Chunk::chunkpos(p));
         if (itr == chunks.end())
             throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
-        delete itr->second;
+
+        Chunk* chunk = itr->second;
+        if (chunk) {
+            removeEntity(chunk->proxy);
+        }
+
         chunks.erase(itr);
+        delete chunk;
     }
 
     Chunk* getLoadedChunk(glm::vec3 p) {
@@ -90,15 +198,33 @@ public:
 
     void addEntity(Entity* e) {
         entities.push_back(e);
+        dynamicsWorld->addRigidBody(e->rigidbody);
     }
 
     void removeEntity(Entity* e) {
         Collections::erase(entities, e);
+        dynamicsWorld->removeRigidBody(e->rigidbody);
     }
 
     std::vector<Entity*>& getEntities() {
         return entities;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // http://www.cse.yorku.ca/~amana/research/grid.pdf
     // Impl of Grid Voxel Raycast.
@@ -174,70 +300,73 @@ public:
     void tick() {
         float dt = Timer::T_DELTA;
 
-        for (Entity* e : entities) {
-            // motion
-            e->prevposition = e->position;
+//        dynamicsWorld->stepSimulation(dt);
 
-            e->position += e->velocity * dt;
-
-            float vels = glm::length(e->velocity);
-            float linearDamping = 0.001f;
-            e->velocity *= vels < 0.01 ? 0 : Mth::pow(linearDamping, dt);
-
-            // collide
-            // get aabb of blocks that inside (prevpos, currpos)
-            // for each axis xyz, test nearest plane, and clip position & velocity
-
-//            for (int dx = Mth::floor(e->position.x); dx < Mth::ceil(e->prevposition.x); ++dx) {
-//                for (int dy = Mth::floor(e->position.y); dy < Mth::ceil(e->prevposition.y); ++dy) {
-//                    for (int dz = Mth::floor(e->position.z); dz < Mth::ceil(e->prevposition.z); ++dz) {
+//        return;
+//        for (Entity* e : entities) {
+//            // motion
+//            e->prevposition = e->position;
 //
+//            e->position += e->velocity * dt;
+//
+//            float vels = glm::length(e->velocity);
+//            float linearDamping = 0.001f;
+//            e->velocity *= vels < 0.01 ? 0 : Mth::pow(linearDamping, dt);
+//
+//            // collide
+//            // get aabb of blocks that inside (prevpos, currpos)
+//            // for each axis xyz, test nearest plane, and clip position & velocity
+//
+////            for (int dx = Mth::floor(e->position.x); dx < Mth::ceil(e->prevposition.x); ++dx) {
+////                for (int dy = Mth::floor(e->position.y); dy < Mth::ceil(e->prevposition.y); ++dy) {
+////                    for (int dz = Mth::floor(e->position.z); dz < Mth::ceil(e->prevposition.z); ++dz) {
+////
+////                    }
+////                }
+////            }
+//
+//            {
+//                if (false ) {  // || !Ethertia::getWindow()->isAltKeyDown()
+//                    glm::vec3& v = e->velocity;
+//
+//                    glm::vec3 pp = e->prevposition;
+//                    AABB self = AABB({pp - glm::vec3(0.5f)},
+//                                     {pp + glm::vec3(0.5f)});
+//
+//                    glm::vec3 d = e->position - e->prevposition;
+//                    const glm::vec3 od = d;
+//
+//                    glm::vec3 bmin = glm::floor(glm::min(e->position, e->prevposition) - glm::vec3(0.5f));
+//                    glm::vec3 bmax = glm::ceil(glm::max(e->position, e->prevposition) + glm::vec3(0.5f));
+//
+//                    for (int dx = bmin.x; dx < bmax.x; ++dx) {
+//                        for (int dy = bmin.y; dy < bmax.y; ++dy) {
+//                            for (int dz = bmin.z; dz < bmax.z; ++dz) {
+//
+//                                glm::vec3 min(dx, dy, dz);
+//                                glm::vec3 max = min + glm::vec3(1);
+//
+//                                BlockState b = getBlock(min);
+//                                if (!b.id) continue;
+//
+//                                collideAABB(self, d, AABB(min, max));
+//                            }
+//                        }
 //                    }
+//
+//
+//                    if (d.x != od.x) v.x = 0;
+//                    if (d.y != od.y) v.y = 0;
+//                    if (d.z != od.z) v.z = 0;
+//
+//                    e->position = e->prevposition + d;
+//
 //                }
 //            }
-
-            {
-                if (false ) {  // || !Ethertia::getWindow()->isAltKeyDown()
-                    glm::vec3& v = e->velocity;
-
-                    glm::vec3 pp = e->prevposition;
-                    AABB self = AABB({pp - glm::vec3(0.5f)},
-                                     {pp + glm::vec3(0.5f)});
-
-                    glm::vec3 d = e->position - e->prevposition;
-                    const glm::vec3 od = d;
-
-                    glm::vec3 bmin = glm::floor(glm::min(e->position, e->prevposition) - glm::vec3(0.5f));
-                    glm::vec3 bmax = glm::ceil(glm::max(e->position, e->prevposition) + glm::vec3(0.5f));
-
-                    for (int dx = bmin.x; dx < bmax.x; ++dx) {
-                        for (int dy = bmin.y; dy < bmax.y; ++dy) {
-                            for (int dz = bmin.z; dz < bmax.z; ++dz) {
-
-                                glm::vec3 min(dx, dy, dz);
-                                glm::vec3 max = min + glm::vec3(1);
-
-                                BlockState b = getBlock(min);
-                                if (!b.id) continue;
-
-                                collideAABB(self, d, AABB(min, max));
-                            }
-                        }
-                    }
-
-
-                    if (d.x != od.x) v.x = 0;
-                    if (d.y != od.y) v.y = 0;
-                    if (d.z != od.z) v.z = 0;
-
-                    e->position = e->prevposition + d;
-
-                }
-            }
-
-
-
-        }
+//
+//
+//
+//        }
 
     }
 

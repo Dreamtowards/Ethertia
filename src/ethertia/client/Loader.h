@@ -18,6 +18,7 @@
 #include <ethertia/util/BitmapImage.h>
 #include <ethertia/client/render/VertexBuffer.h>
 #include <ethertia/client/render/Model.h>
+#include <ethertia/util/OBJLoader.h>
 
 
 class Loader {
@@ -46,34 +47,11 @@ public:
         return std::string(m.first, m.second);
     }
 
-    static void loadOBJ(const void* data, u32 len) {
-//        tinyobj_attrib_t attrib;
-//
-//        tinyobj_shape_t* shapes = nullptr;
-//        size_t numShapes;
-//
-//        tinyobj_material_t* materials = nullptr;
-//        size_t numMaterials;
-//
-//        u32 flags = TINYOBJ_FLAG_TRIANGULATE;
-//
-//        if (tinyobj_parse_obj(&attrib, &shapes, &numShapes, &materials, &numMaterials,
-//                              filename, get_file_data, nullptr, flags) != TINYOBJ_SUCCESS) {
-//            throw std::runtime_error("Failed Load OBJ file.");
-//        }
-//
-//        printf("# of shapes    = %d\n", (int)numShapes);
-//        printf("# of materials = %d\n", (int)numMaterials);
-//
-//
-//        {
-//          int i;
-//          for (i = 0; i < numShapes; i++) {
-//            printf("shape[%d] name = %s\n", i, shapes[i].name);
-//          }
-//        }
-
-
+    static VertexBuffer* loadOBJ_(const std::string& path) {
+        VertexBuffer* vbuf = new VertexBuffer();
+        std::stringstream ss(Loader::loadAssetsStr(path));
+        OBJLoader::loadOBJ(ss, vbuf);
+        return vbuf;
     }
 
 

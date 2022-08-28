@@ -148,6 +148,9 @@ public:
     void setMouseGrabbed(bool grabbed) {
         glfwSetInputMode(window, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
+    void setMousePos(float x, float y) {
+        glfwSetCursorPos(window, x, y);
+    }
 
     void setStickyKeys(bool s) {
         glfwSetInputMode(window, GLFW_STICKY_KEYS, s ? GLFW_TRUE : GLFW_FALSE);

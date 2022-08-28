@@ -44,7 +44,11 @@ public:
             opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &rde->chunkRenderer->fogDensity, 0.001f));
             opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &rde->chunkRenderer->fogGradient, 0.01f));
 
-            opts->addGui(new GuiSlider("Chunk Debug Geometry", 0, 1, &rde->debugChunkGeo, 1));
+            opts->addGui(new GuiSlider("ChunkDebugGeo", 0, 1, &rde->debugChunkGeo, 1));
+
+            static float glPolyLine = 0;
+            opts->addGui(new GuiSlider("glPolygonMode Fill/Line", 0, 1, &glPolyLine, 1));
+            glPolygonMode(GL_FRONT_AND_BACK, glPolyLine ? GL_LINE : GL_FILL);
 
             opts->addDrawBackground(Colors::BLACK10);
         }

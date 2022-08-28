@@ -5,6 +5,7 @@
 #ifndef ETHERTIA_STRINGS_H
 #define ETHERTIA_STRINGS_H
 
+#include <vector>
 #include <string>
 #include <algorithm>
 
@@ -26,6 +27,59 @@ public:
         }
         return ss.str();
     }
+
+
+
+    template<typename... ARGS>
+    static std::string fmt(const std::string& pat, ARGS... args) {
+        std::stringstream ss;
+        _fmt(ss, pat, args...);
+        return ss.str();
+    }
+
+    template<typename OUT>
+    static void _fmt(OUT& out, const std::string& pat) {
+        out << pat;
+    }
+
+    template<typename OUT, typename A, typename... ARGS>
+    static void _fmt(OUT& out, const std::string& pat, A a, ARGS... args) {
+        int beg = pat.find('{');
+        int end = pat.find('}', beg);
+        int padding = 0;
+        if (beg != -1 && beg+1 != end) {
+            std::string slen = pat.substr(beg+1, end-(beg+1));
+            padding = std::stoi(slen);
+        }
+
+        // pre
+        out << (beg==-1? pat : pat.substr(0,beg));
+        // val
+        long vbeg = out.tellp();
+        out << a;
+        if (padding) {
+            int vlen = (long)out.tellp() - vbeg;
+            int pad = padding - vlen;
+            for (int i = 0; i < pad; ++i) {
+                out << ' ';
+            }
+        }
+
+        // post
+        _fmt(out, beg==-1? "" : pat.substr(end+1), args...);
+    }
+
+
+    template<typename T>
+    static std::string str(T v) {
+        std::stringstream ss;
+        ss << v;
+        return ss.str();
+    }
+
+
+
+
 
     static std::vector<std::string> split(const std::string& str, const std::string& delimiter) {
         std::vector<std::string> ls;
