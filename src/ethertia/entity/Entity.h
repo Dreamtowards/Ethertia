@@ -21,16 +21,16 @@ public:
 //    glm::vec3 position;
 //    glm::vec3 velocity;
 
-    glm::vec3 prevposition{0};
-    glm::vec3 intpposition{0};
+//    glm::vec3 prevposition{0};
+//    glm::vec3 intpposition{0};
 
     Model* model = nullptr;
     Texture* diffuseMap = Texture::UNIT;
 
-    Entity(float mass = 10) {
+    Entity(float mass = 100) {
 
         if (mass) {
-            VertexBuffer* vbuf = Loader::loadOBJ_("entity/cone.obj");
+            VertexBuffer* vbuf = Loader::loadOBJ_("entity/cube.obj");
             model = Loader::loadModel(vbuf);
             shape = createHullShape(vbuf->vertexCount(), vbuf->positions.data());
         }
@@ -103,6 +103,12 @@ public:
     }
 
 
+    AABB getAABB() {
+        btVector3 min, max;
+        rigidbody->getAabb(min, max);
+        return AABB(glm::vec3(min.x(), min.y(), min.z()),
+                    glm::vec3(max.x(), max.y(), max.z()));
+    }
 };
 
 #endif //ETHERTIA_ENTITY_H

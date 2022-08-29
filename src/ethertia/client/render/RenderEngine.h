@@ -42,7 +42,8 @@ public:
     float fov = 90;
     float viewDistance = 1;
 
-    float debugChunkGeo = false;
+    bool debugChunkGeo = false;
+    int entitiesActualRendered = 0;
 
     RenderEngine();
     ~RenderEngine();
@@ -64,12 +65,12 @@ public:
                                 Loader::loadAssetsStr("shaders/debug/norm.fsh"),
                                 Loader::loadAssetsStr("shaders/debug/norm.gsh")};
 
-    void renderDebugGeo(Model* model, glm::vec3 pos) {
+    void renderDebugGeo(Model* model, glm::vec3 pos, glm::mat3 rot) {
         ShaderProgram& shader = shaderDebugGeo;
 
         shader.useProgram();
 
-        shader.setMatrix4f("matModel", Mth::matModel(pos));
+        shader.setMatrix4f("matModel", Mth::matModel(pos, rot, glm::vec3(1.0f)));
         shader.setMatrix4f("matView", viewMatrix);
         shader.setMatrix4f("matProjection", projectionMatrix);
 

@@ -197,6 +197,7 @@ public:
     }
 
     void addEntity(Entity* e) {
+        assert(Collections::find(entities, e) == -1);
         entities.push_back(e);
         dynamicsWorld->addRigidBody(e->rigidbody);
     }
@@ -223,6 +224,19 @@ public:
 
 
 
+    bool raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n) {
+        btVector3 _beg(begin.x, begin.y, begin.z);
+        btVector3 _end(end.x, end.y, end.z);
+        btCollisionWorld::ClosestRayResultCallback rayCallback(_beg, _end);
+
+        dynamicsWorld->rayTest(_beg, _end, rayCallback);
+        if (rayCallback.hasHit()) {
+            p = Mth::vec3(rayCallback.m_hitPointWorld);
+            n = Mth::vec3(rayCallback.m_hitNormalWorld);
+            return true;
+        }
+        return false;
+    }
 
 
 

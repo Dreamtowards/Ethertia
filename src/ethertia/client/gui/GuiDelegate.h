@@ -30,9 +30,9 @@ public:
     }
 
     Gui* setContent(Gui* g) {
-        if (content) { content->detach(); }
+        if (content) { content->setParent(nullptr); }
         content = g;
-        if (content) { content->attach(this); }
+        if (content) { content->setParent(this); }
         return this;
     }
 

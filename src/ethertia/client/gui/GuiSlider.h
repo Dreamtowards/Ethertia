@@ -38,7 +38,7 @@ public:
             percentage = Mth::clamp(percentage, 0.0f, 1.0f);
             setValue(getValue());  // round unit.
         }
-        Gui::drawRect(x+ (w-HANDLER_WIDTH) * percentage, y, HANDLER_WIDTH, h, Colors::WHITE30);
+        Gui::drawRect(x+ (w-HANDLER_WIDTH) * percentage, y, HANDLER_WIDTH, h, Colors::WHITE40);
 
         // Text
         Gui::drawString(x+w/2, y+(h-16)/2,

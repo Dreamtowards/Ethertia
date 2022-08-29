@@ -24,8 +24,7 @@ public:
         if (!file)
             return nullptr;
 
-        Chunk* chunk = new Chunk(chunkpos);
-        chunk->world = world;
+        Chunk* chunk = new Chunk(chunkpos, world);
 
         int chunkBlocksSize = sizeof(BlockState) * 4096;
         file.read((char*)&chunk->blocks, chunkBlocksSize);

@@ -32,8 +32,7 @@ public:
 
     EntityMesh* proxy = nullptr;
 
-    Chunk(glm::vec3 p) {
-        position = p;
+    Chunk(glm::vec3 p, World* w) : position(p), world(w) {
 
         proxy = new EntityMesh();
         proxy->setPosition(position);

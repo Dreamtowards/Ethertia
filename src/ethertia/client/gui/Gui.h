@@ -159,12 +159,15 @@ public:
     Gui* getParent() const {
         return parent;
     }
-    void detach() {
-        parent = nullptr;
-    }
-    void attach(Gui* p) {
+    void setParent(Gui* p) {
         parent = p;
     }
+//    void detach() {
+//        parent = nullptr;
+//    }
+//    void attach(Gui* p) {
+//        parent = p;
+//    }
 //    void removeFromParent() {}
 
     static void forParents(Gui* g, const std::function<void(Gui*)>& visitor) {
@@ -180,7 +183,8 @@ public:
         if (!g) return;
         visitor(g);
 
-        for (Gui* child : g->children()) {
+        for (auto it = g->children().begin(); it != g->children().end(); ++it) {
+            Gui* child = *it;
             Gui::forChildren(child, visitor);
         }
     }
@@ -323,6 +327,10 @@ public:
         });
     }
     void addOnClickListener(const std::function<void(OnReleased*)>& lsr) {
+
+        eventbus.listen(lsr);
+    }
+    void addOnPressedListener(const std::function<void(OnPressed*)>& lsr) {
 
         eventbus.listen(lsr);
     }

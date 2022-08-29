@@ -30,7 +30,7 @@ public:
     void addGui(Gui* g, uint idx) {
         if (g->getParent()) throw std::logic_error("Cannot attach. it belongs to another.");
         _children.insert(_children.begin()+idx, g);
-        g->attach(this);
+        g->setParent(this);
     }
     Gui* addGui(Gui* g) {
         addGui(g, count());
@@ -44,9 +44,10 @@ public:
     }
 
     void removeGui(int idx) {
-        auto it = _children.begin()+idx;
-        _children.erase(it);
-        (*it)->detach();
+        assert(idx >= 0);
+        Gui* g = _children[idx];
+        g->setParent(nullptr);
+        Collections::erase(_children, g);
     }
     void removeGui(Gui* g) {
         removeGui(Collections::find(_children, g));

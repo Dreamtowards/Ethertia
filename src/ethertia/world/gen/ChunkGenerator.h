@@ -31,25 +31,22 @@ public:
     }
 
     Chunk* generateChunk(glm::vec3 chunkpos, World* world) {
-        Chunk* chunk = new Chunk(chunkpos);
-        chunk->world = world;
-
-//        Log::info("Gen Terr "+glm::to_string(chunkpos));
+        Chunk* chunk = new Chunk(chunkpos, world);
         using glm::vec3;
 
-            for (int rx = 0; rx < 16; ++rx) {
-                for (int ry = 0; ry < 16; ++ry) {
-                    for (int rz = 0; rz < 16; ++rz) {
-                        vec3 rp = vec3(rx, ry, rz);
-                        vec3 p = chunkpos + rp;
-
-                        if (p.y < 0)
-                            chunk->setBlock(rp,BlockState(Blocks::STONE, 0.5));
-                    }
-                }
-            }
-
-        return chunk;
+//            for (int rx = 0; rx < 16; ++rx) {
+//                for (int ry = 0; ry < 16; ++ry) {
+//                    for (int rz = 0; rz < 16; ++rz) {
+//                        vec3 rp = vec3(rx, ry, rz);
+//                        vec3 p = chunkpos + rp;
+//
+//                        if (p.y < 0)
+//                            chunk->setBlock(rp,BlockState(Blocks::STONE, 0.5));
+//                    }
+//                }
+//            }
+//
+//        return chunk;
 
 //        {
 //            for (int rx = 0; rx < 16; ++rx) {

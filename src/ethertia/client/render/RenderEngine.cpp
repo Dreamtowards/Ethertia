@@ -69,6 +69,7 @@ void RenderEngine::renderWorld(World* world)
 //        }
 //    }
 
+    entitiesActualRendered = 0;
     for (Entity* entity : world->getEntities()) {
         // frustum test.
         if (!entity)
@@ -76,8 +77,19 @@ void RenderEngine::renderWorld(World* world)
         if (!entity->model)
             continue;
 
+        // Frustum Culling
+        if (!viewFrustum.intersects(entity->getAABB())) {
+            continue;
+        }
+        ++entitiesActualRendered;
+
         entityRenderer->render(entity, chunkRenderer->shader);
+
+        if (debugChunkGeo)
+            renderDebugGeo(entity->model, entity->getPosition(), entity->getRotation());
     }
+    // Log::info("Rendered: {}/{}", numRdr, world->getEntities().size());
+
 
     RenderEngine::checkGlError();
 }
