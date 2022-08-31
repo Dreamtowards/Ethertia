@@ -21,6 +21,7 @@ public:
 
     BlockState blocks[16*16*16] = {};
 
+    inline static Texture* tex;
 
     glm::vec3 position;
     World* world;
@@ -36,6 +37,7 @@ public:
 
         proxy = new EntityMesh();
         proxy->setPosition(position);
+        proxy->diffuseMap = tex;
     }
     ~Chunk() {
 

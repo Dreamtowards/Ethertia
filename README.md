@@ -19,34 +19,38 @@ Developer: https://elytra.dev/~pris (Eldrine Le Prismarine)
 - [x] Cubical Chunks
 
 <small>Generation II</small>
-- [ ] LoD (for SurfaceNets & SVOs)
-- [ ] Octrees (SVOs, Varying Grids)
 - [ ] Smooth Terrain (SurfaceNets)
+- [ ] Octrees (SVOs, Varying Grids)
+- [ ] LoD (for SurfaceNets & SVOs)
 
 <small>Generation III</small>
 - [ ] LoD (for Dual Contouring & SVOs)
 - [ ] Octrees.
-- [ ] Unified Theory of Smoothness & Sharpness terrain features.
+- [ ] Unify Theory of Smoothness & Sharpness features.
 
-#### Features
+#### Functionality
 
-- [ ] Crafting Table [?]
-- [ ] BulletPhysics integrate.
 - [x] OBJ Model Load.
-- [x] Raycast Traverse of Unified Grid Voxel.
+- [x] BulletPhys integrate.
+- [ ] World Storage
+- [ ] Crafting Table [?]
+
+[comment]: <> (- [x] Raycast Traverse of Unified Grid Voxel.)
 
 <small>GUI</small>
-- [x] GuiSlider
+- [x] GuiSlider, GuiCheckBox
+- [x] GuiTextBox
+- [ ] GuiScrollBox
 
 #### Rendering
 
+- [x] Frustum Culling
 - [ ] Grass Batch Rendering
 - [ ] Simple Clouds (Flat Noise)
 - [ ] Blocky Clouds (Multi layers)
 - [ ] Acid Rendering
 - [ ] Deferred Rendering
 - [ ] Particles
-- [x] Frustum Culling of Chunks
 
 #### Terrain Generation
 
@@ -55,8 +59,4 @@ Developer: https://elytra.dev/~pris (Eldrine Le Prismarine)
 <small>Population</small>
 - [x] Vines
 - [x] Tallgrass (Flowers, Shrubs, Ferns)
-- [x] OakTrees. (Log, SpreadLeaves.)
-
-<small>Generation</small>
-- [x] Sparse noise samples acceleration (lerp 16^3 -> (4+1)^3.)
-- [x] 3D Perlin Noise with FBM.
+- [x] Simple Trees. (Log, SpreadLeaves.)

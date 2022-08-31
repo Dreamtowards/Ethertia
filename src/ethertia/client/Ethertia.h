@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
+#include <glm/vec3.hpp>
 
 // __forward_declarations
 
@@ -21,6 +22,14 @@ class Executor;          // #include <ethertia/util/concurrent/Executor.h>
 class World;             // #include <ethertia/world/World.h>
 class Entity;            // #include <ethertia/entity/Entity.h>
 class GuiRoot;           // #include <ethertia/client/gui/GuiRoot.h>
+
+class PickingCursor {
+public:
+    bool hit;
+    glm::vec3 p;
+    float size;
+    glm::vec3 n;
+};
 
 class Ethertia
 {
@@ -63,6 +72,8 @@ public:
     static void unloadWorld();
 
     static void dispatchCommand(const std::string& cmd);
+
+    static PickingCursor* getPickingCursor();
 
     static void shutdown() { running = false; }
     static bool isRunning() { return running; }

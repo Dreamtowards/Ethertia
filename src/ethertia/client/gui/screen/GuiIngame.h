@@ -14,6 +14,7 @@
 #include <ethertia/client/render/Camera.h>
 #include <ethertia/client/render/renderer/ChunkRenderer.h>
 #include <ethertia/client/gui/GuiCheckBox.h>
+#include <ethertia/client/gui/GuiAlign.h>
 
 class GuiIngame : public GuiCollection
 {
@@ -22,6 +23,11 @@ public:
 
     inline static bool dbgText = true;
     inline static bool dbgPolyLine = false;
+
+    inline static bool dbgBasis = true;
+    inline static bool dbgWorldBasis = true;
+
+    Gui* optsGui = nullptr;
 
     GuiIngame()
     {
@@ -35,30 +41,46 @@ public:
 
         RenderEngine* rde = Ethertia::getRenderEngine();
         Camera* cam = Ethertia::getCamera();
+
+
+
+        {
+            GuiStack* opts = new GuiStack(GuiStack::D_VERTICAL, 4);
+            opts->addDrawBackground(Colors::BLACK30);
+
+            opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
+
+            opts->addGui(new GuiSlider("FOV", 15, 165, &rde->fov, 5.0f));
+
+            opts->addGui(new GuiSlider("Camera Smoothness", 0, 5, &cam->smoothness, 0.5f));
+            opts->addGui(new GuiSlider("Camera Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
+
+            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &rde->chunkRenderer->fogDensity, 0.001f));
+            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &rde->chunkRenderer->fogGradient, 0.01f));
+
+
+            opts->addGui(new GuiCheckBox("Norm & Border", &rde->debugChunkGeo));
+
+            opts->addGui(new GuiCheckBox("glPoly Line", &dbgPolyLine));
+
+            opts->addGui(new GuiCheckBox("Basis", &dbgBasis));
+
+            opts->addGui(new GuiCheckBox("World Basis", &dbgWorldBasis));
+
+            opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
+
+            opts->addGui(new GuiSlider("PickingCursor Size", 0, 16, &Ethertia::getPickingCursor()->size, 0.2f));
+
+            addGui(optsGui=new GuiAlign(1.0f, 0.14f, opts));
+        }
+
+
         {
             GuiPopupMenu* mProfiler = newMenu(menubar, "Profiler");
-            mProfiler->addMenu(new GuiCheckBox("Memory Profiler", &rde->debugChunkGeo));
-
-            mProfiler->addMenu(new GuiCheckBox("Debug TextInf", &dbgText));
         }
 
         {
             GuiPopupMenu* mRendering = newMenu(menubar, "Rendering");
-            mRendering->addMenu(new GuiSlider("FOV", 15, 165, &rde->fov, 5.0f));
-
-            mRendering->addMenu(new GuiSlider("Camera Smoothness", 0, 5, &cam->smoothness, 0.5f));
-            mRendering->addMenu(new GuiSlider("Camera Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
-
-            mRendering->addMenu(new GuiSlider("Fog Density", 0, 0.2f, &rde->chunkRenderer->fogDensity, 0.001f));
-            mRendering->addMenu(new GuiSlider("Fog Gradient", 0, 5, &rde->chunkRenderer->fogGradient, 0.01f));
-
-            mRendering->addMenu(new GuiCheckBox("Norm & Border", &rde->debugChunkGeo));
-
-            mRendering->addMenu(new GuiCheckBox("glPoly Line", &dbgPolyLine));
-
-            mRendering->addMenu(new GuiCheckBox("Basis", &rde->debugChunkGeo));
-
-            mRendering->addMenu(new GuiCheckBox("World Basis", &rde->debugChunkGeo));
         }
 
         {
@@ -70,14 +92,18 @@ public:
         {
             GuiPopupMenu* mWorld = newMenu(menubar, "World");
 
-            mWorld->addMenu(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
-
             mWorld->addMenu(new GuiButton("Load"));
             mWorld->addMenu(new GuiButton("Unload"));
         }
 
         {
-            GuiPopupMenu* mOpts = newMenu(menubar, "Opts");
+            GuiButton* btnOpts;
+            GuiPopupMenu* mOpts = newMenu(menubar, "Opts", &btnOpts);
+
+            btnOpts->addOnClickListener([&](OnReleased* e) {
+                Log::info("opt");
+                optsGui->setVisible(!optsGui->isVisible());
+            });
         }
 
         menubar->addDrawBackground(Colors::BLACK10);
@@ -85,10 +111,12 @@ public:
 
     }
 
-    GuiPopupMenu* newMenu(GuiCollection* p, const std::string& text) {
+    GuiPopupMenu* newMenu(GuiCollection* p, const std::string& text, GuiButton** _btn = nullptr) {
         GuiButton* btnMenu = new GuiButton(text);
         btnMenu->setHeight(Inf);
         p->addGui(btnMenu);
+
+        if (_btn) *_btn = btnMenu;
 
         GuiPopupMenu* m = new GuiPopupMenu();
         btnMenu->addOnPressedListener([m, btnMenu](OnPressed* e) {
@@ -102,6 +130,13 @@ public:
     }
 
     void onDraw() override {
+
+
+        if (dbgBasis)
+            Ethertia::getRenderEngine()->renderDebugBasis();
+
+        if (dbgWorldBasis)
+            Ethertia::getRenderEngine()->renderDebugWorldBasis();
 
         glPolygonMode(GL_FRONT_AND_BACK, dbgPolyLine ? GL_LINE : GL_FILL);
 

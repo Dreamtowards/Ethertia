@@ -71,13 +71,14 @@ public:
         delete dynamicsWorld;
     }
 
+    inline static BlockState EMPTY{};
 
-    BlockState getBlock(glm::vec3 blockpos) {
+    BlockState& getBlock(glm::vec3 blockpos) {
         Chunk* chunk = getLoadedChunk(blockpos);
-        if (!chunk) return BlockState();  // AIR
+        if (!chunk) return EMPTY;  // AIR
         return chunk->getBlock(Chunk::rpos(blockpos));
     }
-    BlockState getBlock(int x, int y, int z) {
+    BlockState& getBlock(int x, int y, int z) {
         return getBlock(glm::vec3(x,y,z));
     }
 

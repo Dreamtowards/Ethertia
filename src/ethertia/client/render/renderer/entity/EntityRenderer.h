@@ -28,6 +28,9 @@ public:
         Renderer::setShaderCamPos(&shader);
         Renderer::setShaderMVP(&shader, Mth::matModel(entity->getPosition(), entity->getRotation(), glm::vec3(1.0f)));
 
+        shader.setFloat("CursorSize", Ethertia::getPickingCursor()->size);
+        shader.setVector3f("CursorPos", Ethertia::getPickingCursor()->p);
+
         glBindVertexArray(entity->model->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, entity->model->vertexCount);
     }

@@ -44,7 +44,7 @@ public:
         }
 
         if (checked || isHover()) {
-            Gui::drawRect(x+4, y+4, 12, 12, checked ? Colors::WHITE40 : Colors::WHITE20);
+            Gui::drawRect(x+4, y+4, 12, 12, checked ? Colors::WHITE40 : Colors::WHITE10);
         }
     }
 

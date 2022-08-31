@@ -82,6 +82,9 @@ void handleInput();
 void renderGUI();
 void initThreadChunkLoad();
 
+static PickingCursor pickingCursor;
+
+static std::string chunkBuildStat = "Uninitialized";
 
 void Ethertia::runMainLoop()
 {
@@ -94,6 +97,7 @@ void Ethertia::runMainLoop()
         runTick();
     }
     if (world) {
+        player->rigidbody->setGravity(btVector3(0,0,0));
         world->dynamicsWorld->stepSimulation(getDelta());
     }
 
@@ -135,6 +139,11 @@ void Ethertia::start() {
     rootGUI->addGui(GuiIngame::INST);
     rootGUI->addGui(GuiScreenMainMenu::INST);
 
+    Texture* tex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("blocks/stone_.png")));
+    Chunk::tex = tex;
+
+    pickingCursor.size = 2.0;
+
     EventBus::EVENT_BUS.listen([&](KeyboardEvent* e) {
         if (e->isPressed()) {
             int key = e->getKey();
@@ -148,36 +157,62 @@ void Ethertia::start() {
             } else if (isIngame()) {
                 if (key == GLFW_KEY_SLASH) {
                     getRootGUI()->addGui(GuiScreenChat::INST);
-                } else if (key == GLFW_KEY_H) {
-                    glm::vec3 p, n;
-
-                    if (world->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n)) {
-
-                        glm::vec3 v = (p - camera.position) * 0.8f;
-                        v.y += glm::length(v) * 0.4f;
-                        player->applyLinearVelocity(v);
-                    }
                 }
+
             }
         }
     });
     EventBus::EVENT_BUS.listen([=](MouseButtonEvent* e) {
         if (e->isPressed() && world && isIngame()) {
-            u8 face;
-            glm::vec3 pos;
-            world->raycast(camera.position, camera.direction, pos, face);
             static u8 placingBlock = Blocks::STONE;
 
             int btn = e->getButton();
-            if (btn == GLFW_MOUSE_BUTTON_1) {
-                world->setBlock(pos, BlockState());
-                world->requestRemodel(pos);
-            } else if (btn == GLFW_MOUSE_BUTTON_2) {
-                world->setBlock(pos + Mth::QFACES[face], BlockState(placingBlock, 0.5f));
-                world->requestRemodel(pos);
-            } else if (btn == GLFW_MOUSE_BUTTON_3) {
-                placingBlock = world->getBlock(pos).id;
+
+            PickingCursor& cur = *Ethertia::getPickingCursor();
+            if (cur.hit) {
+                glm::vec3 p = cur.p;
+                float n = cur.size;
+
+//                glm::vec3 v = (p - camera.position) * 0.8f;
+//                v.y += glm::length(v) * 0.4f;
+//                player->applyLinearVelocity(v);
+
+                if (btn == GLFW_MOUSE_BUTTON_1) {
+                    for (int dx = -n; dx <= n; ++dx) {
+                        for (int dz = -n; dz <= n; ++dz) {
+                            for (int dy = -n; dy <= n; ++dy) {
+                                glm::vec3 d(dx, dy, dz);
+
+                                BlockState& b = world->getBlock(p + d);
+                                float f = n - glm::length(d);
+
+                                b.id = placingBlock;
+                                b.density = b.density - Mth::max(0.0f, n - glm::length(d));
+                                world->requestRemodel(p+d);
+                            }
+                        }
+                    }
+                } else if (btn == GLFW_MOUSE_BUTTON_2) {
+                    for (int dx = -n; dx <= n; ++dx) {
+                        for (int dz = -n; dz <= n; ++dz) {
+                            for (int dy = -n; dy <= n; ++dy) {
+                                glm::vec3 d(dx, dy, dz);
+
+                                BlockState& b = world->getBlock(p + d);
+                                float f = n - glm::length(d);
+
+                                b.id = placingBlock;
+                                b.density = Mth::max(b.density, f);
+                                world->requestRemodel(p+d);
+                            }
+                        }
+                    }
+                    world->requestRemodel(p);
+                } else if (btn == GLFW_MOUSE_BUTTON_3) {
+                    placingBlock = world->getBlock(p).id;
+                }
             }
+
         }
     });
 
@@ -199,21 +234,15 @@ void Ethertia::start() {
 
 }
 
-static std::string chunkBuildStat = "Uninitialized";
-
 
 void renderGUI()
 {
     GuiRoot* rootGUI = Ethertia::getRootGUI();
-    Window& window = *Ethertia::getWindow();
-    Entity* player = Ethertia::getPlayer();
-    Camera& camera = *Ethertia::getCamera();
-
 
 
     rootGUI->onLayout();
 
-    rootGUI->updateHovers(window.getMousePos());
+    rootGUI->updateHovers(Ethertia::getWindow()->getMousePos());
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -221,23 +250,12 @@ void renderGUI()
 
     rootGUI->onDraw();
 
-//        Gui::drawRect(100, 100, 200, 100, Colors::WHITE, BlockTextures::ATLAS->atlasTexture, 20);
-//        Gui::drawRect(100, 100, 10, 10, Colors::GREEN);
-
-//        Gui::drawString(Gui::maxWidth()/2, 110, "Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?Test yo wassaup9\nTest\nOf\nSomeTexts\nWill The Center Texting Works?",
-//                        Colors::WHITE, 32, 1);
-
 //    Gui::drawWorldpoint(player->intpposition, [](glm::vec2 p) {
-//
 //        Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
 //    });
 
     Gui::drawRect(Gui::maxWidth()/2 -2, Gui::maxHeight()/2 -2,
                   3, 3, Colors::WHITE);
-
-    Ethertia::getRenderEngine()->renderDebugBasis();
-
-    Ethertia::getRenderEngine()->renderDebugWorldBasis();
 
     glEnable(GL_DEPTH_TEST);
 }
@@ -265,6 +283,8 @@ void updateMovement() {
     if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
 
     player->applyLinearVelocity(vel);
+
+    player->rigidbody->setDamping(0.98f, 0.18f);
 
     if (!window.isKeyDown(GLFW_KEY_W)) {
         sprint = false;
@@ -294,6 +314,18 @@ void handleInput()
     renderEngine->updateViewFrustum();
     renderEngine->updateProjectionMatrix(Ethertia::getAspectRatio());
 
+    {
+        glm::vec3 p, n;
+        if (Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n)) {
+            pickingCursor.hit = true;
+            pickingCursor.p = p;
+            pickingCursor.n = n;
+        } else {
+            pickingCursor.hit = false;
+            pickingCursor.p = glm::vec3(0.0f);
+            pickingCursor.n = glm::vec3(0.0f);
+        }
+    }
 
 }
 
@@ -352,7 +384,7 @@ float Ethertia::getAspectRatio() {
 
 float Ethertia::getDelta() { return timer.getDelta(); }
 
-
+PickingCursor* Ethertia::getPickingCursor() { return &pickingCursor; }
 
 
 
@@ -385,7 +417,7 @@ static void checkChunksModelUpdate(World* world) {
 //        vbuf->initnorm();
 
         vbuf = MarchingCubesMeshGen::genMesh(chunk, world);
-        vbuf->initnorm(false);
+        vbuf->initnorm(true);
 
 
         if (vbuf) {
