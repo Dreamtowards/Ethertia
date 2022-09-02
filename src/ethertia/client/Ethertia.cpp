@@ -1,5 +1,6 @@
 
 
+
 #include "Ethertia.h"
 
 #include <ethertia/client/render/RenderEngine.h>
@@ -28,6 +29,7 @@
 
 int main()
 {
+    std::cout << "Hello, World!" << std::endl;
     Ethertia::run();
 
 //    et();
@@ -75,7 +77,7 @@ Executor Ethertia::executor{std::this_thread::get_id()};
 
 World* Ethertia::world = nullptr;
 Entity* Ethertia::player = nullptr;
-GuiRoot* Ethertia::rootGUI = new GuiRoot();
+GuiRoot* Ethertia::rootGUI = nullptr;
 
 
 void handleInput();
@@ -85,6 +87,7 @@ void initThreadChunkLoad();
 static PickingCursor pickingCursor;
 
 static std::string chunkBuildStat = "Uninitialized";
+
 
 void Ethertia::runMainLoop()
 {
@@ -120,6 +123,7 @@ void Ethertia::start() {
     running = true;
     window.initWindow();
     renderEngine = new RenderEngine();
+    rootGUI = new GuiRoot();
 
     Init::initialize();
 
@@ -130,7 +134,6 @@ void Ethertia::start() {
     player->setPosition({-10, 10, -10});
 
     Ethertia::loadWorld();
-
 
     GuiIngame::INST = new GuiIngame();
     GuiScreenMainMenu::INST = new GuiScreenMainMenu();

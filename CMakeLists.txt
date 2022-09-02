@@ -25,7 +25,7 @@ add_executable(Ethertia
         src/ethertia/block/Block.cpp
         src/ethertia/client/gui/Gui.cpp
         src/ethertia/client/render/RenderEngine.cpp
-        src/ethertia/client/Ethertia.cpp )
+        src/ethertia/client/Ethertia.cpp)
 
 if (APPLE)
 target_link_libraries(Ethertia PRIVATE
@@ -35,9 +35,15 @@ target_link_libraries(Ethertia PRIVATE
         "-framework OpenAL")
 endif()
 
+#if (WIN32)
+#target_link_libraries(Ethertia PRIVATE
+#        "-static-libgcc"
+#        "-static-libstdc++")
+#endif()
+
 add_subdirectory(lib/glfw)
 target_link_libraries(Ethertia PRIVATE glfw)
 
 add_subdirectory(lib/bullet3)
-target_link_libraries(Ethertia PRIVATE BulletCollision BulletDynamics LinearMath)
+target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath)
 # [examples, Extras, test, build3] are disabled.

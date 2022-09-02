@@ -6,6 +6,7 @@
 #define ETHERTIA_WORLD_H
 
 #include <unordered_map>
+#include <mutex>
 #include <glm/vec3.hpp>
 
 #include <ethertia/world/Chunk.h>
@@ -13,17 +14,13 @@
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/init/Blocks.h>
 #include <ethertia/entity/Entity.h>
+#include <ethertia/entity/EntityMesh.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Mth.h>
-
+#include <ethertia/util/concurrent/Executor.h>
 #include <ethertia/client/Ethertia.h>
 #include <ethertia/client/Window.h>
-
-#include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
-#include <BulletCollision/BroadphaseCollision/btDbvtBroadphase.h>
-#include <ethertia/entity/EntityMesh.h>
-#include <ethertia/util/concurrent/Executor.h>
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"

@@ -26,9 +26,9 @@ public:
                 w2 = glm::angle(glm::normalize(v0 - v2), glm::normalize(v1 - v2));
 
 //                Log::info("w012 {}, {}, {}", w0, w1, w2);
-                if (isnan(w0)) w0 = 1;
-                if (isnan(w1)) w1 = 1;
-                if (isnan(w2)) w2 = 1;
+                if (std::isnan(w0)) w0 = 1;
+                if (std::isnan(w1)) w1 = 1;
+                if (std::isnan(w2)) w2 = 1;
             }
             // v0: 0 0 0
             // v1: 0 0 1
