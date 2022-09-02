@@ -9,13 +9,13 @@ https://elytra.dev/~pris (dev. Eldrine Le Prismarine)
 
 ---
 
-*_todolist*
+[comment]: <> (*_todolist*)
 
 ### Generation I
 - [x] Blocky Terrain, Unified Grids
 - [x] Cubical Chunks
 
-<hr>
+<br>
 
 - [x] Vines, Tallgrass (Flowers, Shrubs, Ferns)
 - [x] Simple Trees. (Log, SpreadLeaves.)
