@@ -70,7 +70,8 @@ void Ethertia::runMainLoop()
         runTick();
     }
     if (world) {
-        player->rigidbody->setGravity(btVector3(0,0,0));
+//        player->rigidbody->setGravity(btVector3(0,0,0));
+//        player->rigidbody->setDamping(0.98f, 0.18f);
         world->dynamicsWorld->stepSimulation(getDelta());
     }
 
@@ -258,7 +259,6 @@ void updateMovement() {
 
     player->applyLinearVelocity(vel);
 
-    player->rigidbody->setDamping(0.98f, 0.18f);
 
     if (!window.isKeyDown(GLFW_KEY_W)) {
         sprint = false;

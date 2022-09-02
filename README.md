@@ -2,21 +2,19 @@
 
 An Alpha Dream. *It's 2011 again.*
 
+
+https://elytra.dev/ethertia (Project Site)  
+https://elytra.dev/~pris (developer. Eldrine Le Prismarine)
+
 ---
 
-Project Site: https://elytra.dev/ethertia  
-Developer: https://elytra.dev/~pris (Eldrine Le Prismarine)
-
----
-
-## Todolist
-
+*_todolist*
 
 ### Generation I
 - [x] Blocky Terrain, Unified Grids
 - [x] Cubical Chunks
 
----
+
 
 - [x] Vines, Tallgrass (Flowers, Shrubs, Ferns)
 - [x] Simple Trees. (Log, SpreadLeaves.)
@@ -30,7 +28,7 @@ Developer: https://elytra.dev/~pris (Eldrine Le Prismarine)
 - [ ] Octrees (SVOs, Varying Grids)
 - [ ] LoD (for SurfaceNets & SVOs)
 
----
+
 
 - [x] OBJ Model Load. [22u34 Preview]()
 - [x] BulletPhys integrate.
@@ -40,7 +38,7 @@ Developer: https://elytra.dev/~pris (Eldrine Le Prismarine)
 - [ ] Brush Masks (Limit, Exclude)
 - [ ] GuiScrollBox
 
----
+
 
 - [ ] Particles
 - [ ] Deferred Rendering
@@ -61,7 +59,7 @@ Developer: https://elytra.dev/~pris (Eldrine Le Prismarine)
 - [ ] Octrees.
 - [ ] Unified Theory of Smoothness & Sharpness features.
 
----
+
 
 - [ ] VR Supports. MotionTrack. IKs.
 - [ ] Skeletal Animation. Frame transfer.
