@@ -34,9 +34,13 @@ public:
     }
 
     static void drawButtonBackground(Gui* g) {
+        float x = g->getX(), y = g->getY(), w = g->getWidth(), h = g->getHeight();
 
-        Gui::drawRect(g->getX(), g->getY(), g->getWidth(), g->getHeight(),
-                      g->isPressed() ? Colors::BLACK50 : g->isHover() ? Colors::BLACK40 : Colors::BLACK30);
+        if (g->isPressed()) {
+            Gui::drawRect(x,y,w,h,Colors::BLACK20);
+        } else if (g->isHover()) {
+            Gui::drawRect(x,y,w,h,Colors::BLACK10);
+        }
     }
 };
 

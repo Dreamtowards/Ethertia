@@ -66,6 +66,36 @@ public:
         addGui(g, idx);
     }
 
+    void onKeyboard(int key, bool pressed) override {
+
+        for (int i = 0; i < count(); ++i) { Gui* g = at(i);
+            if (!g->isVisible())
+                continue;
+            g->onKeyboard(key, pressed);
+        }
+
+    }
+
+    void onMouseButton(int button, bool pressed) override {
+
+        for (int i = 0; i < count(); ++i) { Gui* g = at(i);
+            if (!g->isVisible())
+                continue;
+            g->onMouseButton(button, pressed);
+        }
+
+    }
+
+    void onCharInput(int ch) override {
+
+        for (int i = 0; i < count(); ++i) { Gui* g = at(i);
+            if (!g->isVisible())
+                continue;
+            g->onCharInput(ch);
+        }
+
+    }
+
 };
 
 #endif //ETHERTIA_GUICOLLECTION_H

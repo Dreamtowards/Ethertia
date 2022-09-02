@@ -36,6 +36,31 @@ public:
         return this;
     }
 
+
+
+
+    void onKeyboard(int key, bool pressed) override {
+        if (content && content->isVisible()) {
+            content->onKeyboard(key, pressed);
+        }
+
+    }
+
+    void onMouseButton(int button, bool pressed) override {
+
+        if (content && content->isVisible()) {
+            content->onMouseButton(button, pressed);
+        }
+
+    }
+
+    void onCharInput(int ch) override {
+
+        if (content && content->isVisible()) {
+            content->onCharInput(ch);
+        }
+
+    }
 };
 
 #endif //ETHERTIA_GUIDELEGATE_H

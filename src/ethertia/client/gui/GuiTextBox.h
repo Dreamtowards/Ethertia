@@ -33,62 +33,7 @@ class GuiTextBox : public Gui
 public:
     GuiTextBox(std::string text) : text(std::move(text)), Gui(0, 0, 100, 20) {
 
-        EventBus::EVENT_BUS.listen([&](KeyboardEvent* e) {
-            if (!isVisible()) return;
 
-            if (e->isPressed() && isFocused()) {
-                int key = e->getKey();
-
-                if (key == GLFW_KEY_LEFT) {
-                    if (hasSelection()) {
-                        setCursorPosition(getSelectionMin());
-                        clearSelection();
-                    }
-                    incCursorPosition(-1);
-                } else if (key == GLFW_KEY_RIGHT) {
-                    if (hasSelection()) {
-                        setCursorPosition(getSelectionMax());
-                        clearSelection();
-                    }
-                    incCursorPosition(1);
-                } else if (key == GLFW_KEY_BACKSPACE) {
-                    backspaceText();
-                } else if (key == GLFW_KEY_ENTER) {
-                    if (singleline) {
-                        fireEvent(OnReturn());
-                    } else {
-                        insertText("\n");
-                    }
-                } else if (key == GLFW_KEY_V && Ethertia::getWindow()->isCtrlKeyDown()) {
-                    insertText(Ethertia::getWindow()->getClipboard());
-                } else if (key == GLFW_KEY_C && Ethertia::getWindow()->isCtrlKeyDown()) {
-                    Ethertia::getWindow()->setClipboard(getSelectedText().c_str());
-                } else if (key == GLFW_KEY_X && Ethertia::getWindow()->isCtrlKeyDown()) {
-                    Ethertia::getWindow()->setClipboard(getSelectedText().c_str());
-                    insertText("");
-                } else if (key == GLFW_KEY_A && Ethertia::getWindow()->isCtrlKeyDown()) {
-                    selectionBegin = 0;
-                    selectionEnd = this->text.length();
-                    setCursorPosition(selectionEnd);
-                }
-            }
-        });
-
-        EventBus::EVENT_BUS.listen([&](CharInputEvent* e) {
-            if (!isVisible()) return;
-            if (isFocused()) {
-                insertText(std::string(1, e->getChar()));
-            }
-        });
-
-        EventBus::EVENT_BUS.listen([&](MouseButtonEvent* e) {
-            if (!isVisible()) return;
-            if (e->isPressed()) {
-                int idx = Ethertia::getRenderEngine()->fontRenderer->textIdx(this->text, textHeight, Gui::cursorX()-textX-getX(), Gui::cursorY()-textY-getY());
-                selectionBegin = idx;
-                selectionEnd = idx;
-            }
-        });
     }
 
     void onDraw() override
@@ -121,6 +66,68 @@ public:
         }
 
         Gui::onDraw();
+    }
+
+    void onKeyboard(int key, bool pressed) override {
+        Log::info("Key");
+
+        if (pressed && isFocused()) {
+
+            if (key == GLFW_KEY_LEFT) {
+                if (hasSelection()) {
+                    setCursorPosition(getSelectionMin());
+                    clearSelection();
+                }
+                incCursorPosition(-1);
+            } else if (key == GLFW_KEY_RIGHT) {
+                if (hasSelection()) {
+                    setCursorPosition(getSelectionMax());
+                    clearSelection();
+                }
+                incCursorPosition(1);
+            } else if (key == GLFW_KEY_BACKSPACE) {
+                backspaceText();
+            } else if (key == GLFW_KEY_ENTER) {
+                if (singleline) {
+                    fireEvent(OnReturn());
+                } else {
+                    insertText("\n");
+                }
+            } else if (key == GLFW_KEY_V && Ethertia::getWindow()->isCtrlKeyDown()) {
+                insertText(Ethertia::getWindow()->getClipboard());
+            } else if (key == GLFW_KEY_C && Ethertia::getWindow()->isCtrlKeyDown()) {
+                Ethertia::getWindow()->setClipboard(getSelectedText().c_str());
+            } else if (key == GLFW_KEY_X && Ethertia::getWindow()->isCtrlKeyDown()) {
+                Ethertia::getWindow()->setClipboard(getSelectedText().c_str());
+                insertText("");
+            } else if (key == GLFW_KEY_A && Ethertia::getWindow()->isCtrlKeyDown()) {
+                selectionBegin = 0;
+                selectionEnd = this->text.length();
+                setCursorPosition(selectionEnd);
+            }
+        }
+
+    }
+
+    void onCharInput(int ch) override {
+        Log::info("Input");
+
+        if (isFocused()) {
+            insertText(std::string(1, ch));
+        }
+
+    }
+
+    void onMouseButton(int button, bool pressed) override {
+
+        Log::info("MB");
+
+        if (pressed) {
+            int idx = Ethertia::getRenderEngine()->fontRenderer->textIdx(text, textHeight, Gui::cursorX()-textX-getX(), Gui::cursorY()-textY-getY());
+            selectionBegin = idx;
+            selectionEnd = idx;
+        }
+
     }
 
     void setText(const std::string& t) {

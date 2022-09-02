@@ -39,7 +39,7 @@ public:
 
         vbox->addGui(new Gui(0, 0, 0, 8));  // gap
 
-        GuiTextBox* input = new GuiTextBox("Command or Text");
+        GuiTextBox* input = new GuiTextBox("");
         input->setWidth(Inf);
         input->setHeight(28);
         input->setSingleLine(true);

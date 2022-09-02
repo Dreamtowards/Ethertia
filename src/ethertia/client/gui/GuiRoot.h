@@ -12,29 +12,22 @@
 
 class GuiRoot : public GuiCollection
 {
-    void onMouseButton(MouseButtonEvent* e)
-    {
 
-        if (e->isPressed()) {  // mouse release should not effect the focus stat
-            updateFocused();
-        }
-
-        updatePressed(e->isPressed());
-    }
-
-    void onWindowResized(WindowResizedEvent* e) {
-
-        setWidth(e->getWidth());
-        setHeight(e->getHeight());
-    }
 
 public:
     GuiRoot() {
         setWidth(0);
         setHeight(0);  // cannot be -Inf.
 
-        EventBus::EVENT_BUS.listen(&GuiRoot::onMouseButton, this);
-        EventBus::EVENT_BUS.listen(&GuiRoot::onWindowResized, this);
+    }
+
+    void onMouseButton(int button, bool pressed) override
+    {
+        if (pressed) {  // mouse release should not effect the focus stat
+            updateFocused();
+        }
+
+        updatePressed(pressed);
     }
 
     /**

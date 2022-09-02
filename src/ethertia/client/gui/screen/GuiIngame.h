@@ -40,7 +40,7 @@ public:
         GuiStack* menubar = new GuiStack(GuiStack::D_HORIZONTAL);
         menubar->setWidth(Inf);
         menubar->setHeight(16);
-        menubar->addDrawBackground(Colors::WHITE30);
+        menubar->addDrawBackground(Colors::WHITE20);
 
         RenderEngine* rde = Ethertia::getRenderEngine();
         Camera* cam = Ethertia::getCamera();

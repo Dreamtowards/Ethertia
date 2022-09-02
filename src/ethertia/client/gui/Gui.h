@@ -15,7 +15,6 @@
 #include <ethertia/util/Colors.h>
 
 #include <ethertia/client/Ethertia.h>
-#include <ethertia/client/Window.h>
 #include <ethertia/client/render/RenderEngine.h>
 
 class Gui
@@ -122,6 +121,10 @@ public:
     void setHeight(float h) {
         height = h;
     }
+    void setWidthHeight(float w, float h) {
+        setWidth(w);
+        setHeight(h);
+    }
 
 
     // Universal Interface for Initiative Iteration
@@ -227,6 +230,17 @@ public:
 //        fireEvent(OnVisible());
     }
 
+
+
+    virtual void onKeyboard(int key, bool pressed) {
+
+    }
+    virtual void onMouseButton(int button, bool pressed) {
+
+    }
+    virtual void onCharInput(int ch) {
+
+    }
 
 
 
@@ -338,15 +352,14 @@ public:
 
 
 
-    static float maxWidth() { return Ethertia::getWindow()->getWidth(); }
-    static float maxHeight() { return Ethertia::getWindow()->getHeight(); }
+    static float maxWidth();
+    static float maxHeight();
 
-    static float cursorX() { return Ethertia::getWindow()->getMouseX(); }
-    static float cursorY() { return Ethertia::getWindow()->getMouseY(); }
+    static float cursorX();
+    static float cursorY();
 
     bool isCursorOver()  {
-        auto* w = Ethertia::getWindow();
-        return isPointOver(w->getMouseX(), w->getMouseY());
+        return isPointOver(Gui::cursorX(), Gui::cursorY());
     }
 
     static void drawRect(float x, float y, float w, float h, glm::vec4 color,

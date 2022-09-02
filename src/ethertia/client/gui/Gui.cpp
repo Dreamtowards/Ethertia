@@ -3,8 +3,13 @@
 //
 
 #include "Gui.h"
+#include <ethertia/client/Window.h>
 #include <ethertia/client/render/renderer/gui/FontRenderer.h>
 
+float Gui::maxWidth()  { return Ethertia::getWindow()->getWidth(); }
+float Gui::maxHeight() { return Ethertia::getWindow()->getHeight(); }
+float Gui::cursorX()   { return Ethertia::getWindow()->getMouseX(); }
+float Gui::cursorY()   { return Ethertia::getWindow()->getMouseY(); }
 
 void Gui::drawRect(float x, float y, float w, float h, glm::vec4 color, Texture* tex, float round, float border) {
     GuiRenderer* gr = Ethertia::getRenderEngine()->guiRenderer;

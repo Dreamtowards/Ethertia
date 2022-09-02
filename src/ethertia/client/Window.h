@@ -22,7 +22,7 @@
 #include <ethertia/event/client/WindowFocusEvent.h>
 #include <ethertia/event/client/WindowCloseEvent.h>
 #include <ethertia/client/Ethertia.h>
-
+#include <ethertia/client/gui/GuiRoot.h>
 
 class Window
 {
@@ -196,6 +196,8 @@ public:
 
         WindowResizedEvent e(wid, hei);
         EventBus::EVENT_BUS.post(&e);
+
+        Ethertia::getRootGUI()->setWidthHeight(wid, hei);
     }
 
     static void onWindowDropPath(GLFWwindow* _w, int count, const char** paths) {
@@ -227,6 +229,8 @@ public:
 
         MouseButtonEvent e(button, action==GLFW_PRESS);
         EventBus::EVENT_BUS.post(&e);
+
+        Ethertia::getRootGUI()->onMouseButton(button, action==GLFW_PRESS);
     }
 
     static void onScroll(GLFWwindow* _w, double xoffset, double yoffset) {
@@ -242,12 +246,16 @@ public:
 
         KeyboardEvent e(key, action==GLFW_PRESS);
         EventBus::EVENT_BUS.post(&e);
+
+        Ethertia::getRootGUI()->onKeyboard(key, action==GLFW_PRESS);
     }
 
     static void onCharInput(GLFWwindow* _w, unsigned int codepoint) {
 
         CharInputEvent e(codepoint);
         EventBus::EVENT_BUS.post(&e);
+
+        Ethertia::getRootGUI()->onCharInput(codepoint);
     }
 };
 
