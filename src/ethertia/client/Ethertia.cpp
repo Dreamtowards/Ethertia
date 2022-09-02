@@ -5,20 +5,17 @@
 
 #include <ethertia/client/render/RenderEngine.h>
 #include <ethertia/client/Window.h>
-#include <ethertia/util/Timer.h>
-#include <ethertia/util/concurrent/Executor.h>
-#include <ethertia/world/World.h>
-#include <ethertia/entity/Entity.h>
 #include <ethertia/client/gui/GuiRoot.h>
-
-#include <ethertia/client/render/chunk/BlockyChunkMeshGen.h>
 #include <ethertia/client/gui/screen/GuiIngame.h>
-#include <ethertia/init/Init.h>
 #include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
-#include <ethertia/util/Strings.h>
 #include <ethertia/client/gui/screen/GuiScreenChat.h>
 #include <ethertia/client/render/chunk/MarchingCubesMeshGen.h>
-
+#include <ethertia/world/World.h>
+#include <ethertia/entity/Entity.h>
+#include <ethertia/init/Init.h>
+#include <ethertia/util/Timer.h>
+#include <ethertia/util/concurrent/Executor.h>
+#include <ethertia/util/Strings.h>
 //#include <ethertia/lang/Elytra.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -29,40 +26,13 @@
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
     Ethertia::run();
 
 //    et();
 
-//    using glm::vec3;
-//    Log::info("Ang: ", glm::angle(vec3(0, -1, 0), vec3(1, 0, 0)));
-
-//    using glm::vec3;
-//    vec3 v0 = vec3(0,0,0);
-//    vec3 v1 = vec3(0, 0, 1);
-//    vec3 v2 = vec3(0, 1, 1);
-//    vec3 v0v1 = (v1 - v0);
-//    vec3 v0v2 = (v2 - v0);
-//    float w0 = glm::dot(glm::normalize(v1 - v0), glm::normalize(v2 - v0));  // 0, 1.57, 0
-//    float w1 = glm::dot(glm::normalize(v2 - v1), glm::normalize(v0 - v1));
-//    float w2 = glm::dot(glm::normalize(v0 - v2), glm::normalize(v1 - v2));
-
     return 0;
 }
 
-
-//#include <ethertia/util/Log.h>
-//#include <ethertia/util/Colors.h>
-//#include <ethertia/util/testing/BenchmarkTimer.h>
-//#include <ethertia/util/OBJLoader.h>
-//#include <ethertia/init/BlockTextures.h>
-//#include <ethertia/init/Init.h>
-//#include <ethertia/client/gui/GuiButton.h>
-//#include <ethertia/client/gui/GuiPadding.h>
-//#include <ethertia/client/gui/GuiAlign.h>
-//#include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
-//#include <ethertia/client/gui/screen/GuiIngame.h>
-//#include <ethertia/client/render/chunk/ChunkMeshGen.h>
 
 
 
@@ -79,14 +49,14 @@ World* Ethertia::world = nullptr;
 Entity* Ethertia::player = nullptr;
 GuiRoot* Ethertia::rootGUI = nullptr;
 
+static BrushCursor brushCursor;
+
+static std::string chunkBuildStat = "Uninitialized";
+
 
 void handleInput();
 void renderGUI();
 void initThreadChunkLoad();
-
-static PickingCursor pickingCursor;
-
-static std::string chunkBuildStat = "Uninitialized";
 
 
 void Ethertia::runMainLoop()
@@ -124,6 +94,7 @@ void Ethertia::start() {
     window.initWindow();
     renderEngine = new RenderEngine();
     rootGUI = new GuiRoot();
+    window.fireWindowSizeEvent();  // effect to the GuiRoot now.
 
     Init::initialize();
 
@@ -145,7 +116,7 @@ void Ethertia::start() {
     Texture* tex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("blocks/stone_.png")));
     Chunk::tex = tex;
 
-    pickingCursor.size = 2.0;
+    brushCursor.size = 2.0;
 
     EventBus::EVENT_BUS.listen([&](KeyboardEvent* e) {
         if (e->isPressed()) {
@@ -171,9 +142,9 @@ void Ethertia::start() {
 
             int btn = e->getButton();
 
-            PickingCursor& cur = *Ethertia::getPickingCursor();
+            BrushCursor& cur = Ethertia::getBrushCursor();
             if (cur.hit) {
-                glm::vec3 p = cur.p;
+                glm::vec3 p = cur.position;
                 float n = cur.size;
 
 //                glm::vec3 v = (p - camera.position) * 0.8f;
@@ -181,9 +152,9 @@ void Ethertia::start() {
 //                player->applyLinearVelocity(v);
 
                 if (btn == GLFW_MOUSE_BUTTON_1) {
-                    for (int dx = -n; dx <= n; ++dx) {
-                        for (int dz = -n; dz <= n; ++dz) {
-                            for (int dy = -n; dy <= n; ++dy) {
+                    for (int dx = floor(-n); dx <= ceil(n); ++dx) {
+                        for (int dz = floor(-n); dz <= ceil(n); ++dz) {
+                            for (int dy = floor(-n); dy <= ceil(n); ++dy) {
                                 glm::vec3 d(dx, dy, dz);
 
                                 BlockState& b = world->getBlock(p + d);
@@ -317,16 +288,14 @@ void handleInput()
     renderEngine->updateViewFrustum();
     renderEngine->updateProjectionMatrix(Ethertia::getAspectRatio());
 
-    {
+    if (brushCursor.keepTracking) {
         glm::vec3 p, n;
         if (Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n)) {
-            pickingCursor.hit = true;
-            pickingCursor.p = p;
-            pickingCursor.n = n;
+            brushCursor.hit = true;
+            brushCursor.position = p;
         } else {
-            pickingCursor.hit = false;
-            pickingCursor.p = glm::vec3(0.0f);
-            pickingCursor.n = glm::vec3(0.0f);
+            brushCursor.hit = false;
+            brushCursor.position = glm::vec3(0.0f);
         }
     }
 
@@ -387,7 +356,7 @@ float Ethertia::getAspectRatio() {
 
 float Ethertia::getDelta() { return timer.getDelta(); }
 
-PickingCursor* Ethertia::getPickingCursor() { return &pickingCursor; }
+BrushCursor& Ethertia::getBrushCursor() { return brushCursor; }
 
 
 

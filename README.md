@@ -12,51 +12,60 @@ Developer: https://elytra.dev/~pris (Eldrine Le Prismarine)
 ## Todolist
 
 
-#### Voxel
-  
-<small>Generation I</small>
+### Generation I
 - [x] Blocky Terrain, Unified Grids
 - [x] Cubical Chunks
 
-<small>Generation II</small>
+---
+
+- [x] Vines, Tallgrass (Flowers, Shrubs, Ferns)
+- [x] Simple Trees. (Log, SpreadLeaves.)
+- [x] Raycast traverse (unified grid voxel.)
+- [x] GuiSlider, GuiCheckBox, GuiTextBox
+- [x] Frustum Culling
+
+### Generation II
+- [x] Smooth Terrain (MarchingCubes)
 - [ ] Smooth Terrain (SurfaceNets)
 - [ ] Octrees (SVOs, Varying Grids)
 - [ ] LoD (for SurfaceNets & SVOs)
 
-<small>Generation III</small>
-- [ ] LoD (for Dual Contouring & SVOs)
-- [ ] Octrees.
-- [ ] Unify Theory of Smoothness & Sharpness features.
+---
 
-#### Functionality
-
-- [x] OBJ Model Load.
+- [x] OBJ Model Load. [22u34 Preview]()
 - [x] BulletPhys integrate.
+- [x] Naive Triplanar UV Mapping.
 - [ ] World Storage
-- [ ] Crafting Table [?]
-
-[comment]: <> (- [x] Raycast Traverse of Unified Grid Voxel.)
-
-<small>GUI</small>
-- [x] GuiSlider, GuiCheckBox
-- [x] GuiTextBox
+- [ ] SDFs Brushes.
+- [ ] Brush Masks (Limit, Exclude)
 - [ ] GuiScrollBox
 
-#### Rendering
+---
 
-- [x] Frustum Culling
-- [ ] Grass Batch Rendering
-- [ ] Simple Clouds (Flat Noise)
-- [ ] Blocky Clouds (Multi layers)
-- [ ] Acid Rendering
-- [ ] Deferred Rendering
 - [ ] Particles
-
-#### Terrain Generation
-
+- [ ] Deferred Rendering
+- [ ] Grass Batch Rendering
+- [ ] Simple Clouds (Flat noise)
+- [ ] Blocky Clouds (Multi layers)
+- [ ] Acid Rendering (Inception)
 - [ ] Biomes
+- [ ] Crafting Table [?]
+- [ ] Cars. (wheels and body)
+- [ ] Environment Reflection.
+- [ ] Paradox Mapping.
+- [ ] Shadow Mapping (necessary?)
+- [ ] SSAO.
 
-<small>Population</small>
-- [x] Vines
-- [x] Tallgrass (Flowers, Shrubs, Ferns)
-- [x] Simple Trees. (Log, SpreadLeaves.)
+### Generation III
+- [ ] LoD (for Dual Contouring & SVOs)
+- [ ] Octrees.
+- [ ] Unified Theory of Smoothness & Sharpness features.
+
+---
+
+- [ ] VR Supports. MotionTrack. IKs.
+- [ ] Skeletal Animation. Frame transfer.
+
+
+
+[comment]: <> (CLion-2020.3.4)

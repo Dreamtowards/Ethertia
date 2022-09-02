@@ -5,13 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #find_package(OpenAL REQUIRED)
+#file(GLOB_RECURSE Eths "src/ethertia/*.cpp")
 
 include_directories(src)
 include_directories(lib)
 include_directories(lib/glfw/include)
 include_directories(lib/bullet3/src)
-
-#file(GLOB_RECURSE EthUnits "src/ethertia/*.cpp")
 
 add_executable(Ethertia
         lib/glad/glad.c
@@ -21,7 +20,6 @@ add_executable(Ethertia
         src/ethertia/lang/lexer/TokenType.cpp
         src/ethertia/lang/symbol/SymbolInternalTypes.cpp
 
-        src/ethertia/client/render/renderer/Renderer.cpp
         src/ethertia/block/Block.cpp
         src/ethertia/client/gui/Gui.cpp
         src/ethertia/client/render/RenderEngine.cpp
@@ -39,6 +37,7 @@ endif()
 #target_link_libraries(Ethertia PRIVATE
 #        "-static-libgcc"
 #        "-static-libstdc++")
+##MinGW, 'x86_64-12.2.0-release-posix-sjlj-rt_v10-rev0.7z', add mingw64/bin to PATH without space.
 #endif()
 
 add_subdirectory(lib/glfw)

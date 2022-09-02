@@ -16,6 +16,8 @@
 #include <ethertia/client/gui/GuiCheckBox.h>
 #include <ethertia/client/gui/GuiAlign.h>
 
+#include <ethertia/world/World.h>
+
 class GuiIngame : public GuiCollection
 {
 public:
@@ -38,6 +40,7 @@ public:
         GuiStack* menubar = new GuiStack(GuiStack::D_HORIZONTAL);
         menubar->setWidth(Inf);
         menubar->setHeight(16);
+        menubar->addDrawBackground(Colors::WHITE30);
 
         RenderEngine* rde = Ethertia::getRenderEngine();
         Camera* cam = Ethertia::getCamera();
@@ -46,7 +49,7 @@ public:
 
         {
             GuiStack* opts = new GuiStack(GuiStack::D_VERTICAL, 4);
-            opts->addDrawBackground(Colors::BLACK30);
+            opts->addDrawBackground(Colors::BLACK50);
 
             opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
 
@@ -69,7 +72,8 @@ public:
 
             opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
 
-            opts->addGui(new GuiSlider("PickingCursor Size", 0, 16, &Ethertia::getPickingCursor()->size, 0.2f));
+            opts->addGui(new GuiSlider("BrushCursor Size", 0, 16, &Ethertia::getBrushCursor().size, 0.2f));
+            opts->addGui(new GuiCheckBox("BrushCursor KeepTracking", &Ethertia::getBrushCursor().keepTracking));
 
             addGui(optsGui=new GuiAlign(1.0f, 0.14f, opts));
         }
@@ -106,7 +110,6 @@ public:
             });
         }
 
-        menubar->addDrawBackground(Colors::BLACK10);
         addGui(menubar);
 
     }

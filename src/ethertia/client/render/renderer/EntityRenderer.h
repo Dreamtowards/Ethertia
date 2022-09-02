@@ -25,11 +25,15 @@ public:
         shader.useProgram();
 
 
-        Renderer::setShaderCamPos(&shader);
-        Renderer::setShaderMVP(&shader, Mth::matModel(entity->getPosition(), entity->getRotation(), glm::vec3(1.0f)));
+        shader.setVector3f("CameraPos", Ethertia::getCamera()->position);
 
-        shader.setFloat("CursorSize", Ethertia::getPickingCursor()->size);
-        shader.setVector3f("CursorPos", Ethertia::getPickingCursor()->p);
+        shader.setMatrix4f("matModel", Mth::matModel(entity->getPosition(), entity->getRotation(), glm::vec3(1.0f)));
+        shader.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
+        shader.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
+
+
+        shader.setFloat("CursorSize", Ethertia::getBrushCursor().size);
+        shader.setVector3f("CursorPos", Ethertia::getBrushCursor().position);
 
         glBindVertexArray(entity->model->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, entity->model->vertexCount);

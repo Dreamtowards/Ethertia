@@ -24,7 +24,7 @@ void main()
     FragColor = vec4(vec3(lightf), 1.0) *
     (texture(diffuseMap, FragPos.xz) * abs(dot(vec3(0, 1, 0), Norm)) +
      texture(diffuseMap, FragPos.zy) * abs(dot(vec3(1, 0, 0), Norm)) +
-     texture(diffuseMap, FragPos.xy) * abs(dot(vec3(0, 0, 1), Norm)) );
+     texture(diffuseMap, FragPos.xy) * abs(dot(vec3(0, 0, 1), Norm)));
 
     FragColor.r += min(0.5, max(0.0, CursorSize - length(CursorPos - FragPos)));
 

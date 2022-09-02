@@ -8,7 +8,6 @@
 #include <ethertia/client/gui/Gui.h>
 #include <ethertia/client/render/shader/ShaderProgram.h>
 #include <ethertia/client/render/renderer/gui/GuiRenderer.h>
-#include <ethertia/client/render/renderer/Renderer.h>
 #include <ethertia/client/Loader.h>
 #include <ethertia/util/Mth.h>
 
@@ -25,10 +24,10 @@ class FontRenderer
     Texture* texAscii = nullptr;
 
     float glyphWidths[GLYPH_LIMIT];
-    const char** UNIFORM_GLYPH_WIDTHS = Renderer::_GenArrayNames("glyphWidths[%i]", GLYPH_LIMIT);
+    const char** UNIFORM_GLYPH_WIDTHS = _GenArrayNames("glyphWidths[%i]", GLYPH_LIMIT);
 
-    const char** UNIFORM_CHARS = Renderer::_GenArrayNames("chars[%i]", BATCH_CHARS_LIMIT);
-    const char** UNIFORM_OFFSET = Renderer::_GenArrayNames("offset[%i]", BATCH_CHARS_LIMIT);
+    const char** UNIFORM_CHARS = _GenArrayNames("chars[%i]", BATCH_CHARS_LIMIT);
+    const char** UNIFORM_OFFSET = _GenArrayNames("offset[%i]", BATCH_CHARS_LIMIT);
     // const char** UNIFORM_SCALE = Renderer::_GenArrayNames("scale[%i]", 128);
 public:
     FontRenderer() {
@@ -52,6 +51,18 @@ public:
             shader.setFloat(UNIFORM_GLYPH_WIDTHS[i], glyphWidths[i]);
         }
     }
+
+    static const char** _GenArrayNames(const std::string& namep, uint n) {
+        const char** arr = new const char*[n];
+        u32 baselen = namep.length()+3;  // +2: brackets, +1: \0.
+        for (int i = 0; i < n; ++i) {
+            char* ch = new char[baselen+3];  // +3 assume idx <= 999.
+            sprintf(ch, namep.c_str(), i);
+            arr[i] = ch;
+        }
+        return arr;
+    }
+
 
     void renderString(float x, float y, const std::string& str, glm::vec4 color, float textHeight, float align)
     {

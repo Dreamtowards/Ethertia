@@ -23,12 +23,17 @@ class World;             // #include <ethertia/world/World.h>
 class Entity;            // #include <ethertia/entity/Entity.h>
 class GuiRoot;           // #include <ethertia/client/gui/GuiRoot.h>
 
-class PickingCursor {
+// BrushCursor
+class BrushCursor {
 public:
+    bool keepTracking;
     bool hit;
-    glm::vec3 p;
+    glm::vec3 position;
     float size;
-    glm::vec3 n;
+    int type;
+
+#define BRUSH_SPHERE 1
+#define BRUSH_CUBE   2
 };
 
 class Ethertia
@@ -73,7 +78,7 @@ public:
 
     static void dispatchCommand(const std::string& cmd);
 
-    static PickingCursor* getPickingCursor();
+    static BrushCursor& getBrushCursor();
 
     static void shutdown() { running = false; }
     static bool isRunning() { return running; }

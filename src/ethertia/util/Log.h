@@ -11,6 +11,7 @@
 #include <thread>
 #include <sstream>
 #include <iomanip>
+#include <math.h>
 
 #include <ethertia/util/Strings.h>
 
@@ -77,11 +78,10 @@ public:
         std::time_t t = std::time(nullptr);
         struct tm* tm_info = std::localtime(&t);
 
-        std::chrono::time_point<std::chrono::high_resolution_clock> ht = std::chrono::high_resolution_clock::now();
-        double ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(ht).time_since_epoch().count();
-        double ms = ns * 0.000001;
+        double mcs = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        double sec = mcs * 0.001;
 
-        out << "[" << std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S") << "." << ms << "]"
+        out << "[" << std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S") << "." << (std::fmod(sec, 1000.0f)) << "]"
             << "["<<std::this_thread::get_id()<<"/INFO]: ";
 
 //        struct timeval tv{};

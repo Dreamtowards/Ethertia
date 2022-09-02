@@ -11,7 +11,7 @@
 #include <ethertia/client/render/renderer/gui/GuiRenderer.h>
 #include <ethertia/client/render/renderer/gui/FontRenderer.h>
 #include <ethertia/client/render/renderer/SkyGradientRenderer.h>
-#include <ethertia/client/render/renderer/entity/EntityRenderer.h>
+#include <ethertia/client/render/renderer/EntityRenderer.h>
 
 RenderEngine::RenderEngine()
 {

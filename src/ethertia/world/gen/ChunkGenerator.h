@@ -48,20 +48,20 @@ public:
 //
 //        return chunk;
 
-        {
-            for (int rx = 0; rx < 16; ++rx) {
-                for (int rz = 0; rz < 16; ++rz) {
-                    vec3 rp = vec3(rx, 0, rz);
-                    vec3 p = chunkpos + rp;
-                    float f = noise.noise(p.x / 16.5f, p.z / 16.53f) * 20;
-
-                    for (int ry = 0; ry < 16; ++ry) {
-                        chunk->setBlock(rx, ry, rz, BlockState(Blocks::STONE, f-(chunkpos.y+ry)));
-                    }
-                }
-            }
-        }
-        return chunk;
+//        {
+//            for (int rx = 0; rx < 16; ++rx) {
+//                for (int rz = 0; rz < 16; ++rz) {
+//                    vec3 rp = vec3(rx, 0, rz);
+//                    vec3 p = chunkpos + rp;
+//                    float f = noise.noise(p.x / 16.5f, p.z / 16.53f) * 20;
+//
+//                    for (int ry = 0; ry < 16; ++ry) {
+//                        chunk->setBlock(rx, ry, rz, BlockState(Blocks::STONE, f-(chunkpos.y+ry)));
+//                    }
+//                }
+//            }
+//        }
+//        return chunk;
 
 //        {
 //            for (int rx = 0; rx < 16; ++rx) {
@@ -156,11 +156,16 @@ public:
 //                                }
                                 //Log::info("F: ", spZsum);
 
+                                float y = chunkpos.y+sY*sampleSize+dY;
+
                                 u8 bl = 0;
                                 if (spZsum > 0.0) {
                                     bl = Blocks::STONE;
-                                } else if (chunkpos.y+sY*sampleSize+dY < 0) {
+                                } else if (y < 0) {
                                     bl = Blocks::WATER;
+                                }
+                                if (y > 30) {
+                                    bl = Blocks::GRASS;
                                 }
 //                                if (bl) {
                                     chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, BlockState(bl, spZsum, 0));

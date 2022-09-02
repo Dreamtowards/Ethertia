@@ -85,9 +85,6 @@ public:
         glfwSetKeyCallback(window, onKeyboardKey);
         glfwSetCharCallback(window, onCharInput);
 
-        // init very first event.
-        onWindowSize(window, width, height);
-
         return 0;
     }
 
@@ -101,6 +98,12 @@ public:
 
     bool isCloseRequested() {
         return glfwWindowShouldClose(window);
+    }
+
+    void fireWindowSizeEvent() {
+
+        // init very first event.
+        onWindowSize(window, width, height);
     }
 
     void centralize() {

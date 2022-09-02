@@ -30,6 +30,8 @@ class GuiRoot : public GuiCollection
 
 public:
     GuiRoot() {
+        setWidth(0);
+        setHeight(0);  // cannot be -Inf.
 
         EventBus::EVENT_BUS.listen(&GuiRoot::onMouseButton, this);
         EventBus::EVENT_BUS.listen(&GuiRoot::onWindowResized, this);
