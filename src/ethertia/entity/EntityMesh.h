@@ -10,22 +10,23 @@
 class EntityMesh : public Entity
 {
 public:
-    EntityMesh() : Entity(0.0f) {
+    EntityMesh() {
 
+        rigidbody = newRigidbody(0.0f, new btEmptyShape());
     }
 
     void setMesh(Model* md, float* pos)
     {
-        // delete shape;
+        btCollisionShape* oldshape = rigidbody->getCollisionShape();
+        delete oldshape;
+
         if (md->vertexCount) {
             model = md;
-            shape = createMeshShape(md->vertexCount, pos);
+            rigidbody->setCollisionShape(createMeshShape(md->vertexCount, pos));
         } else {
             model = nullptr;
-            shape = EMPTY_SHAPE;
+            rigidbody->setCollisionShape(new btEmptyShape());
         }
-
-        rigidbody->setCollisionShape(shape);
     }
 
     static btBvhTriangleMeshShape* createMeshShape(size_t vertexCount, const float* position) {

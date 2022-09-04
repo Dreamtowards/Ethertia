@@ -23,6 +23,7 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
+#include <ethertia/entity/EntityCar.h>
 
 int main()
 {
@@ -102,8 +103,8 @@ void Ethertia::start() {
     initThreadChunkLoad();
 
 
-    player = new Entity();
-    player->setPosition({-10, 10, -10});
+    player = new Entity(10.0f, "entity/cube.obj");
+    player->setPosition({10, 10, 10});
 
     Ethertia::loadWorld();
 
@@ -116,6 +117,14 @@ void Ethertia::start() {
 
     Texture* tex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("blocks/stone_.png")));
     Chunk::tex = tex;
+
+
+    EntityCar* car = new EntityCar();
+    world->addEntity(car);
+
+    car->setPosition({-10, 10, -10});
+
+
 
     brushCursor.size = 2.0;
 
@@ -205,6 +214,8 @@ void Ethertia::start() {
 //            BitmapImage* img = Loader::loadPNG(Loader::loadAssets("entity/gravestone/diff.png"));
 //            player->diffuseMap = Loader::loadTexture(img);
     }
+
+
 
 
 }

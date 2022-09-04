@@ -46,8 +46,7 @@ public:
 
     World() {
 
-        // init physics
-
+        // init Phys
         {
             btCollisionConfiguration* collconf = new btDefaultCollisionConfiguration();
             btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collconf);
@@ -195,14 +194,15 @@ public:
     }
 
     void addEntity(Entity* e) {
-        assert(Collections::find(entities, e) == -1);
+        assert(Collections::find(entities, e) == -1);  // make sure the entity is not in this world.
+
         entities.push_back(e);
-        dynamicsWorld->addRigidBody(e->rigidbody);
+        e->onLoad(dynamicsWorld);
     }
 
     void removeEntity(Entity* e) {
         Collections::erase(entities, e);
-        dynamicsWorld->removeRigidBody(e->rigidbody);
+        e->onUnload(dynamicsWorld);
     }
 
     std::vector<Entity*>& getEntities() {

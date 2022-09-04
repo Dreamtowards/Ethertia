@@ -28,18 +28,18 @@ public:
             std::vector<std::string> c = Strings::splitSpaces(line);
 
             if (line.find("v ") == 0) {
-                assert(c.size() == 4); assert(!f_started);
+                assert(c.size() == 4); //assert(!f_started);
 
                 objpos.push_back(std::stof(c[1]));
                 objpos.push_back(std::stof(c[2]));
                 objpos.push_back(std::stof(c[3]));
             } else if (line.find("vt ") == 0) {
-                assert(c.size() == 3); assert(!f_started);
+                assert(c.size() == 3); //assert(!f_started);
 
                 objtex.push_back(std::stof(c[1]));
                 objtex.push_back(std::stof(c[2]));
             } else if (line.find("vn ") == 0) {
-                assert(c.size() == 4); assert(!f_started);
+                assert(c.size() == 4); //assert(!f_started);
 
                 objnorm.push_back(std::stof(c[1]));
                 objnorm.push_back(std::stof(c[2]));

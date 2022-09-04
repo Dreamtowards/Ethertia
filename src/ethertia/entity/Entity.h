@@ -13,54 +13,73 @@ class Entity
 public:
     std::string name;
 
-    inline static btCollisionShape* EMPTY_SHAPE = new btBoxShape(btVector3(0,0,0));
+    // inline static btCollisionShape* EMPTY_SHAPE = new btBoxShape(btVector3(0,0,0));
 
-    btCollisionShape* shape = EMPTY_SHAPE;
+    // btCollisionShape* shape = EMPTY_SHAPE;
     btRigidBody* rigidbody = nullptr;
 
 //    glm::vec3 position;
 //    glm::vec3 velocity;
-
 //    glm::vec3 prevposition{0};
 //    glm::vec3 intpposition{0};
 
     Model* model = nullptr;
     Texture* diffuseMap = Texture::UNIT;
 
-    Entity(float mass = 100) {
-
-        if (mass) {
-            VertexBuffer* vbuf = Loader::loadOBJ_("entity/cube.obj");
-            model = Loader::loadModel(vbuf);
-            shape = createHullShape(vbuf->vertexCount(), vbuf->positions.data());
+    void loadModelAndShape(std::string path, Model** md, btCollisionShape** sp = nullptr) {
+        VertexBuffer* vbuf = Loader::loadOBJ_(path);
+        *md = Loader::loadModel(vbuf);
+        if (sp) {
+            *sp = createHullShape(vbuf->vertexCount(), vbuf->positions.data());
         }
+    }
 
-        initRigidbody(mass);
+    Entity() {
+    }
+
+    // temp test.
+    Entity(float mass, std::string mpath) {
+
+        btCollisionShape* sp;
+        loadModelAndShape(mpath, &model, &sp);
+        rigidbody = newRigidbody(mass, sp);
     }
     ~Entity() {
 
+        delete rigidbody->getCollisionShape();
+
         delete rigidbody->getMotionState();
         delete rigidbody;
-
-        if (shape != EMPTY_SHAPE)
-            delete shape;
     }
 
-    void updateShape(btCollisionShape* s) {
+    virtual void onLoad(btDynamicsWorld* dworld) {
+        dworld->addRigidBody(rigidbody);
+    }
 
-        rigidbody->getLocalInertia();
+    virtual void onUnload(btDynamicsWorld* dworld) {
+        dworld->removeRigidBody(rigidbody);
+    }
+
+    void setCollisionShape(btCollisionShape* s) {
+        float mass = rigidbody->getMass();
+
+        btVector3 localInertia(0, 0, 0);
+        if (mass) {
+            s->calculateLocalInertia(mass, localInertia);
+        }
         rigidbody->setCollisionShape(s);
     }
 
-    void initRigidbody(float mass)
+    btRigidBody* newRigidbody(float mass, btCollisionShape* shape, const btTransform& startTransform = btTransform::getIdentity())
     {
         btVector3 localInertia(0, 0, 0);
         if (mass) {
             shape->calculateLocalInertia(mass, localInertia);
         }
 
-        rigidbody = new btRigidBody(mass, new btDefaultMotionState(), shape, localInertia);
-        rigidbody->setUserPointer(this);
+        btRigidBody* rb = new btRigidBody(mass, new btDefaultMotionState(startTransform), shape, localInertia);
+        rb->setUserPointer(this);
+        return rb;
     }
     static btConvexHullShape* createHullShape(size_t vertexCount, const float* position) {
         btConvexHullShape* hull = new btConvexHullShape();

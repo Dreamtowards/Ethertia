@@ -10,8 +10,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <cmath>
+#include <btBulletCollisionCommon.h>
 
-#include "UnifiedTypes.h"
+#include <ethertia/util/UnifiedTypes.h>
 
 class Mth
 {
@@ -108,6 +109,14 @@ public:
     static glm::vec3 angleh(float angle) {
         return glm::rotate(glm::mat4(1), angle, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1.0);
     }
+
+    static btTransform btTransf(const glm::vec3& p, const btQuaternion& rot = btQuaternion::getIdentity()) {
+        return btTransform(rot, btVector3(p.x, p.y, p.z));
+    }
+    static btVector3 btVec3(const glm::vec3& p) {
+        return btVector3(p.x, p.y, p.z);
+    }
+
 
     static float pow(float base, float exp) {
         return std::pow(base, exp);
