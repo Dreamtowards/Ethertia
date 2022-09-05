@@ -82,9 +82,15 @@ public:
                                    Loader::loadAssetsStr("shaders/debug/model.fsh")};
 
 
-    void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true) {
+    void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false) {
         static float M_LINE[]  = {0,0,0,1,1,1};
-        static Model* model = Loader::loadModel(2, {{3, M_LINE}});
+        static Model* mLine = Loader::loadModel(2, {{3, M_LINE}});
+        static float M_BOX[]  = {0,0,0,1,0,0, 1,0,0,1,0,1, 1,0,1,0,0,1, 0,0,1,0,0,0,
+                                 0,1,0,1,1,0, 1,1,0,1,1,1, 1,1,1,0,1,1, 0,1,1,0,1,0,
+                                 0,0,0,0,1,0, 1,0,0,1,1,0, 1,0,1,1,1,1, 0,0,1,0,1,1,};
+        static Model* mBox = Loader::loadModel(24, {{3, M_BOX}});
+        Model* model = boxOutline ? mBox : mLine;
+
         ShaderProgram& shader = shaderDebugBasis;
 
         shader.useProgram();
@@ -122,6 +128,9 @@ public:
         drawLine(p, glm::mat3(viewMatrix) * glm::vec3(len, 0, 0), Colors::R, false);
         drawLine(p, glm::mat3(viewMatrix) * glm::vec3(0, len, 0), Colors::G, false);
         drawLine(p, glm::mat3(viewMatrix) * glm::vec3(0, 0, len), Colors::B, false);
+    }
+    void renderLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color) {
+        drawLine(min, size, color, true, true);
     }
 
     static void glwDrawArrays(Model* model) {

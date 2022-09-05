@@ -11,19 +11,19 @@
 #include <ethertia/client/gui/screen/GuiScreenChat.h>
 #include <ethertia/client/render/chunk/MarchingCubesMeshGen.h>
 #include <ethertia/world/World.h>
-#include <ethertia/entity/Entity.h>
 #include <ethertia/init/Init.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/concurrent/Executor.h>
 #include <ethertia/util/Strings.h>
-//#include <ethertia/lang/Elytra.h>
+#include <ethertia/entity/Entity.h>
+#include <ethertia/entity/EntityCar.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
-
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
-#include <ethertia/entity/EntityCar.h>
+
+//#include <ethertia/lang/Elytra.h>
 
 int main()
 {
@@ -80,8 +80,6 @@ void Ethertia::runMainLoop()
 
     if (world)
     {
-
-
         renderEngine->renderWorld(world);
     }
 
@@ -201,23 +199,6 @@ void Ethertia::start() {
     });
 
 
-
-    {
-//            std::string s = Loader::loadAssetsStr("entity/stall.obj");
-//            std::stringstream ss(s);
-//            VertexBuffer vbuf;
-//            OBJLoader::loadOBJ(ss, &vbuf);
-//
-//            Model* mod = Loader::loadModel(&vbuf);
-//
-//            player->model = mod;
-//            BitmapImage* img = Loader::loadPNG(Loader::loadAssets("entity/gravestone/diff.png"));
-//            player->diffuseMap = Loader::loadTexture(img);
-    }
-
-
-
-
 }
 
 
@@ -235,13 +216,6 @@ void renderGUI()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     rootGUI->onDraw();
-
-//    Gui::drawWorldpoint(player->intpposition, [](glm::vec2 p) {
-//        Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
-//    });
-
-    Gui::drawRect(Gui::maxWidth()/2 -2, Gui::maxHeight()/2 -2,
-                  3, 3, Colors::WHITE);
 
     glEnable(GL_DEPTH_TEST);
 }

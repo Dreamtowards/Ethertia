@@ -7,33 +7,39 @@ An Alpha Dream. *It's 2011 again.*
 https://elytra.dev/ethertia (Project site)  
 https://elytra.dev/~pris (dev. Eldrine Le Prismarine)
 
+
+Demo videos: links below e.g. [[@22u32a]()]  
+main(): `src/ethertia/client/Ethertia.h`
+
+
 ---
 
 [comment]: <> (*_todolist*)
 
 ### Generation I
-- [x] Blocky Terrain, Unified Grids
+- [x] Blocky Terrain, Unified Grids [@2022_Jul](https://www.youtube.com/watch?v=xDwgZkYrPm8&t=14s)
 - [x] Cubical Chunks
 
 <br>
 
-- [x] Vines, Tallgrass (Flowers, Shrubs, Ferns)
+- [x] Raycast traverse (unified grid voxel.) [@2022_Aug Raycast, Color](https://www.youtube.com/watch?v=nmRsTBDnoLQ)
+- [x] OBJ Model Load. [@2022_Aug OBJLoader](https://www.youtube.com/watch?v=MbTZ_UI1tBo)  
 - [x] Simple Trees. (Log, SpreadLeaves.)
-- [x] Raycast traverse (unified grid voxel.)
-- [x] GuiSlider, GuiCheckBox, GuiTextBox
+- [x] Vines, Tallgrass (Flowers, Shrubs, Ferns) [@2022_Aug Vines](https://www.youtube.com/watch?v=0Ut6vLzkgA8)
+- [x] GuiSlider, GuiCheckBox, GuiTextBox [Bili @2022_Aug23](https://www.bilibili.com/video/BV1yU4y1k7EU)
 - [x] Frustum Culling
 
 ### Generation II
-- [x] Smooth Terrain (MarchingCubes)
+- [x] Smooth Terrain (MarchingCubes) 
 - [ ] Smooth Terrain (SurfaceNets)
 - [ ] Octrees (SVOs, Varying Grids)
 - [ ] LoD (for SurfaceNets & SVOs)
 
 <br>
 
-- [x] OBJ Model Load. [22u34 Preview]()
-- [x] BulletPhys integrate.
 - [x] Naive Triplanar UV Mapping.
+- [x] Simple Sphere Brush [Bili @2022_Aug30](https://www.bilibili.com/video/BV1JB4y1G7np)
+- [x] BulletPhys integrate.
 - [ ] World Storage
 - [ ] SDFs Brushes.
 - [ ] Brush Masks (Limit, Exclude)

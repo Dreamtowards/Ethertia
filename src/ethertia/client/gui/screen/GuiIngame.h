@@ -17,6 +17,7 @@
 #include <ethertia/client/gui/GuiAlign.h>
 
 #include <ethertia/world/World.h>
+#include <ethertia/client/gui/GuiText.h>
 
 class GuiIngame : public GuiCollection
 {
@@ -28,6 +29,7 @@ public:
 
     inline static bool dbgBasis = true;
     inline static bool dbgWorldBasis = true;
+    inline static bool dbgEntityAABB = false;
 
     Gui* optsGui = nullptr;
 
@@ -50,9 +52,9 @@ public:
         {
             GuiStack* opts = new GuiStack(GuiStack::D_VERTICAL, 4);
             opts->addDrawBackground(Colors::BLACK50);
+            opts->setWidth(140);
 
-            opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
-
+            opts->addGui(newLabel("Rendering"));
             opts->addGui(new GuiSlider("FOV", 15, 165, &rde->fov, 5.0f));
 
             opts->addGui(new GuiSlider("Camera Smoothness", 0, 5, &cam->smoothness, 0.5f));
@@ -62,14 +64,17 @@ public:
             opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &rde->chunkRenderer->fogGradient, 0.01f));
 
 
-            opts->addGui(new GuiCheckBox("Norm & Border", &rde->debugChunkGeo));
+            opts->addGui(newLabel("Debug Geo."));
 
+            opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
+            opts->addGui(new GuiCheckBox("Basis", &dbgBasis));
+            opts->addGui(new GuiCheckBox("World Basis", &dbgWorldBasis));
+            opts->addGui(new GuiCheckBox("Entity AABB", &dbgEntityAABB));
+
+            opts->addGui(new GuiCheckBox("Norm & Border", &rde->debugChunkGeo));
             opts->addGui(new GuiCheckBox("glPoly Line", &dbgPolyLine));
 
-            opts->addGui(new GuiCheckBox("Basis", &dbgBasis));
-
-            opts->addGui(new GuiCheckBox("World Basis", &dbgWorldBasis));
-
+            opts->addGui(newLabel("World"));
             opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
 
             opts->addGui(new GuiSlider("BrushCursor Size", 0, 16, &Ethertia::getBrushCursor().size, 0.2f));
@@ -114,6 +119,13 @@ public:
 
     }
 
+    GuiText* newLabel(const std::string& s) {
+        GuiText* l = new GuiText(s);
+        l->addDrawBackground(Colors::BLACK40);
+        l->setWidth(Inf);
+        return l;
+    }
+
     GuiPopupMenu* newMenu(GuiCollection* p, const std::string& text, GuiButton** _btn = nullptr) {
         GuiButton* btnMenu = new GuiButton(text);
         btnMenu->setHeight(Inf);
@@ -135,11 +147,13 @@ public:
     void onDraw() override {
 
 
-        if (dbgBasis)
+        if (dbgBasis) {
             Ethertia::getRenderEngine()->renderDebugBasis();
+        }
 
-        if (dbgWorldBasis)
+        if (dbgWorldBasis) {
             Ethertia::getRenderEngine()->renderDebugWorldBasis();
+        }
 
         glPolygonMode(GL_FRONT_AND_BACK, dbgPolyLine ? GL_LINE : GL_FILL);
 
@@ -153,6 +167,21 @@ public:
                     dt, Mth::floor(1.0f/dt));
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
         }
+
+        if (dbgEntityAABB) {
+            Entity* e = Ethertia::getPlayer();
+            AABB aabb = e->getAABB();
+            Ethertia::getRenderEngine()->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::RED);
+        }
+
+
+//    Gui::drawWorldpoint(player->intpposition, [](glm::vec2 p) {
+//        Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
+//    });
+
+        // Center Cursor.
+        Gui::drawRect(Gui::maxWidth()/2 -2, Gui::maxHeight()/2 -2,
+                      3, 3, Colors::WHITE);
 
         GuiCollection::onDraw();
     }

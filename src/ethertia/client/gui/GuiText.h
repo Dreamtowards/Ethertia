@@ -17,6 +17,8 @@ public:
 
     void onDraw() override {
 
+        Gui::onDraw();
+
         Gui::drawString(getX(), getY(), text);
     }
 };
