@@ -7,7 +7,7 @@ An Alpha Dream. *It's 2011 again.*
 https://elytra.dev/ethertia (Project site)  
 https://elytra.dev/~pris (dev. Eldrine Le Prismarine)
 
-
+Brief goal: Minecraft<sup>Freedom of Building</sup> + GTA.V<sup>Detail & Flexibility</sup> + VRChat<sup>Interaction, Character</sup>  
 Demo videos: links below e.g. [[@22u32a]()]  
 main(): `src/ethertia/client/Ethertia.h`
 
