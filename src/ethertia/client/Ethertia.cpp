@@ -17,6 +17,7 @@
 #include <ethertia/util/Strings.h>
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/EntityCar.h>
+#include <ethertia/entity/EntityRaycastCar.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -101,7 +102,7 @@ void Ethertia::start() {
     initThreadChunkLoad();
 
 
-    player = new Entity(10.0f, "entity/cube.obj");
+    player = new Entity(50.0f, "entity/cube.obj");
     player->setPosition({10, 10, 10});
 
     Ethertia::loadWorld();
@@ -117,16 +118,19 @@ void Ethertia::start() {
     Chunk::tex = tex;
 
 
-    EntityCar* car = new EntityCar();
-    world->addEntity(car);
+//    EntityCar* car = new EntityCar();
+//    world->addEntity(car);
+//    car->setPosition({10, 10, -10});
 
-    car->setPosition({-10, 10, -10});
 
+    EntityRaycastCar* raycastCar = new EntityRaycastCar();
+    world->addEntity(raycastCar);
+    raycastCar->setPosition({0, 5, -10});
 
 
     brushCursor.size = 2.0;
 
-    EventBus::EVENT_BUS.listen([&](KeyboardEvent* e) {
+    EventBus::EVENT_BUS.listen([&, raycastCar](KeyboardEvent* e) {
         if (e->isPressed()) {
             int key = e->getKey();
             if (key == GLFW_KEY_ESCAPE) {
@@ -139,8 +143,19 @@ void Ethertia::start() {
             } else if (isIngame()) {
                 if (key == GLFW_KEY_SLASH) {
                     getRootGUI()->addGui(GuiScreenChat::INST);
-                }
+                } else if (key == GLFW_KEY_G) {
+                    raycastCar->m_vehicle->applyEngineForce(100, 2);
+                    raycastCar->m_vehicle->applyEngineForce(100, 3);
 
+                    raycastCar->m_vehicle->setBrake(100, 2);
+                    raycastCar->m_vehicle->setBrake(100, 3);
+
+
+                    raycastCar->m_vehicle->setSteeringValue(0, 0);
+                    raycastCar->m_vehicle->setSteeringValue(0, 1);
+
+                    Log::info("Force");
+                }
             }
         }
     });

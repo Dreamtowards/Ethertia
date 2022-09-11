@@ -7,6 +7,7 @@
 
 #include <glm/vec3.hpp>
 #include <btBulletDynamicsCommon.h>
+#include <btBulletCollisionCommon.h>
 
 class Entity
 {
@@ -26,7 +27,7 @@ public:
     Model* model = nullptr;
     Texture* diffuseMap = Texture::UNIT;
 
-    void loadModelAndShape(std::string path, Model** md, btCollisionShape** sp = nullptr) {
+    static void loadModelAndShape(const std::string& path, Model** md, btCollisionShape** sp = nullptr) {
         VertexBuffer* vbuf = Loader::loadOBJ_(path);
         *md = Loader::loadModel(vbuf);
         if (sp) {
