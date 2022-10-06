@@ -6,7 +6,7 @@
 #define ETHERTIA_BLOCK_H
 
 #include <ethertia/client/render/VertexBuffer.h>
-#include <ethertia/init/BlockTextures.h>
+#include <assets/etc/_depreca/BlockTextures.h>
 
 class World;
 
@@ -32,9 +32,9 @@ public:
     virtual void getVertexData(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk) = 0;
 
 
-    void internalPutCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag);
+    void internalPutCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::Region* frag);
 
-    void internalPutLeaves(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag, float randf = 0.65f);
+    void internalPutLeaves(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::Region* frag, float randf = 0.65f);
 };
 
 #endif //ETHERTIA_BLOCK_H

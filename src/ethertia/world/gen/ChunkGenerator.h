@@ -8,10 +8,11 @@
 #include <glm/vec3.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <ethertia/material/stat/MaterialStat.h>
+#include <ethertia/init/Materials.h>
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/gen/NoiseGeneratorPerlin.h>
 #include <ethertia/util/Log.h>
-#include <ethertia/init/Blocks.h>
 
 
 class ChunkGenerator
@@ -34,19 +35,19 @@ public:
         Chunk* chunk = new Chunk(chunkpos, world);
         using glm::vec3;
 
-            for (int rx = 0; rx < 16; ++rx) {
-                for (int ry = 0; ry < 16; ++ry) {
-                    for (int rz = 0; rz < 16; ++rz) {
-                        vec3 rp = vec3(rx, ry, rz);
-                        vec3 p = chunkpos + rp;
-
-                        if (p.y < -10)
-                            chunk->setBlock(rp,BlockState(Blocks::STONE, 0.5));
-                    }
-                }
-            }
-
-        return chunk;
+//            for (int rx = 0; rx < 16; ++rx) {
+//                for (int ry = 0; ry < 16; ++ry) {
+//                    for (int rz = 0; rz < 16; ++rz) {
+//                        vec3 rp = vec3(rx, ry, rz);
+//                        vec3 p = chunkpos + rp;
+//
+//                        if (p.y < -10)
+//                            chunk->setMaterial(rp, MaterialStat(Materials::STONE, 0.5));
+//                    }
+//                }
+//            }
+//
+//        return chunk;
 
 //        {
 //            for (int rx = 0; rx < 16; ++rx) {
@@ -160,15 +161,16 @@ public:
 
                                 u8 bl = 0;
                                 if (spZsum > 0.0) {
-                                    bl = Blocks::STONE;
+                                    bl = Materials::STONE;
                                 } else if (y < 0) {
-                                    bl = Blocks::WATER;
+                                    bl = 0;//Blocks::WATER;
                                 }
                                 if (y > 30) {
-                                    bl = Blocks::GRASS;
+                                    bl = Materials::GRASS;
                                 }
 //                                if (bl) {
-                                    chunk->setBlock(sX*sampleSize+dX, sY*sampleSize+dY, sZ*sampleSize+dZ, BlockState(bl, spZsum, 0));
+                                chunk->setMaterial(sX * sampleSize + dX, sY * sampleSize + dY, sZ * sampleSize + dZ,
+                                                   MaterialStat(bl, spZsum));
 //                                }
                                 spZsum += spZdiffx0;
                             }

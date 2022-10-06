@@ -41,12 +41,12 @@ while (++_itr < 100) {
     }
 
     // traversing voxel along the ray with point p.
-    u8 b = getBlock(p);
+    u8 b = getMaterial(p);
     if (b) {  // checks the collision.
         if (isPlacing())
-            setBlock(p + Mth::QFACES[face], Blocks::STONE);
+            setMaterial(p + Mth::QFACES[face], Blocks::STONE);
         else
-            setBlock(p, 0);
+            setMaterial(p, 0);
         return;
     }
 }

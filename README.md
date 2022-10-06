@@ -4,7 +4,10 @@ Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</su
 
 <br>
 
-Demos: [1], [2]  
+Demos: 
+
+[2 MarchingCubes 202208], 
+[1 Blocky 202205].
 
 https://elytra.dev/ethertia (Project site)  
 https://elytra.dev/~pris (dev. Eldrine Le Prismarine)  
@@ -72,3 +75,16 @@ main(): `src/ethertia/client/Ethertia.h`
 
 
 [comment]: <> (CLion-2020.3.4)
+
+---
+
+一种自由直觉的方法 构建精细体积模型
+
+一直以来，多边形网格 (polygons, triangle meshes) 占据几何表示方法的主要地位，无论影视场景 建筑设计 游戏环境。
+其简要统一的结构, 具很强的通用性 底层性 灵活开放性。
+
+然而，Minecraft 的出现，让一些人开始考虑。  
+现在需要一种 自由 直觉的方法，可以动态修改场景。最好以精细的程度，允许大规模地形，直觉简单的操作。
+
+- Teardown 密集单颗像素
+- RisingWorld UnifiedGrids MarchingCubes.

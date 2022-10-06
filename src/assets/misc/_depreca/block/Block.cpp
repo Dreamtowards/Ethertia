@@ -6,12 +6,12 @@
 #include <ethertia/client/render/chunk/BlockyChunkMeshGen.h>
 #include "Block.h"
 
-void Block::internalPutCube(VertexBuffer *vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag) {
+void Block::internalPutCube(VertexBuffer *vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::Region* frag) {
 
     BlockyChunkMeshGen::putCube(vbuf, rpos, chunk, frag);
 }
 
-void Block::internalPutLeaves(VertexBuffer *vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::AtlasFragment* frag, float randf) {
+void Block::internalPutLeaves(VertexBuffer *vbuf, glm::vec3 rpos, Chunk* chunk, TextureAtlas::Region* frag, float randf) {
 
     float deg45 = Mth::PI / 4.0f;
 

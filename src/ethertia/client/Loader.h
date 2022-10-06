@@ -103,13 +103,14 @@ public:
     }
 
     static Texture* loadTexture(BitmapImage* img) {
-        u32 texID;
-        glGenTextures(1, &texID);
+        GLuint texId;
+        glGenTextures(1, &texId);
+
         u32 w = img->getWidth();
         u32 h = img->getHeight();
-        auto* tex = new Texture(texID, w, h);
+        Texture* tex = new Texture(texId, w, h);
 
-        glBindTexture(GL_TEXTURE_2D, texID);
+        glBindTexture(GL_TEXTURE_2D, texId);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -117,22 +118,51 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
         // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
-
 //        if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
-//            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 f use TextureFilterAnisotropic
-//
+//            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 if use TextureFilterAnisotropic
 //            float amount = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
 //            glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
 //            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
 //         }
 
-        u32 pixels[w*h];
+        u32 pixels[w * h];
         img->getVerticalFlippedPixels(pixels);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
         // glTexSubImage2D();
 
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        return tex;
+    }
+
+    // imgs order: Right, Left, Top, Bottom, Front, Back.
+    static Texture* loadCubeMap(std::vector<BitmapImage*> imgs) {
+        assert(imgs.size() == 6);
+        int w = imgs[0]->getWidth();
+        int h = imgs[0]->getHeight();
+
+        GLuint texId;
+        glGenTextures(1, &texId);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texId);
+        Texture* tex = new Texture(texId, w, h);
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+        for (int i = 0; i < 6; ++i) {
+            BitmapImage* img = imgs[i];
+            assert(img->getWidth() == w && img->getHeight() == h);
+
+            // flipped y.
+            void* pixels = img->getPixels();
+
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                         0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        }
 
         return tex;
     }

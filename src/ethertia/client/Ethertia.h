@@ -20,7 +20,7 @@ class Camera;            // #include <ethertia/client/render/Camera.h>
 class Executor;          // #include <ethertia/util/concurrent/Executor.h>
 
 class World;             // #include <ethertia/world/World.h>
-class Entity;            // #include <ethertia/entity/Entity.h>
+class EntityPlayer;      // #include <ethertia/entity/player/EntityPlayer.h>
 class GuiRoot;           // #include <ethertia/client/gui/GuiRoot.h>
 
 // BrushCursor
@@ -47,7 +47,7 @@ class Ethertia
     static Executor executor;
 
     static World* world;
-    static Entity* player;
+    static EntityPlayer* player;
     static GuiRoot* rootGUI;
 
     Ethertia() { throw std::logic_error("No instance"); };
@@ -93,7 +93,7 @@ public:
     static Executor* getExecutor() { return &executor; }
     static World* getWorld() { return world; }
     static GuiRoot* getRootGUI() { return rootGUI; }
-    static Entity* getPlayer() { return player; }
+    static EntityPlayer* getPlayer() { return player; }
     static Timer* getTimer() { return &timer; }
 
 

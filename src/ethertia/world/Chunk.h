@@ -5,12 +5,12 @@
 #ifndef ETHERTIA_CHUNK_H
 #define ETHERTIA_CHUNK_H
 
-#include <ethertia/util/Mth.h>
-#include <ethertia/util/UnifiedTypes.h>
-#include <ethertia/client/render/Model.h>
-#include <ethertia/util/AABB.h>
-#include <ethertia/block/stat/BlockState.h>
 #include <ethertia/entity/EntityMesh.h>
+#include <ethertia/util/Mth.h>
+#include <ethertia/util/AABB.h>
+#include <ethertia/util/UnifiedTypes.h>
+#include <ethertia/init/MaterialTextures.h>
+#include <ethertia/material/stat/MaterialStat.h>
 
 class World;
 
@@ -19,42 +19,41 @@ class Chunk
 public:
     static const int SIZE = 16;
 
-    BlockState blocks[16*16*16] = {};
-
-    inline static Texture* tex;
+    MaterialStat blocks[16*16*16] = {};
 
     glm::vec3 position;
     World* world;
 
     bool populated = false;
 
-    Model* model = nullptr;  // client tmp
     bool needUpdateModel = true;
 
+    /// the 'proxy' entity, for unified functionalities e.g. collisions
     EntityMesh* proxy = nullptr;
 
     Chunk(glm::vec3 p, World* w) : position(p), world(w) {
 
+        // init the proxy entity
         proxy = new EntityMesh();
         proxy->setPosition(position);
-        proxy->diffuseMap = tex;
+        proxy->diffuseMap = MaterialTextures::ATLAS->atlasTexture;
     }
     ~Chunk() {
 
     }
 
-    BlockState& getBlock(int rx, int ry, int rz) {
+    MaterialStat& getMaterial(int rx, int ry, int rz) {
         return blocks[blockidx(rx, ry, rz)];
     }
-    BlockState& getBlock(glm::ivec3 rp) {
-        return getBlock(rp.x, rp.y, rp.z);
+    MaterialStat& getMaterial(glm::ivec3 rp) {
+        return getMaterial(rp.x, rp.y, rp.z);
     }
 
-    void setBlock(int rx, int ry, int rz, const BlockState& block) {
+    void setMaterial(int rx, int ry, int rz, const MaterialStat& block) {
         blocks[blockidx(rx,ry,rz)] = block;
     }
-    void setBlock(glm::ivec3 rp, const BlockState& block) {
-        setBlock(rp.x, rp.y, rp.z, block);
+    void setMaterial(glm::ivec3 rp, const MaterialStat& block) {
+        setMaterial(rp.x, rp.y, rp.z, block);
     }
 
     static glm::ivec3 rpos(glm::vec3 p) {
@@ -80,7 +79,7 @@ public:
                p.x < 0 || p.y < 0 || p.z < 0;
     }
 
-    AABB getAABB() const {
+    [[nodiscard]] AABB getAABB() const {
         return AABB(position, position + glm::vec3(16));
     }
 

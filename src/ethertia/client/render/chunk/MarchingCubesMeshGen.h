@@ -6,6 +6,7 @@
 #define ETHERTIA_MARCHINGCUBESMESHGEN_H
 
 #include <glm/vec3.hpp>
+#include <ethertia/init/MaterialTextures.h>
 
 class MarchingCubesMeshGen
 {
@@ -291,8 +292,8 @@ public:
              {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
              {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
-    static float effGetBlockDens(Chunk* chunk, World* world, glm::vec3 rp) {
-        return Chunk::outbound(rp) ? world->getBlock(chunk->position + rp).density : chunk->getBlock(rp).density;
+    static MaterialStat& _GetBlock(Chunk* chunk, World* world, glm::vec3 rp) {
+        return Chunk::outbound(rp) ? world->getBlock(chunk->position + rp) : chunk->getMaterial(rp);
     }
 
     static VertexBuffer* genMesh(Chunk* chunk, World* world) {
@@ -307,7 +308,7 @@ public:
                     int cubeidx = 0;
                     for (int i = 0; i < 8; ++i) {
                         vec3 p = rp + tbVert[i];
-                        float val = effGetBlockDens(chunk, world, p);
+                        float val = _GetBlock(chunk, world, p).density;
                         if (val > 0.0f) {  // is solid
                             cubeidx |= 1 << i;
                         }
@@ -319,11 +320,19 @@ public:
                         vec3 v0 = tbVert[edge[0]];
                         vec3 v1 = tbVert[edge[1]];
 
-                        float t = Mth::rlerp(0.0f, effGetBlockDens(chunk,world,rp+v0), effGetBlockDens(chunk,world,rp+v1));
+                        MaterialStat& d0 = _GetBlock(chunk,world,rp+v0);
+                        MaterialStat& d1 = _GetBlock(chunk,world,rp+v1);
+                        float t = Mth::rlerp(0.0f, d0.density, d1.density);
 
                         vec3 p = glm::mix(v0, v1, t);
                         vbuf->addpos(rp + p);
-                        vbuf->adduv(0, 0);
+
+                        MaterialStat& solid = d0.density > 0.0f ? d0 : d1;
+                        if (solid.id != 1) {
+                            Log::info("Stat Id", (int)solid.id);
+                        }
+                        TextureAtlas::Region* tx = solid.id == 1 ? MaterialTextures::STONE : MaterialTextures::GRASS;
+                        vbuf->adduv(tx->offset.x, tx->scale.x);
                     }
 
                 }

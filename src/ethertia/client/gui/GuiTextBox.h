@@ -69,7 +69,6 @@ public:
     }
 
     void onKeyboard(int key, bool pressed) override {
-        Log::info("Key");
 
         if (pressed && isFocused()) {
 
@@ -110,7 +109,6 @@ public:
     }
 
     void onCharInput(int ch) override {
-        Log::info("Input");
 
         if (isFocused()) {
             insertText(std::string(1, ch));

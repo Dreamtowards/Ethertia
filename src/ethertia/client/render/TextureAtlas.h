@@ -16,31 +16,31 @@
 class TextureAtlas
 {
 public:
-    class AtlasFragment {
+    class Region {
     public:
         BitmapImage* image;
         glm::vec2 offset;
         glm::vec2 scale;
 
-        ~AtlasFragment() {
+        ~Region() {
             delete image;
         }
     };
 
-    std::vector<AtlasFragment*> atlas;
+    std::vector<Region*> atlas;
     Texture* atlasTexture;
 
     ~TextureAtlas() {
-        for (auto* frag : atlas) {
-            delete frag;
+        for (auto* r : atlas) {
+            delete r;
         }
         delete atlasTexture;
     }
 
 public:
-    AtlasFragment* addAtlas(BitmapImage* image)
+    Region* addAtlas(BitmapImage* image)
     {
-        AtlasFragment* frag = new AtlasFragment();
+        Region* frag = new Region();
         frag->image = image;
 
         atlas.push_back(frag);
@@ -58,7 +58,7 @@ public:
         BitmapImage atlasImage(totalWidth, maxHeight);
 
         uint dx = 0;
-        for (AtlasFragment* frag : atlas) {
+        for (Region* frag : atlas) {
             BitmapImage* img = frag->image;
             float wid = img->getWidth();
             float hei = img->getHeight();

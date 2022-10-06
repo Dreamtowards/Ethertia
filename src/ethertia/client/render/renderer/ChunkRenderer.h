@@ -9,7 +9,6 @@
 #include <ethertia/client/render/Camera.h>
 #include <ethertia/client/Loader.h>
 #include <ethertia/world/Chunk.h>
-#include <ethertia/init/BlockTextures.h>
 
 class ChunkRenderer {
 
@@ -31,7 +30,7 @@ public:
     void render(Chunk* chunk) {
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, BlockTextures::ATLAS->atlasTexture->getTextureID());
+        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS->atlasTexture->getTextureID());
 
         shader.useProgram();
 
@@ -44,8 +43,8 @@ public:
         shader.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
         shader.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
 
-        glBindVertexArray(chunk->model->vaoId);
-        glDrawArrays(GL_TRIANGLES, 0, chunk->model->vertexCount);
+        glBindVertexArray(chunk->proxy->model->vaoId);
+        glDrawArrays(GL_TRIANGLES, 0, chunk->proxy->model->vertexCount);
     }
 
 };

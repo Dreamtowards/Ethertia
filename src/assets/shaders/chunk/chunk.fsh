@@ -15,6 +15,10 @@ uniform float fogGradient;
 uniform float CursorSize;
 uniform vec3  CursorPos;
 
+float inRange(float val, float begin, float size) {
+    return mod(val - begin, size) + begin;
+}
+
 void main()
 {
     vec3 lightDir = normalize(vec3(3, -9, 7));
@@ -22,9 +26,9 @@ void main()
 
 
     FragColor = vec4(vec3(lightf), 1.0) *
-    (texture(diffuseMap, FragPos.xz) * abs(dot(vec3(0, 1, 0), Norm)) +
-     texture(diffuseMap, FragPos.zy) * abs(dot(vec3(1, 0, 0), Norm)) +
-     texture(diffuseMap, FragPos.xy) * abs(dot(vec3(0, 0, 1), Norm)));
+    (texture(diffuseMap, vec2(inRange(FragPos.x * TexCoord.y, TexCoord.x, TexCoord.y), FragPos.z)) * abs(dot(vec3(0, 1, 0), Norm)) +
+     texture(diffuseMap, vec2(inRange(FragPos.z * TexCoord.y, TexCoord.x, TexCoord.y), FragPos.y)) * abs(dot(vec3(1, 0, 0), Norm)) +
+     texture(diffuseMap, vec2(inRange(FragPos.x * TexCoord.y, TexCoord.x, TexCoord.y), FragPos.y)) * abs(dot(vec3(0, 0, 1), Norm)));
 
     FragColor.r += min(0.5, max(0.0, CursorSize - length(CursorPos - FragPos)));
 

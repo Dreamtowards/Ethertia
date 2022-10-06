@@ -9,15 +9,15 @@
 #include <ethertia/client/gui/GuiButton.h>
 #include <ethertia/client/gui/GuiPopupMenu.h>
 #include <ethertia/client/gui/GuiSlider.h>
+#include <ethertia/client/gui/GuiCheckBox.h>
+#include <ethertia/client/gui/GuiAlign.h>
+#include <ethertia/client/gui/GuiText.h>
 #include "../GuiCollection.h"
 
 #include <ethertia/client/render/Camera.h>
 #include <ethertia/client/render/renderer/ChunkRenderer.h>
-#include <ethertia/client/gui/GuiCheckBox.h>
-#include <ethertia/client/gui/GuiAlign.h>
-
 #include <ethertia/world/World.h>
-#include <ethertia/client/gui/GuiText.h>
+#include <ethertia/entity/player/EntityPlayer.h>
 
 class GuiIngame : public GuiCollection
 {
@@ -169,7 +169,7 @@ public:
         }
 
         if (dbgEntityAABB) {
-            Entity* e = Ethertia::getPlayer();
+            EntityPlayer* e = Ethertia::getPlayer();
             AABB aabb = e->getAABB();
             Ethertia::getRenderEngine()->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::RED);
         }

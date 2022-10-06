@@ -9,6 +9,8 @@
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
+#include <ethertia/util/AABB.h>
+
 class Entity
 {
 public:
@@ -114,9 +116,9 @@ public:
     }
 
     void applyLinearVelocity(glm::vec3 vel) {
-        if (glm::length2(vel)) {
-            rigidbody->setActivationState(ACTIVE_TAG);
-        }
+//        if (glm::length2(vel)) {
+//            rigidbody->setActivationState(ACTIVE_TAG);
+//        }
 
         auto o = rigidbody->getLinearVelocity();
         rigidbody->setLinearVelocity(btVector3(o.x()+vel.x, o.y()+vel.y, o.z()+vel.z));

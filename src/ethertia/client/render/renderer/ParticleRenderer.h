@@ -7,12 +7,12 @@
 
 #include <vector>
 
-#include <ethertia/client/render/particle/Particle.h>
+#include <ethertia/client/render/Particle.h>
 
 class ParticleRenderer
 {
 public:
-    std::vector<Particle> particles;
+    std::vector<Particle*> particles;
 
     void update(float dt) {
 

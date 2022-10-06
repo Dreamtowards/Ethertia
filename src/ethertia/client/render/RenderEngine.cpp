@@ -12,6 +12,7 @@
 #include <ethertia/client/render/renderer/gui/FontRenderer.h>
 #include <ethertia/client/render/renderer/SkyGradientRenderer.h>
 #include <ethertia/client/render/renderer/EntityRenderer.h>
+#include <ethertia/client/render/renderer/SkyboxRenderer.h>
 
 RenderEngine::RenderEngine()
 {
@@ -20,6 +21,7 @@ RenderEngine::RenderEngine()
     fontRenderer = new FontRenderer();
     entityRenderer = new EntityRenderer();
     skyGradientRenderer = new SkyGradientRenderer();
+    skyboxRenderer = new SkyboxRenderer();
 
     Log::info("RenderEngine initialized. GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
 }
@@ -44,6 +46,8 @@ void RenderEngine::renderWorld(World* world)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    skyboxRenderer->render();
 
 //    skyGradientRenderer->render();
 

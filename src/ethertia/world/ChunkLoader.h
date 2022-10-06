@@ -9,6 +9,7 @@
 #include <fstream>
 #include <utility>
 #include <string>
+
 #include <ethertia/util/Strings.h>
 
 class ChunkLoader
@@ -26,7 +27,8 @@ public:
 
         Chunk* chunk = new Chunk(chunkpos, world);
 
-        int chunkBlocksSize = sizeof(BlockState) * 4096;
+        // todo: octrees
+        int chunkBlocksSize = sizeof(MaterialStat) * 4096;
         file.read((char*)&chunk->blocks, chunkBlocksSize);
 
 

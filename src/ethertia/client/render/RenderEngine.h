@@ -14,16 +14,17 @@ class GuiRenderer;
 class FontRenderer;
 class EntityRenderer;
 class SkyGradientRenderer;
+class SkyboxRenderer;
 
 class World;
 
+#include <ethertia/client/render/shader/ShaderProgram.h>
+#include <ethertia/client/render/Model.h>
+#include <ethertia/client/Loader.h>
+#include <ethertia/util/Colors.h>
 #include <ethertia/util/Frustum.h>
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/Log.h>
-#include <ethertia/client/render/shader/ShaderProgram.h>
-#include "Model.h"
-#include <ethertia/client/Loader.h>
-#include <ethertia/util/Colors.h>
 
 class RenderEngine {
 
@@ -33,6 +34,7 @@ public:
     FontRenderer* fontRenderer               = nullptr;
     EntityRenderer* entityRenderer           = nullptr;
     SkyGradientRenderer* skyGradientRenderer = nullptr;
+    SkyboxRenderer* skyboxRenderer           = nullptr;
 
     glm::mat4 projectionMatrix{1};
     glm::mat4 viewMatrix{1};
@@ -59,6 +61,12 @@ public:
     void renderWorld(World* world);
 
     static void checkGlError();
+
+
+
+
+
+
 
 
     ShaderProgram shaderDebugGeo{Loader::loadAssetsStr("shaders/debug/norm.vsh"),

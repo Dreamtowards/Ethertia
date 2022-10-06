@@ -10,8 +10,6 @@
 #include <ethertia/client/render/TextureAtlas.h>
 #include <ethertia/world/World.h>
 #include <ethertia/world/Chunk.h>
-#include <ethertia/init/Blocks.h>
-#include <ethertia/init/BlockTextures.h>
 
 class BlockyChunkMeshGen
 {
@@ -65,7 +63,7 @@ public:
         for (int rx = 0; rx < 16; ++rx) {
             for (int ry = 0; ry < 16; ++ry) {
                 for (int rz = 0; rz < 16; ++rz) {
-                    BlockState& block = chunk->getBlock(rx, ry, rz);
+                    BlockState& block = chunk->getMaterial(rx, ry, rz);
 
                     if (block.id)
                     {
@@ -83,11 +81,11 @@ public:
     static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, AtlasFrag* frag) {
 //        putCubeFace(vbuf, 2, rpos, frag);
 //        return;
-        u8 blk = chunk->getBlock(rpos).id;
+        u8 blk = chunk->getMaterial(rpos).id;
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = dirCubeFace(i);
             glm::vec3 np = rpos + dir;
-            u8 neib = Chunk::outbound(np) ? 0 : chunk->getBlock(np).id;
+            u8 neib = Chunk::outbound(np) ? 0 : chunk->getMaterial(np).id;
 
 //            bool opaq = neib == Blocks::LEAVES || (neib == Blocks::WATER && neib != blk);
 //            if (blk == Blocks::WATER && neib == blk)

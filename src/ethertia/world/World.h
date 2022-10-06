@@ -12,7 +12,6 @@
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
-#include <ethertia/init/Blocks.h>
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/util/Timer.h>
@@ -21,13 +20,14 @@
 #include <ethertia/util/concurrent/Executor.h>
 #include <ethertia/client/Ethertia.h>
 #include <ethertia/client/Window.h>
+#include <ethertia/world/Octree.h>
 
-#include "btBulletCollisionCommon.h"
-#include "btBulletDynamicsCommon.h"
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
 
 //#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/hash.hpp"
-#include "glm/gtx/string_cast.hpp"
+#include <glm/gtx/hash.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 class World
 {
@@ -67,26 +67,24 @@ public:
         delete dynamicsWorld;
     }
 
-    inline static BlockState EMPTY{};
-
-    BlockState& getBlock(glm::vec3 blockpos) {
+    MaterialStat& getBlock(glm::vec3 blockpos) {
         Chunk* chunk = getLoadedChunk(blockpos);
-        if (!chunk) return EMPTY;  // AIR
-        return chunk->getBlock(Chunk::rpos(blockpos));
+        if (!chunk) return Materials::STAT_EMPTY;  // shouldn't
+        return chunk->getMaterial(Chunk::rpos(blockpos));
     }
-    BlockState& getBlock(int x, int y, int z) {
+    MaterialStat& getBlock(int x, int y, int z) {
         return getBlock(glm::vec3(x,y,z));
     }
 
-    void setBlock(glm::vec3 p, BlockState blockID) {
+    void setBlock(glm::vec3 p, MaterialStat m) {
         Chunk* chunk = getLoadedChunk(p);
         if (!chunk) return;
         glm::ivec3 bp = Chunk::rpos(p);
-        chunk->setBlock(bp, blockID);
+        chunk->setMaterial(bp, m);
 
     }
-    void setBlock(int x, int y, int z, BlockState blockID) {
-        setBlock(glm::vec3(x,y,z), blockID);
+    void setBlock(int x, int y, int z, MaterialStat m) {
+        setBlock(glm::vec3(x,y,z), m);
     }
     void requestRemodel(glm::vec3 p) {
         Chunk* chunk = getLoadedChunk(p);
@@ -172,16 +170,16 @@ public:
 
 
     void unloadChunk(glm::vec3 p) {
-        auto itr = chunks.find(Chunk::chunkpos(p));
-        if (itr == chunks.end())
+        auto it = chunks.find(Chunk::chunkpos(p));
+        if (it == chunks.end())
             throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
 
-        Chunk* chunk = itr->second;
+        Chunk* chunk = it->second;
         if (chunk) {
             removeEntity(chunk->proxy);
         }
 
-        chunks.erase(itr);
+        chunks.erase(it);
         delete chunk;
     }
 
@@ -268,7 +266,7 @@ public:
                 face = step.z > 0 ? 4 : 5;
             }
 
-            BlockState b = getBlock(p);
+            MaterialStat& b = getBlock(p);
             if (b.id) {
                 _pos = p;
                 _face = face;
@@ -393,10 +391,10 @@ public:
 
                 for (int dy = 0; dy < 16; ++dy) {
                     int y = chunkpos.y + dy;
-                    BlockState tmpbl = world->getBlock(x, y, z);
-                    if (tmpbl.id == 0 || tmpbl.id == Blocks::WATER)
+                    MaterialStat tmpbl = world->getBlock(x, y, z);
+                    if (tmpbl.id == 0)// || tmpbl.id == Blocks::WATER)
                         continue;
-                    if (tmpbl.id != Blocks::STONE)
+                    if (tmpbl.id != Materials::STONE)
                         continue;
 
                     if (nextAir < dy) {
@@ -410,112 +408,112 @@ public:
 
                     int nextToAir = nextAir - dy;
 
-                    u8 replace = Blocks::STONE;
+                    u8 replace = Materials::STONE;
                     if (y < 3 && nextToAir < 3 && world->chunkGenerator.noise.noise(x/60.0, y/60.0, z/60.0) > 0.1) {
-                        replace = Blocks::SAND;
+                        replace = Materials::SAND;
                     } else if (nextToAir == 1) {
-                        replace = Blocks::GRASS;
+                        replace = Materials::GRASS;
                     } else if (nextToAir < 4) {
-                        replace = Blocks::DIRT;
+                        replace = Materials::DIRT;
                     }
-                    world->setBlock(x, y, z, BlockState(replace));
+                    world->setBlock(x, y, z, MaterialStat(replace));
                 }
             }
 
         }
 
         // Grass
-        for (int dx = 0; dx < 16; ++dx) {
-            for (int dz = 0; dz < 16; ++dz) {
-                int x = chunkpos.x + dx;
-                int z = chunkpos.z + dz;
+//        for (int dx = 0; dx < 16; ++dx) {
+//            for (int dz = 0; dz < 16; ++dz) {
+//                int x = chunkpos.x + dx;
+//                int z = chunkpos.z + dz;
+//
+//                float f = Mth::hash(x * z * 100);
+//                if (f < (60 / 256.0f)) {
+//
+//                    for (int dy = 0; dy < 16; ++dy) {
+//                        int y = chunkpos.y + dy;
+//                        if (world->getBlock(x, y, z).id == Materials::GRASS) {
+//                            u8 b = Blocks::TALL_GRASS;
+//                            if (f < (4/256.0f)) b = Blocks::RED_TULIP;
+//                            else if (f < (30/256.0f)) b = Blocks::SHRUB;
+//                            else if (f < (40/256.0f)) b = Blocks::FERN;
+//
+//                            world->setBlock(x, y+1, z, BlockState(b));
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-                float f = Mth::hash(x * z * 100);
-                if (f < (60 / 256.0f)) {
+//        // Vines
+//        for (int dx = 0; dx < 16; ++dx) {
+//            for (int dz = 0; dz < 16; ++dz) {
+//                int x = chunkpos.x + dx;
+//                int z = chunkpos.z + dz;
+//
+//                if (Mth::hash(x * z * 2349242) < (6.0f / 256.0f)) {
+//                    for (int dy = 0; dy < 16; ++dy) {
+//                        int y = chunkpos.y + dy;
+//                        if (world->getBlock(x, y, z).id == Blocks::STONE &&
+//                            world->getBlock(x, y-1, z).id == 0) {
+//
+//
+//                            for (int i = 0; i < 32 * Mth::hash(x*y*47923); ++i) {
+//
+//                                world->setBlock(x, y-1-i, z, BlockState(Blocks::VINE));
+//                            }
+//
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-                    for (int dy = 0; dy < 16; ++dy) {
-                        int y = chunkpos.y + dy;
-                        if (world->getBlock(x, y, z).id == Blocks::GRASS) {
-                            u8 b = Blocks::TALL_GRASS;
-                            if (f < (4/256.0f)) b = Blocks::RED_TULIP;
-                            else if (f < (30/256.0f)) b = Blocks::SHRUB;
-                            else if (f < (40/256.0f)) b = Blocks::FERN;
-
-                            world->setBlock(x, y+1, z, BlockState(b));
-                        }
-                    }
-                }
-            }
-        }
-
-        // Vines
-        for (int dx = 0; dx < 16; ++dx) {
-            for (int dz = 0; dz < 16; ++dz) {
-                int x = chunkpos.x + dx;
-                int z = chunkpos.z + dz;
-
-                if (Mth::hash(x * z * 2349242) < (6.0f / 256.0f)) {
-                    for (int dy = 0; dy < 16; ++dy) {
-                        int y = chunkpos.y + dy;
-                        if (world->getBlock(x, y, z).id == Blocks::STONE &&
-                            world->getBlock(x, y-1, z).id == 0) {
-
-
-                            for (int i = 0; i < 32 * Mth::hash(x*y*47923); ++i) {
-
-                                world->setBlock(x, y-1-i, z, BlockState(Blocks::VINE));
-                            }
-
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Trees
-        for (int dx = 0; dx < 16; ++dx) {
-            for (int dz = 0; dz < 16; ++dz) {
-                int x = chunkpos.x + dx;
-                int z = chunkpos.z + dz;
-
-                if (Mth::hash(x*z) < (2.5/256.0f)) {
-                    for (int dy = 0; dy < 16; ++dy) {
-                        int y = chunkpos.y + dy;
-                        if (world->getBlock(x, y, z).id == Blocks::GRASS) {
-
-                            float f = Mth::hash(x*z*y);
-                            int h = 2+f*8;
-                            int r = 3;
-
-                            u8 _leaf = Blocks::LEAVES;
-                            if (f > 0.8f) {
-                                h *= 1.6f;
-                                _leaf = Blocks::LEAVES_JUNGLE;
-                            } else if (f < 0.2f) _leaf = Blocks::LEAVES_APPLE;
-
-
-                            for (int lx = -r; lx <= r; ++lx) {
-                                for (int lz = -r; lz <= r; ++lz) {
-                                    for (int ly = -r; ly <= r+f*8; ++ly) {
-                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly)) > r*r)
-                                            continue;
-                                        if (_leaf == Blocks::LEAVES && Mth::hash(x*y*z) < 0.2f)
-                                            _leaf = Blocks::LEAVES_APPLE;
-                                        world->setBlock(x+lx, y+ly+h+Mth::hash(y)*4, z+lz, BlockState(_leaf));
-                                    }
-                                }
-                            }
-                            for (int i = 0; i < h; ++i) {
-
-                                world->setBlock(x, y+i+1, z, BlockState(Blocks::LOG));
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+//        // Trees
+//        for (int dx = 0; dx < 16; ++dx) {
+//            for (int dz = 0; dz < 16; ++dz) {
+//                int x = chunkpos.x + dx;
+//                int z = chunkpos.z + dz;
+//
+//                if (Mth::hash(x*z) < (2.5/256.0f)) {
+//                    for (int dy = 0; dy < 16; ++dy) {
+//                        int y = chunkpos.y + dy;
+//                        if (world->getBlock(x, y, z).id == Blocks::GRASS) {
+//
+//                            float f = Mth::hash(x*z*y);
+//                            int h = 2+f*8;
+//                            int r = 3;
+//
+//                            u8 _leaf = Blocks::LEAVES;
+//                            if (f > 0.8f) {
+//                                h *= 1.6f;
+//                                _leaf = Blocks::LEAVES_JUNGLE;
+//                            } else if (f < 0.2f) _leaf = Blocks::LEAVES_APPLE;
+//
+//
+//                            for (int lx = -r; lx <= r; ++lx) {
+//                                for (int lz = -r; lz <= r; ++lz) {
+//                                    for (int ly = -r; ly <= r+f*8; ++ly) {
+//                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly)) > r*r)
+//                                            continue;
+//                                        if (_leaf == Blocks::LEAVES && Mth::hash(x*y*z) < 0.2f)
+//                                            _leaf = Blocks::LEAVES_APPLE;
+//                                        world->setBlock(x+lx, y+ly+h+Mth::hash(y)*4, z+lz, BlockState(_leaf));
+//                                    }
+//                                }
+//                            }
+//                            for (int i = 0; i < h; ++i) {
+//
+//                                world->setBlock(x, y+i+1, z, BlockState(Blocks::LOG));
+//                            }
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
     }
 };

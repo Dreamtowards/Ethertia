@@ -51,6 +51,8 @@ public:
             if (line.length() > 0 && line[0] == '/') {
 
                 Ethertia::dispatchCommand(line);
+
+                Ethertia::getRootGUI()->removeGui(this);  // dismiss.
             } else {
                 std::string msg = Strings::fmt("<{}>: {}", Ethertia::getPlayer()->name, line);
 

@@ -1,6 +1,5 @@
 
 
-
 #include "Ethertia.h"
 
 #include <ethertia/client/render/RenderEngine.h>
@@ -18,6 +17,7 @@
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/EntityCar.h>
 #include <ethertia/entity/EntityRaycastCar.h>
+#include <ethertia/entity/player/EntityPlayer.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -48,12 +48,10 @@ Camera Ethertia::camera{};
 Executor Ethertia::executor{std::this_thread::get_id()};
 
 World* Ethertia::world = nullptr;
-Entity* Ethertia::player = nullptr;
+EntityPlayer* Ethertia::player = nullptr;
 GuiRoot* Ethertia::rootGUI = nullptr;
 
 static BrushCursor brushCursor;
-
-static std::string chunkBuildStat = "Uninitialized";
 
 
 void handleInput();
@@ -102,8 +100,11 @@ void Ethertia::start() {
     initThreadChunkLoad();
 
 
-    player = new Entity(50.0f, "entity/cube.obj");
+    player = new EntityPlayer();
     player->setPosition({10, 10, 10});
+
+    player->setFlying(true);
+    player->switchGamemode(Gamemode::SPECTATOR);
 
     Ethertia::loadWorld();
 
@@ -112,11 +113,10 @@ void Ethertia::start() {
     GuiScreenChat::INST = new GuiScreenChat();
 
     rootGUI->addGui(GuiIngame::INST);
-    rootGUI->addGui(GuiScreenMainMenu::INST);
+//    rootGUI->addGui(GuiScreenMainMenu::INST);
 
-    Texture* tex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("blocks/stone_.png")));
-    Chunk::tex = tex;
-
+//    Texture* tex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("blocks/stone_.png")));
+//    Chunk::tex = tex;
 
 //    EntityCar* car = new EntityCar();
 //    world->addEntity(car);
@@ -124,8 +124,10 @@ void Ethertia::start() {
 
 
     EntityRaycastCar* raycastCar = new EntityRaycastCar();
-    world->addEntity(raycastCar);
-    raycastCar->setPosition({0, 5, -10});
+//    raycastCar->setPosition({0, 5, -10});
+//    world->addEntity(raycastCar);
+
+
 
 
     brushCursor.size = 2.0;
@@ -161,7 +163,7 @@ void Ethertia::start() {
     });
     EventBus::EVENT_BUS.listen([=](MouseButtonEvent* e) {
         if (e->isPressed() && world && isIngame()) {
-            static u8 placingBlock = Blocks::STONE;
+            static u8 placingBlock = Materials::GRASS;
 
             int btn = e->getButton();
 
@@ -180,10 +182,10 @@ void Ethertia::start() {
                             for (int dy = floor(-n); dy <= ceil(n); ++dy) {
                                 glm::vec3 d(dx, dy, dz);
 
-                                BlockState& b = world->getBlock(p + d);
+                                MaterialStat& b = world->getBlock(p + d);
                                 float f = n - glm::length(d);
 
-                                b.id = placingBlock;
+                                // b.id = placingBlock;
                                 b.density = b.density - Mth::max(0.0f, n - glm::length(d));
                                 world->requestRemodel(p+d);
                             }
@@ -195,11 +197,15 @@ void Ethertia::start() {
                             for (int dy = -n; dy <= n; ++dy) {
                                 glm::vec3 d(dx, dy, dz);
 
-                                BlockState& b = world->getBlock(p + d);
+                                MaterialStat& b = world->getBlock(p + d);
                                 float f = n - glm::length(d);
 
-                                b.id = placingBlock;
-                                b.density = Mth::max(b.density, f);
+                                if (b.density >= 0.0f)
+                                    b.id = placingBlock;
+
+                                if (!window.isAltKeyDown())  {
+                                    b.density = Mth::max(b.density, f);
+                                }
                                 world->requestRemodel(p+d);
                             }
                         }
@@ -207,6 +213,7 @@ void Ethertia::start() {
                     world->requestRemodel(p);
                 } else if (btn == GLFW_MOUSE_BUTTON_3) {
                     placingBlock = world->getBlock(p).id;
+                    Log::info("Picking: {}", (int)placingBlock);
                 }
             }
 
@@ -214,8 +221,13 @@ void Ethertia::start() {
     });
 
 
-}
 
+
+
+
+
+
+}
 
 void renderGUI()
 {
@@ -336,11 +348,27 @@ void Ethertia::unloadWorld() {
 
 void Ethertia::dispatchCommand(const std::string& cmdline) {
     std::vector<std::string> args = Strings::splitSpaces(cmdline);
-
     std::string& cmd = args[0];
-    if (cmd == "/tp") {
+    EntityPlayer* player = Ethertia::player;
+
+    if (cmd == "/tp")
+    {
         // /tp <x> <y> <z>
-        Ethertia::getPlayer()->setPosition(glm::vec3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3])));
+        player->setPosition(glm::vec3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3])));
+    }
+    else if (cmd == "/gamemode")
+    {
+        int mode = std::stoi(args[1]);
+
+        player->switchGamemode(mode);
+
+        Log::info("Gamemode: {}", mode);
+    }
+    else if (cmd == "/fly")
+    {
+        player->setFlying(!player->isFlying());
+
+        Log::info("Flymode: {}", player->isFlying());
     }
 }
 
@@ -394,10 +422,10 @@ static void checkChunksModelUpdate(World* world) {
 
         if (vbuf) {
             Ethertia::getExecutor()->exec([chunk, vbuf]() {
-                if (chunk->model) delete chunk->model;
+                delete chunk->proxy->model;
 
-                chunk->model = Loader::loadModel(vbuf);
-                chunk->proxy->setMesh(chunk->model, vbuf->positions.data());
+                chunk->proxy->model = Loader::loadModel(vbuf);
+                chunk->proxy->setMesh(chunk->proxy->model, vbuf->positions.data());
 
                 delete vbuf;
             });
@@ -451,13 +479,13 @@ void initThreadChunkLoad() {
             if (world) {
                 {
                     std::lock_guard<std::mutex> guard(world->chunklock);
-                    chunkBuildStat = "ChunkLoad";
+//                    chunkBuildStat = "ChunkLoad";
 //                    updateViewDistance(world, glm::vec3(0), 0);
                     updateViewDistance(world, Ethertia::getCamera()->position, (int)Ethertia::getRenderEngine()->viewDistance);
 
-                    chunkBuildStat = "ChunkModelUpdate";
+//                    chunkBuildStat = "ChunkModelUpdate";
                     checkChunksModelUpdate(world);
-                    chunkBuildStat = "None";
+//                    chunkBuildStat = "None";
                 }
             }
 

@@ -20,7 +20,6 @@ add_executable(Ethertia
         src/ethertia/lang/lexer/TokenType.cpp
         src/ethertia/lang/symbol/SymbolInternalTypes.cpp
 
-        src/ethertia/block/Block.cpp
         src/ethertia/client/gui/Gui.cpp
         src/ethertia/client/render/RenderEngine.cpp
         src/ethertia/client/Ethertia.cpp)
