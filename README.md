@@ -8,20 +8,17 @@ Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</su
 > devs: Eldrine Le Prismarine (https://elytra.dev/~pris), Dreamtowards
 
 
+Demo videos:
+[20221008](),  
 Demo screenshots: (Early test, 20221005)
 ![snap1](src/assets/elytra/site/eth/res/demo-s1.png)
 
-Demo videos:
-[2 MarchingCubes 202208],
-[1 Blocky 202205].
 
 ## Development
 
 
 
 ### Roadmap
-
----
 
 - [x] Blocky Terrain, Cubical Chunks, Unified Grids [@2022_Jul](https://www.youtube.com/watch?v=xDwgZkYrPm8&t=14s)
 - [x] Blocky Terrain Basic Population. Simple Trees, Flowers, Vines
@@ -60,5 +57,13 @@ Demo videos:
 
 ### Credits
 
+__Ethertia is developed by:__  
+Game design, programming, graphics: [Eldrine Le Prismarine]()  
+Music and sounds:  
+Ingame artwork: 
 
-[comment]: <> (CLion-2020.3.4)
+__Ethertia uses following libraries&tools:__  
+- Cplusplus, GCC, CLion IDE, CMake
+- GLFW, GLM, glad, opengl
+- stb_image, stb_vorbis by [Sean Barrett ('nothings')](http://nothings.org)
+- BulletPhysics by Erwin Coumans
