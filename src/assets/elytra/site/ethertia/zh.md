@@ -1,5 +1,17 @@
 
-# 以太效應: <small>銀河的願望<span class="text-muted ms-3 ps-3 border-start">Ethertia - _An Alpha Dream_</span></small>
+# 以太效應: <small>銀河的願望</small>
+<!--span class="text-muted ms-3 ps-3 border-start">Ethertia - _An Alpha Dream_</span-->
+
+_一个 "虚拟实惊" 游戏/程序._
+
+想: Minecraft 的自由度 + GTAV 的细节 + VRChat 的交互
+
+
+
+
+
+<!--
+
 
 _第一代体素系统技术测试 (共3)_
 

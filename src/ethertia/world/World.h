@@ -132,13 +132,13 @@ public:
         });
 
         // check populates
-//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
-//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
+    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
+    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
 
         return chunk;
     }
@@ -416,7 +416,7 @@ public:
                     } else if (nextToAir < 4) {
                         replace = Materials::DIRT;
                     }
-                    world->setBlock(x, y, z, MaterialStat(replace));
+                    world->getBlock(x, y, z).id = replace;
                 }
             }
 

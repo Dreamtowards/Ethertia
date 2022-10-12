@@ -3,7 +3,7 @@
 out vec4 FragColor;
 
 in vec3 Norm;
-in vec2 TexCoord;
+flat in vec2 TexCoord;
 in vec3 FragPos;
 
 uniform sampler2D diffuseMap;

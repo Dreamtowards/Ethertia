@@ -8,7 +8,7 @@ uniform mat4 matView;
 uniform mat4 matProjection;
 
 out vec3 Norm;
-out vec2 TexCoord;
+flat out vec2 TexCoord;
 out vec3 FragPos;
 
 void main()

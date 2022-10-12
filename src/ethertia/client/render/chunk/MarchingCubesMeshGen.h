@@ -323,15 +323,13 @@ public:
                         MaterialStat& d0 = _GetBlock(chunk,world,rp+v0);
                         MaterialStat& d1 = _GetBlock(chunk,world,rp+v1);
                         float t = Mth::rlerp(0.0f, d0.density, d1.density);
+                        t = 0.5f;
 
                         vec3 p = glm::mix(v0, v1, t);
                         vbuf->addpos(rp + p);
 
                         MaterialStat& solid = d0.density > 0.0f ? d0 : d1;
-                        if (solid.id != 1) {
-                            Log::info("Stat Id", (int)solid.id);
-                        }
-                        TextureAtlas::Region* tx = solid.id == 1 ? MaterialTextures::STONE : MaterialTextures::GRASS;
+                        TextureAtlas::Region* tx = MaterialTextures::of(solid.id);
                         vbuf->adduv(tx->offset.x, tx->scale.x);
                     }
 

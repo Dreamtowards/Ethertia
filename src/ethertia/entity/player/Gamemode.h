@@ -16,7 +16,9 @@ public:
 
     inline static const std::vector<std::string> NAMES = {{
         "survival",
-        "creative"
+        "creative",
+        "spectator",
+        "adventure"
     }};
 
     static std::string nameOf(int mode) {

@@ -1,6 +1,6 @@
 
 
-#include "Ethertia.h"
+#include <ethertia/client/Ethertia.h>
 
 #include <ethertia/client/render/RenderEngine.h>
 #include <ethertia/client/Window.h>
@@ -103,10 +103,10 @@ void Ethertia::start() {
     player = new EntityPlayer();
     player->setPosition({10, 10, 10});
 
+    Ethertia::loadWorld();
+
     player->setFlying(true);
     player->switchGamemode(Gamemode::SPECTATOR);
-
-    Ethertia::loadWorld();
 
     GuiIngame::INST = new GuiIngame();
     GuiScreenMainMenu::INST = new GuiScreenMainMenu();
@@ -200,12 +200,12 @@ void Ethertia::start() {
                                 MaterialStat& b = world->getBlock(p + d);
                                 float f = n - glm::length(d);
 
-                                if (b.density >= 0.0f)
-                                    b.id = placingBlock;
-
                                 if (!window.isAltKeyDown())  {
                                     b.density = Mth::max(b.density, f);
                                 }
+                                if (b.density >= 0.0f)
+                                    b.id = placingBlock;
+
                                 world->requestRemodel(p+d);
                             }
                         }
@@ -417,7 +417,7 @@ static void checkChunksModelUpdate(World* world) {
 //        vbuf->initnorm();
 
         vbuf = MarchingCubesMeshGen::genMesh(chunk, world);
-        vbuf->initnorm(true);
+        vbuf->initnorm(false);
 
 
         if (vbuf) {

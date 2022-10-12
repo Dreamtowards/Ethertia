@@ -165,9 +165,9 @@ public:
                                 } else if (y < 0) {
                                     bl = 0;//Blocks::WATER;
                                 }
-                                if (y > 30) {
-                                    bl = Materials::GRASS;
-                                }
+//                                if (y > 30) {
+//                                    bl = Materials::GRASS;
+//                                }
 //                                if (bl) {
                                 chunk->setMaterial(sX * sampleSize + dX, sY * sampleSize + dY, sZ * sampleSize + dZ,
                                                    MaterialStat(bl, spZsum));

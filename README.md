@@ -1,17 +1,22 @@
 # Ethertia
 
+An "[OtherLife](https://en.wikipedia.org/wiki/OtherLife)" Game/Program, wanted:  
 Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>
 
-<br>
+> Site: https://elytra.dev/ethertia  
+> Source: https://github.com/Dreamtowards/Ethertia `src/ethertia/client/Ethertia.h`    
+> devs: Eldrine Le Prismarine (https://elytra.dev/~pris), Dreamtowards
 
-Demos: 
 
-[2 MarchingCubes 202208], 
+Demo screenshots: (Early test, 20221005)
+![snap1](src/assets/elytra/site/eth/res/demo-s1.png)
+
+Demo videos:
+[2 MarchingCubes 202208],
 [1 Blocky 202205].
 
-https://elytra.dev/ethertia (Project site)  
-https://elytra.dev/~pris (dev. Eldrine Le Prismarine)  
-main(): `src/ethertia/client/Ethertia.h`
+## Development
+
 
 ---
 

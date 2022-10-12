@@ -7,6 +7,8 @@
 
 #include <ethertia/client/render/TextureAtlas.h>
 
+#include "Materials.h"
+
 class MaterialTextures
 {
 public:
@@ -19,8 +21,18 @@ public:
 
     inline static TextureAtlas::Region* STONE = load("materials/stone.png");
     inline static TextureAtlas::Region* GRASS = load("materials/grass.png");
-    inline static TextureAtlas::Region* DIRT  = load("materials/dirt.png");
+    inline static TextureAtlas::Region* DIRT  = load("materials/dirt2.png");
+    inline static TextureAtlas::Region* SAND  = load("materials/sand.png");
 
+    static TextureAtlas::Region* of(u8 id) {
+        switch (id) {
+            case Materials::STONE: return STONE;
+            case Materials::GRASS: return GRASS;
+            case Materials::DIRT:  return DIRT;
+            case Materials::SAND:  return SAND;
+            default: throw std::runtime_error("illegal material id "+std::to_string((int)id));
+        }
+    }
 
 
     static void init()

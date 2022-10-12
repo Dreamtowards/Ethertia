@@ -13,11 +13,11 @@ public:
 
     inline static MaterialStat STAT_EMPTY{};
 
-    inline static u8 AIR   = 0;
-    inline static u8 STONE = 1;
-    inline static u8 GRASS = 2;
-    inline static u8 DIRT  = 3;
-    inline static u8 SAND  = 4;
+    static const u8 AIR   = 0;
+    static const u8 STONE = 1;
+    static const u8 GRASS = 2;
+    static const u8 DIRT  = 3;
+    static const u8 SAND  = 4;
 
 
 };
