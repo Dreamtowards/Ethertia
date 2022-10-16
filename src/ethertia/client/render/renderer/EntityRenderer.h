@@ -31,9 +31,8 @@ public:
         shader.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
         shader.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
 
-
-        shader.setFloat("CursorSize", Ethertia::getBrushCursor().size);
-        shader.setVector3f("CursorPos", Ethertia::getBrushCursor().position);
+        shader.setVector3f("cursorPos", Ethertia::getBrushCursor().position);
+        shader.setFloat("cursorSize", Ethertia::getBrushCursor().size);
 
         glBindVertexArray(entity->model->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, entity->model->vertexCount);

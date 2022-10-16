@@ -24,10 +24,10 @@ class FontRenderer
     Texture* texAscii = nullptr;
 
     float glyphWidths[GLYPH_LIMIT];
-    const char** UNIFORM_GLYPH_WIDTHS = _GenArrayNames("glyphWidths[%i]", GLYPH_LIMIT);
+    const char** UNIFORM_GLYPH_WIDTHS = ShaderProgram::_GenArrayNames("glyphWidths[%i]", GLYPH_LIMIT);
 
-    const char** UNIFORM_CHARS = _GenArrayNames("chars[%i]", BATCH_CHARS_LIMIT);
-    const char** UNIFORM_OFFSET = _GenArrayNames("offset[%i]", BATCH_CHARS_LIMIT);
+    const char** UNIFORM_CHARS  = ShaderProgram::_GenArrayNames("chars[%i]", BATCH_CHARS_LIMIT);
+    const char** UNIFORM_OFFSET = ShaderProgram::_GenArrayNames("offset[%i]", BATCH_CHARS_LIMIT);
     // const char** UNIFORM_SCALE = Renderer::_GenArrayNames("scale[%i]", 128);
 public:
     FontRenderer() {
@@ -50,17 +50,6 @@ public:
         for (int i = 0; i < GLYPH_LIMIT; ++i) {
             shader.setFloat(UNIFORM_GLYPH_WIDTHS[i], glyphWidths[i]);
         }
-    }
-
-    static const char** _GenArrayNames(const std::string& namep, uint n) {
-        const char** arr = new const char*[n];
-        u32 baselen = namep.length()+3;  // +2: brackets, +1: \0.
-        for (int i = 0; i < n; ++i) {
-            char* ch = new char[baselen+3];  // +3 assume idx <= 999.
-            sprintf(ch, namep.c_str(), i);
-            arr[i] = ch;
-        }
-        return arr;
     }
 
 

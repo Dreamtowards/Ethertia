@@ -516,6 +516,12 @@ public:
 //        }
 
     }
+
+
+
+    static MaterialStat& _GetBlock(Chunk* chunk, glm::vec3 rp) {
+        return Chunk::outbound(rp) ? chunk->world->getBlock(chunk->position + rp) : chunk->getMaterial(rp);
+    }
 };
 
 #endif //ETHERTIA_WORLD_H

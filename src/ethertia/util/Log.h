@@ -81,8 +81,13 @@ public:
         double mcs = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         double sec = mcs * 0.001;
 
-        out << "[" << std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S") << "." << (std::fmod(sec, 1000.0f)) << "]"
-            << "["<<std::this_thread::get_id()<<"/INFO]: ";
+        Strings::_fmt(out, "[{}.{7}][{}/INFO]: ",
+                      std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S"),
+                      std::fmod(sec, 1000.0f),
+                      std::this_thread::get_id()
+        );
+//        out << "[" << std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S") << "." << (std::fmod(sec, 1000.0f)) << "]"
+//            << "["<<std::this_thread::get_id()<<"/INFO]: ";
 
 //        struct timeval tv{};
 //        gettimeofday(&tv, nullptr);

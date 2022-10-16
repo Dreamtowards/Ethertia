@@ -8,7 +8,9 @@
 #include <ethertia/client/gui/screen/GuiIngame.h>
 #include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
 #include <ethertia/client/gui/screen/GuiScreenChat.h>
+#include <ethertia/client/render/chunk/BlockyMeshGen.h>
 #include <ethertia/client/render/chunk/MarchingCubesMeshGen.h>
+#include <ethertia/client/render/chunk/SurfaceNetsMeshGen.h>
 #include <ethertia/world/World.h>
 #include <ethertia/init/Init.h>
 #include <ethertia/util/Timer.h>
@@ -91,11 +93,12 @@ void Ethertia::start() {
 
     running = true;
     window.initWindow();
+
+    Init::initialize();
+
     renderEngine = new RenderEngine();
     rootGUI = new GuiRoot();
     window.fireWindowSizeEvent();  // effect to the GuiRoot now.
-
-    Init::initialize();
 
     initThreadChunkLoad();
 
@@ -243,6 +246,38 @@ void renderGUI()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     rootGUI->onDraw();
+
+    {
+        glm::vec3 center(glm::floor(Ethertia::getBrushCursor().position));
+
+        int n = 2;
+        for (int rx = -n; rx <= n; ++rx) {
+            for (int ry = -n; ry <= n; ++ry) {
+                for (int rz = -n; rz <= n; ++rz) {
+                    glm::vec3 p = center + glm::vec3(rx, ry, rz);
+
+                    MaterialStat& mtl = Ethertia::getWorld()->getBlock(p);
+                    Gui::drawWorldpoint(p, [=](glm::vec2 sp) {
+                        Gui::drawString(sp.x, sp.y, std::to_string(mtl.id)+"/"+std::to_string(mtl.density));
+                    });
+                }
+            }
+        }
+
+        for (int ry = -n; ry <= n; ++ry) {
+            for (int rz = -n; rz <= n; ++rz) {
+                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(-n, ry, rz), glm::vec3(2*n, 0, 0), Colors::GRAY);
+            }
+            for (int rx = -n; rx <= n; ++rx) {
+                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, ry, -n), glm::vec3(0, 0, 2*n), Colors::GRAY);
+            }
+        }
+        for (int rx = -n; rx <= n; ++rx) {
+            for (int rz = -n; rz <= n; ++rz) {
+                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, -n, rz), glm::vec3(0, 2*n, 0), Colors::GRAY);
+            }
+        }
+    }
 
     glEnable(GL_DEPTH_TEST);
 }
@@ -416,7 +451,9 @@ static void checkChunksModelUpdate(World* world) {
 //        vbuf = BlockyChunkMeshGen::genMesh(chunk, world);
 //        vbuf->initnorm();
 
-        vbuf = MarchingCubesMeshGen::genMesh(chunk, world);
+//        vbuf = SurfaceNetsMeshGen::contouring(chunk, world);
+        vbuf = MarchingCubesMeshGen::genMesh(chunk);
+//        vbuf = BlockyMeshGen::gen(chunk, new VertexBuffer);
         vbuf->initnorm(false);
 
 
@@ -424,7 +461,7 @@ static void checkChunksModelUpdate(World* world) {
             Ethertia::getExecutor()->exec([chunk, vbuf]() {
                 delete chunk->proxy->model;
 
-                chunk->proxy->model = Loader::loadModel(vbuf);
+                chunk->proxy->model = Loader::loadModel(vbuf, true);
                 chunk->proxy->setMesh(chunk->proxy->model, vbuf->positions.data());
 
                 delete vbuf;

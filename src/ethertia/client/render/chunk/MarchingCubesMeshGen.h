@@ -292,11 +292,8 @@ public:
              {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
              {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
-    static MaterialStat& _GetBlock(Chunk* chunk, World* world, glm::vec3 rp) {
-        return Chunk::outbound(rp) ? world->getBlock(chunk->position + rp) : chunk->getMaterial(rp);
-    }
 
-    static VertexBuffer* genMesh(Chunk* chunk, World* world) {
+    static VertexBuffer* genMesh(Chunk* chunk) {
         VertexBuffer* vbuf = new VertexBuffer();
         using glm::vec3;
 
@@ -308,7 +305,7 @@ public:
                     int cubeidx = 0;
                     for (int i = 0; i < 8; ++i) {
                         vec3 p = rp + tbVert[i];
-                        float val = _GetBlock(chunk, world, p).density;
+                        float val = World::_GetBlock(chunk, p).density;
                         if (val > 0.0f) {  // is solid
                             cubeidx |= 1 << i;
                         }
@@ -320,17 +317,20 @@ public:
                         vec3 v0 = tbVert[edge[0]];
                         vec3 v1 = tbVert[edge[1]];
 
-                        MaterialStat& d0 = _GetBlock(chunk,world,rp+v0);
-                        MaterialStat& d1 = _GetBlock(chunk,world,rp+v1);
+                        MaterialStat& d0 = World::_GetBlock(chunk,rp+v0);
+                        MaterialStat& d1 = World::_GetBlock(chunk,rp+v1);
                         float t = Mth::rlerp(0.0f, d0.density, d1.density);
-                        t = 0.5f;
+//                        t = 0.5f;
 
                         vec3 p = glm::mix(v0, v1, t);
                         vbuf->addpos(rp + p);
+//                        static int Some = 0;
+//                        Some = Some % 4;
+//                        Some ++;
 
-                        MaterialStat& solid = d0.density > 0.0f ? d0 : d1;
-                        TextureAtlas::Region* tx = MaterialTextures::of(solid.id);
-                        vbuf->adduv(tx->offset.x, tx->scale.x);
+                        MaterialStat& solid = d0.density > 0 ? d0 : d1;
+                        assert(d0.density > 0 != d1.density > 0);
+                        vbuf->materialIds.push_back(solid.id);
                     }
 
                 }

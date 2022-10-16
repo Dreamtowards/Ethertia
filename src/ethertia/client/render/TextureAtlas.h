@@ -19,8 +19,8 @@ public:
     class Region {
     public:
         BitmapImage* image;
-        glm::vec2 offset;
-        glm::vec2 scale;
+        glm::vec2 pos;
+        glm::vec2 size;
 
         ~Region() {
             delete image;
@@ -58,14 +58,14 @@ public:
         BitmapImage atlasImage(totalWidth, maxHeight);
 
         uint dx = 0;
-        for (Region* frag : atlas) {
-            BitmapImage* img = frag->image;
+        for (Region* r : atlas) {
+            BitmapImage* img = r->image;
             float wid = img->getWidth();
             float hei = img->getHeight();
             atlasImage.setPixels(dx, maxHeight - hei, img);
 
-            frag->offset = glm::vec2((float)dx / totalWidth, 0);
-            frag->scale = glm::vec2(wid / totalWidth, hei / maxHeight);
+            r->pos = glm::vec2((float)dx / totalWidth, 0);
+            r->size = glm::vec2(wid / totalWidth, hei / maxHeight);
 
             dx += wid;
         }

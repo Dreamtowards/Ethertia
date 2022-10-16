@@ -5,7 +5,7 @@ Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</su
 
 > Site: https://elytra.dev/ethertia  
 > Source: https://github.com/Dreamtowards/Ethertia `src/ethertia/client/Ethertia.h`    
-> devs: Eldrine Le Prismarine (https://elytra.dev/~pris), Dreamtowards
+> Devs: Eldrine Le Prismarine (https://elytra.dev/~pris), Dreamtowards
 
 
 Demo videos:
@@ -19,6 +19,9 @@ Demo screenshots: (Early test, 20221005)
 
 
 ### Roadmap
+
+
+### Todos
 
 - [x] Blocky Terrain, Cubical Chunks, Unified Grids [@2022_Jul](https://www.youtube.com/watch?v=xDwgZkYrPm8&t=14s)
 - [x] Blocky Terrain Basic Population. Simple Trees, Flowers, Vines
@@ -67,3 +70,28 @@ __Ethertia uses following libraries&tools:__
 - GLFW, GLM, glad, opengl
 - stb_image, stb_vorbis by [Sean Barrett ('nothings')](http://nothings.org)
 - BulletPhysics by Erwin Coumans
+
+
+
+## Updates
+
+
+### 22u41 @20221014
+
+- [.42] Per-Fragment Material Texturing (single material out of greatest weight)
+
+> ![note](saves/_figures/fig-221014-mtltex-maxweight.png)  
+> Fugure: Per-Fragment Material Texturing, (one single material out for the vertex with the greatest weight on the triangle.
+> use a geometry shader _chunk.gsh_ to generate _TriMtlWeights, TriMtlIds_)    
+> the "boundary waves" may caused by non-geo-accurate weights (i.e. not associate with volume data). However I can't wait to try
+> SurfaceNets now, that would fix this problem by the way.
+
+### 22u40 @20201006
+
+- [.62] Multiple Material Texturing (naive full-triangle material texturing).  
+- [.13] Gamemode creative/spectator (no collision), Flying mode (no gravity).
+
+> ![note](saves/_figures/fig-221006-mtltex-fulltriangle.png)  
+> Multiple Material Naive Full-Triangle Texturing.  
+> `/gamemode <1/2/3>   # survival/creative/spectator`  
+> `/fly [on/off]`

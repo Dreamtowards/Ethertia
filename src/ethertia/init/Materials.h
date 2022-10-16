@@ -19,6 +19,8 @@ public:
     static const u8 DIRT  = 3;
     static const u8 SAND  = 4;
 
+    static const u8 _SIZE  = 5;
+
 
 };
 

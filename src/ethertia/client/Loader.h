@@ -90,11 +90,14 @@ public:
         }
         return m;
     }
-    static Model* loadModel(VertexBuffer* vbuf) {
+    static Model* loadModel(VertexBuffer* vbuf, bool materials = false) {
         std::vector<std::pair<u32, float*>> ls;
         ls.emplace_back(3, &vbuf->positions[0]);
         ls.emplace_back(2, &vbuf->textureCoords[0]);
         ls.emplace_back(3, &vbuf->normals[0]);
+        if (materials) {
+            ls.emplace_back(1, &vbuf->materialIds[0]);
+        }
 
         return loadModel(vbuf->vertexCount(), ls);
     }
