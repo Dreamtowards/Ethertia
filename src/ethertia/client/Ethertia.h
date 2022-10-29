@@ -7,9 +7,8 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-#include <stdexcept>
 #include <glm/vec3.hpp>
+#include <stdexcept>
 
 // __forward_declarations
 
@@ -43,7 +42,6 @@ class Ethertia
     static RenderEngine* renderEngine;
     static Window window;
     static Timer timer;
-    static Camera camera;
     static Executor executor;
 
     static World* world;
@@ -89,7 +87,7 @@ public:
 
     static RenderEngine* getRenderEngine() { return renderEngine; }
     static Window* getWindow() { return &window; }
-    static Camera* getCamera() { return &camera; }
+    static Camera* getCamera();
     static Executor* getExecutor() { return &executor; }
     static World* getWorld() { return world; }
     static GuiRoot* getRootGUI() { return rootGUI; }

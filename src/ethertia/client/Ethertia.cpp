@@ -26,17 +26,27 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
-//#include <ethertia/lang/Elytra.h>
+//#include <ethertia/lang/Elytra.h>  et();
+
+//static bool running = false;
+//
+//void init();
+//void runMainLoop();
+//void destroy();
 
 int main()
 {
     Ethertia::run();
 
-//    et();
-
     return 0;
 }
 
+//void init() {
+//
+//    running = true;
+//
+//
+//}
 
 
 
@@ -46,7 +56,6 @@ RenderEngine* Ethertia::renderEngine = nullptr;
 
 Window Ethertia::window{};
 Timer Ethertia::timer{};
-Camera Ethertia::camera{};
 Executor Ethertia::executor{std::this_thread::get_id()};
 
 World* Ethertia::world = nullptr;
@@ -285,15 +294,13 @@ void renderGUI()
 
 void updateMovement() {
     Window& window = *Ethertia::getWindow();
-    Camera& camera = *Ethertia::getCamera();
-    Entity* player = Ethertia::getPlayer();
 
     static bool sprint = false;
 
     float speed = 0.5;
     if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
     if (sprint) speed = 3.8;
-    float yaw = camera.eulerAngles.y;
+    float yaw = Ethertia::getCamera()->eulerAngles.y;
 
     glm::vec3 vel(0);
     if (window.isKeyDown(GLFW_KEY_W)) vel += Mth::angleh(yaw) * speed;
@@ -304,8 +311,7 @@ void updateMovement() {
     if (window.isShiftKeyDown())          vel.y -= speed;
     if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
 
-    player->applyLinearVelocity(vel);
-
+    Ethertia::getPlayer()->applyLinearVelocity(vel);
 
     if (!window.isKeyDown(GLFW_KEY_W)) {
         sprint = false;
@@ -323,7 +329,7 @@ void handleInput()
 
     if (Ethertia::isIngame()) {
         updateMovement();
-        camera.updateMovement(window, dt);
+        camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
     }
     window.setMouseGrabbed(Ethertia::isIngame());
     window.setStickyKeys(!Ethertia::isIngame());
@@ -421,7 +427,9 @@ float Ethertia::getDelta() { return timer.getDelta(); }
 
 BrushCursor& Ethertia::getBrushCursor() { return brushCursor; }
 
-
+Camera* Ethertia::getCamera() {
+    return &renderEngine->mCamera;
+}
 
 
 static void checkChunksModelUpdate(World* world) {

@@ -9,7 +9,6 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <ethertia/client/Window.h>
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/SmoothValue.h>
 
@@ -27,10 +26,10 @@ public:
     /// value is Seconds to the actual Destination Rotation., 0 accidentally means non-smooth.
     float smoothness = 0.0f;
 
-    void updateMovement(Window& window, float dt) {
-        float mx = window.getMouseDX() / 200;
-        float my = window.getMouseDY() / 200;
-        if (window.isKeyDown(GLFW_KEY_Z)) eulerAngles.z += mx;
+    void updateMovement(float dt, float mDX, float mDY, bool rotZ, float dScroll) {
+        float mx = mDX / 200;
+        float my = mDY / 200;
+        if (rotZ) eulerAngles.z += mx;
 
         static SmoothValue sX, sY;
 
@@ -45,7 +44,7 @@ public:
         sX.update(t);
         eulerAngles.x = sX.current;
 
-        len += window.getDScroll();
+        len += dScroll;
         len = Mth::clamp(len, 0.0f, 1000.0f);
 
     }

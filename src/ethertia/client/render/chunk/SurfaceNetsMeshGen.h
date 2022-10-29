@@ -47,6 +47,7 @@ public:
 
                         if (b0.density > 0 != b1.density > 0) {  // sign changed.
 
+
                         }
                     }
                 }

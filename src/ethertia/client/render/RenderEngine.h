@@ -18,6 +18,7 @@ class SkyboxRenderer;
 
 class World;
 
+#include <ethertia/client/render/Camera.h>
 #include <ethertia/client/render/shader/ShaderProgram.h>
 #include <ethertia/client/render/Model.h>
 #include <ethertia/client/Loader.h>
@@ -39,6 +40,7 @@ public:
     glm::mat4 projectionMatrix{1};
     glm::mat4 viewMatrix{1};
 
+    Camera mCamera{};
     Frustum viewFrustum{};
 
     float fov = 90;
