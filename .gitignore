@@ -2,3 +2,11 @@
 *.DS_Store
 
 cmake-build-debug/*
+
+
+/// halo guys, I have a question confused: is that OK for use a Main-Class (High-Level) in Low-Level components?
+/// Detail: I have a 'High-Level' Main-Class "TheEngine", and usually use it in 'Low-Level' components
+/// e.g. in SkyboxRenderer::render(), I used "TheEngine::getCamera()->getPosition()",
+/// so this is very Convenient since direct get CameraPos etc without pass by arguments
+/// but, this also caused Circular Dependency and Coupling. so, I confused, maybe it is Illegal for Software Architecture?
+/// but this is real convenient I think, and pass-by-args seems messy sometimes especially when lot args need to be pass.

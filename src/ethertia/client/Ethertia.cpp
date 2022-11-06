@@ -45,10 +45,7 @@ int main()
 //
 //    running = true;
 //
-//
 //}
-
-
 
 bool Ethertia::running = false;
 

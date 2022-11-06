@@ -27,27 +27,39 @@ public:
             {0, 1, 0},
             {0, 0, 1}
     };
+    inline static const glm::vec3 ADJACENT[3][6] = {
+            {{0,0,0}, {0,-1,0}, {0,-1,-1}, {0,-1,-1}, {0,0,-1}, {0,0,0}},
+            {{0,0,0}, {0,0,-1}, {-1,0,-1}, {-1,0,-1}, {-1,0,0}, {0,0,0}},
+            {{0,0,0}, {-1,0,0}, {-1,-1,0}, {-1,-1,0}, {0,-1,0}, {0,0,0}}
+    };
 
 
     static VertexBuffer* contouring(Chunk* chunk) {
         VertexBuffer* vbuf = new VertexBuffer();
         using glm::vec3;
+        using Cell = MaterialStat;
 
-        // for each Edge, Evaluate FeaturePoint, Compose the 4 Cube's Points,
-
-        for (int rx = 0; rx < 16; ++rx) {
-            for (int ry = 0; ry < 16; ++ry) {
-                for (int rz = 0; rz < 16; ++rz) {
+        // range [1, 15], boundary-exclusive
+        for (int rx = 1; rx < 15; ++rx) {
+            for (int ry = 1; ry < 15; ++ry) {
+                for (int rz = 1; rz < 15; ++rz) {
                     vec3 rp(rx, ry, rz);
+                    Cell& c0 = World::_GetBlock(chunk, rp);
 
-                    // for 3 axes edges, if sign-changed, connect adjacent 4 cubes' vertices
-                    MaterialStat& b0 = World::_GetBlock(chunk, rp);
-                    for (int i = 0; i < 3; ++i) {
-                        MaterialStat& b1 = World::_GetBlock(chunk, rp + AXES[i]);
+                    // for 3 axes edges, if sign-changed, connect adjacent 4 cells' vertices
+                    for (int axis_i = 0; axis_i < 3; ++axis_i) {
+                        Cell& c1 = World::_GetBlock(chunk, rp + AXES[axis_i]);
 
-                        if (b0.density > 0 != b1.density > 0) {  // sign changed.
+                        if (c0.density > 0 != c1.density > 0) {  // sign changed.
+                            bool pnorm = c0.density > 0;  // is positive normal. if c0 is solid.
 
+                            for (int vert_i = 0; vert_i < 6; ++vert_i) {
+                                int dvert_i = pnorm ? vert_i : 6 - vert_i;  // directed winding.
+                                Cell& c = World::_GetBlock(chunk, rp + ADJACENT[axis_i][dvert_i]);
 
+                                //vbuf->addpos(c.featurepoint);
+                                vbuf->_add_mtl_id(c.id);
+                            }
                         }
                     }
                 }

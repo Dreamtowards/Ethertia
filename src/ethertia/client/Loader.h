@@ -128,7 +128,8 @@ public:
 //            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
 //         }
 
-        u32 pixels[w * h];
+        // if use stack alloc, may cause overflow in some vintage laptops.
+        u32* pixels = new u32[w * h];
         img->getVerticalFlippedPixels(pixels);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
@@ -136,6 +137,7 @@ public:
 
         glGenerateMipmap(GL_TEXTURE_2D);
 
+        delete[] pixels;
         return tex;
     }
 
