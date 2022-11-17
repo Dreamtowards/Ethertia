@@ -67,6 +67,13 @@ __Ethertia uses following libraries&tools:__
 
 <br>
 
+22u46 / Nov 18, 2022
+
+- [ ] Deferred Rendering
+- [ ] Terrain Material Texturing with Triangle Blend & Height Map
+
+
+
 22u42 / Oct 22, 2022
 
 - [ ] SurfaceNets Terrain, Unified Grids
@@ -79,7 +86,6 @@ __Ethertia uses following libraries&tools:__
 
 22u44 / Nov 5, 2022
 
-- [ ] Deferred Rendering
 - [ ] Particle system
 - [ ] Batch Grass Rendering
 - [ ] Simple Clouds (Flat noise), Blocky Clouds (Multi layers), Volume Clouds

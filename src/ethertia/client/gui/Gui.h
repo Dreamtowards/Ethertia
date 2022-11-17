@@ -15,7 +15,6 @@
 #include <ethertia/util/Colors.h>
 
 #include <ethertia/client/Ethertia.h>
-#include <ethertia/client/render/RenderEngine.h>
 
 class Gui
 {
@@ -355,6 +354,9 @@ public:
     static float maxWidth();
     static float maxHeight();
 
+    static float mfbWidth();   // Main Framebuffer size.
+    static float mfbHeight();
+
     static float cursorX();
     static float cursorY();
 
@@ -364,27 +366,17 @@ public:
 
     static void drawRect(float x, float y, float w, float h, glm::vec4 color,
                          Texture* tex =nullptr,
-                         float round =0,
+                         float round  =0,
                          float border =99999);
 
 
     static void drawString(float x, float y, const std::string& str,
-                           glm::vec4 color =Colors::WHITE,
+                           glm::vec4 color  =Colors::WHITE,
                            float textHeight =16,
-                           float alignX =0,
-                           bool drawShadow =true);
+                           float alignX     =0,
+                           bool drawShadow  =true);
 
-    static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn)
-    {
-        glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getRenderEngine()->viewMatrix, Ethertia::getRenderEngine()->projectionMatrix);
-
-        p.x = p.x * Gui::maxWidth();
-        p.y = p.y * Gui::maxHeight();
-
-        if (p.z > 0) {
-            fn(glm::vec2(p.x, p.y));
-        }
-    }
+    static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
 
 
 // drawCornerStretchTexture

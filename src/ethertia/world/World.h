@@ -62,9 +62,9 @@ public:
     ~World() {
 
         delete dynamicsWorld->getConstraintSolver();
-        delete dynamicsWorld->getBroadphase();
         delete dynamicsWorld->getDispatcher();
         delete dynamicsWorld;
+        delete dynamicsWorld->getBroadphase();
     }
 
     MaterialStat& getBlock(glm::vec3 blockpos) {

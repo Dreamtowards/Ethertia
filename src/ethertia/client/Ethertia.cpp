@@ -256,38 +256,6 @@ void renderGUI()
 
     rootGUI->onDraw();
 
-    {
-        glm::vec3 center(glm::floor(Ethertia::getBrushCursor().position));
-
-        int n = 2;
-        for (int rx = -n; rx <= n; ++rx) {
-            for (int ry = -n; ry <= n; ++ry) {
-                for (int rz = -n; rz <= n; ++rz) {
-                    glm::vec3 p = center + glm::vec3(rx, ry, rz);
-
-                    MaterialStat& mtl = Ethertia::getWorld()->getBlock(p);
-                    Gui::drawWorldpoint(p, [=](glm::vec2 sp) {
-                        Gui::drawString(sp.x, sp.y, std::to_string(mtl.id)+"/"+std::to_string(mtl.density));
-                    });
-                }
-            }
-        }
-
-        for (int ry = -n; ry <= n; ++ry) {
-            for (int rz = -n; rz <= n; ++rz) {
-                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(-n, ry, rz), glm::vec3(2*n, 0, 0), Colors::GRAY);
-            }
-            for (int rx = -n; rx <= n; ++rx) {
-                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, ry, -n), glm::vec3(0, 0, 2*n), Colors::GRAY);
-            }
-        }
-        for (int rx = -n; rx <= n; ++rx) {
-            for (int rz = -n; rz <= n; ++rz) {
-                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, -n, rz), glm::vec3(0, 2*n, 0), Colors::GRAY);
-            }
-        }
-    }
-
     glEnable(GL_DEPTH_TEST);
 }
 

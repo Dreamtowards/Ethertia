@@ -35,8 +35,12 @@ class Window
     float scrollDX = 0;
     float scrollDY = 0;
 
-    float width = 0;
+    float width  = 0;
     float height = 0;
+
+    // WindowCoord * ContentScale = FramebufferSize.
+    int framebufferWidth  = 0;
+    int framebufferHeight = 0;
 
 public:
 
@@ -85,6 +89,8 @@ public:
         glfwSetKeyCallback(window, onKeyboardKey);
         glfwSetCharCallback(window, onCharInput);
 
+        glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+
         return 0;
     }
 
@@ -125,10 +131,13 @@ public:
     float getScrollDY() const { return scrollDY; }
     float getDScroll() const { return scrollDX+scrollDY; }
 
-    glm::vec2 getMousePos() { return glm::vec2(mouseX, mouseY); }
+    glm::vec2 getMousePos() const { return glm::vec2(mouseX, mouseY); }
 
-    float getWidth() { return width; }
-    float getHeight() { return height; }
+    float getWidth()  const { return width; }
+    float getHeight() const { return height; }
+    int getFramebufferWidth()  const { return framebufferWidth;  }
+    int getFramebufferHeight() const { return framebufferHeight; }
+
 
     void setTitle(const char* s) {
         glfwSetWindowTitle(window, s);
@@ -185,14 +194,17 @@ public:
     }
 
     static void onFramebufferSize(GLFWwindow* _w, int wid, int hei) {
+        Window* _win = (Window*)glfwGetWindowUserPointer(_w);
+        _win->framebufferWidth  = wid;
+        _win->framebufferHeight = hei;
 
         glViewport(0, 0, wid, hei);
     }
 
     static void onWindowSize(GLFWwindow* _w, int wid, int hei) {
-        Window* w = (Window*)glfwGetWindowUserPointer(_w);
-        w->width = wid;
-        w->height = hei;
+        Window* _win = (Window*)glfwGetWindowUserPointer(_w);
+        _win->width  = wid;
+        _win->height = hei;
 
         WindowResizedEvent e(wid, hei);
         EventBus::EVENT_BUS.post(&e);

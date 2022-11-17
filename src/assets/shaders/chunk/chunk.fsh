@@ -10,6 +10,7 @@ flat in vec3 TriMtlId;
 in vec3 TriMtlWeight;
 
 uniform sampler2D diffuseMap;
+uniform sampler2D displacementMap;
 uniform vec3 CameraPos;
 
 uniform float fogDensity;
@@ -21,11 +22,20 @@ uniform float cursorSize;
 // Material's Region in the TextureAtlas. xy: TexPos, zw: TexSize
 uniform vec4 MaterialAtlasRegions[128];
 
-//float inRange(float val, float begin, float size) {
-//    return mod(val - begin, size) + begin;
-//}
+uniform float debugRenderMode = 0;
+
 int max_i(float a, float b, float c) {
     return a > b ? (a > c ? 0 : 2) : (b > c ? 1 : 2);
+}
+
+vec3 sampMtl(int MtlId, vec3 FragPos, vec3 Norm) {
+    vec2 ReginPos  = MaterialAtlasRegions[MtlId].xy;
+    vec2 ReginSize = MaterialAtlasRegions[MtlId].zw;
+    return (
+    texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.z)) * abs(dot(vec3(0, 1, 0), Norm)) +
+    texture(diffuseMap, vec2(mod(FragPos.z * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.y)) * abs(dot(vec3(1, 0, 0), Norm)) +
+    texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.y)) * abs(dot(vec3(0, 0, 1), Norm))
+    ).rgb;
 }
 
 void main()
@@ -35,28 +45,29 @@ void main()
 
 
 
-
-
-    vec4 Albedo;
+    vec3 Albedo;
 
     if (false) {  // no material id, use TexCoord.
-        Albedo = texture(diffuseMap, TexCoord);
+        Albedo = texture(diffuseMap, TexCoord).rgb;
     } else {
-        int triVertIdx = max_i(TriMtlWeight.x, TriMtlWeight.y, TriMtlWeight.z);
-        int MtlId = int(TriMtlId[triVertIdx]);
+        int mxwTriIdx = max_i(TriMtlWeight.x, TriMtlWeight.y, TriMtlWeight.z);
 
-        vec2 ReginPos =  MaterialAtlasRegions[int(MtlId)].xy;
-        vec2 ReginSize = MaterialAtlasRegions[int(MtlId)].zw;
+        Albedo =
+        debugRenderMode == 0 ?
+        sampMtl(int(TriMtlId[0]), FragPos, Norm) * TriMtlWeight[0] +
+        sampMtl(int(TriMtlId[1]), FragPos, Norm) * TriMtlWeight[1] +
+        sampMtl(int(TriMtlId[2]), FragPos, Norm) * TriMtlWeight[2]
+        :
+        sampMtl(int(TriMtlId[mxwTriIdx]), FragPos, Norm);
 
-        Albedo = //texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.z));
+        // texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.z));
 //            vec4(MtlId / 4);
-
-            (texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.z)) * abs(dot(vec3(0, 1, 0), Norm)) +
-             texture(diffuseMap, vec2(mod(FragPos.z * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.y)) * abs(dot(vec3(1, 0, 0), Norm)) +
-             texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.y)) * abs(dot(vec3(0, 0, 1), Norm)));
+//            (texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.z)) * abs(dot(vec3(0, 1, 0), Norm)) +
+//             texture(diffuseMap, vec2(mod(FragPos.z * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.y)) * abs(dot(vec3(1, 0, 0), Norm)) +
+//             texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.y)) * abs(dot(vec3(0, 0, 1), Norm)));
     }
 
-    FragColor = vec4(vec3(lightf) * Albedo.rgb, 1.0);
+    FragColor = vec4(lightf * Albedo, 1.0);
 
     FragColor.r += min(0.5, max(0.0, cursorSize - length(cursorPos - FragPos)));
 

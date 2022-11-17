@@ -27,36 +27,37 @@ public:
 
         shader.useProgram();
         shader.setInt("diffuseMap", 0);
+        shader.setInt("displacementMap", 1);
 
         // init MaterialAtlasRegions table.  from id 1.
         for (int i = 1; i < Materials::_SIZE; ++i) {
             TextureAtlas::Region* r = MaterialTextures::of(i);
             shader.setVector4f(_MaterialAtlasRegions[i], glm::vec4(r->pos.x, r->pos.y, r->size.x, r->size.y));
 
-             Log::info("init _MaterialAtlasRegions {} :: {}, {}", i, glm::to_string(r->pos), glm::to_string(r->size));
+            // Log::info("init _MaterialAtlasRegions {} :: {}, {}", i, glm::to_string(r->pos), glm::to_string(r->size));
         }
     }
 
 
-    void render(Chunk* chunk) {
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS->atlasTexture->getTextureID());
-
-        shader.useProgram();
-
-        shader.setFloat("fogDensity", fogDensity);
-        shader.setFloat("fogGradient", fogGradient);
-
-        shader.setVector3f("CameraPos", Ethertia::getCamera()->position);
-
-        shader.setMatrix4f("matModel", Mth::matModel(chunk->position));
-        shader.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
-        shader.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
-
-        glBindVertexArray(chunk->proxy->model->vaoId);
-        glDrawArrays(GL_TRIANGLES, 0, chunk->proxy->model->vertexCount);
-    }
+//    void render(Chunk* chunk) {
+//
+//        glActiveTexture(GL_TEXTURE0);
+//        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS->atlasTexture->getTextureID());
+//
+//        shader.useProgram();
+//
+//        shader.setFloat("fogDensity", fogDensity);
+//        shader.setFloat("fogGradient", fogGradient);
+//
+//        shader.setVector3f("CameraPos", Ethertia::getCamera()->position);
+//
+//        shader.setMatrix4f("matModel", Mth::matModel(chunk->position));
+//        shader.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
+//        shader.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
+//
+//        glBindVertexArray(chunk->proxy->model->vaoId);
+//        glDrawArrays(GL_TRIANGLES, 0, chunk->proxy->model->vertexCount);
+//    }
 
 };
 

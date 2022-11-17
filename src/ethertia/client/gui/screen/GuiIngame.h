@@ -16,6 +16,7 @@
 
 #include <ethertia/client/render/Camera.h>
 #include <ethertia/client/render/renderer/ChunkRenderer.h>
+#include <ethertia/client/render/renderer/EntityRenderer.h>
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 
@@ -30,6 +31,8 @@ public:
     inline static bool dbgBasis = true;
     inline static bool dbgWorldBasis = true;
     inline static bool dbgEntityAABB = false;
+
+    inline static bool dbgCursorRangeInfo = false;
 
     Gui* optsGui = nullptr;
 
@@ -79,6 +82,9 @@ public:
 
             opts->addGui(new GuiSlider("BrushCursor Size", 0, 16, &Ethertia::getBrushCursor().size, 0.2f));
             opts->addGui(new GuiCheckBox("BrushCursor KeepTracking", &Ethertia::getBrushCursor().keepTracking));
+            opts->addGui(new GuiCheckBox("BrushCursor RangeInfo", &dbgCursorRangeInfo));
+
+            opts->addGui(new GuiSlider("C/DebugRenderMode", 0, 8, &rde->entityRenderer->debugRenderMode, 1.0f));
 
             addGui(optsGui=new GuiAlign(1.0f, 0.14f, opts));
         }
@@ -174,6 +180,10 @@ public:
             Ethertia::getRenderEngine()->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::RED);
         }
 
+        if (dbgCursorRangeInfo) {
+            drawCursorRangeInfo();
+        }
+
 
 //    Gui::drawWorldpoint(player->intpposition, [](glm::vec2 p) {
 //        Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
@@ -184,6 +194,39 @@ public:
                       3, 3, Colors::WHITE);
 
         GuiCollection::onDraw();
+    }
+
+    static void drawCursorRangeInfo() {
+
+        glm::vec3 center(glm::floor(Ethertia::getBrushCursor().position));
+
+        int n = 2;
+        for (int rx = -n; rx <= n; ++rx) {
+            for (int ry = -n; ry <= n; ++ry) {
+                for (int rz = -n; rz <= n; ++rz) {
+                    glm::vec3 p = center + glm::vec3(rx, ry, rz);
+
+                    MaterialStat& mtl = Ethertia::getWorld()->getBlock(p);
+                    Gui::drawWorldpoint(p, [=](glm::vec2 sp) {
+                        Gui::drawString(sp.x, sp.y, std::to_string(mtl.id)+"/"+std::to_string(mtl.density));
+                    });
+                }
+            }
+        }
+
+        for (int ry = -n; ry <= n; ++ry) {
+            for (int rz = -n; rz <= n; ++rz) {
+                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(-n, ry, rz), glm::vec3(2*n, 0, 0), Colors::GRAY);
+            }
+            for (int rx = -n; rx <= n; ++rx) {
+                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, ry, -n), glm::vec3(0, 0, 2*n), Colors::GRAY);
+            }
+        }
+        for (int rx = -n; rx <= n; ++rx) {
+            for (int rz = -n; rz <= n; ++rz) {
+                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, -n, rz), glm::vec3(0, 2*n, 0), Colors::GRAY);
+            }
+        }
     }
 };
 

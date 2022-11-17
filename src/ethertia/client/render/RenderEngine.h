@@ -21,6 +21,7 @@ class World;
 #include <ethertia/client/render/Camera.h>
 #include <ethertia/client/render/shader/ShaderProgram.h>
 #include <ethertia/client/render/Model.h>
+#include <ethertia/client/render/Framebuffer.h>
 #include <ethertia/client/Loader.h>
 #include <ethertia/util/Colors.h>
 #include <ethertia/util/Frustum.h>
@@ -42,6 +43,8 @@ public:
 
     Camera mCamera{};
     Frustum viewFrustum{};
+
+    Framebuffer* gbuffer = nullptr;
 
     float fov = 90;
     float viewDistance = 1;

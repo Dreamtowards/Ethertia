@@ -36,7 +36,7 @@ public:
         // init the proxy entity
         proxy = new EntityMesh();
         proxy->setPosition(position);
-        proxy->diffuseMap = MaterialTextures::ATLAS->atlasTexture;
+//        proxy->diffuseMap = MaterialTextures::ATLAS->atlasTexture;
     }
     ~Chunk() {
 

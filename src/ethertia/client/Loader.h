@@ -106,14 +106,18 @@ public:
     }
 
     static Texture* loadTexture(BitmapImage* img) {
+        u32 pixels[img->getWidth() * img->getHeight()];
+        img->getVerticalFlippedPixels(pixels);
+
+        return Loader::loadTexture(img->getWidth(), img->getHeight(), pixels);
+    }
+
+    /// pixels_VertInv: need y/vertical flipped pixels. cause of GL feature.
+    static Texture* loadTexture(int w, int h, u32* pixels_VertFlip, int intlfmt = GL_RGBA, int fmt = GL_RGBA, int type = GL_UNSIGNED_BYTE) {
         GLuint texId;
         glGenTextures(1, &texId);
-
-        u32 w = img->getWidth();
-        u32 h = img->getHeight();
-        Texture* tex = new Texture(texId, w, h);
-
         glBindTexture(GL_TEXTURE_2D, texId);
+        auto* tex = new Texture(texId, w, h);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -128,10 +132,7 @@ public:
 //            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
 //         }
 
-        u32 pixels[w * h];
-        img->getVerticalFlippedPixels(pixels);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, intlfmt, w, h, 0, fmt, type, pixels_VertFlip);
         // glTexSubImage2D();
 
         glGenerateMipmap(GL_TEXTURE_2D);

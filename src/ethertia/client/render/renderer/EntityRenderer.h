@@ -11,19 +11,28 @@ class EntityRenderer
 {
 public:
 
+    float debugRenderMode = 0;
+
 //    ShaderProgram shader{Loader::loadAssetsStr("shaders/chunk/chunk.vsh"),
 //                         Loader::loadAssetsStr("shaders/chunk/chunk.fsh")};
 
 
     void render(Entity* entity, ShaderProgram& shader)
     {
-        if (entity->diffuseMap) {
+        if (dynamic_cast<EntityMesh*>(entity)) {  // assume it's a 'chunk mesh entity'.
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DIFFUSE->atlasTexture->getTextureID());
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISPLACEMENT->atlasTexture->getTextureID());
+        }
+        else if (entity->diffuseMap)
+        {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, entity->diffuseMap->getTextureID());
         }
 
         shader.useProgram();
-
 
         shader.setVector3f("CameraPos", Ethertia::getCamera()->position);
 
@@ -33,6 +42,8 @@ public:
 
         shader.setVector3f("cursorPos", Ethertia::getBrushCursor().position);
         shader.setFloat("cursorSize", Ethertia::getBrushCursor().size);
+
+        shader.setFloat("debugRenderMode", debugRenderMode);
 
         glBindVertexArray(entity->model->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, entity->model->vertexCount);

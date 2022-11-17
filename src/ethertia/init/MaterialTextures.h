@@ -5,7 +5,7 @@
 // Etherpedia
 // Etheream   Etheream
 // Etherald
-// Ether
+// Etheria
 
 #ifndef ETHERTIA_MATERIALTEXTURES_H
 #define ETHERTIA_MATERIALTEXTURES_H
@@ -18,16 +18,20 @@ class MaterialTextures
 {
 public:
 
-    inline static TextureAtlas* ATLAS = new TextureAtlas();
+    inline static TextureAtlas* ATLAS_DIFFUSE = new TextureAtlas();
+    inline static TextureAtlas* ATLAS_DISPLACEMENT = new TextureAtlas();
 
     static TextureAtlas::Region* load(const char* p) {
-        return ATLAS->addAtlas(Loader::loadPNG(Loader::loadAssets(p)));
+//        ATLAS_DISPLACEMENT->addAtlas(Loader::loadPNG(Loader::loadAssets(
+//                Strings::fmt("/materials/%s_disp.png", p))));
+        return ATLAS_DIFFUSE->addAtlas(Loader::loadPNG(Loader::loadAssets(
+                Strings::fmt("/materials/{}.png", p))));
     }
 
-    inline static TextureAtlas::Region* STONE = load("materials/stone.png");
-    inline static TextureAtlas::Region* GRASS = load("materials/grass.png");
-    inline static TextureAtlas::Region* DIRT  = load("materials/dirt2.png");
-    inline static TextureAtlas::Region* SAND  = load("materials/sand.png");
+    inline static TextureAtlas::Region* STONE = load("stone");
+    inline static TextureAtlas::Region* GRASS = load("grass");
+    inline static TextureAtlas::Region* DIRT  = load("dirt2");
+    inline static TextureAtlas::Region* SAND  = load("sand");
 
     static TextureAtlas::Region* of(u8 id) {
         switch (id) {
@@ -42,9 +46,13 @@ public:
 
     static void init()
     {
+        ATLAS_DIFFUSE->buildAtlas();
+        ATLAS_DISPLACEMENT->buildAtlas();
 
-        ATLAS->buildAtlas();
-        Loader::savePNG(Texture::glfGetTexImage(ATLAS->atlasTexture), "atlas.png");
+#ifndef NDEBUG
+        Loader::savePNG(Texture::glfGetTexImage(ATLAS_DIFFUSE->atlasTexture), "atlas_diff.png");
+        Loader::savePNG(Texture::glfGetTexImage(ATLAS_DISPLACEMENT->atlasTexture), "atlas_disp.png");
+#endif
     }
 };
 

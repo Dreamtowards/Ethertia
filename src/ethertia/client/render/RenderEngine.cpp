@@ -8,10 +8,10 @@
 #include <ethertia/world/World.h>
 #include <ethertia/util/Frustum.h>
 #include <ethertia/client/render/renderer/ChunkRenderer.h>
+#include <ethertia/client/render/renderer/EntityRenderer.h>
 #include <ethertia/client/render/renderer/gui/GuiRenderer.h>
 #include <ethertia/client/render/renderer/gui/FontRenderer.h>
 #include <ethertia/client/render/renderer/SkyGradientRenderer.h>
-#include <ethertia/client/render/renderer/EntityRenderer.h>
 #include <ethertia/client/render/renderer/SkyboxRenderer.h>
 
 RenderEngine::RenderEngine()
@@ -22,6 +22,15 @@ RenderEngine::RenderEngine()
     entityRenderer = new EntityRenderer();
     skyGradientRenderer = new SkyGradientRenderer();
     skyboxRenderer = new SkyboxRenderer();
+
+    float qual = 0.5;
+    gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));
+    Framebuffer::gPushFramebuffer(gbuffer);
+        gbuffer->attachColorTexture(0, GL_RGB, GL_RGB);
+        gbuffer->attachDepthStencilRenderbuffer();
+        gbuffer->checkFramebufferStatus();
+    Framebuffer::gPopFramebuffer();
+
 
     Log::info("RenderEngine initialized. GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
 }
@@ -37,6 +46,11 @@ RenderEngine::~RenderEngine() {
 
 void RenderEngine::renderWorld(World* world)
 {
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+Framebuffer::gPushFramebuffer(gbuffer);
+
     glm::vec4 _s = Colors::fromRGB(132, 205, 240);  // 0.517, 0.8, 0.94
     glClearColor(_s.x, _s.y, _s.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,11 +109,16 @@ void RenderEngine::renderWorld(World* world)
     // Log::info("Rendered: {}/{}", numRdr, world->getEntities().size());
 
 
+Framebuffer::gPopFramebuffer();
+
+    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::WHITE, gbuffer->texColor[0]);
+
+
     RenderEngine::checkGlError();
 }
 
 void RenderEngine::checkGlError() {
-    uint err = glGetError();
+    GLuint err = glGetError();
     if (err) {
         Log::warn("###### GL Error ######");
         Log::warn("ERR: {}", err);

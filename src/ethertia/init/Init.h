@@ -19,7 +19,7 @@ public:
         BitmapImage img(1, 1, new u32[1]{(u32)~0});
         Texture::UNIT = Loader::loadTexture(&img);
 
-        Log::info("Initialized.");
+        Log::info("Textures initialized.");
     }
 };
 
