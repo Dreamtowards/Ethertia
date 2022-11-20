@@ -49,6 +49,10 @@ public:
         addnorm(n.x, n.y, n.z);
     }
 
+    void _add_mtl_id(int i) {
+        materialIds.push_back(i);
+    }
+
     size_t vertexCount() const {
         return positions.size() / 3;
     }

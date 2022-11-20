@@ -137,6 +137,7 @@ public:
 
         glGenerateMipmap(GL_TEXTURE_2D);
 
+        delete[] pixels;
         return tex;
     }
 
