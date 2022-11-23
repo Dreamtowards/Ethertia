@@ -5,15 +5,15 @@
 #ifndef ETHERTIA_GUISCREENMAINMENU_H
 #define ETHERTIA_GUISCREENMAINMENU_H
 
-#include <ethertia/client/gui/GuiSlider.h>
-#include <ethertia/client/gui/GuiText.h>
+#include "../GuiSlider.h"
+#include "../GuiText.h"
 #include "../GuiCollection.h"
 #include "../GuiAlign.h"
 #include "../GuiStack.h"
 #include "../GuiButton.h"
 
-#include <ethertia/client/render/Camera.h>
-#include <ethertia/client/render/renderer/ChunkRenderer.h>
+#include <ethertia/render/Camera.h>
+#include <ethertia/render/renderer/ChunkRenderer.h>
 
 class GuiScreenMainMenu : public GuiCollection
 {

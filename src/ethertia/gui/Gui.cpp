@@ -4,9 +4,9 @@
 
 #include "Gui.h"
 
-#include <ethertia/client/Window.h>
-#include <ethertia/client/render/renderer/gui/FontRenderer.h>
-#include <ethertia/client/render/RenderEngine.h>
+#include <ethertia/render/Window.h>
+#include <ethertia/render/renderer/gui/FontRenderer.h>
+#include <ethertia/render/RenderEngine.h>
 
 float Gui::maxWidth()  { return Ethertia::getWindow()->getWidth(); }
 float Gui::maxHeight() { return Ethertia::getWindow()->getHeight(); }

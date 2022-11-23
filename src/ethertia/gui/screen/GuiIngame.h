@@ -5,18 +5,19 @@
 #ifndef ETHERTIA_GUIINGAME_H
 #define ETHERTIA_GUIINGAME_H
 
-#include <ethertia/client/gui/GuiStack.h>
-#include <ethertia/client/gui/GuiButton.h>
-#include <ethertia/client/gui/GuiPopupMenu.h>
-#include <ethertia/client/gui/GuiSlider.h>
-#include <ethertia/client/gui/GuiCheckBox.h>
-#include <ethertia/client/gui/GuiAlign.h>
-#include <ethertia/client/gui/GuiText.h>
 #include "../GuiCollection.h"
 
-#include <ethertia/client/render/Camera.h>
-#include <ethertia/client/render/renderer/ChunkRenderer.h>
-#include <ethertia/client/render/renderer/EntityRenderer.h>
+#include <ethertia/gui/GuiStack.h>
+#include <ethertia/gui/GuiButton.h>
+#include <ethertia/gui/GuiPopupMenu.h>
+#include <ethertia/gui/GuiSlider.h>
+#include <ethertia/gui/GuiCheckBox.h>
+#include <ethertia/gui/GuiAlign.h>
+#include <ethertia/gui/GuiText.h>
+
+#include <ethertia/render/Camera.h>
+#include <ethertia/render/renderer/ChunkRenderer.h>
+#include <ethertia/render/renderer/EntityRenderer.h>
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 

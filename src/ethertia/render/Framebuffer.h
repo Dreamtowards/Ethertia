@@ -5,9 +5,9 @@
 #ifndef ETHERTIA_FRAMEBUFFER_H
 #define ETHERTIA_FRAMEBUFFER_H
 
-#include <ethertia/client/render/Texture.h>
-#include <ethertia/client/Loader.h>
-#include <ethertia/client/gui/Gui.h>
+#include <ethertia/render/Texture.h>
+#include <ethertia/gui/Gui.h>
+#include <ethertia/util/Loader.h>
 
 class Framebuffer
 {

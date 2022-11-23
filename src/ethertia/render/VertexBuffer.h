@@ -53,7 +53,7 @@ public:
         materialIds.push_back(i);
     }
 
-    size_t vertexCount() const {
+    [[nodiscard]] size_t vertexCount() const {
         return positions.size() / 3;
     }
 

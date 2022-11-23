@@ -5,9 +5,9 @@
 #ifndef ETHERTIA_CHUNKRENDERER_H
 #define ETHERTIA_CHUNKRENDERER_H
 
-#include <ethertia/client/render/shader/ShaderProgram.h>
-#include <ethertia/client/render/Camera.h>
-#include <ethertia/client/Loader.h>
+#include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/render/Camera.h>
+#include <ethertia/util/Loader.h>
 #include <ethertia/world/Chunk.h>
 
 class ChunkRenderer {

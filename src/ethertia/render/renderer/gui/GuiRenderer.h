@@ -5,9 +5,9 @@
 #ifndef ETHERTIA_GUIRENDERER_H
 #define ETHERTIA_GUIRENDERER_H
 
-#include <ethertia/client/gui/Gui.h>
-#include <ethertia/client/render/shader/ShaderProgram.h>
-#include <ethertia/client/Loader.h>
+#include <ethertia/gui/Gui.h>
+#include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/util/Loader.h>
 
 class GuiRenderer
 {

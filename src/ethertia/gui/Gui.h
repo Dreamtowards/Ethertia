@@ -11,10 +11,10 @@
 #include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/event/EventBus.h>
-#include <ethertia/client/render/Texture.h>
+#include <ethertia/render/Texture.h>
 #include <ethertia/util/Colors.h>
 
-#include <ethertia/client/Ethertia.h>
+#include <ethertia/Ethertia.h>
 
 class Gui
 {

@@ -7,12 +7,12 @@
 
 #include <ethertia/world/World.h>
 #include <ethertia/util/Frustum.h>
-#include <ethertia/client/render/renderer/ChunkRenderer.h>
-#include <ethertia/client/render/renderer/EntityRenderer.h>
-#include <ethertia/client/render/renderer/gui/GuiRenderer.h>
-#include <ethertia/client/render/renderer/gui/FontRenderer.h>
-#include <ethertia/client/render/renderer/SkyGradientRenderer.h>
-#include <ethertia/client/render/renderer/SkyboxRenderer.h>
+#include <ethertia/render/renderer/ChunkRenderer.h>
+#include <ethertia/render/renderer/EntityRenderer.h>
+#include <ethertia/render/renderer/SkyGradientRenderer.h>
+#include <ethertia/render/renderer/SkyboxRenderer.h>
+#include <ethertia/render/renderer/gui/GuiRenderer.h>
+#include <ethertia/render/renderer/gui/FontRenderer.h>
 
 RenderEngine::RenderEngine()
 {

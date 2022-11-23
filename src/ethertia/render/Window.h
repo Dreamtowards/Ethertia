@@ -21,8 +21,8 @@
 #include <ethertia/event/client/WindowDropEvent.h>
 #include <ethertia/event/client/WindowFocusEvent.h>
 #include <ethertia/event/client/WindowCloseEvent.h>
-#include <ethertia/client/Ethertia.h>
-#include <ethertia/client/gui/GuiRoot.h>
+#include <ethertia/Ethertia.h>
+#include <ethertia/gui/GuiRoot.h>
 
 class Window
 {
@@ -44,7 +44,7 @@ class Window
 
 public:
 
-    int initWindow()
+    void initWindow()
     {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -91,7 +91,6 @@ public:
 
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
-        return 0;
     }
 
     void updateWindow()

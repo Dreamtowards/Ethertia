@@ -7,8 +7,9 @@
 
 #include <vector>
 #include <glm/vec2.hpp>
-#include <ethertia/client/Loader.h>
-#include <ethertia/client/render/Texture.h>
+
+#include <ethertia/render/Texture.h>
+#include <ethertia/util/Loader.h>
 #include <ethertia/util/BitmapImage.h>
 #include <ethertia/util/Mth.h>
 

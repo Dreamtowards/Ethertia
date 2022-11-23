@@ -10,7 +10,7 @@
 #ifndef ETHERTIA_MATERIALTEXTURES_H
 #define ETHERTIA_MATERIALTEXTURES_H
 
-#include <ethertia/client/render/TextureAtlas.h>
+#include <ethertia/render/TextureAtlas.h>
 
 #include "Materials.h"
 

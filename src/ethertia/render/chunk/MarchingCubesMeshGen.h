@@ -330,7 +330,7 @@ public:
 
                         MaterialStat& solid = d0.density > 0 ? d0 : d1;
                         assert(d0.density > 0 != d1.density > 0);
-                        vbuf->materialIds.push_back(solid.id);
+                        vbuf->_add_mtl_id(solid.id);
                     }
 
                 }

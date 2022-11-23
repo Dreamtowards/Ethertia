@@ -9,7 +9,7 @@
 #include "GuiStack.h"
 #include "GuiRoot.h"
 
-#include <ethertia/client/Ethertia.h>
+#include <ethertia/Ethertia.h>
 
 class GuiPopupMenu : public GuiCollection
 {

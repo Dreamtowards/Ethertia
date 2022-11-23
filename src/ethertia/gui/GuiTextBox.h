@@ -10,8 +10,8 @@
 #include "Gui.h"
 #include "GuiButton.h"
 
-#include <ethertia/client/Ethertia.h>
-#include <ethertia/client/render/renderer/gui/FontRenderer.h>
+#include <ethertia/Ethertia.h>
+#include <ethertia/render/renderer/gui/FontRenderer.h>
 
 class GuiTextBox : public Gui
 {

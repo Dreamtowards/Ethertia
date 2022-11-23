@@ -18,8 +18,8 @@
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/concurrent/Executor.h>
-#include <ethertia/client/Ethertia.h>
-#include <ethertia/client/Window.h>
+#include <ethertia/Ethertia.h>
+#include <ethertia/render/Window.h>
 #include <ethertia/world/Octree.h>
 
 #include <btBulletCollisionCommon.h>

@@ -7,8 +7,8 @@
 
 #include <utility>
 
-#include <ethertia/client/gui/Gui.h>
-#include <ethertia/client/render/renderer/gui/FontRenderer.h>
+#include <ethertia/gui/Gui.h>
+#include <ethertia/render/renderer/gui/FontRenderer.h>
 
 class GuiButton : public Gui
 {

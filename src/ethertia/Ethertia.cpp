@@ -1,18 +1,19 @@
 
 
-#include <ethertia/client/Ethertia.h>
+#include <ethertia/Ethertia.h>
 
-#include <ethertia/client/render/RenderEngine.h>
-#include <ethertia/client/Window.h>
-#include <ethertia/client/gui/GuiRoot.h>
-#include <ethertia/client/gui/screen/GuiIngame.h>
-#include <ethertia/client/gui/screen/GuiScreenMainMenu.h>
-#include <ethertia/client/gui/screen/GuiScreenChat.h>
-#include <ethertia/client/render/chunk/BlockyMeshGen.h>
-#include <ethertia/client/render/chunk/MarchingCubesMeshGen.h>
-#include <ethertia/client/render/chunk/SurfaceNetsMeshGen.h>
+#include <ethertia/render/RenderEngine.h>
+#include <ethertia/render/Window.h>
+#include <ethertia/gui/GuiRoot.h>
+#include <ethertia/gui/screen/GuiIngame.h>
+#include <ethertia/gui/screen/GuiScreenMainMenu.h>
+#include <ethertia/gui/screen/GuiScreenChat.h>
+#include <ethertia/render/chunk/BlockyMeshGen.h>
+#include <ethertia/render/chunk/MarchingCubesMeshGen.h>
+#include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include <ethertia/world/World.h>
 #include <ethertia/init/Init.h>
+#include <ethertia/util/Loader.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/concurrent/Executor.h>
 #include <ethertia/util/Strings.h>
@@ -393,7 +394,7 @@ float Ethertia::getDelta() { return timer.getDelta(); }
 BrushCursor& Ethertia::getBrushCursor() { return brushCursor; }
 
 Camera* Ethertia::getCamera() {
-    return &renderEngine->mCamera;
+    return &renderEngine->m_Camera;
 }
 
 
@@ -424,10 +425,11 @@ static void checkChunksModelUpdate(World* world) {
 //        vbuf = BlockyChunkMeshGen::genMesh(chunk, world);
 //        vbuf->initnorm();
 
-//        vbuf = SurfaceNetsMeshGen::contouring(chunk, world);
-        vbuf = MarchingCubesMeshGen::genMesh(chunk);
+        vbuf = SurfaceNetsMeshGen::contouring(chunk);
+//        vbuf = MarchingCubesMeshGen::genMesh(chunk);
 //        vbuf = BlockyMeshGen::gen(chunk, new VertexBuffer);
         vbuf->initnorm(false);
+
 
 
         if (vbuf) {

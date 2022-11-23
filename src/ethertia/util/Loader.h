@@ -14,10 +14,10 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
-#include <ethertia/client/render/Texture.h>
+#include <ethertia/render/Texture.h>
 #include <ethertia/util/BitmapImage.h>
-#include <ethertia/client/render/VertexBuffer.h>
-#include <ethertia/client/render/Model.h>
+#include <ethertia/render/VertexBuffer.h>
+#include <ethertia/render/Model.h>
 #include <ethertia/util/OBJLoader.h>
 
 
@@ -137,7 +137,6 @@ public:
 
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        delete[] pixels;
         return tex;
     }
 

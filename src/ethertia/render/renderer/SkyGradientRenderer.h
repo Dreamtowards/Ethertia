@@ -5,11 +5,11 @@
 #ifndef ETHERTIA_SKYGRADIENTRENDERER_H
 #define ETHERTIA_SKYGRADIENTRENDERER_H
 
-#include <ethertia/client/render/shader/ShaderProgram.h>
-#include <ethertia/client/Loader.h>
-#include <ethertia/client/render/Model.h>
-#include <ethertia/client/render/Camera.h>
-#include <ethertia/client/render/RenderEngine.h>
+#include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/render/Model.h>
+#include <ethertia/render/Camera.h>
+#include <ethertia/render/RenderEngine.h>
+#include <ethertia/util/Loader.h>
 
 class SkyGradientRenderer
 {

@@ -12,16 +12,16 @@ class SurfaceNetsMeshGen
 {
 public:
 
-    inline static const glm::vec3 VERT[8] = {
-            {0, 0, 0},
-            {0, 0, 1},
-            {0, 1, 0},
-            {0, 1, 1},
-            {1, 0, 0},
-            {1, 0, 1},
-            {1, 1, 0},
-            {1, 1, 1}
-    };
+//    inline static const glm::vec3 VERT[8] = {
+//            {0, 0, 0},
+//            {0, 0, 1},
+//            {0, 1, 0},
+//            {0, 1, 1},
+//            {1, 0, 0},
+//            {1, 0, 1},
+//            {1, 1, 0},
+//            {1, 1, 1}
+//    };
     inline static const glm::vec3 AXES[3] = {
             {1, 0, 0},
             {0, 1, 0},
@@ -51,14 +51,20 @@ public:
                         Cell& c1 = World::_GetBlock(chunk, rp + AXES[axis_i]);
 
                         if (c0.density > 0 != c1.density > 0) {  // sign changed.
-                            bool pnorm = c0.density > 0;  // is positive normal. if c0 is solid.
+                            bool ccw = c0.density > 0;  // is positive normal. if c0 is solid.
+                            Cell& solid = c0.density > 0 ? c0 : c1;
 
+                            // connect the quad.
                             for (int vert_i = 0; vert_i < 6; ++vert_i) {
-                                int dvert_i = pnorm ? vert_i : 6 - vert_i;  // directed winding.
-                                Cell& c = World::_GetBlock(chunk, rp + ADJACENT[axis_i][dvert_i]);
+                                int directed_vert_i = ccw ? vert_i : 5 - vert_i;
 
-                                //vbuf->addpos(c.featurepoint);
-                                vbuf->_add_mtl_id(c.id);
+                                vec3 vcp = rp + ADJACENT[axis_i][directed_vert_i];
+                                Cell& vc = World::_GetBlock(chunk, vcp);
+
+                                vbuf->addpos(vcp + vec3(0.5f));
+                                assert(vc.id != 0);
+                                assert(vc.density > 0);
+                                vbuf->_add_mtl_id(vc.id);
                             }
                         }
                     }
