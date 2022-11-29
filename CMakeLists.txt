@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 project(Ethertia)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #find_package(OpenAL REQUIRED)
@@ -11,6 +11,7 @@ include_directories(src)
 include_directories(lib)
 include_directories(lib/glfw/include)
 include_directories(lib/bullet3/src)
+include_directories(lib/fmt/include)
 
 add_executable(Ethertia
         lib/glad/glad.c
@@ -33,15 +34,27 @@ target_link_libraries(Ethertia PRIVATE
 endif()
 
 #if (WIN32)
+##MinGW, 'x86_64-12.2.0-release-posix-sjlj-rt_v10-rev0.7z', add mingw64/bin to PATH without space.
 #target_link_libraries(Ethertia PRIVATE
 #        "-static-libgcc"
 #        "-static-libstdc++")
-##MinGW, 'x86_64-12.2.0-release-posix-sjlj-rt_v10-rev0.7z', add mingw64/bin to PATH without space.
 #endif()
 
+
+
+# lib glfw
 add_subdirectory(lib/glfw)
 target_link_libraries(Ethertia PRIVATE glfw)
 
+
+
+# lib bullet3
 add_subdirectory(lib/bullet3)
 target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath)
 # [examples, Extras, test, build3] are disabled.
+
+
+
+# lib fmt
+add_subdirectory(lib/fmt)
+target_link_libraries(Ethertia PRIVATE fmt::fmt)

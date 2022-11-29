@@ -11,10 +11,12 @@
 class BenchmarkTimer
 {
     std::chrono::time_point<std::chrono::high_resolution_clock> begin = std::chrono::high_resolution_clock::now();
-    const char* name;
 
 public:
-    BenchmarkTimer(const char* _name) : name(_name) {}
+    BenchmarkTimer(const char* _msg) {
+        std::cout << _msg;
+        std::cout.flush();
+    }
     BenchmarkTimer() {}
 
     ~BenchmarkTimer()
@@ -26,7 +28,12 @@ public:
 
         double d = duration * 0.001 * 0.001;
 
-        std::cout << "\"" << name << "\" done. used " << d << " ms." << std::endl;
+        if (d > 1000) {
+            std::cout << " used " << d/1000 << " s."  << std::endl;
+        } else {
+            std::cout << " used " << d      << " ms." << std::endl;
+        }
+        std::cout.flush();
     }
 };
 

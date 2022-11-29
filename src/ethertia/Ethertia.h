@@ -26,10 +26,10 @@ class GuiRoot;           // #include <ethertia/client/gui/GuiRoot.h>
 // BrushCursor
 class BrushCursor {
 public:
-    bool keepTracking;
+    bool keepTracking = true;
     bool hit;
     glm::vec3 position;
-    float size;
+    float size = 1;
     int type;
 
 #define BRUSH_SPHERE 1

@@ -24,7 +24,10 @@ public:
             glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DIFFUSE->atlasTexture->getTextureID());
 
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISPLACEMENT->atlasTexture->getTextureID());
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_NORM->atlasTexture->getTextureID());
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISP->atlasTexture->getTextureID());
         }
         else if (entity->diffuseMap)
         {

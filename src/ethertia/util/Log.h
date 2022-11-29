@@ -11,16 +11,21 @@
 #include <thread>
 #include <sstream>
 #include <iomanip>
-#include <math.h>
+#include <cmath>
 
 #include <ethertia/util/Strings.h>
 
-template<typename T>
-static std::string lstr(T v) {
-    std::stringstream ss;
-    ss << v;
-    return ss.str();
-}
+// +__FILE_NAME__+":" __LINE__ "/" __func__ "]"  Strings::fmt("[{}:{}#{}]", __FILE_NAME__, __LINE__, __func__)._cstr()
+//#define GetSourceLoc() Strings::fmt("[{}:{}@{}]", __FILE_NAME__, __LINE__, __func__).c_str()
+//#define Log(x) Log::_log(std::cout, "INFO", "", x)
+
+
+//template<typename T>
+//static std::string lstr(T v) {
+//    std::stringstream ss;
+//    ss << v;
+//    return ss.str();
+//}
 
 
 class Log
@@ -73,18 +78,25 @@ public:
 //        return ss.str();
 //    }
 
+/*
+Profile(
+  .url =
+);
+ */
 
-    static void log_head(std::ostream& out) {
+
+    static void log_head(std::ostream& out, const char* _lv = "INFO", const char* _loc = "") {
         std::time_t t = std::time(nullptr);
         struct tm* tm_info = std::localtime(&t);
 
         double mcs = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        double sec = mcs * 0.001;
+        double sec = mcs * 0.001;_loc="";
 
-        Strings::_fmt(out, "[{}.{7}][{}/INFO]: ",
+        Strings::_fmt(out, "[{}.{7}][{}/{}]{}: ",
                       std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S"),
                       std::fmod(sec, 1000.0f),
-                      std::this_thread::get_id()
+                      std::this_thread::get_id(), _lv,
+                      _loc
         );
 //        out << "[" << std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S") << "." << (std::fmod(sec, 1000.0f)) << "]"
 //            << "["<<std::this_thread::get_id()<<"/INFO]: ";
@@ -101,21 +113,35 @@ public:
     }
 
     template<typename... ARGS>
-    static void info(const std::string& pat, ARGS... args)
+    static void _log(std::ostream& s, const char* _lv, const char* _loc, const std::string& pat, ARGS... args)
     {
         std::stringstream ss;
-        Log::log_head(ss);
+        Log::log_head(ss, _lv, _loc);
         Strings::_fmt(ss, pat, args...);
-        std::cout << ss.str() << std::endl;
+        s << ss.str();
+        if (pat[pat.length() - 1] != '\1') {
+            s << std::endl;
+        }
+    }
+
+    template<typename... ARGS>
+    static void info(const std::string& pat, ARGS... args)
+    {
+        Log::_log(std::cout, "INFO", "", pat, args...);
+//        std::stringstream ss;
+//        Log::log_head(ss);
+//        Strings::_fmt(ss, pat, args...);
+//        std::cout << ss.str() << std::endl;
     }
 
     template<typename... ARGS>
     static void warn(const std::string& pat, ARGS... args)
     {
-        std::stringstream ss;
-        Log::log_head(ss);
-        Strings::_fmt(ss, pat, args...);
-        std::cerr << ss.str() << std::endl;
+        Log::_log(std::cout, "WARN", "", pat, args...);
+//        std::stringstream ss;
+//        Log::log_head(ss);
+//        Strings::_fmt(ss, pat, args...);
+//        std::cerr << ss.str() << std::endl;
     }
 
 

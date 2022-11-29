@@ -236,76 +236,76 @@ public:
 
 
 
-    // http://www.cse.yorku.ca/~amana/research/grid.pdf
-    // Impl of Grid Voxel Raycast.
-    bool raycast(glm::vec3 rpos, glm::vec3 rdir, glm::vec3& _pos, u8& _face) {
-        using glm::vec3;
+//    // http://www.cse.yorku.ca/~amana/research/grid.pdf
+//    // Impl of Grid Voxel Raycast.
+//    bool raycast(glm::vec3 rpos, glm::vec3 rdir, glm::vec3& _pos, u8& _face) {
+//        using glm::vec3;
+//
+//        vec3 step = glm::sign(rdir);
+//
+//        vec3 tMax = glm::abs( (glm::fract(rpos)) - glm::max(step, 0.0f)) / glm::abs(rdir);
+//
+//        vec3 tDelta = 1.0f / glm::abs(rdir);
+//
+//        glm::vec3 p = glm::floor(rpos);
+//
+//        int itr = 0;
+//        while (++itr < 100) {
+//            int face;
+//            if (tMax.x < tMax.y && tMax.x < tMax.z) {
+//                p.x += step.x;
+//                tMax.x += tDelta.x;
+//                face = step.x > 0 ? 0 : 1;
+//            } else if (tMax.y < tMax.z) {
+//                p.y += step.y;
+//                tMax.y += tDelta.y;
+//                face = step.y > 0 ? 2 : 3;
+//            } else {
+//                p.z += step.z;
+//                tMax.z += tDelta.z;
+//                face = step.z > 0 ? 4 : 5;
+//            }
+//
+//            MaterialStat& b = getBlock(p);
+//            if (b.id) {
+//                _pos = p;
+//                _face = face;
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
-        vec3 step = glm::sign(rdir);
-
-        vec3 tMax = glm::abs( (glm::fract(rpos)) - glm::max(step, 0.0f)) / glm::abs(rdir);
-
-        vec3 tDelta = 1.0f / glm::abs(rdir);
-
-        glm::vec3 p = glm::floor(rpos);
-
-        int itr = 0;
-        while (++itr < 100) {
-            int face;
-            if (tMax.x < tMax.y && tMax.x < tMax.z) {
-                p.x += step.x;
-                tMax.x += tDelta.x;
-                face = step.x > 0 ? 0 : 1;
-            } else if (tMax.y < tMax.z) {
-                p.y += step.y;
-                tMax.y += tDelta.y;
-                face = step.y > 0 ? 2 : 3;
-            } else {
-                p.z += step.z;
-                tMax.z += tDelta.z;
-                face = step.z > 0 ? 4 : 5;
-            }
-
-            MaterialStat& b = getBlock(p);
-            if (b.id) {
-                _pos = p;
-                _face = face;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    static void collideAABB(const AABB& self, glm::vec3& d, const AABB& coll) {
-
-
-        if (d.y != 0 && AABB::intersectsAxis(self, coll, 0) && AABB::intersectsAxis(self, coll, 2)) {
-            if (d.y < 0 && self.min.y >= coll.max.y) {
-                d.y = absmin(d.y, coll.max.y - self.min.y);
-            } else if (d.y > 0 && self.max.y <= coll.min.y) {
-                d.y = absmin(d.y, coll.min.y - self.max.y);
-            }
-        }
-        if (d.x != 0 && AABB::intersectsAxis(self, coll, 1) && AABB::intersectsAxis(self, coll, 2)) {
-            if (d.x < 0 && self.min.x >= coll.max.x) {
-                d.x = absmin(d.x, coll.max.x - self.min.x);
-            } else if (d.x > 0 && self.max.x <= coll.min.x) {
-                d.x = absmin(d.x, coll.min.x - self.max.x);
-            }
-        }
-        if (d.z != 0 && AABB::intersectsAxis(self, coll, 0) && AABB::intersectsAxis(self, coll, 1)) {
-            if (d.z < 0 && self.min.z >= coll.max.z) {
-                d.z = absmin(d.z, coll.max.z - self.min.z);
-            } else if (d.z > 0 && self.max.z <= coll.min.z) {
-                d.z = absmin(d.z, coll.min.z - self.max.z);
-            }
-        }
-
-    }
-
-    static float absmin(float a, float b) {
-        return Mth::abs(a) < Mth::abs(b) ? a : b;
-    }
+//    static void collideAABB(const AABB& self, glm::vec3& d, const AABB& coll) {
+//
+//
+//        if (d.y != 0 && AABB::intersectsAxis(self, coll, 0) && AABB::intersectsAxis(self, coll, 2)) {
+//            if (d.y < 0 && self.min.y >= coll.max.y) {
+//                d.y = absmin(d.y, coll.max.y - self.min.y);
+//            } else if (d.y > 0 && self.max.y <= coll.min.y) {
+//                d.y = absmin(d.y, coll.min.y - self.max.y);
+//            }
+//        }
+//        if (d.x != 0 && AABB::intersectsAxis(self, coll, 1) && AABB::intersectsAxis(self, coll, 2)) {
+//            if (d.x < 0 && self.min.x >= coll.max.x) {
+//                d.x = absmin(d.x, coll.max.x - self.min.x);
+//            } else if (d.x > 0 && self.max.x <= coll.min.x) {
+//                d.x = absmin(d.x, coll.min.x - self.max.x);
+//            }
+//        }
+//        if (d.z != 0 && AABB::intersectsAxis(self, coll, 0) && AABB::intersectsAxis(self, coll, 1)) {
+//            if (d.z < 0 && self.min.z >= coll.max.z) {
+//                d.z = absmin(d.z, coll.max.z - self.min.z);
+//            } else if (d.z > 0 && self.max.z <= coll.min.z) {
+//                d.z = absmin(d.z, coll.min.z - self.max.z);
+//            }
+//        }
+//
+//    }
+//
+//    static float absmin(float a, float b) {
+//        return Mth::abs(a) < Mth::abs(b) ? a : b;
+//    }
 
     void tick() {
         float dt = Timer::T_DELTA;
@@ -411,7 +411,7 @@ public:
                     u8 replace = Materials::STONE;
                     if (y < 3 && nextToAir < 3 && world->chunkGenerator.noise.noise(x/60.0, y/60.0, z/60.0) > 0.1) {
                         replace = Materials::SAND;
-                    } else if (nextToAir == 1) {
+                    } else if (nextToAir == 1 || nextToAir == 2) {
                         replace = Materials::GRASS;
                     } else if (nextToAir < 4) {
                         replace = Materials::DIRT;

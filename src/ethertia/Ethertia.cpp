@@ -139,7 +139,6 @@ void Ethertia::start() {
 
 
 
-
     brushCursor.size = 2.0;
 
     EventBus::EVENT_BUS.listen([&, raycastCar](KeyboardEvent* e) {
@@ -428,7 +427,7 @@ static void checkChunksModelUpdate(World* world) {
         vbuf = SurfaceNetsMeshGen::contouring(chunk);
 //        vbuf = MarchingCubesMeshGen::genMesh(chunk);
 //        vbuf = BlockyMeshGen::gen(chunk, new VertexBuffer);
-        vbuf->initnorm(false);
+        vbuf->initnorm(true);
 
 
 

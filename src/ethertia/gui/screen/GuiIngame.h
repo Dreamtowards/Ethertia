@@ -85,7 +85,7 @@ public:
             opts->addGui(new GuiCheckBox("BrushCursor KeepTracking", &Ethertia::getBrushCursor().keepTracking));
             opts->addGui(new GuiCheckBox("BrushCursor RangeInfo", &dbgCursorRangeInfo));
 
-            opts->addGui(new GuiSlider("C/DebugRenderMode", 0, 8, &rde->entityRenderer->debugRenderMode, 1.0f));
+            opts->addGui(new GuiSlider("Dbg/var1", 0, 8, &rde->entityRenderer->debugRenderMode, 0.1f));
 
             addGui(optsGui=new GuiAlign(1.0f, 0.14f, opts));
         }

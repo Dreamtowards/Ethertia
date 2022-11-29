@@ -19,7 +19,7 @@ class TextureAtlas
 public:
     class Region {
     public:
-        BitmapImage* image;
+        BitmapImage* image = nullptr;
         glm::vec2 pos;
         glm::vec2 size;
 
@@ -29,49 +29,64 @@ public:
     };
 
     std::vector<Region*> atlas;
-    Texture* atlasTexture;
+    Texture* atlasTexture = nullptr;
 
     ~TextureAtlas() {
-        for (auto* r : atlas) {
+        for (Region* r : atlas) {
             delete r;
         }
         delete atlasTexture;
     }
 
 public:
+    // add before bake/buildAtlas
     Region* addAtlas(BitmapImage* image)
     {
-        Region* frag = new Region();
-        frag->image = image;
+        assert(atlasTexture == nullptr);  // can add only when Atlas unbaked or invalidated.
+        Region* r = new Region();
+        r->image = image;
 
-        atlas.push_back(frag);
-        return frag;
+        atlas.push_back(r);
+        return r;
+    }
+
+    Region* addBakedAtlas(glm::vec2 _pos, glm::vec2 _size)
+    {
+        Region* r = new Region();
+        r->pos  = _pos;
+        r->size = _size;
+
+        atlas.push_back(r);
+        return r;
     }
 
     void buildAtlas() {
-        uint totalWidth = 0;
-        uint maxHeight = 0;
+        assert(atlasTexture == nullptr);
+
+        int totalWidth = 0;
+        int maxHeight = 0;
         for (auto* frag : atlas) {
             totalWidth += frag->image->getWidth();
             maxHeight = Mth::max(maxHeight, frag->image->getHeight());
         }
 
-        BitmapImage atlasImage(totalWidth, maxHeight);
+        BitmapImage* atlasImage = new BitmapImage(totalWidth, maxHeight);
 
-        uint dx = 0;
+        int dx = 0;
         for (Region* r : atlas) {
             BitmapImage* img = r->image;
-            float wid = img->getWidth();
-            float hei = img->getHeight();
-            atlasImage.setPixels(dx, maxHeight - hei, img);
+            int wid = img->getWidth();
+            int hei = img->getHeight();
+            atlasImage->setPixels(dx, maxHeight - hei, img);
 
-            r->pos = glm::vec2((float)dx / totalWidth, 0);
-            r->size = glm::vec2(wid / totalWidth, hei / maxHeight);
+            r->pos  = glm::vec2((float)dx  / totalWidth, 0);
+            r->size = glm::vec2((float)wid / totalWidth, (float)hei / maxHeight);
 
             dx += wid;
         }
 
-        atlasTexture = Loader::loadTexture(&atlasImage);
+        atlasTexture = Loader::loadTexture(atlasImage);
+        delete atlasImage;
     }
 
 };

@@ -23,6 +23,9 @@
 #include <ethertia/event/client/WindowCloseEvent.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/gui/GuiRoot.h>
+#include <ethertia/util/testing/BenchmarkTimer.h>
+
+#include <fmt/core.h>
 
 class Window
 {
@@ -46,6 +49,8 @@ public:
 
     void initWindow()
     {
+        BenchmarkTimer _tm;
+
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -62,8 +67,11 @@ public:
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
         window = glfwCreateWindow(width=600, height=420, "Dysplay", nullptr, nullptr);
-        if (!window)
-            throw std::runtime_error("Failed to init GLFW window.");
+        if (!window) {
+            const char* err_str;
+            int err = glfwGetError(&err_str);
+            throw std::runtime_error(fmt::format("Failed to init GLFW window. Err {}. ({})", err, err_str));
+        }
 
         centralize();
 
@@ -73,7 +81,9 @@ public:
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             throw std::runtime_error("Failed to init GLAD.");
 
-        Log::info("WindowInit. GLFW {}; GLAD linked.", glfwGetVersionString());
+        Log::info("Init GL. @{}, {}, {} | GLFW {}.\1",
+                  glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR),
+                  glfwGetVersionString());
 
         glfwSetWindowUserPointer(window, this);
 

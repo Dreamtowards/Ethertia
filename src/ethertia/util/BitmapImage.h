@@ -9,31 +9,31 @@
 
 class BitmapImage
 {
-    u32* pixels;
-    u32 width;
-    u32 height;
+    std::uint32_t* pixels;
+    int width;
+    int height;
 
 public:
-    BitmapImage(u32 w, u32 h, u32* pxs) {
+    BitmapImage(int w, int h, std::uint32_t* pxs) {
         resize(w, h, pxs);
     }
-    BitmapImage(u32 w, u32 h) {
+    BitmapImage(int w, int h) {
         resize(w, h, new u32[w*h]);
     }
 
-    void resize(u32 w, u32 h, u32* pxs) {
+    void resize(int w, int h, std::uint32_t* pxs) {
         width = w;
         height = h;
         pixels = pxs;
     }
 
-    u32 getPixel(u32 x, u32 y) {
+    std::uint32_t getPixel(int x, int y) {
         return pixels[y*width+x];
     }
-    void setPixel(u32 x, u32 y, u32 rgba) {
+    void setPixel(int x, int y, std::uint32_t rgba) {
         pixels[y*width+x] = rgba;
     }
-    void setPixels(u32 x, u32 y, BitmapImage* img) {
+    void setPixels(int x, int y, BitmapImage* img) {
         // todo check size.
         for (int dx = 0; dx < img->getWidth(); ++dx) {
             for (int dy = 0; dy < img->getHeight(); ++dy) {
@@ -41,10 +41,10 @@ public:
             }
         }
     }
-    u32* getPixels() {
+    std::uint32_t* getPixels() {
         return pixels;
     }
-    void getVerticalFlippedPixels(u32* dst) {  // for OpenGL internal
+    void getVerticalFlippedPixels(std::uint32_t* dst) {  // for OpenGL internal
         for (int y = 0; y < height; ++y) {
             u32 bas = (height-1-y) * width;
             for (int x = 0; x < width; ++x) {
@@ -53,8 +53,8 @@ public:
         }
     }
 
-    u32 getWidth() { return width; }
-    u32 getHeight() { return height; }
+    int getWidth()  const { return width; }
+    int getHeight() const { return height; }
 
     ~BitmapImage() {
         delete pixels;

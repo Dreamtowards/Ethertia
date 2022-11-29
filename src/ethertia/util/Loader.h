@@ -106,10 +106,10 @@ public:
     }
 
     static Texture* loadTexture(BitmapImage* img) {
-        u32 pixels[img->getWidth() * img->getHeight()];
-        img->getVerticalFlippedPixels(pixels);
+        std::unique_ptr<std::uint32_t> pixels(new std::uint32_t[img->getWidth() * img->getHeight()]);
+        img->getVerticalFlippedPixels(pixels.get());
 
-        return Loader::loadTexture(img->getWidth(), img->getHeight(), pixels);
+        return Loader::loadTexture(img->getWidth(), img->getHeight(), pixels.get());
     }
 
     /// pixels_VertInv: need y/vertical flipped pixels. cause of GL feature.

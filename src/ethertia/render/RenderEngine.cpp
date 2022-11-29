@@ -16,6 +16,9 @@
 
 RenderEngine::RenderEngine()
 {
+    BenchmarkTimer _tm;
+    Log::info("RenderEngine initializing.\1");
+
     chunkRenderer = new ChunkRenderer();
     guiRenderer = new GuiRenderer();
     fontRenderer = new FontRenderer();
@@ -23,7 +26,7 @@ RenderEngine::RenderEngine()
     skyGradientRenderer = new SkyGradientRenderer();
     skyboxRenderer = new SkyboxRenderer();
 
-    float qual = 0.5;
+    float qual = 0.8;
     gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));
     Framebuffer::gPushFramebuffer(gbuffer);
         gbuffer->attachColorTexture(0, GL_RGB, GL_RGB);
@@ -31,8 +34,7 @@ RenderEngine::RenderEngine()
         gbuffer->checkFramebufferStatus();
     Framebuffer::gPopFramebuffer();
 
-
-    Log::info("RenderEngine initialized. GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
+    // GL_I: {} | {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
 }
 
 RenderEngine::~RenderEngine() {

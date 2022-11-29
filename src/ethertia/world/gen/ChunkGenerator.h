@@ -163,7 +163,7 @@ public:
                                 if (spZsum > 0.0) {
                                     bl = Materials::STONE;
                                 } else if (y < 0) {
-                                    bl = 0;//Blocks::WATER;
+                                    //bl = 0;//Blocks::WATER;
                                 }
 //                                if (y > 30) {
 //                                    bl = Materials::GRASS;

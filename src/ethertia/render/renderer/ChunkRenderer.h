@@ -27,7 +27,8 @@ public:
 
         shader.useProgram();
         shader.setInt("diffuseMap", 0);
-        shader.setInt("displacementMap", 1);
+        shader.setInt("normalMap", 1);
+        shader.setInt("displacementMap", 2);
 
         // init MaterialAtlasRegions table.  from id 1.
         for (int i = 1; i < Materials::_SIZE; ++i) {
