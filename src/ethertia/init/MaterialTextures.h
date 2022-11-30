@@ -30,36 +30,29 @@ public:
     inline static Texture* ATLAS_ROUGH   = nullptr;
 
     inline static std::vector<std::string> TEXTURES = {
+            "rock",
             "moss",
-            "concrete",
-            "gravel"
+            "loam",
+            "sand"
     };
 
-
-//    static TextureAtlas::Region* load(const char* mtl) {
-//        const int px = 1024;
-//        TextureAtlas::Region* r =
-//        ATLAS_DIFFUSE->addAtlas(Loader::loadPNG(Loader::loadAssets(fmt::format("/materials/{}/diff-{}.png", mtl, px))));
-//        ATLAS_DISP   ->addAtlas(Loader::loadPNG(Loader::loadAssets(fmt::format("/materials/{}/disp-{}.png", mtl, px))));
-//        ATLAS_NORM   ->addAtlas(Loader::loadPNG(Loader::loadAssets(fmt::format("/materials/{}/norm-{}.png", mtl, px))));
-//        return r;
-//    }
+    static void init()
+    {
+        BenchmarkTimer tm;
+        Log::info("Material Textures loading...");
 
 
-//    inline static TextureAtlas::Region* STONE;
-//    inline static TextureAtlas::Region* GRASS;
-//    inline static TextureAtlas::Region* DIRT;
-//    inline static TextureAtlas::Region* SAND;
-//
-//    static TextureAtlas::Region* of(u8 id) {
-//        switch (id) {
-//            case Materials::STONE: return STONE;
-//            case Materials::GRASS: return GRASS;
-//            case Materials::DIRT:  return DIRT;
-//            case Materials::SAND:  return SAND;
-//            default: throw std::runtime_error("illegal material id "+std::to_string((int)id));
-//        }
-//    }
+        // 1024 elaborated
+        // 512  pretty realistic
+        // 256  pretty
+        // 128  non-realistic
+        const int dest_res = 256;
+        ATLAS_DIFFUSE = makeAtlas("diff", dest_res, "caches/atlas_diff.png");
+        ATLAS_NORM    = makeAtlas("norm", dest_res, "caches/atlas_norm.png");
+        ATLAS_DISP    = makeAtlas("disp", dest_res, "caches/atlas_disp.png");
+
+        Log::info("Material Texture Atlases all loaded/generated.\1");
+    }
 
 
     /**
@@ -96,19 +89,6 @@ public:
         }
 
         return Loader::loadTexture(atlas);
-    }
-
-    static void init()
-    {
-        BenchmarkTimer tm;
-        Log::info("Material Textures loading...");
-
-
-        ATLAS_DIFFUSE = makeAtlas("diff", 256, "caches/atlas_diff.png");
-        ATLAS_NORM    = makeAtlas("norm", 256, "caches/atlas_norm.png");
-        ATLAS_DISP    = makeAtlas("disp", 256, "caches/atlas_disp.png");
-
-        Log::info("Material Texture Atlases all loaded/generated.\1");
     }
 };
 

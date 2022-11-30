@@ -30,6 +30,8 @@ public:
         shader.setInt("normalMap", 1);
         shader.setInt("displacementMap", 2);
 
+        shader.setFloat("MtlCap", MaterialTextures::TEXTURES.size());
+
 //        // init MaterialAtlasRegions table.  from id 1.
 //        for (int i = 1; i < Materials::_SIZE; ++i) {
 //            TextureAtlas::Region* r = MaterialTextures::of(i);

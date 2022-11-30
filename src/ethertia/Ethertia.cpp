@@ -139,10 +139,6 @@ void Ethertia::start() {
 //    raycastCar->setPosition({0, 5, -10});
 //    world->addEntity(raycastCar);
 
-
-
-    brushCursor.size = 2.0;
-
     EventBus::EVENT_BUS.listen([&, raycastCar](KeyboardEvent* e) {
         if (e->isPressed()) {
             int key = e->getKey();

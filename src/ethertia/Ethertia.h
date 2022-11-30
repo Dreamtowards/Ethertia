@@ -29,7 +29,7 @@ public:
     bool keepTracking = true;
     bool hit;
     glm::vec3 position;
-    float size = 1;
+    float size = 0.0;
     int type;
 
 #define BRUSH_SPHERE 1

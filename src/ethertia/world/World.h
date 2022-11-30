@@ -411,7 +411,8 @@ public:
                     u8 replace = Materials::STONE;
                     if (y < 3 && nextToAir < 3 && world->chunkGenerator.noise.noise(x/60.0, y/60.0, z/60.0) > 0.1) {
                         replace = Materials::SAND;
-                    } else if (nextToAir == 1 || nextToAir == 2) {
+                    } else if (nextToAir == 1 //|| nextToAir == 2
+                              ) {
                         replace = Materials::GRASS;
                     } else if (nextToAir < 4) {
                         replace = Materials::DIRT;

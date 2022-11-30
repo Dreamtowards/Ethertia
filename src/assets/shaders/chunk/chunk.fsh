@@ -20,12 +20,13 @@ uniform float fogGradient;
 uniform vec3  cursorPos;
 uniform float cursorSize;
 
-// Material's Region in the TextureAtlas. xy: TexPos, zw: TexSize
-uniform vec4 MaterialAtlasRegions[128];
+// actual int. use for calculate Mtl UV in the Texture Atlas. {x=MtlId/MtlCap, y=0.0, w=1.0/MtlCap, h=1.0}
+uniform float MtlCap;
 
-uniform float debugRenderMode = 0;
+uniform float debugVar1 = 0;
+uniform float debugVar2 = 0;
 
-const float MtlTexScale = 5;
+const float MtlTexScale = 2.4;
 
 int max_i(float a, float b, float c) {
     return a > b ? (a > c ? 0 : 2) : (b > c ? 1 : 2);
@@ -34,8 +35,8 @@ int max_i(float a, float b, float c) {
 vec3 tri_samp(sampler2D tex, int MtlId, vec3 FragPos, vec3 blend) {
 
     float texScale = 1 / MtlTexScale;// 3.5;
-    float ReginPosX  = MaterialAtlasRegions[MtlId].x;
-    float ReginSizeX = MaterialAtlasRegions[MtlId].z;
+    float ReginPosX  = (MtlId-1) / MtlCap;
+    float ReginSizeX = 1.0 / MtlCap;
     vec2 uvX = vec2(mod(texScale * FragPos.z * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
     vec2 uvY = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.z);
     vec2 uvZ = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
@@ -64,9 +65,8 @@ void main()
     } else {
         int mostWeightVert = max_i(TriMtlWeight.x, TriMtlWeight.y, TriMtlWeight.z);
 
-        vec3 blend = abs(Norm);
-        // vec3 blend = pow(abs(Norm), vec3(3));  // why pow?
-        // blend = blend / (blend.x + blend.y + blend.z);
+        vec3 blend = pow(abs(Norm), vec3(6));  // more pow leads more [sharp at norm, mixing at tex]
+        blend = blend / (blend.x + blend.y + blend.z);
 
         vec3 mtlw = pow(TriMtlWeight, vec3(0.6));  // 0.5-0.7. lesser -> more mix
 
@@ -75,24 +75,27 @@ void main()
         float h2 = tri_samp(displacementMap, int(TriMtlId[2]), FragPos, blend).r * mtlw[2];
         int mostHeightVert = max_i(h0, h1, h2);
 
+        const int MTL_STONE = 1,
+                  MTL_GRASS = 2,
+                  MTL_DIRT = 3;
 
         Albedo =
-//        debugRenderMode == 0 ?
+//        ((TriMtlId[0] == MTL_GRASS || TriMtlId[1] == MTL_GRASS || TriMtlId[2] == MTL_GRASS ) &&
+//         (TriMtlId[0] == MTL_DIRT || TriMtlId[1] == MTL_DIRT || TriMtlId[2] == MTL_DIRT ) ) ?
 //        tri_samp(diffuseMap, int(TriMtlId[0]), FragPos, blend) * TriMtlWeight[0] +
 //        tri_samp(diffuseMap, int(TriMtlId[1]), FragPos, blend) * TriMtlWeight[1] +
-//        tri_samp(diffuseMap, int(TriMtlId[2]), FragPos, blend) * TriMtlWeight[2];
+//        tri_samp(diffuseMap, int(TriMtlId[2]), FragPos, blend) * TriMtlWeight[2]
 //        :
         tri_samp(diffuseMap, int(TriMtlId[mostHeightVert]), FragPos, blend);
 
         {
             int MtlId = int(TriMtlId[mostHeightVert]);
             float texScale = 1 / MtlTexScale;
-            float ReginPosX  = MaterialAtlasRegions[MtlId].x;
-            float ReginSizeX = MaterialAtlasRegions[MtlId].z;
+            float ReginPosX  = (MtlId-1) / MtlCap;
+            float ReginSizeX = 1.0 / MtlCap;
             vec2 uvX = vec2(mod(texScale * FragPos.z * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
             vec2 uvY = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.z);
             vec2 uvZ = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
-
 
             vec3 tnormX = samp_norm(uvX);
             vec3 tnormY = samp_norm(uvY);
@@ -105,7 +108,6 @@ void main()
                 vec3(tnormZ.xy, 0)          * blend.z +
                 Norm
             );
-            FragNorm = pow(FragNorm, vec3(2));
         }
 
         // texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.z));
@@ -116,11 +118,11 @@ void main()
     }
 
 
-    float lightf = max(0.2, dot(-lightDir, FragNorm));
+    float lightf = max(0.25, dot(-lightDir, FragNorm));
 
     FragColor = vec4(lightf * Albedo, 1.0);
 
-    FragColor.r += min(0.5, max(0.0, cursorSize - length(cursorPos - FragPos)));
+    FragColor.b += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
 
 //    if (FragColor.a != 1.0f)

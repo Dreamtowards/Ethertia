@@ -11,7 +11,8 @@ class EntityRenderer
 {
 public:
 
-    float debugRenderMode = 0;
+    float debugVar1 = 0;
+    float debugVar2 = 0;
 
 //    ShaderProgram shader{Loader::loadAssetsStr("shaders/chunk/chunk.vsh"),
 //                         Loader::loadAssetsStr("shaders/chunk/chunk.fsh")};
@@ -46,7 +47,8 @@ public:
         shader.setVector3f("cursorPos", Ethertia::getBrushCursor().position);
         shader.setFloat("cursorSize", Ethertia::getBrushCursor().size);
 
-        shader.setFloat("debugRenderMode", debugRenderMode);
+        shader.setFloat("debugVar1", debugVar1);
+        shader.setFloat("debugVar2", debugVar2);
 
         glBindVertexArray(entity->model->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, entity->model->vertexCount);

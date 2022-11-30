@@ -1,7 +1,9 @@
 # Ethertia
 
-An "[OtherLife](https://en.wikipedia.org/wiki/OtherLife)" Game/Software/Program, wanted:  
-Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>
+Engine for _OtherLife_  
+Voxels, Realistic, Interactive
+
+[comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
 > Site: https://elytra.dev/ethertia  
 > Source: https://github.com/Dreamtowards/Ethertia <!--`src/ethertia/client/Ethertia.h`-->    
@@ -53,7 +55,7 @@ Game design, programming, graphics: [Eldrine Le Prismarine]()
 Music and sounds:  
 Ingame artwork: 
 
-__Ethertia uses following libraries&tools:__  
+__Used following libraries&toolsets:__  
 - Cplusplus, GCC, CLion IDE, CMake
 - GLFW, GLM, glad, opengl
 - stb_image, stb_vorbis by [Sean Barrett ('nothings')](http://nothings.org)
@@ -69,14 +71,11 @@ __Ethertia uses following libraries&tools:__
 
 22u46 / Nov 18, 2022
 
-- [ ] Deferred Rendering
-- [ ] Terrain Material Texturing with Triangle Blend & Height Map
+- [x] Deferred Rendering.
 
 
 
 22u42 / Oct 22, 2022
-
-- [ ] SurfaceNets Terrain, Unified Grids
 
 22u43 / Oct 29, 2022
 
@@ -109,25 +108,34 @@ __Ethertia uses following libraries&tools:__
 - [ ] VR Supports. MotionTrack. IKs.
 - [ ] Skeletal Animation. Frame transfer.
 
-### 22u41 @20221014
+### 22u48 @20221129 [.68]
 
-- [x] [.42] Per-Fragment Material Texturing (single material out of greatest weight)
+![note](saves/_figures/fig-221129-p2.png)
+<img src="saves/_figures/fig-221129-p3.png" style="width: 20%">
+<img src="saves/_figures/fig-221129-sn-mtl.png" style="width: 20%">
 
-> ![note](saves/_figures/fig-221014-mtltex-maxweight.png)  
-> Fugure: Per-Fragment Material Texturing, (one single material out for the vertex with the greatest weight on the triangle.
-> use a geometry shader _chunk.gsh_ to generate _TriMtlWeights, TriMtlIds_)    
-> the "boundary waves" may caused by non-geo-accurate weights (i.e. not associate with volume data). However I can't wait to try
-> SurfaceNets now, that would fix this problem by the way.
+- [x] [.79] SurfaceNets Terrain, Unified Grids
+  - FeaturePoint Evaluation, Naive Method.
+  - 1 of 8 Voxel Material Determine. Distance Method.
+- [x] [.71] Terrain Material Texturing with Triangle Blend & Height Map
+- [x] [.63] Triplanar Normal Mapping.
+- [x] [.54] Material Texture Atlas spec.
+- [x] [.42] Framebuffer, gbuffer init.
+
+### 22u41 @20221014 [.29]
+
+- [x] [.42] PerFragment Material Texturing (single material out of greatest weight in the triangle.)
+
+![note](saves/_figures/fig-221014-mtltex-maxweight.png)  
 
 ### 22u40 @20201006
 
-- [x] [.62] Multiple Material Texturing (naive full-triangle material texturing).  
-- [x] [.13] Gamemode creative/spectator (no collision), Flying mode (no gravity).
+![note](saves/_figures/fig-221006-mtltex-fulltriangle.png)  
+_ps. marching cubes with kernel program generated vertex UVs._
 
-> ![note](saves/_figures/fig-221006-mtltex-fulltriangle.png)  
-> Multiple Material Naive Full-Triangle Texturing.  
-> `/gamemode <1/2/3>   # survival/creative/spectator`  
-> `/fly [on/off]`
+- [x] [.62] Multiple Material Texturing (naive full-triangle material texturing).  
+- [x] [.13] Gamemode creative/spectator (collision disabled, `/gamemode <1/2/3>`), Flying mode (gravity disable, `/fly [on/off]`).
+
 
 
 ### Ancient
@@ -140,8 +148,12 @@ __Ethertia uses following libraries&tools:__
 
 ### 
 
+<!--
+
 [Tutorial, Discussion, Questions; Multiplayer, Mods, Redstone]
 Topic (Mods, Survival, Dev) / Type (Tutorial, Discussions, Questions)
+
+
 
 Forum
 - _Comprehensive Discussion_
@@ -157,3 +169,5 @@ Forum
 - Servers
 - Avatars
 - Modpacks
+
+-->

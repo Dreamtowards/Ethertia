@@ -83,11 +83,11 @@ public:
         }
     }
 
-    static Model* loadModel(u32 vcount, const std::vector<std::pair<u32, float*>>& vdats) {
+    static Model* loadModel(size_t vcount, const std::vector<std::pair<int, float*>>& vdats) {
         u32 vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
-        auto* m = new Model(vao, vcount);
+        Model* m = new Model(vao, vcount);
 
         int i = 0;
         for (auto vd : vdats) {
@@ -107,7 +107,7 @@ public:
         return m;
     }
     static Model* loadModel(VertexBuffer* vbuf, bool materials = false) {
-        std::vector<std::pair<u32, float*>> ls;
+        std::vector<std::pair<int, float*>> ls;
         ls.emplace_back(3, &vbuf->positions[0]);
         ls.emplace_back(2, &vbuf->textureCoords[0]);
         ls.emplace_back(3, &vbuf->normals[0]);
@@ -117,7 +117,7 @@ public:
 
         return loadModel(vbuf->vertexCount(), ls);
     }
-    static Model* loadModel(u32 vcount, std::initializer_list<std::pair<u32, float*>> vdats) {
+    static Model* loadModel(size_t vcount, std::initializer_list<std::pair<int, float*>> vdats) {
         return loadModel(vcount, std::vector(vdats));
     }
 
