@@ -25,21 +25,30 @@ class Loader {
 
 public:
 
-    static std::pair<char*, u32> loadAssets(const std::string& p)
+
+
+    static std::pair<char*, u32> loadFile(const std::string& path)
     {
-        std::string abspath = "../src/assets/" + p;
-        std::ifstream infile(abspath, std::ios_base::binary);
-        if (!infile.is_open())
-            throw std::runtime_error("Failed open file. "+abspath);
-        infile.seekg(0, std::ios_base::end);
-        u32 len = infile.tellg();
-        infile.seekg(0, std::ios_base::beg);
+        std::ifstream file(path, std::ios_base::binary);
+        if (!file.is_open())
+            throw std::runtime_error("Failed open file. "+path);
+        file.seekg(0, std::ios_base::end);
+        u32 len = file.tellg();
+        file.seekg(0, std::ios_base::beg);
 
         char* buf = new char[len];
-        infile.read(buf, len);
-        infile.close();
+        file.read(buf, len);
+        file.close();
 
         return std::pair(buf, len);
+    }
+    static bool fileExists(std::string_view path) {
+        std::ifstream _f(path);
+        return _f.good();
+    }
+
+    static std::pair<char*, u32> loadAssets(const std::string& p) {
+        return loadFile("../src/assets/" + p);
     }
 
     static std::string loadAssetsStr(const std::string& p) {
@@ -63,8 +72,15 @@ public:
     static BitmapImage* loadPNG(std::pair<void*, u32> m) {
         return loadPNG(m.first, m.second);
     }
-    static void savePNG(BitmapImage* img, const char* filename) {
-        stbi_write_png(filename, img->getWidth(), img->getHeight(), 4, img->getPixels(), 0);
+    static void savePNG(BitmapImage* img, const std::string& filename) {
+        // mkdirs for parents of the file.
+        int _dir = filename.find('/');
+        if (_dir != std::string::npos) {
+            std::filesystem::create_directories(filename.substr(0, _dir));
+        }
+        if (!stbi_write_png(filename.c_str(), img->getWidth(), img->getHeight(), 4, img->getPixels(), 0)) {
+            throw std::runtime_error("Failed to write PNG. "+filename);
+        }
     }
 
     static Model* loadModel(u32 vcount, const std::vector<std::pair<u32, float*>>& vdats) {
@@ -119,10 +135,9 @@ public:
         glBindTexture(GL_TEXTURE_2D, texId);
         auto* tex = new Texture(texId, w, h);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, intlfmt, w, h, 0, fmt, type, pixels_VertFlip);
+        // glTexSubImage2D();
+
 
         // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
 //        if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
@@ -132,8 +147,10 @@ public:
 //            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
 //         }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, intlfmt, w, h, 0, fmt, type, pixels_VertFlip);
-        // glTexSubImage2D();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
 
         glGenerateMipmap(GL_TEXTURE_2D);
 

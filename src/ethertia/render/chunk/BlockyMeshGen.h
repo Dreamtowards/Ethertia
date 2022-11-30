@@ -107,9 +107,10 @@ public:
         // put uv
         for (int i = 0; i < 6; ++i) {
             int bas = face*12 + i*2 ;  // 12=6vec*2f
-            TextureAtlas::Region* frag = MaterialTextures::of(mtlId);
-            vbuf->adduv(CUBE_UV[bas]   * frag->size.x + frag->pos.x,
-                        CUBE_UV[bas+1] * frag->size.y + frag->pos.y);
+            // todo: Need Fix
+//            TextureAtlas::Region* frag = MaterialTextures::of(mtlId);
+//            vbuf->adduv(CUBE_UV[bas]   * frag->size.x + frag->pos.x,
+//                        CUBE_UV[bas+1] * frag->size.y + frag->pos.y);
             vbuf->materialIds.push_back(mtlId);
         }
     }

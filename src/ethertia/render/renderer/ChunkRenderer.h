@@ -21,7 +21,7 @@ public:
     float fogDensity = 0.02f;
     float fogGradient = 1.5f;
 
-    inline static const char** _MaterialAtlasRegions = ShaderProgram::_GenArrayNames("MaterialAtlasRegions[%i]", 128);
+//    inline static const char** _MaterialAtlasRegions = ShaderProgram::_GenArrayNames("MaterialAtlasRegions[%i]", 128);
 
     ChunkRenderer() {
 
@@ -30,13 +30,13 @@ public:
         shader.setInt("normalMap", 1);
         shader.setInt("displacementMap", 2);
 
-        // init MaterialAtlasRegions table.  from id 1.
-        for (int i = 1; i < Materials::_SIZE; ++i) {
-            TextureAtlas::Region* r = MaterialTextures::of(i);
-            shader.setVector4f(_MaterialAtlasRegions[i], glm::vec4(r->pos.x, r->pos.y, r->size.x, r->size.y));
-
-            // Log::info("init _MaterialAtlasRegions {} :: {}, {}", i, glm::to_string(r->pos), glm::to_string(r->size));
-        }
+//        // init MaterialAtlasRegions table.  from id 1.
+//        for (int i = 1; i < Materials::_SIZE; ++i) {
+//            TextureAtlas::Region* r = MaterialTextures::of(i);
+//            shader.setVector4f(_MaterialAtlasRegions[i], glm::vec4(r->pos.x, r->pos.y, r->size.x, r->size.y));
+//
+//            // Log::info("init _MaterialAtlasRegions {} :: {}, {}", i, glm::to_string(r->pos), glm::to_string(r->size));
+//        }
     }
 
 

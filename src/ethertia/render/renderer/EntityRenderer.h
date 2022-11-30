@@ -21,13 +21,13 @@ public:
     {
         if (dynamic_cast<EntityMesh*>(entity)) {  // assume it's a 'chunk mesh entity'.
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DIFFUSE->atlasTexture->getTextureID());
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DIFFUSE->getTextureID());
 
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_NORM->atlasTexture->getTextureID());
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_NORM->getTextureID());
 
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISP->atlasTexture->getTextureID());
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISP->getTextureID());
         }
         else if (entity->diffuseMap)
         {
