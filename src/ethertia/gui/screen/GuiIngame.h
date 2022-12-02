@@ -226,7 +226,7 @@ public:
                 for (int rz = -n; rz <= n; ++rz) {
                     glm::vec3 p = center + glm::vec3(rx, ry, rz);
 
-                    Cell& c = Ethertia::getWorld()->getBlock(p);
+                    Cell& c = Ethertia::getWorld()->getCell(p);
                     Gui::drawWorldpoint(p, [=](glm::vec2 sp) {
                         Gui::drawString(sp.x, sp.y, std::to_string(c.id)+"/"+std::to_string(c.density));
                     });

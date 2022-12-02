@@ -59,11 +59,11 @@ public:
             for (int ry = 0; ry < 16; ++ry) {
                 for (int rz = 0; rz < 16; ++rz) {
                     vec3 rp(rx, ry, rz);
-                    Cell& c0 = World::_GetBlock(chunk, rp);
+                    Cell& c0 = World::_GetCell(chunk, rp);
 
                     // for 3 axes edges, if sign-changed, connect adjacent 4 cells' vertices
                     for (int axis_i = 0; axis_i < 3; ++axis_i) {
-                        Cell& c1 = World::_GetBlock(chunk, rp + AXES[axis_i]);
+                        Cell& c1 = World::_GetCell(chunk, rp + AXES[axis_i]);
 
                         if (c0.density > 0 != c1.density > 0) {  // sign changed.
                             bool ccw = c0.density > 0;  // is positive normal. if c0 is solid.
@@ -88,7 +88,7 @@ public:
                                 float min_dist = Mth::Inf;
                                 int MtlId = -1;
                                 for (vec3 cellv : VERT) {
-                                    Cell& c = World::_GetBlock(chunk, quadp + cellv);
+                                    Cell& c = World::_GetCell(chunk, quadp + cellv);
                                     if (c.id && (c.density) < min_dist) {
                                         // assert(c.density > 0);
                                         min_dist = (c.density);
@@ -120,8 +120,8 @@ public:
             const int* edge = EDGE[edge_i];
             vec3 v0 = VERT[edge[0]];
             vec3 v1 = VERT[edge[1]];
-            Cell& c0 = World::_GetBlock(chunk, rp + v0);
-            Cell& c1 = World::_GetBlock(chunk, rp + v1);
+            Cell& c0 = World::_GetCell(chunk, rp + v0);
+            Cell& c1 = World::_GetCell(chunk, rp + v1);
 
             if (c0.density > 0 != c1.density > 0) {  // sign-change, surface intersection.
                 vec3 p = Mth::rlerp(0, c0.density, c1.density) * (v1-v0) + v0;  // (v1-v0) must > 0. since every edge vert are min-to-max

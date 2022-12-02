@@ -189,7 +189,7 @@ void Ethertia::start() {
                             for (int dy = floor(-n); dy <= ceil(n); ++dy) {
                                 glm::vec3 d(dx, dy, dz);
 
-                                Cell& b = world->getBlock(p + d);
+                                Cell& b = world->getCell(p + d);
                                 float f = n - glm::length(d);
 
                                 // b.id = placingBlock;
@@ -204,7 +204,7 @@ void Ethertia::start() {
                             for (int dy = -n; dy <= n; ++dy) {
                                 glm::vec3 d(dx, dy, dz);
 
-                                Cell& b = world->getBlock(p + d);
+                                Cell& b = world->getCell(p + d);
                                 float f = n - glm::length(d);
 
                                 if (!window.isAltKeyDown())  {
@@ -219,7 +219,7 @@ void Ethertia::start() {
                     }
                     world->requestRemodel(p);
                 } else if (btn == GLFW_MOUSE_BUTTON_3) {
-                    placingBlock = world->getBlock(p).id;
+                    placingBlock = world->getCell(p).id;
                     Log::info("Picking: {}", (int)placingBlock);
                 }
             }

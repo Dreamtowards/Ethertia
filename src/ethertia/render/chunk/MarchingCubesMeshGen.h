@@ -305,7 +305,7 @@ public:
                     int cubeidx = 0;
                     for (int i = 0; i < 8; ++i) {
                         vec3 p = rp + tbVert[i];
-                        float val = World::_GetBlock(chunk, p).density;
+                        float val = World::_GetCell(chunk, p).density;
                         if (val > 0.0f) {  // is solid
                             cubeidx |= 1 << i;
                         }
@@ -317,8 +317,8 @@ public:
                         vec3 v0 = tbVert[edge[0]];
                         vec3 v1 = tbVert[edge[1]];
 
-                        Cell& d0 = World::_GetBlock(chunk,rp+v0);
-                        Cell& d1 = World::_GetBlock(chunk,rp+v1);
+                        Cell& d0 = World::_GetCell(chunk, rp + v0);
+                        Cell& d1 = World::_GetCell(chunk, rp + v1);
                         float t = Mth::rlerp(0.0f, d0.density, d1.density);
 //                        t = 0.5f;
 

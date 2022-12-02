@@ -68,24 +68,24 @@ public:
         delete dynamicsWorld->getBroadphase();
     }
 
-    Cell& getBlock(glm::vec3 blockpos) {
-        Chunk* chunk = getLoadedChunk(blockpos);
+    Cell& getCell(glm::vec3 p) {
+        Chunk* chunk = getLoadedChunk(p);
         if (!chunk) return Materials::STAT_EMPTY;  // shouldn't
-        return chunk->getCell(Chunk::rpos(blockpos));
+        return chunk->getCell(Chunk::rpos(p));
     }
-    Cell& getBlock(int x, int y, int z) {
-        return getBlock(glm::vec3(x,y,z));
+    Cell& getCell(int x, int y, int z) {
+        return getCell(glm::vec3(x,y,z));
     }
 
-    void setBlock(glm::vec3 p, Cell& c) {
+    void setCell(glm::vec3 p, const Cell& c) {
         Chunk* chunk = getLoadedChunk(p);
         if (!chunk) return;
         glm::ivec3 bp = Chunk::rpos(p);
         chunk->setCell(bp, c);
 
     }
-    void setBlock(int x, int y, int z, Cell& m) {
-        setBlock(glm::vec3(x,y,z), m);
+    void setCell(int x, int y, int z, const Cell& m) {
+        setCell(glm::vec3(x,y,z), m);
     }
     void requestRemodel(glm::vec3 p) {
         Chunk* chunk = getLoadedChunk(p);
@@ -392,7 +392,7 @@ public:
 
                 for (int dy = 0; dy < 16; ++dy) {
                     int y = chunkpos.y + dy;
-                    Cell tmpbl = world->getBlock(x, y, z);
+                    Cell tmpbl = world->getCell(x, y, z);
                     if (tmpbl.id == 0)// || tmpbl.id == Blocks::WATER)
                         continue;
                     if (tmpbl.id != Materials::STONE)
@@ -400,7 +400,7 @@ public:
 
                     if (nextAir < dy) {
                         for (int i = 0;; ++i) {
-                            if (world->getBlock(x, y+i, z).id == 0) {
+                            if (world->getCell(x, y+i, z).id == 0) {
                                 nextAir = dy+i;
                                 break;
                             }
@@ -418,7 +418,7 @@ public:
                     } else if (nextToAir < 4) {
                         replace = Materials::DIRT;
                     }
-                    world->getBlock(x, y, z).id = replace;
+                    world->getCell(x, y, z).id = replace;
                 }
             }
 
@@ -473,28 +473,29 @@ public:
 //            }
 //        }
 
-//        // Trees
-//        for (int dx = 0; dx < 16; ++dx) {
-//            for (int dz = 0; dz < 16; ++dz) {
-//                int x = chunkpos.x + dx;
-//                int z = chunkpos.z + dz;
-//
-//                if (Mth::hash(x*z) < (2.5/256.0f)) {
-//                    for (int dy = 0; dy < 16; ++dy) {
-//                        int y = chunkpos.y + dy;
-//                        if (world->getBlock(x, y, z).id == Blocks::GRASS) {
-//
-//                            float f = Mth::hash(x*z*y);
-//                            int h = 2+f*8;
-//                            int r = 3;
-//
-//                            u8 _leaf = Blocks::LEAVES;
+        // Trees
+        for (int dx = 0; dx < 16; ++dx) {
+            for (int dz = 0; dz < 16; ++dz) {
+                int x = chunkpos.x + dx;
+                int z = chunkpos.z + dz;
+
+                if (Mth::hash(x*z) < (1.5/256.0f)) {  // Make Tree
+                    for (int dy = 0; dy < 16; ++dy) {
+                        int y = chunkpos.y + dy;
+                        if (world->getCell(x, y, z).id == Materials::GRASS) {
+
+                            float f = Mth::hash(x*z*y);
+                            int h = 2+f*8;
+                            int r = 3;
+
+                            u8 _leaf = Materials::LEAVES;
 //                            if (f > 0.8f) {
 //                                h *= 1.6f;
 //                                _leaf = Blocks::LEAVES_JUNGLE;
 //                            } else if (f < 0.2f) _leaf = Blocks::LEAVES_APPLE;
-//
-//
+
+
+                             // Leaves
 //                            for (int lx = -r; lx <= r; ++lx) {
 //                                for (int lz = -r; lz <= r; ++lz) {
 //                                    for (int ly = -r; ly <= r+f*8; ++ly) {
@@ -506,23 +507,24 @@ public:
 //                                    }
 //                                }
 //                            }
-//                            for (int i = 0; i < h; ++i) {
-//
-//                                world->setBlock(x, y+i+1, z, BlockState(Blocks::LOG));
-//                            }
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
+                            // Trunk
+                            for (int i = 0; i < h; ++i) {
+
+                                world->setCell(x, y+i, z, Cell(Materials::LOG, 1.0f));
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
     }
 
 
 
-    static Cell& _GetBlock(Chunk* chunk, glm::vec3 rp) {
-        return Chunk::outbound(rp) ? chunk->world->getBlock(chunk->position + rp) : chunk->getCell(rp);
+    static Cell& _GetCell(Chunk* chunk, glm::vec3 rp) {
+        return Chunk::outbound(rp) ? chunk->world->getCell(chunk->position + rp) : chunk->getCell(rp);
     }
 };
 
