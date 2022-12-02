@@ -39,8 +39,8 @@ public:
     }
 
 
-    void attachColorTexture(int i, int intlfmt = GL_RGB, int fmt = GL_RGB) {
-        texColor[i] = internalAttachTexture2D(GL_COLOR_ATTACHMENT0+i, intlfmt, fmt, GL_UNSIGNED_BYTE);
+    void attachColorTexture(int i, int intlfmt = GL_RGB, int fmt = GL_RGB, int type = GL_UNSIGNED_BYTE) {
+        texColor[i] = internalAttachTexture2D(GL_COLOR_ATTACHMENT0+i, intlfmt, fmt, type);
     }
     void attachDepthTexture() {
         texDepth = internalAttachTexture2D(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
@@ -105,9 +105,18 @@ public:
         }
     }
 
+    // disableColorBuffers();
     void disableDrawBuffers() {
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
+    }
+
+    // tell GL render to which Color Attachments/Textures
+    void setupMRT(std::initializer_list<int> l) {
+        int n = l.size();
+        unsigned int arr[n];
+        Collections::range(arr, (uint)n, (uint)GL_COLOR_ATTACHMENT0);
+        glDrawBuffers(n, arr);
     }
 
     // initMRT() ?

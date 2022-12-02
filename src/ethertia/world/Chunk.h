@@ -10,7 +10,7 @@
 #include <ethertia/util/AABB.h>
 #include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/init/MaterialTextures.h>
-#include <ethertia/material/stat/MaterialStat.h>
+#include <ethertia/world/Cell.h>
 
 class World;
 
@@ -19,7 +19,7 @@ class Chunk
 public:
     static const int SIZE = 16;
 
-    MaterialStat blocks[16*16*16] = {};
+    Cell blocks[16*16*16] = {};
 
     glm::vec3 position;
     World* world;
@@ -42,18 +42,18 @@ public:
 
     }
 
-    MaterialStat& getMaterial(int rx, int ry, int rz) {
+    Cell& getCell(int rx, int ry, int rz) {
         return blocks[blockidx(rx, ry, rz)];
     }
-    MaterialStat& getMaterial(glm::ivec3 rp) {
-        return getMaterial(rp.x, rp.y, rp.z);
+    Cell& getCell(glm::ivec3 rp) {
+        return getCell(rp.x, rp.y, rp.z);
     }
 
-    void setMaterial(int rx, int ry, int rz, const MaterialStat& block) {
-        blocks[blockidx(rx,ry,rz)] = block;
+    void setCell(int rx, int ry, int rz, const Cell& c) {
+        blocks[blockidx(rx,ry,rz)] = c;
     }
-    void setMaterial(glm::ivec3 rp, const MaterialStat& block) {
-        setMaterial(rp.x, rp.y, rp.z, block);
+    void setCell(glm::ivec3 rp, const Cell& c) {
+        setCell(rp.x, rp.y, rp.z, c);
     }
 
     static glm::ivec3 rpos(glm::vec3 p) {

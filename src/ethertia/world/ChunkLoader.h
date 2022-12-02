@@ -28,7 +28,7 @@ public:
         Chunk* chunk = new Chunk(chunkpos, world);
 
         // todo: octrees
-        int chunkBlocksSize = sizeof(MaterialStat) * 4096;
+        int chunkBlocksSize = sizeof(Cell) * 4096;
         file.read((char*)&chunk->blocks, chunkBlocksSize);
 
 

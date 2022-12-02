@@ -37,6 +37,14 @@ public:
         ls.erase(ls.begin() + find(ls, r));
     }
 
+    template<typename T>
+    static T* range(T* arr, T n, T from = 0) {
+        for (int i = 0;i < n;++i) {
+            arr[i] = from + i;
+        }
+        return arr;
+    }
+
 private:
     template<typename Itr, typename T>
     static Itr find_ptr(Itr first, Itr last, T* p) {

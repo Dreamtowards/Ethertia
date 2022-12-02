@@ -20,11 +20,11 @@ public:
             for (int ry = 0; ry < 16; ++ry) {
                 for (int rz = 0; rz < 16; ++rz) {
                     vec3 rp(rx, ry, rz);
-                    MaterialStat& mtl = chunk->getMaterial(rx, ry, rz);
+                    Cell& c = chunk->getCell(rx, ry, rz);
 
-                    if (mtl.id)
+                    if (c.id)
                     {
-                        putCube(vbuf, rp, chunk, mtl.id);
+                        putCube(vbuf, rp, chunk, c.id);
                     }
                 }
             }
@@ -78,11 +78,11 @@ public:
     static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, int mtlId) {
 //        putCubeFace(vbuf, 2, rpos, frag);
 //        return;
-        u8 blk = chunk->getMaterial(rpos).id;
+        u8 blk = chunk->getCell(rpos).id;
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = _CubeFaceDir(i);
             glm::vec3 np = rpos + dir;
-            u8 neib = Chunk::outbound(np) ? 0 : chunk->getMaterial(np).id;
+            u8 neib = Chunk::outbound(np) ? 0 : chunk->getCell(np).id;
 
 //            bool opaq = neib == Blocks::LEAVES || (neib == Blocks::WATER && neib != blk);
 //            if (blk == Blocks::WATER && neib == blk)

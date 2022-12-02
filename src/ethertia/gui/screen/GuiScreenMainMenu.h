@@ -13,7 +13,6 @@
 #include "../GuiButton.h"
 
 #include <ethertia/render/Camera.h>
-#include <ethertia/render/renderer/ChunkRenderer.h>
 
 class GuiScreenMainMenu : public GuiCollection
 {

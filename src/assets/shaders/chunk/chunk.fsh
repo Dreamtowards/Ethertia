@@ -1,6 +1,8 @@
 #version 330 core
 
-out vec4 FragColor;
+layout(location = 0) out vec4 gPositionDepth;
+layout(location = 1) out vec3 gNormal;
+layout(location = 2) out vec4 gAlbedoRoughness;
 
 in vec3 Norm;
 in vec2 TexCoord;
@@ -12,13 +14,7 @@ in vec3 TriMtlWeight;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D displacementMap;
-uniform vec3 CameraPos;
-
-uniform float fogDensity;
-uniform float fogGradient;
-
-uniform vec3  cursorPos;
-uniform float cursorSize;
+uniform sampler2D roughnessMap;
 
 // actual int. use for calculate Mtl UV in the Texture Atlas. {x=MtlId/MtlCap, y=0.0, w=1.0/MtlCap, h=1.0}
 uniform float MtlCap;
@@ -30,6 +26,18 @@ const float MtlTexScale = 2.4;
 
 int max_i(float a, float b, float c) {
     return a > b ? (a > c ? 0 : 2) : (b > c ? 1 : 2);
+}
+
+
+float inv_lerp(float t, float start, float end) {
+    return (t - start) / (end - start);
+}
+float linear_depth(float pprojdepth) {  // for perspective projection
+    const float P_NEAR = 0.1f;
+    const float P_FAR  = 1000.0f;
+    float z = pprojdepth * 2.0 - 1.0; // back to NDC
+    float pDepth = (2.0 * P_NEAR * P_FAR) / (P_FAR + P_NEAR - z * (P_FAR - P_NEAR)); // [near, far]
+    return inv_lerp(pDepth, P_NEAR, P_FAR); // [0,1] linear.
 }
 
 vec3 tri_samp(sampler2D tex, int MtlId, vec3 FragPos, vec3 blend) {
@@ -54,11 +62,11 @@ vec3 samp_norm(vec2 uv) {
 
 void main()
 {
-    vec3 lightDir = normalize(vec3(2,-4,1));//3, -9, 7));
-
     vec3 FragNorm = Norm;
 
     vec3 Albedo;
+
+    float Roughness = 1.0;
 
     if (false) {  // no material id, use TexCoord.
         Albedo = texture(diffuseMap, TexCoord).rgb;
@@ -88,6 +96,8 @@ void main()
 //        :
         tri_samp(diffuseMap, int(TriMtlId[mostHeightVert]), FragPos, blend);
 
+        Roughness = tri_samp(roughnessMap, int(TriMtlId[mostHeightVert]), FragPos, abs(Norm)).r;
+
         {
             int MtlId = int(TriMtlId[mostHeightVert]);
             float texScale = 1 / MtlTexScale;
@@ -110,30 +120,11 @@ void main()
             );
         }
 
-        // texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.z));
-//            vec4(MtlId / 4);
-//            (texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.z)) * abs(dot(vec3(0, 1, 0), Norm)) +
-//             texture(diffuseMap, vec2(mod(FragPos.z * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.y)) * abs(dot(vec3(1, 0, 0), Norm)) +
-//             texture(diffuseMap, vec2(mod(FragPos.x * ReginSize.x, ReginSize.x) + ReginPos.x, FragPos.y)) * abs(dot(vec3(0, 0, 1), Norm)));
     }
 
 
-    float lightf = max(0.25, dot(-lightDir, FragNorm));
-
-    FragColor = vec4(lightf * Albedo, 1.0);
-
-    FragColor.b += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
-
-
-//    if (FragColor.a != 1.0f)
-//        discard;
-//
-
-//    float viewLen = length(CameraPos - FragPos);
-//    float fogf = clamp(pow(viewLen * fogDensity, fogGradient), 0.0, 1.0);
-//    vec3 fogColor = vec3(0.5, 0.6, 0.8) * 0.8;
-//    fogColor = vec3(0.235, 0.557, 0.8) * 0.9;
-//
-//    FragColor.rgb = mix(FragColor.rgb, fogColor, fogf);
+    gPositionDepth = vec4(FragPos, linear_depth(gl_FragCoord.z));
+    gNormal = FragNorm;
+    gAlbedoRoughness = vec4(Albedo, Roughness);
 
 }

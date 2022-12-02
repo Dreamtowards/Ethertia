@@ -189,7 +189,7 @@ void Ethertia::start() {
                             for (int dy = floor(-n); dy <= ceil(n); ++dy) {
                                 glm::vec3 d(dx, dy, dz);
 
-                                MaterialStat& b = world->getBlock(p + d);
+                                Cell& b = world->getBlock(p + d);
                                 float f = n - glm::length(d);
 
                                 // b.id = placingBlock;
@@ -204,7 +204,7 @@ void Ethertia::start() {
                             for (int dy = -n; dy <= n; ++dy) {
                                 glm::vec3 d(dx, dy, dz);
 
-                                MaterialStat& b = world->getBlock(p + d);
+                                Cell& b = world->getBlock(p + d);
                                 float f = n - glm::length(d);
 
                                 if (!window.isAltKeyDown())  {

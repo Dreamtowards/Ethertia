@@ -9,7 +9,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-class ChunkRenderer;
 class GuiRenderer;
 class FontRenderer;
 class EntityRenderer;
@@ -31,7 +30,6 @@ class World;
 class RenderEngine {
 
 public:
-    ChunkRenderer* chunkRenderer             = nullptr;
     GuiRenderer* guiRenderer                 = nullptr;
     FontRenderer* fontRenderer               = nullptr;
     EntityRenderer* entityRenderer           = nullptr;
@@ -44,7 +42,8 @@ public:
     Camera m_Camera{};
     Frustum viewFrustum{};
 
-    Framebuffer* gbuffer = nullptr;
+    Framebuffer* gbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
+    Framebuffer* dcompose = nullptr;  // Deferred Rendering Compose FBO
 
     float fov = 90;
     float viewDistance = 1;

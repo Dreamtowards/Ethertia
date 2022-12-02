@@ -21,6 +21,7 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/world/Octree.h>
+#include <ethertia/world/Cell.h>
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
@@ -67,23 +68,23 @@ public:
         delete dynamicsWorld->getBroadphase();
     }
 
-    MaterialStat& getBlock(glm::vec3 blockpos) {
+    Cell& getBlock(glm::vec3 blockpos) {
         Chunk* chunk = getLoadedChunk(blockpos);
         if (!chunk) return Materials::STAT_EMPTY;  // shouldn't
-        return chunk->getMaterial(Chunk::rpos(blockpos));
+        return chunk->getCell(Chunk::rpos(blockpos));
     }
-    MaterialStat& getBlock(int x, int y, int z) {
+    Cell& getBlock(int x, int y, int z) {
         return getBlock(glm::vec3(x,y,z));
     }
 
-    void setBlock(glm::vec3 p, MaterialStat m) {
+    void setBlock(glm::vec3 p, Cell& c) {
         Chunk* chunk = getLoadedChunk(p);
         if (!chunk) return;
         glm::ivec3 bp = Chunk::rpos(p);
-        chunk->setMaterial(bp, m);
+        chunk->setCell(bp, c);
 
     }
-    void setBlock(int x, int y, int z, MaterialStat m) {
+    void setBlock(int x, int y, int z, Cell& m) {
         setBlock(glm::vec3(x,y,z), m);
     }
     void requestRemodel(glm::vec3 p) {
@@ -391,7 +392,7 @@ public:
 
                 for (int dy = 0; dy < 16; ++dy) {
                     int y = chunkpos.y + dy;
-                    MaterialStat tmpbl = world->getBlock(x, y, z);
+                    Cell tmpbl = world->getBlock(x, y, z);
                     if (tmpbl.id == 0)// || tmpbl.id == Blocks::WATER)
                         continue;
                     if (tmpbl.id != Materials::STONE)
@@ -520,8 +521,8 @@ public:
 
 
 
-    static MaterialStat& _GetBlock(Chunk* chunk, glm::vec3 rp) {
-        return Chunk::outbound(rp) ? chunk->world->getBlock(chunk->position + rp) : chunk->getMaterial(rp);
+    static Cell& _GetBlock(Chunk* chunk, glm::vec3 rp) {
+        return Chunk::outbound(rp) ? chunk->world->getBlock(chunk->position + rp) : chunk->getCell(rp);
     }
 };
 

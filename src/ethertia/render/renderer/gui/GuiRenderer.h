@@ -28,7 +28,7 @@ public:
         });
     }
 
-    void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex =nullptr, float round =0, float border =FLT_MAX)
+    void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex =nullptr, float round =0, float border =FLT_MAX, int chnMode =0)
     {
         if (!tex)
             tex = Texture::UNIT;
@@ -43,14 +43,16 @@ public:
         shader.setVector2f("offset", Mth::ndc(x, y, ww, wh));
         shader.setVector2f("scale", glm::vec2(w/ww, h/wh));
 
-        shader.setVector2f("PixSize", glm::vec2(w, h));
+        shader.setVector2f("pixel_size", glm::vec2(w, h));
         shader.setFloat("border", border);
         shader.setFloat("round", round);
 
         shader.setVector4f("color", color);
 
+        shader.setInt("channelMode", chnMode);
+
         glBindVertexArray(M_RECT->vaoId);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 6);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
 };

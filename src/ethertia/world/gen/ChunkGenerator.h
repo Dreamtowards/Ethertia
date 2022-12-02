@@ -8,8 +8,8 @@
 #include <glm/vec3.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include <ethertia/material/stat/MaterialStat.h>
 #include <ethertia/init/Materials.h>
+#include <ethertia/world/Cell.h>
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/gen/NoiseGeneratorPerlin.h>
 #include <ethertia/util/Log.h>
@@ -169,8 +169,8 @@ public:
 //                                    bl = Materials::GRASS;
 //                                }
 //                                if (bl) {
-                                chunk->setMaterial(sX * sampleSize + dX, sY * sampleSize + dY, sZ * sampleSize + dZ,
-                                                   MaterialStat(bl, spZsum));
+                                chunk->setCell(sX * sampleSize + dX, sY * sampleSize + dY, sZ * sampleSize + dZ,
+                                                   Cell(bl, spZsum));
 //                                }
                                 spZsum += spZdiffx0;
                             }

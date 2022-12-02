@@ -170,4 +170,9 @@ Forum
 - Avatars
 - Modpacks
 
+
+1. Normal Smooth at ChunkBoundary
+1. Water
+1. Cloud
+
 -->

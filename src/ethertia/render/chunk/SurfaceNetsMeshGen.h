@@ -11,7 +11,6 @@
 class SurfaceNetsMeshGen
 {
 public:
-    using Cell = MaterialStat;
     using vec3 = glm::vec3;
 
     inline static const vec3 VERT[8] = {

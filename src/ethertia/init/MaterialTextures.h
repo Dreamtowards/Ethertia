@@ -31,9 +31,11 @@ public:
 
     inline static std::vector<std::string> TEXTURES = {
             "rock",
-            "moss",
-            "loam",
-            "sand"
+            "grass",
+            "black_dirt",
+            "sand",
+            "oak_log",
+            "plank"
     };
 
     static void init()
@@ -50,6 +52,7 @@ public:
         ATLAS_DIFFUSE = makeAtlas("diff", dest_res, "caches/atlas_diff.png");
         ATLAS_NORM    = makeAtlas("norm", dest_res, "caches/atlas_norm.png");
         ATLAS_DISP    = makeAtlas("disp", dest_res, "caches/atlas_disp.png");
+        ATLAS_ROUGH    = makeAtlas("rough", dest_res, "caches/atlas_rough.png");
 
         Log::info("Material Texture Atlases all loaded/generated.\1");
     }

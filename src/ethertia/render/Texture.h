@@ -11,26 +11,26 @@
 
 class Texture
 {
-    u32 textureID;
-    u32 width;
-    u32 height;
-
 public:
+    u32 texId;
+    int width;
+    int height;
+
     inline static Texture* UNIT;  // 1x1 pixel, RGBA=1 white tex.
 
-    Texture(u32 texId, u32 w, u32 h) : textureID(texId), width(w), height(h) {}
+    Texture(u32 texId, int w, int h) : texId(texId), width(w), height(h) {}
 
     ~Texture() {
-        glDeleteTextures(1, &textureID);
+        glDeleteTextures(1, &texId);
     }
 
     u32 getTextureID() const {
-        return textureID;
+        return texId;
     }
 
     static BitmapImage* glfGetTexImage(Texture* tex) {
         void* pixels = new char[tex->width * tex->height * 4];
-        glBindTexture(GL_TEXTURE_2D, tex->textureID);
+        glBindTexture(GL_TEXTURE_2D, tex->texId);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
         return new BitmapImage(tex->width, tex->height, (unsigned int*)pixels);
     }

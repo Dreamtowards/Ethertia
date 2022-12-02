@@ -317,8 +317,8 @@ public:
                         vec3 v0 = tbVert[edge[0]];
                         vec3 v1 = tbVert[edge[1]];
 
-                        MaterialStat& d0 = World::_GetBlock(chunk,rp+v0);
-                        MaterialStat& d1 = World::_GetBlock(chunk,rp+v1);
+                        Cell& d0 = World::_GetBlock(chunk,rp+v0);
+                        Cell& d1 = World::_GetBlock(chunk,rp+v1);
                         float t = Mth::rlerp(0.0f, d0.density, d1.density);
 //                        t = 0.5f;
 
@@ -328,7 +328,7 @@ public:
 //                        Some = Some % 4;
 //                        Some ++;
 
-                        MaterialStat& solid = d0.density > 0 ? d0 : d1;
+                        Cell& solid = d0.density > 0 ? d0 : d1;
                         assert(d0.density > 0 != d1.density > 0);
                         vbuf->_add_mtl_id(solid.id);
                     }
