@@ -1,12 +1,8 @@
-# Ethertia
+# Ethertia <sup><a href="https://elytra.dev/ethertia">[Site]</a><a href="https://github.com/Dreamtowards/Ethertia">[Src]</a><a href="https://elytra.dev/~pris">[Dev]</a></sup>
 
 Voxels, Realistic, Interactive
 
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
-
-> Site: https://elytra.dev/ethertia  
-> Source: https://github.com/Dreamtowards/Ethertia <!--`src/ethertia/client/Ethertia.h`-->    
-> Devs: [Eldrine Le Prismarine](https://elytra.dev/~pris), Dreamtowards
 
 
 Demo videos:
