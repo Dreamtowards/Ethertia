@@ -32,9 +32,9 @@ int max_i(float a, float b, float c) {
 float inv_lerp(float t, float start, float end) {
     return (t - start) / (end - start);
 }
+const float P_NEAR = 0.01f;
+const float P_FAR  = 1000.0f;
 float linear_depth(float pprojdepth) {  // for perspective projection
-    const float P_NEAR = 0.1f;
-    const float P_FAR  = 1000.0f;
     float z = pprojdepth * 2.0 - 1.0; // back to NDC
     float pDepth = (2.0 * P_NEAR * P_FAR) / (P_FAR + P_NEAR - z * (P_FAR - P_NEAR)); // [near, far]
     return inv_lerp(pDepth, P_NEAR, P_FAR); // [0,1] linear.

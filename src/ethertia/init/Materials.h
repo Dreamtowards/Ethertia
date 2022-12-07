@@ -24,6 +24,11 @@ public:
 
     static const u8 _SIZE  = 8;
 
+    static bool isCubic() {
+
+        return false;
+    }
+
 
 };
 

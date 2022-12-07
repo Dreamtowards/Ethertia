@@ -6,7 +6,6 @@
 
 
 #include <ethertia/world/World.h>
-#include <ethertia/util/Frustum.h>
 #include <ethertia/render/renderer/EntityRenderer.h>
 #include <ethertia/render/renderer/SkyGradientRenderer.h>
 #include <ethertia/render/renderer/SkyboxRenderer.h>
@@ -36,6 +35,14 @@ RenderEngine::RenderEngine()
         gbuffer->checkFramebufferStatus();
     Framebuffer::gPopFramebuffer();
 
+    dcompose = Framebuffer::glfGenFramebuffer(gbuffer->width, gbuffer->height);
+    Framebuffer::gPushFramebuffer(dcompose);
+        dcompose->attachColorTexture(0, GL_RGBA);
+        dcompose->checkFramebufferStatus();
+    Framebuffer::gPopFramebuffer();
+
+    RenderEngine::checkGlError("Init End");
+
 }
 
 RenderEngine::~RenderEngine() {
@@ -59,8 +66,9 @@ void RenderEngine::renderWorld(World* world)
 
 Framebuffer::gPushFramebuffer(gbuffer);
 
-    glm::vec4 _s = Colors::fromRGB(132, 205, 240);  // 0.517, 0.8, 0.94
-    glClearColor(_s.x, _s.y, _s.z, 1.0f);
+//    glm::vec4 _s = Colors::fromRGB(132, 205, 240);  // 0.517, 0.8, 0.94
+//    glClearColor(_s.x, _s.y, _s.z, 1.0f);
+    glClearColor(0, 0, 0, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST);
@@ -88,22 +96,39 @@ Framebuffer::gPushFramebuffer(gbuffer);
 
 Framebuffer::gPopFramebuffer();
 
-
-    skyboxRenderer->render();
+    // skyboxRenderer->render();
 
 
 //    glDisable(GL_DEPTH_TEST);
 //    glDisable(GL_BLEND);
 
+Framebuffer::gPushFramebuffer(dcompose);
+
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
 
-    RenderEngine::checkGlError();
+Framebuffer::gPopFramebuffer();
+
+    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::WHITE, dcompose->texColor[0]);
+
+    RenderEngine::checkGlError("End World Render");
 }
 
-void RenderEngine::checkGlError() {
+void RenderEngine::checkGlError(std::string_view phase) {
     GLuint err = glGetError();
     if (err) {
-        Log::warn("###### GL Error ######");
+        Log::warn("###### GL Error @{} ######", phase);
         Log::warn("ERR: {}", err);
     }
 }
+
+
+//    if (Ethertia::getWindow()->isAltKeyDown()) {
+//        Window* _wd = Ethertia::getWindow();
+//        RenderEngine* _rde = Ethertia::getRenderEngine();
+//        glm::vec3 ray = Mth::worldRay(_wd->getMouseX(), _wd->getMouseY(), _wd->getWidth(), _wd->getHeight(), _rde->projectionMatrix, _rde->viewMatrix);
+//
+//        Log::info("ray {}", glm::to_string(ray));
+//    }

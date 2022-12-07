@@ -14,11 +14,13 @@
 #include <ethertia/gui/GuiCheckBox.h>
 #include <ethertia/gui/GuiAlign.h>
 #include <ethertia/gui/GuiText.h>
+#include <ethertia/gui/GuiScrollBox.h>
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/render/renderer/EntityRenderer.h>
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
+
 
 class GuiIngame : public GuiCollection
 {
@@ -31,6 +33,7 @@ public:
     inline static bool dbgBasis = true;
     inline static bool dbgWorldBasis = true;
     inline static bool dbgEntityAABB = false;
+    inline static bool dbgChunkAABB = false;
 
     inline static bool dbgCursorRangeInfo = false;
 
@@ -56,25 +59,35 @@ public:
 
         {
             GuiStack* opts = new GuiStack(GuiStack::D_VERTICAL, 4);
-            opts->addDrawBackground(Colors::BLACK50);
+            opts->addDrawBackground(Colors::BLACK40);
             opts->setWidth(140);
 
             opts->addGui(newLabel("Rendering"));
             opts->addGui(new GuiSlider("FOV", 15, 165, &rde->fov, 5.0f));
 
-            opts->addGui(new GuiSlider("Camera Smoothness", 0, 5, &cam->smoothness, 0.5f));
-            opts->addGui(new GuiSlider("Camera Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
+            opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
+            opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
 
-            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &rde->entityRenderer->fogDensity, 0.001f));
-            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &rde->entityRenderer->fogGradient, 0.01f));
+            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &EntityRenderer::fogDensity, 0.001f));
+            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &EntityRenderer::fogGradient, 0.01f));
 
 
             opts->addGui(newLabel("Debug Geo."));
+
+            {
+                GuiButton* btnReloadShaders = new GuiButton("Reload Shaders");
+                opts->addGui(btnReloadShaders);
+                btnReloadShaders->addOnClickListener([](OnReleased* e) {
+                    delete Ethertia::getRenderEngine()->entityRenderer;
+                    Ethertia::getRenderEngine()->entityRenderer = new EntityRenderer();
+                });
+            }
 
             opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
             opts->addGui(new GuiCheckBox("Basis", &dbgBasis));
             opts->addGui(new GuiCheckBox("World Basis", &dbgWorldBasis));
             opts->addGui(new GuiCheckBox("Entity AABB", &dbgEntityAABB));
+            opts->addGui(new GuiCheckBox("Chunk AABB", &dbgChunkAABB));
 
             opts->addGui(new GuiCheckBox("GBuffers", &dbgGBuffers));
             opts->addGui(new GuiCheckBox("Norm & Border", &rde->debugChunkGeo));
@@ -83,14 +96,23 @@ public:
             opts->addGui(newLabel("World"));
             opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
 
-            opts->addGui(new GuiSlider("D/var1", 0, 256, &rde->entityRenderer->debugVar1, 0.1f));
-            opts->addGui(new GuiSlider("D/var2", 0, 8, &rde->entityRenderer->debugVar2, 0.1f));
+            opts->addGui(new GuiSlider("D/var0", -2, 2, &EntityRenderer::debugVar0, 0.01f));
+            opts->addGui(new GuiSlider("D/var1", 0, 4, &EntityRenderer::debugVar1, 0.01f));
+            opts->addGui(new GuiSlider("D/var2", 0, 256, &EntityRenderer::debugVar2, 0.1f));
 
-            opts->addGui(new GuiSlider("BrushCursor Size", 0, 16, &Ethertia::getBrushCursor().size, 0.2f));
-            opts->addGui(new GuiCheckBox("BrushCursor KeepTracking", &Ethertia::getBrushCursor().keepTracking));
-            opts->addGui(new GuiCheckBox("BrushCursor RangeInfo", &dbgCursorRangeInfo));
+            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getBrushCursor().size, 0.2f));
+            opts->addGui(new GuiCheckBox("Brush Tracking", &Ethertia::getBrushCursor().keepTracking));
+            opts->addGui(new GuiCheckBox("Brush pInfo", &dbgCursorRangeInfo));
 
-            addGui(optsGui=new GuiAlign(1.0f, 0.14f, opts));
+
+            GuiScrollBox* scrollbox = new GuiScrollBox();
+            scrollbox->setContent(opts);
+            scrollbox->setWidth(150);
+            scrollbox->setHeight(400);
+
+            addGui(optsGui=new GuiAlign(Inf, Inf,
+                                        scrollbox,
+                                        Inf, 16+8, 8, 8));
         }
 
 
@@ -100,6 +122,7 @@ public:
 
         {
             GuiPopupMenu* mRendering = newMenu(menubar, "Rendering");
+
         }
 
         {
@@ -171,18 +194,33 @@ public:
         if (dbgText) {
             float dt = Ethertia::getDelta();
             std::string dbg_s = Strings::fmt(
-                    "p: {}, E: {}/{}\n"
-                    "dt/ {}, {}fs\n"
-                    "ChunkStat: {}",
-                    glm::to_string(Ethertia::getCamera()->position), rde->entitiesActualRendered, Ethertia::getWorld()->getEntities().size(),
+                    "cam p: {}, ln: {}\n"
+                    "E: {}/{}\n"
+                    "dt/ {}, {}fs\n",
+                    glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len, rde->entitiesActualRendered, Ethertia::getWorld()->getEntities().size(),
                     dt, Mth::floor(1.0f/dt));
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
         }
 
         if (dbgEntityAABB) {
-            EntityPlayer* e = Ethertia::getPlayer();
-            AABB aabb = e->getAABB();
-            rde->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::RED);
+            for (Entity* e : Ethertia::getWorld()->getEntities()) {
+                AABB aabb = e->getAABB();
+                rde->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::RED);
+            }
+        }
+
+        if (dbgChunkAABB) { using glm::vec3;
+            int n = 1;
+            vec3 cpos = Mth::floor(Ethertia::getCamera()->position, 16);
+            for (int dx = -n; dx <= n; ++dx) {
+                for (int dy = -n; dy <= n; ++dy) {
+                    for (int dz = -n; dz <= n; ++dz) {
+                        vec3 d(dx, dy, dz);
+                        vec3 p = cpos + d * 16.0f;
+                        rde->renderLineBox(p, vec3(16), Colors::RED);
+                    }
+                }
+            }
         }
 
         if (dbgCursorRangeInfo) {

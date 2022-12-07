@@ -87,13 +87,19 @@ public:
     }
 
     void onCharInput(int ch) override {
-
         for (int i = 0; i < count(); ++i) { Gui* g = at(i);
             if (!g->isVisible())
                 continue;
             g->onCharInput(ch);
         }
+    }
 
+    void onScroll(float dx, float dy) override {
+        for (int i = 0; i < count(); ++i) { Gui* g = at(i);
+            if (!g->isVisible())
+                continue;
+            g->onScroll(dx, dy);
+        }
     }
 
 };

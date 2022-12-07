@@ -5,6 +5,9 @@
 #ifndef ETHERTIA_VERTEXPROCESS_H
 #define ETHERTIA_VERTEXPROCESS_H
 
+#include <glm/gtx/hash.hpp>
+#include <unordered_map>
+
 class VertexProcess
 {
 public:
@@ -44,6 +47,46 @@ public:
             Mth::vec3out(d * w0, &norm[i]);
             Mth::vec3out(d * w1, &norm[i+3]);
             Mth::vec3out(d * w2, &norm[i+6]);
+        }
+    }
+
+    // Only have pos info, assume its CCW winding Triangles pos, use cross product get norm.
+    // use for Chunk Boundary Normal Smoothing fix, only have neighbour vert positions
+    static void gen_avgnorm(size_t sampleVertCount, const float* samplePos, size_t normVertCount, float* out_norm) {
+        using glm::vec3;
+        size_t tris = sampleVertCount / 3;
+
+        std::unordered_map<vec3, vec3> pos2norm;
+
+        for (int i = 0; i < tris; ++i) {
+            vec3 p[3] = {
+                    Mth::vec3(&samplePos[i * 9]),
+                    Mth::vec3(&samplePos[i * 9 + 3]),
+                    Mth::vec3(&samplePos[i * 9 + 6])
+            };
+
+            // CCW Triangles, N = (v1-v0) x (v2-v0)
+            vec3 n = glm::cross((p[1] - p[0]), (p[2] - p[0]));
+
+            for (int j = 0; j < 3; ++j) {
+                auto it = pos2norm.find(p[j]);
+                if (it == pos2norm.end()) {
+                    pos2norm[p[j]] = n;
+                } else { //if (glm::dot(glm::normalize(n), glm::normalize(it->second)) > 0.7f) {  // smooth only those nearly-parallel normals
+                    it->second += n;
+                }
+            }
+        }
+
+        // Normalize
+        for (auto& it : pos2norm) {
+            it.second = glm::normalize(it.second);
+        }
+
+        for (int i = 0; i < normVertCount; ++i) {
+            vec3 p = Mth::vec3(&samplePos[i * 3]);
+            auto it = pos2norm.find(p);
+            Mth::vec3out(it->second, &out_norm[i*3]);
         }
     }
 

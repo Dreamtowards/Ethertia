@@ -50,11 +50,12 @@ public:
 
     }
 
-    float fogDensity = 0.02f;
-    float fogGradient = 1.5f;
+    inline static float fogDensity = 0.02f;
+    inline static float fogGradient = 1.5f;
 
-    float debugVar1 = 0;
-    float debugVar2 = 0;
+    inline static float debugVar0 = 0;
+    inline static float debugVar1 = 0;
+    inline static float debugVar2 = 0;
 
 //    ShaderProgram shader{Loader::loadAssetsStr("shaders/chunk/chunk.vsh"),
 //                         Loader::loadAssetsStr("shaders/chunk/chunk.fsh")};
@@ -111,7 +112,8 @@ public:
 
         shaderCompose.useProgram();
 
-        shaderCompose.setVector3f("CameraPos", Ethertia::getCamera()->position);
+        shaderCompose.setVector3f("CameraPos", Ethertia::getCamera()->actual_pos);
+        shaderCompose.setVector3f("CameraDir", Ethertia::getCamera()->direction);
 
         shaderCompose.setVector3f("cursorPos", Ethertia::getBrushCursor().position);
         shaderCompose.setFloat("cursorSize", Ethertia::getBrushCursor().size);
@@ -119,8 +121,14 @@ public:
         shaderCompose.setFloat("fogGradient", fogGradient);
         shaderCompose.setFloat("fogDensity", fogDensity);
 
+        shaderCompose.setFloat("debugVar0", debugVar0);
         shaderCompose.setFloat("debugVar1", debugVar1);
         shaderCompose.setFloat("debugVar2", debugVar2);
+
+        shaderCompose.setFloat("Time", Ethertia::getPreciseTime());
+
+        shaderCompose.setMatrix4f("matInvView", glm::inverse(Ethertia::getRenderEngine()->viewMatrix));
+        shaderCompose.setMatrix4f("matInvProjection", glm::inverse(Ethertia::getRenderEngine()->projectionMatrix));
 
         glBindVertexArray(EntityRenderer::M_RECT->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, M_RECT->vertexCount);

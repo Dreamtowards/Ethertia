@@ -6,8 +6,6 @@
 #define ETHERTIA_SURFACENETSMESHGEN_H
 
 
-#include <ethertia/world/Octree.h>
-
 class SurfaceNetsMeshGen
 {
 public:

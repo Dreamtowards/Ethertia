@@ -28,6 +28,10 @@ public:
 
     bool needUpdateModel = true;
 
+    // VertexData positions. for fix Normal Smoothing at Chunk Boundary.
+    // not use Physics Collision triangle positions yet, it's struct too complicated, BVH triangles, maybe later.
+    std::vector<float> vert_positions;
+
     /// the 'proxy' entity, for unified functionalities e.g. collisions
     EntityMesh* proxy = nullptr;
 
@@ -39,6 +43,7 @@ public:
 //        proxy->diffuseMap = MaterialTextures::ATLAS->atlasTexture;
     }
     ~Chunk() {
+
 
     }
 

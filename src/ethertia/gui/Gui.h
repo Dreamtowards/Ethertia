@@ -6,6 +6,7 @@
 #define ETHERTIA_GUI_H
 
 #include <vector>
+#include <stack>
 
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/UnifiedTypes.h>
@@ -240,6 +241,9 @@ public:
     virtual void onCharInput(int ch) {
 
     }
+    virtual void onScroll(float dx, float dy) {
+
+    }
 
 
 
@@ -364,6 +368,13 @@ public:
         return isPointOver(Gui::cursorX(), Gui::cursorY());
     }
 
+    bool isCursorOver(float x, float y, float w, float h) {
+        float cx = Gui::cursorX();
+        float cy = Gui::cursorY();
+        return cx >= x && cx < x+w &&
+               cy >= y && cy < y+h;
+    }
+
     static void drawRect(float x, float y, float w, float h, glm::vec4 color,
                          Texture* tex =nullptr,
                          float round  =0,
@@ -378,6 +389,49 @@ public:
 
     static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
 
+
+
+
+    inline static std::vector<glm::vec4> g_Scissors;
+
+    static void gPushScissor(float x, float y, float w, float h) {
+        if (g_Scissors.empty()) {
+            glEnable(GL_SCISSOR_TEST);
+        }
+        // final clip Overlapped Area (max(a.min, b.min), min(a.max, b.max), and ensure min < max.)
+        float begX = x, begY = y, endX = x+w, endY = y+h;
+        for (glm::vec4& v : g_Scissors) {
+            begX = Mth::max(begX, v.x);
+            begY = Mth::max(begY, v.y);
+            endX = Mth::min(endX, v.z);
+            endY = Mth::min(endY, v.w);
+        }
+        float clipWidth  = endX - begX;
+        float clipHeight = endY - begY;
+
+        glm::vec4 s(begX, begY, clipWidth, clipHeight);
+        g_Scissors.push_back(s);
+        glfScissor(begX, begY, clipWidth, clipHeight);
+    }
+
+    static void gPopScissor() {
+        g_Scissors.pop_back();
+        if (g_Scissors.empty()) {
+            glDisable(GL_SCISSOR_TEST);
+        } else {
+            glm::vec4& v = g_Scissors.back();
+            glfScissor(v.x, v.y, v.z, v.w);
+        }
+    }
+
+    static void glfScissor(float x, float y, float w, float h) {
+        glScissor(Gui::toFramebufferCoords(x),
+                  Gui::toFramebufferCoords(Gui::maxHeight()-y-h),
+                  Gui::toFramebufferCoords(w),
+                  Gui::toFramebufferCoords(h));
+    }
+
+    static float toFramebufferCoords(float f);
 
 // drawCornerStretchTexture
 

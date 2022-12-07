@@ -31,12 +31,6 @@
 
 //#include <ethertia/lang/Elytra.h>  et();
 
-//static bool running = false;
-//
-//void init();
-//void runMainLoop();
-//void destroy();
-
 int main()
 {
     Ethertia::run();
@@ -44,11 +38,6 @@ int main()
     return 0;
 }
 
-//void init() {
-//
-//    running = true;
-//
-//}
 
 bool Ethertia::running = false;
 
@@ -252,6 +241,7 @@ void renderGUI()
     rootGUI->onDraw();
 
     glEnable(GL_DEPTH_TEST);
+
 }
 
 
@@ -394,6 +384,99 @@ Camera* Ethertia::getCamera() {
     return &renderEngine->m_Camera;
 }
 
+static void doChunkModelUpload(Chunk* chunk) {
+    VertexBuffer* vbuf = nullptr;
+
+    {
+//        BenchmarkTimer _tm;
+//        Log::info("Chunk MeshGen. \1");
+
+//        vbuf = BlockyChunkMeshGen::genMesh(chunk, world);
+        vbuf = SurfaceNetsMeshGen::contouring(chunk);
+//        vbuf = MarchingCubesMeshGen::genMesh(chunk);
+//        vbuf = BlockyMeshGen::gen(chunk, new VertexBuffer);
+    }
+
+
+//#define ETHERIA_EXT_FixNormAvgAtChunkBoundary
+#ifndef ETHERIA_EXT_FixNormAvgAtChunkBoundary
+    {
+        vbuf->normals.reserve(vbuf->vertexCount() * 3);
+        VertexProcess::gen_avgnorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->vertexCount(), vbuf->normals.data());
+    }
+#else
+    // fix of Normal Smoothing at Chunk Boundary
+    {
+        using glm::vec3;
+        BenchmarkTimer _tm;
+
+        vbuf->normals.reserve(vbuf->vertexCount() * 3);
+
+        const vec3 faces[6] = {
+                vec3(-1, 0, 0), vec3(1, 0, 0),
+                vec3(0, -1, 0), vec3(0, 1, 0),
+                vec3(0, 0, -1), vec3(0, 0, 1)
+        };
+
+        chunk->vert_positions.clear();
+        Collections::push_back_all(chunk->vert_positions, vbuf->positions);
+
+        vec3 cp = chunk->position;
+
+        std::vector<float> all_pos;
+        Collections::push_back_all(all_pos, chunk->vert_positions);
+
+        int _numSamp = 0;
+        for (int face_i = 0; face_i < 6; ++face_i) {
+            const vec3& dif = faces[face_i] * 16.0f;
+
+            if (Chunk* bc = chunk->world->getLoadedChunk(cp + dif)) { _numSamp++;
+                std::vector<float>& bp = bc->vert_positions;
+
+                int tris = bp.size() / 9;
+                for (int tri_i = 0; tri_i < tris; ++tri_i) {
+                    // todo: Optimize, Only add Near Boundary Face's Triangle Vertices.
+//                    vec3 _p = Mth::vec3(&bp[tri_i*9]);
+//                    if (_p.x ) {
+//                        continue;
+//                    }
+
+                    all_pos.push_back(bp[tri_i*9]   + dif.x);
+                    all_pos.push_back(bp[tri_i*9+1] + dif.y);
+                    all_pos.push_back(bp[tri_i*9+2] + dif.z);
+
+                    all_pos.push_back(bp[tri_i*9+3]  + dif.x);
+                    all_pos.push_back(bp[tri_i*9+4] + dif.y);
+                    all_pos.push_back(bp[tri_i*9+5] + dif.z);
+
+                    all_pos.push_back(bp[tri_i*9+6] + dif.x);
+                    all_pos.push_back(bp[tri_i*9+7] + dif.y);
+                    all_pos.push_back(bp[tri_i*9+8] + dif.z);
+                }
+            }
+        }
+        Log::info("NormAvg. Neib {}, {}/{} \1", _numSamp, vbuf->vertexCount(), all_pos.size() / 3);
+
+
+        // Do the AvgNorm
+
+        VertexProcess::gen_avgnorm(all_pos.size() / 3, all_pos.data(), vbuf->vertexCount(), vbuf->normals.data());
+    }
+#endif
+
+
+
+    if (vbuf) {
+        Ethertia::getExecutor()->exec([chunk, vbuf]() {
+            delete chunk->proxy->model;
+
+            chunk->proxy->model = Loader::loadModel(vbuf, true);
+            chunk->proxy->setMesh(chunk->proxy->model, vbuf->positions.data());
+
+            delete vbuf;
+        });
+    }
+}
 
 static void checkChunksModelUpdate(World* world) {
     glm::vec3 vpos = Ethertia::getCamera()->position;
@@ -413,32 +496,11 @@ static void checkChunksModelUpdate(World* world) {
             }
         }
         if (chunk == nullptr)  // nothing to update
-            break;
+            return;
         chunk->needUpdateModel = false;
 
+        doChunkModelUpload(chunk);
 
-        VertexBuffer* vbuf = nullptr;
-
-//        vbuf = BlockyChunkMeshGen::genMesh(chunk, world);
-//        vbuf->initnorm();
-
-        vbuf = SurfaceNetsMeshGen::contouring(chunk);
-//        vbuf = MarchingCubesMeshGen::genMesh(chunk);
-//        vbuf = BlockyMeshGen::gen(chunk, new VertexBuffer);
-        vbuf->initnorm(true);
-
-
-
-        if (vbuf) {
-            Ethertia::getExecutor()->exec([chunk, vbuf]() {
-                delete chunk->proxy->model;
-
-                chunk->proxy->model = Loader::loadModel(vbuf, true);
-                chunk->proxy->setMesh(chunk->proxy->model, vbuf->positions.data());
-
-                delete vbuf;
-            });
-        }
     }
 }
 

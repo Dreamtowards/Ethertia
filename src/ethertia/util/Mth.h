@@ -168,6 +168,21 @@ public:
         return rot;
     }
 
+    // RH, Z-backward
+    static glm::vec3 worldRay(float x, float y, float w, float h, const glm::mat4& proj, const glm::mat4& view) {
+        using glm::vec2, glm::vec4;
+        vec2 ndc = Mth::ndc(x, y, w, h);
+
+        vec4 ray_clip = vec4(ndc.x, ndc.y, -1.0f, 1.0f);
+
+        vec4 ray_view = glm::inverse(proj) * ray_clip;
+        ray_view = vec4(ray_view.x, ray_view.y, -1.0f, 0.0f);
+
+        vec4 ray_world = glm::inverse(view) * ray_view;
+
+        return glm::normalize(glm::vec3(ray_world));
+    }
+
     static glm::mat4 viewMatrix(glm::vec3 position, glm::vec3 eulerAngles) {
         glm::mat4 rot = glm::mat4(1);
 

@@ -45,6 +45,11 @@ public:
         return arr;
     }
 
+    template<typename T>
+    static void push_back_all(std::vector<T>& dst, std::vector<T>& add) {
+        dst.insert(dst.end(), add.begin(), add.end());
+    }
+
 private:
     template<typename Itr, typename T>
     static Itr find_ptr(Itr first, Itr last, T* p) {

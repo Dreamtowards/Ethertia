@@ -19,6 +19,8 @@ public:
     glm::vec3 position;
     glm::vec3 eulerAngles;  // ORDER: YXZ
 
+    glm::vec3 actual_pos;
+
     glm::vec3 direction;  // produced by EulerAngles.
     float len;
 
@@ -45,7 +47,8 @@ public:
         eulerAngles.x = sX.current;
 
         len += dScroll;
-        len = Mth::clamp(len, 0.0f, 1000.0f);
+        len = Mth::max(len, 0.0f);
+//        len = Mth::clamp(len, 0.0f, 1000.0f);
 
     }
 
@@ -56,6 +59,7 @@ public:
 
         position = centerpos;
         glm::vec3 p = centerpos + -direction * len;
+        actual_pos = p;
 
         out_viewMatrix = Mth::viewMatrix(p, eulerAngles);
     }

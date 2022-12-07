@@ -6,6 +6,8 @@
 #define ETHERTIA_ENTITY_H
 
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
@@ -30,7 +32,7 @@ public:
     Texture* diffuseMap = Texture::UNIT;
 
     static void loadModelAndShape(const std::string& path, Model** md, btCollisionShape** sp = nullptr) {
-        VertexBuffer* vbuf = Loader::loadOBJ_(path);
+        VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr(path));
         *md = Loader::loadModel(vbuf);
         if (sp) {
             *sp = createHullShape(vbuf->vertexCount(), vbuf->positions.data());
@@ -53,6 +55,12 @@ public:
 
         delete rigidbody->getMotionState();
         delete rigidbody;
+    }
+
+    // entity types which doesn't need be store. e.g. Chunk Model Proxy, Players
+    static bool isSynthesis(Entity* e) {
+
+        return false;
     }
 
     virtual void onLoad(btDynamicsWorld* dworld) {

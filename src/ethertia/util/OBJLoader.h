@@ -70,6 +70,35 @@ public:
 
     }
 
+    static void saveOBJ(std::stringstream& out, size_t verts, float* pos, float* uv, float* norm) {
+
+        for (int vi = 0; vi < verts; ++vi) {
+            int _b = vi*3;
+            out << "v " << pos[_b] << " " << pos[_b + 1] << " " << pos[_b + 2] << "\n";
+        }
+
+        if (uv) {
+        for (int vi = 0; vi < verts; ++vi) {
+            int _b = vi*2;
+            out << "vt " << uv[_b] << " " << uv[_b + 1] << "\n";
+        }}
+
+        if (norm) {
+        for (int vi = 0; vi < verts; ++vi) {
+            int _b = vi*3;
+            out << "vn " << norm[_b] << " " << norm[_b + 1] << " " << norm[_b + 2] << "\n";
+        }}
+
+        for (int i = 0; i < verts; i+=3) {
+            const int _i = i + 1; // global index offset 1, obj spec.
+
+            out << "f "
+                << _i   << "/" << _i   << "/" << _i   << " "
+                << _i+1 << "/" << _i+1 << "/" << _i+1 << " "
+                << _i+2 << "/" << _i+2 << "/" << _i+2 << "\n";
+        }
+    }
+
 
 };
 

@@ -64,7 +64,7 @@ public:
 
     void renderWorld(World* world);
 
-    static void checkGlError();
+    static void checkGlError(std::string_view phase = "");
 
 
 
@@ -117,6 +117,7 @@ public:
         glBindVertexArray(model->vaoId);
         glDrawArrays(GL_LINES, 0, model->vertexCount);
     }
+
     void renderDebugWorldBasis() {
         int n = 4;
         int ex = 1;

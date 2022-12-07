@@ -43,7 +43,6 @@ public:
         if (content && content->isVisible()) {
             content->onKeyboard(key, pressed);
         }
-
     }
 
     void onMouseButton(int button, bool pressed) override {
@@ -55,11 +54,15 @@ public:
     }
 
     void onCharInput(int ch) override {
-
         if (content && content->isVisible()) {
             content->onCharInput(ch);
         }
+    }
 
+    void onScroll(float dx, float dy) override {
+        if (content && content->isVisible()) {
+            content->onScroll(dx, dy);
+        }
     }
 };
 

@@ -261,6 +261,8 @@ public:
 
         MouseScrollEvent e;
         EventBus::EVENT_BUS.post(&e);
+
+        Ethertia::getRootGUI()->onScroll(xoffset, yoffset);
     }
 
     static void onKeyboardKey(GLFWwindow* _w, int key, int scancode, int action, int mods) {

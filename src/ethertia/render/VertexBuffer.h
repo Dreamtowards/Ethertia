@@ -6,10 +6,8 @@
 #define ETHERTIA_VERTEXBUFFER_H
 
 #include <vector>
-#include <unordered_map>
 #include <glm/vec3.hpp>
 #include <glm/gtx/vector_angle.hpp>
-#include <glm/gtx/hash.hpp>
 
 
 #include <ethertia/util/Mth.h>
@@ -60,11 +58,13 @@ public:
     void initnorm(bool smooth = false) {
 
         normals.reserve(positions.size());
-        VertexProcess::othonorm(vertexCount(), positions.data(), normals.data(), smooth);
+//        VertexProcess::othonorm(vertexCount(), positions.data(), normals.data(), smooth);
 
-        if (smooth) {
-            avgnorm();
-        }
+//        if (smooth) {
+//            avgnorm();
+//        }
+
+        VertexProcess::gen_avgnorm(vertexCount(), positions.data(), vertexCount(), normals.data());
 
     }
 

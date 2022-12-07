@@ -56,11 +56,21 @@ public:
         return std::string(m.first, m.second);
     }
 
-    static VertexBuffer* loadOBJ_(const std::string& path) {
+    static VertexBuffer* loadOBJ(const std::string& objstr) {
         VertexBuffer* vbuf = new VertexBuffer();
-        std::stringstream ss(Loader::loadAssetsStr(path));
+        std::stringstream ss(objstr);
         OBJLoader::loadOBJ(ss, vbuf);
         return vbuf;
+    }
+
+    static void saveOBJ(const std::string& filename, size_t verts, float* pos, float* uv =nullptr, float* norm =nullptr) {
+        std::stringstream ss;
+        OBJLoader::saveOBJ(ss, verts, pos, uv, norm);
+
+        ensureFileParentDirsReady(filename);
+        std::ofstream fs(filename);
+        fs << ss.str();
+        fs.close();
     }
 
 
@@ -72,14 +82,19 @@ public:
     static BitmapImage* loadPNG(std::pair<void*, u32> m) {
         return loadPNG(m.first, m.second);
     }
+
     static void savePNG(BitmapImage* img, const std::string& filename) {
-        // mkdirs for parents of the file.
-        int _dir = filename.find('/');
-        if (_dir != std::string::npos) {
-            std::filesystem::create_directories(filename.substr(0, _dir));
-        }
+        ensureFileParentDirsReady(filename);
         if (!stbi_write_png(filename.c_str(), img->getWidth(), img->getHeight(), 4, img->getPixels(), 0)) {
             throw std::runtime_error("Failed to write PNG. "+filename);
+        }
+    }
+
+    static void ensureFileParentDirsReady(const std::string& filename) {
+        // mkdirs for parents of the file.
+        int _dir = filename.rfind('/');
+        if (_dir != std::string::npos) {
+            std::filesystem::create_directories(filename.substr(0, _dir));
         }
     }
 
