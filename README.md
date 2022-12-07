@@ -1,6 +1,5 @@
 # Ethertia
 
-Engine for _OtherLife_  
 Voxels, Realistic, Interactive
 
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
@@ -16,83 +15,19 @@ Demo screenshots: (Early test, 20221005)
 ![snap1](src/assets/elytra/site/eth/res/demo-s1.png)
 
 
-## Roadmap
-
-**Building**
-
-**Terrain Generation**
-
-**Rendering**
-
-**Multiplayer**
-
-**GUI**
-
-**Modding**
-
-**Interacting**
-
-### Gameplay
-
-Create, Explore, Survive.
-
-- **Explore**
-  - Biomes: Deserts, Plain, Cliff
-  
-- **Farming**
-  - Vegetables: Wheat, Potatoes, Carrots
-  
-- **Vehicles**
-  - Cars
-  - Trains
-  - Boats
-
 
 ### Credits
 
 __Ethertia is developed by:__  
 Game design, programming, graphics: [Eldrine Le Prismarine]()  
 Music and sounds:  
-Ingame artwork: 
-
-__Used following libraries&toolsets:__  
-- Cplusplus, GCC, CLion IDE, CMake
-- GLFW, GLM, glad, opengl
-- stb_image, stb_vorbis by [Sean Barrett ('nothings')](http://nothings.org)
-- BulletPhysics by Erwin Coumans
+Ingame artwork:   
+Used libs&tools: cpp, gcc, glfw, glm, stb, bullet3
 
 
 
 ## Updates
 
-### Todos
-
-<br>
-
-
-
-- [ ] SVOs and LoD for SurfaceNets
-- [ ] SDF Brushes, Brush Masks (Limit, Exclude)
-- [ ] Biomes
-  
-- [ ] Particle system
-- [ ] Batch Grass Rendering
-- [ ] Simple Clouds (Flat noise), Blocky Clouds (Multi layers), Volume Clouds
-- [ ] Acid Rendering (Inception)
-- [ ] Environment Reflection.
-- [ ] Paradox Mapping.
-- [ ] Shadow Mapping (necessary?)
-- [ ] SSAO.
-
-- [ ] World Storage
-- [ ] Networking, Multiplayer
-
-- [ ] Crafting Table [?]
-- [ ] Cars. (wheels and body)
-- [ ] Dual Contouring & SVOs & LoD
-- [ ] Unified Theory of Smoothness & Sharpness features.
-- [ ] VR Supports. MotionTrack. IKs.
-- [ ] Skeletal Animation. Frame transfer.
 
 ### 22u49 @20221205 [.43]
 
@@ -122,6 +57,7 @@ __Used following libraries&toolsets:__
 - [x] [.42] Framebuffer, gbuffer init.
 
 - [x] [.63] Deferred Rendering
+- [x] [.34] Specular Lighting via Roughness map.
 
 ### 22u41 @20221014 [.29]
 
@@ -135,8 +71,58 @@ __Used following libraries&toolsets:__
 _ps. marching cubes with kernel program generated vertex UVs._
 
 - [x] [.62] Multiple Material Texturing (naive full-triangle material texturing).  
-- [x] [.13] Gamemode creative/spectator (collision disabled, `/gamemode <1/2/3>`), Flying mode (gravity disable, `/fly [on/off]`).
+- [x] [.13] Gamemode creative/spectator (collision disabled, `/gamemode <1/2/3>`), Fly mode (gravity disable).
 
+
+---
+
+
+## Roadmap
+
+
+### Gameplay
+
+Create, Explore, Survive.
+
+- **Explore**
+  - Biomes: Deserts, Plain, Cliff
+
+- **Farming**
+  - Vegetables: Wheat, Potatoes, Carrots
+
+- **Vehicles**
+  - Cars
+  - Trains
+  - Boats
+
+### Todos
+
+<br>
+
+
+
+- [ ] SVOs and LoD for SurfaceNets
+- [ ] SDF Brushes, Brush Masks (Limit, Exclude)
+- [ ] Biomes
+
+- [ ] Particle system
+- [ ] Batch Grass Rendering
+- [ ] Simple Clouds (Flat noise), Blocky Clouds (Multi layers), Volume Clouds
+- [ ] Acid Rendering (Inception)
+- [ ] Environment Reflection.
+- [ ] Paradox Mapping.
+- [ ] Shadow Mapping (necessary?)
+- [ ] SSAO.
+
+- [ ] World Storage
+- [ ] Networking, Multiplayer
+
+- [ ] Crafting Table [?]
+- [ ] Cars. (wheels and body)
+- [ ] Dual Contouring & SVOs & LoD
+- [ ] Unified Theory of Smoothness & Sharpness features.
+- [ ] VR Supports. MotionTrack. IKs.
+- [ ] Skeletal Animation. Frame transfer.
 
 
 <!--
@@ -176,5 +162,20 @@ Forum
 1. Normal Smooth at ChunkBoundary
 1. Water
 1. Cloud
+
+
+**Building**
+
+**Terrain Generation**
+
+**Rendering**
+
+**Multiplayer**
+
+**GUI**
+
+**Modding**
+
+**Interacting**
 
 -->
