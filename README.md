@@ -69,22 +69,12 @@ __Used following libraries&toolsets:__
 
 <br>
 
-22u46 / Nov 18, 2022
 
-- [x] Deferred Rendering.
-
-
-
-22u42 / Oct 22, 2022
-
-22u43 / Oct 29, 2022
 
 - [ ] SVOs and LoD for SurfaceNets
 - [ ] SDF Brushes, Brush Masks (Limit, Exclude)
 - [ ] Biomes
-
-22u44 / Nov 5, 2022
-
+  
 - [ ] Particle system
 - [ ] Batch Grass Rendering
 - [ ] Simple Clouds (Flat noise), Blocky Clouds (Multi layers), Volume Clouds
@@ -94,12 +84,8 @@ __Used following libraries&toolsets:__
 - [ ] Shadow Mapping (necessary?)
 - [ ] SSAO.
 
-22u45 / Nov12, 2022
-
 - [ ] World Storage
 - [ ] Networking, Multiplayer
-
-22u46 / Nov 19, 2022
 
 - [ ] Crafting Table [?]
 - [ ] Cars. (wheels and body)
@@ -108,11 +94,24 @@ __Used following libraries&toolsets:__
 - [ ] VR Supports. MotionTrack. IKs.
 - [ ] Skeletal Animation. Frame transfer.
 
+### 22u49 @20221205 [.43]
+
+![note](saves/_figures/fig-221203-atmo-test.png)
+<img src="saves/_figures/fig-221203-p2.png" style="width: 20%">
+<img src="saves/_figures/fig-221203-p3.png" style="width: 20%">
+
+- [ ] Atmosphere test.
+- [ ] Fix NormAvg at Chunk Boundary, fail. cost lot, have bugs yet.
+- [x] GuiScrollBox, Gui::gPushScissor()
+- [x] misc: OBJLoader::saveOBJ(), Deferred Render Composer FBO. Mth::worldRay()
+
 ### 22u48 @20221129 [.68]
 
 ![note](saves/_figures/fig-221129-p2.png)
 <img src="saves/_figures/fig-221129-p3.png" style="width: 20%">
 <img src="saves/_figures/fig-221129-sn-mtl.png" style="width: 20%">
+<img src="saves/_figures/fig-221129-p4.png" style="width: 20%">
+<img src="saves/_figures/fig-221129-p5.png" style="width: 20%">
 
 - [x] [.79] SurfaceNets Terrain, Unified Grids
   - FeaturePoint Evaluation, Naive Method.
@@ -121,6 +120,8 @@ __Used following libraries&toolsets:__
 - [x] [.63] Triplanar Normal Mapping.
 - [x] [.54] Material Texture Atlas spec.
 - [x] [.42] Framebuffer, gbuffer init.
+
+- [x] [.63] Deferred Rendering
 
 ### 22u41 @20221014 [.29]
 
@@ -138,6 +139,8 @@ _ps. marching cubes with kernel program generated vertex UVs._
 
 
 
+<!--
+
 ### Ancient
 
 - [x] Blocky Terrain, Cubical Chunks, Unified Grids, Basic Population. Simple Trees, Plants [@2022_Jul](https://www.youtube.com/watch?v=xDwgZkYrPm8&t=14s)
@@ -148,7 +151,6 @@ _ps. marching cubes with kernel program generated vertex UVs._
 
 ### 
 
-<!--
 
 [Tutorial, Discussion, Questions; Multiplayer, Mods, Redstone]
 Topic (Mods, Survival, Dev) / Type (Tutorial, Discussions, Questions)
