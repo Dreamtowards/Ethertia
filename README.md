@@ -6,9 +6,7 @@ Voxels, Realistic, Interactive
 
 
 Demo videos:
-[20221008](),  
-Demo screenshots: (Early test, 20221005)
-![snap1](src/assets/elytra/site/eth/res/demo-s1.png)
+[20221008]()
 
 
 

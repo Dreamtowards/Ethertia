@@ -6,6 +6,7 @@
 #define ETHERTIA_GUIINGAME_H
 
 #include "../GuiCollection.h"
+#include "GuiScreenMainMenu.h"
 
 #include <ethertia/gui/GuiStack.h>
 #include <ethertia/gui/GuiButton.h>
@@ -283,6 +284,30 @@ public:
         for (int rx = -n; rx <= n; ++rx) {
             for (int rz = -n; rz <= n; ++rz) {
                 Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, -n, rz), glm::vec3(0, 2*n, 0), Colors::GRAY);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+    void onKeyboard(int key, bool pressed) override {
+
+        if (pressed) {
+            if (key == GLFW_KEY_ESCAPE) {
+                GuiRoot* rootGui = Ethertia::getRootGUI();
+
+                Gui* top = rootGui->last();
+                if (top != GuiIngame::INST) {
+                    rootGui->removeGui(top);
+                } else {
+                    rootGui->addGui(GuiScreenMainMenu::INST);
+                }
             }
         }
     }

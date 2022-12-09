@@ -59,15 +59,10 @@ void RenderEngine::renderWorld(World* world)
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-
+    // Geometry of Deferred Rendering
 
 Framebuffer::gPushFramebuffer(gbuffer);
 
-//    glm::vec4 _s = Colors::fromRGB(132, 205, 240);  // 0.517, 0.8, 0.94
-//    glClearColor(_s.x, _s.y, _s.z, 1.0f);
     glClearColor(0, 0, 0, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -75,6 +70,8 @@ Framebuffer::gPushFramebuffer(gbuffer);
     glEnable(GL_CULL_FACE);
 
     glDisable(GL_BLEND);  // Blending is inhabited in Deferred Rendering.
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     entitiesActualRendered = 0;
     for (Entity* entity : world->getEntities()) {
@@ -99,8 +96,8 @@ Framebuffer::gPopFramebuffer();
     // skyboxRenderer->render();
 
 
-//    glDisable(GL_DEPTH_TEST);
-//    glDisable(GL_BLEND);
+
+    // Compose of Deferred Rendering
 
 Framebuffer::gPushFramebuffer(dcompose);
 
@@ -110,6 +107,9 @@ Framebuffer::gPushFramebuffer(dcompose);
     entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
 
 Framebuffer::gPopFramebuffer();
+
+
+    // Result.
 
     Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::WHITE, dcompose->texColor[0]);
 
@@ -125,10 +125,9 @@ void RenderEngine::checkGlError(std::string_view phase) {
 }
 
 
-//    if (Ethertia::getWindow()->isAltKeyDown()) {
+//    Get World Ray from Screen Pixel.
 //        Window* _wd = Ethertia::getWindow();
 //        RenderEngine* _rde = Ethertia::getRenderEngine();
 //        glm::vec3 ray = Mth::worldRay(_wd->getMouseX(), _wd->getMouseY(), _wd->getWidth(), _wd->getHeight(), _rde->projectionMatrix, _rde->viewMatrix);
 //
 //        Log::info("ray {}", glm::to_string(ray));
-//    }

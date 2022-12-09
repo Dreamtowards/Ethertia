@@ -34,7 +34,7 @@
                     <a href="#about">About</a>
                 </div>
                 <div class="d-inline-block border-start" style="height: 14px; opacity: 70%; margin: 0 16px;margin-bottom: -1px;"></div>
-                <a href="https://www.youtube.com/channel/UC8Kdf-RLB25f_wBYYnSk3xA">YouTube</a>
+                <a href="https://youtube.com/@dreamtowards">YouTube</a>
                 <a>Wikipedia</a>
                 <a href="https://discord.gg/k7ssbPJQnp">Discord</a>
                 <a href="https://github.com/Dreamtowards">Github</a>
@@ -124,12 +124,12 @@
                     A lightweight Windows & Android App, could Chat&Op with people in Minecraft Server.
                 </span>
             </div>
-            <div class="proj-card">
-                <span class="title">Flare</span>
-                <span class="desc">
-                    An ACG Picture Platform tribute to Pivix's ban from China mainland.
-                </span>
-            </div>
+<!--            <div class="proj-card">-->
+<!--                <span class="title">Flare</span>-->
+<!--                <span class="desc">-->
+<!--                    An ACG Picture Platform tribute to Pivix's ban from China mainland.-->
+<!--                </span>-->
+<!--            </div>-->
 <!--            <div class="proj-card">-->
 <!--                <span class="title">StateSquare</span>-->
 <!--                <span class="desc">-->
@@ -170,13 +170,13 @@
         (function () {
             var playlists = {
                 "Ethertia Devlog Series": [{
-                    poster: "https://i.ytimg.com/vi/xDwgZkYrPm8/hqdefault.jpg",
-                    title: "Ethertia Devlog 1 :: Trees",
+                    poster: "https://i.ytimg.com/vi/hfMk-kjRv4c/hqdefault.jpg",
+                    title: "How to Create a Neural Network (and Train it to Identify Doodles)",
                     desc: "Jul 5, 2022 · 11:43",
                     url: "https://www.youtube.com/watch?v=xDwgZkYrPm8"
                 }, {
-                    poster: "res/bg29.png",
-                    title: "Ethertia Devlog 1 :: Trees",
+                    poster: "https://i.ytimg.com/vi/pNp4ug5F6To/hqdefault.jpg",
+                    title: "Polishing and Releasing My Tiny Geography",
                     desc: "Jul 5, 2022 · 11:43"
                 }],
                 "Casual Days Dlogs": [{
@@ -190,13 +190,13 @@
             let html = "";
             for (let plist in playlists) {
                 html +=
-                `<div>
-                    <p>${plist}</p>
+                `<div class="playlist-box">
+                    <p class="playlist-title">${plist}</p>
                     <div>`;
                         for (let vid of playlists[plist]) {
                             html +=
                         `<a class="vid text-decoration-none" href="${vid.url}">
-                            <img style="background-image: url('${vid.poster}')">
+                            <div class="vid-poster" style="background-image: url('${vid.poster}')"></div>
                             <span class="vid-title">${vid.title}</span>
                             <span class="vid-desc">${vid.desc}</span>
                         </a>`
@@ -209,43 +209,155 @@
         })();
     </script>
 
+
+
+
+
+
+
+    <div id="logs" class="container section">
+        <p>Logs <small class="text-muted"></small></p>
+        <div id="loglist_intl">
+            <div class="playlist-box">
+                <p class="playlist-title">Ethertia Dev</p>
+                <div class="log-box">
+                    <a href="#">Ladders</a>
+                    <span class="log-desc">
+                        <img src="https://miro.medium.com/fit/c/112/112/0*orxbv-KF1bd0Ix_k.png">
+                        <span class="text-2line">
+                            Hermit launches linux x86_64 programs in a special, hermetically isolated sprograms in…
+                        </span>
+                    </span>
+                    <span>2022-10-22 &nbsp; <span class="log-tags">Voxel</span><span class="log-tags">Spline</span></span>
+                </div>
+            </div>
+
+            <div class="playlist-box">
+                <p class="playlist-title">Lifetime Logs</p>
+                <div class="log-box">
+                    <a href="#">Carnige How to Win Friends and Influcence People.</a>
+                    <span class="log-desc">
+                        <img src="https://miro.medium.com/fit/c/112/112/0*orxbv-KF1bd0Ix_k.png">
+                        <span class="text-2line">
+                            Hermit launches linux x86_64 programs in a special, hermetically isolated sandbox to control their execution. Hermit translates normal, nondetermin…
+                        </span>
+                    </span>
+                    <span>2022-10-22 &nbsp; <span class="log-tags">Voxel</span><span class="log-tags">Spline</span></span>
+                </div>
+
+            </div>
+        </div>
+        <script>
+            (function () {
+                var loglists = {
+                    "Technocaprices": [{
+                            poster: "https://elytra.dev/~pris/res/bg10.png",
+                            title: "Flat Atmosphere Rendering",
+                            url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                            tags: ['Atmosphere', 'Graphics'],
+                            desc: "Atmosphere always is Spherical due to Gravity Theory. ",
+                            time: "2022-12-09",
+                        },
+                    ],
+                    "Ethertia Updates": [{
+                        poster: "https://raw.githubusercontent.com/Dreamtowards/Ethertia/main/saves/_figures/fig-221203-atmo-test.png",
+                        title: "22u48 T.37 Updates",
+                        url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                        tags: ['Week Update'],
+                        desc: "Atmosphere test, NormAvg ChunkBoundary fix fail, GuiScrollBox",
+                        time: "2022-12-03",
+                    }],
+                    "Live Love Life": [{
+                        poster: "https://i.ytimg.com/vi/CM4X4a0iSpI/hqdefault.jpg",
+                        title: "NVC · Nonviolence Communication, Rosinberg",
+                        url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                        tags: ['Render', 'Raymarching'],
+                        desc: "Hermit launches linux x86_64 programs in a special, hermetically isolated sandbox to control their execution. Hermit translates normal, nondetermin…",
+                        time: "Jul 5, 2022",
+                    }]
+                };
+
+                let html = "";
+                for (let lis in loglists) {
+                    html +=
+                `<div class="playlist-box">
+                    <p class="playlist-title">${lis}</p>`;
+                    for (let log of loglists[lis]) {
+                        let tagsHtml = "";
+                        for (let tag of log.tags) {
+                            tagsHtml += `<span class="log-tags">${tag}</span>`;
+                        }
+
+                        html +=
+                    `<div class="log-box" style="position: relative; overflow: hidden;">
+                        <div style="background-image: url('${log.poster}'); filter: blur(6px) brightness(80%); z-index: -1; margin: -10px; background-size: cover; background-position: center; overflow: hidden; position: absolute; top: 0; bottom: 0; left: 0; right: 0;"></div>
+                        <a href="${log.url}">${log.title}</a>
+                        <span class="log-desc">
+                            <!-- <img src='${log.poster}'>-->
+                            <span class="text-2line">
+                                ${log.desc}
+                            </span>
+                        </span>
+                        <span class="log-info">${log.time} &nbsp; ${tagsHtml}</span>
+                    </div>`;
+                    }
+                    html +=
+                `</div>`;
+                }
+                document.querySelector("#loglist_intl").innerHTML = html;
+            })();
+        </script>
+    </div>
+
+
+
+
+
+
+
     <div id="articles" class="container section">
-        <p>Articles</p>
+        <p>Articles · Papers · Publications</p>
         <div id="articles_intl">
-            <p>2022</p>
-            <div>
-                <span><a href="#">Skeleton Animation generated by Tracking Points</a></span>
-                <span>Eldrine Le Prismarine · GPUs, 2022.</span>
+            <div class="article-category-box">
+                <p class="article-category-title">2022</p>
+                <div class="artic-item">
+                    <span><a href="#">Skeleton Animation generated by Tracking Points</a></span>
+                    <span>Eldrine Le Prismarine · GPUs, 2022.</span>
+                </div>
+                <div class="artic-item">
+                    <span><a href="#">Streaming of Skeleton Animation</a></span>
+                    <span>Eldrine Le Prismarine · GPUs, 2022.</span>
+                </div>
+                <div class="artic-item">
+                    <span><a href="#">The Acid Transformation Matrix of Inception.</a></span>
+                    <span>Eldrine Le Prismarine · GPUs, 2022.</span>
+                </div>
+                <div class="artic-item">
+                    <span><a href="#">Numerous and Waved Grass Rendering Implementation.</a></span>
+                    <span>Eldrine Le Prismarine · GPUs, 2022.</span>
+                </div>
+                <div class="artic-item">
+                    <span><a href="#">Voxel Traversal for Raycast Implementation.</a></span>
+                    <span>Eldrine Le Prismarine · Voxel unifiedgrids, 2022.</span>
+                </div>
             </div>
-            <div>
-                <span><a href="#">Streaming of Skeleton Animation</a></span>
-                <span>Eldrine Le Prismarine · GPUs, 2022.</span>
+            <div class="article-category-box">
+                <p class="article-category-title">2021</p>
+                <div class="artic-item">
+                    <span><a href="#">Level of Detail for Dual Contouring Implementation</a> <span class="pro-label fw-normal">Isosurface</span></span>
+                    <span>Jakub Bokskansky, Cyril Crassin, Tomas Akenine-Möller · Eldaria Graphics Gems, chapter 10, 2021.</span>
+                </div>
+                <div class="artic-item">
+                    <span><a href="#">Improved Shadow Detail and Performance using Spherical Projection</a> <span class="pro-label fw-normal">Graphics</span></span>
+                    <span>Eldrine Le Prismarine · Eldaria Graphics Gems II, chapter 10, 2021.</span>
+                </div>
             </div>
-            <div>
-                <span><a href="#">The Acid Transformation Matrix of Inception.</a></span>
-                <span>Eldrine Le Prismarine · GPUs, 2022.</span>
-            </div>
-            <div>
-                <span><a href="#">Numerous and Waved Grass Rendering Implementation.</a></span>
-                <span>Eldrine Le Prismarine · GPUs, 2022.</span>
-            </div>
-            <div>
-                <span><a href="#">Voxel Traversal for Raycast Implementation.</a></span>
-                <span>Eldrine Le Prismarine · Voxel unifiedgrids, 2022.</span>
-            </div>
-            <p>2021</p>
-            <div>
-                <span><a href="#">Level of Detail for Dual Contouring Implementation</a> <span class="pro-label fw-normal">Isosurface</span></span>
-                <span>Jakub Bokskansky, Cyril Crassin, Tomas Akenine-Möller · Eldaria Graphics Gems, chapter 10, 2021.</span>
-            </div>
-            <div>
-                <span><a href="#">Improved Shadow Detail and Performance using Spherical Projection</a> <span class="pro-label fw-normal">Graphics</span></span>
-                <span>Eldrine Le Prismarine · Eldaria Graphics Gems II, chapter 10, 2021.</span>
-            </div>
-            <p>2019</p>
-            <div>
-                <span><a href="#">Discrete Collision Detection using Minkoskiv Sum GJK Algorithm</a> <span class="pro-label fw-normal">DCD</span></span>
-                <span>Zander Majercik, Cyril Crassin, Peter Shirley, Morgan McGuire · Journal of Computer Graphics Techniques</span>
+            <div class="article-category-box">
+                <p class="article-category-title">2019</p>
+                <div class="artic-item">
+                    <span><a href="#">Discrete Collision Detection using Minkoskiv Sum GJK Algorithm</a> <span class="pro-label fw-normal">DCD</span></span>
+                    <span>Zander Majercik, Cyril Crassin, Peter Shirley, Morgan McGuire · Journal of Computer Graphics Techniques</span>
+                </div>
             </div>
         </div>
     </div>
@@ -296,8 +408,16 @@
         </script>
     </div>
 
-    <div id="logs" class="container section">
-        <p>Logs <small class="text-muted">(Constructing)</small></p>
+
+
+
+
+
+
+
+
+    <div id="dlogs" class="container section">
+        <p>Schedule <small class="text-muted">(Constructing)</small></p>
         <div id="logs_intl" style="height: 144px; overflow-y: auto;">
 
 <!--            <iframe src="https://www.tumblr.com/mega-editor/published/edwardrolinsen" id="tumblr-frm" style="width: 100%; height: 300px;"-->
@@ -311,7 +431,7 @@
                 let html = "";
                 for (let i = 0;i < 60;++i) {
                     let showdate = i % 10 === 0;
-                    html += `<div class="log-sq"`+(showdate || true || Math.random() > 0.6 ? "" : `style="background-image: url('res/bg${(i+1) % 33}.png')"`)+`>`;
+                    html += `<div class="log-sq"`+(showdate || true || Math.random() > 0.6 ? "" : `style="background-image: url('res/bg${(i+1) % 2}.png')"`)+`>`;
 
                     if (showdate) {
                         html +=
@@ -330,12 +450,23 @@
         </script>
     </div>
 
+
+
+
+
+
+
+
+
+
+
+
     <div id="about" class="container section">
         <p>About</p>
 
         <div class="text-muted">
             Hello I'm Eldrine Le Prismarine live in <a href="https://en.wikipedia.org/wiki/Jiangxi">Jiangxi</a> in the <a href="https://en.wikipedia.org/wiki/China">China</a>.
-            I'm interested in computer programming (particularly Graphics, Voxel Systems, Isosurface Contouring, Programming Language Design & Dev),
+            I'm interested in computer programming (graphics, voxels, isosurface, langdev),
             music and recording things.; iNFp-T, M, 2002.
         </div>
 
@@ -343,27 +474,27 @@
 
         <p class="mt-3 mb-2 fw-lighter fs-5 text-black">Preferences:</p>
         <div id="musiclist">
-            <span class="d-block fs-small text-muted">Fav Musics:</span>
-            <p>- Dennis Kuo - Blue Deja Vu.</p>
-            <p>- re:plus - Strife.</p>
-            <p>- DECO*27 - VOCALOID COLLECTION 2008～2012</p>
-            <p>- PAX JAPONICA GROOVE - Million Mind · Radiophonic</p>
+<!--            <span class="d-block fs-small text-muted">Fav Musics:</span>-->
+            <p>- <small>Music:</small> re:plus - Blue Sky. / Dennis Kuo - Blue Deja Vu. / C418 / colate / July</p>
+<!--            <p>- </p>-->
+<!--            <p>- DECO*27 - VOCALOID COLLECTION 2008～2012</p>-->
+<!--            <p>- PAX JAPONICA GROOVE - Million Mind · Radiophonic</p>-->
             <!--<p>- Minecraft - C418 · Volume Alpha.</p>-->
             <!--<p class="text-muted">- [colate, Nujabes, re:plus, July, Elyonbeats, C418]</p>-->
 
 
-            <span class="d-block fs-small text-muted mt-2">Fav Games & Software & Devices:</span>
-            <p>- <small>Software:</small> Minecraft Beta 1.7.3 | Blender | CLion | IntelliJ IDEA | Google Calendar | OSX 10.15 Catalina | Ubuntu 16.04</p>
+<!--            <span class="d-block fs-small text-muted mt-2">Fav Games & Software & Devices:</span>-->
+            <p>- <small>Software:</small> Minecraft Beta 1.7.3 | Blender | CLion | Google Calendar | OSX 10.15 Catalina | Ubuntu 16.04</p>
 <!--            <p>- Games: Cities: Skyline | GTA: SA,V | Euro Simulator II | VR Chat</p>-->
 <!--            <p>- Devices: iPhone 5s, SE 2016 | Google Pixel 3 JustBlack™ </p>-->
-            <p>- <small>Movies:</small> La casa de papel | Avatar | Cloverfield | The Imitation Game | Interstellar | 2012 | Maze Runner | Inception | TENET | OtherLife | Into the Storm | Spectral</p>
+            <p>- <small>Movies:</small> Inception | OtherLife | Interstellar | TENET | Spectral | The Imitation Game | La casa de papel | Cloverfield | Maze Runner | Into the Storm | Avatar | 2012</p>
 
         </div>
 
 
         <p class="mt-4 mb-2 fw-lighter fs-5 text-black">Externalinks:</p>
         <div id="ref-linkpool">
-            <span class="d-block fs-small text-muted">Personals:</span>
+<!--            <span class="d-block fs-small text-muted">Personals:</span>-->
             <a href="http://procworld.blogspot.com/">Miguel Cepero</a>
             <a href="https://www.youtube.com/channel/UCUkRj4qoT1bsWpE_C8lZYoQ">Thin Matrix</a>
             <a href="https://www.youtube.com/channel/UCmtyQOKKmrMVaKuRXz02jbQ">Sebastian Lague</a>
@@ -372,15 +503,16 @@
             <a href="https://www.youtube.com/c/InigoQuilez/videos">Inigo Quilez</a>
             <a href="https://thecherno.com">Yan Chernikov</a>
             <a href="https://0fps.net">0Fps</a>
-            <br>
+
             <a href="https://www.youtube.com/c/Alpine1">Alpine</a>
             <a href="https://ceylan.lc/">Ceylan Le Compte</a>
-            | &nbsp; <!-- <br>-->
+            / &nbsp; <!-- <br>-->
             <a href="https://porterrobinson.com/">Porter Robinson</a>
             <a href="https://minecraft-ids.grahamedgecombe.com/">Graham Edgecombe</a>
 
 
-            <span class="d-block fs-small mt-3 text-muted">Organizations:</span>
+            <div class="my-2"></div>
+<!--            <span class="d-block fs-small mt-3 text-muted">Organizations:</span>-->
             <a href="https://www.scratchapixel.com/">Scratchapixel</a>
             <a href="https://web.archive.org/web/20201107224030/http://chunkstories.xyz/blog/a-note-on-descriptor-indexing/">Chunk Stores</a>
             <a href="https://trello.com/b/t5Leypcj/rising-world-development">Rising World</a>
@@ -409,78 +541,79 @@
         </div>
 
 
-        <details>
-            <summary class="mt-5 mb-2 fw-lighter fs-5 text-black" onclick="if (!window.location.href.endsWith('#sfd')) window.location.href += '#sfd'">
-                自述:
-            </summary>
-        <div class="text-muted fw-light">
-            <br>
-            你好，很高兴如果有人能访问到这样一个以太网的角落。<br>
-            我是 Pris, Eldrine Le pRismarine. 叫我 pris 即可. 下面 我或从几方面审视自己。
+<!--        <details>-->
+<!--            <summary class="mt-5 mb-2 fw-lighter fs-5 text-black" onclick="if (!window.location.href.endsWith('#sfd')) window.location.href += '#sfd'">-->
+<!--                自述:-->
+<!--            </summary>-->
+<!--        <div class="text-muted fw-light">-->
+<!--&lt;!&ndash;            <br>&ndash;&gt;-->
+<!--&lt;!&ndash;            你好，很高兴如果有人能访问到这样一个以太网的角落。<br>&ndash;&gt;-->
+<!--&lt;!&ndash;            我是 Pris, Eldrine Le pRismarine. 叫我 pris 即可. 下面 我或从几方面审视自己。&ndash;&gt;-->
 
 
-            <span class="d-block fs-small mt-3 text-muted">社会地位:</span>
-            <p>
-                - 废物<br>
-                我记得有人对我说 '你不一定是最棒的，但一定是最胖的'。<!-- 我'真的'很难受, 虽然我也不是很胖。-->
-            </p>
+<!--&lt;!&ndash;            <span class="d-block fs-small mt-3 text-muted">社会地位:</span>&ndash;&gt;-->
+<!--&lt;!&ndash;            <p>&ndash;&gt;-->
+<!--&lt;!&ndash;                - 废物<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                我记得有人对我说 '你不一定是最棒的，但一定是最胖的'。&lt;!&ndash; 我'真的'很难受, 虽然我也不是很胖。&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
 
-            <span class="d-block fs-small mt-3 text-muted">我, Pris:</span>
-            <p>
-                贰零零贰年生人。最大的特长: 代码剽窃。<br>
-                人格测试: iNFp-T。<br>
-                位于江西，<!--师范音乐学-->在读。
-                <b></b>
-            </p>
+<!--&lt;!&ndash;            <span class="d-block fs-small mt-3 text-muted">我, Pris:</span>&ndash;&gt;-->
+<!--&lt;!&ndash;            <p>&ndash;&gt;-->
+<!--&lt;!&ndash;                贰零零贰年生人。最大的特长: 代码剽窃。<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                人格测试: iNFp-T。<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                位于江西，&lt;!&ndash;师范音乐学&ndash;&gt;在读。&ndash;&gt;-->
+<!--&lt;!&ndash;                <b></b>&ndash;&gt;-->
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
 
-            <span class="d-block fs-small mt-3 text-muted">爱好:</span>
-            <p class="mb-3">
-                - 电影: 我喜欢电影。我崇拜电影。我认为那不是电影。小时候 有一台很老式的笔记本电脑，是家长的朋友送给我的。它给了我很多。<br>
-                最早令我印象深刻的是 《盗梦空间》(Inception, 2010 Nolan)。当到达梦境的边缘 平静而宏伟的情境下 河岸对面重叠的高楼 像某种世界错误 但又携带无尽美丽。
-                <i>bytheway, 这让我想到 《當個創世神》(Minecraft, 2009 Sweden)，邊境之地 (无限世界的数字边缘)。那是柏林噪聲等古老算法在数字临界点 崩溃边缘的壮阔 某种意义上体现着算法之美。</i><br>
-                《虚拟实惊》(OtherLife, 2017)。扭曲的雪山之颠。当我看到无意间显示的深奥的图形学演算法代码段时，我彻底臣服了。This is Real, man,.。<br>
-                另外，我是这些电影的忠诚者: 模拟游戏; 星际效应; 信条; | 移动迷宫 阿凡达 科洛弗档案 不惧风暴 幽灵
+<!--&lt;!&ndash;            <span class="d-block fs-small mt-3 text-muted">爱好:</span>&ndash;&gt;-->
+<!--&lt;!&ndash;            <p class="mb-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                - 电影: 我喜欢电影。我崇拜电影。我认为那不是电影。小时候 有一台很老式的笔记本电脑，是家长的朋友送给我的。它给了我很多。<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                最早令我印象深刻的是 《盗梦空间》(Inception, 2010 Nolan)。当到达梦境的边缘 平静而宏伟的情境下 河岸对面重叠的高楼 像某种世界错误 但又携带无尽美丽。&ndash;&gt;-->
+<!--&lt;!&ndash;                <i>bytheway, 这让我想到 《當個創世神》(Minecraft, 2009 Sweden)，邊境之地 (无限世界的数字边缘)。那是柏林噪聲等古老算法在数字临界点 崩溃边缘的壮阔 某种意义上体现着算法之美。</i><br>&ndash;&gt;-->
+<!--&lt;!&ndash;                《虚拟实惊》(OtherLife, 2017)。扭曲的雪山之颠。当我看到无意间显示的深奥的图形学演算法代码段时，我彻底臣服了。This is Real, man,.。<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                另外，我是这些电影的忠诚者: 模拟游戏; 星际效应; 信条; | 移动迷宫 阿凡达 科洛弗档案 不惧风暴 幽灵&ndash;&gt;-->
 
-            </p>
-            <p>
-                - 音乐: "朝闻道，夕死可矣"。这是我在听完Debussy后的感想 - 《月光》(Clair de lune, 1890)。<br>
-                「Mice on Venus」(C418 · Minecraft Volume Alpha, 2010) 我深信，这是另外一个世界的作品。<br>
-                「Blue Sky」(re:plus · Everlasting Truth, 2010). 「Blue Deja Vu」(Dennis Kuo, 2012).
-<!--                在初中时，我忠诚聆听 re:plus, July。那是我的心的归属。「Blue Sky」(re:plus · Everlasting Truth, 2010).<br>-->
-<!--                我在安静的时候 清净的地点 有准备地聆听。我认为聆听的机会是有限的，我珍惜这些机会。<br>-->
-<!--                后来 我难受一段时间, Nujabes给了我氧气。沉重的鼓点, 才能给予我稳定与支撑。; 「Blue Deja Vu」(Dennis Kuo, 2012).-->
-            </p>
-            <p>
-                - 游戏: 《Minecraft Beta 1.7.3》(Stockholm, Sweden. 2009)，我称其为 实时演算程序 (RCP, Realtime Computation Program.) 很难有第二个游戏或软件值得被这样称呼. 我开始反思这是为什么.
-                在思考的过程中，我参与了「Thinking in Minecraft」(「當個創世神」設計思想, 2016) 的编辑。如斯坦福大学Isbister博士所说，'游戏'是个很难定义的名词，它正在迎来一次深刻的文艺复兴。
-            </p>
-            <p>
-                - 阅读: 我不是很喜欢阅读 说实话。但问我有什么事情难以阻止 那也是阅读。卡内基教导我 永远不要指责他人 真诚的看待他人。
-                史蒂芬森告诉我 积极主动 要事第一。卢森堡教导我 有意识的语言组织。阿德勒告诉我 课题干涉与分离。
-            </p>
-            <p>
-                - 编码: - 嗯不是编程 也不是开发 就是编码。<!--有时我喜欢说自己是修电脑的，虽然不太会修。--><br>
-                 -- 领域: 体素系统, 等面值提取构建, 计算机图形学, 动力学模拟 离散碰撞检测, 程序语言设计.<br>
-                 -- 工具: GLSL, Cplusplus, ...;
-            </p>
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
+<!--&lt;!&ndash;            <p>&ndash;&gt;-->
+<!--&lt;!&ndash;                - 音乐: "朝闻道，夕死可矣"。这是我在听完Debussy后的感想 - 《月光》(Clair de lune, 1890)。<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                「Mice on Venus」(C418 · Minecraft Volume Alpha, 2010) 我深信，这是另外一个世界的作品。<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                「Blue Sky」(re:plus · Everlasting Truth, 2010). 「Blue Deja Vu」(Dennis Kuo, 2012).&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                在初中时，我忠诚聆听 re:plus, July。那是我的心的归属。「Blue Sky」(re:plus · Everlasting Truth, 2010).<br>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                我在安静的时候 清净的地点 有准备地聆听。我认为聆听的机会是有限的，我珍惜这些机会。<br>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                后来 我难受一段时间, Nujabes给了我氧气。沉重的鼓点, 才能给予我稳定与支撑。; 「Blue Deja Vu」(Dennis Kuo, 2012).&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
+<!--&lt;!&ndash;            <p>&ndash;&gt;-->
+<!--&lt;!&ndash;                - 游戏: 《Minecraft Beta 1.7.3》(Stockholm, Sweden. 2009)，我称其为 实时演算程序 (RCP, Realtime Computation Program.) 很难有第二个游戏或软件值得被这样称呼. 我开始反思这是为什么.&ndash;&gt;-->
+<!--&lt;!&ndash;                在思考的过程中，我参与了「Thinking in Minecraft」(「當個創世神」設計思想, 2016) 的编辑。如斯坦福大学Isbister博士所说，'游戏'是个很难定义的名词，它正在迎来一次深刻的文艺复兴。&ndash;&gt;-->
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
+<!--&lt;!&ndash;            <p>&ndash;&gt;-->
+<!--&lt;!&ndash;                - 阅读: 我不是很喜欢阅读 说实话。但问我有什么事情难以阻止 那也是阅读。卡内基教导我 永远不要指责他人 真诚的看待他人。&ndash;&gt;-->
+<!--&lt;!&ndash;                史蒂芬森告诉我 积极主动 要事第一。卢森堡教导我 有意识的语言组织。阿德勒告诉我 课题干涉与分离。&ndash;&gt;-->
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
+<!--&lt;!&ndash;            <p>&ndash;&gt;-->
+<!--&lt;!&ndash;                - 编码: - 嗯不是编程 也不是开发 就是编码。&lt;!&ndash;有时我喜欢说自己是修电脑的，虽然不太会修。&ndash;&gt;<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                 &#45;&#45; 领域: 体素系统, 等面值提取构建, 计算机图形学, 动力学模拟 离散碰撞检测, 程序语言设计.<br>&ndash;&gt;-->
+<!--&lt;!&ndash;                 &#45;&#45; 工具: GLSL, Cplusplus, ...;&ndash;&gt;-->
+<!--&lt;!&ndash;            </p>&ndash;&gt;-->
 
-            <span class="d-block fs-small mt-4 text-muted">最终幻想:</span>
-            <p class="mt-1">
-                短期：<br>
-                - 我想成为一个健谈的人。性格变开放自如一点。健身 冥想 清醒. <br>
-                - 我想练习一点Vlog技术.哈哈 <br>
-                <br>
-                中期: <br>
-                - 我想会一点基础的Painting. <br>
-                - 有一点基础的语言组织写作能力<br>
-                - 熟悉键盘演奏 <br>
-                <br>
-                长期: <br>
-                - 参与体素系统开发。精细自由紧凑简单直觉一致的较大规模体素游戏 或模拟程序。<br>
-                - Elytra程序语言。底层 但VM。追求简单一致, 作为上述体素系统的主要系统支撑。与Cplusplus配合。
-            </p>
-        </div>
-        </details>
+<!--&lt;!&ndash;            <span class="d-block fs-small mt-4 text-muted">最终幻想:</span>&ndash;&gt;-->
+<!--            <p class="mt-1">-->
+<!--                Recent：<br>-->
+<!--                - 健谈 健身 冥想<br>-->
+<!--                - Some Vlog Techs <br>-->
+<!--                <br>-->
+<!--                Midterm: <br>-->
+<!--                - Basic Talk<br>-->
+<!--                - Basic Writing<br>-->
+<!--                - Basic Steel Keys (Piano) <br>-->
+<!--                - Basic Painting. <br>-->
+<!--                <br>-->
+<!--                Longterm: <br>-->
+<!--                - Realtime Computation Program.-->
+<!--                - Elytra Programming Language.-->
+<!--            </p>-->
+<!--        </div>-->
+<!--        </details>-->
 
     </div>
 
@@ -531,7 +664,7 @@
 <script>
     (function () {
         let i = (Math.ceil(Math.random() * 33));
-        let bgi = new URLSearchParams(window.location.search).get("bgi");
+        let bgi = new URLSearchParams(window.location.search).get("bg");
         if (bgi) i = bgi;
 
 
