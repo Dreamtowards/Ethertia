@@ -282,8 +282,9 @@ a:hover {
 }
 
 
+
 .log-box {
-    /*background: #ffffffb0;*/
+    background: #ffffffff;
     /*background: #00000030;*/
     border: #d0d7de 1px solid;
     border-radius: 6px;
@@ -295,12 +296,12 @@ a:hover {
     margin-right: 4px;
     vertical-align: top;
 
-    /*color: #57606a;*/
-    color: #eee;
+    color: #57606a;
+    /*color: #eee;*/
 }
 .log-box > a {  /* Title */
-    /*color: #24292f!important;*/
-    color: #fff!important;
+    color: #24292f!important;
+    /*color: #fff!important;*/
     font-size: 16px;
     display: block;
     font-weight: 600;
@@ -316,10 +317,10 @@ a:hover {
     display: block;
 }
 .log-desc img {  /* Preview Img */
-    border-radius: 6px;
+    border-radius: 4px;
     display: block;
     float: right;
-    height: 60px;
+    /*height: 46px;*/
     margin-left: 6px;
     margin-top: 2px;
 }
@@ -332,6 +333,19 @@ a:hover {
     margin-right: 3px;
     color: #57606a;
 }
+
+
+
+.log-theme-imgbg.log-box {
+    background: none;
+    color: #eee;
+}
+.log-theme-imgbg.log-box a {
+    color: #fff!important;
+}
+
+
+
 
 
 #ref-linkpool a {

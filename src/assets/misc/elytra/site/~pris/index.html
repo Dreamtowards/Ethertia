@@ -218,60 +218,103 @@
     <div id="logs" class="container section">
         <p>Logs <small class="text-muted"></small></p>
         <div id="loglist_intl">
-            <div class="playlist-box">
-                <p class="playlist-title">Ethertia Dev</p>
-                <div class="log-box">
-                    <a href="#">Ladders</a>
-                    <span class="log-desc">
-                        <img src="https://miro.medium.com/fit/c/112/112/0*orxbv-KF1bd0Ix_k.png">
-                        <span class="text-2line">
-                            Hermit launches linux x86_64 programs in a special, hermetically isolated sprograms in…
-                        </span>
-                    </span>
-                    <span>2022-10-22 &nbsp; <span class="log-tags">Voxel</span><span class="log-tags">Spline</span></span>
-                </div>
-            </div>
 
-            <div class="playlist-box">
-                <p class="playlist-title">Lifetime Logs</p>
-                <div class="log-box">
-                    <a href="#">Carnige How to Win Friends and Influcence People.</a>
-                    <span class="log-desc">
-                        <img src="https://miro.medium.com/fit/c/112/112/0*orxbv-KF1bd0Ix_k.png">
-                        <span class="text-2line">
-                            Hermit launches linux x86_64 programs in a special, hermetically isolated sandbox to control their execution. Hermit translates normal, nondetermin…
-                        </span>
-                    </span>
-                    <span>2022-10-22 &nbsp; <span class="log-tags">Voxel</span><span class="log-tags">Spline</span></span>
-                </div>
+<!--            <div class="playlist-box">-->
+<!--                <p class="playlist-title">Ethertia Dev</p>-->
+<!--                <div class="log-box">-->
+<!--                    <a href="#">Ladders</a>-->
+<!--                    <span class="log-desc">-->
+<!--                        <img src="https://miro.medium.com/fit/c/112/112/0*orxbv-KF1bd0Ix_k.png">-->
+<!--                        <span class="text-2line">-->
+<!--                            Hermit launches linux x86_64 programs in a special, hermetically isolated sprograms in…-->
+<!--                        </span>-->
+<!--                    </span>-->
+<!--                    <span>2022-10-22 &nbsp; <span class="log-tags">Voxel</span><span class="log-tags">Spline</span></span>-->
+<!--                </div>-->
+<!--            </div>-->
 
-            </div>
+<!--            <div class="playlist-box">-->
+<!--                <p class="playlist-title">Lifetime Logs</p>-->
+<!--                <div class="log-box">-->
+<!--                    <a href="#">Carnige How to Win Friends and Influcence People.</a>-->
+<!--                    <span class="log-desc">-->
+<!--                        <img src="https://miro.medium.com/fit/c/112/112/0*orxbv-KF1bd0Ix_k.png">-->
+<!--                        <span class="text-2line">-->
+<!--                            Hermit launches linux x86_64 programs in a special, hermetically isolated sandbox to control their execution. Hermit translates normal, nondetermin…-->
+<!--                        </span>-->
+<!--                    </span>-->
+<!--                    <span>2022-10-22 &nbsp; <span class="log-tags">Voxel</span><span class="log-tags">Spline</span></span>-->
+<!--                </div>-->
+<!--            </div>-->
+
         </div>
         <script>
             (function () {
                 var loglists = {
+                    // Water, Biomes, Caves, SSAO, Spline
                     "Technocaprices": [{
-                            poster: "https://elytra.dev/~pris/res/bg10.png",
-                            title: "Flat Atmosphere Rendering",
-                            url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
-                            tags: ['Atmosphere', 'Graphics'],
-                            desc: "Atmosphere always is Spherical due to Gravity Theory. ",
-                            time: "2022-12-09",
-                        },
-                    ],
+                        poster: "https://elytra.dev/~pris/res/bg21.png", fullbg: true,
+                        title: "Dive into Minecraft Terrain Generation",
+                        url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                        tags: ['Procedural Generation', 'WorldGen'],
+                        desc: "Atmosphere always is Spherical due to Gravity Theory. ",
+                        time: "2022-12-14",
+                    // }, {
+                    //     poster: "https://elytra.dev/~pris/res/bg21.png",
+                    //     title: "SSAO Impl",
+                    //     url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                    //     tags: ['SSAO', 'Rendering'],
+                    //     desc: "Atmosphere always is Spherical due to Gravity Theory. ",
+                    //     time: "2022-12-14",
+                    }, {
+                        poster: "https://elytra.dev/~pris/res/bg10.png",  fullbg: true,
+                        title: "Flat Atmosphere Rendering",
+                        url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                        tags: ['Atmosphere', 'Rendering'],
+                        desc: "Atmosphere always is Spherical due to Gravity Theory. ",
+                        time: "2022-12-09",
+                    }, {
+                        // poster: "https://raw.githubusercontent.com/Dreamtowards/Ethertia/main/saves/_figures/fig-221203-p3.png",
+                        poster: "https://raw.githubusercontent.com/Dreamtowards/Ethertia/main/saves/_figures/fig-221203-p2.png",
+                        title: "Raymarching World-Ray Generation",
+                        url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                        tags: ['Raymarchinng', "Rendering"],
+                        desc: "Ray, ClipSpace to WorldSpace with MVP Transformations.",
+                        time: "2022-12-09",
+                    }, {
+                        poster: "https://elytra.dev/~pris/res/bg1.png",
+                        title: "Naive SurfaceNets Implmentation",
+                        url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                        tags: ['Naive SurfaceNets', "Isosurface"],
+                        desc: "Conversion of Ray from ClipSpace to WorldSpace with MVP Transformations.",
+                        time: "2022-12-09",
+                    }],
+
+
+
                     "Ethertia Updates": [{
-                        poster: "https://raw.githubusercontent.com/Dreamtowards/Ethertia/main/saves/_figures/fig-221203-atmo-test.png",
-                        title: "22u48 T.37 Updates",
+                        poster: "https://raw.githubusercontent.com/Dreamtowards/Ethertia/main/saves/_figures/fig-221203-atmo-test.png", fullbg: true,
+                        title: "22u49 T.37 Updates · Atmosphere",
                         url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
                         tags: ['Week Update'],
                         desc: "Atmosphere test, NormAvg ChunkBoundary fix fail, GuiScrollBox",
                         time: "2022-12-03",
-                    }],
-                    "Live Love Life": [{
-                        poster: "https://i.ytimg.com/vi/CM4X4a0iSpI/hqdefault.jpg",
-                        title: "NVC · Nonviolence Communication, Rosinberg",
+                    }, {
+                        poster: "https://raw.githubusercontent.com/Dreamtowards/Ethertia/main/saves/_figures/fig-221129-p5.png", fullbg: false,
+                        title: "22u48 T.68 Updates · Disp",
                         url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
-                        tags: ['Render', 'Raymarching'],
+                        tags: ['Week Update'],
+                        desc: "SurfaceNets Naive Impl. Material HeighMap Blend, Normal Mapping, Atlas spec, Deferred Rendering",
+                        time: "2022-12-03",
+                    }],
+
+
+
+                    "Live Luv Life": [{
+                        // poster: "https://i.ytimg.com/vi/CM4X4a0iSpI/hqdefault.jpg",
+                        title: "NVC · Nonviolence Communication, Rosenberg",
+                        url: "https://www.youtube.com/watch?v=xDwgZkYrPm8",
+                        tags: ['Read'],
                         desc: "Hermit launches linux x86_64 programs in a special, hermetically isolated sandbox to control their execution. Hermit translates normal, nondetermin…",
                         time: "Jul 5, 2022",
                     }]
@@ -280,21 +323,23 @@
                 let html = "";
                 for (let lis in loglists) {
                     html +=
-                `<div class="playlist-box">
-                    <p class="playlist-title">${lis}</p>`;
+                `<div class="playlist-box" style="overflow: scroll; ">
+                    <p class="playlist-title">${lis}</p>
+                    <div style="width: 3000px; /*display: flex; overflow-x: auto;*/">`;
                     for (let log of loglists[lis]) {
                         let tagsHtml = "";
                         for (let tag of log.tags) {
                             tagsHtml += `<span class="log-tags">${tag}</span>`;
                         }
+                        let htmlFullBg =
 
                         html +=
-                    `<div class="log-box" style="position: relative; overflow: hidden;">
+                    `<div class="log-box ${log.fullbg ? 'log-theme-imgbg' : ''}" style="position: relative; overflow: hidden; /*flex: 0 0 330px; */">
                         <div style="background-image: url('${log.poster}'); filter: blur(6px) brightness(80%); z-index: -1; margin: -10px; background-size: cover; background-position: center; overflow: hidden; position: absolute; top: 0; bottom: 0; left: 0; right: 0;"></div>
                         <a href="${log.url}">${log.title}</a>
                         <span class="log-desc">
-                            <!-- <img src='${log.poster}'>-->
-                            <span class="text-2line">
+                            ${!log.fullbg && log.poster ? `<img src='${log.poster}' style="height: 54px;">` : ''}
+                            <span class="text-2line" style="font-size: 13.4px;">
                                 ${log.desc}
                             </span>
                         </span>
@@ -302,7 +347,7 @@
                     </div>`;
                     }
                     html +=
-                `</div>`;
+                `</div></div>`;
                 }
                 document.querySelector("#loglist_intl").innerHTML = html;
             })();
