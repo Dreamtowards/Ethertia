@@ -29,7 +29,7 @@ public:
 //    glm::vec3 intpposition{0};
 
     Model* model = nullptr;
-    Texture* diffuseMap = Texture::UNIT;
+    Texture* diffuseMap = nullptr;
 
     static void loadModelAndShape(const std::string& path, Model** md, btCollisionShape** sp = nullptr) {
         VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr(path));

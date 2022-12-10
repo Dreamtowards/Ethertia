@@ -116,7 +116,7 @@ public:
         shaderCompose.setVector3f("CameraDir", Ethertia::getCamera()->direction);
 
         shaderCompose.setVector3f("cursorPos", Ethertia::getBrushCursor().position);
-        shaderCompose.setFloat("cursorSize", Ethertia::getBrushCursor().size);
+        shaderCompose.setFloat("cursorSize", Ethertia::getBrushCursor().brushSize);
 
         shaderCompose.setFloat("fogGradient", fogGradient);
         shaderCompose.setFloat("fogDensity", fogDensity);

@@ -1,27 +1,85 @@
 //
-// Created by Dreamtowards on 2022/4/29.
+// Created by Dreamtowards on 2022/12/10.
 //
 
-#ifndef ETHERTIA_INIT_H
-#define ETHERTIA_INIT_H
+#ifndef ETHERTIA_CONTROLS_H
+#define ETHERTIA_CONTROLS_H
 
-#include "MaterialTextures.h"
-
-class Init
+class Controls
 {
 public:
 
-    static void initialize()
-    {
-        MaterialTextures::init();
 
-        // init Texture::UNIT.
-        BitmapImage img(1, 1, new u32[1]{(u32)~0});
-        Texture::UNIT = Loader::loadTexture(&img);
+
+    static void updateMovement() {
+        Window& window = *Ethertia::getWindow();
+
+        static bool sprint = false;
+
+        float speed = 0.5;
+        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
+        if (sprint) speed = 3.8;
+        float yaw = Ethertia::getCamera()->eulerAngles.y;
+
+        glm::vec3 vel(0);
+        if (window.isKeyDown(GLFW_KEY_W)) vel += Mth::angleh(yaw) * speed;
+        if (window.isKeyDown(GLFW_KEY_S)) vel += Mth::angleh(yaw + Mth::PI) * speed;
+        if (window.isKeyDown(GLFW_KEY_A)) vel += Mth::angleh(yaw + Mth::PI / 2) * speed;
+        if (window.isKeyDown(GLFW_KEY_D)) vel += Mth::angleh(yaw - Mth::PI / 2) * speed;
+
+        if (window.isShiftKeyDown())          vel.y -= speed;
+        if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
+
+        Ethertia::getPlayer()->applyLinearVelocity(vel);
+
+        if (!window.isKeyDown(GLFW_KEY_W)) {
+            sprint = false;
+        }
     }
 
 
-    static void initSomeTests() {
+    // not accurate name.
+    static void handleInput()
+    {
+        Camera& camera = *Ethertia::getCamera();
+        Window& window = *Ethertia::getWindow();
+        Entity* player = Ethertia::getPlayer();
+        RenderEngine* renderEngine = Ethertia::getRenderEngine();
+
+        float dt = Ethertia::getDelta();
+
+        if (Ethertia::isIngame()) {
+            updateMovement();
+            camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
+        }
+        window.setMouseGrabbed(Ethertia::isIngame());
+        window.setStickyKeys(!Ethertia::isIngame());
+        window.setTitle(("desp. "+std::to_string(1.0/dt)).c_str());
+
+//    player->intpposition = /*Mth::lerp(Ethertia::getTimer()->getPartialTick(), player->prevposition, */player->getPosition();//);
+        camera.compute(player->getPosition(), renderEngine->viewMatrix);
+
+        renderEngine->updateViewFrustum();
+        renderEngine->updateProjectionMatrix(Ethertia::getAspectRatio());
+
+        BrushCursor& brushCursor = Ethertia::getBrushCursor();
+        if (brushCursor.keepTracking) {
+            glm::vec3 p, n;
+            if (Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n)) {
+                brushCursor.hit = true;
+                brushCursor.position = p;
+            } else {
+                brushCursor.hit = false;
+                brushCursor.position = glm::vec3(0.0f);
+            }
+        }
+
+    }
+
+
+
+
+    static void initMouseDigControls() {
 
 //    EntityCar* car = new EntityCar();
 //    world->addEntity(car);
@@ -66,7 +124,7 @@ public:
                 BrushCursor& cur = Ethertia::getBrushCursor();
                 if (cur.hit) {
                     glm::vec3 p = cur.position;
-                    float n = cur.size;
+                    float n = cur.brushSize;
 
 //                glm::vec3 v = (p - camera.position) * 0.8f;
 //                v.y += glm::length(v) * 0.4f;
@@ -122,4 +180,4 @@ public:
     }
 };
 
-#endif //ETHERTIA_INIT_H
+#endif //ETHERTIA_CONTROLS_H

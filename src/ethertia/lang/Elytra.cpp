@@ -2,8 +2,8 @@
 // Created by Dreamtowards on 2022/5/5.
 //
 
-#ifndef ETHERTIA_ELYTRA_H
-#define ETHERTIA_ELYTRA_H
+#ifndef ETHERTIA_ELYTRA_CPP
+#define ETHERTIA_ELYTRA_CPP
 
 #include <ethertia/client/Loader.h>
 
@@ -17,7 +17,7 @@
 #include <ethertia/lang/parser/SymbolScanner.h>
 #include "ethertia/lang/ast/AstVisitor.h"
 
-void et() {//try{
+int main() {//try{
 
     std::vector<std::pair<AstCompilationUnit*, std::string>> sources = {
             {nullptr, "elytra/lib/std/stdsys.et"},
@@ -72,4 +72,4 @@ void et() {//try{
 //    }
 }
 
-#endif //ETHERTIA_ELYTRA_H
+#endif //ETHERTIA_ELYTRA_CPP

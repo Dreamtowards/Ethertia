@@ -8,7 +8,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/vec3.hpp>
-
 #include <stdexcept>
 
 // __forward_declarations
@@ -17,7 +16,7 @@ class RenderEngine;      // #include <ethertia/client/render/RenderEngine.h>
 class Window;            // #include <ethertia/client/Window.h>
 class Timer;             // #include <ethertia/util/Timer.h>
 class Camera;            // #include <ethertia/client/render/Camera.h>
-class Executor;          // #include <ethertia/util/concurrent/Executor.h>
+class Scheduler;         // #include <ethertia/util/concurrent/Scheduler.h>
 
 class World;             // #include <ethertia/world/World.h>
 class EntityPlayer;      // #include <ethertia/entity/player/EntityPlayer.h>
@@ -29,8 +28,11 @@ public:
     bool keepTracking = true;
     bool hit;
     glm::vec3 position;
-    float size = 0.0;
-    int type;
+
+    float brushSize = 0.0;
+
+    int brushType;
+    int brushMaterial;
 
 #define BRUSH_SPHERE 1
 #define BRUSH_CUBE   2
@@ -38,16 +40,17 @@ public:
 
 class Ethertia
 {
-    static bool running;
+    inline static bool          m_Running      = false;
+    inline static RenderEngine* m_RenderEngine = nullptr;
+    inline static World*        m_World        = nullptr;
+    inline static EntityPlayer* m_Player       = nullptr;
+    inline static GuiRoot*      m_RootGUI      = nullptr;
 
-    static RenderEngine* renderEngine;
-    static Window window;
-    static Timer timer;
-    static Executor executor;
+    static Window    m_Window;
+    static Timer     m_Timer;
+    static Scheduler m_Scheduler;
+    static BrushCursor m_Cursor;
 
-    static World* world;
-    static EntityPlayer* player;
-    static GuiRoot* rootGUI;
 
     Ethertia() { throw std::logic_error("No instance"); };
 
@@ -57,7 +60,7 @@ public:
     {
         start();
 
-        while (running)
+        while (m_Running)
         {
             runMainLoop();
         }
@@ -77,23 +80,22 @@ public:
 
     static void dispatchCommand(const std::string& cmd);
 
-    static BrushCursor& getBrushCursor();
-
-    static void shutdown() { running = false; }
-    static bool isRunning() { return running; }
+    static void shutdown() { m_Running = false; }
+    static bool isRunning() { return m_Running; }
     static bool isIngame();
     static float getPreciseTime();
     static float getAspectRatio();
     static float getDelta();
 
-    static RenderEngine* getRenderEngine() { return renderEngine; }
-    static Window* getWindow() { return &window; }
+    static RenderEngine* getRenderEngine() { return m_RenderEngine; }
+    static Window* getWindow() { return &m_Window; }
     static Camera* getCamera();
-    static Executor* getExecutor() { return &executor; }
-    static World* getWorld() { return world; }
-    static GuiRoot* getRootGUI() { return rootGUI; }
-    static EntityPlayer* getPlayer() { return player; }
-    static Timer* getTimer() { return &timer; }
+    static Scheduler* getScheduler() { return &m_Scheduler; }
+    static World* getWorld() { return m_World; }
+    static GuiRoot* getRootGUI() { return m_RootGUI; }
+    static EntityPlayer* getPlayer() { return m_Player; }
+    static Timer* getTimer() { return &m_Timer; }
+    static BrushCursor& getBrushCursor() { return m_Cursor; }
 
 
 };

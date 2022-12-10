@@ -17,7 +17,7 @@
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Mth.h>
-#include <ethertia/util/concurrent/Executor.h>
+#include <ethertia/util/concurrent/Scheduler.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/world/Octree.h>
@@ -127,7 +127,7 @@ public:
 
         chunks[chunkpos] = chunk;
 
-        Ethertia::getExecutor()->exec([=]() {
+        Ethertia::getScheduler()->exec([=]() {
 
             addEntity(chunk->proxy);
         });

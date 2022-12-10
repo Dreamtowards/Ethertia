@@ -16,8 +16,6 @@ public:
     int width;
     int height;
 
-    inline static Texture* UNIT;  // 1x1 pixel, RGBA=1 white tex.
-
     Texture(u32 texId, int w, int h) : texId(texId), width(w), height(h) {}
 
     ~Texture() {

@@ -101,7 +101,7 @@ public:
             opts->addGui(new GuiSlider("D/var1", 0, 4, &EntityRenderer::debugVar1, 0.01f));
             opts->addGui(new GuiSlider("D/var2", 0, 256, &EntityRenderer::debugVar2, 0.1f));
 
-            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getBrushCursor().size, 0.2f));
+            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getBrushCursor().brushSize, 0.2f));
             opts->addGui(new GuiCheckBox("Brush Tracking", &Ethertia::getBrushCursor().keepTracking));
             opts->addGui(new GuiCheckBox("Brush pInfo", &dbgCursorRangeInfo));
 

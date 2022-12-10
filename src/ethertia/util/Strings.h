@@ -83,8 +83,8 @@ public:
 
     static std::vector<std::string> split(const std::string& str, const std::string& delimiter) {
         std::vector<std::string> ls;
-        u64 beg = 0;
-        u64 end;
+        size_t beg = 0;
+        size_t end;
         while ((end = str.find(delimiter, beg)) != std::string::npos) {
             ls.push_back(str.substr(beg, end-beg));
             beg = end + delimiter.length();
@@ -111,10 +111,10 @@ public:
 
     static std::vector<std::string> splitConnected(const std::string& str, char ch) {
         std::vector<std::string> ls;
-        u64 beg = findNonChar(str, ch, 0);
+        size_t beg = findNonChar(str, ch, 0);
         if (beg == std::string::npos) return {};
 
-        u64 end;
+        size_t end;
         while ((end = findChar(str, ch, beg)) != std::string::npos) {
             ls.push_back(str.substr(beg, end-beg));
             beg = findNonChar(str, ch, end);

@@ -17,6 +17,8 @@ class GuiRenderer
 public:
     inline static Model* M_RECT;  // RB,RT,LB,LT. TRIANGLE_STRIP.
 
+    inline static Texture* TEX_WHITE;  // 1x1 pixel, RGBA=1 white tex.
+
     GuiRenderer()
     {
         // init M_RECT.
@@ -26,12 +28,15 @@ public:
                 {2, RECT_POS},
                 {2, RECT_UV}
         });
+
+        BitmapImage img(1, 1, new u32[1]{(u32)~0});
+        TEX_WHITE = Loader::loadTexture(&img);
     }
 
     void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex =nullptr, float round =0, float border =FLT_MAX, int chnMode =0)
     {
         if (!tex)
-            tex = Texture::UNIT;
+            tex = TEX_WHITE;
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex->getTextureID());
 

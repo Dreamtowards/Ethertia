@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.4)
-project(ui)
+project(libui)
+
+set(DIR_LIBUI ".")
+set(LIBUI_BUILD_SHARED_LIBS ON)
 
 option(LIBUI_BUILD_EXAMPLES "Build libui examples" ON)
 option(LIBUI_BUILD_SHARED_LIBS "Build libui as a shared library" ${BUILD_SHARED_LIBS})
@@ -7,8 +10,6 @@ option(LIBUI_BUILD_SHARED_LIBS "Build libui as a shared library" ${BUILD_SHARED_
 if(NOT DEFINED CMAKE_DEBUG_POSTFIX)
     set(CMAKE_DEBUG_POSTFIX "_d")
 endif()
-
-set(DIR_LIBUI ".")
 
 file(GLOB_RECURSE COMMON_SOURCES ${DIR_LIBUI}/common/*.c)
 file(GLOB_RECURSE COMMON_HEADERS ${DIR_LIBUI}/common/*.h)

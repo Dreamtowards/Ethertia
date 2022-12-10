@@ -16,7 +16,7 @@ __Ethertia is developed by:__
 Game design, programming, graphics: [Eldrine Le Prismarine]()  
 Music and sounds:  
 Ingame artwork:   
-Used libs&tools: cpp, gcc, glfw, glm, stb, bullet3
+Used libs&tools: cpp, glfw, glm, stb, bulletphys
 
 
 
