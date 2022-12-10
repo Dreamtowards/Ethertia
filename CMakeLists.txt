@@ -21,10 +21,11 @@ add_executable(Ethertia
         src/ethertia/lang/lexer/TokenType.cpp
         src/ethertia/lang/symbol/SymbolInternalTypes.cpp
 
+        src/ethertia/util/launcher/Launcher.cpp
 #        src/ethertia/skycolor.cpp
-        src/ethertia/gui/Gui.cpp
-        src/ethertia/render/RenderEngine.cpp
-        src/ethertia/Ethertia.cpp
+#        src/ethertia/gui/Gui.cpp
+#        src/ethertia/render/RenderEngine.cpp
+#        src/ethertia/Ethertia.cpp
         )
 
 if (APPLE)
@@ -60,3 +61,8 @@ target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath
 # lib fmt
 add_subdirectory(lib/fmt)
 target_link_libraries(Ethertia PRIVATE fmt::fmt)
+
+
+# lib libui
+add_subdirectory(lib/libui)
+target_link_libraries(Ethertia PRIVATE ui)
