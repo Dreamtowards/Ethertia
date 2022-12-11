@@ -21,6 +21,7 @@ public:
 
     GuiScreenMainMenu()
     {
+        addGui(new GuiButton("Main Menu"));
 //        setWidth(Inf);
 //        setHeight(Inf);
 

@@ -175,8 +175,8 @@ void main() {
 //    FragColor.rgb += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
 
-//    if (FragDepth == 1.0f)
-//        discard;
+    if (_PosDepth.w == 1.0f)
+        discard;
 
 
 //    float viewLen = length(CameraPos - FragPos);

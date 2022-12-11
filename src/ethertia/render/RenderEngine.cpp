@@ -93,8 +93,6 @@ Framebuffer::gPushFramebuffer(gbuffer);
 
 Framebuffer::gPopFramebuffer();
 
-    // skyboxRenderer->render();
-
 
 
     // Compose of Deferred Rendering
@@ -103,6 +101,8 @@ Framebuffer::gPushFramebuffer(dcompose);
 
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    skyboxRenderer->render();
 
     entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
 

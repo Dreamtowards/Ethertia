@@ -12,10 +12,7 @@ class GuiCollection : public Gui
     std::vector<Gui*> _children;
 
 public:
-    GuiCollection() {
-        setWidth(-Inf);
-        setHeight(-Inf);
-    }
+    GuiCollection(float _rx = 0, float _ry = 0, float _w = -Inf, float _h = -Inf) : Gui(_rx, _ry, _w, _h) { }
 
     int count() const override {
         return _children.size();

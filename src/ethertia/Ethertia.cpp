@@ -8,6 +8,7 @@
 #include <ethertia/gui/screen/GuiIngame.h>
 #include <ethertia/gui/screen/GuiScreenMainMenu.h>
 #include <ethertia/gui/screen/GuiScreenChat.h>
+#include <ethertia/gui/screen/GuiScreenPause.h>
 #include <ethertia/render/chunk/BlockyMeshGen.h>
 #include <ethertia/render/chunk/MarchingCubesMeshGen.h>
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
@@ -91,6 +92,7 @@ void Ethertia::start() {
     GuiIngame::INST = new GuiIngame();
     GuiScreenMainMenu::INST = new GuiScreenMainMenu();
     GuiScreenChat::INST = new GuiScreenChat();
+    GuiScreenPause::INST = new GuiScreenPause();
     m_RootGUI->addGui(GuiIngame::INST);
 
 

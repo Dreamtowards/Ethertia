@@ -8,7 +8,7 @@ Voxels, Realistic, Interactive
 Demo videos:
 [20221008]()
 
-
+Supported Platforms: Windows, MacOS, Linux
 
 ### Credits
 

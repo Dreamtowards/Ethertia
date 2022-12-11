@@ -5,8 +5,8 @@
 #ifndef ETHERTIA_GUIINGAME_H
 #define ETHERTIA_GUIINGAME_H
 
-#include "../GuiCollection.h"
 #include "GuiScreenMainMenu.h"
+#include "GuiScreenPause.h"
 
 #include <ethertia/gui/GuiStack.h>
 #include <ethertia/gui/GuiButton.h>
@@ -16,6 +16,7 @@
 #include <ethertia/gui/GuiAlign.h>
 #include <ethertia/gui/GuiText.h>
 #include <ethertia/gui/GuiScrollBox.h>
+#include <ethertia/gui/GuiCollection.h>
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/render/renderer/EntityRenderer.h>
@@ -306,7 +307,7 @@ public:
                 if (top != GuiIngame::INST) {
                     rootGui->removeGui(top);
                 } else {
-                    rootGui->addGui(GuiScreenMainMenu::INST);
+                    rootGui->addGui(GuiScreenPause::INST);
                 }
             }
         }
