@@ -8,9 +8,12 @@
 class ChunkRenderProcessor
 {
 public:
+    using vec3 = glm::vec3;
 
 
-    static void doChunkModelUpload(Chunk* chunk) {
+    static void meshChunk_Upload(Chunk* chunk) {
+        chunk->needUpdateModel = false;
+
         VertexBuffer* vbuf = nullptr;
 
         {
@@ -106,94 +109,139 @@ public:
 
 
 
-    static void checkChunksModelUpdate(World* world) {
-        glm::vec3 vpos = Ethertia::getCamera()->position;
+    static Chunk* questNearestInvalidChunk(World* world, vec3 center, int viewDistance) {
+        vec3 base_chunkpos = Chunk::chunkpos(center);
 
-        int i = 0;
-        while (++i <= 4) {
-            Chunk* chunk = nullptr;
-            float minLen = Mth::Inf;
-            for (auto& it : world->getLoadedChunks()) {
-                Chunk* c = it.second;
-                if (c && c->needUpdateModel) {
-                    float len = glm::length(c->position - vpos);
-                    if (len < minLen) {
-                        minLen = len;
-                        chunk = c;
+        Chunk* nearest = nullptr;
+        float  nearest_distSq = FLT_MAX;
+        vec3   nearest_pos_gen = vec3(Mth::Inf);
+
+        int n = viewDistance;
+        for (int dx = -n;dx <= n;dx++) {
+            for (int dz = -n; dz <= n; dz++) {
+                for (int dy = -n; dy <= n; dy++) {
+                    vec3 dif = vec3(dx, dy, dz) * 16.0f;
+                    Chunk* c = world->getLoadedChunk(base_chunkpos + dif);
+
+                    float distSq = glm::length2(dif);
+                    if (distSq < nearest_distSq && (!c || c->needUpdateModel)) {
+                        nearest = c;
+                        nearest_pos_gen = base_chunkpos + dif;
+                        nearest_distSq = distSq;
                     }
                 }
             }
-            if (chunk == nullptr)  // nothing to update
-                return;
-            chunk->needUpdateModel = false;
-
-            doChunkModelUpload(chunk);
-
         }
+
+        if (!nearest && nearest_pos_gen.x != Mth::Inf) {
+            // Gen
+            nearest = world->provideChunk(nearest_pos_gen);
+        }
+
+        return nearest;
     }
 
+    static int unloadChunks_OutOfViewDistance(World* world, vec3 center, int viewDistance) {
+        vec3 cpos = Chunk::chunkpos(center);
+        int lim = viewDistance * 16;
 
-    static void updateViewDistance(World* world, glm::vec3 p, int n)
-    {
-        glm::vec3 cpos = Chunk::chunkpos(p);
-
-        int num = 0;
-        // load chunks
-        for (int dx = -n;dx <= n;dx++) {
-            for (int dz = -n;dz <= n;dz++) {
-                for (int dy = -n;dy <= n;dy++) {
-                    glm::vec3 p = cpos + glm::vec3(dx, dy, dz) * 16.0f;
-                    Chunk* c = world->getLoadedChunk(p);
-                    if (!c) {
-                        world->provideChunk(p);
-                        for (int i = 0; i < 6; ++i) {
-                            world->requestRemodel(p + Mth::QFACES[i] * 16.0f);
-                        }
-                        if (++num > 10)
-                            goto skip;
-                    }
-                }
+        std::vector<glm::vec3> unloads;  // separate remove-op from iterate
+        for (auto it : world->getLoadedChunks()) {
+            vec3 p = it.first;
+            if (abs(p.x-cpos.x) > lim ||
+                abs(p.y-cpos.y) > lim ||
+                abs(p.z-cpos.z) > lim) {
+                unloads.push_back(p);
             }
         }
-        skip:
 
-        // unload chunks
-        int lim = n*Chunk::SIZE;
-        std::vector<glm::vec3> unloads;  // separate iterate / remove
-        for (auto itr : world->getLoadedChunks()) {
-            glm::vec3 cp = itr.first;
-            if (abs(cp.x-cpos.x) > lim || abs(cp.y-cpos.y) > lim || abs(cp.z-cpos.z) > lim) {
-                unloads.push_back(cp);
-            }
-        }
         for (glm::vec3 cp : unloads) {
-//        world->unloadChunk(cp);
+            world->unloadChunk(cp);
         }
+        return unloads.size();
     }
 
 
     static void initThreadChunkLoad() {
         new std::thread([]() {
-            while (Ethertia::isRunning())
-            {
+            while (Ethertia::isRunning()) {
                 World* world = Ethertia::getWorld();
-                if (world) {
-                    {
-                        std::lock_guard<std::mutex> guard(world->chunklock);
-//                    chunkBuildStat = "ChunkLoad";
-//                    updateViewDistance(world, glm::vec3(0), 0);
-                        updateViewDistance(world, Ethertia::getCamera()->position, (int)Ethertia::getRenderEngine()->viewDistance);
+                if (world)
+                {
+                    std::lock_guard<std::mutex> guard(world->lock_ChunkList);
 
-//                    chunkBuildStat = "ChunkModelUpdate";
-                        checkChunksModelUpdate(world);
-//                    chunkBuildStat = "None";
+                    vec3 p = Ethertia::getCamera()->position;
+                    int  n = Ethertia::getRenderEngine()->viewDistance;
+
+                    Chunk* chunk = questNearestInvalidChunk(world, p, n);
+
+                    if (chunk)
+                    {
+                        Log::info("Mesh Chunk, Upload");
+                        meshChunk_Upload(chunk);
                     }
+
+                    int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
+                    if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
                 }
 
-                std::this_thread::sleep_for(std::chrono::milliseconds (10));
+                std::this_thread::sleep_for(std::chrono::milliseconds (1));
             }
         });
     }
+
+
+
+//
+//    static void checkChunksModelUpdate(World* world) {
+//        glm::vec3 vpos = Ethertia::getCamera()->position;
+//
+//        int i = 0;
+//        while (++i <= 4) {
+//            Chunk* chunk = nullptr;
+//            float minLen = Mth::Inf;
+//            for (auto& it : world->getLoadedChunks()) {
+//                Chunk* c = it.second;
+//                if (c && c->needUpdateModel) {
+//                    float len = glm::length(c->position - vpos);
+//                    if (len < minLen) {
+//                        minLen = len;
+//                        chunk = c;
+//                    }
+//                }
+//            }
+//            if (chunk == nullptr)  // nothing to update
+//                return;
+//            chunk->needUpdateModel = false;
+//
+//            doChunkModelUpload(chunk);
+//
+//        }
+//    }
+//    static void makeNearestChunk(World* world, glm::vec3 p, int n)
+//    {
+//        glm::vec3 cpos = Chunk::chunkpos(p);
+//
+//        int num = 0;
+//        // load chunks
+//        for (int dx = -n;dx <= n;dx++) {
+//            for (int dz = -n;dz <= n;dz++) {
+//                for (int dy = -n;dy <= n;dy++) {
+//                    glm::vec3 p = cpos + glm::vec3(dx, dy, dz) * 16.0f;
+//                    Chunk* c = world->getLoadedChunk(p);
+//                    if (!c) {
+//                        world->provideChunk(p);
+//                        for (int i = 0; i < 6; ++i) {
+//                            world->requestRemodel(p + Mth::QFACES[i] * 16.0f);
+//                        }
+//                        if (++num > 10)
+//                            goto skip;
+//                    }
+//                }
+//            }
+//        }
+//    }
+
 
 };
 

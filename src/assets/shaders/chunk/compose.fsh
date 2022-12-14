@@ -153,7 +153,7 @@ void main() {
     vec3 Norm = texture(gNormal, TexCoord).rgb;
 
 
-    vec3 LightPos = vec3(-50, 50, -50);
+    vec3 LightPos = vec3(-5000, 5000, -5000);
     vec3 LightColor = vec3(1.0);
 
 
@@ -172,7 +172,7 @@ void main() {
     FragColor = vec4((diffColor + specColor) * Albedo, 1.0);
 //    FragColor = vec4(0,0,0,1);
 
-//    FragColor.rgb += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
+    FragColor.rgb += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
 
     if (_PosDepth.w == 1.0f)

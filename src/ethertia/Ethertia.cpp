@@ -98,11 +98,10 @@ void Ethertia::start() {
 
     m_Player = new EntityPlayer();
     m_Player->setPosition({10, 10, 10});
-    m_Player->setFlying(true);
     m_Player->switchGamemode(Gamemode::SPECTATOR);
 
     Ethertia::loadWorld();
-
+    m_Player->setFlying(true);
 
     Controls::initMouseDigControls();
 

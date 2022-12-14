@@ -17,12 +17,12 @@ public:
 
     GuiScreenPause() {
         setWidth(Inf);
-        setHeight(Inf);
+        // setHeight(Inf);
 
         {
             GuiCollection* topbar = new GuiCollection(0, 0, Inf, 16);
             addGui(topbar);
-            topbar->addDrawBackground(Colors::BLACK);
+            topbar->addDrawBackground(Colors::R);
 
             {
                 GuiStack* rightbox = new GuiStack(GuiStack::D_HORIZONTAL, 8);
@@ -31,23 +31,23 @@ public:
                 rightbox->addGui(new GuiButton("Ops", false));
                 rightbox->addGui(new GuiButton("Ext", false));
             }
-        }
-        {
-            GuiCollection* toolbar = new GuiCollection(0, 16, Inf, 48);
-            addGui(toolbar);
-            toolbar->addDrawBackground(Colors::BLACK60);
-
             {
-                GuiStack* navbox = new GuiStack(GuiStack::D_HORIZONTAL, 8);
-                toolbar->addGui(navbox);
-                navbox->setRelativeXY(32, (48-16) / 2);
+                GuiStack* navbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
+                topbar->addGui(navbox);
+                navbox->setRelativeXY(12, 0);//(48-16) / 2);
 
                 navbox->addGui(new GuiButton("Map", false));
                 navbox->addGui(new GuiButton("Inventory", false));
-                navbox->addGui(new GuiButton("Mails", false));
+//                navbox->addGui(new GuiButton("Mails", false));
                 navbox->addGui(new GuiButton("Profile", false));
             }
         }
+//        {
+//            GuiCollection* leftbar = new GuiCollection(0, 16, Inf, 48);
+//            addGui(leftbar);
+//
+//
+//        }
     }
 
     void onDraw() override {

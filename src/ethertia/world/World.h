@@ -43,7 +43,7 @@ class World
 public:
     btDiscreteDynamicsWorld* dynamicsWorld;
 
-    std::mutex chunklock;
+    std::mutex lock_ChunkList;
 
     World() {
 
@@ -121,6 +121,7 @@ public:
 
         if (!chunk) {
             chunk = chunkGenerator.generateChunk(chunkpos, this);
+            chunk->requestRemodel();
         }
 
         assert(chunk);
@@ -185,10 +186,13 @@ public:
     }
 
     Chunk* getLoadedChunk(glm::vec3 p) {
-        return chunks[Chunk::chunkpos(p)];
+        auto it = chunks.find(Chunk::chunkpos(p));
+        if (it == chunks.end())
+            return nullptr;
+        return it->second;
     }
 
-    std::unordered_map<glm::vec3, Chunk*> getLoadedChunks() {
+    std::unordered_map<glm::vec3, Chunk*>& getLoadedChunks() {
         return chunks;
     }
 

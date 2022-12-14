@@ -49,20 +49,20 @@ public:
 //
 //        return chunk;
 
-//        {
-//            for (int rx = 0; rx < 16; ++rx) {
-//                for (int rz = 0; rz < 16; ++rz) {
-//                    vec3 rp = vec3(rx, 0, rz);
-//                    vec3 p = chunkpos + rp;
-//                    float f = noise.noise(p.x / 16.5f, p.z / 16.53f) * 20;
-//
-//                    for (int ry = 0; ry < 16; ++ry) {
-//                        chunk->setBlock(rx, ry, rz, BlockState(Blocks::STONE, f-(chunkpos.y+ry)));
-//                    }
-//                }
-//            }
-//        }
-//        return chunk;
+        {
+            for (int rx = 0; rx < 16; ++rx) {
+                for (int rz = 0; rz < 16; ++rz) {
+                    vec3 rp = vec3(rx, 0, rz);
+                    vec3 p = chunkpos + rp;
+                    float f = noise.noise(p.x / 40.5f, p.z / 40.53f) * 20;
+
+                    for (int ry = 0; ry < 16; ++ry) {
+                        chunk->setCell(rx, ry, rz, Cell(Materials::STONE, f-(chunkpos.y+ry)));
+                    }
+                }
+            }
+        }
+        return chunk;
 
 //        {
 //            for (int rx = 0; rx < 16; ++rx) {
