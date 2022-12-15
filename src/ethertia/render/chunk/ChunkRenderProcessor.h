@@ -134,8 +134,16 @@ public:
         }
 
         if (!nearest && nearest_pos_gen.x != Mth::Inf) {
+            BenchmarkTimer _tm;
+            Log::info("Gen Chunk {}.\1", glm::to_string(nearest_pos_gen));
             // Gen
             nearest = world->provideChunk(nearest_pos_gen);
+            nearest->requestRemodel();
+
+            // CNS. 隐患：在密集生成区块时请求更新周围网格，可能造成过多的无用的互相更新。并且这里没有顾及到8个角
+            // for (int i = 0; i < 6; ++i) {
+            //     world->requestRemodel(nearest_pos_gen + Mth::QFACES[i] * 16.0f, false);
+            // }
         }
 
         return nearest;
@@ -165,8 +173,7 @@ public:
     static void initThreadChunkLoad() {
         new std::thread([]() {
             while (Ethertia::isRunning()) {
-                World* world = Ethertia::getWorld();
-                if (world)
+                if (World* world = Ethertia::getWorld())
                 {
                     std::lock_guard<std::mutex> guard(world->lock_ChunkList);
 
@@ -175,9 +182,10 @@ public:
 
                     Chunk* chunk = questNearestInvalidChunk(world, p, n);
 
-                    if (chunk)
-                    {
-                        Log::info("Mesh Chunk, Upload");
+                    if (chunk) {
+                        BenchmarkTimer _tm;
+                        Log::info("Mesh Chunk {} \1", glm::to_string(chunk->position));
+
                         meshChunk_Upload(chunk);
                     }
 
@@ -189,59 +197,6 @@ public:
             }
         });
     }
-
-
-
-//
-//    static void checkChunksModelUpdate(World* world) {
-//        glm::vec3 vpos = Ethertia::getCamera()->position;
-//
-//        int i = 0;
-//        while (++i <= 4) {
-//            Chunk* chunk = nullptr;
-//            float minLen = Mth::Inf;
-//            for (auto& it : world->getLoadedChunks()) {
-//                Chunk* c = it.second;
-//                if (c && c->needUpdateModel) {
-//                    float len = glm::length(c->position - vpos);
-//                    if (len < minLen) {
-//                        minLen = len;
-//                        chunk = c;
-//                    }
-//                }
-//            }
-//            if (chunk == nullptr)  // nothing to update
-//                return;
-//            chunk->needUpdateModel = false;
-//
-//            doChunkModelUpload(chunk);
-//
-//        }
-//    }
-//    static void makeNearestChunk(World* world, glm::vec3 p, int n)
-//    {
-//        glm::vec3 cpos = Chunk::chunkpos(p);
-//
-//        int num = 0;
-//        // load chunks
-//        for (int dx = -n;dx <= n;dx++) {
-//            for (int dz = -n;dz <= n;dz++) {
-//                for (int dy = -n;dy <= n;dy++) {
-//                    glm::vec3 p = cpos + glm::vec3(dx, dy, dz) * 16.0f;
-//                    Chunk* c = world->getLoadedChunk(p);
-//                    if (!c) {
-//                        world->provideChunk(p);
-//                        for (int i = 0; i < 6; ++i) {
-//                            world->requestRemodel(p + Mth::QFACES[i] * 16.0f);
-//                        }
-//                        if (++num > 10)
-//                            goto skip;
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 
 };
 

@@ -87,20 +87,22 @@ public:
     void setCell(int x, int y, int z, const Cell& m) {
         setCell(glm::vec3(x,y,z), m);
     }
-    void requestRemodel(glm::vec3 p) {
+    void requestRemodel(glm::vec3 p, bool detectNeighbour = true) {
         Chunk* chunk = getLoadedChunk(p);
         if (!chunk) return;
         glm::ivec3 bp = Chunk::rpos(p);
 
         chunk->requestRemodel();
 
-        Chunk* tmp = nullptr;
-        if (bp.x == 0 && (tmp=getLoadedChunk(p - glm::vec3(1, 0, 0)))) tmp->requestRemodel();
-        if (bp.x == 15 && (tmp=getLoadedChunk(p + glm::vec3(1, 0, 0)))) tmp->requestRemodel();
-        if (bp.y == 0 && (tmp=getLoadedChunk(p - glm::vec3(0, 1, 0)))) tmp->requestRemodel();
-        if (bp.y == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 1, 0)))) tmp->requestRemodel();
-        if (bp.z == 0 && (tmp=getLoadedChunk(p - glm::vec3(0, 0, 1)))) tmp->requestRemodel();
-        if (bp.z == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 0, 1)))) tmp->requestRemodel();
+        if (detectNeighbour) {
+            Chunk* tmp = nullptr;
+            if (bp.x == 0 && (tmp=getLoadedChunk(p - glm::vec3(1, 0, 0)))) tmp->requestRemodel();
+            if (bp.x == 15 && (tmp=getLoadedChunk(p + glm::vec3(1, 0, 0)))) tmp->requestRemodel();
+            if (bp.y == 0 && (tmp=getLoadedChunk(p - glm::vec3(0, 1, 0)))) tmp->requestRemodel();
+            if (bp.y == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 1, 0)))) tmp->requestRemodel();
+            if (bp.z == 0 && (tmp=getLoadedChunk(p - glm::vec3(0, 0, 1)))) tmp->requestRemodel();
+            if (bp.z == 15 && (tmp=getLoadedChunk(p + glm::vec3(0, 0, 1)))) tmp->requestRemodel();
+        }
     }
 
 
@@ -121,7 +123,6 @@ public:
 
         if (!chunk) {
             chunk = chunkGenerator.generateChunk(chunkpos, this);
-            chunk->requestRemodel();
         }
 
         assert(chunk);

@@ -8,6 +8,8 @@ uniform sampler2D gPositionDepth;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoRoughness;
 
+uniform sampler2D panoramaMap;
+
 uniform vec3 CameraPos;
 uniform mat4 matInvVP;
 
@@ -60,7 +62,10 @@ vec2 raySphere( vec3 ro, vec3 rd, vec3 ce, float ra )
     return vec2( -b-h, -b+h );
 }
 
-
+vec2 samplePanoramaTex(vec3 rd) {
+#define PI 3.14159265
+    return vec2(atan(rd.z, rd.x) + PI, acos(-rd.y)) / vec2(2.0 * PI, PI);
+}
 
 vec3 compute_pixel_ray() {
     vec2 ndc = vec2(TexCoord * 2.0 - 1.0);
@@ -153,8 +158,8 @@ void main() {
     vec3 Norm = texture(gNormal, TexCoord).rgb;
 
 
-    vec3 LightPos = vec3(-5000, 5000, -5000);
-    vec3 LightColor = vec3(1.0);
+    vec3 LightPos = vec3(-5000, 50000, -5000);
+    vec3 LightColor = vec3(2.0);
 
 
     vec3 FragToLight = normalize(LightPos - FragPos);
@@ -174,9 +179,11 @@ void main() {
 
     FragColor.rgb += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
-
-    if (_PosDepth.w == 1.0f)
-        discard;
+//    if (spec > 0.001) {
+        vec3 camReflect = reflect(-FragToCamera, Norm);
+        vec3 camRefract = refract(-FragToCamera, Norm, 1.0 / 1.52);
+        FragColor.rgb = texture(panoramaMap, samplePanoramaTex(camRefract)).rgb;
+//    }
 
 
 //    float viewLen = length(CameraPos - FragPos);
@@ -223,5 +230,13 @@ void main() {
 //    if (FragDepth > hitInfo.x)
 //    FragColor.rgb += vec3((FragDepth / 100)) * (rayDir * 0.5f + 0.5f);
 //    0.1 * (vec3(hitInfo.y - hitInfo.x)) * (rayDir * 0.5f + 0.5f);
+
+
+
+    if (_PosDepth.w == 1.0f) {
+
+
+        FragColor.rgb = texture(panoramaMap, samplePanoramaTex(RayDir)).rgb;
+    }
 
 }

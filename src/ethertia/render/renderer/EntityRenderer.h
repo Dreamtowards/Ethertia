@@ -23,6 +23,8 @@ public:
 
     inline static Model* M_RECT;  // RB,RT,LB,LT. TRIANGLE_STRIP.
 
+    inline static Texture* g_PanoramaTex = nullptr;
+
     EntityRenderer() {
 
         shaderGeometry.useProgram();
@@ -39,6 +41,8 @@ public:
         shaderCompose.setInt("gNormal", 1);
         shaderCompose.setInt("gAlbedoRoughness", 2);
 
+        shaderCompose.setInt("panoramaMap", 5);
+
 
         // init RECT. def full viewport.
         float _RECT_POS[] = {1,-1, 1,1, -1,-1, -1,1};
@@ -47,6 +51,8 @@ public:
                 {2, _RECT_POS},
                 {2, _RECT_UV}
         });
+
+        g_PanoramaTex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("misc/skybox/hdri6.png")));
 
     }
 
@@ -81,6 +87,9 @@ public:
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, entity->diffuseMap->texId);
         }
+
+        glActiveTexture(GL_TEXTURE5);
+        glBindTexture(GL_TEXTURE_2D, g_PanoramaTex->texId);
 
         shaderGeometry.useProgram();
 
