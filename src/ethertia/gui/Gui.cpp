@@ -22,7 +22,7 @@ void Gui::drawRect(float x, float y, float w, float h, glm::vec4 color, Texture*
 }
 
 
-void Gui::drawString(float x, float y, const std::string &str, glm::vec4 color, float textHeight, float alignX, bool drawShadow) {
+void Gui::drawString(float x, float y, const std::string& str, glm::vec4 color, float textHeight, float alignX, bool drawShadow) {
     FontRenderer* fr = Ethertia::getRenderEngine()->fontRenderer;
     if (drawShadow) {
         float off = textHeight / 16;

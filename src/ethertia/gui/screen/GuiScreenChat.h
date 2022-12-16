@@ -12,6 +12,8 @@
 #include "../GuiTextBox.h"
 #include "../GuiAlign.h"
 
+#include <ethertia/entity/player/EntityPlayer.h>
+
 class GuiScreenChat : public GuiCollection
 {
 public:

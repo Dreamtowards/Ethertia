@@ -111,6 +111,7 @@ public:
     void onCharInput(int ch) override {
 
         if (isFocused()) {
+            // not support chinese characters yet.
             insertText(std::string(1, ch));
         }
 

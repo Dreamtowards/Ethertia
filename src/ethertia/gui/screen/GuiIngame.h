@@ -7,6 +7,7 @@
 
 #include "GuiScreenMainMenu.h"
 #include "GuiScreenPause.h"
+#include "GuiScreenChat.h"
 
 #include <ethertia/gui/GuiStack.h>
 #include <ethertia/gui/GuiButton.h>
@@ -85,6 +86,15 @@ public:
                 btnReloadShaders->addOnClickListener([](OnReleased* e) {
                     delete Ethertia::getRenderEngine()->entityRenderer;
                     Ethertia::getRenderEngine()->entityRenderer = new EntityRenderer();
+                });
+            }
+            {
+                GuiButton* btnRemeshAllChunks = new GuiButton("Remesh Chunks");
+                opts->addGui(btnRemeshAllChunks);
+                btnRemeshAllChunks->addOnClickListener([](OnReleased* e) {
+                    for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
+                        it.second->requestRemodel();
+                    }
                 });
             }
 
@@ -213,12 +223,13 @@ public:
                     dt, Mth::floor(1.0f/dt));
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
 
-//            if (std::floor(dbgLastDrawTime) != std::floor(Ethertia::getPreciseTime())) {
-//                ChunkRenderProcessor::g_DebugGenInfo.numGen = 0;
-//                ChunkRenderProcessor::g_DebugGenInfo.sumTimeGen = 0;
-//                ChunkRenderProcessor::g_DebugGenInfo.numMesh = 0;
-//                ChunkRenderProcessor::g_DebugGenInfo.sumTimeMesh = 0;
-//            }
+            float _s_span = 10;
+            if (std::floor(dbgLastDrawTime / _s_span) != std::floor(Ethertia::getPreciseTime() / _s_span)) {
+                ChunkRenderProcessor::g_DebugGenInfo.numGen = 0;
+                ChunkRenderProcessor::g_DebugGenInfo.sumTimeGen = 0;
+                ChunkRenderProcessor::g_DebugGenInfo.numMesh = 0;
+                ChunkRenderProcessor::g_DebugGenInfo.sumTimeMesh = 0;
+            }
         }
 
         if (dbgEntityAABB) {
@@ -317,10 +328,10 @@ public:
 
 
     void onKeyboard(int key, bool pressed) override {
+        GuiRoot* rootGui = Ethertia::getRootGUI();
 
         if (pressed) {
             if (key == GLFW_KEY_ESCAPE) {
-                GuiRoot* rootGui = Ethertia::getRootGUI();
 
                 Gui* top = rootGui->last();
                 if (top != GuiIngame::INST) {
@@ -328,6 +339,8 @@ public:
                 } else {
                     rootGui->addGui(GuiScreenPause::INST);
                 }
+            } else if (Ethertia::isIngame() && key ==GLFW_KEY_SLASH) {
+                rootGui->addGui(GuiScreenChat::INST);
             }
         }
     }
