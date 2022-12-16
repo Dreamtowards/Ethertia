@@ -16,8 +16,8 @@
 #include <ethertia/util/Strings.h>
 
 // +__FILE_NAME__+":" __LINE__ "/" __func__ "]"  Strings::fmt("[{}:{}#{}]", __FILE_NAME__, __LINE__, __func__)._cstr()
-//#define GetSourceLoc() Strings::fmt("[{}:{}@{}]", __FILE_NAME__, __LINE__, __func__).c_str()
-//#define Log(x) Log::_log(std::cout, "INFO", "", x)
+#define GetSourceLoc() Strings::fmt("[{}:{}@{}]", __FILE_NAME__, __LINE__, __func__).c_str()
+#define Log(x) Log::_log(std::cout, "INFO", GetSourceLoc(), x)
 
 
 //template<typename T>

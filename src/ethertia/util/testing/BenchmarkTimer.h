@@ -12,12 +12,11 @@ class BenchmarkTimer
 {
     std::chrono::time_point<std::chrono::high_resolution_clock> begin = std::chrono::high_resolution_clock::now();
 
+    const char* tailmsg = nullptr;
+    float* timerAppend = nullptr;
+
 public:
-    BenchmarkTimer(const char* _msg) {
-        std::cout << _msg;
-        std::cout.flush();
-    }
-    BenchmarkTimer() {}
+    BenchmarkTimer(float* _timeAppend = nullptr, const char* _msg = " used {}.\n") : timerAppend(_timeAppend), tailmsg(_msg) {}
 
     ~BenchmarkTimer()
     {
@@ -28,12 +27,19 @@ public:
 
         double d = duration * 0.001 * 0.001;
 
-        if (d > 1000) {
-            std::cout << " used " << d/1000 << " s."  << std::endl;
-        } else {
-            std::cout << " used " << d      << " ms." << std::endl;
+        if (timerAppend) {
+            *timerAppend += d * 0.001f;
         }
-        std::cout.flush();
+        if (tailmsg) {
+            std::string t_str;
+            if (d > 1000) {
+                t_str = std::to_string(d / 1000.0f) + "s";
+            } else {
+                t_str = std::to_string(d) + "ms";
+            }
+            std::cout << Strings::fmt(tailmsg, t_str);
+            std::cout.flush();
+        }
     }
 };
 

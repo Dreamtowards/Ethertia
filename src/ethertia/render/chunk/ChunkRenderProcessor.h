@@ -5,6 +5,8 @@
 #ifndef ETHERTIA_CHUNKRENDERPROCESSOR_H
 #define ETHERTIA_CHUNKRENDERPROCESSOR_H
 
+#include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
+
 class ChunkRenderProcessor
 {
 public:
@@ -134,16 +136,16 @@ public:
         }
 
         if (!nearest && nearest_pos_gen.x != Mth::Inf) {
-            BenchmarkTimer _tm;
-            Log::info("Gen Chunk {}.\1", glm::to_string(nearest_pos_gen));
+            BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeGen, nullptr);  g_DebugGenInfo.numGen++;
+
             // Gen
             nearest = world->provideChunk(nearest_pos_gen);
             nearest->requestRemodel();
 
             // CNS. 隐患：在密集生成区块时请求更新周围网格，可能造成过多的无用的互相更新。并且这里没有顾及到8个角
-            // for (int i = 0; i < 6; ++i) {
-            //     world->requestRemodel(nearest_pos_gen + Mth::QFACES[i] * 16.0f, false);
-            // }
+//            for (int i = 0; i < 6; ++i) {
+//                world->requestRemodel(nearest_pos_gen + Mth::QFACES[i] * 16.0f, false);
+//            }
         }
 
         return nearest;
@@ -169,6 +171,14 @@ public:
         return unloads.size();
     }
 
+    ;
+    inline static class ChunkLoadInfo{
+    public:
+        int numGen;
+        float sumTimeGen;
+        int numMesh;
+        float sumTimeMesh;
+    } g_DebugGenInfo = {};
 
     static void initThreadChunkLoad() {
         new std::thread([]() {
@@ -183,8 +193,7 @@ public:
                     Chunk* chunk = questNearestInvalidChunk(world, p, n);
 
                     if (chunk) {
-                        BenchmarkTimer _tm;
-                        Log::info("Mesh Chunk {} \1", glm::to_string(chunk->position));
+                        BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeMesh, nullptr);  g_DebugGenInfo.numMesh++;
 
                         meshChunk_Upload(chunk);
                     }

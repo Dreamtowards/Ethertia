@@ -23,7 +23,7 @@ RenderEngine::RenderEngine()
     skyGradientRenderer = new SkyGradientRenderer();
     skyboxRenderer = new SkyboxRenderer();
 
-    float qual = 0.8;
+    float qual = 1.2;
     gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));
     Framebuffer::gPushFramebuffer(gbuffer);
         gbuffer->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3

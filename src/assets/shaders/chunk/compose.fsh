@@ -180,9 +180,9 @@ void main() {
     FragColor.rgb += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
 //    if (spec > 0.001) {
-        vec3 camReflect = reflect(-FragToCamera, Norm);
-        vec3 camRefract = refract(-FragToCamera, Norm, 1.0 / 1.52);
-        FragColor.rgb = texture(panoramaMap, samplePanoramaTex(camRefract)).rgb;
+//        vec3 camReflect = reflect(-FragToCamera, Norm);
+//        vec3 camRefract = refract(-FragToCamera, Norm, 1.0 / 1.33);
+//        FragColor.rgb = texture(panoramaMap, samplePanoramaTex(camRefract)).rgb;
 //    }
 
 

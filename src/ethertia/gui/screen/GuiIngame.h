@@ -22,6 +22,7 @@
 #include <ethertia/render/renderer/EntityRenderer.h>
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/render/chunk/ChunkRenderProcessor.h>
 
 
 class GuiIngame : public GuiCollection
@@ -40,6 +41,8 @@ public:
     inline static bool dbgCursorRangeInfo = false;
 
     inline static bool dbgGBuffers = false;
+
+    inline static float dbgLastDrawTime = 0;
 
     Gui* optsGui = nullptr;
 
@@ -194,14 +197,28 @@ public:
         glPolygonMode(GL_FRONT_AND_BACK, dbgPolyLine ? GL_LINE : GL_FILL);
 
         if (dbgText) {
+            ChunkRenderProcessor::ChunkLoadInfo& cinfo = ChunkRenderProcessor::g_DebugGenInfo;
+
             float dt = Ethertia::getDelta();
             std::string dbg_s = Strings::fmt(
-                    "cam p: {}, ln: {}\n"
+                    "cam p: {}, len: {}\n"
                     "E: {}/{}\n"
+                    "ChunkGen ({} {}ms, avg {}ms), \n"
+                    "ChunkMesh({} {}ms, avg {}ms)\n"
                     "dt/ {}, {}fs\n",
-                    glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len, rde->entitiesActualRendered, Ethertia::getWorld()->getEntities().size(),
+                    glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len,
+                    rde->entitiesActualRendered, Ethertia::getWorld()->getEntities().size(),
+                    cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
+                    cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
                     dt, Mth::floor(1.0f/dt));
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
+
+//            if (std::floor(dbgLastDrawTime) != std::floor(Ethertia::getPreciseTime())) {
+//                ChunkRenderProcessor::g_DebugGenInfo.numGen = 0;
+//                ChunkRenderProcessor::g_DebugGenInfo.sumTimeGen = 0;
+//                ChunkRenderProcessor::g_DebugGenInfo.numMesh = 0;
+//                ChunkRenderProcessor::g_DebugGenInfo.sumTimeMesh = 0;
+//            }
         }
 
         if (dbgEntityAABB) {
@@ -254,6 +271,8 @@ public:
                       3, 3, Colors::WHITE);
 
         GuiCollection::onDraw();
+
+        dbgLastDrawTime = Ethertia::getPreciseTime();
     }
 
     static void drawCursorRangeInfo() {
