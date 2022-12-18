@@ -8,6 +8,7 @@
 #include <vector>
 #include <functional>
 #include <deque>
+#include <thread>
 
 class Scheduler
 {
@@ -17,7 +18,7 @@ class Scheduler
     // std::mutex lock;  // needs?
 
 public:
-    explicit Scheduler(std::thread::id th) : m_ThreadId(th) {}
+    explicit Scheduler(std::thread::id th = std::this_thread::get_id()) : m_ThreadId(th) {}
 
     void processTasks()
     {

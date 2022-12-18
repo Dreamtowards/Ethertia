@@ -32,7 +32,6 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <stb/stb_image_resize.h>
 
-#include "nlohmann/json.hpp"
 
 int main()
 {
@@ -43,15 +42,36 @@ int main()
 }
 
 
+void Ethertia::start() { BenchmarkTimer _tm(nullptr, "System initialized in {}.");
+    Settings::loadSettings();
 
-Window Ethertia::m_Window{};
-Timer Ethertia::m_Timer{};
-Scheduler Ethertia::m_Scheduler{std::this_thread::get_id()};
-BrushCursor Ethertia::m_Cursor{};
+    m_Running = true;
+    m_Window = new Window(Settings::displayWidth, Settings::displayHeight, "Dysplay");
+    m_RootGUI = new GuiRoot(m_Window->getWidth(), m_Window->getHeight());
+    m_RenderEngine = new RenderEngine();
+
+    MaterialTextures::init();
+
+    ChunkRenderProcessor::initThreadChunkLoad();
+
+    GuiIngame::INST = new GuiIngame();
+    GuiScreenMainMenu::INST = new GuiScreenMainMenu();
+    GuiScreenChat::INST = new GuiScreenChat();
+    GuiScreenPause::INST = new GuiScreenPause();
+    m_RootGUI->addGui(GuiIngame::INST);
+    m_RootGUI->addGui(GuiScreenPause::INST);
 
 
-void renderGUI();
+    m_Player = new EntityPlayer();
+    m_Player->setPosition({10, 10, 10});
+    m_Player->switchGamemode(Gamemode::SPECTATOR);
 
+    Ethertia::loadWorld();
+    m_Player->setFlying(true);
+
+    Controls::initMouseDigControls();
+
+}
 
 void Ethertia::runMainLoop()
 {
@@ -76,42 +96,10 @@ void Ethertia::runMainLoop()
 
     renderGUI();
 
-    m_Window.updateWindow();
+    m_Window->updateWindow();
 }
 
-void Ethertia::start() {
-    Settings::loadSettings();
-
-    m_Running = true;
-    m_Window.initWindow();
-
-    m_RenderEngine = new RenderEngine();
-    m_RootGUI = new GuiRoot();
-    m_Window.fireWindowSizeEvent();  // effect to the GuiRoot now.
-
-    MaterialTextures::init();
-
-    ChunkRenderProcessor::initThreadChunkLoad();
-
-    GuiIngame::INST = new GuiIngame();
-    GuiScreenMainMenu::INST = new GuiScreenMainMenu();
-    GuiScreenChat::INST = new GuiScreenChat();
-    GuiScreenPause::INST = new GuiScreenPause();
-    m_RootGUI->addGui(GuiIngame::INST);
-
-
-    m_Player = new EntityPlayer();
-    m_Player->setPosition({10, 10, 10});
-    m_Player->switchGamemode(Gamemode::SPECTATOR);
-
-    Ethertia::loadWorld();
-    m_Player->setFlying(true);
-
-    Controls::initMouseDigControls();
-
-}
-
-void renderGUI()
+void Ethertia::renderGUI()
 {
     GuiRoot* rootGUI = Ethertia::getRootGUI();
 
@@ -193,7 +181,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
 
 
-bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST && !m_Window.isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
+bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
 
 float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
 
@@ -203,5 +191,5 @@ Camera* Ethertia::getCamera() { return &m_RenderEngine->m_Camera; }
 
 float Ethertia::getAspectRatio() {
     Window* w = getWindow(); if (w->getHeight() == 0) return 0;
-    return w->getWidth() / w->getHeight();
+    return (float)w->getWidth() / (float)w->getHeight();
 }

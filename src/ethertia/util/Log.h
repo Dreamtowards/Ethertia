@@ -115,11 +115,15 @@ Profile(
     template<typename... ARGS>
     static void _log(std::ostream& s, const char* _lv, const char* _loc, const std::string& pat, ARGS... args)
     {
+        bool keepline = pat[pat.length() - 1] == '\1';
         std::stringstream ss;
+
         Log::log_head(ss, _lv, _loc);
-        Strings::_fmt(ss, pat, args...);
+        Strings::_fmt(ss, (keepline ? pat.substr(0, pat.length()-1) : pat), args...);
+
         s << ss.str();
-        if (pat[pat.length() - 1] != '\1') {
+
+        if (!keepline) {
             s << std::endl;
         }
     }

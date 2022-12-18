@@ -9,6 +9,7 @@
 #include <utility>
 #include <fstream>
 #include <array>
+#include <filesystem>
 
 #include <glad/glad.h>
 #include <stb/stb_image.h>
@@ -44,9 +45,8 @@ public:
 
         return std::pair(buf, len);
     }
-    static bool fileExists(std::string_view path) {
-        std::ifstream _f(path);
-        return _f.good();
+    static bool fileExists(const std::string& path) {
+        return std::filesystem::exists(path);
     }
 
     static std::pair<char*, u32> loadAssets(const std::string& p) {

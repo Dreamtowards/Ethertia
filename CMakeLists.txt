@@ -1,18 +1,17 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.14)
 project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 17)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #find_package(OpenAL REQUIRED)
-#file(GLOB_RECURSE Eths "src/ethertia/*.cpp")
 
 include_directories(src)
 include_directories(lib)
 include_directories(lib/glfw/include)
 include_directories(lib/bullet3/src)
-include_directories(lib/fmt/include)
-include_directories(lib/json/single_include)
+include_directories(lib/json/include)
+#include_directories(lib/fmt/include)
 
 
 
@@ -34,7 +33,8 @@ target_link_libraries(Ethertia PRIVATE
         "-framework OpenAL")
 endif()
 
-#if (WIN32) MinGW, 'x86_64-12.2.0-release-posix-sjlj-rt_v10-rev0.7z', add mingw64/bin to PATH without space. Require: libgcc, libstdc++
+# if (WIN32) mingw-w64 WinLibs build, add mingw64/bin to PATH without space.
+# "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2.zip" 'https://winlibs.com/'
 
 
 # lib glfw
@@ -48,9 +48,9 @@ target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath
 # [examples, Extras, test, build3] are disabled.
 
 
-# lib fmt
-add_subdirectory(lib/fmt)
-target_link_libraries(Ethertia PRIVATE fmt::fmt)
+## lib fmt
+#add_subdirectory(lib/fmt)
+#target_link_libraries(Ethertia PRIVATE fmt::fmt)
 
 
 
@@ -60,20 +60,14 @@ target_link_libraries(Ethertia PRIVATE fmt::fmt)
 
 
 
-add_executable(Launcher
-        lib/tinyfd/tinyfiledialogs.c
-        src/ethertia/util/launcher/Launcher.cpp
-        )
-
-# lib libui
-add_subdirectory(lib/libui)
-target_link_libraries(Launcher PRIVATE libui)
-
-
-
-
-
-
+#add_executable(Launcher
+#        lib/tinyfd/tinyfiledialogs.c
+#        src/ethertia/util/launcher/Launcher.cpp
+#        )
+#
+## lib libui
+#add_subdirectory(lib/libui)
+#target_link_libraries(Launcher PRIVATE libui)
 
 
 

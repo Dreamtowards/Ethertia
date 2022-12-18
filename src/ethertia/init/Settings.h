@@ -22,8 +22,8 @@ public:
 //
 //    inline static std::vector<std::string> assets = {"./assets"};
 //
-//    inline static float displayWidth  = 1280,
-//                        displayHeight = 720;
+    inline static int displayWidth  = 1280,
+                      displayHeight = 720;
 
     template<typename T>
     static void setProperty(json& j, const std::string& name, T* p) {
@@ -32,8 +32,8 @@ public:
         }
     }
 
-    static void loadSettings() {
-        Log::info("Load Settings.");
+    static void loadSettings() { BenchmarkTimer _tm;
+        Log::info("Load Settings.\1");
         if (!Loader::fileExists(SETTINGS_FILE))
             return;
 
@@ -44,8 +44,8 @@ public:
 
         setProperty(settings, "assets", &Loader::ASSETS);
 
-        setProperty(settings, "display_width", &Ethertia::getWindow()->getWidth());
-        setProperty(settings, "display_height", &Ethertia::getWindow()->getHeight());
+        setProperty(settings, "display_width",  &displayWidth);
+        setProperty(settings, "display_height", &displayHeight);
 
     }
 
@@ -53,12 +53,12 @@ public:
 
     }
 
-    static void saveSettings() {
-        Log::info("Save Settings.");
+    static void saveSettings() { BenchmarkTimer _tm;
+        Log::info("Save Settings.\1");
 
         json settings = json::object({
-             {"view_distance",  Ethertia::getRenderEngine()->viewDistance},
-             {"fov",            Ethertia::getRenderEngine()->fov},
+             {"view_distance",  RenderEngine::viewDistance},
+             {"fov",            RenderEngine::fov},
              {"assets",         Loader::ASSETS},
              {"display_width",  Ethertia::getWindow()->getWidth()},
              {"display_height", Ethertia::getWindow()->getHeight()},

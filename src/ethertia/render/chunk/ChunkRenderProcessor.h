@@ -38,9 +38,9 @@ public:
 #ifndef ETHERIA_EXT_FixNormAvgAtChunkBoundary
         {
             vbuf->normals.reserve(vbuf->vertexCount() * 3);
-//            VertexProcess::gen_avgnorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->vertexCount(), vbuf->normals.data());
+            VertexProcess::gen_avgnorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->vertexCount(), vbuf->normals.data());
 
-            VertexProcess::othonorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->normals.data(), true);
+//            VertexProcess::othonorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->normals.data(), true);
         }
 #else
         // fix of Normal Smoothing at Chunk Boundary

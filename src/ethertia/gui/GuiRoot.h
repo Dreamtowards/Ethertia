@@ -7,6 +7,7 @@
 
 #include "Gui.h"
 #include "GuiCollection.h"
+
 #include <ethertia/event/client/MouseButtonEvent.h>
 #include <ethertia/event/client/WindowCloseEvent.h>
 
@@ -15,10 +16,15 @@ class GuiRoot : public GuiCollection
 
 
 public:
-    GuiRoot() {
-        setWidth(0);
-        setHeight(0);  // cannot be -Inf.
+    GuiRoot(int _w, int _h) {
+        setWidth(_w);
+        setHeight(_h);
+//        setWidth(Ethertia::getWindow()->getWidth());
+//        setHeight(Ethertia::getWindow()->getHeight());
 
+        EventBus::EVENT_BUS.listen([](WindowResizedEvent* e) {
+//            setWidth();
+        });
     }
 
     void onMouseButton(int button, bool pressed) override

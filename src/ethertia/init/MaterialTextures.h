@@ -10,7 +10,6 @@
 #ifndef ETHERTIA_MATERIALTEXTURES_H
 #define ETHERTIA_MATERIALTEXTURES_H
 
-#include <fmt/core.h>
 #include <map>
 
 #include <stb/stb_image_resize.h>
@@ -53,7 +52,7 @@ public:
         ATLAS_DIFFUSE = makeAtlas("diff", dest_res, "caches/atlas_diff.png");
         ATLAS_NORM    = makeAtlas("norm", dest_res, "caches/atlas_norm.png");
         ATLAS_DISP    = makeAtlas("disp", dest_res, "caches/atlas_disp.png");
-        ATLAS_ROUGH    = makeAtlas("rough", dest_res, "caches/atlas_rough.png");
+        ATLAS_ROUGH   = makeAtlas("rough",dest_res, "caches/atlas_rough.png");
 
         Log::info("Material Texture Atlases all loaded/generated.\1");
     }
@@ -80,7 +79,7 @@ public:
             BitmapImage* tmp = new BitmapImage(px, px);  // resized img.
             for (int i = 0; i < n; ++i)
             {
-                BitmapImage* src = Loader::loadPNG(Loader::loadAssets(fmt::format("/materials/{}/{}.png", TEXTURES[i], textype)));
+                BitmapImage* src = Loader::loadPNG(Loader::loadAssets(Strings::fmt("/materials/{}/{}.png", TEXTURES[i], textype)));
 
                 stbir_resize_uint8((unsigned char*)src->getPixels(), src->getWidth(), src->getHeight(), 0,
                                    (unsigned char*)tmp->getPixels(), tmp->getWidth(), tmp->getHeight(), 0, 4);

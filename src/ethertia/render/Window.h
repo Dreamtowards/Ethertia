@@ -23,9 +23,8 @@
 #include <ethertia/event/client/WindowCloseEvent.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/gui/GuiRoot.h>
-#include <ethertia/util/testing/BenchmarkTimer.h>
+#include <ethertia/util/BenchmarkTimer.h>
 
-#include <fmt/core.h>
 
 class Window
 {
@@ -38,8 +37,8 @@ class Window
     float scrollDX = 0;
     float scrollDY = 0;
 
-    float width  = 1280;  // 600, 420
-    float height = 720;
+    int width  = 0;  // 600, 420
+    int height = 0;
 
     // WindowCoord * ContentScale = FramebufferSize.
     int framebufferWidth  = 0;
@@ -47,7 +46,7 @@ class Window
 
 public:
 
-    void initWindow()
+    Window(int _w, int _h, const char* _title) : width(_w), height(_h)
     {
         BenchmarkTimer _tm;
 
@@ -66,14 +65,17 @@ public:
         glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
-        window = glfwCreateWindow(width, height, "Dysplay", nullptr, nullptr);
+        window = glfwCreateWindow(width, height, _title, nullptr, nullptr);
         if (!window) {
             const char* err_str;
             int err = glfwGetError(&err_str);
-            throw std::runtime_error(fmt::format("Failed to init GLFW window. Err {}. ({})", err, err_str));
+            throw std::runtime_error(Strings::fmt("Failed to init GLFW window. Err {}. ({})", err, err_str));
         }
 
         centralize();
+
+        // fireWindowResize(). init very first events. e.g. init GuiRoot's size.
+        // onWindowSize(window, width, height);
 
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
@@ -81,8 +83,8 @@ public:
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             throw std::runtime_error("Failed to init GLAD.");
 
-        Log::info("Init GL. @{}, {}, {} | GLFW {}.\1",
-                  glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR),
+        Log::info("Init GL_{}, {} | GLFW {}.\1",
+                  glGetString(GL_VERSION), glGetString(GL_RENDERER), //glGetString(GL_VENDOR),
                   glfwGetVersionString());
 
         glfwSetWindowUserPointer(window, this);
@@ -115,11 +117,9 @@ public:
         return glfwWindowShouldClose(window);
     }
 
-    void fireWindowSizeEvent() {
-
-        // init very first event.
-        onWindowSize(window, width, height);
-    }
+//    void setSize(int _w, int _h) {
+//        glfwSetWindowSize(window, _w, _h);
+//    }
 
     void centralize() {
         const GLFWvidmode* vmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -142,8 +142,8 @@ public:
 
     glm::vec2 getMousePos() const { return glm::vec2(mouseX, mouseY); }
 
-    float& getWidth()  { return width; }
-    float& getHeight() { return height; }
+    int getWidth()  const { return width; }
+    int getHeight() const { return height; }
     int getFramebufferWidth()  const { return framebufferWidth;  }
     int getFramebufferHeight() const { return framebufferHeight; }
 

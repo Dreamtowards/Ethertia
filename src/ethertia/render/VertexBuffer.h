@@ -11,7 +11,7 @@
 
 
 #include <ethertia/util/Mth.h>
-#include <ethertia/util/testing/BenchmarkTimer.h>
+#include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/Log.h>
 #include <ethertia/util/VertexProcess.h>
 

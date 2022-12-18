@@ -46,6 +46,7 @@ void Gui::drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm
 
 float Gui::toFramebufferCoords(float f) {
     Window* w = Ethertia::getWindow();
-    assert(w->getFramebufferWidth()/Gui::maxWidth() == w->getFramebufferHeight()/Gui::maxHeight());
+    // makesure its same aspectRatio.
+    // assert(w->getFramebufferWidth()/Gui::maxWidth() == w->getFramebufferHeight()/Gui::maxHeight());
     return f * (w->getFramebufferWidth() / Gui::maxWidth());
 }
