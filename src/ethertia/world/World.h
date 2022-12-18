@@ -501,21 +501,22 @@ public:
 
 
                              // Leaves
-//                            for (int lx = -r; lx <= r; ++lx) {
-//                                for (int lz = -r; lz <= r; ++lz) {
-//                                    for (int ly = -r; ly <= r+f*8; ++ly) {
-//                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly)) > r*r)
-//                                            continue;
+                            for (int lx = -r; lx <= r; ++lx) {
+                                for (int lz = -r; lz <= r; ++lz) {
+                                    for (int ly = -r; ly <= r+f*8; ++ly) {
+                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly)) > r*r)
+                                            continue;
 //                                        if (_leaf == Blocks::LEAVES && Mth::hash(x*y*z) < 0.2f)
 //                                            _leaf = Blocks::LEAVES_APPLE;
-//                                        world->setBlock(x+lx, y+ly+h+Mth::hash(y)*4, z+lz, BlockState(_leaf));
-//                                    }
-//                                }
-//                            }
+                                        //y +Mth::hash(y)*4
+                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::MOSS, 0.5f));
+                                    }
+                                }
+                            }
                             // Trunk
-                            for (int i = 0; i < h; ++i) {
+                            for (int i = 0; i < h+3; ++i) {
 
-                                world->setCell(x, y+i, z, Cell(Materials::LOG, 1.0f));
+                                world->setCell(x, y+i, z, Cell(Materials::LOG, 2.0f));
                             }
                             break;
                         }

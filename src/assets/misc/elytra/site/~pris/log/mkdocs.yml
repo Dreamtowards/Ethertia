@@ -1,0 +1,40 @@
+site_name: Eldrine Le Prismarine
+site_url: https://elytra.dev/lib
+site_description: Blogs of Eldrine Le Prismarine
+site_author: Dreamtowards
+
+repo_url: https://github.com/Dreamtowards/Microcraft
+edit_uri: ""
+
+nav:
+  - Graphics:
+      - Flat Atmosphere Rendering: .
+      - SSAO: .
+      - Water Rendering: .
+      - Volume Cloud: .
+  - Voxel:
+      - Dive into Minecraft Terrain Generation: .
+      - Naive SurfaceNets Implementation: .
+  - Ethertia:
+      - Weekly Updates:
+          - 22u49 T.52: .
+
+theme:
+  name: mkdocs
+#    custom_dir: "docs/_theme"
+#  nav_style: light
+  navigation_depth: 6
+
+extra_css:
+  - "_theme/_ext_style.css"
+
+
+docs_dir: "docs"
+site_dir: "docs_build"
+
+#copyright: Copyright &copy; 2021 Someone
+
+dev_addr: "127.0.0.1:8124"
+
+markdown_extensions:
+  - admonition

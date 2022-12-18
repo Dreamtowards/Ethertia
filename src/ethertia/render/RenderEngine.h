@@ -45,8 +45,8 @@ public:
     Framebuffer* gbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
     Framebuffer* dcompose = nullptr;  // Deferred Rendering Compose FBO
 
-    float fov = 90;
-    float viewDistance = 1;
+    inline static float fov = 90;
+    inline static float viewDistance = 1;
 
     bool debugChunkGeo = false;
     int entitiesActualRendered = 0;

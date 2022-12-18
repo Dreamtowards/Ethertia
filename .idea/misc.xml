@@ -9,8 +9,8 @@
       <file path="$PROJECT_DIR$/src/EventBus-master/lib/src" />
     </libraryRoots>
     <excludeRoots>
+      <file path="$PROJECT_DIR$/assets/misc" />
       <file path="$PROJECT_DIR$/lib/_deprecated" />
-      <file path="$PROJECT_DIR$/src/assets/misc" />
     </excludeRoots>
   </component>
 </project>

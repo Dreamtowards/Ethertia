@@ -83,6 +83,11 @@ void main()
         float h2 = tri_samp(displacementMap, int(TriMtlId[2]), FragPos, blend).r * mtlw[2];
         int mostHeightVert = max_i(h0, h1, h2);
 
+        if (TriMtlId[mostHeightVert] == 0) {
+
+            return;
+        }
+
         const int MTL_STONE = 1,
                   MTL_GRASS = 2,
                   MTL_DIRT = 3;

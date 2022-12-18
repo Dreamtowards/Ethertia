@@ -32,6 +32,7 @@ public:
     inline static std::vector<std::string> TEXTURES = {
             "rock",
             "grass",
+            "moss",
             "black_dirt",
             "sand",
             "oak_log",

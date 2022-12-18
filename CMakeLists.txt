@@ -12,6 +12,7 @@ include_directories(lib)
 include_directories(lib/glfw/include)
 include_directories(lib/bullet3/src)
 include_directories(lib/fmt/include)
+include_directories(lib/json/single_include)
 
 
 

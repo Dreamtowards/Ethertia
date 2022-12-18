@@ -6,6 +6,7 @@
 #define ETHERTIA_CHUNKRENDERPROCESSOR_H
 
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
+#include <ethertia/render/chunk/BlockyMeshGen.h>
 
 class ChunkRenderProcessor
 {
@@ -14,18 +15,22 @@ public:
 
 
     static void meshChunk_Upload(Chunk* chunk) {
+        BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeGen, nullptr);  g_DebugGenInfo.numGen++;
+
         chunk->needUpdateModel = false;
 
-        VertexBuffer* vbuf = nullptr;
+        VertexBuffer* vbuf = new VertexBuffer();
 
         {
 //        BenchmarkTimer _tm;
 //        Log::info("Chunk MeshGen. \1");
 
-//        vbuf = BlockyChunkMeshGen::genMesh(chunk, world);
-            vbuf = SurfaceNetsMeshGen::contouring(chunk);
 //        vbuf = MarchingCubesMeshGen::genMesh(chunk);
-//        vbuf = BlockyMeshGen::gen(chunk, new VertexBuffer);
+
+            SurfaceNetsMeshGen::contouring(chunk, vbuf);
+
+            BlockyMeshGen::gen(chunk, vbuf);
+
         }
 
 
@@ -33,7 +38,9 @@ public:
 #ifndef ETHERIA_EXT_FixNormAvgAtChunkBoundary
         {
             vbuf->normals.reserve(vbuf->vertexCount() * 3);
-            VertexProcess::gen_avgnorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->vertexCount(), vbuf->normals.data());
+//            VertexProcess::gen_avgnorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->vertexCount(), vbuf->normals.data());
+
+            VertexProcess::othonorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->normals.data(), true);
         }
 #else
         // fix of Normal Smoothing at Chunk Boundary
@@ -99,6 +106,8 @@ public:
 
         if (vbuf) {
             Ethertia::getScheduler()->exec([chunk, vbuf]() {
+                BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeEmit, nullptr);  g_DebugGenInfo.numEmit++;
+
                 delete chunk->proxy->model;
 
                 chunk->proxy->model = Loader::loadModel(vbuf, true);
@@ -136,8 +145,6 @@ public:
         }
 
         if (!nearest && nearest_pos_gen.x != Mth::Inf) {
-            BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeGen, nullptr);  g_DebugGenInfo.numGen++;
-
             // Gen
             nearest = world->provideChunk(nearest_pos_gen);
             nearest->requestRemodel();
@@ -178,6 +185,8 @@ public:
         float sumTimeGen;
         int numMesh;
         float sumTimeMesh;
+        int numEmit;
+        float sumTimeEmit;
     } g_DebugGenInfo = {};
 
     static void initThreadChunkLoad() {
@@ -198,8 +207,8 @@ public:
                         meshChunk_Upload(chunk);
                     }
 
-                    int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
-                    if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
+//                    int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
+//                    if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
                 }
 
                 std::this_thread::sleep_for(std::chrono::milliseconds (1));

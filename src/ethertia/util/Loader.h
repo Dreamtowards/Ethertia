@@ -25,6 +25,8 @@ class Loader {
 
 public:
 
+    inline static std::string ASSETS = "assets/";
+
 
 
     static std::pair<char*, u32> loadFile(const std::string& path)
@@ -48,11 +50,15 @@ public:
     }
 
     static std::pair<char*, u32> loadAssets(const std::string& p) {
-        return loadFile("../src/assets/" + p);
+        return loadFile(ASSETS + p);
     }
 
     static std::string loadAssetsStr(const std::string& p) {
         auto m = loadAssets(p);
+        return std::string(m.first, m.second);
+    }
+    static std::string loadFileStr(const std::string& p) {
+        auto m = loadFile(p);
         return std::string(m.first, m.second);
     }
 

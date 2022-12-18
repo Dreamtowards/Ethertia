@@ -158,7 +158,7 @@ void main() {
     vec3 Norm = texture(gNormal, TexCoord).rgb;
 
 
-    vec3 LightPos = vec3(-5000, 50000, -5000);
+    vec3 LightPos = vec3(-3, 2, -1) * 10000;
     vec3 LightColor = vec3(2.0);
 
 
@@ -179,11 +179,6 @@ void main() {
 
     FragColor.rgb += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
-//    if (spec > 0.001) {
-//        vec3 camReflect = reflect(-FragToCamera, Norm);
-//        vec3 camRefract = refract(-FragToCamera, Norm, 1.0 / 1.33);
-//        FragColor.rgb = texture(panoramaMap, samplePanoramaTex(camRefract)).rgb;
-//    }
 
 
 //    float viewLen = length(CameraPos - FragPos);
@@ -231,6 +226,11 @@ void main() {
 //    FragColor.rgb += vec3((FragDepth / 100)) * (rayDir * 0.5f + 0.5f);
 //    0.1 * (vec3(hitInfo.y - hitInfo.x)) * (rayDir * 0.5f + 0.5f);
 
+    //    if (spec > 0.001) {
+//            vec3 camReflect = reflect(RayDir, Norm);
+//            vec3 camRefract = refract(RayDir, Norm, 1.0 / 1.33);
+//            FragColor.rgb = texture(panoramaMap, samplePanoramaTex(camRefract)).rgb;
+    //    }
 
 
     if (_PosDepth.w == 1.0f) {

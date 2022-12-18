@@ -38,8 +38,8 @@ class Window
     float scrollDX = 0;
     float scrollDY = 0;
 
-    float width  = 0;
-    float height = 0;
+    float width  = 1280;  // 600, 420
+    float height = 720;
 
     // WindowCoord * ContentScale = FramebufferSize.
     int framebufferWidth  = 0;
@@ -66,7 +66,7 @@ public:
         glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
-        window = glfwCreateWindow(width=600, height=420, "Dysplay", nullptr, nullptr);
+        window = glfwCreateWindow(width, height, "Dysplay", nullptr, nullptr);
         if (!window) {
             const char* err_str;
             int err = glfwGetError(&err_str);
@@ -142,8 +142,8 @@ public:
 
     glm::vec2 getMousePos() const { return glm::vec2(mouseX, mouseY); }
 
-    float getWidth()  const { return width; }
-    float getHeight() const { return height; }
+    float& getWidth()  { return width; }
+    float& getHeight() { return height; }
     int getFramebufferWidth()  const { return framebufferWidth;  }
     int getFramebufferHeight() const { return framebufferHeight; }
 

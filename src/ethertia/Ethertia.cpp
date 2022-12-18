@@ -23,6 +23,7 @@
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/render/chunk/ChunkRenderProcessor.h>
+#include <ethertia/init/Settings.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -31,10 +32,12 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <stb/stb_image_resize.h>
 
+#include "nlohmann/json.hpp"
 
 int main()
 {
     Ethertia::run();
+
 
     return 0;
 }
@@ -77,6 +80,7 @@ void Ethertia::runMainLoop()
 }
 
 void Ethertia::start() {
+    Settings::loadSettings();
 
     m_Running = true;
     m_Window.initWindow();
@@ -143,6 +147,8 @@ void Ethertia::destroy()
     delete m_RenderEngine;
 
     glfwTerminate();
+
+    Settings::saveSettings();
 }
 
 void Ethertia::loadWorld() {

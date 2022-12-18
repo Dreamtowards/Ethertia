@@ -215,20 +215,24 @@ public:
                     "E: {}/{}\n"
                     "ChunkGen ({} {}ms, avg {}ms), \n"
                     "ChunkMesh({} {}ms, avg {}ms)\n"
+                    "ChunkEmit({} {}ms, avg {}ms)\n"
                     "dt/ {}, {}fs\n",
                     glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len,
                     rde->entitiesActualRendered, Ethertia::getWorld()->getEntities().size(),
                     cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                     cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
+                    cinfo.numEmit, cinfo.sumTimeEmit * 1000, (cinfo.sumTimeEmit / cinfo.numEmit * 1000),
                     dt, Mth::floor(1.0f/dt));
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
 
-            float _s_span = 10;
+            float _s_span = 30;
             if (std::floor(dbgLastDrawTime / _s_span) != std::floor(Ethertia::getPreciseTime() / _s_span)) {
                 ChunkRenderProcessor::g_DebugGenInfo.numGen = 0;
                 ChunkRenderProcessor::g_DebugGenInfo.sumTimeGen = 0;
                 ChunkRenderProcessor::g_DebugGenInfo.numMesh = 0;
                 ChunkRenderProcessor::g_DebugGenInfo.sumTimeMesh = 0;
+                ChunkRenderProcessor::g_DebugGenInfo.numEmit = 0;
+                ChunkRenderProcessor::g_DebugGenInfo.sumTimeEmit = 0;
             }
         }
 

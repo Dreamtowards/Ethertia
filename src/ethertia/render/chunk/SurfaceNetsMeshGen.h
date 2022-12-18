@@ -49,8 +49,7 @@ public:
     };
 
 
-    static VertexBuffer* contouring(Chunk* chunk) {
-        VertexBuffer* vbuf = new VertexBuffer();
+    static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf) {
 
         // range [1, 15], boundary-exclusive
         for (int rx = 0; rx < 16; ++rx) {

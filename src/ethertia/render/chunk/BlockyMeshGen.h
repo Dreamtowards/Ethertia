@@ -22,9 +22,13 @@ public:
                     vec3 rp(rx, ry, rz);
                     Cell& c = chunk->getCell(rx, ry, rz);
 
-                    if (c.id)
+                    if (c.id && c.density > 0)
                     {
-                        putCube(vbuf, rp, chunk, c.id);
+                        if (c.id == Materials::LEAVES) {
+//                            putCube(vbuf, rp, chunk, c.id);
+
+
+                        }
                     }
                 }
             }
@@ -82,18 +86,21 @@ public:
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = _CubeFaceDir(i);
             glm::vec3 np = rpos + dir;
-            u8 neib = Chunk::outbound(np) ? 0 : chunk->getCell(np).id;
+            Cell& neib = World::_GetCell(chunk, np);
+
+            if (neib.density < 0 || neib.id == 0) {
+                putCubeFace(vbuf, i, rpos, mtlId);
+            }
 
 //            bool opaq = neib == Blocks::LEAVES || (neib == Blocks::WATER && neib != blk);
 //            if (blk == Blocks::WATER && neib == blk)
 //                opaq = false;
 
-            if (neib == 0) {  // || !Blocks::REGISTRY[neib]->isOpaque() ) {
-//                if (neib == Blocks::WATER && neib == blk) {
-//                    continue;
-//                }
-                putCubeFace(vbuf, i, rpos, mtlId);
-            }
+//            if (neib == 0) {  // || !Blocks::REGISTRY[neib]->isOpaque() ) {
+////                if (neib == Blocks::WATER && neib == blk) {
+////                    continue;
+////                }
+//            }
         }
     }
 
@@ -101,18 +108,23 @@ public:
         // put pos
         for (int i = 0; i < 6; ++i) {  // 6 pos vecs.
             int bas = face*18+i*3;  // 18 = 6vec * 3scalar
-            vbuf->addpos(CUBE_POS[bas]+rpos.x, CUBE_POS[bas+1]+rpos.y, CUBE_POS[bas+2]+rpos.z);
+            glm::vec3 rvp(CUBE_POS[bas]+rpos.x, CUBE_POS[bas+1]+rpos.y, CUBE_POS[bas+2]+rpos.z);
+            vbuf->addpos(rvp);
             vbuf->addnorm(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
-        }
-        // put uv
-        for (int i = 0; i < 6; ++i) {
-            int bas = face*12 + i*2 ;  // 12=6vec*2f
-            // todo: Need Fix
-//            TextureAtlas::Region* frag = MaterialTextures::of(mtlId);
-//            vbuf->adduv(CUBE_UV[bas]   * frag->size.x + frag->pos.x,
-//                        CUBE_UV[bas+1] * frag->size.y + frag->pos.y);
+
+//            int cornerMtlId = World::_GetCell(chunk, rvp + chunk->position).id;
+
             vbuf->materialIds.push_back(mtlId);
         }
+//        // put uv
+//        for (int i = 0; i < 6; ++i) {
+//            int bas = face*12 + i*2 ;  // 12=6vec*2f
+//            // todo: Need Fix
+////            TextureAtlas::Region* frag = MaterialTextures::of(mtlId);
+////            vbuf->adduv(CUBE_UV[bas]   * frag->size.x + frag->pos.x,
+////                        CUBE_UV[bas+1] * frag->size.y + frag->pos.y);
+//
+//        }
     }
 
     static glm::vec3 _CubeFaceDir(int face) {

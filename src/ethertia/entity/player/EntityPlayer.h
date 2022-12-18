@@ -15,6 +15,9 @@ public:
 
     bool flying = false;
 
+    int health = 20;
+
+
     // for Spectator-Gamemode setback.
     btCollisionShape* ref_Shape = nullptr;
 

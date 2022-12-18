@@ -16,13 +16,14 @@ public:
     static const u8 AIR   = 0;
     static const u8 STONE = 1;
     static const u8 GRASS = 2;
-    static const u8 DIRT  = 3;
-    static const u8 SAND  = 4;
-    static const u8 LOG   = 5;
-    static const u8 PLANK = 6;
-    static const u8 LEAVES= 7;
+    static const u8 MOSS  = 3;
+    static const u8 DIRT  = 4;
+    static const u8 SAND  = 5;
+    static const u8 LOG   = 6;
+    static const u8 PLANK = 7;
+    static const u8 LEAVES= 8;
 
-    static const u8 _SIZE  = 8;
+    static const u8 _SIZE  = 9;
 
     static bool isCubic() {
 
