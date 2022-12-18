@@ -16,7 +16,7 @@ class BenchmarkTimer
     float* timerAppend = nullptr;
 
 public:
-    BenchmarkTimer(float* _timeAppend = nullptr, const char* _msg = " in {}.\n") : timerAppend(_timeAppend), tailmsg(_msg) {}
+    BenchmarkTimer(float* _tmr = nullptr, const char* _msg = " in {}.\n") : timerAppend(_tmr), tailmsg(_msg) {}
 
     ~BenchmarkTimer()
     {

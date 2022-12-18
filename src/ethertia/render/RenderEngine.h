@@ -33,8 +33,8 @@ public:
     GuiRenderer* guiRenderer                 = nullptr;
     FontRenderer* fontRenderer               = nullptr;
     EntityRenderer* entityRenderer           = nullptr;
-    SkyGradientRenderer* skyGradientRenderer = nullptr;
-    SkyboxRenderer* skyboxRenderer           = nullptr;
+//    SkyGradientRenderer* skyGradientRenderer = nullptr;
+//    SkyboxRenderer* skyboxRenderer           = nullptr;
 
     glm::mat4 projectionMatrix{1};
     glm::mat4 viewMatrix{1};

@@ -12,6 +12,7 @@
 
 #include <ethertia/util/Log.h>
 #include <ethertia/event/EventBus.h>
+#include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/event/client/KeyboardEvent.h>
 #include <ethertia/event/client/CharInputEvent.h>
 #include <ethertia/event/client/MouseButtonEvent.h>
@@ -21,9 +22,10 @@
 #include <ethertia/event/client/WindowDropEvent.h>
 #include <ethertia/event/client/WindowFocusEvent.h>
 #include <ethertia/event/client/WindowCloseEvent.h>
+
+// todo: Delimish These High-level things. Ethertia::getWindow()->eventbus().listen([](WindowResizedEvent* e) { ... });
 #include <ethertia/Ethertia.h>
 #include <ethertia/gui/GuiRoot.h>
-#include <ethertia/util/BenchmarkTimer.h>
 
 
 class Window

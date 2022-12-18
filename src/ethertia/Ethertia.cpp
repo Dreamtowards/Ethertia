@@ -42,7 +42,9 @@ int main()
 }
 
 
-void Ethertia::start() { BenchmarkTimer _tm(nullptr, "System initialized in {}.");
+void Ethertia::start()
+{
+    BenchmarkTimer _tm(nullptr, "System initialized in {}.\n");
     Settings::loadSettings();
 
     m_Running = true;

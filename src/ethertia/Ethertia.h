@@ -13,31 +13,17 @@
 
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/concurrent/Scheduler.h>
+#include <ethertia/render/Camera.h>
+#include <ethertia/init/BrushCursor.h>
 
 // __forward_declarations
 
 class RenderEngine;      // #include <ethertia/client/render/RenderEngine.h>
-class Camera;            // #include <ethertia/client/render/Camera.h>
 class World;             // #include <ethertia/world/World.h>
 class EntityPlayer;      // #include <ethertia/entity/player/EntityPlayer.h>
 class GuiRoot;           // #include <ethertia/client/gui/GuiRoot.h>
 class Window;            // #include <ethertia/client/Window.h>
 
-// BrushCursor
-class BrushCursor {
-public:
-    bool keepTracking = true;
-    bool hit;
-    glm::vec3 position;
-
-    float brushSize = 0.0;
-
-    int brushType;
-    int brushMaterial;
-
-#define BRUSH_SPHERE 1
-#define BRUSH_CUBE   2
-};
 
 class Ethertia
 {
@@ -90,13 +76,14 @@ public:
 
     static RenderEngine* getRenderEngine() { return m_RenderEngine; }
     static Window* getWindow() { return m_Window; }
-    static Camera* getCamera();
-    static Scheduler* getScheduler() { return &m_Scheduler; }
     static World* getWorld() { return m_World; }
     static GuiRoot* getRootGUI() { return m_RootGUI; }
     static EntityPlayer* getPlayer() { return m_Player; }
+
     static Timer* getTimer() { return &m_Timer; }
+    static Scheduler* getScheduler() { return &m_Scheduler; }
     static BrushCursor& getBrushCursor() { return m_Cursor; }
+    static Camera* getCamera();
 
 
 };

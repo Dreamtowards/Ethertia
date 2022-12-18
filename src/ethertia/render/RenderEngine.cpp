@@ -20,10 +20,10 @@ RenderEngine::RenderEngine()
     guiRenderer = new GuiRenderer();
     fontRenderer = new FontRenderer();
     entityRenderer = new EntityRenderer();
-    skyGradientRenderer = new SkyGradientRenderer();
-    skyboxRenderer = new SkyboxRenderer();
+//    skyGradientRenderer = new SkyGradientRenderer();
+//    skyboxRenderer = new SkyboxRenderer();
 
-    float qual = 1.2;
+    float qual = 0.5;
     gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));
     Framebuffer::gPushFramebuffer(gbuffer);
         gbuffer->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
@@ -50,8 +50,8 @@ RenderEngine::~RenderEngine() {
     delete guiRenderer;
     delete fontRenderer;
     delete entityRenderer;
-    delete skyGradientRenderer;
-    delete skyboxRenderer;
+//    delete skyGradientRenderer;
+//    delete skyboxRenderer;
 }
 
 void RenderEngine::renderWorld(World* world)
@@ -102,7 +102,7 @@ Framebuffer::gPushFramebuffer(dcompose);
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    skyboxRenderer->render();
+//    skyboxRenderer->render();
 
     entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
 
