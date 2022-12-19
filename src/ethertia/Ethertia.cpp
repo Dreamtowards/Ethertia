@@ -57,10 +57,11 @@ void Ethertia::start()
     ChunkRenderProcessor::initWorkThread();
 
     GuiIngame::INST = new GuiIngame();
+    m_RootGUI->addGui(GuiIngame::INST);
+
     GuiScreenMainMenu::INST = new GuiScreenMainMenu();
     GuiScreenChat::INST = new GuiScreenChat();
     GuiScreenPause::INST = new GuiScreenPause();
-    m_RootGUI->addGui(GuiIngame::INST);
     m_RootGUI->addGui(GuiScreenPause::INST);
 
 
@@ -74,6 +75,10 @@ void Ethertia::start()
     Controls::initMouseDigControls();
 
 
+    m_Window->eventbus().listen([](WindowCloseEvent* e)
+    {
+        Ethertia::shutdown();
+    });
 
 }
 

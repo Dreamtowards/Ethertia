@@ -1,9 +1,9 @@
 {
-    "assets": "src/assets/",
-    "display_height": 728,
-    "display_width": 1187,
-    "fov": 90.0,
-    "fullscreen": false,
-    "view_distance": 1.0,
-    "vsync": false
+  "assets": "src/assets/",
+  "display_height": 1395,
+  "display_width": 2525,
+  "fov": 90.0,
+  "fullscreen": false,
+  "view_distance": 8.0,
+  "vsync": false
 }

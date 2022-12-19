@@ -74,9 +74,6 @@ public:
 
         centralize();
 
-        // fireWindowResize(). init very first events. e.g. init GuiRoot's size.
-        // onWindowSize(window, width, height);
-
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
 
@@ -198,12 +195,11 @@ public:
         scrollDY = 0;
     }
 
-    static void onWindowClose(GLFWwindow* _w) {
-        WindowCloseEvent e;
-        if (EventBus::EVENT_BUS.post(&e))
-            return;
+    static void onWindowClose(GLFWwindow* _win) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
 
-        Ethertia::shutdown();
+        WindowCloseEvent e;
+        win->eventbus().post(&e);
     }
 
     static void onFramebufferSize(GLFWwindow* _w, int wid, int hei) {
@@ -214,65 +210,70 @@ public:
         glViewport(0, 0, wid, hei);
     }
 
-    static void onWindowSize(GLFWwindow* _w, int wid, int hei) {
-        Window* _win = (Window*)glfwGetWindowUserPointer(_w);
-        _win->width  = wid;
-        _win->height = hei;
+    static void onWindowSize(GLFWwindow* _win, int wid, int hei) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
+        win->width  = wid;
+        win->height = hei;
 
         WindowResizedEvent e(wid, hei);
-        EventBus::EVENT_BUS.post(&e);
+        win->eventbus().post(&e);
     }
 
-    static void onWindowDropPath(GLFWwindow* _w, int count, const char** paths) {
+    static void onWindowDropPath(GLFWwindow* _win, int count, const char** paths) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
 
         WindowDropEvent e(count, paths);
-        EventBus::EVENT_BUS.post(&e);
+        win->eventbus().post(&e);
     }
 
-    static void onWindowFocus(GLFWwindow* _w, int focused) {
+    static void onWindowFocus(GLFWwindow* _win, int focused) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
 
         WindowFocusEvent e;
-        EventBus::EVENT_BUS.post(&e);
+        win->eventbus().post(&e);
     }
 
-    static void onCursorPos(GLFWwindow* _w, double xpos, double ypos) {
-        Window* w = (Window*)glfwGetWindowUserPointer(_w);
+    static void onCursorPos(GLFWwindow* _win, double xpos, double ypos) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
         float x = (float)xpos;
         float y = (float)ypos;
-        w->mouseDX = x - w->mouseX;
-        w->mouseDY = y - w->mouseY;
-        w->mouseX = x;
-        w->mouseY = y;
+        win->mouseDX = x - win->mouseX;
+        win->mouseDY = y - win->mouseY;
+        win->mouseX = x;
+        win->mouseY = y;
 
         MouseMoveEvent e;
-        EventBus::EVENT_BUS.post(&e);
+        win->eventbus().post(&e);
     }
 
-    static void onMouseButton(GLFWwindow* _w, int button, int action, int mods) {
+    static void onMouseButton(GLFWwindow* _win, int button, int action, int mods) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
 
         MouseButtonEvent e(button, action==GLFW_PRESS);
-        EventBus::EVENT_BUS.post(&e);
+        win->eventbus().post(&e);
     }
 
-    static void onScroll(GLFWwindow* _w, double xoffset, double yoffset) {
-        Window* w = (Window*)glfwGetWindowUserPointer(_w);
-        w->scrollDX = (float)xoffset;
-        w->scrollDY = (float)yoffset;
+    static void onScroll(GLFWwindow* _win, double xoffset, double yoffset) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
+        win->scrollDX = (float)xoffset;
+        win->scrollDY = (float)yoffset;
 
         MouseScrollEvent e(xoffset, yoffset);
-        EventBus::EVENT_BUS.post(&e);
+        win->eventbus().post(&e);
     }
 
-    static void onKeyboardKey(GLFWwindow* _w, int key, int scancode, int action, int mods) {
+    static void onKeyboardKey(GLFWwindow* _win, int key, int scancode, int action, int mods) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
 
         KeyboardEvent e(key, action==GLFW_PRESS);
-        EventBus::EVENT_BUS.post(&e);
+        win->eventbus().post(&e);
     }
 
-    static void onCharInput(GLFWwindow* _w, unsigned int codepoint) {
+    static void onCharInput(GLFWwindow* _win, unsigned int codepoint) {
+        Window* win = (Window*)glfwGetWindowUserPointer(_win);
 
         CharInputEvent e(codepoint);
-        EventBus::EVENT_BUS.post(&e);
+        win->eventbus().post(&e);
     }
 };
 

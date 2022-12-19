@@ -1,9 +1,9 @@
 site_name: Eldrine Le Prismarine
-site_url: https://elytra.dev/lib
+site_url: https://elytra.dev/labs
 site_description: Blogs of Eldrine Le Prismarine
 site_author: Dreamtowards
 
-repo_url: https://github.com/Dreamtowards/Microcraft
+repo_url: https://github.com/Dreamtowards
 edit_uri: ""
 
 nav:

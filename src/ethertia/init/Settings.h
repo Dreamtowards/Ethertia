@@ -15,18 +15,13 @@ class Settings
 public:
     inline static const char* SETTINGS_FILE = "./settings.json";
 
-//    // init properties.
-//
-//    inline static int viewDistance = 3;
-//    inline static float fov = 90;
-//
-//    inline static std::vector<std::string> assets = {"./assets"};
-//
+    // init properties.
+
     inline static int displayWidth  = 1280,
                       displayHeight = 720;
 
     template<typename T>
-    static void setProperty(json& j, const std::string& name, T* p) {
+    static void set_ifexists(json& j, const std::string& name, T* p) {
         if (j.contains(name)) {
             *p = j[name];
         }
@@ -39,13 +34,13 @@ public:
 
         json settings = json::parse(Loader::loadFileStr(SETTINGS_FILE));
 
-        setProperty(settings, "view_distance", &RenderEngine::viewDistance);
-        setProperty(settings, "fov", &RenderEngine::fov);
+        set_ifexists(settings, "view_distance",  &RenderEngine::viewDistance);
+        set_ifexists(settings, "fov",            &RenderEngine::fov);
 
-        setProperty(settings, "assets", &Loader::ASSETS);
+        set_ifexists(settings, "assets",         &Loader::ASSETS);
 
-        setProperty(settings, "display_width",  &displayWidth);
-        setProperty(settings, "display_height", &displayHeight);
+        set_ifexists(settings, "display_width",  &displayWidth);
+        set_ifexists(settings, "display_height", &displayHeight);
 
     }
 
@@ -67,7 +62,7 @@ public:
         });
 
         std::ofstream f(SETTINGS_FILE);
-        f << settings.dump(4);
+        f << settings.dump(2);
     }
 
 
