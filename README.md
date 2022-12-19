@@ -25,9 +25,9 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 
 ### 22u49 @20221205 [.43]
 
-![note](saves/_figures/fig-221203-atmo-test.png)
-<img src="saves/_figures/fig-221203-p2.png" style="width: 20%">
-<img src="saves/_figures/fig-221203-p3.png" style="width: 20%">
+![note](run/saves/_figures/fig-221203-atmo-test.png)
+<img src="run/saves/_figures/fig-221203-p2.png" style="width: 20%">
+<img src="run/saves/_figures/fig-221203-p3.png" style="width: 20%">
 
 - [ ] Atmosphere test.
 - [ ] Fix NormAvg at Chunk Boundary, fail. cost lot, have bugs yet.
@@ -36,11 +36,11 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 
 ### 22u48 @20221129 [.68]
 
-![note](saves/_figures/fig-221129-p2.png)
-<img src="saves/_figures/fig-221129-p3.png" style="width: 20%">
-<img src="saves/_figures/fig-221129-sn-mtl.png" style="width: 20%">
-<img src="saves/_figures/fig-221129-p4.png" style="width: 20%">
-<img src="saves/_figures/fig-221129-p5.png" style="width: 20%">
+![note](run/saves/_figures/fig-221129-p2.png)
+<img src="run/saves/_figures/fig-221129-p3.png" style="width: 20%">
+<img src="run/saves/_figures/fig-221129-sn-mtl.png" style="width: 20%">
+<img src="run/saves/_figures/fig-221129-p4.png" style="width: 20%">
+<img src="run/saves/_figures/fig-221129-p5.png" style="width: 20%">
 
 - [x] [.79] SurfaceNets Terrain, Unified Grids
   - FeaturePoint Evaluation, Naive Method.
@@ -57,11 +57,11 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 
 - [x] [.42] PerFragment Material Texturing (single material out of greatest weight in the triangle.)
 
-![note](saves/_figures/fig-221014-mtltex-maxweight.png)  
+![note](run/saves/_figures/fig-221014-mtltex-maxweight.png)  
 
 ### 22u40 @20201006
 
-![note](saves/_figures/fig-221006-mtltex-fulltriangle.png)  
+![note](run/saves/_figures/fig-221006-mtltex-fulltriangle.png)  
 _ps. marching cubes with kernel program generated vertex UVs._
 
 - [x] [.62] Multiple Material Texturing (naive full-triangle material texturing).  

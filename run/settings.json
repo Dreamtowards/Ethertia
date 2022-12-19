@@ -1,7 +1,7 @@
 {
-  "assets": "src/assets/",
-  "display_height": 1395,
-  "display_width": 2525,
+  "assets": "../src/assets/",
+  "display_height": 768,
+  "display_width": 1099,
   "fov": 90.0,
   "fullscreen": false,
   "view_distance": 8.0,

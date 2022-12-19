@@ -113,7 +113,9 @@ public:
 //                }
 //            }
 //        });
-        EventBus::EVENT_BUS.listen([=](MouseButtonEvent* e) {
+
+
+        Ethertia::getWindow()->eventbus().listen([=](MouseButtonEvent* e) {
             World* world = Ethertia::getWorld();
             Window* window = Ethertia::getWindow();
             if (e->isPressed() && world && Ethertia::isIngame()) {

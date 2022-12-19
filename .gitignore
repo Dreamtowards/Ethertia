@@ -3,4 +3,4 @@
 
 cmake-build-debug/*
 
-caches
+run/caches/*
