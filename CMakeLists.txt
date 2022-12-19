@@ -15,7 +15,6 @@ include_directories(lib/json/include)
 
 
 
-
 add_executable(Ethertia
         lib/glad/glad.c
         src/ethertia/event/EventBus.cpp

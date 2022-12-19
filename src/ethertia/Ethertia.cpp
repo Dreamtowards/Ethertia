@@ -49,12 +49,12 @@ void Ethertia::start()
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, "Dysplay");
-    m_RootGUI = new GuiRoot(m_Window->getWidth(), m_Window->getHeight());
+    m_RootGUI = new GuiRoot();
     m_RenderEngine = new RenderEngine();
 
     MaterialTextures::init();
 
-    ChunkRenderProcessor::initThreadChunkLoad();
+    ChunkRenderProcessor::initWorkThread();
 
     GuiIngame::INST = new GuiIngame();
     GuiScreenMainMenu::INST = new GuiScreenMainMenu();
@@ -72,6 +72,8 @@ void Ethertia::start()
     m_Player->setFlying(true);
 
     Controls::initMouseDigControls();
+
+
 
 }
 
@@ -132,13 +134,13 @@ void Ethertia::runTick()
 
 void Ethertia::destroy()
 {
+    Settings::saveSettings();
+
     delete m_RootGUI;
     delete m_World;
     delete m_RenderEngine;
 
     glfwTerminate();
-
-    Settings::saveSettings();
 }
 
 void Ethertia::loadWorld() {

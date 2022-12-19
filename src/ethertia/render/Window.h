@@ -23,10 +23,6 @@
 #include <ethertia/event/client/WindowFocusEvent.h>
 #include <ethertia/event/client/WindowCloseEvent.h>
 
-// todo: Delimish These High-level things. Ethertia::getWindow()->eventbus().listen([](WindowResizedEvent* e) { ... });
-#include <ethertia/Ethertia.h>
-#include <ethertia/gui/GuiRoot.h>
-
 
 class Window
 {
@@ -45,6 +41,8 @@ class Window
     // WindowCoord * ContentScale = FramebufferSize.
     int framebufferWidth  = 0;
     int framebufferHeight = 0;
+
+    EventBus m_Eventbus;
 
 public:
 
@@ -105,6 +103,10 @@ public:
 
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
+    }
+
+    EventBus& eventbus() {
+        return m_Eventbus;
     }
 
     void updateWindow()
@@ -219,8 +221,6 @@ public:
 
         WindowResizedEvent e(wid, hei);
         EventBus::EVENT_BUS.post(&e);
-
-        Ethertia::getRootGUI()->setWidthHeight(wid, hei);
     }
 
     static void onWindowDropPath(GLFWwindow* _w, int count, const char** paths) {
@@ -252,8 +252,6 @@ public:
 
         MouseButtonEvent e(button, action==GLFW_PRESS);
         EventBus::EVENT_BUS.post(&e);
-
-        Ethertia::getRootGUI()->onMouseButton(button, action==GLFW_PRESS);
     }
 
     static void onScroll(GLFWwindow* _w, double xoffset, double yoffset) {
@@ -261,26 +259,20 @@ public:
         w->scrollDX = (float)xoffset;
         w->scrollDY = (float)yoffset;
 
-        MouseScrollEvent e;
+        MouseScrollEvent e(xoffset, yoffset);
         EventBus::EVENT_BUS.post(&e);
-
-        Ethertia::getRootGUI()->onScroll(xoffset, yoffset);
     }
 
     static void onKeyboardKey(GLFWwindow* _w, int key, int scancode, int action, int mods) {
 
         KeyboardEvent e(key, action==GLFW_PRESS);
         EventBus::EVENT_BUS.post(&e);
-
-        Ethertia::getRootGUI()->onKeyboard(key, action==GLFW_PRESS);
     }
 
     static void onCharInput(GLFWwindow* _w, unsigned int codepoint) {
 
         CharInputEvent e(codepoint);
         EventBus::EVENT_BUS.post(&e);
-
-        Ethertia::getRootGUI()->onCharInput(codepoint);
     }
 };
 

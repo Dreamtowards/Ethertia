@@ -12,7 +12,18 @@
 
 class MouseScrollEvent
 {
+    float scrollDX;
+    float scrollDY;
 
+public:
+    MouseScrollEvent(float _dx, float _dy) : scrollDX(_dx), scrollDY(_dy) {}
+
+    float getScrollDX() const {
+        return scrollDX;
+    }
+    float getScrollDY() const {
+        return scrollDY;
+    }
 };
 
 #endif //ETHERTIA_MOUSESCROLLEVENT_H

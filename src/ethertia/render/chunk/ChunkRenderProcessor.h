@@ -189,7 +189,7 @@ public:
         float sumTimeEmit;
     } g_DebugGenInfo = {};
 
-    static void initThreadChunkLoad() {
+    static void initWorkThread() {
         new std::thread([]() {
             while (Ethertia::isRunning()) {
                 if (World* world = Ethertia::getWorld())

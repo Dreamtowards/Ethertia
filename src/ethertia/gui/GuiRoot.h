@@ -16,14 +16,32 @@ class GuiRoot : public GuiCollection
 
 
 public:
-    GuiRoot(int _w, int _h) {
-        setWidth(_w);
-        setHeight(_h);
-//        setWidth(Ethertia::getWindow()->getWidth());
-//        setHeight(Ethertia::getWindow()->getHeight());
+    GuiRoot() {
+        Window* _win = Ethertia::getWindow();
+        setWidth( _win->getWidth());
+        setHeight(_win->getHeight());
 
-        EventBus::EVENT_BUS.listen([](WindowResizedEvent* e) {
-//            setWidth();
+        EventBus& evbus = _win->eventbus();
+
+        evbus.listen([](WindowResizedEvent* e)
+        {
+            Ethertia::getRootGUI()->setWidthHeight(e->getWidth(), e->getHeight());
+        });
+        evbus.listen([](MouseButtonEvent* e)
+        {
+            Ethertia::getRootGUI()->onMouseButton(e->getButton(), e->isPressed());
+        });
+        evbus.listen([](MouseScrollEvent* e)
+        {
+            Ethertia::getRootGUI()->onScroll(e->getScrollDX(), e->getScrollDY());
+        });
+        evbus.listen([](KeyboardEvent* e)
+        {
+            Ethertia::getRootGUI()->onKeyboard(e->getKey(), e->isPressed());
+        });
+        evbus.listen([](CharInputEvent* e)
+        {
+            Ethertia::getRootGUI()->onCharInput(e->getChar());
         });
     }
 
