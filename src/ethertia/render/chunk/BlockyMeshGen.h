@@ -27,6 +27,7 @@ public:
                         if (c.id == Materials::LEAVES) {
 //                            putCube(vbuf, rp, chunk, c.id);
 
+                            putLeaves(vbuf, rp, chunk, c.id);
 
                         }
                     }
@@ -132,32 +133,53 @@ public:
         return glm::vec3(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
     }
 
-//    static void putFace(VertexBuffer* vbuf, glm::vec3 rpos, glm::mat4 trans, AtlasFrag* frag) {
-//        using glm::vec3;
-//        using glm::vec2;
-//        for (int i = 0; i < 6; ++i) {  // 6 vertices
-//            // Pos
-//            float* _p = &CUBE_POS_CENT[i*3];
-//            vec3 p = vec3(_p[0], _p[1], _p[2]);
-//            p = trans * glm::vec4(p, 1.0f);
-//            vbuf->addpos(rpos.x + p.x, rpos.y + p.y, rpos.z + p.z);
-//
-//            // Norm
-//            float* _n = &CUBE_NORM[i*3];
-//            vec3 n = vec3(_n[0], _n[1], _n[2]);
-//            n = trans * glm::vec4(n, 0.0f);
-//            n = glm::normalize(n);
-//            vbuf->addnorm(n.x, n.y, n.z);
-//
+    static void putFace(VertexBuffer* vbuf, glm::vec3 rpos, glm::mat4 trans, int mtlId) {
+        using glm::vec3;
+        using glm::vec2;
+        for (int i = 0; i < 6; ++i) {  // 6 vertices
+            // Pos
+            float* _p = &CUBE_POS_CENT[i*3];
+            vec3 p = vec3(_p[0], _p[1], _p[2]);
+            p = trans * glm::vec4(p, 1.0f);
+            vbuf->addpos(rpos.x + p.x, rpos.y + p.y, rpos.z + p.z);
+
+            // Norm
+            float* _n = &CUBE_NORM[i*3];
+            vec3 n = vec3(_n[0], _n[1], _n[2]);
+            n = trans * glm::vec4(n, 0.0f);
+            n = glm::normalize(n);
+            vbuf->addnorm(n.x, n.y, n.z);
+
 //            // UV
 //            float* _u = &CUBE_UV[i*2];
 //            vec2 u = vec2(_u[0], _u[1]);
 //            u = u * frag->scale + frag->offset;
 //            vbuf->adduv(u.x, u.y);
-//        }
-//
-//    }
+            vbuf->_add_mtl_id(mtlId);
+        }
 
+    }
+
+
+    static void putLeaves(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, int mtlId) {
+
+        float deg45 = Mth::PI / 4.0f;
+
+        float s = 1.5f;
+
+        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+                                         Mth::matEulerAngles(glm::vec3(0.0f, deg45, 0.0f)),
+                                         glm::vec3(1.5f, 1.0f, 1.5f)*s), mtlId);
+        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+                                         Mth::matEulerAngles(glm::vec3(0.0f, -deg45, 0.0f)),
+                                         glm::vec3(1.5f, 1.0f, 1.5f)*s), mtlId);
+        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+                                         Mth::matEulerAngles(glm::vec3(0, Mth::PI_2, deg45)),
+                                         glm::vec3(1.0f, 1.5f, 1.0f)*s), mtlId);
+        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+                                                       Mth::matEulerAngles(glm::vec3(0, Mth::PI_2, -deg45)),
+                                                       glm::vec3(1.0f, 1.5f, 1.0f)*s), mtlId);
+    }
 };
 
 #endif //ETHERTIA_BLOCKYMESHGEN_H

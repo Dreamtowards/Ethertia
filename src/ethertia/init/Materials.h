@@ -25,9 +25,11 @@ public:
 
     static const u8 _SIZE  = 9;
 
-    static bool isCubic() {
+    static bool needGenSmooth(const Cell& c) {
+        if (c.id == LEAVES)
+            return false;
 
-        return false;
+        return c.density > 0;
     }
 
 

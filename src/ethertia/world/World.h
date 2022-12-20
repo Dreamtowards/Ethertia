@@ -509,7 +509,7 @@ public:
 //                                        if (_leaf == Blocks::LEAVES && Mth::hash(x*y*z) < 0.2f)
 //                                            _leaf = Blocks::LEAVES_APPLE;
                                         //y +Mth::hash(y)*4
-                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::MOSS, 0.5f));
+                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::LEAVES, 0.5f));
                                     }
                                 }
                             }

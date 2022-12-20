@@ -40,7 +40,7 @@ float linear_depth(float pprojdepth) {  // for perspective projection
     return inv_lerp(pDepth, P_NEAR, P_FAR); // [0,1] linear.
 }
 
-vec3 tri_samp(sampler2D tex, int MtlId, vec3 FragPos, vec3 blend) {
+vec4 tri_samp(sampler2D tex, int MtlId, vec3 FragPos, vec3 blend) {
 
     float texScale = 1 / MtlTexScale;// 3.5;
     float ReginPosX  = (MtlId-1) / MtlCap;
@@ -53,7 +53,7 @@ vec3 tri_samp(sampler2D tex, int MtlId, vec3 FragPos, vec3 blend) {
         texture(tex, uvX) * blend.x +
         texture(tex, uvY) * blend.y +
         texture(tex, uvZ) * blend.z
-    ).rgb;
+    ).rgba;
 }
 
 vec3 samp_norm(vec2 uv) {
@@ -64,12 +64,12 @@ void main()
 {
     vec3 FragNorm = Norm;
 
-    vec3 Albedo;
+    vec4 Albedo;
 
     float Roughness = 1.0;
 
     if (false) {  // no material id, use TexCoord.
-        Albedo = texture(diffuseMap, TexCoord).rgb;
+        Albedo = texture(diffuseMap, TexCoord).rgba;
     } else {
         int mostWeightVert = max_i(TriMtlWeight.x, TriMtlWeight.y, TriMtlWeight.z);
 
@@ -88,18 +88,22 @@ void main()
             return;
         }
 
-        const int MTL_STONE = 1,
-                  MTL_GRASS = 2,
-                  MTL_DIRT = 3;
+//        const int MTL_STONE = 1,
+//                  MTL_GRASS = 2,
+//                  MTL_DIRT = 3;
 
         Albedo =
 //        ((TriMtlId[0] == MTL_GRASS || TriMtlId[1] == MTL_GRASS || TriMtlId[2] == MTL_GRASS ) &&
 //         (TriMtlId[0] == MTL_DIRT || TriMtlId[1] == MTL_DIRT || TriMtlId[2] == MTL_DIRT ) ) ?
-//        tri_samp(diffuseMap, int(TriMtlId[0]), FragPos, blend) * TriMtlWeight[0] +
-//        tri_samp(diffuseMap, int(TriMtlId[1]), FragPos, blend) * TriMtlWeight[1] +
-//        tri_samp(diffuseMap, int(TriMtlId[2]), FragPos, blend) * TriMtlWeight[2]
+//        tri_samp(diffuseMap, int(TriMtlId[0]), FragPos, blend).rgb * TriMtlWeight[0] +
+//        tri_samp(diffuseMap, int(TriMtlId[1]), FragPos, blend).rgb * TriMtlWeight[1] +
+//        tri_samp(diffuseMap, int(TriMtlId[2]), FragPos, blend).rgb * TriMtlWeight[2]
 //        :
         tri_samp(diffuseMap, int(TriMtlId[mostHeightVert]), FragPos, blend);
+
+        if (Albedo.a == 0.0) {
+            discard;
+        }
 
         Roughness = tri_samp(roughnessMap, int(TriMtlId[mostHeightVert]), FragPos, abs(Norm)).r;
 
@@ -130,6 +134,6 @@ void main()
 
     gPositionDepth = vec4(FragPos, linear_depth(gl_FragCoord.z));
     gNormal = FragNorm;
-    gAlbedoRoughness = vec4(Albedo, Roughness);
+    gAlbedoRoughness = vec4(Albedo.rgb, Roughness);
 
 }

@@ -48,6 +48,11 @@ public:
             {{0,0,0}, {-1,0,0}, {-1,-1,0}, {-1,-1,0}, {0,-1,0}, {0,0,0}}
     };
 
+    static bool sign_changed(const Cell& c0, const Cell& c1) {
+        // c0.density > 0 != c1.density > 0
+        return Materials::needGenSmooth(c0) != Materials::needGenSmooth(c1);
+    }
+
 
     static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf) {
 
@@ -62,7 +67,7 @@ public:
                     for (int axis_i = 0; axis_i < 3; ++axis_i) {
                         Cell& c1 = World::_GetCell(chunk, rp + AXES[axis_i]);
 
-                        if (c0.density > 0 != c1.density > 0) {  // sign changed.
+                        if (sign_changed(c0, c1)) {  // sign changed.
                             bool ccw = c0.density > 0;  // is positive normal. if c0 is solid.
                             Cell& solid = c0.density > 0 ? c0 : c1;
 
@@ -120,7 +125,7 @@ public:
             Cell& c0 = World::_GetCell(chunk, rp + v0);
             Cell& c1 = World::_GetCell(chunk, rp + v1);
 
-            if (c0.density > 0 != c1.density > 0) {  // sign-change, surface intersection.
+            if (sign_changed(c0, c1)) {  // sign-change, surface intersection.
                 vec3 p = Mth::rlerp(0, c0.density, c1.density) * (v1-v0) + v0;  // (v1-v0) must > 0. since every edge vert are min-to-max
 
                 sumFp += p;

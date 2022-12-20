@@ -35,7 +35,8 @@ public:
             "black_dirt",
             "sand",
             "oak_log",
-            "plank"
+            "plank",
+            "leaves"
     };
 
     static void init()
@@ -49,10 +50,10 @@ public:
         // 256  pretty
         // 128  non-realistic
         const int dest_res = 256;
-        ATLAS_DIFFUSE = makeAtlas("diff", dest_res, "caches/atlas_diff.png");
-        ATLAS_NORM    = makeAtlas("norm", dest_res, "caches/atlas_norm.png");
-        ATLAS_DISP    = makeAtlas("disp", dest_res, "caches/atlas_disp.png");
-        ATLAS_ROUGH   = makeAtlas("rough",dest_res, "caches/atlas_rough.png");
+        ATLAS_DIFFUSE = makeAtlas("diff", dest_res, "cache/atlas_diff.png");
+        ATLAS_NORM    = makeAtlas("norm", dest_res, "cache/atlas_norm.png");
+        ATLAS_DISP    = makeAtlas("disp", dest_res, "cache/atlas_disp.png");
+        ATLAS_ROUGH   = makeAtlas("rough",dest_res, "cache/atlas_rough.png");
 
         Log::info("Material Texture Atlases all loaded/generated.\1");
     }
