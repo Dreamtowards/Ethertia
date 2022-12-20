@@ -226,11 +226,11 @@ void main() {
 //    FragColor.rgb += vec3((FragDepth / 100)) * (rayDir * 0.5f + 0.5f);
 //    0.1 * (vec3(hitInfo.y - hitInfo.x)) * (rayDir * 0.5f + 0.5f);
 
-    //    if (spec > 0.001) {
-//            vec3 camReflect = reflect(RayDir, Norm);
-//            vec3 camRefract = refract(RayDir, Norm, 1.0 / 1.33);
-//            FragColor.rgb = texture(panoramaMap, samplePanoramaTex(camRefract)).rgb;
-    //    }
+//    if (specularIntensity > 0.5) {
+//        vec3 camReflect = reflect(RayDir, Norm);
+//        vec3 camRefract = refract(RayDir, Norm, 1.0 / 1.33);
+//        FragColor.rgb = texture(panoramaMap, samplePanoramaTex(camRefract)).rgb;
+//    }
 
 
     if (_PosDepth.w == 1.0f) {

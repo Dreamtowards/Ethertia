@@ -68,8 +68,13 @@ void main()
 
     float Roughness = 1.0;
 
-    if (false) {  // no material id, use TexCoord.
+    bool useMTL = TexCoord.y == 123.321;  // MTL magic number
+    if (!useMTL) {  // no material id, use TexCoord.
         Albedo = texture(diffuseMap, TexCoord).rgba;
+
+        if (Albedo.a == 0.0) {
+            discard;  // duplicated.
+        }
     } else {
         int mostWeightVert = max_i(TriMtlWeight.x, TriMtlWeight.y, TriMtlWeight.z);
 

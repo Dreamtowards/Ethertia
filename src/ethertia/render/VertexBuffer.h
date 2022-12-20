@@ -22,7 +22,7 @@ public:
     std::vector<float> positions;
     std::vector<float> textureCoords;
     std::vector<float> normals;
-    std::vector<float> materialIds;
+//    std::vector<float> materialIds;
 
     void addpos(float x, float y, float z) {
         positions.push_back(x);
@@ -48,7 +48,7 @@ public:
     }
 
     void _add_mtl_id(int i) {
-        materialIds.push_back(i);
+        adduv(i, 123.321);
     }
 
     [[nodiscard]] size_t vertexCount() const {

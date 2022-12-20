@@ -110,7 +110,7 @@ public:
 
                 delete chunk->proxy->model;
 
-                chunk->proxy->model = Loader::loadModel(vbuf, true);
+                chunk->proxy->model = Loader::loadModel(vbuf);
                 chunk->proxy->setMesh(chunk->proxy->model, vbuf->positions.data());
 
                 delete vbuf;

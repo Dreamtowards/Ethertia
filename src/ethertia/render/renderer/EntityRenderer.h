@@ -12,9 +12,9 @@
 class EntityRenderer
 {
 public:
-    ShaderProgram shaderGeometry{Loader::loadAssetsStr("shaders/chunk/chunk.vsh"),
-                         Loader::loadAssetsStr("shaders/chunk/chunk.fsh"),
-                         Loader::loadAssetsStr("shaders/chunk/chunk.gsh")};
+    ShaderProgram shaderGeometry{Loader::loadAssetsStr("shaders/chunk/geometry.vsh"),
+                         Loader::loadAssetsStr("shaders/chunk/geometry.fsh"),
+                         Loader::loadAssetsStr("shaders/chunk/geometry.gsh")};
 
     ShaderProgram shaderCompose{
         Loader::loadAssetsStr("shaders/chunk/compose.vsh"),
@@ -99,6 +99,8 @@ public:
 
         shaderGeometry.setFloat("debugVar1", debugVar1);
         shaderGeometry.setFloat("debugVar2", debugVar2);
+
+        shaderGeometry.setFloat("Time", Ethertia::getPreciseTime());
 
 
         glBindVertexArray(entity->model->vaoId);

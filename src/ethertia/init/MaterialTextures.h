@@ -94,6 +94,14 @@ public:
 
         return Loader::loadTexture(atlas);
     }
+
+    static glm::vec2 regionOffset(int mtlId) {
+        return glm::vec2((mtlId - 1.0f) / (float)TEXTURES.size(), 0.0f);
+    }
+
+    static glm::vec2 regionScale() {
+        return glm::vec2(1.0f / TEXTURES.size(), 1.0f);
+    }
 };
 
 #endif //ETHERTIA_MATERIALTEXTURES_H

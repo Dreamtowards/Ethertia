@@ -22,9 +22,9 @@ public:
                     vec3 rp(rx, ry, rz);
                     Cell& c = chunk->getCell(rx, ry, rz);
 
-                    if (c.id && c.density > 0)
+                    if (c.id)
                     {
-                        if (c.id == Materials::LEAVES) {
+                        if (c.id == Materials::LEAVES && c.density > -0.5) {
 //                            putCube(vbuf, rp, chunk, c.id);
 
                             putLeaves(vbuf, rp, chunk, c.id);
@@ -115,7 +115,7 @@ public:
 
 //            int cornerMtlId = World::_GetCell(chunk, rvp + chunk->position).id;
 
-            vbuf->materialIds.push_back(mtlId);
+            vbuf->_add_mtl_id(mtlId);
         }
 //        // put uv
 //        for (int i = 0; i < 6; ++i) {
@@ -150,12 +150,12 @@ public:
             n = glm::normalize(n);
             vbuf->addnorm(n.x, n.y, n.z);
 
-//            // UV
-//            float* _u = &CUBE_UV[i*2];
-//            vec2 u = vec2(_u[0], _u[1]);
-//            u = u * frag->scale + frag->offset;
-//            vbuf->adduv(u.x, u.y);
-            vbuf->_add_mtl_id(mtlId);
+            // UV
+            float* _u = &CUBE_UV[i*2];
+            vec2 u = vec2(_u[0], _u[1]);
+            u = u * MaterialTextures::regionScale() + MaterialTextures::regionOffset(mtlId);
+            vbuf->adduv(u.x, u.y);
+//            vbuf->_add_mtl_id(mtlId);
         }
 
     }

@@ -91,9 +91,9 @@ public:
                                 int MtlId = -1;
                                 for (vec3 cellv : VERT) {
                                     Cell& c = World::_GetCell(chunk, quadp + cellv);
-                                    if (c.id && (c.density) < min_dist) {
-                                        // assert(c.density > 0);
-                                        min_dist = (c.density);
+                                    if (c.id && c.density > 0 && c.density < min_dist) {
+                                        //assert(c.density > 0);
+                                        min_dist = c.density;
                                         MtlId = c.id;
                                     }
                                 }
@@ -133,8 +133,12 @@ public:
             }
         }
 
+        vec3 p = sumFp / (float)numIntersects;
+        assert(p.x >= 0.0f && p.x <= 1.0f &&
+               p.y >= 0.0f && p.y <= 1.0f &&
+               p.z >= 0.0f && p.z <= 1.0f);
         assert(numIntersects > 0);
-        return sumFp / (float)numIntersects;
+        return p;
     }
 
 };

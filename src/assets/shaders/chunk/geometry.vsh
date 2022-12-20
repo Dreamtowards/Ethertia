@@ -1,13 +1,13 @@
 #version 330 core
 layout (location = 0) in vec3 in_pos;
-layout (location = 1) in vec2 in_texCoord;
+layout (location = 1) in vec2 in_texCoord;  // if use MtlId insteaf of UV, x=MtlId, y=const 123.321 (magic number)
 layout (location = 2) in vec3 in_norm;
-layout (location = 3) in float in_mtl;  // material id. integer.
 
 uniform mat4 matModel;
 uniform mat4 matView;
 uniform mat4 matProjection;
 
+uniform float Time;
 
 out Vsh {
     vec3 FragPos;
@@ -19,10 +19,13 @@ out Vsh {
 void main()
 {
     vec4 worldpos = matModel * vec4(in_pos, 1.0);
+    if (in_texCoord.y != 123.321) {
+        worldpos.xyz += vec3(cos(worldpos.yzx * 1000 + Time * 1.3).xyz) * 0.25;
+    }
     gl_Position = matProjection * matView * worldpos;
 
     vsh.Norm = normalize(vec3(matModel * vec4(in_norm, 0.0f)));
     vsh.TexCoord = in_texCoord;
     vsh.FragPos = worldpos.xyz;
-    vsh.MtlId = in_mtl;
+    vsh.MtlId = in_texCoord.x;  // MtlId cant coexist with UV. since UV are structure necessary, MtlId are hidden into UV. (if have Mtl)
 }
