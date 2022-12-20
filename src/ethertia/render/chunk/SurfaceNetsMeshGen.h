@@ -49,8 +49,7 @@ public:
     };
 
     static bool sign_changed(const Cell& c0, const Cell& c1) {
-        // c0.density > 0 != c1.density > 0
-        return Materials::needGenSmooth(c0) != Materials::needGenSmooth(c1);
+        return c0.density > 0 != c1.density > 0;
     }
 
 

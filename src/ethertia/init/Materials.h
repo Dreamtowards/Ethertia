@@ -24,14 +24,6 @@ public:
     static const u8 LEAVES= 8;
     static const u8 ICE   = 9;
 
-//    static const u8 _SIZE  = 9;
-
-    static bool needGenSmooth(const Cell& c) {
-//        if (c.id == LEAVES)
-//            return false;
-
-        return c.density > 0;
-    }
 
 
 };

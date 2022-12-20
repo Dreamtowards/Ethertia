@@ -404,7 +404,7 @@ public:
                         continue;
 
                     if (nextAir < dy) {
-                        for (int i = 0;; ++i) {
+                        for (int i = 0;i < 16-dy; ++i) {
                             if (world->getCell(x, y+i, z).id == 0) {
                                 nextAir = dy+i;
                                 break;
@@ -509,14 +509,16 @@ public:
 //                                        if (_leaf == Blocks::LEAVES && Mth::hash(x*y*z) < 0.2f)
 //                                            _leaf = Blocks::LEAVES_APPLE;
                                         //y +Mth::hash(y)*4
-                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::LEAVES, 0.0f));
+//                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::LEAVES, 0.0f));
+                                        world->getCell(x+lx, y+ly+h, z+lz).id = Materials::LEAVES;
                                     }
                                 }
                             }
                             // Trunk
-                            for (int i = 0; i < h+3; ++i) {
+                            int trunkHeight = h+3;
+                            for (int i = 0; i < trunkHeight; ++i) {
 
-                                world->setCell(x, y+i, z, Cell(Materials::LOG, 2.0f));
+                                world->setCell(x, y+i, z, Cell(Materials::LOG, 2.0f * (1.2f - (float)i / trunkHeight)));
                             }
                             break;
                         }

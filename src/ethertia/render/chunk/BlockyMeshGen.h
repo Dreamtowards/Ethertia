@@ -24,7 +24,7 @@ public:
 
                     if (c.id)
                     {
-                        if (c.id == Materials::LEAVES && c.density > -0.5) {
+                        if (c.id == Materials::LEAVES) {
 //                            putCube(vbuf, rp, chunk, c.id);
 
                             putLeaves(vbuf, rp, chunk, c.id);
