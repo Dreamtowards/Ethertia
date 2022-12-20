@@ -1,0 +1,14 @@
+/Users/dreamtowards/Documents/YouRepository/Ethertia/cmake-build-debug/Ethertia --assets ./src/assets;sth2;678
+[2022-12-20.23:43:09.381.453][0x11b2b5dc0/INFO]: Load Settings. in 1.084768ms.
+[2022-12-20.23:43:09.576.435][0x11b2b5dc0/INFO]: Init GL_4.1 INTEL-14.7.22, Intel(R) Iris(TM) Plus Graphics 645 | GLFW 3.3.8 Cocoa NSGL EGL OSMesa. in 194.412577ms.
+[2022-12-20.23:43:09.585.638][0x11b2b5dc0/INFO]: RenderEngine initializing. in 183.482359ms.
+[2022-12-20.23:43:09.769.183][0x11b2b5dc0/INFO]: Material Textures loading...
+[2022-12-20.23:43:09.769.255][0x11b2b5dc0/INFO]:  *diff load cached atlas from 'cache/atlas_diff.png'. in 80.198322ms.
+[2022-12-20.23:43:09.849.503][0x11b2b5dc0/INFO]:  *norm load cached atlas from 'cache/atlas_norm.png'. in 92.035861ms.
+[2022-12-20.23:43:09.941.567][0x11b2b5dc0/INFO]:  *disp load cached atlas from 'cache/atlas_disp.png'. in 62.290957ms.
+[2022-12-20.23:43:10.3.88403][0x11b2b5dc0/INFO]:  *rough load cached atlas from 'cache/atlas_rough.png'. in 55.532671ms.
+[2022-12-20.23:43:10.59.428 ][0x11b2b5dc0/INFO]: Material Texture Atlases all loaded/generated. in 290.282811ms.
+System initialized in 680.805277ms.
+[2022-12-20.23:45:07.342.965][0x11b2b5dc0/INFO]: Save Settings. in 0.534936ms.
+
+Process finished with exit code 0

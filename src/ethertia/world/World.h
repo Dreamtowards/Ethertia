@@ -510,7 +510,9 @@ public:
 //                                            _leaf = Blocks::LEAVES_APPLE;
                                         //y +Mth::hash(y)*4
 //                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::LEAVES, 0.0f));
-                                        world->getCell(x+lx, y+ly+h, z+lz).id = Materials::LEAVES;
+                                        Cell& c_leaf = world->getCell(x+lx, y+ly+h, z+lz);
+                                        c_leaf.id = Materials::LEAVES;
+                                        c_leaf.density = Mth::min(c_leaf.density, 0.0f);
                                     }
                                 }
                             }
