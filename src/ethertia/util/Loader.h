@@ -30,13 +30,15 @@ public:
 
 
 
-    static std::pair<char*, u32> loadFile(const std::string& path)
+    static std::pair<char*, size_t> loadFile(const std::string& path)
     {
         std::ifstream file(path, std::ios_base::binary);
-        if (!file.is_open())
-            throw std::runtime_error("Failed open file. "+path);
+        if (!file.is_open()) {
+            //throw std::runtime_error("Failed open file. "+path);
+            return std::make_pair(nullptr, -1);
+        }
         file.seekg(0, std::ios_base::end);
-        u32 len = file.tellg();
+        size_t len = file.tellg();
         file.seekg(0, std::ios_base::beg);
 
         char* buf = new char[len];
@@ -49,7 +51,7 @@ public:
         return std::filesystem::exists(path);
     }
 
-    static std::pair<char*, u32> loadAssets(const std::string& p) {
+    static std::pair<char*, size_t> loadAssets(const std::string& p) {
         return loadFile(ASSETS + p);
     }
 

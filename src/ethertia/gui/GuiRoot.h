@@ -29,10 +29,16 @@ public:
         });
         evbus.listen([](MouseButtonEvent* e)
         {
+            if (Ethertia::isIngame())
+                return;
+
             Ethertia::getRootGUI()->onMouseButton(e->getButton(), e->isPressed());
         });
         evbus.listen([](MouseScrollEvent* e)
         {
+            if (Ethertia::isIngame())
+                return;
+
             Ethertia::getRootGUI()->onScroll(e->getScrollDX(), e->getScrollDY());
         });
         evbus.listen([](KeyboardEvent* e)

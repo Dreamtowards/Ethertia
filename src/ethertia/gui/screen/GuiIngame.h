@@ -71,11 +71,9 @@ public:
             opts->addGui(newLabel("Rendering"));
             opts->addGui(new GuiSlider("FOV", 15, 165, &rde->fov, 5.0f));
 
-            opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
-            opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
+            opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
 
-            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &EntityRenderer::fogDensity, 0.001f));
-            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &EntityRenderer::fogGradient, 0.01f));
+            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getBrushCursor().brushSize, 0.2f));
 
 
             opts->addGui(newLabel("Debug Geo."));
@@ -108,14 +106,21 @@ public:
             opts->addGui(new GuiCheckBox("Norm & Border", &rde->debugChunkGeo));
             opts->addGui(new GuiCheckBox("glPoly Line", &dbgPolyLine));
 
+            opts->addGui(new GuiCheckBox("R/No Vegetable", &RenderEngine::dbg_NoVegetable));
+
+            opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
+            opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
+
+            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &EntityRenderer::fogDensity, 0.001f));
+            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &EntityRenderer::fogGradient, 0.01f));
+
+
             opts->addGui(newLabel("World"));
-            opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
 
             opts->addGui(new GuiSlider("D/var0", -2, 2, &EntityRenderer::debugVar0, 0.01f));
             opts->addGui(new GuiSlider("D/var1", 0, 4, &EntityRenderer::debugVar1, 0.01f));
             opts->addGui(new GuiSlider("D/var2", 0, 256, &EntityRenderer::debugVar2, 0.1f));
 
-            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getBrushCursor().brushSize, 0.2f));
             opts->addGui(new GuiCheckBox("Brush Tracking", &Ethertia::getBrushCursor().keepTracking));
             opts->addGui(new GuiCheckBox("Brush pInfo", &dbgCursorRangeInfo));
 

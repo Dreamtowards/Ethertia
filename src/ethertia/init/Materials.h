@@ -22,7 +22,7 @@ public:
     static const u8 LOG   = 6;
     static const u8 PLANK = 7;
     static const u8 LEAVES= 8;
-    static const u8 ICE   = 9;
+    static const u8 TALLGRASS   = 9;
 
 
 

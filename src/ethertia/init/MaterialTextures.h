@@ -36,7 +36,8 @@ public:
             "sand",
             "oak_log",
             "plank",
-            "leaves"
+            "leaves",
+            "tallgrass"
     };
 
     static void init()
@@ -77,17 +78,24 @@ public:
             const int n = TEXTURES.size();
             atlas = new BitmapImage(px * n, px);
 
-            BitmapImage* tmp = new BitmapImage(px, px);  // resized img.
+            BitmapImage* resized = new BitmapImage(px, px);  // resized img.
             for (int i = 0; i < n; ++i)
             {
-                BitmapImage* src = Loader::loadPNG(Loader::loadAssets(Strings::fmt("/materials/{}/{}.png", TEXTURES[i], textype)));
+                std::string path = Strings::fmt("/materials/{}/{}.png", TEXTURES[i], textype);
+                std::pair<char*, size_t> file_handle = Loader::loadAssets(path);
+                if (file_handle.first) {
+                    BitmapImage* src = Loader::loadPNG(file_handle);
 
-                stbir_resize_uint8((unsigned char*)src->getPixels(), src->getWidth(), src->getHeight(), 0,
-                                   (unsigned char*)tmp->getPixels(), tmp->getWidth(), tmp->getHeight(), 0, 4);
+                    stbir_resize_uint8((unsigned char*)src->getPixels(), src->getWidth(), src->getHeight(), 0,
+                                       (unsigned char*)resized->getPixels(), resized->getWidth(), resized->getHeight(), 0, 4);
+                    delete src;
+                } else {
+                    Log::info("  .missed texture {}.", path);
+                }
 
-                atlas->setPixels(i * px, 0, tmp);
+                atlas->setPixels(i * px, 0, resized);
             }
-            delete tmp;
+            delete resized;
 
             Loader::savePNG(atlas, cache_file);
         }

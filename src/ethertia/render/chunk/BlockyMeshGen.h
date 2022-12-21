@@ -12,7 +12,7 @@ class BlockyMeshGen
 {
 public:
 
-    static VertexBuffer* gen(Chunk* chunk, VertexBuffer* vbuf)
+    static void gen(Chunk* chunk, VertexBuffer* vbuf)
     {
         using glm::vec3;
 
@@ -35,7 +35,6 @@ public:
             }
         }
 
-        return vbuf;
     }
 
 
@@ -179,6 +178,34 @@ public:
         putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
                                                        Mth::matEulerAngles(glm::vec3(0, Mth::PI_2, -deg45)),
                                                        glm::vec3(1.0f, 1.5f, 1.0f)*s), mtlId);
+    }
+
+
+
+
+    static void putTallgrassStarMesh(VertexBuffer* vbuf, glm::vec3 pos, int mtlId) {
+
+        float deg45 = Mth::PI / 4.0f;
+
+        float s = 1.2f;
+
+        putFace(vbuf, pos, Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+                                         Mth::matEulerAngles(glm::vec3(0.0f, deg45*2, 0.0f)),
+                                         glm::vec3(1)*s), mtlId);
+        putFace(vbuf, pos, Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+                                         Mth::matEulerAngles(glm::vec3(0.0f, 0, 0.0f)),
+                                         glm::vec3(1)*s), mtlId);
+
+    }
+
+    static void genGrasses(VertexBuffer* vbuf, const std::vector<glm::vec3>& grass_fp) {
+
+        for (int i = 0; i < grass_fp.size(); ++i) {
+            glm::vec3 p = grass_fp[i];
+
+            putTallgrassStarMesh(vbuf, p, Materials::TALLGRASS);
+        }
+
     }
 };
 

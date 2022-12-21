@@ -129,7 +129,7 @@ public:
 
         chunks[chunkpos] = chunk;
 
-        Ethertia::getScheduler()->exec([=]() {
+        Ethertia::getScheduler()->addTask([=]() {
 
             addEntity(chunk->m_MeshTerrain);
             addEntity(chunk->m_MeshVegetable);
@@ -243,77 +243,6 @@ public:
     }
 
 
-
-//    // http://www.cse.yorku.ca/~amana/research/grid.pdf
-//    // Impl of Grid Voxel Raycast.
-//    bool raycast(glm::vec3 rpos, glm::vec3 rdir, glm::vec3& _pos, u8& _face) {
-//        using glm::vec3;
-//
-//        vec3 step = glm::sign(rdir);
-//
-//        vec3 tMax = glm::abs( (glm::fract(rpos)) - glm::max(step, 0.0f)) / glm::abs(rdir);
-//
-//        vec3 tDelta = 1.0f / glm::abs(rdir);
-//
-//        glm::vec3 p = glm::floor(rpos);
-//
-//        int itr = 0;
-//        while (++itr < 100) {
-//            int face;
-//            if (tMax.x < tMax.y && tMax.x < tMax.z) {
-//                p.x += step.x;
-//                tMax.x += tDelta.x;
-//                face = step.x > 0 ? 0 : 1;
-//            } else if (tMax.y < tMax.z) {
-//                p.y += step.y;
-//                tMax.y += tDelta.y;
-//                face = step.y > 0 ? 2 : 3;
-//            } else {
-//                p.z += step.z;
-//                tMax.z += tDelta.z;
-//                face = step.z > 0 ? 4 : 5;
-//            }
-//
-//            MaterialStat& b = getBlock(p);
-//            if (b.id) {
-//                _pos = p;
-//                _face = face;
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-//    static void collideAABB(const AABB& self, glm::vec3& d, const AABB& coll) {
-//
-//
-//        if (d.y != 0 && AABB::intersectsAxis(self, coll, 0) && AABB::intersectsAxis(self, coll, 2)) {
-//            if (d.y < 0 && self.min.y >= coll.max.y) {
-//                d.y = absmin(d.y, coll.max.y - self.min.y);
-//            } else if (d.y > 0 && self.max.y <= coll.min.y) {
-//                d.y = absmin(d.y, coll.min.y - self.max.y);
-//            }
-//        }
-//        if (d.x != 0 && AABB::intersectsAxis(self, coll, 1) && AABB::intersectsAxis(self, coll, 2)) {
-//            if (d.x < 0 && self.min.x >= coll.max.x) {
-//                d.x = absmin(d.x, coll.max.x - self.min.x);
-//            } else if (d.x > 0 && self.max.x <= coll.min.x) {
-//                d.x = absmin(d.x, coll.min.x - self.max.x);
-//            }
-//        }
-//        if (d.z != 0 && AABB::intersectsAxis(self, coll, 0) && AABB::intersectsAxis(self, coll, 1)) {
-//            if (d.z < 0 && self.min.z >= coll.max.z) {
-//                d.z = absmin(d.z, coll.max.z - self.min.z);
-//            } else if (d.z > 0 && self.max.z <= coll.min.z) {
-//                d.z = absmin(d.z, coll.min.z - self.max.z);
-//            }
-//        }
-//
-//    }
-//
-//    static float absmin(float a, float b) {
-//        return Mth::abs(a) < Mth::abs(b) ? a : b;
-//    }
 
     void tick() {
         float dt = Timer::T_DELTA;
@@ -442,43 +371,46 @@ public:
 //
 //                    for (int dy = 0; dy < 16; ++dy) {
 //                        int y = chunkpos.y + dy;
-//                        if (world->getBlock(x, y, z).id == Materials::GRASS) {
-//                            u8 b = Blocks::TALL_GRASS;
-//                            if (f < (4/256.0f)) b = Blocks::RED_TULIP;
-//                            else if (f < (30/256.0f)) b = Blocks::SHRUB;
-//                            else if (f < (40/256.0f)) b = Blocks::FERN;
+//                        if (world->getCell(x, y, z).id == Materials::GRASS) {
+//                            u8 b = Materials::LEAVES;
+////                            if (f < (4/256.0f)) b = Blocks::RED_TULIP;
+////                            else if (f < (30/256.0f)) b = Blocks::SHRUB;
+////                            else if (f < (40/256.0f)) b = Blocks::FERN;
 //
-//                            world->setBlock(x, y+1, z, BlockState(b));
+//                            world->getCell(x, y+1, z).id = b;
 //                        }
 //                    }
 //                }
 //            }
 //        }
 
-//        // Vines
-//        for (int dx = 0; dx < 16; ++dx) {
-//            for (int dz = 0; dz < 16; ++dz) {
-//                int x = chunkpos.x + dx;
-//                int z = chunkpos.z + dz;
-//
-//                if (Mth::hash(x * z * 2349242) < (6.0f / 256.0f)) {
-//                    for (int dy = 0; dy < 16; ++dy) {
-//                        int y = chunkpos.y + dy;
-//                        if (world->getBlock(x, y, z).id == Blocks::STONE &&
-//                            world->getBlock(x, y-1, z).id == 0) {
-//
-//
-//                            for (int i = 0; i < 32 * Mth::hash(x*y*47923); ++i) {
-//
-//                                world->setBlock(x, y-1-i, z, BlockState(Blocks::VINE));
-//                            }
-//
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        // Vines
+        for (int dx = 0; dx < 16; ++dx) {
+            for (int dz = 0; dz < 16; ++dz) {
+                int x = chunkpos.x + dx;
+                int z = chunkpos.z + dz;
+
+                if (Mth::hash(x * z * 2349242) < (12.0f / 256.0f)) {
+                    for (int dy = 0; dy < 16; ++dy) {
+                        int y = chunkpos.y + dy;
+                        if (world->getCell(x, y, z).id == Materials::STONE &&
+                            world->getCell(x, y-1, z).id == 0) {
+
+
+                            for (int i = 0; i < 32 * Mth::hash(x*y*47923); ++i) {
+
+                                Cell& c = world->getCell(x, y-1-i, z);
+                                if (c.id)
+                                    break;
+                                c.id = Materials::LEAVES;
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         // Trees
         for (int dx = 0; dx < 16; ++dx) {
@@ -512,7 +444,7 @@ public:
 //                                            _leaf = Blocks::LEAVES_APPLE;
                                         //y +Mth::hash(y)*4
 //                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::LEAVES, 0.0f));
-                                        Cell& c_leaf = world->getCell(x+lx, y+ly+trunkHeight*0.7f, z+lz);
+                                        Cell& c_leaf = world->getCell(x+lx, y+ly+trunkHeight, z+lz);
                                         c_leaf.id = Materials::LEAVES;
                                         c_leaf.density = Mth::min(c_leaf.density, 0.0f);
                                     }

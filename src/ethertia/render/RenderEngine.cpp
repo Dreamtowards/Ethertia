@@ -86,6 +86,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
         if (dynamic_cast<EntityMesh*>(entity) && dynamic_cast<EntityMesh*>(entity)->m_FaceCulling) {
             glEnable(GL_CULL_FACE);
         } else {
+            if (dbg_NoVegetable) continue;
             glDisable(GL_CULL_FACE);
         }
 

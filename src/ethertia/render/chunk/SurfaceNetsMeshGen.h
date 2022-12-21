@@ -53,9 +53,21 @@ public:
     }
 
 
-    static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf) {
+    static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf, std::vector<glm::vec3>& grass_fp) {
 
-        // range [1, 15], boundary-exclusive
+//        // pre eval feature points.
+//        vec3 fpTable[16][16][16];  // 16^3 * 3*4 = 49,152 bytes, 48kb
+//        for (int rx = 0; rx < 16; ++rx) {
+//            for (int ry = 0; ry < 16; ++ry) {
+//                for (int rz = 0; rz < 16; ++rz) {
+//                    vec3 rp(rx, ry, rz);
+//                    vec3 fp = featurepoint(rp, chunk);
+//                    fpTable[rx][ry][rz] = fp;
+//                }
+//            }
+//        }
+
+
         for (int rx = 0; rx < 16; ++rx) {
             for (int ry = 0; ry < 16; ++ry) {
                 for (int rz = 0; rz < 16; ++rz) {
@@ -75,28 +87,28 @@ public:
                                 int wind_vi = ccw ? quadv_i : 5 - quadv_i;
 
                                 vec3 quadp = rp + ADJACENT[axis_i][wind_vi];
-                                // Cell& vc = World::_GetBlock(chunk, quadp);
+                                // todo: optim Cached Fp. if no eval fp, meshing only need 6ms per chunk instead of 15ms
+                                // vec3 fp = fpTable[(int)quadp.x][(int)quadp.y][(int)quadp.z];
                                 vec3 fp = featurepoint(quadp, chunk);
 
                                 vbuf->addpos(quadp + fp);
-                                // assert(vc.id != 0);
-                                // assert(vc.density > 0);  // density could <= 0, why
-                                // vbuf->_add_mtl_id(vc.id);
 
-                                // Redundant Execution, todo Move Out
-                                // 1. get material by minor distance (abs(density)).
-                                // 2. Optical option, use MostDuplicated Material of the 8 verts.
+                                // determine the MtlId of 8 corners. use Nearest Positive Density Corner.
                                 float min_dist = Mth::Inf;
-                                int MtlId = -1;
+                                int MtlId = 0;
                                 for (vec3 cellv : VERT) {
                                     Cell& c = World::_GetCell(chunk, quadp + cellv);
                                     if (c.id && c.density > 0 && c.density < min_dist) {
-                                        //assert(c.density > 0);
                                         min_dist = c.density;
                                         MtlId = c.id;
                                     }
                                 }
+                                assert(MtlId != 0);
                                 vbuf->_add_mtl_id(MtlId);
+
+                                if (MtlId == Materials::GRASS) {
+                                    grass_fp.push_back(quadp + fp);
+                                }
 
                             }
                         }
@@ -133,10 +145,10 @@ public:
         }
 
         vec3 p = sumFp / (float)numIntersects;
+        assert(numIntersects > 0);
         assert(p.x >= 0.0f && p.x <= 1.0f &&
                p.y >= 0.0f && p.y <= 1.0f &&
                p.z >= 0.0f && p.z <= 1.0f);
-        assert(numIntersects > 0);
         return p;
     }
 

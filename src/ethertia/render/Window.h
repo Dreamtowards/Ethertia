@@ -275,6 +275,15 @@ public:
         CharInputEvent e(codepoint);
         win->eventbus().post(&e);
     }
+
+
+    BitmapImage* screenshot() {
+        BitmapImage* img = new BitmapImage(framebufferWidth, framebufferHeight);
+
+        glReadPixels(0, 0, img->getWidth(), img->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, img->getPixels());
+
+        return img;
+    }
 };
 
 #endif //ETHERTIA_WINDOW_H

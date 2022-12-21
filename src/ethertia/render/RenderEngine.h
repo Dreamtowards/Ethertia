@@ -50,6 +50,7 @@ public:
 
     bool debugChunkGeo = false;
     inline static int g_NumEntityRendered = 0;
+    inline static bool dbg_NoVegetable = false;
 
     RenderEngine();
     ~RenderEngine();
@@ -150,6 +151,7 @@ public:
         glBindVertexArray(model->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, model->vertexCount);
     }
+
 };
 
 #endif //ETHERTIA_RENDERENGINE_H

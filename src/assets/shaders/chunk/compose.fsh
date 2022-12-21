@@ -157,6 +157,8 @@ void main() {
 
     vec3 Norm = texture(gNormal, TexCoord).rgb;
 
+//    if (dot(Norm, CameraPos - FragPos) > 0)
+//    Norm = - Norm;
 
     vec3 LightPos = vec3(-3, 2, -1) * 10000;
     vec3 LightColor = vec3(2.0);
@@ -233,10 +235,16 @@ void main() {
 //    }
 
 
+    vec3 bgSkyColor = texture(panoramaMap, samplePanoramaTex(RayDir)).rgb;
     if (_PosDepth.w == 1.0f) {
 
 
-        FragColor.rgb = texture(panoramaMap, samplePanoramaTex(RayDir)).rgb;
+        FragColor.rgb = bgSkyColor;
+    } else {
+            vec3 fogColor = vec3(0.5, 0.6, 0.8) * 1;
+        fogColor = vec3(0.584, 0.58, 0.702);  // 9594b3
+
+        FragColor.rgb = mix(FragColor.rgb, fogColor, FragDepth / 200.0f);
     }
 
 }

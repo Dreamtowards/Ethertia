@@ -20,7 +20,7 @@ void main()
 {
     vec4 worldpos = matModel * vec4(in_pos, 1.0);
     if (in_texCoord.y != 123.321) {
-        worldpos.xyz += vec3(cos(worldpos.yzx * 1000 + Time * 1.3).xyz) * 0.25;
+        worldpos.xyz += vec3(cos(worldpos.yzx * 1000 + Time * 1.3).xyz) * 0.1;
     }
     gl_Position = matProjection * matView * worldpos;
 

@@ -34,7 +34,8 @@ class Ethertia
     inline static GuiRoot*      m_RootGUI      = nullptr;
     inline static Window*       m_Window       = nullptr;
     inline static Timer         m_Timer{};
-    inline static Scheduler     m_Scheduler{std::this_thread::get_id()};
+    inline static Scheduler     m_Scheduler{};
+    inline static Scheduler     m_AsyncScheduler{};
     inline static BrushCursor   m_Cursor{};
 
 
@@ -82,6 +83,7 @@ public:
 
     static Timer* getTimer() { return &m_Timer; }
     static Scheduler* getScheduler() { return &m_Scheduler; }
+    static Scheduler* getAsyncScheduler() { return &m_AsyncScheduler; }
     static BrushCursor& getBrushCursor() { return m_Cursor; }
     static Camera* getCamera();
 

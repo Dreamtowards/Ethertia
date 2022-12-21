@@ -5,9 +5,11 @@
 #ifndef ETHERTIA_STRINGS_H
 #define ETHERTIA_STRINGS_H
 
+#include <algorithm>
 #include <vector>
 #include <string>
-#include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 class Strings
 {
@@ -26,6 +28,13 @@ public:
             ss << s;
         }
         return ss.str();
+    }
+
+    static std::string time_fmt(const char* _fmt = "%Y-%m-%d.%H:%M:%S", std::time_t _t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())) {
+        // std::time_t _t = std::time(nullptr);
+        struct tm* tm_info = std::localtime(&_t);
+
+        return Strings::str(std::put_time(tm_info, _fmt));
     }
 
 

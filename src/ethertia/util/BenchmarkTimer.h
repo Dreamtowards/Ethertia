@@ -8,6 +8,8 @@
 #include <chrono>
 #include <iostream>
 
+#include <ethertia/util/Strings.h>
+
 class BenchmarkTimer
 {
     std::chrono::time_point<std::chrono::high_resolution_clock> begin = std::chrono::high_resolution_clock::now();

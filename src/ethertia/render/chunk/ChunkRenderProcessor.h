@@ -15,7 +15,7 @@ public:
 
 
     static void meshChunk_Upload(Chunk* chunk) {
-        BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeGen, nullptr);  g_DebugGenInfo.numGen++;
+        BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeMesh, nullptr);  g_DebugGenInfo.numMesh++;
 
         chunk->needUpdateModel = false;
 
@@ -29,9 +29,14 @@ public:
 
 //        vbuf = MarchingCubesMeshGen::genMesh(chunk);
 
-            SurfaceNetsMeshGen::contouring(chunk, vbufTerrain);
+            std::vector<glm::vec3> grass_fp;
+
+            SurfaceNetsMeshGen::contouring(chunk, vbufTerrain, grass_fp);
 
             BlockyMeshGen::gen(chunk, vbufVegetable);
+
+            BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
+
 
         }
 
@@ -39,12 +44,17 @@ public:
         vbufTerrain->normals.reserve(vbufTerrain->vertexCount() * 3);
         VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
 
-//      VertexProcess::othonorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->normals.data(), true);
+        vbufVegetable->normals.reserve(vbufVegetable->vertexCount() * 3);
+//        float* vegnorms = vbufVegetable->normals.data();
+//        for (int n_i = 0; n_i < vbufVegetable->vertexCount(); ++n_i) {
+//            Mth::vec3out(glm::vec3(0, 1, 0), &vegnorms[n_i*3]);
+//        }
+        VertexProcess::othonorm(vbufVegetable->vertexCount(), vbufVegetable->positions.data(), vbufVegetable->normals.data(), false);
 
 
 
 
-        Ethertia::getScheduler()->exec([chunk, vbufTerrain, vbufVegetable]() {
+        Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable]() {
             BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeEmit, nullptr);  g_DebugGenInfo.numEmit++;
 
             if (vbufTerrain->vertexCount() > 0)
@@ -85,7 +95,8 @@ public:
         }
 
         if (!nearest && nearest_pos_gen.x != Mth::Inf) {
-            // Gen
+            BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeGen, nullptr);  g_DebugGenInfo.numGen++;
+            // Gen or Load
             nearest = world->provideChunk(nearest_pos_gen);
             nearest->requestRemodel();
 
@@ -142,7 +153,6 @@ public:
                     Chunk* chunk = questNearestInvalidChunk(world, p, n);
 
                     if (chunk) {
-                        BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeMesh, nullptr);  g_DebugGenInfo.numMesh++;
 
                         meshChunk_Upload(chunk);
                     }

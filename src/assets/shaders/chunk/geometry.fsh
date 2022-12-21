@@ -72,7 +72,7 @@ void main()
     if (!useMTL) {  // no material id, use TexCoord.
         Albedo = texture(diffuseMap, TexCoord).rgba;
 
-        if (Albedo.a == 0.0) {
+        if (Albedo.a < 0.8) {
             discard;  // duplicated.
         }
     } else {

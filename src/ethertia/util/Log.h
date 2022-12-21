@@ -7,11 +7,10 @@
 
 #include <string>
 #include <iostream>
-#include <chrono>
 #include <thread>
 #include <sstream>
-#include <iomanip>
 #include <cmath>
+#include <chrono>
 
 #include <ethertia/util/Strings.h>
 
@@ -86,15 +85,13 @@ Profile(
 
 
     static void log_head(std::ostream& out, const char* _lv = "INFO", const char* _loc = "") {
-        std::time_t t = std::time(nullptr);
-        struct tm* tm_info = std::localtime(&t);
 
-        double mcs = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        double sec = mcs * 0.001;_loc="";
+        double sec_micro = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        double sec_milli = sec_micro * 0.001;_loc="";
 
         Strings::_fmt(out, "[{}.{7}][{}/{}]{}: ",
-                      std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S"),
-                      std::fmod(sec, 1000.0f),
+                      Strings::time_fmt("%Y-%m-%d.%H:%M:%S"),
+                      std::fmod(sec_milli, 1000.0f),
                       std::this_thread::get_id(), _lv,
                       _loc
         );
