@@ -51,6 +51,10 @@ public:
         return numTasks;
     }
 
+    std::deque<std::function<void()>>& getTasks() {
+        return m_Tasks;
+    }
+
     void addTask(const std::function<void()>& task) {
         m_Tasks.push_back(task);
     }

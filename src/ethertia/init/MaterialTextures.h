@@ -64,7 +64,8 @@ public:
      * @param textype could be: diff/disp/norm/ao/rough
      * @param px needed resolution in pixel
      */
-    static Texture* makeAtlas(std::string_view textype, int px, const std::string& cache_file) { BenchmarkTimer _tm;
+    static Texture* makeAtlas(std::string_view textype, int px, const std::string& cache_file) {
+        BenchmarkTimer _tm;
         BitmapImage* atlas;
 
         if (Loader::fileExists(cache_file))
@@ -90,7 +91,7 @@ public:
                                        (unsigned char*)resized->getPixels(), resized->getWidth(), resized->getHeight(), 0, 4);
                     delete src;
                 } else {
-                    Log::info("  .missed texture {}.", path);
+                    std::cerr << Strings::fmt(" missed '{}'.", path);
                 }
 
                 atlas->setPixels(i * px, 0, resized);

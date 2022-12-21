@@ -1,0 +1,14 @@
+/Users/dreamtowards/Documents/YouRepository/Ethertia/cmake-build-debug/Ethertia --assets ./src/assets;sth2;678
+[2022-12-21.23:06:05.876.394][0x116357dc0/INFO]: Load Settings. in 0.869043ms.
+[2022-12-21.23:06:05.992.91 ][0x116357dc0/INFO]: Init GL_4.1 INTEL-14.7.22, Intel(R) Iris(TM) Plus Graphics 645 | GLFW 3.3.8 Cocoa NSGL EGL OSMesa. in 115.691849ms.
+[2022-12-21.23:06:05.998.305][0x116357dc0/INFO]: RenderEngine initializing. in 147.080031ms.
+[2022-12-21.23:06:06.145.414][0x116357dc0/INFO]: Material Textures loading...
+[2022-12-21.23:06:06.145.465][0x116357dc0/INFO]:  *diff generate new atlas to 'cache/atlas_diff.png'. in 1.496715s.
+[2022-12-21.23:06:07.642.203][0x116357dc0/INFO]:  *norm generate new atlas to 'cache/atlas_norm.png'. missed '/materials/tallgrass/norm.png'. in 1.174070s.
+[2022-12-21.23:06:08.816.286][0x116357dc0/INFO]:  *disp generate new atlas to 'cache/atlas_disp.png'. missed '/materials/tallgrass/disp.png'. in 944.932960ms.
+[2022-12-21.23:06:09.761.276][0x116357dc0/INFO]:  *rough generate new atlas to 'cache/atlas_rough.png'. missed '/materials/tallgrass/rough.png'. in 856.194051ms.
+[2022-12-21.23:06:10.617.429][0x116357dc0/INFO]: Material Texture Atlases all loaded/generated. in 4.472087s.
+System initialized in 4.742435s.
+[2022-12-21.23:06:10.618.755][0x700003e0c000/INFO]: AsyncScheduler ready.
+[2022-12-21.23:06:30.701.746][0x116357dc0/INFO]: Screenshot saving to './screenshots/2022-12-21_23.06.30_782.576.png'. in 801.100186ms.
+[2022-12-21.23:06:35.444.749][0x116357dc0/INFO]: Save Settings. in 0.396993ms.

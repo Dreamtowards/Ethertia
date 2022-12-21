@@ -221,12 +221,14 @@ public:
                     "ChunkGen ({} {}ms, avg {}ms), \n"
                     "ChunkMesh({} {}ms, avg {}ms)\n"
                     "ChunkEmit({} {}ms, avg {}ms)\n"
-                    "dt/ {}, {}fs\n",
+                    "task {}, async {}\n"
+                    "dt: {}, {}fps\n",
                     glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len,
                     rde->g_NumEntityRendered, Ethertia::getWorld()->getEntities().size(),
                     cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                     cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
                     cinfo.numEmit, cinfo.sumTimeEmit * 1000, (cinfo.sumTimeEmit / cinfo.numEmit * 1000),
+                    Ethertia::getScheduler()->getTasks().size(), Ethertia::getAsyncScheduler()->getTasks().size(),
                     dt, Mth::floor(1.0f/dt));
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
 
