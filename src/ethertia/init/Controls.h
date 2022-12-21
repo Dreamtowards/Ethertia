@@ -142,7 +142,11 @@ public:
                                     float f = n - glm::length(d);
 
                                     // b.id = placingBlock;
-                                    b.density = b.density - Mth::max(0.0f, n - glm::length(d));
+                                    b.density = b.density - Mth::max(0.0f, f);
+                                    if (f > 0 && b.density < 0 //&& b.id == Materials::LEAVES
+                                        ) {
+                                        b.id = 0;
+                                    }
                                     world->requestRemodel(p+d);
                                 }
                             }

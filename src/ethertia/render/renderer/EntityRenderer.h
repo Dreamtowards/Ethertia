@@ -25,6 +25,13 @@ public:
 
     inline static Texture* g_PanoramaTex = nullptr;
 
+    inline static float fogDensity = 0.02f;
+    inline static float fogGradient = 1.5f;
+
+    inline static float debugVar0 = 0;
+    inline static float debugVar1 = 0;
+    inline static float debugVar2 = 0;
+
     EntityRenderer() {
 
         shaderGeometry.useProgram();
@@ -56,44 +63,30 @@ public:
 
     }
 
-    inline static float fogDensity = 0.02f;
-    inline static float fogGradient = 1.5f;
-
-    inline static float debugVar0 = 0;
-    inline static float debugVar1 = 0;
-    inline static float debugVar2 = 0;
-
-//    ShaderProgram shader{Loader::loadAssetsStr("shaders/chunk/chunk.vsh"),
-//                         Loader::loadAssetsStr("shaders/chunk/chunk.fsh")};
 
 
-    void renderGeometry(Entity* entity)
+    void renderGeometryChunk(Model* model, glm::vec3 pos, glm::mat3 rot)
     {
-        if (dynamic_cast<EntityMesh*>(entity)) {  // assume it's a 'chunk mesh entity'.
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DIFFUSE->texId);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DIFFUSE->texId);
 
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_NORM->texId);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_NORM->texId);
 
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISP->texId);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISP->texId);
 
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_ROUGH->texId);
-        }
-        else if (entity->diffuseMap)
-        {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, entity->diffuseMap->texId);
-        }
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_ROUGH->texId);
 
-        glActiveTexture(GL_TEXTURE5);
-        glBindTexture(GL_TEXTURE_2D, g_PanoramaTex->texId);
+            // Experimental
+            glActiveTexture(GL_TEXTURE5);
+            glBindTexture(GL_TEXTURE_2D, g_PanoramaTex->texId);
+
 
         shaderGeometry.useProgram();
 
-        shaderGeometry.setMatrix4f("matModel", Mth::matModel(entity->getPosition(), entity->getRotation(), glm::vec3(1.0f)));
+        shaderGeometry.setMatrix4f("matModel", Mth::matModel(pos, rot, glm::vec3(1.0f)));
         shaderGeometry.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
         shaderGeometry.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
 
@@ -103,14 +96,13 @@ public:
         shaderGeometry.setFloat("Time", Ethertia::getPreciseTime());
 
 
-        glBindVertexArray(entity->model->vaoId);
-        glDrawArrays(GL_TRIANGLES, 0, entity->model->vertexCount);
+        glBindVertexArray(model->vaoId);
+        glDrawArrays(GL_TRIANGLES, 0, model->vertexCount);
     }
 
 
-    void renderCompose(Texture* gPosition, Texture* gNormal, Texture* gAlbedo) {
-
-
+    void renderCompose(Texture* gPosition, Texture* gNormal, Texture* gAlbedo)
+    {
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, gPosition->texId);
@@ -140,6 +132,7 @@ public:
 
         shaderCompose.setMatrix4f("matInvView", glm::inverse(Ethertia::getRenderEngine()->viewMatrix));
         shaderCompose.setMatrix4f("matInvProjection", glm::inverse(Ethertia::getRenderEngine()->projectionMatrix));
+
 
         glBindVertexArray(EntityRenderer::M_RECT->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, M_RECT->vertexCount);

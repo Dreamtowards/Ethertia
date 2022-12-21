@@ -73,20 +73,26 @@ Framebuffer::gPushFramebuffer(gbuffer);
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    entitiesActualRendered = 0;
+    g_NumEntityRendered = 0;
     for (Entity* entity : world->getEntities()) {
-        if (!entity || !entity->model) continue;
+        if (!entity || !entity->m_Model) continue;
 
         // Frustum Culling
         if (!viewFrustum.intersects(entity->getAABB())) {
             continue;
         }
-        ++entitiesActualRendered;
+        ++g_NumEntityRendered;
 
-        entityRenderer->renderGeometry(entity);
+        if (dynamic_cast<EntityMesh*>(entity) && dynamic_cast<EntityMesh*>(entity)->m_FaceCulling) {
+            glEnable(GL_CULL_FACE);
+        } else {
+            glDisable(GL_CULL_FACE);
+        }
+
+        entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation());
 
         if (debugChunkGeo)
-            renderDebugGeo(entity->model, entity->getPosition(), entity->getRotation());
+            renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
     }
 
     glEnable(GL_BLEND);

@@ -49,7 +49,7 @@ public:
     inline static float viewDistance = 1;
 
     bool debugChunkGeo = false;
-    int entitiesActualRendered = 0;
+    inline static int g_NumEntityRendered = 0;
 
     RenderEngine();
     ~RenderEngine();

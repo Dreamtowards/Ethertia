@@ -18,7 +18,7 @@ public:
 
     EntityCar()
     {
-        loadModelAndShape("entity/bulletcar.obj", &model);
+        loadModelAndShape("entity/bulletcar.obj", &m_Model);
 
         init();
     }

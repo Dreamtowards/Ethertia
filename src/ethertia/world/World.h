@@ -131,7 +131,8 @@ public:
 
         Ethertia::getScheduler()->exec([=]() {
 
-            addEntity(chunk->proxy);
+            addEntity(chunk->m_MeshTerrain);
+            addEntity(chunk->m_MeshVegetable);
         });
 
         // check populates
@@ -179,7 +180,8 @@ public:
 
         Chunk* chunk = it->second;
         if (chunk) {
-            removeEntity(chunk->proxy);
+            removeEntity(chunk->m_MeshTerrain);
+            removeEntity(chunk->m_MeshVegetable);
         }
 
         chunks.erase(it);
@@ -490,8 +492,8 @@ public:
                         if (world->getCell(x, y, z).id == Materials::GRASS) {
 
                             float f = Mth::hash(x*z*y);
-                            int h = 3+f*8;
-                            int r = 2+f*5;
+                            int trunkHeight = 3+f*8;
+                            int leavesRadius = 2 + f * 5;
 
                             u8 _leaf = Materials::LEAVES;
 //                            if (f > 0.8f) {
@@ -501,23 +503,22 @@ public:
 
 
                              // Leaves
-                            for (int lx = -r; lx <= r; ++lx) {
-                                for (int lz = -r; lz <= r; ++lz) {
-                                    for (int ly = -r; ly <= r+f*8; ++ly) {
-                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly)) > r*r)
+                            for (int lx = -leavesRadius; lx <= leavesRadius; ++lx) {
+                                for (int lz = -leavesRadius; lz <= leavesRadius; ++lz) {
+                                    for (int ly = -leavesRadius; ly <= leavesRadius + f * trunkHeight; ++ly) {
+                                        if (Mth::sq(Mth::abs(lx)) + Mth::sq(Mth::abs(lz)) + Mth::sq(Mth::abs(ly)) >= leavesRadius * leavesRadius)
                                             continue;
 //                                        if (_leaf == Blocks::LEAVES && Mth::hash(x*y*z) < 0.2f)
 //                                            _leaf = Blocks::LEAVES_APPLE;
                                         //y +Mth::hash(y)*4
 //                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::LEAVES, 0.0f));
-                                        Cell& c_leaf = world->getCell(x+lx, y+ly+h, z+lz);
+                                        Cell& c_leaf = world->getCell(x+lx, y+ly+trunkHeight*0.7f, z+lz);
                                         c_leaf.id = Materials::LEAVES;
                                         c_leaf.density = Mth::min(c_leaf.density, 0.0f);
                                     }
                                 }
                             }
                             // Trunk
-                            int trunkHeight = h+3;
                             for (int i = 0; i < trunkHeight; ++i) {
 
                                 world->setCell(x, y+i, z, Cell(Materials::LOG, 2.0f * (1.2f - (float)i / trunkHeight)));

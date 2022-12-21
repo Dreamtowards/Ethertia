@@ -218,7 +218,7 @@ public:
                     "ChunkEmit({} {}ms, avg {}ms)\n"
                     "dt/ {}, {}fs\n",
                     glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len,
-                    rde->entitiesActualRendered, Ethertia::getWorld()->getEntities().size(),
+                    rde->g_NumEntityRendered, Ethertia::getWorld()->getEntities().size(),
                     cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                     cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
                     cinfo.numEmit, cinfo.sumTimeEmit * 1000, (cinfo.sumTimeEmit / cinfo.numEmit * 1000),

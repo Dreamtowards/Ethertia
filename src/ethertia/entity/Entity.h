@@ -28,7 +28,7 @@ public:
 //    glm::vec3 prevposition{0};
 //    glm::vec3 intpposition{0};
 
-    Model* model = nullptr;
+    Model* m_Model = nullptr;
     Texture* diffuseMap = nullptr;
 
     static void loadModelAndShape(const std::string& path, Model** md, btCollisionShape** sp = nullptr) {
@@ -46,7 +46,7 @@ public:
     Entity(float mass, std::string mpath) {
 
         btCollisionShape* sp;
-        loadModelAndShape(mpath, &model, &sp);
+        loadModelAndShape(mpath, &m_Model, &sp);
         rigidbody = newRigidbody(mass, sp);
     }
     ~Entity() {

@@ -19,7 +19,9 @@ public:
 
         chunk->needUpdateModel = false;
 
-        VertexBuffer* vbuf = new VertexBuffer();
+        VertexBuffer* vbufTerrain = new VertexBuffer();
+
+        VertexBuffer* vbufVegetable = new VertexBuffer();
 
         {
 //        BenchmarkTimer _tm;
@@ -27,95 +29,33 @@ public:
 
 //        vbuf = MarchingCubesMeshGen::genMesh(chunk);
 
-            SurfaceNetsMeshGen::contouring(chunk, vbuf);
+            SurfaceNetsMeshGen::contouring(chunk, vbufTerrain);
 
-            BlockyMeshGen::gen(chunk, vbuf);
+            BlockyMeshGen::gen(chunk, vbufVegetable);
 
         }
 
 
-//#define ETHERIA_EXT_FixNormAvgAtChunkBoundary
-#ifndef ETHERIA_EXT_FixNormAvgAtChunkBoundary
-        {
-            vbuf->normals.reserve(vbuf->vertexCount() * 3);
-            VertexProcess::gen_avgnorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->vertexCount(), vbuf->normals.data());
+        vbufTerrain->normals.reserve(vbufTerrain->vertexCount() * 3);
+        VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
 
-//            VertexProcess::othonorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->normals.data(), true);
-        }
-#else
-        // fix of Normal Smoothing at Chunk Boundary
-    {
-        using glm::vec3;
-        BenchmarkTimer _tm;
-
-        vbuf->normals.reserve(vbuf->vertexCount() * 3);
-
-        const vec3 faces[6] = {
-                vec3(-1, 0, 0), vec3(1, 0, 0),
-                vec3(0, -1, 0), vec3(0, 1, 0),
-                vec3(0, 0, -1), vec3(0, 0, 1)
-        };
-
-        chunk->vert_positions.clear();
-        Collections::push_back_all(chunk->vert_positions, vbuf->positions);
-
-        vec3 cp = chunk->position;
-
-        std::vector<float> all_pos;
-        Collections::push_back_all(all_pos, chunk->vert_positions);
-
-        int _numSamp = 0;
-        for (int face_i = 0; face_i < 6; ++face_i) {
-            const vec3& dif = faces[face_i] * 16.0f;
-
-            if (Chunk* bc = chunk->world->getLoadedChunk(cp + dif)) { _numSamp++;
-                std::vector<float>& bp = bc->vert_positions;
-
-                int tris = bp.size() / 9;
-                for (int tri_i = 0; tri_i < tris; ++tri_i) {
-                    // todo: Optimize, Only add Near Boundary Face's Triangle Vertices.
-//                    vec3 _p = Mth::vec3(&bp[tri_i*9]);
-//                    if (_p.x ) {
-//                        continue;
-//                    }
-
-                    all_pos.push_back(bp[tri_i*9]   + dif.x);
-                    all_pos.push_back(bp[tri_i*9+1] + dif.y);
-                    all_pos.push_back(bp[tri_i*9+2] + dif.z);
-
-                    all_pos.push_back(bp[tri_i*9+3]  + dif.x);
-                    all_pos.push_back(bp[tri_i*9+4] + dif.y);
-                    all_pos.push_back(bp[tri_i*9+5] + dif.z);
-
-                    all_pos.push_back(bp[tri_i*9+6] + dif.x);
-                    all_pos.push_back(bp[tri_i*9+7] + dif.y);
-                    all_pos.push_back(bp[tri_i*9+8] + dif.z);
-                }
-            }
-        }
-        Log::info("NormAvg. Neib {}, {}/{} \1", _numSamp, vbuf->vertexCount(), all_pos.size() / 3);
-
-
-        // Do the AvgNorm
-
-        VertexProcess::gen_avgnorm(all_pos.size() / 3, all_pos.data(), vbuf->vertexCount(), vbuf->normals.data());
-    }
-#endif
+//      VertexProcess::othonorm(vbuf->vertexCount(), vbuf->positions.data(), vbuf->normals.data(), true);
 
 
 
-        if (vbuf) {
-            Ethertia::getScheduler()->exec([chunk, vbuf]() {
-                BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeEmit, nullptr);  g_DebugGenInfo.numEmit++;
 
-                delete chunk->proxy->model;
+        Ethertia::getScheduler()->exec([chunk, vbufTerrain, vbufVegetable]() {
+            BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeEmit, nullptr);  g_DebugGenInfo.numEmit++;
 
-                chunk->proxy->model = Loader::loadModel(vbuf);
-                chunk->proxy->setMesh(chunk->proxy->model, vbuf->positions.data());
+            if (vbufTerrain->vertexCount() > 0)
+                chunk->m_MeshTerrain->setMesh_Model(vbufTerrain->positions.data(), Loader::loadModel(vbufTerrain));
+            delete vbufTerrain;
 
-                delete vbuf;
-            });
-        }
+            if (vbufVegetable->vertexCount() > 0)
+                chunk->m_MeshVegetable->setMesh_Model(vbufVegetable->positions.data(), Loader::loadModel(vbufVegetable));
+            delete vbufVegetable;
+
+        });
     }
 
 
@@ -216,6 +156,74 @@ public:
         });
     }
 
+
+
+//    static void ext_FixChunkBoundaryNormAvg() {
+//
+//#define ETHERIA_EXT_FixNormAvgAtChunkBoundary
+//#ifndef ETHERIA_EXT_FixNormAvgAtChunkBoundary
+//{
+//#else
+//
+//#endif
+//        // fix of Normal Smoothing at Chunk Boundary
+//        {
+//            using glm::vec3;
+//            BenchmarkTimer _tm;
+//
+//            vbuf->normals.reserve(vbuf->vertexCount() * 3);
+//
+//            const vec3 faces[6] = {
+//                    vec3(-1, 0, 0), vec3(1, 0, 0),
+//                    vec3(0, -1, 0), vec3(0, 1, 0),
+//                    vec3(0, 0, -1), vec3(0, 0, 1)
+//            };
+//
+//            chunk->vert_positions.clear();
+//            Collections::push_back_all(chunk->vert_positions, vbuf->positions);
+//
+//            vec3 cp = chunk->position;
+//
+//            std::vector<float> all_pos;
+//            Collections::push_back_all(all_pos, chunk->vert_positions);
+//
+//            int _numSamp = 0;
+//            for (int face_i = 0; face_i < 6; ++face_i) {
+//                const vec3& dif = faces[face_i] * 16.0f;
+//
+//                if (Chunk* bc = chunk->world->getLoadedChunk(cp + dif)) { _numSamp++;
+//                    std::vector<float>& bp = bc->vert_positions;
+//
+//                    int tris = bp.size() / 9;
+//                    for (int tri_i = 0; tri_i < tris; ++tri_i) {
+//                        // todo: Optimize, Only add Near Boundary Face's Triangle Vertices.
+////                    vec3 _p = Mth::vec3(&bp[tri_i*9]);
+////                    if (_p.x ) {
+////                        continue;
+////                    }
+//
+//                        all_pos.push_back(bp[tri_i*9]   + dif.x);
+//                        all_pos.push_back(bp[tri_i*9+1] + dif.y);
+//                        all_pos.push_back(bp[tri_i*9+2] + dif.z);
+//
+//                        all_pos.push_back(bp[tri_i*9+3]  + dif.x);
+//                        all_pos.push_back(bp[tri_i*9+4] + dif.y);
+//                        all_pos.push_back(bp[tri_i*9+5] + dif.z);
+//
+//                        all_pos.push_back(bp[tri_i*9+6] + dif.x);
+//                        all_pos.push_back(bp[tri_i*9+7] + dif.y);
+//                        all_pos.push_back(bp[tri_i*9+8] + dif.z);
+//                    }
+//                }
+//            }
+//            Log::info("NormAvg. Neib {}, {}/{} \1", _numSamp, vbuf->vertexCount(), all_pos.size() / 3);
+//
+//
+//            // Do the AvgNorm
+//
+//            VertexProcess::gen_avgnorm(all_pos.size() / 3, all_pos.data(), vbuf->vertexCount(), vbuf->normals.data());
+//        }
+//    }
 };
 
 #endif //ETHERTIA_CHUNKRENDERPROCESSOR_H

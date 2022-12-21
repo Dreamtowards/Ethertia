@@ -30,17 +30,22 @@ public:
 
     // VertexData positions. for fix Normal Smoothing at Chunk Boundary.
     // not use Physics Collision triangle positions yet, it's struct too complicated, BVH triangles, maybe later.
-    std::vector<float> vert_positions;
+//    std::vector<float> vert_positions;
 
     /// the 'proxy' entity, for unified functionalities e.g. collisions
-    EntityMesh* proxy = nullptr;
+    EntityMesh* m_MeshTerrain = nullptr;
+
+    EntityMesh* m_MeshVegetable = nullptr;
 
     Chunk(glm::vec3 p, World* w) : position(p), world(w) {
 
         // init the proxy entity
-        proxy = new EntityMesh();
-        proxy->setPosition(position);
-//        proxy->diffuseMap = MaterialTextures::ATLAS->atlasTexture;
+        m_MeshTerrain = new EntityMesh();
+        m_MeshTerrain->setPosition(position);
+
+        m_MeshVegetable = new EntityMesh();
+        m_MeshVegetable->setPosition(position);
+        m_MeshVegetable->m_FaceCulling = false;
     }
     ~Chunk() {
 
