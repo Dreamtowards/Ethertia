@@ -44,6 +44,7 @@ public:
     inline static bool dbgGBuffers = false;
 
     inline static float dbgLastDrawTime = 0;
+    inline static float dbgMainLoopTime = 0;
 
     Gui* optsGui = nullptr;
 
@@ -217,25 +218,27 @@ public:
             ChunkRenderProcessor::ChunkLoadInfo& cinfo = ChunkRenderProcessor::g_DebugGenInfo;
 
             float dt = Ethertia::getDelta();
-            std::string dbg_s = Strings::fmt(
+            static std::string dbg_s;
+            if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 0.1f)) {
+            dbg_s = Strings::fmt(
                     "cam p: {}, len: {}\n"
                     "E: {}/{}\n"
                     "ChunkGen ({} {}ms, avg {}ms), \n"
                     "ChunkMesh({} {}ms, avg {}ms)\n"
                     "ChunkEmit({} {}ms, avg {}ms)\n"
                     "task {}, async {}\n"
-                    "dt: {}, {}fps\n",
+                    "dt: {}, {}fps, t_loadperc: {}\n",
                     glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len,
                     rde->g_NumEntityRendered, Ethertia::getWorld()->getEntities().size(),
                     cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                     cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
                     cinfo.numEmit, cinfo.sumTimeEmit * 1000, (cinfo.sumTimeEmit / cinfo.numEmit * 1000),
                     Ethertia::getScheduler()->getTasks().size(), Ethertia::getAsyncScheduler()->getTasks().size(),
-                    dt, Mth::floor(1.0f/dt));
+                    dt, Mth::floor(1.0f/dt), dbgMainLoopTime / (1.0f / RenderEngine::fpsCap));
+            }
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
 
-            float _s_span = 30;
-            if (std::floor(dbgLastDrawTime / _s_span) != std::floor(Ethertia::getPreciseTime() / _s_span)) {
+            if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 30)) {
                 ChunkRenderProcessor::g_DebugGenInfo.numGen = 0;
                 ChunkRenderProcessor::g_DebugGenInfo.sumTimeGen = 0;
                 ChunkRenderProcessor::g_DebugGenInfo.numMesh = 0;
@@ -297,6 +300,10 @@ public:
         GuiCollection::onDraw();
 
         dbgLastDrawTime = Ethertia::getPreciseTime();
+    }
+
+    static bool span_crossed(float a, float b, float span) {
+        return Mth::floor(a / span) != Mth::floor(b / span);
     }
 
     static void drawCursorRangeInfo() {

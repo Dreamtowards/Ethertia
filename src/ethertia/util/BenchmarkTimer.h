@@ -30,7 +30,7 @@ public:
         }
     }
 
-    void done()
+    double done()
     {
         m_Done = true;
 
@@ -40,9 +40,10 @@ public:
                         std::chrono::time_point_cast<std::chrono::nanoseconds>(begin).time_since_epoch().count();
 
         double d = duration * 0.001 * 0.001;
+        double d_sec = d * 0.001;
 
         if (timerAppend) {
-            *timerAppend += d * 0.001;
+            *timerAppend += d_sec;
         }
         if (tailmsg) {
             std::string t_str;
@@ -54,6 +55,7 @@ public:
             std::cout << Strings::fmt(tailmsg, t_str);
             std::cout.flush();
         }
+        return d_sec;
     }
 };
 

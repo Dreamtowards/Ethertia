@@ -81,6 +81,7 @@ void Ethertia::start()
 
 void Ethertia::runMainLoop()
 {
+    BenchmarkTimer _tm(nullptr, nullptr);
     m_Timer.update(getPreciseTime());
 
     m_Scheduler.processTasks(0.001);
@@ -93,6 +94,8 @@ void Ethertia::runMainLoop()
         m_World->dynamicsWorld->stepSimulation(getDelta());
     }
 
+    m_Window->resetDeltas();
+    glfwPollEvents();
     Controls::handleInput();
 
     if (m_World)
@@ -102,7 +105,8 @@ void Ethertia::runMainLoop()
 
     renderGUI();
 
-    m_Window->updateWindow();
+    GuiIngame::dbgMainLoopTime = _tm.done();
+    m_Window->swapBuffers();
 }
 
 void Ethertia::renderGUI()

@@ -108,12 +108,9 @@ public:
         return m_Eventbus;
     }
 
-    void updateWindow()
+    void swapBuffers()
     {
-        resetDeltas();
-
         glfwSwapBuffers(m_WindowHandle);
-        glfwPollEvents();
     }
 
     bool isCloseRequested() {

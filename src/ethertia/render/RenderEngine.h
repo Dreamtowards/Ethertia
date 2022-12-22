@@ -47,6 +47,7 @@ public:
 
     inline static float fov = 90;
     inline static float viewDistance = 1;
+    inline static int fpsCap = 60;
 
     bool debugChunkGeo = false;
     inline static int g_NumEntityRendered = 0;
