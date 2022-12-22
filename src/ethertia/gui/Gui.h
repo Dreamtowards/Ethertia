@@ -229,6 +229,9 @@ public:
 
 //        fireEvent(OnVisible());
     }
+    void toggleVisible() {
+        setVisible(!isVisible());
+    }
 
 
 

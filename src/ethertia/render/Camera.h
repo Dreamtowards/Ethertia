@@ -52,16 +52,15 @@ public:
 
     }
 
-    void compute(glm::vec3 centerpos, glm::mat4& out_viewMatrix) {
+    glm::mat4 computeViewMatrix() {
 
         direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
         // assert(glm::length(direction) == 1.0f);
 
-        position = centerpos;
-        glm::vec3 p = centerpos + -direction * len;
+        glm::vec3 p = position + -direction * len;
         actual_pos = p;
 
-        out_viewMatrix = Mth::viewMatrix(p, eulerAngles);
+        return Mth::viewMatrix(p, eulerAngles);
     }
 
 };

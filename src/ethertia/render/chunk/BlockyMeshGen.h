@@ -22,14 +22,15 @@ public:
                     vec3 rp(rx, ry, rz);
                     Cell& c = chunk->getCell(rx, ry, rz);
 
-                    if (c.id)
-                    {
-                        if (c.id == Materials::LEAVES) {
-//                            putCube(vbuf, rp, chunk, c.id);
+                    switch (c.id) {
+                        case Materials::LEAVES:
 
                             putLeaves(vbuf, rp, chunk, c.id);
+                            break;
+                        case Materials::WATER:
 
-                        }
+                            putCube(vbuf, rp, chunk, c.id);
+                            break;
                     }
                 }
             }
@@ -88,7 +89,7 @@ public:
             glm::vec3 np = rpos + dir;
             Cell& neib = World::_GetCell(chunk, np);
 
-            if (neib.density < 0 || neib.id == 0) {
+            if (neib.id == 0) {  // neib.density < 0 ||
                 putCubeFace(vbuf, i, rpos, mtlId);
             }
 

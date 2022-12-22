@@ -10,31 +10,48 @@ class Controls
 public:
 
 
+    static void initControls() {
+        Window* win = Ethertia::getWindow();
 
-    static void updateMovement() {
-        Window& window = *Ethertia::getWindow();
+        initMouseDigControls();
 
-        static bool sprint = false;
+        win->eventbus().listen([](WindowCloseEvent* e)
+        {
+            Ethertia::shutdown();
+        });
 
-        float speed = 0.5;
-        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
-        if (sprint) speed = 3.8;
-        float yaw = Ethertia::getCamera()->eulerAngles.y;
+        win->eventbus().listen([](KeyboardEvent* e)
+        {
+            if (!e->isPressed())
+                return;
 
-        glm::vec3 vel(0);
-        if (window.isKeyDown(GLFW_KEY_W)) vel += Mth::angleh(yaw) * speed;
-        if (window.isKeyDown(GLFW_KEY_S)) vel += Mth::angleh(yaw + Mth::PI) * speed;
-        if (window.isKeyDown(GLFW_KEY_A)) vel += Mth::angleh(yaw + Mth::PI / 2) * speed;
-        if (window.isKeyDown(GLFW_KEY_D)) vel += Mth::angleh(yaw - Mth::PI / 2) * speed;
+            switch (e->getKey())
+            {
+                case GLFW_KEY_F1: {
+                    GuiIngame::INST->toggleVisible();
+                    break;
+                }
+                case GLFW_KEY_F2: {
+                    saveScreenshot();
+                    break;
+                }
+                case GLFW_KEY_F11: {
+                    Ethertia::getWindow()->toggleFullscreen();
+                    break;
+                }
+                case GLFW_KEY_ESCAPE: {
+                    escape_PauseOrBack();
+                    break;
+                }
+                case GLFW_KEY_SLASH: {
+                    if (Ethertia::isIngame())
+                        Ethertia::getRootGUI()->addGui(GuiScreenChat::INST);
+                    break;
+                }
+            }
+        });
 
-        if (window.isShiftKeyDown())          vel.y -= speed;
-        if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
 
-        Ethertia::getPlayer()->applyLinearVelocity(vel);
-
-        if (!window.isKeyDown(GLFW_KEY_W)) {
-            sprint = false;
-        }
     }
 
 
@@ -48,71 +65,66 @@ public:
 
         float dt = Ethertia::getDelta();
 
-        if (Ethertia::isIngame()) {
-            updateMovement();
-            camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
-        }
         window.setMouseGrabbed(Ethertia::isIngame());
         window.setStickyKeys(!Ethertia::isIngame());
-        window.setTitle(("desp. "+std::to_string(1.0/dt)).c_str());
+        // window.setTitle(("desp. "+std::to_string(1.0/dt)).c_str());
+        if (Ethertia::isIngame())
+        {
+            // Player Movement.
 
+            static bool sprint = false;
+            float speed = 0.5;
+            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
+            if (sprint) speed = 3.8;
+            float yaw = Ethertia::getCamera()->eulerAngles.y;
+
+            glm::vec3 vel(0);
+            if (window.isKeyDown(GLFW_KEY_W)) vel += Mth::angleh(yaw) * speed;
+            if (window.isKeyDown(GLFW_KEY_S)) vel += Mth::angleh(yaw + Mth::PI) * speed;
+            if (window.isKeyDown(GLFW_KEY_A)) vel += Mth::angleh(yaw + Mth::PI / 2) * speed;
+            if (window.isKeyDown(GLFW_KEY_D)) vel += Mth::angleh(yaw - Mth::PI / 2) * speed;
+
+            if (window.isShiftKeyDown())          vel.y -= speed;
+            if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
+
+            Ethertia::getPlayer()->applyLinearVelocity(vel);
+
+            if (!window.isKeyDown(GLFW_KEY_W)) {
+                sprint = false;
+            }
+
+            camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
+        }
 //    player->intpposition = /*Mth::lerp(Ethertia::getTimer()->getPartialTick(), player->prevposition, */player->getPosition();//);
-        camera.compute(player->getPosition(), renderEngine->viewMatrix);
+
+
+
+
+        // RenderEngine updates.
+        camera.position = player->getPosition();
+        renderEngine->viewMatrix = camera.computeViewMatrix();
 
         renderEngine->updateViewFrustum();
         renderEngine->updateProjectionMatrix(Ethertia::getAspectRatio());
 
-        BrushCursor& brushCursor = Ethertia::getBrushCursor();
-        if (brushCursor.keepTracking) {
+
+
+
+        // Cursor
+        BrushCursor& cursor = Ethertia::getBrushCursor();
+        if (cursor.keepTracking) {
             glm::vec3 p, n;
-            if (Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n)) {
-                brushCursor.hit = true;
-                brushCursor.position = p;
-            } else {
-                brushCursor.hit = false;
-                brushCursor.position = glm::vec3(0.0f);
-            }
+            cursor.hit = Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n);
+
+            cursor.position = cursor.hit ? p : glm::vec3(0.0f);
         }
 
     }
 
 
 
-
     static void initMouseDigControls() {
 
-//    EntityCar* car = new EntityCar();
-//    world->addEntity(car);
-//    car->setPosition({10, 10, -10});
-
-
-//        EntityRaycastCar* raycastCar = new EntityRaycastCar();
-//    raycastCar->setPosition({0, 5, -10});
-//    world->addEntity(raycastCar);
-
-//        EventBus::EVENT_BUS.listen([&, raycastCar](KeyboardEvent* e) {
-//            if (e->isPressed()) {
-//                int key = e->getKey();
-//                if (key == GLFW_KEY_ESCAPE) {
-//                } else if (isIngame()) {
-//                    if (key == GLFW_KEY_SLASH) {
-//                        getRootGUI()->addGui(GuiScreenChat::INST);
-//                    } else if (key == GLFW_KEY_G) {
-//                        raycastCar->m_vehicle->applyEngineForce(100, 2);
-//                        raycastCar->m_vehicle->applyEngineForce(100, 3);
-//
-//                        raycastCar->m_vehicle->setBrake(100, 2);
-//                        raycastCar->m_vehicle->setBrake(100, 3);
-//
-//
-//                        raycastCar->m_vehicle->setSteeringValue(0, 0);
-//                        raycastCar->m_vehicle->setSteeringValue(0, 1);
-//
-//                        Log::info("Force");
-//                    }
-//                }
-//            }
-//        });
 
 
         Ethertia::getWindow()->eventbus().listen([=](MouseButtonEvent* e) {
@@ -184,6 +196,44 @@ public:
 
 
     }
+
+
+    static void escape_PauseOrBack()
+    {
+        if (Ethertia::isIngame())
+        {
+            Ethertia::getRootGUI()->addGui(GuiScreenPause::INST);  // Pause
+        }
+        else
+        {
+            assert(Ethertia::getRootGUI()->last() != GuiIngame::INST);
+            Ethertia::getRootGUI()->removeLastGui();
+        }
+    }
+
+    static void saveScreenshot()
+    {
+        BitmapImage* img = Ethertia::getWindow()->screenshot();
+
+        std::string path = Strings::fmt("./screenshots/{}_{}.png", Strings::time_fmt("%Y-%m-%d_%H.%M.%S"), (Mth::frac(Ethertia::getPreciseTime())*1000.0f));
+        if (Loader::fileExists(path))
+            throw std::logic_error("File already existed.");
+
+        Log::info("Screenshot saving to '{}'.\1", path);
+        GuiScreenChat::INST->appendMessage(Strings::fmt("Saved screenshot to '{}'.", path));
+
+        Ethertia::getAsyncScheduler()->addTask([img, path]() {
+            BenchmarkTimer _tm;
+
+            // vertical-flip image back to normal. due to GL feature.
+            BitmapImage fine_img(img->getWidth(), img->getHeight());
+            img->getVerticalFlippedPixels(fine_img.getPixels());
+
+            Loader::savePNG(&fine_img, path);
+            delete img;
+        });
+    }
+
 };
 
 #endif //ETHERTIA_CONTROLS_H

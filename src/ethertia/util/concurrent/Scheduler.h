@@ -20,8 +20,14 @@ class Scheduler
 
     // std::mutex lock;  // needs?
 
+    bool m_Stopped = false;
+
 public:
     Scheduler() {}
+
+    ~Scheduler() {
+        m_Stopped = true;
+    }
 
     /**
      * @param timeout process threshold in seconds. Inf is do all, 0 is do only one.
@@ -59,13 +65,21 @@ public:
         m_Tasks.push_back(task);
     }
 
-//    void addTaskOrExec() {
-//        if (m_ThreadId == std::this_thread::get_id()) {  // execute immediately.
-//            task();
-//        } else {  // delay.
-//            addTask();
-//        }
-//    }
+    void initWorkerThread(std::string_view workerName)
+    {
+        new std::thread([this, workerName]()
+        {
+            Log::info("{} thread/{} is ready.", workerName, std::this_thread::get_id());
+
+            while (!m_Stopped)
+            {
+                processTasks(1);
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));  // prevents high frequency queue query while no task.
+            }
+        });
+    }
+
 
 };
 

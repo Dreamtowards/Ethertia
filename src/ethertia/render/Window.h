@@ -26,7 +26,6 @@
 
 class Window
 {
-    GLFWwindow* window = nullptr;
 
     float mouseX = 0;
     float mouseY = 0;
@@ -42,9 +41,12 @@ class Window
     int framebufferWidth  = 0;
     int framebufferHeight = 0;
 
+    bool m_Fullscreen = false;
+
     EventBus m_Eventbus;
 
 public:
+    GLFWwindow* m_WindowHandle = nullptr;
 
     Window(int _w, int _h, const char* _title) : width(_w), height(_h)
     {
@@ -65,8 +67,8 @@ public:
         glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
-        window = glfwCreateWindow(width, height, _title, nullptr, nullptr);
-        if (!window) {
+        m_WindowHandle = glfwCreateWindow(width, height, _title, nullptr, nullptr);
+        if (!m_WindowHandle) {
             const char* err_str;
             int err = glfwGetError(&err_str);
             throw std::runtime_error(Strings::fmt("Failed to init GLFW window. Err {}. ({})", err, err_str));
@@ -74,7 +76,7 @@ public:
 
         centralize();
 
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(m_WindowHandle);
         glfwSwapInterval(1);
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -84,21 +86,21 @@ public:
                   glGetString(GL_VERSION), glGetString(GL_RENDERER), //glGetString(GL_VENDOR),
                   glfwGetVersionString());
 
-        glfwSetWindowUserPointer(window, this);
+        glfwSetWindowUserPointer(m_WindowHandle, this);
 
-        glfwSetWindowCloseCallback(window, onWindowClose);
-        glfwSetWindowSizeCallback(window, onWindowSize);
-        glfwSetFramebufferSizeCallback(window, onFramebufferSize);
-        glfwSetDropCallback(window, onWindowDropPath);
-        glfwSetWindowFocusCallback(window, onWindowFocus);
+        glfwSetWindowCloseCallback(m_WindowHandle, onWindowClose);
+        glfwSetWindowSizeCallback(m_WindowHandle, onWindowSize);
+        glfwSetFramebufferSizeCallback(m_WindowHandle, onFramebufferSize);
+        glfwSetDropCallback(m_WindowHandle, onWindowDropPath);
+        glfwSetWindowFocusCallback(m_WindowHandle, onWindowFocus);
 
-        glfwSetCursorPosCallback(window, onCursorPos);
-        glfwSetMouseButtonCallback(window, onMouseButton);
-        glfwSetScrollCallback(window, onScroll);
-        glfwSetKeyCallback(window, onKeyboardKey);
-        glfwSetCharCallback(window, onCharInput);
+        glfwSetCursorPosCallback(m_WindowHandle, onCursorPos);
+        glfwSetMouseButtonCallback(m_WindowHandle, onMouseButton);
+        glfwSetScrollCallback(m_WindowHandle, onScroll);
+        glfwSetKeyCallback(m_WindowHandle, onKeyboardKey);
+        glfwSetCharCallback(m_WindowHandle, onCharInput);
 
-        glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+        glfwGetFramebufferSize(m_WindowHandle, &framebufferWidth, &framebufferHeight);
 
     }
 
@@ -110,23 +112,45 @@ public:
     {
         resetDeltas();
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(m_WindowHandle);
         glfwPollEvents();
     }
 
     bool isCloseRequested() {
-        return glfwWindowShouldClose(window);
+        return glfwWindowShouldClose(m_WindowHandle);
     }
 
 //    void setSize(int _w, int _h) {
 //        glfwSetWindowSize(window, _w, _h);
 //    }
 
+    void fullscreen(GLFWmonitor* monitor = glfwGetPrimaryMonitor()) {
+        m_Fullscreen = true;
+
+        const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
+        glfwSetWindowMonitor(m_WindowHandle, monitor, 0, 0, vmode->width, vmode->height, 0);
+    }
+
+    void restoreFullscreen(int _w = 1280, int _h = 720) {
+        m_Fullscreen = false;
+
+        glfwSetWindowMonitor(m_WindowHandle, nullptr, 0, 0, _w, _h, 0);
+        centralize();
+    }
+
+    void toggleFullscreen() {
+        if (m_Fullscreen) {
+            restoreFullscreen();
+        } else {
+            fullscreen();
+        }
+    }
+
     void centralize() {
         const GLFWvidmode* vmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         int w, h;
-        glfwGetWindowSize(window, &w, &h);
-        glfwSetWindowPos(window, (vmode->width - w) / 2, (vmode->height - h) / 2);
+        glfwGetWindowSize(m_WindowHandle, &w, &h);
+        glfwSetWindowPos(m_WindowHandle, (vmode->width - w) / 2, (vmode->height - h) / 2);
     }
 
     static double getPreciseTime() {
@@ -150,32 +174,39 @@ public:
 
 
     void setTitle(const char* s) {
-        glfwSetWindowTitle(window, s);
+        glfwSetWindowTitle(m_WindowHandle, s);
     }
 
     bool isKeyDown(int key) {
-        return glfwGetKey(window, key) == GLFW_PRESS;
+        return glfwGetKey(m_WindowHandle, key) == GLFW_PRESS;
     }
     bool isMouseDown(int button) {
-        return glfwGetMouseButton(window, button) == GLFW_PRESS;
+        return glfwGetMouseButton(m_WindowHandle, button) == GLFW_PRESS;
     }
 
     const char* getClipboard() {
-        return glfwGetClipboardString(window);
+        return glfwGetClipboardString(m_WindowHandle);
     }
     void setClipboard(const char* str) {
-        glfwSetClipboardString(window, str);
+        glfwSetClipboardString(m_WindowHandle, str);
     }
 
     void setMouseGrabbed(bool grabbed) {
-        glfwSetInputMode(window, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(m_WindowHandle, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
     void setMousePos(float x, float y) {
-        glfwSetCursorPos(window, x, y);
+        glfwSetCursorPos(m_WindowHandle, x, y);
     }
 
     void setStickyKeys(bool s) {
-        glfwSetInputMode(window, GLFW_STICKY_KEYS, s ? GLFW_TRUE : GLFW_FALSE);
+        glfwSetInputMode(m_WindowHandle, GLFW_STICKY_KEYS, s ? GLFW_TRUE : GLFW_FALSE);
+    }
+
+    void maximize() {
+        glfwMaximizeWindow(m_WindowHandle);
+    }
+    void restoreMaximize() {
+        glfwRestoreWindow(m_WindowHandle);
     }
 
     bool isShiftKeyDown() {

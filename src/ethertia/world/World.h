@@ -329,8 +329,8 @@ public:
                 for (int dy = 0; dy < 16; ++dy) {
                     int y = chunkpos.y + dy;
                     Cell tmpbl = world->getCell(x, y, z);
-                    if (tmpbl.id == 0)// || tmpbl.id == Blocks::WATER)
-                        continue;
+//                    if (tmpbl.id == 0)// || tmpbl.id == Blocks::WATER)
+//                        continue;
                     if (tmpbl.id != Materials::STONE)
                         continue;
 

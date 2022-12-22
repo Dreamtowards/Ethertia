@@ -23,6 +23,7 @@ public:
     static const u8 PLANK = 7;
     static const u8 LEAVES= 8;
     static const u8 TALLGRASS   = 9;
+    static const u8 WATER = 10;
 
 
 

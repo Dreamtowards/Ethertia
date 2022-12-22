@@ -70,3 +70,50 @@
 //    static float absmin(float a, float b) {
 //        return Mth::abs(a) < Mth::abs(b) ? a : b;
 //    }
+
+
+
+
+
+//    EntityCar* car = new EntityCar();
+//    world->addEntity(car);
+//    car->setPosition({10, 10, -10});
+
+
+//        EntityRaycastCar* raycastCar = new EntityRaycastCar();
+//    raycastCar->setPosition({0, 5, -10});
+//    world->addEntity(raycastCar);
+
+//        EventBus::EVENT_BUS.listen([&, raycastCar](KeyboardEvent* e) {
+//            if (e->isPressed()) {
+//                int key = e->getKey();
+//                if (key == GLFW_KEY_ESCAPE) {
+//                } else if (isIngame()) {
+//                    if (key == GLFW_KEY_SLASH) {
+//                        getRootGUI()->addGui(GuiScreenChat::INST);
+//                    } else if (key == GLFW_KEY_G) {
+//                        raycastCar->m_vehicle->applyEngineForce(100, 2);
+//                        raycastCar->m_vehicle->applyEngineForce(100, 3);
+//
+//                        raycastCar->m_vehicle->setBrake(100, 2);
+//                        raycastCar->m_vehicle->setBrake(100, 3);
+//
+//
+//                        raycastCar->m_vehicle->setSteeringValue(0, 0);
+//                        raycastCar->m_vehicle->setSteeringValue(0, 1);
+//
+//                        Log::info("Force");
+//                    }
+//                }
+//            }
+//        });
+
+
+
+//    void addTaskOrExec() {
+//        if (m_ThreadId == std::this_thread::get_id()) {  // execute immediately.
+//            task();
+//        } else {  // delay.
+//            addTask();
+//        }
+//    }

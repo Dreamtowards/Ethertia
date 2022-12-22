@@ -165,6 +165,7 @@ public:
                                     bl = Materials::STONE;
                                 } else if (y < 0) {
                                     //bl = 0;//Blocks::WATER;
+                                    bl = Materials::WATER;
                                 }
 //                                if (y > 30) {
 //                                    bl = Materials::GRASS;

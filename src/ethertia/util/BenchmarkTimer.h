@@ -17,11 +17,23 @@ class BenchmarkTimer
     const char* tailmsg = nullptr;
     float* timerAppend = nullptr;
 
+    bool m_Done = false;
+
 public:
     BenchmarkTimer(float* _tmr = nullptr, const char* _msg = " in {}.\n") : timerAppend(_tmr), tailmsg(_msg) {}
 
     ~BenchmarkTimer()
     {
+        if (!m_Done)
+        {
+            done();
+        }
+    }
+
+    void done()
+    {
+        m_Done = true;
+
         auto end = std::chrono::high_resolution_clock::now();
 
         auto duration = std::chrono::time_point_cast<std::chrono::nanoseconds>(end).time_since_epoch().count() -
@@ -30,7 +42,7 @@ public:
         double d = duration * 0.001 * 0.001;
 
         if (timerAppend) {
-            *timerAppend += d * 0.001f;
+            *timerAppend += d * 0.001;
         }
         if (tailmsg) {
             std::string t_str;

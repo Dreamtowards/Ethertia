@@ -198,6 +198,8 @@ public:
     }
 
     void onDraw() override {
+        if (!isVisible())
+            return;
 
         RenderEngine* rde = Ethertia::getRenderEngine();
 
@@ -334,27 +336,6 @@ public:
 
 
 
-
-
-
-
-    void onKeyboard(int key, bool pressed) override {
-        GuiRoot* rootGui = Ethertia::getRootGUI();
-
-        if (pressed) {
-            if (key == GLFW_KEY_ESCAPE) {
-
-                Gui* top = rootGui->last();
-                if (top != GuiIngame::INST) {
-                    rootGui->removeGui(top);
-                } else {
-                    rootGui->addGui(GuiScreenPause::INST);
-                }
-            } else if (Ethertia::isIngame() && key ==GLFW_KEY_SLASH) {
-                rootGui->addGui(GuiScreenChat::INST);
-            }
-        }
-    }
 };
 
 #endif //ETHERTIA_GUIINGAME_H

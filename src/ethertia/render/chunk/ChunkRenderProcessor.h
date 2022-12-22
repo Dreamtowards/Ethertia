@@ -13,6 +13,47 @@ class ChunkRenderProcessor
 public:
     using vec3 = glm::vec3;
 
+    inline static class ChunkLoadInfo{
+    public:
+        int numGen;
+        float sumTimeGen;
+        int numMesh;
+        float sumTimeMesh;
+        int numEmit;
+        float sumTimeEmit;
+    } g_DebugGenInfo = {};
+
+    static void initWorkerThread()
+    {
+        new std::thread([]()
+        {
+            Log::info("Chunk Processor thread/{} is ready.", std::this_thread::get_id());
+
+            while (Ethertia::isRunning())
+            {
+                if (World* world = Ethertia::getWorld())
+                {
+                    std::lock_guard<std::mutex> guard(world->lock_ChunkList);
+
+                    vec3 p = Ethertia::getCamera()->position;
+                    int  n = Ethertia::getRenderEngine()->viewDistance;
+
+                    Chunk* chunk = questNearestInvalidChunk(world, p, n);
+
+                    if (chunk) {
+
+                        meshChunk_Upload(chunk);
+                    }
+
+//                    int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
+//                    if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds (1));
+            }
+        });
+    }
+
 
     static void meshChunk_Upload(Chunk* chunk) {
         BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeMesh, nullptr);  g_DebugGenInfo.numMesh++;
@@ -22,6 +63,8 @@ public:
         VertexBuffer* vbufTerrain = new VertexBuffer();
 
         VertexBuffer* vbufVegetable = new VertexBuffer();
+
+//        VertexBuffer* vbufWater = new VertexBuffer();
 
         {
 //        BenchmarkTimer _tm;
@@ -129,42 +172,6 @@ public:
         return unloads.size();
     }
 
-    ;
-    inline static class ChunkLoadInfo{
-    public:
-        int numGen;
-        float sumTimeGen;
-        int numMesh;
-        float sumTimeMesh;
-        int numEmit;
-        float sumTimeEmit;
-    } g_DebugGenInfo = {};
-
-    static void initWorkThread() {
-        new std::thread([]() {
-            while (Ethertia::isRunning()) {
-                if (World* world = Ethertia::getWorld())
-                {
-                    std::lock_guard<std::mutex> guard(world->lock_ChunkList);
-
-                    vec3 p = Ethertia::getCamera()->position;
-                    int  n = Ethertia::getRenderEngine()->viewDistance;
-
-                    Chunk* chunk = questNearestInvalidChunk(world, p, n);
-
-                    if (chunk) {
-
-                        meshChunk_Upload(chunk);
-                    }
-
-//                    int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
-//                    if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
-                }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds (1));
-            }
-        });
-    }
 
 
 

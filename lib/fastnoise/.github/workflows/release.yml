@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+  
+  repository_dispatch:
+    types: [check-release]
+
+jobs:   
+  check-release:
+    runs-on: ubuntu-latest
+    steps:      
+    - name: 'Checkout' 
+      uses: actions/checkout@v2
+      with:
+        ref: master
+        fetch-depth: 0    
+        
+    - name: 'Ensure no parallel instances'
+      uses: softprops/turnstyle@v1
+      with:
+        abort-after-seconds: 180
+        poll-interval-seconds: 10
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: 'Check new CMake version'
+      id: cmake-ver
+      run: |
+        for commit in $(git rev-list master)
+        do
+          git checkout --quiet $commit
+          cmake_ver=v$(grep -oEi 'project\s*\(\s*FastNoise2.*VERSION\s+([[:digit:]\.]+)\s*\)' CMakeLists.txt | grep -oEi '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+')
+          
+          if echo "$cmake_ver" | grep '^v0\.'; then 
+            cmake_ver="${cmake_ver}-alpha"
+          fi
+          
+          if git show-ref --tags $cmake_ver --quiet; then
+            echo "$cmake_ver exists"
+            if echo $cmake_ver | grep -oEi '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+'; then
+              echo "::set-output name=new-tag::$prev_cmake_ver"
+              echo "::set-output name=tag-commit::$prev_commit"
+            fi
+            break
+          else
+            echo "$cmake_ver not found"
+            prev_commit=$commit
+            prev_cmake_ver=$cmake_ver
+          fi
+        done
+    
+    - name: 'Create tag'
+      if: ${{ steps.cmake-ver.outputs.new-tag != '' }}
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        script: |
+          github.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: "refs/tags/${{ steps.cmake-ver.outputs.new-tag }}",
+            sha: "${{ steps.cmake-ver.outputs.tag-commit }}"
+          })
+    
+    - name: 'Create release'
+      if: ${{ steps.cmake-ver.outputs.new-tag != '' }}
+      uses: fregante/release-with-changelog@v3
+      with:
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        exclude: '^Update\s\S+\.(md|yml)$'
+        tag: ${{ steps.cmake-ver.outputs.new-tag }}
+        draft: true
+        template: |
+          ### Changelog
+
+          {commits}
+
+          {range}
+
+    - name: 'Repeat workflow'
+      if: ${{ steps.cmake-ver.outputs.new-tag != '' }}
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        event-type: check-release
+        

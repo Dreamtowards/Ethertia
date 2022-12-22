@@ -1,0 +1,80 @@
+name: Trigger Benchmark
+on:
+  workflow_dispatch:
+  
+  push:
+    branches:
+      - 'master'
+    paths-ignore:
+      - 'NoiseTool/**'
+      - '.github/**'
+      - '*.md'
+
+jobs:  
+  benchmark-matrix:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: win64-msvc
+            cmake_options: -A x64
+          - os: windows-latest
+            name: win64-clangcl
+            cmake_options: -A x64 -T ClangCL
+          - os: ubuntu-22.04
+            name: linux64-gcc
+            cmake_options: -DCMAKE_C_COMPILER=gcc-11 -DCMAKE_CXX_COMPILER=g++-11
+          - os: ubuntu-22.04
+            name: linux64-clang
+            cmake_options: -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14
+            
+    steps:        
+    - name: 'Checkout' 
+      uses: actions/checkout@v2            
+    
+    - name: 'CMake Configure'
+      run: cmake -S ${{ github.workspace }} -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=Release -DFASTNOISE2_NOISETOOL=OFF -DFASTNOISE2_TESTS=ON ${{ matrix.cmake_options }}
+   
+    - name: 'CMake Build'
+      run: cmake --build ${{ github.workspace }}/build --config Release --target FastNoiseBenchmark --parallel 4
+    
+    - name: 'Upload artifact'
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.name }}-benchmark-bin
+        path: ${{ github.workspace }}/build/Release/bin/
+        if-no-files-found: error        
+        
+    - id: get-commit-msg
+      run: echo "::set-output name=msg::$(git log --format=%B -n 1 ${{ github.sha }})"
+        
+    - id: message-format-1
+      uses: ashley-taylor/regex-property-action@1.2
+      with:
+        value: ${{ steps.get-commit-msg.outputs.msg }}
+        regex: "^\\s*|[^a-zA-Z0-9_&\\(\\) -]"
+        replacement: ""
+
+    - id: message-format
+      uses: ashley-taylor/regex-property-action@1.2
+      with:
+        value: ${{ steps.message-format-1.outputs.value }}
+        regex: "(?<=.{50}).*"
+        replacement: ""
+        
+    - name: Repository Dispatch
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        repository: Auburn/FastNoise2Benchmarking
+        event-type: benchmark
+        client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "runid": "${{ github.run_id }}", "name": "${{ matrix.name }}", "msg": "${{ steps.message-format.outputs.value }}"}'
+
+  benchmarkbin-complete:
+    runs-on: ubuntu-latest
+    needs: benchmark-matrix
+    steps: 
+      - run: echo benchmarkbin-complete

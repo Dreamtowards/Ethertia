@@ -55,7 +55,8 @@ void Ethertia::start()
 
     MaterialTextures::init();
 
-    ChunkRenderProcessor::initWorkThread();
+    ChunkRenderProcessor::initWorkerThread();
+    m_AsyncScheduler.initWorkerThread("Async Tasks");
 
     GuiIngame::INST = new GuiIngame();
     m_RootGUI->addGui(GuiIngame::INST);
@@ -65,6 +66,8 @@ void Ethertia::start()
     GuiScreenPause::INST = new GuiScreenPause();
     m_RootGUI->addGui(GuiScreenPause::INST);
 
+    Controls::initControls();
+
 
     m_Player = new EntityPlayer();
     m_Player->setPosition({10, 10, 10});
@@ -73,50 +76,6 @@ void Ethertia::start()
     Ethertia::loadWorld();
     m_Player->setFlying(true);
 
-    Controls::initMouseDigControls();
-
-    new std::thread([]()
-    {
-        Log::info("AsyncScheduler ready.");
-
-        while (Ethertia::isRunning())
-        {
-            Ethertia::getAsyncScheduler()->processTasks(Mth::Inf);
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));  // prevents high frequency queue query while no task.
-        }
-    });
-
-    m_Window->eventbus().listen([](WindowCloseEvent* e)
-    {
-        Ethertia::shutdown();
-    });
-
-    m_Window->eventbus().listen([](KeyboardEvent* e)
-    {
-        if (e->isPressed() && e->getKey() == GLFW_KEY_F2)
-        {
-            BitmapImage* img = m_Window->screenshot();
-
-            std::string path = Strings::fmt("./screenshots/{}_{}.png", Strings::time_fmt("%Y-%m-%d_%H.%M.%S"), (Mth::frac(Ethertia::getPreciseTime())*1000.0f));
-            if (Loader::fileExists(path))
-                throw std::logic_error("File already existed.");
-
-            Log::info("Screenshot saving to '{}'.\1", path);
-            GuiScreenChat::INST->appendMessage(Strings::fmt("Saved screenshot to '{}'.", path));
-
-            Ethertia::getAsyncScheduler()->addTask([img, path]() {
-                BenchmarkTimer _tm;
-
-                // vertical-flip image back to normal. due to GL feature.
-                BitmapImage fine_img(img->getWidth(), img->getHeight());
-                img->getVerticalFlippedPixels(fine_img.getPixels());
-
-                Loader::savePNG(&fine_img, path);
-                delete img;
-            });
-        }
-    });
 
 }
 
