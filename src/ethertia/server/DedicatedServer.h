@@ -1,9 +1,0 @@
-//
-// Created by Dreamtowards on 2022/12/2.
-//
-
-#ifndef ETHERTIA_DEDICATEDSERVER_H
-#define ETHERTIA_DEDICATEDSERVER_H
-
-
-#endif //ETHERTIA_DEDICATEDSERVER_H
