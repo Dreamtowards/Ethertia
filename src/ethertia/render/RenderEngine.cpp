@@ -23,7 +23,7 @@ RenderEngine::RenderEngine()
 //    skyGradientRenderer = new SkyGradientRenderer();
 //    skyboxRenderer = new SkyboxRenderer();
 
-    float qual = 0.9;
+    float qual = 0.6;
     gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));
     Framebuffer::gPushFramebuffer(gbuffer);
         gbuffer->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
@@ -60,7 +60,8 @@ void RenderEngine::renderWorld(World* world)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Geometry of Deferred Rendering
-
+    {
+        PROFILE("Geo");
 Framebuffer::gPushFramebuffer(gbuffer);
 
     glClearColor(0, 0, 0, 1.0f);
@@ -89,6 +90,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
             if (dbg_NoVegetable) continue;
             glDisable(GL_CULL_FACE);
         }
+        PROFILE("E/"+entity->name);
 
         entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation());
 
@@ -99,21 +101,23 @@ Framebuffer::gPushFramebuffer(gbuffer);
     glEnable(GL_BLEND);
 
 Framebuffer::gPopFramebuffer();
+    }
 
 
 
     // Compose of Deferred Rendering
 
+    {
+        PROFILE("Cmp");
 Framebuffer::gPushFramebuffer(dcompose);
 
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-//    skyboxRenderer->render();
-
     entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
 
 Framebuffer::gPopFramebuffer();
+    }
 
 
     // Result.

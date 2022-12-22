@@ -24,7 +24,7 @@
 #include <ethertia/init/Controls.h>
 #include <ethertia/render/chunk/ChunkRenderProcessor.h>
 #include <ethertia/init/Settings.h>
-#include <thread>
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -81,32 +81,54 @@ void Ethertia::start()
 
 void Ethertia::runMainLoop()
 {
-    BenchmarkTimer _tm(nullptr, nullptr);
+    PROFILE("Frame");
     m_Timer.update(getPreciseTime());
 
-    m_Scheduler.processTasks(0.001);
-
-    while (m_Timer.polltick())
     {
-        runTick();
-    }
-    if (m_World) {
-        m_World->dynamicsWorld->stepSimulation(getDelta());
+        PROFILE("SyncTask");
+        m_Scheduler.processTasks(0.001);
     }
 
-    m_Window->resetDeltas();
-    glfwPollEvents();
-    Controls::handleInput();
-
-    if (m_World)
     {
-        m_RenderEngine->renderWorld(m_World);
+        PROFILE("Tick");
+
+        while (m_Timer.polltick())
+        {
+            runTick();
+        }
+        if (m_World)
+        {
+            PROFILE("Phys");
+            m_World->dynamicsWorld->stepSimulation(getDelta());
+        }
     }
 
-    renderGUI();
+    {
+        PROFILE("Input");
 
-    GuiIngame::dbgMainLoopTime = _tm.done();
-    m_Window->swapBuffers();
+        m_Window->resetDeltas();
+        glfwPollEvents();
+        Controls::handleInput();
+    }
+
+    {
+        PROFILE("Render");
+        if (m_World)
+        {
+            PROFILE("World");
+            m_RenderEngine->renderWorld(m_World);
+        }
+
+        {
+            PROFILE("GUI");
+            renderGUI();
+        }
+    }
+
+    {
+        PROFILE("SwapBuffer");
+        m_Window->swapBuffers();
+    }
 }
 
 void Ethertia::renderGUI()

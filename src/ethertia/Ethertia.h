@@ -11,10 +11,16 @@
 #include <stdexcept>
 #include <thread>
 
-#include <ethertia/util/Timer.h>
-#include <ethertia/util/concurrent/Scheduler.h>
 #include <ethertia/render/Camera.h>
 #include <ethertia/init/BrushCursor.h>
+#include <ethertia/util/Timer.h>
+#include <ethertia/util/Profiler.h>
+#include <ethertia/util/concurrent/Scheduler.h>
+
+// scope profiling
+#define PROFILE_VN_CONCAT_INNR(a, b) a ## b
+#define PROFILE_VN_CONCAT(a, b) PROFILE_VN_CONCAT_INNR(a, b)
+#define PROFILE(x) auto PROFILE_VN_CONCAT(_p_, __COUNTER__) = Ethertia::getProfiler().push_ap(x)
 
 // __forward_declarations
 
@@ -37,6 +43,7 @@ class Ethertia
     inline static Scheduler     m_Scheduler{};
     inline static Scheduler     m_AsyncScheduler{};
     inline static BrushCursor   m_Cursor{};
+    inline static Profiler      m_Profiler{};
 
 
     Ethertia() { throw std::logic_error("No instance"); };
@@ -86,6 +93,7 @@ public:
     static Scheduler* getAsyncScheduler() { return &m_AsyncScheduler; }
     static BrushCursor& getBrushCursor() { return m_Cursor; }
     static Camera* getCamera();
+    static Profiler& getProfiler() { return m_Profiler; }
 
 
 };

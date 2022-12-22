@@ -44,7 +44,8 @@ public:
     inline static bool dbgGBuffers = false;
 
     inline static float dbgLastDrawTime = 0;
-    inline static float dbgMainLoopTime = 0;
+
+    inline static bool dbgDrawFrameProfiler = true;
 
     Gui* optsGui = nullptr;
 
@@ -96,6 +97,15 @@ public:
                     }
                 });
             }
+            {
+                GuiButton* btnClearProfilerData = new GuiButton("Clear Profile Data");
+                opts->addGui(btnClearProfilerData);
+                btnClearProfilerData->addOnClickListener([](OnReleased* e) {
+                    Ethertia::getProfiler().sectionToBeClear = &Ethertia::getProfiler().m_RootSection.find("Frame");
+
+                    ChunkRenderProcessor::clearDebugChunkLoadInfo();
+                });
+            }
 
             opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
             opts->addGui(new GuiCheckBox("Basis", &dbgBasis));
@@ -108,6 +118,7 @@ public:
             opts->addGui(new GuiCheckBox("glPoly Line", &dbgPolyLine));
 
             opts->addGui(new GuiCheckBox("R/No Vegetable", &RenderEngine::dbg_NoVegetable));
+            opts->addGui(new GuiCheckBox("D/Frame Profiler", &dbgDrawFrameProfiler));
 
             opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
             opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
@@ -227,25 +238,20 @@ public:
                     "ChunkMesh({} {}ms, avg {}ms)\n"
                     "ChunkEmit({} {}ms, avg {}ms)\n"
                     "task {}, async {}\n"
-                    "dt: {}, {}fps, t_loadperc: {}\n",
+                    "dt: {}, {}fps\n",
                     glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len,
                     rde->g_NumEntityRendered, Ethertia::getWorld()->getEntities().size(),
                     cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                     cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
                     cinfo.numEmit, cinfo.sumTimeEmit * 1000, (cinfo.sumTimeEmit / cinfo.numEmit * 1000),
                     Ethertia::getScheduler()->getTasks().size(), Ethertia::getAsyncScheduler()->getTasks().size(),
-                    dt, Mth::floor(1.0f/dt), dbgMainLoopTime / (1.0f / RenderEngine::fpsCap));
+                    dt, Mth::floor(1.0f/dt));
             }
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
 
-            if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 30)) {
-                ChunkRenderProcessor::g_DebugGenInfo.numGen = 0;
-                ChunkRenderProcessor::g_DebugGenInfo.sumTimeGen = 0;
-                ChunkRenderProcessor::g_DebugGenInfo.numMesh = 0;
-                ChunkRenderProcessor::g_DebugGenInfo.sumTimeMesh = 0;
-                ChunkRenderProcessor::g_DebugGenInfo.numEmit = 0;
-                ChunkRenderProcessor::g_DebugGenInfo.sumTimeEmit = 0;
-            }
+//            if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 30)) {
+//
+//            }
         }
 
         if (dbgEntityAABB) {
@@ -297,6 +303,21 @@ public:
         Gui::drawRect(Gui::maxWidth()/2 -2, Gui::maxHeight()/2 -2,
                       3, 3, Colors::WHITE);
 
+        if (dbgDrawFrameProfiler) {
+            float w = Gui::maxWidth() * 0.65f, h = 16 * 7;
+            float x = 0, y = Gui::maxHeight() - h;
+
+            Gui::drawRect(x, y, w, h, Colors::BLACK20);
+
+            const Profiler::Section& sec = Ethertia::getProfiler().m_RootSection.find("Frame");
+            double w_time = sec.sumTime;
+
+            // Standard FPS Time.
+            Gui::drawRect(x, y, (1.0 / RenderEngine::fpsCap) / sec._avgTime * w, h, Colors::alpha(Colors::GREEN, 0.1f));
+
+            drawProfilerSection(sec, x, y+h-16, w, w_time);
+        }
+
         GuiCollection::onDraw();
 
         dbgLastDrawTime = Ethertia::getPreciseTime();
@@ -341,6 +362,34 @@ public:
 
 
 
+
+    static float drawProfilerSection(const Profiler::Section& sec, float x, float y, float w, double w_time) {
+        const float SEC_H = 16;
+
+        double sec_time = sec.sumTime;
+        double sec_width = (sec_time / w_time) * w;
+        glm::vec4 color = Colors::ofRGB(std::hash<std::string>()(sec.name));
+        Gui::drawRect(x, y, sec_width, SEC_H, color);
+        Gui::drawString(x, y, sec.name);  // Section Name
+
+        float dx = 0;
+        for (const Profiler::Section& sub_sec : sec.sections)
+        {
+            dx += drawProfilerSection(sub_sec, x+dx, y-SEC_H, sec_width, sec_time);
+        }
+
+        float tex_h = 16 * 6;
+        if (Gui::isCursorOver(x, y, sec_width, SEC_H)) {
+            Gui::drawRect(x, y-tex_h, sec_width, tex_h, Colors::BLACK80);
+            Gui::drawString(x, y-tex_h, sec.name, color);
+            Gui::drawString(x, y-tex_h, Strings::fmt("\n"
+                                                     "avg {}ms\nlas {}ms\nsum {}ms\nexc {}\n%p  {}",
+                                                     sec._avgTime * 1000.0, sec._lasTime * 1000.0, sec.sumTime * 1000.0, sec.numExec, sec.parent ? sec.sumTime / sec.parent->sumTime : Mth::NaN));
+//             Gui::drawRect(x, y-tex_h+16, sec_width, tex_h-16, Colors::BLACK10);  // tmp make text gray
+        }
+
+        return sec_width;
+    }
 
 
 };

@@ -371,7 +371,7 @@ public:
         return isPointOver(Gui::cursorX(), Gui::cursorY());
     }
 
-    bool isCursorOver(float x, float y, float w, float h) {
+    static bool isCursorOver(float x, float y, float w, float h) {
         float cx = Gui::cursorX();
         float cy = Gui::cursorY();
         return cx >= x && cx < x+w &&

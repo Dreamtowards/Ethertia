@@ -22,6 +22,14 @@ public:
         int numEmit;
         float sumTimeEmit;
     } g_DebugGenInfo = {};
+    static void clearDebugChunkLoadInfo() {
+        ChunkRenderProcessor::g_DebugGenInfo.numGen = 0;
+        ChunkRenderProcessor::g_DebugGenInfo.sumTimeGen = 0;
+        ChunkRenderProcessor::g_DebugGenInfo.numMesh = 0;
+        ChunkRenderProcessor::g_DebugGenInfo.sumTimeMesh = 0;
+        ChunkRenderProcessor::g_DebugGenInfo.numEmit = 0;
+        ChunkRenderProcessor::g_DebugGenInfo.sumTimeEmit = 0;
+    }
 
     static void initWorkerThread()
     {

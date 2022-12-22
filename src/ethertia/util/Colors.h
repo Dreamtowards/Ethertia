@@ -10,8 +10,27 @@
 class Colors
 {
 public:
-    static const glm::vec4 fromRGB(u8 r, u8 g, u8 b) {
-        return glm::vec4(r/255.0f, g/255.0f, b/255.0f, 1.0f);
+    static glm::vec4 ofRGBA(u8 r, u8 g, u8 b, u8 a = 255) {
+        return glm::vec4(r/255.0f, g/255.0f, b/255.0f, a/255.0f);
+    }
+    static glm::vec4 ofRGB(u8 r, u8 g, u8 b) {  // ofRGBA() default argument are not allowed in static init.
+        return Colors::ofRGBA(r,g,b,255);
+    }
+
+    static glm::vec4 ofRGBA(int rgba) {
+        return Colors::ofRGBA(
+            ((rgba >> 24) & 0xFF),
+            ((rgba >> 16) & 0xFF),
+            ((rgba >>  8) & 0xFF),
+            ( rgba        & 0xFF)
+        );
+    }
+    static glm::vec4 ofRGB(int rgb) {
+        return Colors::ofRGBA(rgb | 0xFF);  // May associated with endian ?
+    }
+    static glm::vec4 alpha(glm::vec4 c, float a) {
+        c.a = a;
+        return c;
     }
 
     inline static constexpr glm::vec4 WHITE = glm::vec4(1, 1, 1, 1);
@@ -37,20 +56,20 @@ public:
     inline static constexpr glm::vec4 G = glm::vec4(0, 1, 0, 1);
     inline static constexpr glm::vec4 B = glm::vec4(0, 0, 1, 1);
 
-    inline static const glm::vec4 RED = fromRGB(255, 85, 85);
-    inline static const glm::vec4 RED_DARK = fromRGB(170, 0, 0);
-    inline static const glm::vec4 GREEN = fromRGB(85, 255, 85);
-    inline static const glm::vec4 GREEN_DARK = fromRGB(0, 170, 0);
-    inline static const glm::vec4 BLUE = fromRGB(85, 85, 255);
-    inline static const glm::vec4 BLUE_DARK = fromRGB(0, 0, 170);
-    inline static const glm::vec4 GRAY = fromRGB(170, 170, 170);
-    inline static const glm::vec4 GRAY_DARK = fromRGB(85, 85, 85);
-    inline static const glm::vec4 AQUA = fromRGB(85, 255, 255);
-    inline static const glm::vec4 AQUA_DARK = fromRGB(0, 170, 170);
-    inline static const glm::vec4 PURPLE = fromRGB(255, 85, 255);
-    inline static const glm::vec4 PURPLE_DARK = fromRGB(170, 0, 170);
-    inline static const glm::vec4 YELLOW = fromRGB(255, 255, 85);
-    inline static const glm::vec4 GOLD = fromRGB(255, 170, 0);
+    inline static const glm::vec4 RED        = ofRGB(255, 85, 85);
+    inline static const glm::vec4 RED_DARK   = ofRGB(170, 0, 0);
+    inline static const glm::vec4 GREEN      = ofRGB(85, 255, 85);
+    inline static const glm::vec4 GREEN_DARK = ofRGB(0, 170, 0);
+    inline static const glm::vec4 BLUE       = ofRGB(85, 85, 255);
+    inline static const glm::vec4 BLUE_DARK  = ofRGB(0, 0, 170);
+    inline static const glm::vec4 GRAY       = ofRGB(170, 170, 170);
+    inline static const glm::vec4 GRAY_DARK  = ofRGB(85, 85, 85);
+    inline static const glm::vec4 AQUA       = ofRGB(85, 255, 255);
+    inline static const glm::vec4 AQUA_DARK  = ofRGB(0, 170, 170);
+    inline static const glm::vec4 PURPLE     = ofRGB(255, 85, 255);
+    inline static const glm::vec4 PURPLE_DARK= ofRGB(170, 0, 170);
+    inline static const glm::vec4 YELLOW     = ofRGB(255, 255, 85);
+    inline static const glm::vec4 GOLD       = ofRGB(255, 170, 0);
 
 };
 

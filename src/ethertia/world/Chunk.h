@@ -41,11 +41,11 @@ public:
 
         // init the proxy entity
         m_MeshTerrain = new EntityMesh();
-        m_MeshTerrain->setPosition(position);
+        m_MeshTerrain->setPosition(position);  m_MeshTerrain->name = "Terr";
 
         m_MeshVegetable = new EntityMesh();
         m_MeshVegetable->setPosition(position);
-        m_MeshVegetable->m_FaceCulling = false;
+        m_MeshVegetable->m_FaceCulling = false;   m_MeshTerrain->name = "Vege";
     }
     ~Chunk() {
 

@@ -5,6 +5,8 @@
 #ifndef ETHERTIA_TIMER_H
 #define ETHERTIA_TIMER_H
 
+#include <chrono>
+
 class Timer
 {
 public:
@@ -41,6 +43,10 @@ public:
             return false;
         elapsedTicks -= 1.0;
         return true;
+    }
+
+    static double getHighResolutionTime() {  // 1ns = 1,000,000,000
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() * 0.000000001;
     }
 };
 
