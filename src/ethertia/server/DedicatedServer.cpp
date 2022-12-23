@@ -5,71 +5,49 @@
 #ifndef ETHERTIA_DEDICATEDSERVER_CPP
 #define ETHERTIA_DEDICATEDSERVER_CPP
 
-#include <stdexcept>
 
 #include <ethertia/util/Log.h>
 
-#define ENET_IMPLEMENTATION
-#include <enet.h>
+
+#include <ethertia/server/Network.h>
 
 
-int main() {
 
-    if (enet_initialize()) {
-        throw std::runtime_error("a");
-    }
+void runServer() {
 
-    ENetAddress addr = {};
-    addr.host = ENET_HOST_ANY;
-    addr.port = 8081;
-
-    ENetHost* serv = enet_host_create(&addr, 10, 2, 0, 0);
-    if (!serv)
-        throw std::runtime_error("aaa");
+    Network::Host* serv = Network::newServer(8081);
 
     Log::info("Server Started");
 
 
-    ENetEvent event;
+    Network::Poll(serv, true, [](auto& e){
+        // Conn
 
-    while (enet_host_service(serv, &event, 100000) > 0) {
-        switch (event.type) {
-            case ENET_EVENT_TYPE_CONNECT: {
-                printf("A new client connected from %x:%u.\n",  event.peer->address.host, event.peer->address.port);
+        Log::info("New connection from {}, packet: {}, ev_data: {}", e.peer->host, e.packet, e.data);
+    }, [](auto& e) {
+        // Recv
+
+        Log::info("Received {} bytes '{}'", e.packet->dataLength, e.packet->data);
 
 
-                event.peer->data = (void*)"Cli Mark 123";
-                break;
-            }
-            case ENET_EVENT_TYPE_RECEIVE: {
-                printf("A packet of length %lu containing %s was received from %s on channel %u.\n",
-                       event.packet->dataLength,
-                       event.packet->data,
-                       event.peer->data,
-                       event.channelID);
-                /* Clean up the packet now that we're done using it. */
-                enet_packet_destroy (event.packet);
-                break;
-            }
-            case ENET_EVENT_TYPE_DISCONNECT:
-                printf("%s disconnected.\n", event.peer->data);
-                /* Reset the peer's client information. */
-                event.peer->data = NULL;
-                break;
+        Network::SendPacket(e.peer, "I AM ok my friend");
 
-            case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
-                printf("%s disconnected due to timeout.\n", event.peer->data);
-                /* Reset the peer's client information. */
-                event.peer->data = NULL;
-                break;
+    }, [](auto& e) {
+        // Drop
 
-            case ENET_EVENT_TYPE_NONE:
-                break;
-        }
-    }
+        Log::info("Disconn ", e.packet);
+    });
 
-    enet_host_destroy(serv);
-    enet_deinitialize();
+    Network::Deinit(serv);
+
+}
+
+int main() {
+
+
+
+
+    runServer();
 
 }
 
