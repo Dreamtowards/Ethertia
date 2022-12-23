@@ -12,6 +12,8 @@ include_directories(lib/glfw/include)
 include_directories(lib/bullet3/src)
 include_directories(lib/json/include)
 #include_directories(lib/fmt/include)
+include_directories(lib/asio/include)
+include_directories(lib/enet/include)
 
 
 

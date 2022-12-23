@@ -7,77 +7,158 @@
 
 #include <stdexcept>
 
-#include <sys/socket.h>
-#include <netinet/in.h>  // struct sockaddr_in
-#include <arpa/inet.h>   // ip addr lookup
-#include <unistd.h>      // close(conn)
-
 #include <ethertia/util/Log.h>
 
-int main()
-{
-    int port = 8081;
+#define ENET_IMPLEMENTATION
+#include <enet.h>
 
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd < 0) {
-        throw std::runtime_error("failed init socket.");
+
+int main() {
+
+    if (enet_initialize()) {
+        throw std::runtime_error("a");
     }
 
-    // // optional, force attach socket. reuse address.
-    // int opt = 1;
-    // if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-    //     throw std::runtime_error("failed reuse socket address.");
-    // }
+    ENetAddress addr = {};
+    addr.host = ENET_HOST_ANY;
+    addr.port = 8081;
 
-    struct sockaddr_in addr{};
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(port);
+    ENetHost* serv = enet_host_create(&addr, 10, 2, 0, 0);
+    if (!serv)
+        throw std::runtime_error("aaa");
 
-    if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-        throw std::runtime_error("failed bind socket.");
-    }
-
-    const int backlog = 3;
-    if (listen(server_fd, backlog) < 0) {
-        throw std::runtime_error("failed listen socket.");
-    }
+    Log::info("Server Started");
 
 
-    while (true)
-    {
-        struct sockaddr_in cli_addr;
-        socklen_t addrlen = sizeof(addr);
-        int conn = accept(server_fd, (struct sockaddr*)&cli_addr, &addrlen);
-        if (conn < 0) {
-            throw std::runtime_error("failed accept socket.");
+    ENetEvent event;
+
+    while (enet_host_service(serv, &event, 100000) > 0) {
+        switch (event.type) {
+            case ENET_EVENT_TYPE_CONNECT: {
+                printf("A new client connected from %x:%u.\n",  event.peer->address.host, event.peer->address.port);
+
+
+                event.peer->data = (void*)"Cli Mark 123";
+                break;
+            }
+            case ENET_EVENT_TYPE_RECEIVE: {
+                printf("A packet of length %lu containing %s was received from %s on channel %u.\n",
+                       event.packet->dataLength,
+                       event.packet->data,
+                       event.peer->data,
+                       event.channelID);
+                /* Clean up the packet now that we're done using it. */
+                enet_packet_destroy (event.packet);
+                break;
+            }
+            case ENET_EVENT_TYPE_DISCONNECT:
+                printf("%s disconnected.\n", event.peer->data);
+                /* Reset the peer's client information. */
+                event.peer->data = NULL;
+                break;
+
+            case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
+                printf("%s disconnected due to timeout.\n", event.peer->data);
+                /* Reset the peer's client information. */
+                event.peer->data = NULL;
+                break;
+
+            case ENET_EVENT_TYPE_NONE:
+                break;
         }
-
-        char cli_ip[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &cli_addr.sin_addr, cli_ip, INET_ADDRSTRLEN);
-        Log::info("client ip: ", cli_ip);
-
-        char buf[1024];
-        int n = recv(conn, buf, sizeof(buf), 0);
-        Log::info("Recv ", buf);
-
-
-        char* data = "Hello Text";
-        send(conn, data, strlen(data), 0);
-        Log::info("Msg Sent");
-
-
-        close(conn);
-
-        break;
     }
 
+    enet_host_destroy(serv);
+    enet_deinitialize();
 
-    close(server_fd);
-    shutdown(server_fd, SHUT_RDWR);
-
-    return 0;
 }
+
+
+
+//#include <asio.hpp>
+//
+//char BUF[1024];
+//
+//void ReadData(asio::ip::tcp::socket& conn) {
+//
+//    conn.async_read_some(asio::buffer(BUF, 1024), [&](std::error_code err, std::size_t len)
+//    {
+//        if (len == 0)
+//            return ;
+//
+//        Log::info("Read[{}]: ", len);
+//
+//        for (int i = 0; i < len; ++i) {
+//            std::cout << BUF[i];
+//        }
+//        Log::info("ReadFinished", len);
+//
+//        ReadData(conn);
+//    });
+//
+//}
+//
+//int main()
+//{
+//
+//    std::error_code err;
+//
+//    asio::io_context ctx;
+//
+//    asio::io_context::work idleWork(ctx);
+//
+//    std::thread ctx_thread = std::thread([&ctx](){
+//        ctx.run();
+//    });
+//
+//    {
+//        int port = 8081;
+//        asio::ip::tcp::acceptor serv(ctx, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port));
+//
+//        serv.async_accept([](std::error_code err, asio::ip::tcp::socket conn)
+//        {
+//
+//        });
+//    }
+//
+//    asio::ip::tcp::endpoint endpoint(asio::ip::make_address("93.184.216.34"), 80);
+//
+//    asio::ip::tcp::socket conn(ctx);
+//
+//    conn.connect(endpoint, err);
+//
+//    if (err) {
+//        Log::info("Failed to connect: ", err.message());
+//    }
+//
+//    if (conn.is_open())
+//    {
+////        ReadData(conn);
+//
+//        std::string msg = "GET / HTTP/1.1\n"
+//                          "Host: example.com\n"
+//                          "Connection: close\n\n";
+//
+//        conn.write_some(asio::buffer(msg.data(), msg.size()));
+//
+//
+//        char buf[1024];
+//        int n = conn.read_some(asio::buffer(buf, 1024));
+//
+//        Log::info("Read[{}]: ", n, buf);
+//
+//
+//
+////        std::this_thread::sleep_for(std::chrono::milliseconds(20000));
+//
+//    }
+//
+//    ctx.stop();
+//    if (ctx_thread.joinable())
+//        ctx_thread.join();
+//
+//    return 0;
+//}
 
 
 #endif //ETHERTIA_DEDICATEDSERVER_CPP

@@ -1,0 +1,72 @@
+name: notify-release
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  notify:
+    name: Show a changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          description:  "**${{ github.repository }}: [${{ github.event.release.name }}](${{ github.event.release.html_url }})**\n\n**Changelog:**\n${{ github.event.release.body }}"
+          nodetail: true
+          nofail: true
+          color: "0x9999ff"
+
+  build-win:
+    name: Test Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Run cmake generator
+        run: cmake -B build -DENET_TEST=1 -DENET_SHARED=1
+      - name: Run Windows build
+        run: cmake --build build --config Release
+      - name: Run unit tests
+        run: cd build ; .\Release\enet_test.exe
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/Release/enet_shared.dll
+
+  build-lin:
+    name: Test Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Run cmake generator
+        run: cmake -B build -DENET_TEST=1 -DENET_SHARED=1 -DCMAKE_BUILD_TYPE=Release
+      - name: Run build on Linux
+        run: cmake --build build
+      - name: Test build on Linux
+        run: build/enet_test
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/libenet_shared.so
+
+  build-mac:
+    name: Test macOS
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Run cmake generator
+        run: cmake -B build -DENET_TEST=1 -DENET_SHARED=1 -DCMAKE_BUILD_TYPE=Release
+      - name: Run build on macOS
+        run: cmake --build build
+      - name: Test build on macOS
+        run: build/enet_test
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/libenet_shared.dylib
