@@ -21,9 +21,10 @@
 #include <ethertia/entity/EntityCar.h>
 #include <ethertia/entity/EntityRaycastCar.h>
 #include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/init/Controls.h>
 #include <ethertia/render/chunk/ChunkRenderProcessor.h>
 #include <ethertia/init/Settings.h>
+#include <ethertia/network/NetworkProcessor.h>
+#include <ethertia/init/Controls.h>
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -67,6 +68,11 @@ void Ethertia::start()
     m_RootGUI->addGui(GuiScreenPause::INST);
 
     Controls::initControls();
+
+    NetworkProcessor::init();
+    NetworkProcessor::connect("127.0.0.1", 8081);
+
+    Controls::initConsoleThread();
 
 
     m_Player = new EntityPlayer();
@@ -163,6 +169,7 @@ void Ethertia::runTick()
 void Ethertia::destroy()
 {
     Settings::saveSettings();
+    NetworkProcessor::deinit();
 
     delete m_RootGUI;
     delete m_World;

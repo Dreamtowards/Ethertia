@@ -49,7 +49,7 @@ public:
         Section& sec = m_CurrentSection->find(name);
 
         sec.parent = m_CurrentSection;  // if (sec.parent == nullptr)
-        sec._begin = Timer::getHighResolutionTime();
+        sec._begin = Timer::nanoseconds();
 
         m_CurrentSection = &sec;
     }
@@ -67,7 +67,7 @@ public:
         Section& sec = *m_CurrentSection;
 
         sec.numExec++;
-        double d = Timer::getHighResolutionTime() - sec._begin;
+        double d = (Timer::nanoseconds() - sec._begin) / Timer::NANOSECOND_UNIT;
         sec.sumTime += d;
         sec._avgTime = sec.sumTime / sec.numExec;
         sec._lasTime = d;

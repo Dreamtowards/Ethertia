@@ -9,6 +9,29 @@ class Controls
 {
 public:
 
+    static void initConsoleThread()
+    {
+        new std::thread([]()
+        {
+            Log::info("Console thread is ready");
+
+            while (Ethertia::isRunning())
+            {
+                std::string line;
+                std::getline(std::cin, line);
+
+                if (line[0] == '/')
+                {
+                    Ethertia::dispatchCommand(line);
+                }
+                else
+                {
+                    NetworkProcessor::sendPacket(line);
+                }
+            }
+        });
+    }
+
 
     static void initControls() {
         Window* win = Ethertia::getWindow();

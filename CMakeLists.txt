@@ -56,12 +56,8 @@ target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath
 
 
 
-add_executable(EthertiaServer
+add_executable(DedicatedServer
         src/ethertia/server/DedicatedServer.cpp
-        )
-
-add_executable(TesCli
-        src/ethertia/server/TestCli.cpp
         )
 
 

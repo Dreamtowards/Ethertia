@@ -10,15 +10,33 @@
 
 #include <ethertia/server/Network.h>
 
+
+#include <ethertia/util/BenchmarkTimer.h>
+
 int main() {
 
-    Network::Init();
+    Network::Host* cli = nullptr;
+    {
+        BenchmarkTimer _tm;
 
-    Network::Host* cli = Network::newClient();
+        {
+            BenchmarkTimer _tm;
+            Network::Init();
+        }
+        {
+            BenchmarkTimer _tm;
+            cli = Network::newClient();
+        }
+    }
+
+    return 0;
 
     ENetPeer* conn = Network::connect(cli, "127.0.0.1", 8081);
 
-    Network::Poll(cli, true, [conn](auto& e){
+    bool running = true;
+
+    while (running)
+    Network::Polls(cli, [conn](auto& e){
         // Conn
 
         Network::SendPacket(conn, "How are you, from client");
@@ -32,15 +50,14 @@ int main() {
 
         Network::disconnect(conn);
 
-    }, [](auto& e) {
+    }, [&running](auto& e) {
         // Drop
+
+        running = false;
 
         Log::info("Disconn ", e.packet);
     });
 
-    // Network::disconnect(conn);
-
-    Network::Deinit(cli);
 
 
 }

@@ -35,7 +35,7 @@ public:
     {
         new std::thread([]()
         {
-            Log::info("Chunk Processor thread/{} is ready.", std::this_thread::get_id());
+            Log::info("Chunk Processor thread is ready.");
 
             while (Ethertia::isRunning())
             {

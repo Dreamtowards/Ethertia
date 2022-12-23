@@ -45,8 +45,19 @@ public:
         return true;
     }
 
-    static double getHighResolutionTime() {  // 1ns = 1,000,000,000
-        return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() * 0.000000001;
+
+    static const long NANOSECOND_UNIT = 1000000000;
+
+    static double nanoseconds() {  // 1ns = 1,000,000,000,  * 0.000000001
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    }
+
+    static double milliseconds() {
+        return Timer::nanoseconds() * 0.000001;
+    }
+
+    static void sleep_for(int ms) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     }
 };
 

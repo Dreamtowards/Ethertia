@@ -117,3 +117,7 @@
 //            addTask();
 //        }
 //    }
+
+
+        if (enet_address_set_host(&addr, hostname.c_str()) < 0)
+            throw std::runtime_error(Strings::fmt("illegal hostname '{}', expect ip or domain name.", hostname));

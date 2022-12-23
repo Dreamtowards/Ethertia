@@ -46,9 +46,9 @@ class Ethertia
     inline static Profiler      m_Profiler{};
 
 
-    Ethertia() { throw std::logic_error("No instance"); };
-
 public:
+    Ethertia() = delete;
+
 
     static void run()
     {
@@ -76,7 +76,7 @@ public:
     static void dispatchCommand(const std::string& cmd);
 
     static void shutdown() { m_Running = false; }
-    static bool isRunning() { return m_Running; }
+    static const bool& isRunning() { return m_Running; }
     static bool isIngame();
     static float getPreciseTime();
     static float getAspectRatio();
@@ -94,6 +94,8 @@ public:
     static BrushCursor& getBrushCursor() { return m_Cursor; }
     static Camera* getCamera();
     static Profiler& getProfiler() { return m_Profiler; }
+
+
 
 
 };

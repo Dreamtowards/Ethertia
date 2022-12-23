@@ -69,7 +69,7 @@ public:
     {
         new std::thread([this, workerName]()
         {
-            Log::info("{} thread/{} is ready.", workerName, std::this_thread::get_id());
+            Log::info("{} thread is ready.", workerName);
 
             while (!m_Stopped)
             {
