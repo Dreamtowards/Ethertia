@@ -7,45 +7,98 @@
 
 #include <ethertia/server/DedicatedServer.h>
 
-//#include "ethertia/network/packet/Packet.h"
-//#include "unordered_map"
-//#include "msgpack/include/msgpack/msgpack.hpp"
+#include <ethertia/network/server/ServerConnectionProc.h>
 
-#include <ethertia/util/Endian.h>
 
-struct PacketTest
-{
-    int32_t aInt = 0;
-    std::string someStr;
-    int8_t aLttl = 0;
-
-    template<typename T>
-    void pack(T& pack) {
-        pack(aInt, someStr, aLttl);
-    }
-};
 
 int main()
 {
     DedicatedServer::run();
 
-//    Packet p;
-
-
-//    PacketTest p;
-//    p.aInt = 9991;
-//    p.someStr = "SthAbc123";
-//    p.aLttl = 8;
-//
-//    std::vector<uint8_t> da = msgpack::pack(p);
-//
-//
-//    PacketTest de = msgpack::unpack<PacketTest>(da);
-//
-//    Log::info("{} {} {}", de.aInt, de.someStr, (int)de.aLttl);
-
 
     return 0;
 }
+
+
+void DedicatedServer::startServer()
+{
+    BenchmarkTimer _tm(nullptr, "Server initialized in {}.\n");
+    m_Running = true;
+
+    initConsoleThread();
+
+    m_ServerHost = Network::newServer(m_ServerPort);
+    Log::info("Server host listen on port {}", m_ServerPort);
+
+
+    ServerConnectionProc::initPackets();
+
+}
+
+void DedicatedServer::runMainLoop()
+{
+    processNetwork();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+}
+
+void DedicatedServer::processNetwork()
+{
+    Network::Polls(m_ServerHost, [](ENetEvent& e){  // Conn
+
+        Log::info("New connection");
+
+        e.peer->data = new ServerConnection(e.peer);
+    }, [](ENetEvent& e) {  // Recv
+        uint8_t* data = (uint8_t*)e.packet->data;
+        size_t dataLen = e.packet->dataLength;
+
+        Log::info("Received [{}]: '{}'\n{}", dataLen, std::string((char*)data, dataLen), Strings::hex(data, dataLen));
+
+        Packet::ProcessPacket(data, dataLen, e.peer->data);
+
+    }, [](ENetEvent& e) {  // Drop
+        Log::info("Disconn ", e.packet);
+
+        delete (ServerConnection*)e.peer->data;
+    });
+}
+
+void DedicatedServer::stopServer()
+{
+
+    Network::Deinit(m_ServerHost);
+}
+
+
+
+
+
+
+void DedicatedServer::initConsoleThread()
+{
+    new std::thread([]()
+    {
+        Log::info("Console thread is ready");
+
+        while (DedicatedServer::isRunning())
+        {
+            std::string line;
+            std::getline(std::cin, line);
+
+            if (line[0] == '/')
+            {
+
+            }
+            else
+            {
+
+                Network::BroadcastPacket(m_ServerHost, (void*)line.c_str(), line.size());
+            }
+        }
+    });
+}
+
+
 
 #endif //ETHERTIA_DEDICATEDSERVER_CPP

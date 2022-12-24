@@ -48,19 +48,13 @@ public:
         input->setFocused(true);
         input->addOnReturnListener([=](GuiTextBox::OnReturn* e) {
             const std::string& line = input->getText();
-            Log::info("Dispatch: ", line);
 
-            if (line.length() > 0 && line[0] == '/') {
+            Ethertia::dispatchCommand(line);
 
-                Ethertia::dispatchCommand(line);
+//                std::string msg = Strings::fmt("<{}>: {}", Ethertia::getPlayer()->name, line);
+//                appendMessage(msg);
 
-                Ethertia::getRootGUI()->removeGui(this);  // dismiss.
-            } else {
-                std::string msg = Strings::fmt("<{}>: {}", Ethertia::getPlayer()->name, line);
-
-                appendMessage(msg);
-            }
-
+            Ethertia::getRootGUI()->removeGui(this);  // dismiss.
             input->setText("");
         });
         vbox->addGui(input);

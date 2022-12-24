@@ -20,18 +20,7 @@ public:
                 std::string line;
                 std::getline(std::cin, line);
 
-                if (line[0] == '/')
-                {
-                    Ethertia::dispatchCommand(line);
-                }
-                else
-                {
-                    PacketChat p = PacketChat{
-                            "MyMessage From Client"
-                    };
-
-                    NetworkProcessor::SendPacket(p);
-                }
+                Ethertia::dispatchCommand(line);
             }
         });
     }

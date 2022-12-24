@@ -5,28 +5,23 @@
 #ifndef ETHERTIA_PACKETCHAT_H
 #define ETHERTIA_PACKETCHAT_H
 
-#include <string>
+#include "Packet.h"
 
 struct PacketChat
 {
-
     std::string message;
-    int sthOther = 0;
 
 
+    DECL_PACKET(message);
 
-//#define PACK(X) template<typename T> \
-//                void pack(T& pack) { \
-//                    pack(X); \
-//                }                    \
-//
-//    PACK(message);
+};
 
-    template<typename T>
-    void pack(T& pack) {
-        pack(message, sthOther);
-    }
+struct CPacketLogin
+{
+    std::string uuid;
+    std::string token;
 
+    DECL_PACKET(uuid, token);
 };
 
 #endif //ETHERTIA_PACKETCHAT_H

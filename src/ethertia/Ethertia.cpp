@@ -23,7 +23,8 @@
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/chunk/ChunkRenderProcessor.h>
 #include <ethertia/init/Settings.h>
-#include <ethertia/network/NetworkProcessor.h>
+#include <ethertia/network/client/ClientConnectionProc.h>
+#include <ethertia/network/client/ClientNetworkSystem.h>
 #include <ethertia/init/Controls.h>
 
 
@@ -69,10 +70,13 @@ void Ethertia::start()
 
     Controls::initControls();
 
-    NetworkProcessor::init();
-    NetworkProcessor::connect("127.0.0.1", 8081);
-
     Controls::initConsoleThread();
+
+
+    ClientConnectionProc::initPackets();
+
+    ClientNetworkSystem::init();
+    ClientNetworkSystem::connect("127.0.0.1", 8081);
 
 
     m_Player = new EntityPlayer();
@@ -169,7 +173,7 @@ void Ethertia::runTick()
 void Ethertia::destroy()
 {
     Settings::saveSettings();
-    NetworkProcessor::deinit();
+    ClientNetworkSystem::deinit();
 
     delete m_RootGUI;
     delete m_World;
@@ -193,6 +197,17 @@ void Ethertia::unloadWorld() {
 }
 
 void Ethertia::dispatchCommand(const std::string& cmdline) {
+    if (cmdline.empty()) return;
+
+    if (cmdline[0] != '/') {
+        PacketChat p = PacketChat{
+                cmdline
+        };
+
+        ClientNetworkSystem::SendPacket(p);
+        return;
+    }
+
     std::vector<std::string> args = Strings::splitSpaces(cmdline);
     std::string& cmd = args[0];
     EntityPlayer* player = Ethertia::getPlayer();
@@ -215,6 +230,13 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
         player->setFlying(!player->isFlying());
 
         Log::info("Flymode: {}", player->isFlying());
+    }
+    else if (cmd == "/connect")  //  /connect 127.0.0.1:8081
+    {
+        std::string hostname = args[1];
+        int port = std::stoi(args[2]);
+
+        ClientNetworkSystem::connect(hostname, port);
     }
 }
 

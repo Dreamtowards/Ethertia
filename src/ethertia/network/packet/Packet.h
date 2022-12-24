@@ -14,16 +14,24 @@
 #include <ethertia/util/Endian.h>
 #include <ethertia/util/Collections.h>
 
-#include "PacketChat.h"
 
 
+#define DECL_PACKET(X, ...)   \
+    void* tag = nullptr; \
+    template<typename T> \
+    void pack(T& pack) { \
+        pack(X, ##__VA_ARGS__); \
+    }
 
-#define DEF_PACKET(PacketId, PacketType, PacketHandler) \
-            assert(Packet::Id<PacketType>::val == 0); \
-            Packet::Id<PacketType>::val = PacketId; \
-            Packet::_HANDLER_MAP[PacketId] = [](std::uint8_t* data, std::size_t len) { \
-                PacketHandler(msgpack::unpack<PacketType>(data, len)); \
-            };
+#define INIT_PACKET(PacketId, PacketType, PacketHandler) \
+    assert(Packet::Id<PacketType>::val == 0); \
+    Packet::Id<PacketType>::val = PacketId; \
+    Packet::_HANDLER_MAP[PacketId] = [](std::uint8_t* data, std::size_t len, void* tag) { \
+        PacketType p = msgpack::unpack<PacketType>(data, len); \
+        p.tag = tag; \
+        PacketHandler(p); \
+    };
+
 
 class Packet
 {
@@ -35,13 +43,13 @@ public:
         inline static int val = 0;
     };
 
-    using PacketHandlerRaw = std::function<void(std::uint8_t* data, std::size_t len)>;
+    using PacketHandle = std::function<void(std::uint8_t* data, std::size_t len, void* tag)>;
 
-    inline static std::unordered_map<std::uint16_t, PacketHandlerRaw> _HANDLER_MAP;
+    inline static std::unordered_map<std::uint16_t, PacketHandle> _HANDLER_MAP;
 
 
 
-    static const PacketHandlerRaw& FindHandler(std::uint16_t PacketId)
+    static const PacketHandle& FindHandler(std::uint16_t PacketId)
     {
         auto it = Packet::_HANDLER_MAP.find(PacketId);
         if (it == Packet::_HANDLER_MAP.end())
@@ -50,13 +58,13 @@ public:
         return it->second;
     }
 
-    static void ProcessPacket(std::uint8_t* data, std::size_t len)
+    static void ProcessPacket(std::uint8_t* data, std::size_t len, void* tag = nullptr)
     {
-        uint16_t PacketId = Endian::of_bigendian(*data);  // first 2 bytes is PacketTypeId
+        uint16_t PacketId = Endian::of_bigendian(*(uint16_t*)data);  // first 2 bytes is PacketTypeId
 
         auto& handler = Packet::FindHandler(PacketId);
 
-        handler(data + 2, len - 2);
+        handler(data + 2, len - 2, tag);
     }
 
 
