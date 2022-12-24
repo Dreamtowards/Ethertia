@@ -16,20 +16,31 @@ class ServerConnectionProc
 {
 public:
 
+#define DECL_PACKET_PROC_ARGS ServerConnection* conn = (ServerConnection*)packet.tag;
+
     static void initPackets() {
 
-        INIT_PACKET(1, PacketChat, ServerConnectionProc::processPacket);
+        _InitPacketIds();
 
+        INIT_PACKET_PROC(PacketChat, ServerConnectionProc::processPacket);
+        INIT_PACKET_PROC(CPacketLogin, ServerConnectionProc::processLogin);
 
     }
 
     static void processPacket(const PacketChat& packet)
     {
-        ServerConnection* conn = (ServerConnection*)packet.tag;
+        DECL_PACKET_PROC_ARGS;
 
         BroadcastPacket(PacketChat{
-            Strings::fmt("From Server: <{}>: {}", conn->mPlayerName, packet.message)
+            Strings::fmt("<{}>: {}", conn->mPlayerName, packet.message)
         });
+    }
+
+    static void processLogin(const CPacketLogin& packet)
+    {
+        DECL_PACKET_PROC_ARGS;
+
+        conn->mPlayerName = packet.uuid;
     }
 
     template<typename PacketType>

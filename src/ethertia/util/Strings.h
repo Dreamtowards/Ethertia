@@ -55,6 +55,25 @@ public:
         return ss.str();
     }
 
+    inline static const size_t SIZE_KB = 1024,
+                               SIZE_MB = SIZE_KB * 1024,
+                               SIZE_GB = SIZE_MB * 1024,
+                               SIZE_TB = SIZE_GB * 1024;
+
+    static std::string size_str(size_t bytes) {
+        if (bytes < SIZE_KB) {
+            return std::to_string(bytes) + " B";
+        } else if (bytes < SIZE_MB) {
+            return std::to_string((float)bytes / SIZE_KB) + " KB";
+        } else if (bytes < SIZE_GB) {
+            return std::to_string((float)bytes / SIZE_MB) + " MB";
+        } else if (bytes < SIZE_TB) {
+            return std::to_string((float)bytes / SIZE_GB) + " GB";
+        } else {
+            return std::to_string((float)bytes / SIZE_TB) + " TB";
+        }
+    }
+
 
     template<typename... ARGS>
     static std::string fmt(const std::string& pat, ARGS... args) {

@@ -28,22 +28,22 @@ public:
         setHeight(Inf);
 
         GuiStack* vbox = new GuiStack(GuiStack::D_VERTICAL);
-        vbox->setWidth(500);
+        vbox->setWidth(800);
 
         {
             chatlist = new GuiStack(GuiStack::D_VERTICAL);
 
-            chatlist->addDrawBackground(Colors::BLACK10);
+            chatlist->addDrawBackground(Colors::BLACK40);
             chatlist->setWidth(Inf);
             chatlist->setHeight(300);
             vbox->addGui(chatlist);
         }
 
-        vbox->addGui(new Gui(0, 0, 0, 8));  // gap
+        vbox->addGui(new Gui(0, 0, 0, 2));  // gap
 
         GuiTextBox* input = new GuiTextBox("");
         input->setWidth(Inf);
-        input->setHeight(28);
+        input->setHeight(16);
         input->setSingleLine(true);
         input->setFocused(true);
         input->addOnReturnListener([=](GuiTextBox::OnReturn* e) {
@@ -67,6 +67,13 @@ public:
         GuiText* g = new GuiText(std::move(msg));
 
         chatlist->addGui(g);
+    }
+
+    void onDraw() override
+    {
+        Gui::drawRect(0, Gui::maxHeight() - 16, Gui::maxWidth(), 16, Colors::alpha(Colors::BLACK, 0.9f));
+
+        Gui::onDraw();
     }
 };
 

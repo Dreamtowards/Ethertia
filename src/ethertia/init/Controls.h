@@ -26,7 +26,8 @@ public:
     }
 
 
-    static void initControls() {
+    static void initControls()
+    {
         Window* win = Ethertia::getWindow();
 
         initMouseDigControls();

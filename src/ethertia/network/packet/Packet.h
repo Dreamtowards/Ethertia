@@ -23,10 +23,13 @@
         pack(X, ##__VA_ARGS__); \
     }
 
-#define INIT_PACKET(PacketId, PacketType, PacketHandler) \
+#define INIT_PACKET_ID(PacketId, PacketType)  \
     assert(Packet::Id<PacketType>::val == 0); \
-    Packet::Id<PacketType>::val = PacketId; \
-    Packet::_HANDLER_MAP[PacketId] = [](std::uint8_t* data, std::size_t len, void* tag) { \
+    Packet::Id<PacketType>::val = PacketId;
+
+#define INIT_PACKET_PROC(PacketType, PacketHandler) \
+    assert(Packet::Id<PacketType>::val != 0); \
+    Packet::_HANDLER_MAP[Packet::Id<PacketType>::val] = [](std::uint8_t* data, std::size_t len, void* tag) { \
         PacketType p = msgpack::unpack<PacketType>(data, len); \
         p.tag = tag; \
         PacketHandler(p); \
@@ -36,31 +39,32 @@
 class Packet
 {
 public:
+    using PacketId_t = std::uint16_t;
 
     template<typename T>
     struct Id {
     public:
-        inline static int val = 0;
+        inline static PacketId_t val = 0;
     };
 
-    using PacketHandle = std::function<void(std::uint8_t* data, std::size_t len, void* tag)>;
+    using PacketHandler = std::function<void(std::uint8_t* data, std::size_t len, void* tag)>;
 
-    inline static std::unordered_map<std::uint16_t, PacketHandle> _HANDLER_MAP;
+    inline static std::unordered_map<PacketId_t, Packet::PacketHandler> _HANDLER_MAP;
 
 
 
-    static const PacketHandle& FindHandler(std::uint16_t PacketId)
+    static const PacketHandler& FindHandler(PacketId_t PacketId)
     {
         auto it = Packet::_HANDLER_MAP.find(PacketId);
         if (it == Packet::_HANDLER_MAP.end())
-            throw std::runtime_error("unsupported packet id " + std::to_string(PacketId));
+            throw std::runtime_error("no handler for packet id " + std::to_string(PacketId));
 
         return it->second;
     }
 
     static void ProcessPacket(std::uint8_t* data, std::size_t len, void* tag = nullptr)
     {
-        uint16_t PacketId = Endian::of_bigendian(*(uint16_t*)data);  // first 2 bytes is PacketTypeId
+        PacketId_t PacketId = Endian::of_bigendian(*(PacketId_t*)data);  // first 2 bytes is PacketTypeId
 
         auto& handler = Packet::FindHandler(PacketId);
 
@@ -75,7 +79,7 @@ public:
 
         // Write PacketId
 
-        std::uint16_t PacketId = Packet::Id<PacketType>::val;
+        PacketId_t PacketId = Packet::Id<PacketType>::val;
         assert(PacketId != 0);
 
         data.insert(data.begin(), 2, 0);

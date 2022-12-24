@@ -17,15 +17,20 @@ public:
 
     static void initPackets() {
 
-        INIT_PACKET(1, PacketChat, ClientConnectionProc::handlePacket);
+        _InitPacketIds();
+
+        INIT_PACKET_PROC(PacketChat, ClientConnectionProc::handlePacket);
 
 
     }
 
+    static void nil(CPacketLogin& p) {
+
+    }
 
     static void handlePacket(const PacketChat& packet) {
 
-        Log::info("[CHAT]", packet.message);
+        Log::info("", packet.message);
 
         GuiScreenChat::INST->appendMessage(packet.message);
     }

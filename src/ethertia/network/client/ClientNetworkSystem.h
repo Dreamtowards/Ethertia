@@ -8,12 +8,15 @@
 #include <ethertia/network/Network.h>
 #include <ethertia/network/packet/Packet.h>
 
+// Client NetworkSystem
+
 class ClientNetworkSystem
 {
 public:
 
     inline static Network::Host* m_NetworkHost = nullptr;
     inline static Network::Peer* m_Connection  = nullptr;
+
 
     static void init()
     {
@@ -46,6 +49,11 @@ public:
                 [hostname, port](auto& e) {  // Conn
 
                     Log::info("Connection established {}:{}.", hostname, port);
+
+                    SendPacket(CPacketLogin{
+                        "MyName",
+                        "MyToken"
+                    });
                 },
                 [](ENetEvent& e) {  // Recv
                     // Log::info("Received {} bytes '{}'", e.packet->dataLength, std::string((char*)e.packet->data, e.packet->dataLength));
@@ -67,13 +75,14 @@ public:
 
     static void SendPacket(void* data, size_t len)
     {
+        assert(m_Connection);
         // Log::info("PacketSent[{}]: '{}'\n{}", len, std::string((char*)data, len), Strings::hex(data, len));
 
         Network::SendPacket(m_Connection, data, len);
     }
 
     template<typename PacketType>
-    static void SendPacket(PacketType& packet)
+    static void SendPacket(PacketType packet)
     {
         std::vector<std::uint8_t> data = Packet::ComposePacket(packet);
 

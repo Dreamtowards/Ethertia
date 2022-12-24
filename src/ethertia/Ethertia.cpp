@@ -76,7 +76,7 @@ void Ethertia::start()
     ClientConnectionProc::initPackets();
 
     ClientNetworkSystem::init();
-    ClientNetworkSystem::connect("127.0.0.1", 8081);
+    // ClientNetworkSystem::connect("127.0.0.1", 8081);
 
 
     m_Player = new EntityPlayer();
@@ -200,11 +200,9 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
 
     if (cmdline[0] != '/') {
-        PacketChat p = PacketChat{
+        ClientNetworkSystem::SendPacket(PacketChat{
                 cmdline
-        };
-
-        ClientNetworkSystem::SendPacket(p);
+        });
         return;
     }
 

@@ -53,7 +53,7 @@ void DedicatedServer::processNetwork()
         uint8_t* data = (uint8_t*)e.packet->data;
         size_t dataLen = e.packet->dataLength;
 
-        Log::info("Received [{}]: '{}'\n{}", dataLen, std::string((char*)data, dataLen), Strings::hex(data, dataLen));
+        // Log::info("Received [{}]: '{}'\n{}", dataLen, std::string((char*)data, dataLen), Strings::hex(data, dataLen));
 
         Packet::ProcessPacket(data, dataLen, e.peer->data);
 

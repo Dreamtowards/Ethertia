@@ -13,7 +13,6 @@ struct PacketChat
 
 
     DECL_PACKET(message);
-
 };
 
 struct CPacketLogin
@@ -21,7 +20,16 @@ struct CPacketLogin
     std::string uuid;
     std::string token;
 
+
     DECL_PACKET(uuid, token);
 };
+
+void _InitPacketIds()
+{
+
+    INIT_PACKET_ID(1, PacketChat);
+    INIT_PACKET_ID(2, CPacketLogin);
+
+}
 
 #endif //ETHERTIA_PACKETCHAT_H

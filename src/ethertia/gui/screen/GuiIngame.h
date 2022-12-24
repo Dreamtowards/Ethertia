@@ -24,6 +24,7 @@
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/chunk/ChunkRenderProcessor.h>
+#include <ethertia/util/MemoryTrack.h>
 
 
 class GuiIngame : public GuiCollection
@@ -238,14 +239,16 @@ public:
                     "ChunkMesh({} {}ms, avg {}ms)\n"
                     "ChunkEmit({} {}ms, avg {}ms)\n"
                     "task {}, async {}\n"
-                    "dt: {}, {}fps\n",
+                    "dt: {}, {}fps\n"
+                    "mem: {}, alloc {}, freed: {}",
                     glm::to_string(Ethertia::getCamera()->position), Ethertia::getCamera()->len,
                     rde->g_NumEntityRendered, Ethertia::getWorld()->getEntities().size(),
                     cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                     cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
                     cinfo.numEmit, cinfo.sumTimeEmit * 1000, (cinfo.sumTimeEmit / cinfo.numEmit * 1000),
                     Ethertia::getScheduler()->getTasks().size(), Ethertia::getAsyncScheduler()->getTasks().size(),
-                    dt, Mth::floor(1.0f/dt));
+                    dt, Mth::floor(1.0f/dt),
+                    Strings::size_str(MemoryTrack::g_MemoryPresent()), Strings::size_str(MemoryTrack::g_MemoryAllocated), Strings::size_str(MemoryTrack::g_MemoryFreed));
             }
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
 
@@ -378,8 +381,8 @@ public:
             dx += drawProfilerSection(sub_sec, x+dx, y-SEC_H, sec_width, sec_time);
         }
 
-        float tex_h = 16 * 6;
-        if (Gui::isCursorOver(x, y, sec_width, SEC_H)) {
+        if (!Ethertia::isIngame() && Gui::isCursorOver(x, y, sec_width, SEC_H)) {
+            float tex_h = 16 * 6;
             Gui::drawRect(x, y-tex_h, sec_width, tex_h, Colors::BLACK80);
             Gui::drawString(x, y-tex_h, sec.name, color);
             Gui::drawString(x, y-tex_h, Strings::fmt("\n"
