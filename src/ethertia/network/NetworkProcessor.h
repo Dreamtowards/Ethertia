@@ -7,6 +7,10 @@
 
 #include <ethertia/network/Network.h>
 
+#include <ethertia/network/packet/Packet.h>
+
+#include <msgpack/msgpack.hpp>
+
 // Client NetworkSystem
 
 class NetworkProcessor
@@ -55,19 +59,12 @@ public:
             {
                 Network::Polls(m_NetworkHost, [](auto& e){  // Conn
 
+                    Log::info("Client Connect");
+                }, [](ENetEvent& e) {  // Recv
 
+                    OnRecvPacket(e.packet->data, e.packet->dataLength);
 
-                }, [](auto& e) {  // Recv
-                    void* data = e.packet->data;
-                    size_t dataLen = e.packet->dataLength;
-
-                    Log::info("Received {} bytes '{}'", dataLen, std::string((char*)data, dataLen));
                 }, [](auto& e) {  // Drop
-
-
-
-                    Log::info("Disconn ");
-
                     m_Connection = nullptr;
                 });
 
@@ -80,8 +77,40 @@ public:
         });
     }
 
+    static void OnRecvPacket(std::uint8_t* data, std::size_t len)
+    {
+        Log::info("Received {} bytes '{}'", len, std::string((char*)data, len));
+
+        uint16_t PacketId = *data;  // first 2 bytes is PacketTypeId
+        using PacketType = PacketChat; // GetType_by_PacketTypeId
+
+        PacketType packet = msgpack::unpack<PacketType>(data + 2, len - 2);
+
+        handlePacket(packet);
+
+        Packet* p = CreatePacketInstance(PacketId);
+        p.read(data);
+//        eventbus.pust(p);
+        p.dispatch();
+
+        switch (PacketId) {
+            case PacketChat::ID:
+                handleChat(packet);
+                break;
+        }
 
 
+    }
+
+    static void handlePacket(PacketChat& packet) {
+
+    }
+
+    static void handleChat(PacketChat& packet) {
+
+
+
+    }
 };
 
 #endif //ETHERTIA_NETWORKPROCESSOR_H

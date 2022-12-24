@@ -1,0 +1,25 @@
+dist: xenial
+sudo: true
+language: cpp
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
+
+matrix:
+  include:
+    - os: linux
+      before_install:
+        - git clone https://github.com/catchorg/Catch2.git
+        - cd Catch2
+        - cmake -Bbuild -H. -DBUILD_TESTING=OFF
+        - sudo env "PATH=$PATH" cmake --build build/ --target install
+        - cd ..
+
+script:
+  - CXX=/usr/bin/g++-7 CC=/usr/bin/gcc-7 cmake .
+  - cmake --build . -- -j2
+  - ./msgpack/tests/Msgpack_tests

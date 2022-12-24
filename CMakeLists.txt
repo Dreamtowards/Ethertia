@@ -12,14 +12,15 @@ include_directories(lib/glfw/include)
 include_directories(lib/bullet3/src)
 include_directories(lib/json/include)
 #include_directories(lib/fmt/include)
-include_directories(lib/asio/include)
+#include_directories(lib/asio/include)
 include_directories(lib/enet/include)
+include_directories(lib/msgpack/include)
 
 
 
 add_executable(Ethertia
         lib/glad/glad.c
-        src/ethertia/event/EventBus.cpp
+        # src/ethertia/event/EventBus.cpp
 
         src/ethertia/gui/Gui.cpp
         src/ethertia/render/RenderEngine.cpp

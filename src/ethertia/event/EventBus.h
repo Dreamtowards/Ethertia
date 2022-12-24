@@ -52,7 +52,7 @@ public:
         template<typename Lambda>
         using GetLambdaEventType = decltype(GetLambdaFuncPtrEventType(&Lambda::operator()));
 
-        // (Event) "TypeId". unique for each type.
+        // (Event) "TypeId". unique for each type. only runtime-valid identical
         template<typename E>
         static u32 GetEventId() {
             static char val = 0;

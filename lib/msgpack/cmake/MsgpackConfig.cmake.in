@@ -1,0 +1,8 @@
+get_filename_component(Msgpack_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(CMakeFindDependencyMacro)
+
+if(NOT TARGET Msgpack)
+    include("${Msgpack_CMAKE_DIR}/MsgpackTargets.cmake")
+endif()
+
+set(Msgpack_LIBRARIES Msgpack)
