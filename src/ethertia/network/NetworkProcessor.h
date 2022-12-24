@@ -9,7 +9,6 @@
 
 #include <ethertia/network/packet/Packet.h>
 
-#include <msgpack/msgpack.hpp>
 
 // Client NetworkSystem
 
@@ -40,11 +39,22 @@ public:
         Network::Deinit(m_NetworkHost);
     }
 
+    static void sendPacket(void* data, size_t len)
+    {
+        Log::info("PacketSent[{}]: '{}'\n{}", len, std::string((char*)data, len), Strings::hex(data, len));
+
+        Network::SendPacket(m_Connection, data, len);
+    }
     static void sendPacket(const std::string& str) {
         sendPacket((void*)str.c_str(), str.size());
     }
-    static void sendPacket(void* data, size_t len) {
-        Network::SendPacket(m_Connection, data, len);
+
+    template<typename PacketType>
+    static void SendPacket(PacketType& packet)
+    {
+        std::vector<std::uint8_t> data = Packet::ComposePacket(packet);
+
+        sendPacket(data.data(), data.size());
     }
 
     static void disconnect()
@@ -70,8 +80,9 @@ public:
 
                     Log::info("Client Connect");
                 }, [](ENetEvent& e) {  // Recv
+                    Log::info("Received {} bytes '{}'", e.packet->dataLength, std::string((char*)e.packet->data, e.packet->dataLength));
 
-                    OnRecvPacket(e.packet->data, e.packet->dataLength);
+                    Packet::ProcessPacket(e.packet->data, e.packet->dataLength);
 
                 }, [](auto& e) {  // Drop
                     m_Connection = nullptr;
@@ -86,33 +97,10 @@ public:
         });
     }
 
-    static void OnRecvPacket(std::uint8_t* data, std::size_t len)
-    {
-        uint16_t PacketId = *data;  // first 2 bytes is PacketTypeId
-
-        auto& handler = Packet::FindHandler(PacketId);
-
-        handler(data + 2, len - 2);
-
-        Log::info("Received {} bytes '{}'", len, std::string((char*)data, len));
-    }
-
-    template<typename PacketType>
-    static void OnSendPacket(PacketType packet) {
-
-        std::vector<std::uint8_t> data = msgpack::pack(packet);
-
-        data.insert(data.begin(), 2, 0);
-    }
 
     static void handlePacket(const PacketChat& packet) {
 
-    }
-
-    static void handleChat(const PacketChat& packet) {
-
-
-
+        Log::info("HandleChat, content: ", packet.message);
     }
 };
 

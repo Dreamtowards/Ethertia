@@ -2,7 +2,7 @@
 // Created by Dreamtowards on 2022/6/5.
 //
 
-#ifndef ETHERTIA_IO_H
+#ifndef ETHERTIA_ENDIAN_H
 #define ETHERTIA_IO_H
 
 class IO
@@ -77,4 +77,4 @@ public:
 
 };
 
-#endif //ETHERTIA_IO_H
+#endif //ETHERTIA_ENDIAN_H

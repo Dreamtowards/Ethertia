@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <unordered_map>
 
 class Collections
 {
@@ -53,6 +54,14 @@ public:
     template<typename T>
     static void push_back_all(std::vector<T>& dst, std::vector<T>& add) {
         dst.insert(dst.end(), add.begin(), add.end());
+    }
+
+    static void cpy(const void* src, void* dst, std::size_t len)
+    {
+        for (int i = 0; i < len; ++i)
+        {
+            ((char*)dst)[i] = ((char*)src)[i];
+        }
     }
 
 private:

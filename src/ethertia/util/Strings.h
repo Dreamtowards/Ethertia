@@ -39,10 +39,18 @@ public:
 
     static std::string hex(void* data, std::size_t len = 1, bool uppercase = false)
     {
+        static char DIGIT[] = {
+                '0', '1', '2', '3', '4', '5', '6', '7',
+                '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+        };
+
         std::stringstream ss;
         for (int i = 0; i < len; ++i) {
-            ss << std::hex << std::setfill('0') << std::setw(2) <<
-            (uppercase ? std::uppercase : std::nouppercase) << ((uint16_t*)data)[i];
+            std::uint8_t b = ((std::uint8_t*)data)[i];
+
+            int b0 = (b >> 4) & 0x0F;
+            int b1 = b & 0x0F;
+            ss << DIGIT[b0] << DIGIT[b1];
         }
         return ss.str();
     }

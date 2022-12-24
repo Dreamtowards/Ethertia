@@ -7,6 +7,8 @@
 
 
 #include <ethertia/network/Network.h>
+#include <ethertia/network/packet/Packet.h>
+#include <ethertia/server/ServerNetworkProcessor.h>
 
 #include <ethertia/util/Log.h>
 #include <ethertia/util/BenchmarkTimer.h>
@@ -45,6 +47,8 @@ public:
         Log::info("Server host listen on port {}", m_ServerPort);
 
 
+        ServerNetworkProcessor::initPackets();
+
     }
 
     static void runMainLoop()
@@ -61,12 +65,12 @@ public:
 
             Log::info("New connection");
         }, [](ENetEvent& e) {  // Recv
-            void* data = e.packet->data;
+            uint8_t* data = (uint8_t*)e.packet->data;
             size_t dataLen = e.packet->dataLength;
 
-            Log::info("Received {} bytes '{}'", dataLen, std::string((char*)data, dataLen));
+            Log::info("Received [{}]: '{}'", dataLen, std::string((char*)data, dataLen), Strings::hex(data, dataLen));
 
-            Network::SendPacket(e.peer, Strings::fmt("you send: ", std::string((char*)data, dataLen)));
+            Packet::ProcessPacket(data, dataLen);
 
         }, [](auto& e) {  // Drop
 

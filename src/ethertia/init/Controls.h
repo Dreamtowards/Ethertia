@@ -26,7 +26,11 @@ public:
                 }
                 else
                 {
-                    NetworkProcessor::sendPacket(line);
+                    PacketChat p = PacketChat{
+                            "MyMessage From Client"
+                    };
+
+                    NetworkProcessor::SendPacket(p);
                 }
             }
         });

@@ -11,7 +11,7 @@
 //#include "unordered_map"
 //#include "msgpack/include/msgpack/msgpack.hpp"
 
-#include <ethertia/util/IO.h>
+#include <ethertia/util/Endian.h>
 
 struct PacketTest
 {
@@ -27,12 +27,7 @@ struct PacketTest
 
 int main()
 {
-    Log::info("Big: ", IO::is_big_endian());
-
-    int i = 5;
-    Log::info("Hex: ", Strings::hex(&i, 4));
-
-//    DedicatedServer::run();
+    DedicatedServer::run();
 
 //    Packet p;
 

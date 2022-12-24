@@ -6,10 +6,16 @@
 #define ETHERTIA_PACKET_H
 
 #include <string>
+#include <unordered_map>
+
+#include <system_error>
+#include <msgpack/msgpack.hpp>
+
+#include <ethertia/util/Endian.h>
+#include <ethertia/util/Collections.h>
 
 #include "PacketChat.h"
 
-#include <bit>
 
 
 #define DEF_PACKET(PacketId, PacketType, PacketHandler) \
@@ -39,12 +45,38 @@ public:
     {
         auto it = Packet::_HANDLER_MAP.find(PacketId);
         if (it == Packet::_HANDLER_MAP.end())
-            throw std::runtime_error("unsupported packet id.");
+            throw std::runtime_error("unsupported packet id " + std::to_string(PacketId));
 
-        std::end
         return it->second;
     }
 
+    static void ProcessPacket(std::uint8_t* data, std::size_t len)
+    {
+        uint16_t PacketId = Endian::of_bigendian(*data);  // first 2 bytes is PacketTypeId
+
+        auto& handler = Packet::FindHandler(PacketId);
+
+        handler(data + 2, len - 2);
+    }
+
+
+    template<typename PacketType>
+    static std::vector<std::uint8_t> ComposePacket(PacketType& packet)
+    {
+        std::vector<std::uint8_t> data = msgpack::pack(packet);
+
+        // Write PacketId
+
+        std::uint16_t PacketId = Packet::Id<PacketType>::val;
+        assert(PacketId != 0);
+
+        data.insert(data.begin(), 2, 0);
+
+        uint16_t be = Endian::bigendian(PacketId);
+        Collections::cpy(&be, data.data(), 2);
+
+        return data;
+    }
 
 };
 

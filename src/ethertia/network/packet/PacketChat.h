@@ -11,6 +11,21 @@ struct PacketChat
 {
 
     std::string message;
+    int sthOther = 0;
+
+
+
+//#define PACK(X) template<typename T> \
+//                void pack(T& pack) { \
+//                    pack(X); \
+//                }                    \
+//
+//    PACK(message);
+
+    template<typename T>
+    void pack(T& pack) {
+        pack(message, sthOther);
+    }
 
 };
 
