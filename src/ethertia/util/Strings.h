@@ -37,6 +37,15 @@ public:
         return Strings::str(std::put_time(tm_info, _fmt));
     }
 
+    static std::string hex(void* data, std::size_t len = 1, bool uppercase = false)
+    {
+        std::stringstream ss;
+        for (int i = 0; i < len; ++i) {
+            ss << std::hex << std::setfill('0') << std::setw(2) <<
+            (uppercase ? std::uppercase : std::nouppercase) << ((uint16_t*)data)[i];
+        }
+        return ss.str();
+    }
 
 
     template<typename... ARGS>

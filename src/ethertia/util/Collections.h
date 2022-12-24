@@ -32,6 +32,11 @@ public:
         return std::find(ls.begin(), ls.end(), e) != ls.end();
     }
 
+    template<typename K, typename V>
+    static bool existsKey(const std::unordered_map<K, V>& c, const K& k) {
+        return c.find(k) != c.end();
+    }
+
     template<typename T>
     static void erase(std::vector<T>& ls, const T& r) {
         ls.erase(ls.begin() + find(ls, r));

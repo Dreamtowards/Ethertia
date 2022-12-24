@@ -7,9 +7,8 @@
 
 #include <string>
 
-class PacketChat
+struct PacketChat
 {
-public:
 
     std::string message;
 

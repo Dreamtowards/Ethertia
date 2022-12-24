@@ -21,9 +21,18 @@ public:
     inline static Network::Peer* m_Connection  = nullptr;
 
 
-    static void init() {
+    static void init()
+    {
+        initPackets();
 
         m_NetworkHost = Network::newClient();
+    }
+
+    static void initPackets() {
+
+        DEF_PACKET(1, PacketChat, NetworkProcessor::handlePacket);
+
+
     }
 
     static void deinit() {
@@ -79,34 +88,28 @@ public:
 
     static void OnRecvPacket(std::uint8_t* data, std::size_t len)
     {
-        Log::info("Received {} bytes '{}'", len, std::string((char*)data, len));
-
         uint16_t PacketId = *data;  // first 2 bytes is PacketTypeId
-        using PacketType = PacketChat; // GetType_by_PacketTypeId
 
-        PacketType packet = msgpack::unpack<PacketType>(data + 2, len - 2);
+        auto& handler = Packet::FindHandler(PacketId);
 
-        handlePacket(packet);
+        handler(data + 2, len - 2);
 
-        Packet* p = CreatePacketInstance(PacketId);
-        p.read(data);
-//        eventbus.pust(p);
-        p.dispatch();
+        Log::info("Received {} bytes '{}'", len, std::string((char*)data, len));
+    }
 
-        switch (PacketId) {
-            case PacketChat::ID:
-                handleChat(packet);
-                break;
-        }
+    template<typename PacketType>
+    static void OnSendPacket(PacketType packet) {
 
+        std::vector<std::uint8_t> data = msgpack::pack(packet);
+
+        data.insert(data.begin(), 2, 0);
+    }
+
+    static void handlePacket(const PacketChat& packet) {
 
     }
 
-    static void handlePacket(PacketChat& packet) {
-
-    }
-
-    static void handleChat(PacketChat& packet) {
+    static void handleChat(const PacketChat& packet) {
 
 
 
