@@ -19,17 +19,19 @@
 
 class ShaderProgram {
 
-    u32 program;
-    std::unordered_map<const char*, u32> cachedUniformId;
+    GLuint program;
+    std::unordered_map<const char*, GLuint> cachedUniformId;
 
 public:
 
+    bool m_Good = true;
+
     ShaderProgram(const std::string& vsh_src, const std::string& fsh_src, const std::string& gsh_src = "") {
 
-        u32 vsh = loadShader(GL_VERTEX_SHADER, vsh_src);
-        u32 fsh = loadShader(GL_FRAGMENT_SHADER, fsh_src);
-        u32 gsh = 0;
-        if (gsh_src.length()) {
+        GLuint vsh = loadShader(GL_VERTEX_SHADER, vsh_src);
+        GLuint fsh = loadShader(GL_FRAGMENT_SHADER, fsh_src);
+        GLuint gsh = 0;
+        if (!gsh_src.empty()) {
             gsh = loadShader(GL_GEOMETRY_SHADER, gsh_src);
         }
 
@@ -47,7 +49,8 @@ public:
         if (!succ) {
             char infolog[512];
             glGetProgramInfoLog(program, 512, nullptr, infolog);
-            throw std::logic_error(Strings::fmt("Failed to link the shader program:\n", infolog));
+            Log::warn("Failed to link the shader program:\n", infolog);
+            m_Good = false;
         }
 
         glDeleteShader(vsh);
@@ -108,8 +111,8 @@ public:
 
 
 private:
-    static uint loadShader(GLuint shadertype, const std::string& src) {
-        uint s = glCreateShader(shadertype);
+    GLuint loadShader(GLuint shadertype, const std::string& src) {
+        GLuint s = glCreateShader(shadertype);
         const char* cstr = src.c_str();
         glShaderSource(s, 1, &cstr, nullptr);
         glCompileShader(s);
@@ -119,7 +122,8 @@ private:
         if (!succ) {
             char infolog[512];
             glGetShaderInfoLog(s, 512, nullptr, infolog);
-            throw std::logic_error(Strings::fmt("Failed to compile the shader:\n", infolog));
+            Log::warn("Failed to compile the shader:\n", infolog);
+            m_Good = false;
         }
         return s;
     }

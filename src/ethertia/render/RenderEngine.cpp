@@ -82,7 +82,6 @@ Framebuffer::gPushFramebuffer(gbuffer);
         if (!viewFrustum.intersects(entity->getAABB())) {
             continue;
         }
-        ++g_NumEntityRendered;
 
         if (dynamic_cast<EntityMesh*>(entity) && dynamic_cast<EntityMesh*>(entity)->m_FaceCulling) {
             glEnable(GL_CULL_FACE);
@@ -90,6 +89,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
             if (dbg_NoVegetable) continue;
             glDisable(GL_CULL_FACE);
         }
+        ++g_NumEntityRendered;
         PROFILE("E/"+entity->name);
 
         entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation());

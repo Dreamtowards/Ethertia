@@ -18,39 +18,58 @@ include_directories(lib/msgpack/include)
 
 
 
+
 add_executable(Ethertia
         lib/glad/glad.c
         # src/ethertia/event/EventBus.cpp
-        # "C:/Users/Dreamtowards/Desktop/DevTools/winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2/mingw64/x86_64-w64-mingw32/lib/libwsock32.a"
 
         src/ethertia/gui/Gui.cpp
         src/ethertia/render/RenderEngine.cpp
         src/ethertia/Ethertia.cpp
         )
 
-if (APPLE)
-target_link_libraries(Ethertia PRIVATE
-        "-framework Cocoa"
-        "-framework OpenGL"
-        "-framework IOKit"
-        "-framework OpenAL")
-endif()
-if (WIN32)
-#   mingw-w64 WinLibs build, add mingw64/bin to PATH without space. "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2.zip" 'https://winlibs.com/'
-
-    # have order.
-    target_link_libraries(Ethertia PRIVATE winmm gdi32 wsock32 ws2_32)
-endif()
-
 # lib glfw
 add_subdirectory(lib/glfw)
 target_link_libraries(Ethertia PRIVATE glfw)
-
 
 # lib bullet3
 add_subdirectory(lib/bullet3)
 target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath)
 # [examples, Extras, test, build3] are disabled.
+
+
+
+
+add_executable(DedicatedServer
+        src/ethertia/server/DedicatedServer.cpp
+        )
+
+
+if (APPLE)
+    target_link_libraries(Ethertia PRIVATE
+            "-framework Cocoa"
+            "-framework OpenGL"
+            "-framework IOKit"
+            "-framework OpenAL")
+endif()
+if (WIN32)
+    #   mingw-w64 WinLibs build, add mingw64/bin to PATH without space. "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2.zip" 'https://winlibs.com/'
+
+    # have order.
+    target_link_libraries(Ethertia        PRIVATE winmm gdi32 wsock32 ws2_32)
+    target_link_libraries(DedicatedServer PRIVATE winmm gdi32 wsock32 ws2_32)
+endif()
+
+
+
+
+
+add_executable(Elytra
+        src/ethertia/lang/symbol/Scope.cpp
+        src/ethertia/lang/lexer/TokenType.cpp
+        src/ethertia/lang/symbol/SymbolInternalTypes.cpp
+        )
+
 
 
 ## lib fmt
@@ -59,10 +78,22 @@ target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath
 
 
 
+#target_precompile_headers(Ethertia PRIVATE
+#        <algorithm>
+#        "lib/json/include/nlohmann/json.hpp"
+#        )
 
-add_executable(DedicatedServer
-        src/ethertia/server/DedicatedServer.cpp
-        )
+#set(CMAKE_C_COMPILER ccache gcc)
+#set(CMAKE_CXX_COMPILER ccache g++)
+
+#find_program(CCACHE_PROGRAM ccache)
+#if(CCACHE_PROGRAM)
+#    message(STATUS "Set up ccache ...")
+#    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+#    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+#endif()
+
+
 
 
 
@@ -78,10 +109,3 @@ add_executable(DedicatedServer
 
 
 
-
-
-add_executable(Elytra
-        src/ethertia/lang/symbol/Scope.cpp
-        src/ethertia/lang/lexer/TokenType.cpp
-        src/ethertia/lang/symbol/SymbolInternalTypes.cpp
-        )

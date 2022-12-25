@@ -6,11 +6,11 @@
 #define ETHERTIA_DEDICATEDSERVER_H
 
 
-#include <ethertia/network/Network.h>
-#include <ethertia/network/packet/Packet.h>
-
 #include <ethertia/util/Log.h>
 #include <ethertia/util/BenchmarkTimer.h>
+
+#include <ethertia/network/Network.h>
+#include <ethertia/network/packet/Packet.h>
 
 class DedicatedServer
 {

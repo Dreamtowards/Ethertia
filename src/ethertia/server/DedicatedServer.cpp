@@ -5,8 +5,8 @@
 #ifndef ETHERTIA_DEDICATEDSERVER_CPP
 #define ETHERTIA_DEDICATEDSERVER_CPP
 
-#include <ethertia/server/DedicatedServer.h>
 
+#include <ethertia/server/DedicatedServer.h>
 #include <ethertia/network/server/ServerConnectionProc.h>
 
 
@@ -27,11 +27,13 @@ void DedicatedServer::startServer()
 
     initConsoleThread();
 
+    ServerConnectionProc::initPackets();
+
+    Network::Init();
     m_ServerHost = Network::newServer(m_ServerPort);
     Log::info("Server host listen on port {}", m_ServerPort);
 
 
-    ServerConnectionProc::initPackets();
 
 }
 

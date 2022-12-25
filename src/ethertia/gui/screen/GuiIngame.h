@@ -99,7 +99,7 @@ public:
                 });
             }
             {
-                GuiButton* btnClearProfilerData = new GuiButton("Clear Profile Data");
+                GuiButton* btnClearProfilerData = new GuiButton("Reset Prof");
                 opts->addGui(btnClearProfilerData);
                 btnClearProfilerData->addOnClickListener([](OnReleased* e) {
                     Ethertia::getProfiler().sectionToBeClear = &Ethertia::getProfiler().m_RootSection.find("Frame");

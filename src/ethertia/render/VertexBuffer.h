@@ -48,7 +48,7 @@ public:
     }
 
     void _add_mtl_id(int i) {
-        adduv(i, 123.321);
+        adduv(i, 1342);
     }
 
     [[nodiscard]] size_t vertexCount() const {
