@@ -1,4 +1,5 @@
 #version 330 core
+#define OPT
 
 layout(location = 0) out vec4 gPositionDepth;
 layout(location = 1) out vec3 gNormal;
@@ -49,11 +50,17 @@ vec4 tri_samp(sampler2D tex, int MtlId, vec3 FragPos, vec3 blend) {
     vec2 uvY = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.z);
     vec2 uvZ = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
 
+#ifdef OPT
+    return (
+        texture(tex, uvY)
+    ).rgba;
+#else
     return (
         texture(tex, uvX) * blend.x +
         texture(tex, uvY) * blend.y +
         texture(tex, uvZ) * blend.z
     ).rgba;
+#endif
 }
 
 vec3 samp_norm(vec2 uv) {
@@ -76,43 +83,46 @@ void main()
             discard;  // duplicated.
         }
     } else {
-        int mostWeightVert = max_i(TriMtlWeight.x, TriMtlWeight.y, TriMtlWeight.z);
 
         vec3 blend = pow(abs(Norm), vec3(6));  // more pow leads more [sharp at norm, mixing at tex]
         blend = blend / (blend.x + blend.y + blend.z);
 
-        vec3 mtlw = pow(TriMtlWeight, vec3(0.6));  // 0.5-0.7. lesser -> more mix
+        int FragMtlId = 0;
+#ifdef OPT
+        int mostWeightVert = max_i(TriMtlWeight.x, TriMtlWeight.y, TriMtlWeight.z);
+        FragMtlId = int(TriMtlId[mostWeightVert]);
+#else
 
+        vec3 mtlw = pow(TriMtlWeight, vec3(0.6));  // 0.5-0.7. lesser -> more mix
         float h0 = tri_samp(displacementMap, int(TriMtlId[0]), FragPos, blend).r * mtlw[0];
         float h1 = tri_samp(displacementMap, int(TriMtlId[1]), FragPos, blend).r * mtlw[1];
         float h2 = tri_samp(displacementMap, int(TriMtlId[2]), FragPos, blend).r * mtlw[2];
         int mostHeightVert = max_i(h0, h1, h2);
+        FragMtlId = int(TriMtlId[mostHeightVert]);
+#endif
 
-        if (TriMtlId[mostHeightVert] == 0) {
+        if (FragMtlId == 0) {
             discard;
         }
-
-//        const int MTL_STONE = 1,
-//                  MTL_GRASS = 2,
-//                  MTL_DIRT = 3;
 
         Albedo =
 //        ((TriMtlId[0] == MTL_GRASS || TriMtlId[1] == MTL_GRASS || TriMtlId[2] == MTL_GRASS ) &&
 //         (TriMtlId[0] == MTL_DIRT || TriMtlId[1] == MTL_DIRT || TriMtlId[2] == MTL_DIRT ) ) ?
-//        tri_samp(diffuseMap, int(TriMtlId[0]), FragPos, blend).rgb * TriMtlWeight[0] +
-//        tri_samp(diffuseMap, int(TriMtlId[1]), FragPos, blend).rgb * TriMtlWeight[1] +
-//        tri_samp(diffuseMap, int(TriMtlId[2]), FragPos, blend).rgb * TriMtlWeight[2]
+//        tri_samp(diffuseMap, int(TriMtlId[0]), FragPos, blend).rgba * TriMtlWeight[0] +
+//        tri_samp(diffuseMap, int(TriMtlId[1]), FragPos, blend).rgba * TriMtlWeight[1] +
+//        tri_samp(diffuseMap, int(TriMtlId[2]), FragPos, blend).rgba * TriMtlWeight[2];
 //        :
-        tri_samp(diffuseMap, int(TriMtlId[mostHeightVert]), FragPos, blend);
+        tri_samp(diffuseMap, FragMtlId, FragPos, blend);
 
-        if (Albedo.a == 0.0) {
+        if (Albedo.a < 0.8) {
             discard;
         }
 
-        Roughness = tri_samp(roughnessMap, int(TriMtlId[mostHeightVert]), FragPos, abs(Norm)).r;
+#ifndef OPT
+        Roughness = tri_samp(roughnessMap, FragMtlId, FragPos, abs(Norm)).r;
 
         {
-            int MtlId = int(TriMtlId[mostHeightVert]);
+            int MtlId = FragMtlId;
             float texScale = 1 / MtlTexScale;
             float ReginPosX  = (MtlId-1) / MtlCap;
             float ReginSizeX = 1.0 / MtlCap;
@@ -132,6 +142,7 @@ void main()
                 Norm
             );
         }
+#endif
 
     }
 

@@ -14,6 +14,8 @@
 #include <ethertia/world/gen/NoiseGeneratorPerlin.h>
 #include <ethertia/util/Log.h>
 
+#include <fastnoise/include/FastNoise/FastNoise.h>
+
 
 class ChunkGenerator
 {
@@ -34,6 +36,8 @@ public:
     Chunk* generateChunk(glm::vec3 chunkpos, World* world) {
         Chunk* chunk = new Chunk(chunkpos, world);
         using glm::vec3;
+
+//        FastNoise::
 
 //            for (int rx = 0; rx < 16; ++rx) {
 //                for (int ry = 0; ry < 16; ++ry) {

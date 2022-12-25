@@ -51,7 +51,7 @@ public:
         // 512  pretty realistic
         // 256  pretty
         // 128  non-realistic
-        const int dest_res = 256;
+        const int dest_res = 64;
         ATLAS_DIFFUSE = makeAtlas("diff", dest_res, "cache/atlas_diff.png");
         ATLAS_NORM    = makeAtlas("norm", dest_res, "cache/atlas_norm.png");
         ATLAS_DISP    = makeAtlas("disp", dest_res, "cache/atlas_disp.png");

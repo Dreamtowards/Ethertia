@@ -2,7 +2,7 @@
   "assets": "../src/assets/",
   "display_height": 1006,
   "display_width": 1515,
-  "fov": 40.0,
+  "fov": 95.00000762939453,
   "fullscreen": false,
   "view_distance": 6.0,
   "vsync": false
