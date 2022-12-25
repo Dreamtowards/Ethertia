@@ -106,6 +106,8 @@ public:
 //        VertexProcess::othonorm(vbufVegetable->vertexCount(), vbufVegetable->positions.data(), vbufVegetable->normals.data(), false);
 
 
+        Loader::saveOBJ("test_chunk.obj", vbufTerrain->vertexCount(), vbufTerrain->positions.data());
+
 
 
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable]() {
