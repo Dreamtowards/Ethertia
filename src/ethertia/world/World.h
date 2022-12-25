@@ -350,7 +350,8 @@ public:
                         replace = Materials::SAND;
                     } else if (nextToAir == 1 //|| nextToAir == 2
                               ) {
-                        replace = Materials::GRASS;
+                        bool tallgrass = world->chunkGenerator.noise.noise(10*x/50.0, 10*z/50.0) > 0.2;
+                        replace = tallgrass ? Materials::MOSS : Materials::GRASS;
                     } else if (nextToAir < 4) {
                         replace = Materials::DIRT;
                     }

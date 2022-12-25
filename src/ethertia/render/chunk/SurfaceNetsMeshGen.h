@@ -106,7 +106,7 @@ public:
                                 assert(MtlId != 0);
                                 vbuf->_add_mtl_id(MtlId);
 
-                                if (MtlId == Materials::GRASS) {
+                                if (MtlId == Materials::MOSS) {
                                     grass_fp.push_back(quadp + fp);
                                 }
 

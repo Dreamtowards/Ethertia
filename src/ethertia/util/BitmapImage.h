@@ -41,6 +41,9 @@ public:
             }
         }
     }
+    void fillPixels(std::uint32_t rgba) {
+        std::fill(pixels, pixels + width*height, rgba);
+    }
     std::uint32_t* getPixels() {
         return pixels;
     }

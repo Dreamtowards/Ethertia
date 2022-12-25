@@ -37,7 +37,8 @@ public:
             "oak_log",
             "plank",
             "leaves",
-            "tallgrass"
+            "tallgrass",
+            "water"
     };
 
     static void init()
@@ -92,6 +93,10 @@ public:
                     delete src;
                 } else {
                     std::cerr << Strings::fmt(" missed '{}'.", path);
+                         if (textype == "diff")  resized->fillPixels(0xFFFFFFFF);  // unit 1
+                    else if (textype == "disp")  resized->fillPixels(0x808080FF);  // middle height
+                    else if (textype == "norm")  resized->fillPixels(0x0000FFFF);  // z=1
+                    else if (textype == "rough") resized->fillPixels(0xFFFFFFFF);  // not specular
                 }
 
                 atlas->setPixels(i * px, 0, resized);

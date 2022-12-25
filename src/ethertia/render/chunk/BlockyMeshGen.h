@@ -138,7 +138,7 @@ public:
         using glm::vec2;
         for (int i = 0; i < 6; ++i) {  // 6 vertices
             // Pos
-            float* _p = &CUBE_POS_CENT[i*3];
+            float* _p = &CUBE_POS_CENT[i*3];  //CUBE_POS_CENT
             vec3 p = vec3(_p[0], _p[1], _p[2]);
             p = trans * glm::vec4(p, 1.0f);
             vbuf->addpos(rpos.x + p.x, rpos.y + p.y, rpos.z + p.z);
@@ -186,15 +186,28 @@ public:
 
     static void putTallgrassStarMesh(VertexBuffer* vbuf, glm::vec3 pos, int mtlId) {
 
-        float deg45 = Mth::PI / 4.0f;
+//        float deg45 = Mth::PI / 4.0f;
 
         float s = 1.2f;
 
-        putFace(vbuf, pos, Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
-                                         Mth::matEulerAngles(glm::vec3(0.0f, deg45*2, 0.0f)),
-                                         glm::vec3(1)*s), mtlId);
-        putFace(vbuf, pos, Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+//        putFace(vbuf, pos, Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+//                                         Mth::matEulerAngles(glm::vec3(0.0f, deg45*2, 0.0f)),
+//                                         glm::vec3(1)*s), mtlId);
+//        putFace(vbuf, pos, Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+//                                         Mth::matEulerAngles(glm::vec3(0.0f, 0, 0.0f)),
+//                                         glm::vec3(1)*s), mtlId);
+
+        glm::vec3 off(0, 0.7, 0);
+
+        float nv3 = Mth::PI / 3.0f;
+        putFace(vbuf, pos, Mth::matModel(off,
                                          Mth::matEulerAngles(glm::vec3(0.0f, 0, 0.0f)),
+                                         glm::vec3(1)*s), mtlId);
+        putFace(vbuf, pos, Mth::matModel(off,
+                                         Mth::matEulerAngles(glm::vec3(0.0f, nv3, 0.0f)),
+                                         glm::vec3(1)*s), mtlId);
+        putFace(vbuf, pos, Mth::matModel(off,
+                                         Mth::matEulerAngles(glm::vec3(0.0f, nv3*2, 0.0f)),
                                          glm::vec3(1)*s), mtlId);
 
     }

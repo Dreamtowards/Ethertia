@@ -99,11 +99,11 @@ public:
         VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
 
         vbufVegetable->normals.reserve(vbufVegetable->vertexCount() * 3);
-//        float* vegnorms = vbufVegetable->normals.data();
-//        for (int n_i = 0; n_i < vbufVegetable->vertexCount(); ++n_i) {
-//            Mth::vec3out(glm::vec3(0, 1, 0), &vegnorms[n_i*3]);
-//        }
-        VertexProcess::othonorm(vbufVegetable->vertexCount(), vbufVegetable->positions.data(), vbufVegetable->normals.data(), false);
+        float* vegnorms = vbufVegetable->normals.data();
+        for (int n_i = 0; n_i < vbufVegetable->vertexCount(); ++n_i) {
+            Mth::vec3out(glm::vec3(0, 1, 0), &vegnorms[n_i*3]);
+        }
+//        VertexProcess::othonorm(vbufVegetable->vertexCount(), vbufVegetable->positions.data(), vbufVegetable->normals.data(), false);
 
 
 
