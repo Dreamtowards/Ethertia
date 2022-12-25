@@ -50,9 +50,9 @@ vec4 tri_samp(sampler2D tex, int MtlId, vec3 FragPos, vec3 blend) {
     vec2 uvZ = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
 
     return (
-//        texture(tex, uvX) * blend.x +
-        texture(tex, uvY) //* blend.y //+
-//        texture(tex, uvZ) * blend.z
+        texture(tex, uvX) * blend.x +
+        texture(tex, uvY) * blend.y +
+        texture(tex, uvZ) * blend.z
     ).rgba;
 }
 
@@ -83,28 +83,27 @@ void main()
 
         vec3 mtlw = pow(TriMtlWeight, vec3(0.6));  // 0.5-0.7. lesser -> more mix
 
-        //float h0 = tri_samp(displacementMap, int(TriMtlId[0]), FragPos, blend).r * mtlw[0];
-        //float h1 = tri_samp(displacementMap, int(TriMtlId[1]), FragPos, blend).r * mtlw[1];
-        //float h2 = tri_samp(displacementMap, int(TriMtlId[2]), FragPos, blend).r * mtlw[2];
-        int mostHeightVert = mostWeightVert;//max_i(h0, h1, h2);
+        float h0 = tri_samp(displacementMap, int(TriMtlId[0]), FragPos, blend).r * mtlw[0];
+        float h1 = tri_samp(displacementMap, int(TriMtlId[1]), FragPos, blend).r * mtlw[1];
+        float h2 = tri_samp(displacementMap, int(TriMtlId[2]), FragPos, blend).r * mtlw[2];
+        int mostHeightVert = max_i(h0, h1, h2);
 
         if (TriMtlId[mostHeightVert] == 0) {
-
-            return;
+            discard;
         }
 
 //        const int MTL_STONE = 1,
 //                  MTL_GRASS = 2,
 //                  MTL_DIRT = 3;
 
-        Albedo = vec4(1);
+        Albedo =
 //        ((TriMtlId[0] == MTL_GRASS || TriMtlId[1] == MTL_GRASS || TriMtlId[2] == MTL_GRASS ) &&
 //         (TriMtlId[0] == MTL_DIRT || TriMtlId[1] == MTL_DIRT || TriMtlId[2] == MTL_DIRT ) ) ?
 //        tri_samp(diffuseMap, int(TriMtlId[0]), FragPos, blend).rgb * TriMtlWeight[0] +
 //        tri_samp(diffuseMap, int(TriMtlId[1]), FragPos, blend).rgb * TriMtlWeight[1] +
 //        tri_samp(diffuseMap, int(TriMtlId[2]), FragPos, blend).rgb * TriMtlWeight[2]
 //        :
-        //tri_samp(diffuseMap, int(TriMtlId[mostHeightVert]), FragPos, blend);
+        tri_samp(diffuseMap, int(TriMtlId[mostHeightVert]), FragPos, blend);
 
         if (Albedo.a == 0.0) {
             discard;

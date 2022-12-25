@@ -34,11 +34,11 @@ public:
             "moss",
             "black_dirt",
             "sand",
-//            "oak_log",
-//            "plank",
-//            "leaves",
-//            "tallgrass",
-//            "water"
+            "oak_log",
+            "plank",
+            "leaves",
+            "tallgrass",
+            "water"
     };
 
     static void init()

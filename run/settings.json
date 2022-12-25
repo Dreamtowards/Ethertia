@@ -4,6 +4,6 @@
   "display_width": 1515,
   "fov": 85.0,
   "fullscreen": false,
-  "view_distance": 0.0,
+  "view_distance": 2.0,
   "vsync": false
 }
