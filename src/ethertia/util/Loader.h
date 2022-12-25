@@ -34,8 +34,9 @@ public:
     {
         std::ifstream file(path, std::ios_base::binary);
         if (!file.is_open()) {
-            //throw std::runtime_error("Failed open file. "+path);
-            return std::make_pair(nullptr, -1);
+            throw std::runtime_error("Failed open file. "+path);
+            //Log::warn("Failed open file: ", path);
+            //return std::make_pair(nullptr, -1);
         }
         file.seekg(0, std::ios_base::end);
         size_t len = file.tellg();
@@ -47,12 +48,15 @@ public:
 
         return std::pair(buf, len);
     }
-    static bool fileExists(const std::string& path) {
+    static bool fileExists(std::string_view path) {
         return std::filesystem::exists(path);
+    }
+    inline static std::string assetsFile(const std::string& p) {
+        return ASSETS + p;
     }
 
     static std::pair<char*, size_t> loadAssets(const std::string& p) {
-        return loadFile(ASSETS + p);
+        return loadFile(assetsFile(p));
     }
 
     static std::string loadAssetsStr(const std::string& p) {

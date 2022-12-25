@@ -34,11 +34,11 @@ public:
             "moss",
             "black_dirt",
             "sand",
-            "oak_log",
-            "plank",
-            "leaves",
-            "tallgrass",
-            "water"
+//            "oak_log",
+//            "plank",
+//            "leaves",
+//            "tallgrass",
+//            "water"
     };
 
     static void init()
@@ -83,10 +83,9 @@ public:
             BitmapImage* resized = new BitmapImage(px, px);  // resized img.
             for (int i = 0; i < n; ++i)
             {
-                std::string path = Strings::fmt("/materials/{}/{}.png", TEXTURES[i], textype);
-                std::pair<char*, size_t> file_handle = Loader::loadAssets(path);
-                if (file_handle.first) {
-                    BitmapImage* src = Loader::loadPNG(file_handle);
+                std::string path = Loader::assetsFile(Strings::fmt("materials/{}/{}.png", TEXTURES[i], textype));
+                if (Loader::fileExists(path)) {
+                    BitmapImage* src = Loader::loadPNG(Loader::loadFile(path));
 
                     stbir_resize_uint8((unsigned char*)src->getPixels(), src->getWidth(), src->getHeight(), 0,
                                        (unsigned char*)resized->getPixels(), resized->getWidth(), resized->getHeight(), 0, 4);

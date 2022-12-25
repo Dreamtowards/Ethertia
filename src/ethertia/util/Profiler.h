@@ -8,6 +8,7 @@
 #include <chrono>
 #include <vector>
 #include <string>
+#include <functional>
 
 #include <ethertia/util/Timer.h>
 #include "Log.h"

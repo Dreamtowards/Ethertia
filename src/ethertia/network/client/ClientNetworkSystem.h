@@ -20,6 +20,8 @@ public:
 
     static void init()
     {
+        Network::Init();
+
         m_NetworkHost = Network::newClient();
     }
 

@@ -21,6 +21,7 @@ include_directories(lib/msgpack/include)
 add_executable(Ethertia
         lib/glad/glad.c
         # src/ethertia/event/EventBus.cpp
+        # "C:/Users/Dreamtowards/Desktop/DevTools/winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2/mingw64/x86_64-w64-mingw32/lib/libwsock32.a"
 
         src/ethertia/gui/Gui.cpp
         src/ethertia/render/RenderEngine.cpp
@@ -34,10 +35,12 @@ target_link_libraries(Ethertia PRIVATE
         "-framework IOKit"
         "-framework OpenAL")
 endif()
+if (WIN32)
+#   mingw-w64 WinLibs build, add mingw64/bin to PATH without space. "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2.zip" 'https://winlibs.com/'
 
-# if (WIN32) mingw-w64 WinLibs build, add mingw64/bin to PATH without space.
-# "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2.zip" 'https://winlibs.com/'
-
+    # have order.
+    target_link_libraries(Ethertia PRIVATE winmm gdi32 wsock32 ws2_32)
+endif()
 
 # lib glfw
 add_subdirectory(lib/glfw)
