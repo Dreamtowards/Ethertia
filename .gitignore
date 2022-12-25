@@ -3,4 +3,4 @@
 
 cmake-build-debug/*
 
-run/cache/*
+run/cache/*.png

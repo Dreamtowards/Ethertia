@@ -30,6 +30,7 @@ public:
         ChunkRenderProcessor::g_DebugGenInfo.numEmit = 0;
         ChunkRenderProcessor::g_DebugGenInfo.sumTimeEmit = 0;
     }
+    inline static bool dbg_ChunkUnload = false;
 
     static void initWorkerThread()
     {
@@ -53,8 +54,10 @@ public:
                         meshChunk_Upload(chunk);
                     }
 
-//                    int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
-//                    if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
+                    if (dbg_ChunkUnload) {
+                        int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
+                        if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
+                    }
                 }
 
                 std::this_thread::sleep_for(std::chrono::milliseconds (1));

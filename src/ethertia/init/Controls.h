@@ -28,9 +28,12 @@ public:
 
     static void initControls()
     {
-        Window* win = Ethertia::getWindow();
+        Controls::initConsoleThread();
 
         initMouseDigControls();
+
+
+        Window* win = Ethertia::getWindow();
 
         win->eventbus().listen([](WindowCloseEvent* e)
         {

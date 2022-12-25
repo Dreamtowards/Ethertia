@@ -70,7 +70,6 @@ void Ethertia::start()
 
     Controls::initControls();
 
-    Controls::initConsoleThread();
 
 
     ClientConnectionProc::initPackets();

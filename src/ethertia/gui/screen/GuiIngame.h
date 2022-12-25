@@ -120,6 +120,7 @@ public:
 
             opts->addGui(new GuiCheckBox("R/No Vegetable", &RenderEngine::dbg_NoVegetable));
             opts->addGui(new GuiCheckBox("D/Frame Profiler", &dbgDrawFrameProfiler));
+            opts->addGui(new GuiCheckBox("D/Chunk Unload", &ChunkRenderProcessor::dbg_ChunkUnload));
 
             opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
             opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
