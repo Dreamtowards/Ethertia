@@ -63,37 +63,22 @@ public:
 //
 //        return chunk;
 
-//        {
-//            for (int rx = 0; rx < 16; ++rx) {
-//                for (int rz = 0; rz < 16; ++rz) {
-//                    vec3 rp = vec3(rx, 0, rz);
-//                    vec3 p = chunkpos + rp;
-//                    float f = noise.fbm(p.x / 40.5f, p.z / 40.53f, 4) * 20;
-//
-//                    for (int ry = 0; ry < 16; ++ry) {
-//                        float dens = f-(chunkpos.y+ry);
-//                        chunk->setCell(rx, ry, rz, Cell(dens > 0 ? Materials::STONE : Materials::AIR, dens));
-//                    }
-//                }
-//            }
-//        }
-//        return chunk;
+        {
+            for (int rx = 0; rx < 16; ++rx) {
+                for (int rz = 0; rz < 16; ++rz) {
+                    vec3 rp = vec3(rx, 0, rz);
+                    vec3 p = chunkpos + rp;
+                    float f = noise.fbm(p.x / 40.5f, p.z / 40.53f, 4) * 20;
 
-//        {
-//            for (int rx = 0; rx < 16; ++rx) {
-//                for (int ry = 0; ry < 16; ++ry) {
-//                    for (int rz = 0; rz < 16; ++rz) {
-//                        vec3 rp = vec3(rx, ry, rz);
-//                        vec3 p = chunkpos + rp;
-//
-//                        float f = noise.noise(p.x / 16.5f, p.y / 8.4f, p.z / 16.53f);
-//
-//                        chunk->setBlock(rp, BlockState(Blocks::STONE, f));
-//                    }
-//                }
-//            }
-//        }
-//        return chunk;
+                    for (int ry = 0; ry < 16; ++ry) {
+                        float dens = f-(chunkpos.y+ry);
+                        chunk->setCell(rx, ry, rz, Cell(dens > 0 ? Materials::STONE : Materials::AIR, dens));
+                    }
+                }
+            }
+        }
+        return chunk;
+
 
         int samples = 4;
         int sampleSize = 4;

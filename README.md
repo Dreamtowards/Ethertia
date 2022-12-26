@@ -21,6 +21,35 @@ Building World while Interacting People
 - Surface Nets (Unified Grids) (基本平滑体素模型构建 Isosurface 对偶式等值面提取演算法)
 - Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
 - Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
+- UDP 快速可-可靠网络通信 数据包 处理系统
+
+需要做:  
+- Reflection Mapping. 反射渲染 水面反射 或材质反射 (冰/汽车表面)
+- SSAO. 环境光遮蔽 提高层次感
+- Flat Atmosphere. 平面大气层渲染 基于半物理的天空散射&雾气
+- Light Shaft. 光锥
+- 一些特殊效果 盗梦空间的世界卷曲 虚拟实惊的万花筒扭曲 刺客信条的点阵世界表面
+
+
+- WorldGen, Biomes. 地形生成 生物群系, 这是无底洞
+- Voxel LoD 地形远处低细节等级，远景加载
+- CSG, Advanced Modeling System. 更专业的建筑系统 实时构建更准确的建筑模型
+- 农作物种植 马铃薯 胡萝卜 
+
+- Multiplayer 多人游戏系统
+- Skeleton Animation etc 骨骼动画 实时网络传输 穿戴定位器动作跟踪
+- Vehicles 汽车 火车 地铁 船 直升机 霍金轮椅
+
+特殊功能
+- 和OBS/直播媒体流对接 让视频/音频流 连接到我们的国家顶级剧院和顶级环绕巨型音响, 
+  以便看电影, 举办发布会, 大型DJ音乐节。也可以请乐器专家连接MIDI或初音未来的作曲 举办海边音乐会
+
+想做的事：
+- 建个巨型雕像 就像巴西山峰之巅/2b2t的那个 Cristo Redentor 雕像。温暖壮阔古典辉煌。
+- 世界树之城。巨型的世界树 底下是古典小城市。藤蔓垂下 晚上树上发光。
+- 海边音乐会。光锥大型灯光。国家顶级剧场 观影 看发布会 DJ。
+- 建造我喜欢的学校。场所。
+- 探索自然景观 海边峭壁 巨树密集 高耸奇幻悬崖
 
 
 
