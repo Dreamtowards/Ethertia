@@ -8,13 +8,13 @@
 #include <glm/vec3.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <FastNoise/FastNoise.h>
+
 #include <ethertia/init/Materials.h>
 #include <ethertia/world/Cell.h>
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/gen/NoiseGeneratorPerlin.h>
 #include <ethertia/util/Log.h>
-
-#include <fastnoise/include/FastNoise/FastNoise.h>
 
 
 class ChunkGenerator
@@ -37,7 +37,17 @@ public:
         Chunk* chunk = new Chunk(chunkpos, world);
         using glm::vec3;
 
-//        FastNoise::
+//        auto _Simplex = FastNoise::New<FastNoise::Simplex>();
+//        auto _Frac = FastNoise::New<FastNoise::FractalFBm>();
+//
+//        _Frac->SetSource(_Simplex);
+//        _Frac->SetOctaveCount(5);
+//
+//        std::vector<float> v(16*16*16);
+//        _Frac->GenUniformGrid3D(v.data(), 0,0,0, 16,16,16, 0.2f, 1337);
+
+
+
 
 //            for (int rx = 0; rx < 16; ++rx) {
 //                for (int ry = 0; ry < 16; ++ry) {

@@ -1,14 +1,31 @@
-# Ethertia <sup><a href="https://elytra.dev/ethertia">[Site]</a><a href="https://github.com/Dreamtowards/Ethertia">[Src]</a><a href="https://elytra.dev/~pris">[Dev]</a></sup>
+# Ethertia <small style="opacity: 80%">以太效應 <sup><a href="https://elytra.dev/ethertia">[Site]</a><a href="https://github.com/Dreamtowards/Ethertia">[Src]</a><a href="https://elytra.dev/~pris">[Dev]</a></sup></small>
 
-Voxels, Realistic, Interactive
+Building World while Interacting People
+
+---
+
+建造 探索 互动 生存   
+
+
+目标:
+和挚友一起互动玩耍，坐火车，去剧场听DJ或看演出。建造喜欢的地方，学校，或幻想之地。
+去领略大自然风光 深奥地形生成。
+
+支持的平台: Windows, MacOS, (待适配 Linux)
+
+预览视频:
 
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
+已完成:
+- Surface Nets (Unified Grids) (基本平滑体素模型构建 Isosurface 对偶式等值面提取演算法)
+- Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
+- Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
 
-Demo videos:
-[20221008]()
 
-Supported Platforms: Windows, MacOS, Linux
+
+[comment]: <> (为什么很多地方用英文而不是中文？因为很多术语名/原名是英文，中文有时多义性/翻译误差。但是解释性文字)
+
 
 ### Credits
 

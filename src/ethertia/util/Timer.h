@@ -6,6 +6,7 @@
 #define ETHERTIA_TIMER_H
 
 #include <chrono>
+#include <thread>
 
 class Timer
 {

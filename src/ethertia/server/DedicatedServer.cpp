@@ -9,19 +9,10 @@
 #include <ethertia/server/DedicatedServer.h>
 #include <ethertia/network/server/ServerConnectionProc.h>
 
-#include <httplib/httplib.h>
 
 int main()
 {
-//    DedicatedServer::run();
-
-    httplib::Server serv;
-    serv.Get("/motd", [](const httplib::Request& req, httplib::Response& resp) {
-
-        resp.set_content(R"({"server_name": "The Dedicated Server"})", "application/json");
-    });
-
-    serv.listen("0.0.0.0", 8080);
+    DedicatedServer::run();
 
 
     return 0;

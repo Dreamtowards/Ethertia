@@ -121,3 +121,15 @@
 
         if (enet_address_set_host(&addr, hostname.c_str()) < 0)
             throw std::runtime_error(Strings::fmt("illegal hostname '{}', expect ip or domain name.", hostname));
+
+
+
+#include <httplib/httplib.h>
+
+httplib::Server serv;
+serv.Get("/motd", [](const httplib::Request& req, httplib::Response& resp) {
+
+resp.set_content(R"({"server_name": "The Dedicated Server"})", "application/json");
+});
+
+serv.listen("0.0.0.0", 8080);

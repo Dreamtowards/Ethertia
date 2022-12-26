@@ -15,6 +15,7 @@ include_directories(lib/json/include)
 #include_directories(lib/asio/include)
 include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
+include_directories(lib/fastnoise/include)
 
 
 

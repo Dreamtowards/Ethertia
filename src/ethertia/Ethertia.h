@@ -6,10 +6,8 @@
 #define ETHERTIA_ETHERTIA_H
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/vec3.hpp>
 #include <stdexcept>
-#include <thread>
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/init/BrushCursor.h>
