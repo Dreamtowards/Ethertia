@@ -15,6 +15,8 @@ Building World while Interacting People
 
 预览视频:
 
+![](run/screenshots/2022-12-22_22.15.40_530.121.png)
+
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
 已完成:
