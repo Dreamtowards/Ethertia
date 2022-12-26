@@ -30,11 +30,14 @@ Building World while Interacting People
 - Light Shaft. 光锥
 - 一些特殊效果 盗梦空间的世界卷曲 虚拟实惊的万花筒扭曲 刺客信条的点阵世界表面
 
+<br>
 
 - WorldGen, Biomes. 地形生成 生物群系, 这是无底洞
 - Voxel LoD 地形远处低细节等级，远景加载
 - CSG, Advanced Modeling System. 更专业的建筑系统 实时构建更准确的建筑模型
 - 农作物种植 马铃薯 胡萝卜 
+
+<br>
 
 - Multiplayer 多人游戏系统
 - Skeleton Animation etc 骨骼动画 实时网络传输 穿戴定位器动作跟踪
@@ -55,6 +58,7 @@ Building World while Interacting People
 
 [comment]: <> (为什么很多地方用英文而不是中文？因为很多术语名/原名是英文，中文有时多义性/翻译误差。但是解释性文字)
 
+<br>
 
 ### Credits
 
@@ -116,6 +120,8 @@ _ps. marching cubes with kernel program generated vertex UVs._
 
 ---
 
+<!--
+
 
 ## Roadmap
 
@@ -165,7 +171,7 @@ Create, Explore, Survive.
 - [ ] Skeletal Animation. Frame transfer.
 
 
-<!--
+
 
 ### Ancient
 
