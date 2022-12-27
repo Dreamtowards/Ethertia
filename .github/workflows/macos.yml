@@ -11,8 +11,7 @@ env:
   #OSX_ARCH: "arm64;x86_64"
 
 jobs:
-  Build-MacOS:
-    name: "Build OSX"
+  build:
     runs-on: macos-latest
 
     steps:
