@@ -33,5 +33,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Ethertia-OSX
-        path: build/Ethertia
+        path: build/
 
