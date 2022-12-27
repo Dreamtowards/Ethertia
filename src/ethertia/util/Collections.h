@@ -44,7 +44,7 @@ public:
     }
 
     template<typename T>
-    static T* range(T* arr, T n, T from = 0) {
+    static T* range(T* arr, int n, T from = 0) {
         for (int i = 0;i < n;++i) {
             arr[i] = from + i;
         }
