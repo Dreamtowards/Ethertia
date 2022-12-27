@@ -10,7 +10,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <cmath>
-#include <btBulletCollisionCommon.h>
+
+#include <bullet3/src/LinearMath/btVector3.h>
+#include <bullet3/src/LinearMath/btQuaternion.h>
+#include <bullet3/src/LinearMath/btTransform.h>
 
 #include <ethertia/util/UnifiedTypes.h>
 

@@ -18,8 +18,6 @@
 #include <ethertia/util/concurrent/Scheduler.h>
 #include <ethertia/util/Strings.h>
 #include <ethertia/entity/Entity.h>
-#include <ethertia/entity/EntityCar.h>
-#include <ethertia/entity/EntityRaycastCar.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/chunk/ChunkRenderProcessor.h>
 #include <ethertia/init/Settings.h>
@@ -108,7 +106,7 @@ void Ethertia::runMainLoop()
         if (m_World)
         {
             PROFILE("Phys");
-            m_World->dynamicsWorld->stepSimulation(getDelta());
+            m_World->m_DynamicsWorld->stepSimulation(getDelta());
         }
     }
 

@@ -32,6 +32,14 @@ public:
         c.a = a;
         return c;
     }
+    static uint32_t intRGBA(glm::vec4 c) {
+        return Endian::bigendian(uint32_t(  // ?wth..
+               ((char(c.x * 255.0f) & 0xFF) << 24) |
+               ((char(c.y * 255.0f) & 0xFF) << 16) |
+               ((char(c.z * 255.0f) & 0xFF) << 8)  |
+                (char(c.w * 255.0f) & 0xFF)
+        ));
+    }
 
     inline static constexpr glm::vec4 WHITE = glm::vec4(1, 1, 1, 1);
     inline static constexpr glm::vec4 BLACK = glm::vec4(0, 0, 0, 1);

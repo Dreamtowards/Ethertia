@@ -55,8 +55,11 @@ public:
                     }
 
                     if (dbg_ChunkUnload) {
-                        int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
-                        if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
+                        Ethertia::getScheduler()->addTask([=]()
+                        {
+                            int numUnloaded = unloadChunks_OutOfViewDistance(world, p, n);
+                            if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
+                        });
                     }
                 }
 
@@ -138,12 +141,17 @@ public:
             for (int dz = -n; dz <= n; dz++) {
                 for (int dy = -n; dy <= n; dy++) {
                     vec3 dif = vec3(dx, dy, dz) * 16.0f;
-                    Chunk* c = world->getLoadedChunk(base_chunkpos + dif);
+                    vec3 cp = base_chunkpos + dif;
+
+                    if (cp.y < -32 || cp.y > 128)
+                        continue;
+
+                    Chunk* c = world->getLoadedChunk(cp);
 
                     float distSq = glm::length2(dif);
                     if (distSq < nearest_distSq && (!c || c->needUpdateModel)) {
                         nearest = c;
-                        nearest_pos_gen = base_chunkpos + dif;
+                        nearest_pos_gen = cp;
                         nearest_distSq = distSq;
                     }
                 }

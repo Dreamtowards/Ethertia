@@ -14,18 +14,18 @@ public:
 
     EntityMesh() {
 
-        rigidbody = newRigidbody(0.0f, new btEmptyShape());
+        initRigidbody(0.0f, new btEmptyShape());
     }
 
     void setMesh(size_t vertCount, float* pos)
     {
-        btCollisionShape* oldshape = rigidbody->getCollisionShape();
+        btCollisionShape* oldshape = m_Rigidbody->getCollisionShape();
         delete oldshape;
 
         if (vertCount) {
-            rigidbody->setCollisionShape(createMeshShape(vertCount, pos));
+            m_Rigidbody->setCollisionShape(createMeshShape(vertCount, pos));
         } else {
-            rigidbody->setCollisionShape(new btEmptyShape());
+            m_Rigidbody->setCollisionShape(new btEmptyShape());
         }
     }
 

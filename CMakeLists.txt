@@ -1,10 +1,19 @@
 cmake_minimum_required(VERSION 3.14)
 project(Ethertia)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #find_package(OpenAL REQUIRED)
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 
 include_directories(src)
 include_directories(lib)
@@ -38,12 +47,16 @@ add_subdirectory(lib/bullet3)
 target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath)
 # [examples, Extras, test, build3] are disabled.
 
-
+# lib FastNoise2
+add_subdirectory(lib/fastnoise)
+target_link_libraries(Ethertia PRIVATE FastNoise2)
 
 
 add_executable(DedicatedServer
-        src/ethertia/server/DedicatedServer.cpp
+        src/ethertia/network/DedicatedServer.cpp
         )
+
+target_link_libraries(DedicatedServer PRIVATE FastNoise2)
 
 
 if (APPLE)

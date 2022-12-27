@@ -90,7 +90,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
             glDisable(GL_CULL_FACE);
         }
         ++g_NumEntityRendered;
-        PROFILE("E/"+entity->name);
+        PROFILE("E/"+std::to_string(entity->m_GroupTag));
 
         entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation());
 

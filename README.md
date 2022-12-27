@@ -117,7 +117,7 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 _ps. marching cubes with kernel program generated vertex UVs._
 
 - [x] [.62] Multiple Material Texturing (naive full-triangle material texturing).  
-- [x] [.13] Gamemode creative/spectator (collision disabled, `/gamemode <1/2/3>`), Fly mode (gravity disable).
+- [x] [.13] Gamemode creative/spectator (collision disabled, `/m_Gamemode <1/2/3>`), Fly mode (gravity disable).
 
 
 ---

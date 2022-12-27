@@ -16,102 +16,82 @@
 class Entity
 {
 public:
-    std::string name;
+    std::string m_Name;
 
-    // inline static btCollisionShape* EMPTY_SHAPE = new btBoxShape(btVector3(0,0,0));
+    btRigidBody* m_Rigidbody = nullptr;
 
-    // btCollisionShape* shape = EMPTY_SHAPE;
-    btRigidBody* rigidbody = nullptr;
+    Model* m_Model = nullptr;
+    Texture* m_DiffuseMap = nullptr;
+
+    inline static const uint32_t GTAG_CHUNK_TERRAIN = 16;
+    inline static const uint32_t GTAG_CHUNK_VEGETABLE = 17;
+    std::uint32_t m_GroupTag = 0;  // Synthetic{ChunkTerrain, ChunkVegetable}, Normal
+
+    Entity() {
+    }
+
 
 //    glm::vec3 position;
 //    glm::vec3 velocity;
 //    glm::vec3 prevposition{0};
 //    glm::vec3 intpposition{0};
 
-    Model* m_Model = nullptr;
-    Texture* diffuseMap = nullptr;
-
-    static void loadModelAndShape(const std::string& path, Model** md, btCollisionShape** sp = nullptr) {
-        VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr(path));
-        *md = Loader::loadModel(vbuf);
-        if (sp) {
-            *sp = createHullShape(vbuf->vertexCount(), vbuf->positions.data());
-        }
-    }
-
-    Entity() {
-    }
-
-    // temp test.
-    Entity(float mass, std::string mpath) {
-
-        btCollisionShape* sp;
-        loadModelAndShape(mpath, &m_Model, &sp);
-        rigidbody = newRigidbody(mass, sp);
-    }
+//    static void loadModelAndShape(const std::string& path, Model** md, btCollisionShape** sp = nullptr) {
+//        VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr(path));
+//        *md = Loader::loadModel(vbuf);
+//        if (sp) {
+//            *sp = createHullShape(vbuf->vertexCount(), vbuf->positions.data());
+//        }
+//    }
+//    // temp test.
+//    Entity(float mass, std::string mpath) {
+//
+//        btCollisionShape* sp;
+//        loadModelAndShape(mpath, &m_Model, &sp);
+//        rigidbody = newRigidbody(mass, sp);
+//    }
+//    // entity types which doesn't need be store. e.g. Chunk Model Proxy, Players
+//    static bool isSynthesis(Entity* e) {
+//
+//        return false;
+//    }
     ~Entity() {
 
-        delete rigidbody->getCollisionShape();
+        delete m_Rigidbody->getCollisionShape();
 
-        delete rigidbody->getMotionState();
-        delete rigidbody;
+        delete m_Rigidbody->getMotionState();
+        delete m_Rigidbody;
     }
 
-    // entity types which doesn't need be store. e.g. Chunk Model Proxy, Players
-    static bool isSynthesis(Entity* e) {
-
-        return false;
-    }
 
     virtual void onLoad(btDynamicsWorld* dworld) {
-        dworld->addRigidBody(rigidbody);
+        dworld->addRigidBody(m_Rigidbody);
     }
 
     virtual void onUnload(btDynamicsWorld* dworld) {
-        dworld->removeRigidBody(rigidbody);
+        dworld->removeRigidBody(m_Rigidbody);
     }
 
     void setCollisionShape(btCollisionShape* s) {
-        float mass = rigidbody->getMass();
+        float mass = m_Rigidbody->getMass();
 
         btVector3 localInertia(0, 0, 0);
         if (mass) {
             s->calculateLocalInertia(mass, localInertia);
         }
-        rigidbody->setCollisionShape(s);
-    }
-
-    btRigidBody* newRigidbody(float mass, btCollisionShape* shape, const btTransform& startTransform = btTransform::getIdentity())
-    {
-        btVector3 localInertia(0, 0, 0);
-        if (mass) {
-            shape->calculateLocalInertia(mass, localInertia);
-        }
-
-        btRigidBody* rb = new btRigidBody(mass, new btDefaultMotionState(startTransform), shape, localInertia);
-        rb->setUserPointer(this);
-        return rb;
-    }
-    static btConvexHullShape* createHullShape(size_t vertexCount, const float* position) {
-        btConvexHullShape* hull = new btConvexHullShape();
-        for (int i = 0; i < vertexCount; ++i) {
-            const float* p = &position[i*3];
-            hull->addPoint(btVector3(p[0], p[1], p[2]), false);
-        }
-        hull->recalcLocalAabb();
-        return hull;
+        m_Rigidbody->setCollisionShape(s);
     }
 
     void setPosition(glm::vec3 p) {
-        rigidbody->getWorldTransform().setOrigin(btVector3(p.x, p.y, p.z));
+        m_Rigidbody->getWorldTransform().setOrigin(btVector3(p.x, p.y, p.z));
     }
     glm::vec3 getPosition() {
-        btVector3& p = rigidbody->getWorldTransform().getOrigin();
+        btVector3& p = m_Rigidbody->getWorldTransform().getOrigin();
         return glm::vec3(p.x(), p.y(), p.z());
     }
 
     glm::mat3 getRotation() {
-        btMatrix3x3& basis = rigidbody->getWorldTransform().getBasis();
+        btMatrix3x3& basis = m_Rigidbody->getWorldTransform().getBasis();
         glm::mat3 m;
         for (int r = 0; r < 3; r++)
         {
@@ -128,16 +108,50 @@ public:
 //            rigidbody->setActivationState(ACTIVE_TAG);
 //        }
 
-        auto o = rigidbody->getLinearVelocity();
-        rigidbody->setLinearVelocity(btVector3(o.x()+vel.x, o.y()+vel.y, o.z()+vel.z));
+        auto o = m_Rigidbody->getLinearVelocity();
+        m_Rigidbody->setLinearVelocity(btVector3(o.x()+vel.x, o.y()+vel.y, o.z()+vel.z));
     }
 
 
     AABB getAABB() {
         btVector3 min, max;
-        rigidbody->getAabb(min, max);
+        m_Rigidbody->getAabb(min, max);
         return AABB(glm::vec3(min.x(), min.y(), min.z()),
                     glm::vec3(max.x(), max.y(), max.z()));
+    }
+
+
+
+
+
+    btRigidBody* initRigidbody(float mass, btCollisionShape* shape, const btTransform& startTransform = btTransform::getIdentity())
+    {
+        assert(m_Rigidbody == nullptr);
+
+        btVector3 localInertia(0, 0, 0);
+        if (mass) {
+            shape->calculateLocalInertia(mass, localInertia);
+        }
+
+        m_Rigidbody = new btRigidBody(mass, new btDefaultMotionState(startTransform), shape, localInertia);
+        m_Rigidbody->setUserPointer(this);
+    }
+
+    void initRigidbodyConvexModel(float mass, VertexBuffer&& vbuf) {
+
+        m_Model = Loader::loadModel(&vbuf);
+
+        initRigidbody(mass, createHullShape(vbuf.vertexCount(), vbuf.positions.data()));
+    }
+
+    static btConvexHullShape* createHullShape(size_t vertexCount, const float* position) {
+        btConvexHullShape* hull = new btConvexHullShape();
+        for (int i = 0; i < vertexCount; ++i) {
+            const float* p = &position[i*3];
+            hull->addPoint(btVector3(p[0], p[1], p[2]), false);
+        }
+        hull->recalcLocalAabb();
+        return hull;
     }
 };
 

@@ -32,16 +32,16 @@
 
 class World
 {
-    std::unordered_map<glm::vec3, Chunk*> chunks;
+    std::unordered_map<glm::vec3, Chunk*> m_Chunks;
 
-    std::vector<Entity*> entities;
+    std::vector<Entity*> m_Entities;
 
-    ChunkGenerator chunkGenerator;
+    ChunkGenerator m_ChunkGenerator;
 
-    ChunkLoader chunkLoader{"saves/dim-1/"};
+    ChunkLoader m_ChunkLoader{"saves/dim-1/"};
 
 public:
-    btDiscreteDynamicsWorld* dynamicsWorld;
+    btDiscreteDynamicsWorld* m_DynamicsWorld;
 
     std::mutex lock_ChunkList;
 
@@ -56,16 +56,16 @@ public:
 
             btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 
-            dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collconf);
+            m_DynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collconf);
         }
     }
 
     ~World() {
 
-        delete dynamicsWorld->getConstraintSolver();
-        delete dynamicsWorld->getDispatcher();
-        delete dynamicsWorld;
-        delete dynamicsWorld->getBroadphase();
+        delete m_DynamicsWorld->getConstraintSolver();
+        delete m_DynamicsWorld->getDispatcher();
+        delete m_DynamicsWorld->getBroadphase();
+        delete m_DynamicsWorld;
     }
 
     Cell& getCell(glm::vec3 p) {
@@ -119,15 +119,15 @@ public:
         if (chunk) return chunk;
         glm::vec3 chunkpos = Chunk::chunkpos(p);
 
-        chunk = chunkLoader.loadChunk(chunkpos, this);
+        chunk = m_ChunkLoader.loadChunk(chunkpos, this);
 
         if (!chunk) {
-            chunk = chunkGenerator.generateChunk(chunkpos, this);
+            chunk = m_ChunkGenerator.generateChunk(chunkpos, this);
         }
 
         assert(chunk);
 
-        chunks[chunkpos] = chunk;
+        m_Chunks[chunkpos] = chunk;
 
         Ethertia::getScheduler()->addTask([=]() {
 
@@ -174,8 +174,8 @@ public:
 
 
     void unloadChunk(glm::vec3 p) {
-        auto it = chunks.find(Chunk::chunkpos(p));
-        if (it == chunks.end())
+        auto it = m_Chunks.find(Chunk::chunkpos(p));
+        if (it == m_Chunks.end())
             throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
 
         Chunk* chunk = it->second;
@@ -184,35 +184,35 @@ public:
             removeEntity(chunk->m_MeshVegetable);
         }
 
-        chunks.erase(it);
+        m_Chunks.erase(it);
         delete chunk;
     }
 
     Chunk* getLoadedChunk(glm::vec3 p) {
-        auto it = chunks.find(Chunk::chunkpos(p));
-        if (it == chunks.end())
+        auto it = m_Chunks.find(Chunk::chunkpos(p));
+        if (it == m_Chunks.end())
             return nullptr;
         return it->second;
     }
 
     std::unordered_map<glm::vec3, Chunk*>& getLoadedChunks() {
-        return chunks;
+        return m_Chunks;
     }
 
     void addEntity(Entity* e) {
-        assert(Collections::find(entities, e) == -1);  // make sure the entity is not in this world.
+        assert(Collections::find(m_Entities, e) == -1);  // make sure the entity is not in this world.
 
-        entities.push_back(e);
-        e->onLoad(dynamicsWorld);
+        m_Entities.push_back(e);
+        e->onLoad(m_DynamicsWorld);
     }
 
     void removeEntity(Entity* e) {
-        Collections::erase(entities, e);
-        e->onUnload(dynamicsWorld);
+        Collections::erase(m_Entities, e);
+        e->onUnload(m_DynamicsWorld);
     }
 
     std::vector<Entity*>& getEntities() {
-        return entities;
+        return m_Entities;
     }
 
 
@@ -233,7 +233,7 @@ public:
         btVector3 _end(end.x, end.y, end.z);
         btCollisionWorld::ClosestRayResultCallback rayCallback(_beg, _end);
 
-        dynamicsWorld->rayTest(_beg, _end, rayCallback);
+        m_DynamicsWorld->rayTest(_beg, _end, rayCallback);
         if (rayCallback.hasHit()) {
             p = Mth::vec3(rayCallback.m_hitPointWorld);
             n = Mth::vec3(rayCallback.m_hitNormalWorld);
@@ -346,11 +346,11 @@ public:
                     int nextToAir = nextAir - dy;
 
                     u8 replace = Materials::STONE;
-                    if (y < 3 && nextToAir < 3 && world->chunkGenerator.noise.noise(x/60.0, y/60.0, z/60.0) > 0.1) {
+                    if (y < 3 && nextToAir < 3 && world->m_ChunkGenerator.noise.noise(x/60.0, y/60.0, z/60.0) > 0.1) {
                         replace = Materials::SAND;
                     } else if (nextToAir == 1 //|| nextToAir == 2
                               ) {
-                        bool tallgrass = world->chunkGenerator.noise.noise(10*x/50.0, 10*z/50.0) > 0.2;
+                        bool tallgrass = world->m_ChunkGenerator.noise.noise(10*x/50.0, 10*z/50.0) > 0.2;
                         replace = tallgrass ? Materials::MOSS : Materials::GRASS;
                     } else if (nextToAir < 4) {
                         replace = Materials::DIRT;

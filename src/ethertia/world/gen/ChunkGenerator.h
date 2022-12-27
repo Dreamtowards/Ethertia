@@ -19,176 +19,71 @@
 
 class ChunkGenerator
 {
+
 public:
+    using vec3 = glm::vec3;
+
     NoiseGeneratorPerlin noise{};
-
-
     ChunkGenerator() {
         noise.initPermutations(1);
-
     }
 
-    static int sampIdx(int sX, int sZ, int sY) {
-        int samples = 4+1;
-        return (sX * samples + sZ) * samples + sY;
+    void GenChunk_Flat(Chunk* chunk)
+    {
+
+        for (int rx = 0; rx < 16; ++rx) {
+            for (int ry = 0; ry < 16; ++ry) {
+                for (int rz = 0; rz < 16; ++rz) {
+                    int y = chunk->position.y + ry;
+
+                    chunk->setCell(rx,ry,rz, Cell(Materials::STONE, 0 - y));
+
+                }
+            }
+        }
     }
 
     Chunk* generateChunk(glm::vec3 chunkpos, World* world) {
         Chunk* chunk = new Chunk(chunkpos, world);
-        using glm::vec3;
 
-//        auto _Simplex = FastNoise::New<FastNoise::Simplex>();
-//        auto _Frac = FastNoise::New<FastNoise::FractalFBm>();
-//
-//        _Frac->SetSource(_Simplex);
-//        _Frac->SetOctaveCount(5);
-//
-//        std::vector<float> v(16*16*16);
-//        _Frac->GenUniformGrid3D(v.data(), 0,0,0, 16,16,16, 0.2f, 1337);
-
-
-
-
-//            for (int rx = 0; rx < 16; ++rx) {
-//                for (int ry = 0; ry < 16; ++ry) {
-//                    for (int rz = 0; rz < 16; ++rz) {
-//                        vec3 rp = vec3(rx, ry, rz);
-//                        vec3 p = chunkpos + rp;
-//
-//                        if (p.y < -10)
-//                            chunk->setMaterial(rp, MaterialStat(Materials::STONE, 0.5));
-//                    }
-//                }
-//            }
-//
-//        return chunk;
-
-        {
-            for (int rx = 0; rx < 16; ++rx) {
-                for (int rz = 0; rz < 16; ++rz) {
-                    vec3 rp = vec3(rx, 0, rz);
-                    vec3 p = chunkpos + rp;
-                    float f = noise.fbm(p.x / 40.5f, p.z / 40.53f, 4) * 20;
-
-                    for (int ry = 0; ry < 16; ++ry) {
-                        float dens = f-(chunkpos.y+ry);
-                        chunk->setCell(rx, ry, rz, Cell(dens > 0 ? Materials::STONE : Materials::AIR, dens));
-                    }
-                }
-            }
-        }
+        GenChunk_Flat(chunk);
         return chunk;
 
+        auto fnSimplex = FastNoise::New<FastNoise::Perlin>();
+        auto fnFrac = FastNoise::New<FastNoise::FractalFBm>();
 
-        int samples = 4;
-        int sampleSize = 4;
+        fnFrac->SetSource(fnSimplex);
+        fnFrac->SetOctaveCount(3);
 
-        double samps[125];  // len: numSampXYZ mul. 5*17*5=425; (samplesXZ+1)*(samplesY+1)*(samplesXZ+1)
-        int cX = (int)chunkpos.x / 16;
-        int cY = (int)chunkpos.y / 16;
-        int cZ = (int)chunkpos.z / 16;
-//        terrgenNoiseGen(samps, cX*samplesXZ,
-//                        cY*samplesY,
-//                        cZ*samplesXZ, samplesXZ+1, samplesY+1, samplesXZ+1);
+        float noiseVal[16 * 16 * 16];  // chunkpos is Block Coordinate,,
+        fnFrac->GenUniformGrid3D(noiseVal, chunkpos.x, chunkpos.y, chunkpos.z, 16, 16, 16, 0.02, 1432);
 
-        int tmpi = 0;
-        for (int i = 0; i < 5; ++i) {
-            for (int j = 0; j < 5; ++j) {
-                for (int l = 0; l < 5; ++l) {
-                    double ax = cX*samples + i;
-                    double az = cZ*samples + j;
-                    double ay = cY*samples + l;
-                    double f = noise.fbm(ax/14, ay/12, az/14, 4);
 
-                    double p = noise.fbm(ax/8, az/8, 1);
-                    p = p-ay/10;
+        int _idx = 0;
+        for (int rz = 0; rz < 16; ++rz) {
+            for (int ry = 0; ry < 16; ++ry) {
+                for (int rx = 0; rx < 16; ++rx) {
+                    float x = chunkpos.x + rx,
+                          y = chunkpos.y + ry,
+                          z = chunkpos.z + rz;
 
-                    p += f* (p<0?12:1);
+//                    float freq = 0.01;
+//                    float f = fnFrac->GenSingle3D(x*freq,y*freq,z*freq, 1432);
+                    float f = noiseVal[_idx++];
+//                    float f = noise.noise((chunkpos.x+rx) / 20.0f, (chunkpos.y+ry) / 20.0f, (chunkpos.z+rz) / 20.0f);
 
-                    samps[tmpi++] = p;
-                }
-            }
-        }
-
-//        for (int rx = 0; rx < 16; ++rx) {
-//            for (int rz = 0; rz < 16; ++rz) {
-//                for (int ry = 0; ry < 16; ++ry) {
-//                    float x = chunkpos.x + rx;
-//                    float y = chunkpos.y + ry;
-//                    float z = chunkpos.z + rz;
-//                    float f = noise.noise(x / 40, y / 60, z / 40);
-//
-//                    if (f < 0)
-//                        chunk->setBlock(rx, ry, rz, 1);
-//
-//                }
-//            }
-//        }
-
-        for(int sX = 0; sX < samples; ++sX) {
-            for(int sZ = 0; sZ < samples; ++sZ) {
-                for(int sY = 0; sY < samples; ++sY) {
-                    double sp000sum = samps[sampIdx(sX, sZ, sY)];
-                    double sp010sum = samps[sampIdx(sX, sZ+1, sY)];
-                    double sp100sum = samps[sampIdx(sX+1, sZ, sY)];
-                    double sp110sum = samps[sampIdx(sX+1, sZ+1, sY)];
-                    double sp001Ydiff = (samps[sampIdx(sX, sZ, sY+1)] - sp000sum) / sampleSize;
-                    double sp011Ydiff = (samps[sampIdx(sX, sZ+1, sY+1)] - sp010sum) / sampleSize;
-                    double sp101Ydiff = (samps[sampIdx(sX+1, sZ, sY+1)] - sp100sum) / sampleSize;
-                    double sp111Ydiff = (samps[sampIdx(sX+1, sZ+1, sY+1)] - sp110sum) / sampleSize;
-
-                    for(int dY = 0; dY < sampleSize; ++dY) {
-                        double spXsum0 = sp000sum;
-                        double spXsum1 = sp010sum;
-                        double spXdiffz0 = (sp100sum - sp000sum) / sampleSize;
-                        double spXdiffz1 = (sp110sum - sp010sum) / sampleSize;
-
-                        for(int dX = 0; dX < sampleSize; ++dX) {  // X
-                            double spZsum = spXsum0;
-                            double spZdiffx0 = (spXsum1 - spXsum0) / sampleSize;
-
-                            for(int dZ = 0; dZ < sampleSize; ++dZ) {
-//                                if (sY * sampSizeY + dY < seaLevel) {
-//                                    if (tmpera < 0.5D && sY * sampSizeY + dY >= seaLevel - 1) {
-//                                        block = Block.ice.blockID;
-//                                    } else {
-//                                        block = Block.waterStill.blockID;
-//                                    }
-//                                }
-                                //Log::info("F: ", spZsum);
-
-                                float y = chunkpos.y+sY*sampleSize+dY;
-
-                                u8 bl = 0;
-                                if (spZsum > 0.0) {
-                                    bl = Materials::STONE;
-                                } else if (y < 0) {
-                                    //bl = 0;//Blocks::WATER;
-                                    bl = Materials::WATER;
-                                }
-//                                if (y > 30) {
-//                                    bl = Materials::GRASS;
-//                                }
-//                                if (bl) {
-                                chunk->setCell(sX * sampleSize + dX, sY * sampleSize + dY, sZ * sampleSize + dZ,
-                                                   Cell(bl, spZsum));
-//                                }
-                                spZsum += spZdiffx0;
-                            }
-
-                            spXsum0 += spXdiffz0;
-                            spXsum1 += spXdiffz1;
-                        }
-
-                        sp000sum += sp001Ydiff;
-                        sp010sum += sp011Ydiff;
-                        sp100sum += sp101Ydiff;
-                        sp110sum += sp111Ydiff;
+                    u8 mtl = 0;
+                    if (f > 0) {
+                        mtl = Materials::STONE;
+                    } else if ((chunkpos.y + ry) < 0) {
+                        mtl = Materials::WATER;
                     }
+
+                    chunk->setCell(rx,ry,rz, Cell(mtl, f));
+
                 }
             }
         }
-
 
         return chunk;
     }

@@ -1,5 +1,5 @@
 #version 330 core
-//#define OPT
+#define OPT
 
 layout(location = 0) out vec4 gPositionDepth;
 layout(location = 1) out vec3 gNormal;
