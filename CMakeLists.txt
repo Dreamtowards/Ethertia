@@ -3,8 +3,7 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-#set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
-#find_package(OpenAL REQUIRED)
+#set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -26,6 +25,7 @@ include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
 include_directories(lib/fastnoise/include)
 
+#find_package(OpenAL REQUIRED)
 
 
 
@@ -78,11 +78,11 @@ endif()
 
 
 
-add_executable(Elytra
-        src/ethertia/lang/symbol/Scope.cpp
-        src/ethertia/lang/lexer/TokenType.cpp
-        src/ethertia/lang/symbol/SymbolInternalTypes.cpp
-        )
+#add_executable(Elytra
+#        src/ethertia/lang/symbol/Scope.cpp
+#        src/ethertia/lang/lexer/TokenType.cpp
+#        src/ethertia/lang/symbol/SymbolInternalTypes.cpp
+#        )
 
 
 

@@ -124,7 +124,7 @@ public:
 
 
 
-    btRigidBody* initRigidbody(float mass, btCollisionShape* shape, const btTransform& startTransform = btTransform::getIdentity())
+    void initRigidbody(float mass, btCollisionShape* shape, const btTransform& startTransform = btTransform::getIdentity())
     {
         assert(m_Rigidbody == nullptr);
 
