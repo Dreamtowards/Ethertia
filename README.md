@@ -3,29 +3,22 @@
 ![](run/screenshots/eth-proj-postr.png)
 
 [![Build Status](https://github.com/skypjack/entt/workflows/build/badge.svg)](https://github.com/skypjack/entt/actions)
-[![MacOS Build Status](https://github.com/fmtlib/fmt/workflows/macos/badge.svg)](https://github.com/fmtlib/fmt/actions?query=workflow%3Amacos)
-[![MacOS Build Status](https://github.com/fmtlib/fmt/workflows/windows/badge.svg)](https://github.com/fmtlib/fmt/actions?query=workflow%3Awindows)
+[![macOS](https://github.com/raysan5/raylib/workflows/macOS/badge.svg)](https://github.com/raysan5/raylib/actions?query=workflow%3AmacOS)
+[![Windows](https://github.com/raysan5/raylib/workflows/Windows/badge.svg)](https://github.com/raysan5/raylib/actions?query=workflow%3AWindows)
 [![Discord channel](https://img.shields.io/discord/870689606570508319?logo=discord)](https://discord.gg/2gzHbuXF)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 
-> `EnTT` has been a dream so far, we haven't found a single bug to date and it's
-> super easy to work with
->
-> -- Every EnTT User Ever
-Ethertia / Building World while Interacting People
+[comment]: <> ([![Linux]&#40;https://github.com/raysan5/raylib/workflows/Linux/badge.svg&#41;]&#40;https://github.com/raysan5/raylib/actions?query=workflow%3ALinux&#41;)
 
-<iframe src="https://discord.com/widget?id=870689606570508319&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
 
----
-
-建造 探索 互动 生存   
+Ethertia / Building World while Interacting People / 建造 探索 互动 生存   
 
 
 目标:
 和挚友一起互动玩耍，坐火车，去剧场听DJ或看演出。建造喜欢的地方，学校，或幻想之地。
 去领略大自然风光 深奥地形生成。
 
-支持的平台: Windows, MacOS, (待适配 Linux)
+---
 
 预览视频:
 
