@@ -5,7 +5,7 @@
 #ifndef ETHERTIA_SERVERCONNECTIONPROC_H
 #define ETHERTIA_SERVERCONNECTIONPROC_H
 
-#include <ethertia/server/DedicatedServer.h>
+#include <ethertia/network/DedicatedServer.h>
 #include <ethertia/network/packet/Packet.h>
 #include <ethertia/network/server/ServerConnection.h>
 

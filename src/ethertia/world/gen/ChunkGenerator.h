@@ -46,8 +46,8 @@ public:
     Chunk* generateChunk(glm::vec3 chunkpos, World* world) {
         Chunk* chunk = new Chunk(chunkpos, world);
 
-        GenChunk_Flat(chunk);
-        return chunk;
+//        GenChunk_Flat(chunk);
+//        return chunk;
 
         auto fnSimplex = FastNoise::New<FastNoise::Perlin>();
         auto fnFrac = FastNoise::New<FastNoise::FractalFBm>();

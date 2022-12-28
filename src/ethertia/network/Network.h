@@ -15,6 +15,8 @@
 #endif
 #include <enet.h>
 
+#undef TRANSPARENT  // macro pollution, windows
+
 
 class Network
 {

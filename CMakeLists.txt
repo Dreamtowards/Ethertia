@@ -54,7 +54,7 @@ target_link_libraries(Ethertia PRIVATE FastNoise2)
 
 add_executable(DedicatedServer
         src/ethertia/network/DedicatedServer.cpp
-        )
+        src/ethertia/util/testing/FastNoise2Tests.h)
 
 target_link_libraries(DedicatedServer PRIVATE FastNoise2)
 
