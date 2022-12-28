@@ -3,13 +3,13 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-#set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
-
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
+#set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -23,10 +23,36 @@ include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
 include_directories(lib/fastnoise/include)
 
+message("Build Env. ${CMAKE_SYSTEM_PROCESSOR}; ${CMAKE_SYSTEM_NAME}, ${CMAKE_SYSTEM_VERSION};")
 
-link_directories(${CMAKE_SOURCE_DIR}/run/bin/macos-x86-64)
+set(BUILD_SHARED_LIBS OFF)
 
-link_libraries(BulletDynamics.3.25 BulletCollision.3.25 LinearMath.3.25 glfw.3 FastNoise)
+if(BUILD_SHARED_LIBS)
+
+    add_subdirectory(lib/glfw)
+    add_subdirectory(lib/bullet3)
+    add_subdirectory(lib/fastnoise)
+
+    link_libraries(glfw FastNoise2)
+
+else()
+    if (APPLE)
+
+
+        link_directories(${CMAKE_SOURCE_DIR}/run/bin/macos-x86-64)
+
+        link_libraries(BulletDynamics.3.25 BulletCollision.3.25 LinearMath.3.25 glfw.3 FastNoise)
+    endif ()
+    if(WIN32)
+        link_libraries(winmm gdi32 wsock32 ws2_32)  # enet networking
+
+        link_directories(${CMAKE_SOURCE_DIR}/run/bin/windows-amd64)
+
+        link_libraries(BulletDynamics BulletCollision LinearMath glfw3 FastNoise)
+    endif()
+
+endif()
+
 
 
 add_executable(Ethertia
@@ -38,21 +64,7 @@ add_executable(Ethertia
         )
 
 
-#set(BUILD_SHARED_LIBS ON)
-
-## lib glfw
-#set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-#set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-#add_subdirectory(lib/glfw)
-#target_link_libraries(Ethertia PRIVATE glfw)
-#
-## lib bullet3. [examples, Extras, test, build3] are disabled.
-#add_subdirectory(lib/bullet3)
 #target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath)
-#
-## lib FastNoise2
-#add_subdirectory(lib/fastnoise)
 #target_link_libraries(Ethertia PRIVATE FastNoise2)
 
 
@@ -72,21 +84,21 @@ add_executable(DedicatedServer
 
 
 
-if (APPLE)
-    target_link_libraries(Ethertia PRIVATE
-            "-framework Cocoa"
-            "-framework OpenGL"
-            "-framework IOKit"
-            "-framework OpenAL")
+#if (APPLE)
+#    target_link_libraries(Ethertia PRIVATE
+#            "-framework Cocoa"
+#            "-framework OpenGL"
+#            "-framework IOKit"
+#            "-framework OpenAL")
 
-endif()
-if (WIN32)
+#endif()
+#if (WIN32)
     #   mingw-w64 WinLibs build, add mingw64/bin to PATH without space. "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2.zip" 'https://winlibs.com/'
 
     # ordered. enet networking.
-    target_link_libraries(Ethertia        PRIVATE winmm gdi32 wsock32 ws2_32)
-    target_link_libraries(DedicatedServer PRIVATE winmm gdi32 wsock32 ws2_32)
-endif()
+#    target_link_libraries(Ethertia        PRIVATE winmm gdi32 wsock32 ws2_32)
+#    target_link_libraries(DedicatedServer PRIVATE winmm gdi32 wsock32 ws2_32)
+#endif()
 
 
 

@@ -129,7 +129,7 @@ public:
 
         m_Chunks[chunkpos] = chunk;
 
-        Ethertia::getScheduler()->addTask([=]() {
+        Ethertia::getScheduler()->addTask([this, chunk]() {
 
             addEntity(chunk->m_MeshTerrain);
             addEntity(chunk->m_MeshVegetable);

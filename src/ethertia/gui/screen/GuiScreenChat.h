@@ -46,7 +46,7 @@ public:
         input->setHeight(16);
         input->setSingleLine(true);
         input->setFocused(true);
-        input->addOnReturnListener([=](GuiTextBox::OnReturn* e) {
+        input->addOnReturnListener([this, input](GuiTextBox::OnReturn* e) {
             const std::string& line = input->getText();
 
             Ethertia::dispatchCommand(line);
