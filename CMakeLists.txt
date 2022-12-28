@@ -24,6 +24,9 @@ include_directories(lib/msgpack/include)
 include_directories(lib/fastnoise/include)
 
 
+link_directories(${CMAKE_SOURCE_DIR}/run/proc/macos-x86-64)
+
+link_libraries(BulletDynamics.3.25 BulletCollision.3.25 LinearMath.3.25 glfw.3 FastNoise)
 
 
 add_executable(Ethertia
@@ -76,9 +79,6 @@ if (APPLE)
             "-framework OpenGL"
             "-framework IOKit"
             "-framework OpenAL")
-
-    target_link_directories(Ethertia PRIVATE ${CMAKE_SOURCE_DIR}/lib/_dylib/macos )
-    target_link_libraries(Ethertia PRIVATE BulletDynamics.3.25 BulletCollision.3.25 LinearMath.3.25 glfw.3 FastNoise)
 
 endif()
 if (WIN32)
