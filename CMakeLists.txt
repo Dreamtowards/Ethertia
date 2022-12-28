@@ -10,7 +10,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-#set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
@@ -19,44 +19,55 @@ include_directories(lib)
 include_directories(lib/glfw/include)
 include_directories(lib/bullet3/src)
 include_directories(lib/json/include)
-#include_directories(lib/fmt/include)
-#include_directories(lib/asio/include)
 include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
 include_directories(lib/fastnoise/include)
 
-#find_package(OpenAL REQUIRED)
 
 
 
 add_executable(Ethertia
         lib/glad/glad.c
-        # src/ethertia/event/EventBus.cpp
 
         src/ethertia/gui/Gui.cpp
         src/ethertia/render/RenderEngine.cpp
         src/ethertia/Ethertia.cpp
         )
 
-# lib glfw
-add_subdirectory(lib/glfw)
-target_link_libraries(Ethertia PRIVATE glfw)
 
-# lib bullet3
-add_subdirectory(lib/bullet3)
-target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath)
-# [examples, Extras, test, build3] are disabled.
+#set(BUILD_SHARED_LIBS ON)
 
-# lib FastNoise2
-add_subdirectory(lib/fastnoise)
-target_link_libraries(Ethertia PRIVATE FastNoise2)
+## lib glfw
+#set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+#set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+#add_subdirectory(lib/glfw)
+#target_link_libraries(Ethertia PRIVATE glfw)
+#
+## lib bullet3. [examples, Extras, test, build3] are disabled.
+#add_subdirectory(lib/bullet3)
+#target_link_libraries(Ethertia PRIVATE BulletDynamics BulletCollision LinearMath)
+#
+## lib FastNoise2
+#add_subdirectory(lib/fastnoise)
+#target_link_libraries(Ethertia PRIVATE FastNoise2)
+
+
+
+
+
+
 
 
 add_executable(DedicatedServer
         src/ethertia/network/DedicatedServer.cpp
         src/ethertia/util/testing/FastNoise2Tests.h)
 
-target_link_libraries(DedicatedServer PRIVATE FastNoise2)
+#target_link_libraries(DedicatedServer PRIVATE FastNoise2)
+
+
+
+
 
 
 if (APPLE)
@@ -65,11 +76,15 @@ if (APPLE)
             "-framework OpenGL"
             "-framework IOKit"
             "-framework OpenAL")
+
+    target_link_directories(Ethertia PRIVATE ${CMAKE_SOURCE_DIR}/lib/_dylib/macos )
+    target_link_libraries(Ethertia PRIVATE BulletDynamics.3.25 BulletCollision.3.25 LinearMath.3.25 glfw.3 FastNoise)
+
 endif()
 if (WIN32)
     #   mingw-w64 WinLibs build, add mingw64/bin to PATH without space. "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2.zip" 'https://winlibs.com/'
 
-    # have order.
+    # requires order. for enet networking.
     target_link_libraries(Ethertia        PRIVATE winmm gdi32 wsock32 ws2_32)
     target_link_libraries(DedicatedServer PRIVATE winmm gdi32 wsock32 ws2_32)
 endif()

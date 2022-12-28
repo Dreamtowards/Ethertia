@@ -56,7 +56,7 @@ public:
         fnFrac->SetOctaveCount(3);
 
         float noiseVal[16 * 16 * 16];  // chunkpos is Block Coordinate,,
-        fnFrac->GenUniformGrid3D(noiseVal, chunkpos.x, chunkpos.y, chunkpos.z, 16, 16, 16, 0.02, 1432);
+        fnFrac->GenUniformGrid3D(noiseVal, chunkpos.x, chunkpos.y, chunkpos.z, 16, 16, 16, 0.01, 1432);
 
 
         int _idx = 0;
