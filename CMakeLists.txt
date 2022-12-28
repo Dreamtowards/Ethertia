@@ -3,7 +3,7 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
+#set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -24,7 +24,7 @@ include_directories(lib/msgpack/include)
 include_directories(lib/fastnoise/include)
 
 
-link_directories(${CMAKE_SOURCE_DIR}/run/proc/macos-x86-64)
+link_directories(${CMAKE_SOURCE_DIR}/run/bin/macos-x86-64)
 
 link_libraries(BulletDynamics.3.25 BulletCollision.3.25 LinearMath.3.25 glfw.3 FastNoise)
 
@@ -63,8 +63,7 @@ add_executable(Ethertia
 
 
 add_executable(DedicatedServer
-        src/ethertia/network/DedicatedServer.cpp
-        src/ethertia/util/testing/FastNoise2Tests.h)
+        src/ethertia/network/DedicatedServer.cpp)
 
 #target_link_libraries(DedicatedServer PRIVATE FastNoise2)
 
@@ -84,7 +83,7 @@ endif()
 if (WIN32)
     #   mingw-w64 WinLibs build, add mingw64/bin to PATH without space. "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-14.0.6-mingw-w64ucrt-10.0.0-r2.zip" 'https://winlibs.com/'
 
-    # requires order. for enet networking.
+    # ordered. enet networking.
     target_link_libraries(Ethertia        PRIVATE winmm gdi32 wsock32 ws2_32)
     target_link_libraries(DedicatedServer PRIVATE winmm gdi32 wsock32 ws2_32)
 endif()
