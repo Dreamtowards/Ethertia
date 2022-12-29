@@ -65,8 +65,8 @@ public:
                     float* norm_base = &objnorm[idx_norm*3];
                     vbuf->addnorm(norm_base[0], norm_base[1], norm_base[2]);
                 }
-            } else {
-                Log::warn("OBJ parse unknown line: ", line);
+            } else if (line[0] != '#'){
+                // Log::warn("OBJ parse unknown line: ", line);
             }
         }
 

@@ -44,8 +44,7 @@ public:
         m_MeshTerrain->setPosition(position);  m_MeshTerrain->m_GroupTag = Entity::GTAG_CHUNK_TERRAIN;
 
         m_MeshVegetable = new EntityMesh();
-        m_MeshVegetable->setPosition(position);
-        m_MeshVegetable->m_FaceCulling = false;   m_MeshVegetable->m_GroupTag = Entity::GTAG_CHUNK_VEGETABLE;
+        m_MeshVegetable->setPosition(position); m_MeshVegetable->m_GroupTag = Entity::GTAG_CHUNK_VEGETABLE;
     }
     ~Chunk() {
 

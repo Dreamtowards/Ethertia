@@ -10,7 +10,6 @@
 class EntityMesh : public Entity
 {
 public:
-    bool m_FaceCulling = true;
 
     EntityMesh() {
 

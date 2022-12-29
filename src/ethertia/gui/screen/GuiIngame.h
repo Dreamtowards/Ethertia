@@ -265,6 +265,12 @@ public:
             }
         }
 
+        Entity* selEntity = Ethertia::getBrushCursor().hitEntity;
+        if (selEntity) {
+            AABB aabb = selEntity->getAABB();
+            rde->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::YELLOW);
+        }
+
         if (dbgChunkAABB) { using glm::vec3;
             int n = 1;
             vec3 cpos = Mth::floor(Ethertia::getCamera()->position, 16);

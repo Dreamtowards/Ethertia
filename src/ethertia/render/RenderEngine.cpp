@@ -83,17 +83,21 @@ Framebuffer::gPushFramebuffer(gbuffer);
             continue;
         }
 
-        if (dynamic_cast<EntityMesh*>(entity) && dynamic_cast<EntityMesh*>(entity)->m_FaceCulling) {
-            glEnable(GL_CULL_FACE);
-        } else {
+        if (entity->m_GroupTag == Entity::GTAG_CHUNK_VEGETABLE) {
             if (dbg_NoVegetable) continue;
             glDisable(GL_CULL_FACE);
         }
-        ++g_NumEntityRendered;
+
         PROFILE("E/"+std::to_string(entity->m_GroupTag));
 
         entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation());
 
+
+        if (entity->m_GroupTag == Entity::GTAG_CHUNK_VEGETABLE) {
+            glEnable(GL_CULL_FACE);  // setback
+        }
+
+        ++g_NumEntityRendered;
         if (debugChunkGeo)
             renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
     }

@@ -146,6 +146,9 @@ public:
     static inline glm::vec3 vec3(const float* base) {
         return glm::vec3(base[0], base[1], base[2]);
     }
+    static inline glm::vec3 vec3(const std::string* argv) {
+        return glm::vec3(std::stof(argv[0]), std::stof(argv[1]), std::stof(argv[2]));
+    }
     static inline void vec3out(const glm::vec3& v, float* base) {
         base[0] = v.x;
         base[1] = v.y;

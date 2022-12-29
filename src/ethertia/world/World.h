@@ -232,7 +232,7 @@ public:
 
 
 
-    bool raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n) {
+    bool raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n, void** usrptr) {
         btVector3 _beg(begin.x, begin.y, begin.z);
         btVector3 _end(end.x, end.y, end.z);
         btCollisionWorld::ClosestRayResultCallback rayCallback(_beg, _end);
@@ -241,6 +241,10 @@ public:
         if (rayCallback.hasHit()) {
             p = Mth::vec3(rayCallback.m_hitPointWorld);
             n = Mth::vec3(rayCallback.m_hitNormalWorld);
+
+            if (usrptr) {
+                *usrptr = rayCallback.m_collisionObject->getUserPointer();
+            }
             return true;
         }
         return false;

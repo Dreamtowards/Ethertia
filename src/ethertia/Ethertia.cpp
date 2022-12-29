@@ -83,14 +83,6 @@ void Ethertia::start()
 
     Ethertia::loadWorld();
 
-    EntityMesh* entity = new EntityMesh();
-    entity->setPosition(m_Player->getPosition());
-
-    VertexBuffer* vbuf = Loader::loadOBJ("sphere.obj");
-    entity->setMesh_Model(vbuf->positions.data(), Loader::loadModel(vbuf));
-
-    Ethertia::getWorld()->addEntity(entity);
-
 
 }
 
@@ -201,6 +193,17 @@ void Ethertia::unloadWorld() {
     m_World = nullptr;
 }
 
+Entity* ofCommandEntityExpr(const std::string& expr) {
+    Entity* result = nullptr;
+    if (expr == "@t") {
+        result = Ethertia::getBrushCursor().hitEntity;
+        if (!result) Log::warn("Failed, invalid target entity");
+    } else if (expr == "@s") {
+        result = Ethertia::getPlayer();
+    }
+    return result;
+}
+
 void Ethertia::dispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
 
@@ -212,13 +215,24 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     }
 
     std::vector<std::string> args = Strings::splitSpaces(cmdline);
+    int argc = args.size();
+
     std::string& cmd = args[0];
     EntityPlayer* player = Ethertia::getPlayer();
 
     if (cmd == "/tp")
     {
-        // /tp <x> <y> <z>
-        player->setPosition(glm::vec3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3])));
+        Entity* src = player;
+        if (argc == 4) { // /tp <x> <y> <z>
+            src->setPosition(Mth::vec3(&args[1]));
+        } else if (argc == 5) {
+            src = ofCommandEntityExpr(args[1]);
+            src->setPosition(Mth::vec3(&args[2]));
+        } else if (argc == 3) {
+            src = ofCommandEntityExpr(args[1]);
+            Entity* dst = ofCommandEntityExpr(args[2]);
+            src->setPosition(dst->getPosition());
+        }
     }
     else if (cmd == "/gamemode")
     {
@@ -241,21 +255,25 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
         ClientNetworkSystem::connect(hostname, port);
     }
-    else if (cmd == "/entity")
+    else if (cmd == "/mesh")
     {
         if (args[1] == "new") {
-            if (args[2] == "mesh") {
-                const std::string& path = args[3];
-                EntityMesh* entity = new EntityMesh();
-                entity->setPosition(player->getPosition());
+            const std::string& path = args[2];
 
-                VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadFileStr(path));
-                entity->setMesh_Model(vbuf->positions.data(), Loader::loadModel(vbuf));
-
-                Ethertia::getWorld()->addEntity(entity);
-
-                Log::info("Added Mesh");
+            if (!Loader::fileExists(path)){
+                Log::warn("No mesh file on: ", path);
+                return;
             }
+
+            EntityMesh* entity = new EntityMesh();
+            entity->setPosition(player->getPosition());
+
+            VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadFileStr(path));
+            entity->setMesh_Model(vbuf->positions.data(), Loader::loadModel(vbuf));
+
+            Ethertia::getWorld()->addEntity(entity);
+
+            Log::info("Added EntityMesh");
         }
     }
     else

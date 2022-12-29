@@ -5,6 +5,7 @@
 #ifndef ETHERTIA_BRUSHCURSOR_H
 #define ETHERTIA_BRUSHCURSOR_H
 
+class Entity;
 
 class BrushCursor {
 public:
@@ -13,6 +14,8 @@ public:
     glm::vec3 position;
 
     float brushSize = 0.0;
+
+    Entity* hitEntity = nullptr;
 
     int brushType;
     int brushMaterial;

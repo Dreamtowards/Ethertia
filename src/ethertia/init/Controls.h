@@ -8,6 +8,7 @@
 class Controls
 {
 public:
+    inline static Entity* m_FocusedEntity = nullptr;
 
     static void initConsoleThread()
     {
@@ -38,6 +39,13 @@ public:
         win->eventbus().listen([](WindowCloseEvent* e)
         {
             Ethertia::shutdown();
+        });
+
+        win->eventbus().listen([](MouseButtonEvent* e)
+        {
+            if (e->isPressed() && e->getButton()) {
+
+            }
         });
 
         win->eventbus().listen([](KeyboardEvent* e)
@@ -141,9 +149,13 @@ public:
         BrushCursor& cursor = Ethertia::getBrushCursor();
         if (cursor.keepTracking) {
             glm::vec3 p, n;
-            cursor.hit = Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n);
+
+            void* usrptr = nullptr;
+            cursor.hit = Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n, &usrptr);
 
             cursor.position = cursor.hit ? p : glm::vec3(0.0f);
+
+            cursor.hitEntity = (Entity*)usrptr;
         }
 
     }
