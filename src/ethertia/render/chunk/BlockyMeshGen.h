@@ -115,7 +115,7 @@ public:
 
 //            int cornerMtlId = World::_GetCell(chunk, rvp + chunk->position).id;
 
-            vbuf->_add_mtl_id(mtlId);
+            vbuf->add_pure_mtl(mtlId);
         }
 //        // put uv
 //        for (int i = 0; i < 6; ++i) {
@@ -155,7 +155,7 @@ public:
             vec2 u = vec2(_u[0], _u[1]);
             u = u * MaterialTextures::regionScale() + MaterialTextures::regionOffset(mtlId);
             vbuf->adduv(u.x, u.y);
-//            vbuf->_add_mtl_id(mtlId);
+            vbuf->set_uv_mtl(mtlId);
         }
 
     }

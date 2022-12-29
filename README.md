@@ -80,11 +80,9 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 ### Build
 
 - Working directory: `./run`
-- Compiler: GNU/gcc. CMake configures.
-  
 - Build shared-library and the program.   
   `cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" -DBUILD_SHARED_LIBS=1`  
-  Output dir: e.g. `./run/bin/macos-x86-64`
+  Will compile to: e.g. `./run/bin/macos-x86-64`
 
 ## Updates
 

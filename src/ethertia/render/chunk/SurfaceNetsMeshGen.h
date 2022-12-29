@@ -104,7 +104,7 @@ public:
                                     }
                                 }
                                 assert(MtlId != 0);
-                                vbuf->_add_mtl_id(MtlId);
+                                vbuf->add_pure_mtl(MtlId);
 
                                 if (MtlId == Materials::MOSS) {
                                     grass_fp.push_back(quadp + fp);

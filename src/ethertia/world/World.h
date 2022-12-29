@@ -202,8 +202,12 @@ public:
     void addEntity(Entity* e) {
         assert(Collections::find(m_Entities, e) == -1);  // make sure the entity is not in this world.
 
+        auto old_grav = e->m_Rigidbody->getGravity(); // fix little stupid auto-change gravity
+
         m_Entities.push_back(e);
         e->onLoad(m_DynamicsWorld);
+
+        e->m_Rigidbody->setGravity(old_grav);
     }
 
     void removeEntity(Entity* e) {

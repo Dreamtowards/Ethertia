@@ -16,10 +16,14 @@ out Vsh {
     float MtlId;
 } vsh;
 
+#define MTL_LEAVES 8
+#define MTL_TALLGRASS 9
+
 void main()
 {
     vec4 worldpos = matModel * vec4(in_pos, 1.0);
-    if (in_texCoord.y != 1342) {
+    int MtlId = int(in_texCoord.x);
+    if (MtlId == MTL_LEAVES || MtlId == MTL_TALLGRASS) {
         worldpos.xyz += vec3(cos(worldpos.yzx * 1000 + Time * 1.3).xyz) * 0.1;
     }
     gl_Position = matProjection * matView * worldpos;

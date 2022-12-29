@@ -51,7 +51,6 @@ public:
                 char* pix = (char*)&pixels[y*width+x];
 
                 pix[3] = (char)(a * 255.0f);
-
             }
         }
     }

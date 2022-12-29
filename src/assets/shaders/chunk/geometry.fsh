@@ -69,14 +69,22 @@ vec3 samp_norm(vec2 uv) {
 
 void main()
 {
+//    {
+//        gPositionDepth = vec4(FragPos, linear_depth(gl_FragCoord.z));
+//        gNormal = Norm;
+//        gAlbedoRoughness = vec4(vec3(1), 1.0);
+//        return;
+//    }
+
     vec3 FragNorm = Norm;
 
     vec4 Albedo;
 
     float Roughness = 1.0;
 
-    bool useMTL = TexCoord.y >= 1342 - 1;  // MTL magic number. Platform Error: Use exactly "==" compresion produces random result on some Win10 GL device
-    if (!useMTL) {  // no material id, use TexCoord.
+//    bool useMTL = TexCoord.y >= 1342 - 1;  // MTL magic number. Platform Error: Use exactly "==" compresion produces random result on some Win10 GL device
+    bool pureMTL = TexCoord.y == 1000;
+    if (!pureMTL) {  // no material id, use TexCoord.
         Albedo = texture(diffuseMap, TexCoord).rgba;
 
         if (Albedo.a < 0.8) {

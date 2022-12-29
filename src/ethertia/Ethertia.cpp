@@ -79,9 +79,17 @@ void Ethertia::start()
     m_Player = new EntityPlayer();
     m_Player->setPosition({10, 10, 10});
     m_Player->switchGamemode(Gamemode::SPECTATOR);
+    m_Player->setFlying(true);
 
     Ethertia::loadWorld();
-    m_Player->setFlying(true);
+
+    EntityMesh* entity = new EntityMesh();
+    entity->setPosition(m_Player->getPosition());
+
+    VertexBuffer* vbuf = Loader::loadOBJ("sphere.obj");
+    entity->setMesh_Model(vbuf->positions.data(), Loader::loadModel(vbuf));
+
+    Ethertia::getWorld()->addEntity(entity);
 
 
 }
@@ -232,6 +240,27 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
         int port = std::stoi(args[2]);
 
         ClientNetworkSystem::connect(hostname, port);
+    }
+    else if (cmd == "/entity")
+    {
+        if (args[1] == "new") {
+            if (args[2] == "mesh") {
+                const std::string& path = args[3];
+                EntityMesh* entity = new EntityMesh();
+                entity->setPosition(player->getPosition());
+
+                VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadFileStr(path));
+                entity->setMesh_Model(vbuf->positions.data(), Loader::loadModel(vbuf));
+
+                Ethertia::getWorld()->addEntity(entity);
+
+                Log::info("Added Mesh");
+            }
+        }
+    }
+    else
+    {
+        Log::warn("Unknown command");
     }
 }
 

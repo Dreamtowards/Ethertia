@@ -330,7 +330,7 @@ public:
 
                         Cell& solid = d0.density > 0 ? d0 : d1;
                         assert(d0.density > 0 != d1.density > 0);
-                        vbuf->_add_mtl_id(solid.id);
+//                        vbuf->_add_mtl_id_on_uv(solid.id);
                     }
 
                 }

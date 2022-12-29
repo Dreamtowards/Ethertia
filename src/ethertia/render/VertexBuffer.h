@@ -47,8 +47,13 @@ public:
         addnorm(n.x, n.y, n.z);
     }
 
-    void _add_mtl_id(int i) {
-        adduv(i, 1342);
+    void set_uv_mtl(int MtlId, bool pureMTL = true) {
+        assert(textureCoords.size()/2 == positions.size()/3);
+        textureCoords[textureCoords.size()-2] += MtlId;
+    }
+    void add_pure_mtl(int MtlId) {
+        adduv(MtlId, 1000);
+        assert(textureCoords.size()/2 == positions.size()/3);
     }
 
     [[nodiscard]] size_t vertexCount() const {
