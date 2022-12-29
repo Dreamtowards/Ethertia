@@ -27,30 +27,37 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
 已完成:
-- Surface Nets (Unified Grids) (基本平滑体素模型构建 Isosurface 对偶式等值面提取演算法)
-- Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
-- Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
-- UDP 快速可-可靠网络通信 数据包 处理系统
+- [x] Surface Nets (Unified Grids) (基本平滑体素模型构建 Isosurface 对偶式等值面提取演算法)
+- [x] Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
+- [x] Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
+- [x] UDP 快速网络通信(optical reliable) 数据包 处理系统
 
 需要做:  
-- Reflection Mapping. 反射渲染 水面反射 或材质反射 (冰/汽车表面)
-- SSAO. 环境光遮蔽 提高层次感
-- Flat Atmosphere. 平面大气层渲染 基于半物理的天空散射&雾气
-- Light Shaft. 光锥
-- 一些特殊效果 盗梦空间的世界卷曲 虚拟实惊的万花筒扭曲 刺客信条的点阵世界表面
+- [ ] ___Rendering___
+  - [ ] Reflection Mapping, Screen Space. 反射渲染 水面反射 或材质反射 (冰/汽车表面)
+  - [ ] SSAO. 环境光遮蔽 提高层次感
+  - [ ] Flat Atmosphere. 平面大气层渲染 基于半物理的天空散射&雾气
+  - [ ] Light Shaft. 光锥
+  - [ ] 一些特殊效果 盗梦空间的世界卷曲 虚拟实惊的万花筒扭曲 刺客信条的点阵世界表面
 
-<br>
+- [ ] ___World & Terrain___
+  - [ ] WorldGen, Biomes. 地形生成 生物群系, 这是无底洞
+  - [ ] Voxel LoD 地形远处低细节等级，远景加载
+  - [ ] CSG, Advanced Modeling System. 更专业的建筑系统 实时构建更准确的建筑模型
+    
+- [ ] ___Entity & Funcs___
+  - [ ] 农作物种植 马铃薯 胡萝卜
+  - [ ] Vehicles 汽车 火车 地铁 船 直升机 霍金轮椅
+  - [ ] Theatrical. Screen Cast, Light,. 剧场设备 屏幕投射 光轴 音响 摄影机
+  - [ ] 动物 猪牛羊 鸡 马驴螺
+  - [ ] Item, Inventory, ItemStack. 物品系统
+  - [ ] 玩家血量 装备. 行走碰撞. 
 
-- WorldGen, Biomes. 地形生成 生物群系, 这是无底洞
-- Voxel LoD 地形远处低细节等级，远景加载
-- CSG, Advanced Modeling System. 更专业的建筑系统 实时构建更准确的建筑模型
-- 农作物种植 马铃薯 胡萝卜 
+- [ ] ___Multiplayer & Interactive___
+  - [ ] Multiplayer 多人游戏系统
+  - [ ] Skeleton Animation etc 骨骼动画 实时网络传输 穿戴定位器动作跟踪
+  - [ ] Cel Shading, Character. 人物渲染
 
-<br>
-
-- Multiplayer 多人游戏系统
-- Skeleton Animation etc 骨骼动画 实时网络传输 穿戴定位器动作跟踪
-- Vehicles 汽车 火车 地铁 船 直升机 霍金轮椅
 
 特殊功能
 - 和OBS/直播媒体流对接 让视频/音频流 连接到我们的国家顶级剧院和顶级环绕巨型音响, 
@@ -64,8 +71,6 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 - 探索自然景观 海边峭壁 巨树密集 高耸奇幻悬崖
 
 
-
-[comment]: <> (为什么很多地方用英文而不是中文？因为很多术语名/原名是英文，中文有时多义性/翻译误差。但是解释性文字)
 
 <br>
 
@@ -83,6 +88,8 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 - Build shared-library and the program.   
   `cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" -DBUILD_SHARED_LIBS=1`  
   Will compile to: e.g. `./run/bin/macos-x86-64`
+
+<!--
 
 ## Updates
 
@@ -133,6 +140,8 @@ _ps. marching cubes with kernel program generated vertex UVs._
 
 
 ---
+
+-->
 
 <!--
 
