@@ -310,6 +310,8 @@ public:
 
         glReadPixels(0, 0, img->getWidth(), img->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, img->getPixels());
 
+        img->fillAlpha(1.0);
+
         return img;
     }
 };

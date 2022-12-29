@@ -113,6 +113,13 @@ public:
                 sprint = false;
             }
 
+            static SmoothValue smFov;
+            smFov.update(dt);
+            if (window.isKeyDown(GLFW_KEY_X)) {
+                smFov.target += window.getMouseY() / 800.0f;
+            }
+            RenderEngine::fov += smFov.delta;
+
             camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
         }
 //    player->intpposition = /*Mth::lerp(Ethertia::getTimer()->getPartialTick(), player->prevposition, */player->getPosition();//);

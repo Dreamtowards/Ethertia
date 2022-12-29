@@ -372,7 +372,7 @@ public:
 
         double sec_time = sec.sumTime;
         double sec_width = (sec_time / w_time) * w;
-        glm::vec4 color = Colors::ofRGB(std::hash<std::string>()(sec.name));
+        glm::vec4 color = Colors::ofRGB(std::hash<std::string>()(sec.name) * 256);
         Gui::drawRect(x, y, sec_width, SEC_H, color);
         Gui::drawString(x, y, sec.name);  // Section Name
 

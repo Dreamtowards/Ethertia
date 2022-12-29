@@ -6,6 +6,7 @@
 #define ETHERTIA_BITMAPIMAGE_H
 
 #include <ethertia/util/UnifiedTypes.h>
+#include <ethertia/util/Colors.h>
 
 class BitmapImage
 {
@@ -44,6 +45,17 @@ public:
     void fillPixels(std::uint32_t rgba) {
         std::fill(pixels, pixels + width*height, rgba);
     }
+    void fillAlpha(float a) {
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                char* pix = (char*)&pixels[y*width+x];
+
+                pix[3] = (char)(a * 255.0f);
+
+            }
+        }
+    }
+
     std::uint32_t* getPixels() {
         return pixels;
     }

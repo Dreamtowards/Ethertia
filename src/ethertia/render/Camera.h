@@ -31,9 +31,10 @@ public:
     void updateMovement(float dt, float mDX, float mDY, bool rotZ, float dScroll) {
         float mx = mDX / 200;
         float my = mDY / 200;
-        if (rotZ) eulerAngles.z += mx;
+        float mz = 0;
+        if (rotZ) mz += mx;
 
-        static SmoothValue sX, sY;
+        static SmoothValue sX, sY, sZ;
 
         float t = smoothness == 0.0f ? 1.0f : dt / smoothness;
 
@@ -45,6 +46,10 @@ public:
         sX.target = Mth::clamp(sX.target, -Mth::PI_2, Mth::PI_2);
         sX.update(t);
         eulerAngles.x = sX.current;
+
+        sZ.target += mz / 20.0f;
+        sZ.update(t);
+        eulerAngles.z = sZ.current;
 
         len += dScroll;
         len = Mth::max(len, 0.0f);

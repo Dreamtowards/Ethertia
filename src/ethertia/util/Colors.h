@@ -18,7 +18,8 @@ public:
         return Colors::ofRGBA(r,g,b,255);
     }
 
-    static glm::vec4 ofRGBA(int rgba) {
+    static glm::vec4 ofRGBA(uint32_t rgba) {
+        rgba = Endian::bigendian(rgba);
         return Colors::ofRGBA(
             ((rgba >> 24) & 0xFF),
             ((rgba >> 16) & 0xFF),
@@ -27,7 +28,7 @@ public:
         );
     }
     static glm::vec4 ofRGB(int rgb) {
-        return Colors::ofRGBA(rgb | 0xFF);  // May associated with endian ?
+        return Colors::ofRGBA(rgb | Endian::bigendian((uint32_t)0xFF));  // May associated with endian ?
     }
     static glm::vec4 alpha(glm::vec4 c, float a) {
         c.a = a;

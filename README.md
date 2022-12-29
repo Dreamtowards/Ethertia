@@ -2,9 +2,9 @@
 
 ![](run/screenshots/eth-proj-postr.png)
 
-[![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml/badge.svg)]()
-[![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)]()
-[![Build-Ubuntu](https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml/badge.svg)]()
+[![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml)
+[![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml)
+[![Build-Ubuntu](https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml)
 [![Discord](https://img.shields.io/discord/870689606570508319?logo=discord)](https://discord.gg/2gzHbuXF)
 [![License-MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 
@@ -22,7 +22,7 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 
 预览视频:
 
-![](run/screenshots/2022-12-22_22.15.40_530.121.png)
+![](run/screenshots/2022-12-29_10.34.08_418.762.png)
 
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
@@ -77,7 +77,14 @@ Music and sounds:
 Ingame artwork:   
 Used libs&tools: cpp, glfw, glm, stb, bulletphys
 
+### Build
 
+- Working directory: `./run`
+- Compiler: GNU/gcc. CMake configures.
+  
+- Build shared-library and the program.   
+  `cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" -DBUILD_SHARED_LIBS=1`  
+  Output dir: e.g. `./run/bin/macos-x86-64`
 
 ## Updates
 
