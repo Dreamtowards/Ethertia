@@ -65,23 +65,31 @@ public:
 
 
 
-    void renderGeometryChunk(Model* model, glm::vec3 pos, glm::mat3 rot)
+    void renderGeometryChunk(Model* model, glm::vec3 pos, glm::mat3 rot, Texture* diff)
     {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DIFFUSE->texId);
+        if (diff)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, diff->texId);
+        }
+        else
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DIFFUSE->texId);
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_NORM->texId);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_NORM->texId);
 
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISP->texId);
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISP->texId);
 
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_ROUGH->texId);
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_ROUGH->texId);
 
-            // Experimental
-            glActiveTexture(GL_TEXTURE5);
-            glBindTexture(GL_TEXTURE_2D, g_PanoramaTex->texId);
+                // Experimental
+                glActiveTexture(GL_TEXTURE5);
+                glBindTexture(GL_TEXTURE_2D, g_PanoramaTex->texId);
+        }
 
 
         shaderGeometry.useProgram();
@@ -100,6 +108,18 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, model->vertexCount);
     }
 
+    class Light
+    {
+    public:
+        glm::vec3 position;
+        glm::vec3 color;
+
+        glm::vec3 direction;
+        float coneAngle = 0;
+        float coneRound = 0;
+    };
+    inline static glm::vec3 tmpLightDir;
+    inline static glm::vec3 tmpLightPos;
 
     void renderCompose(Texture* gPosition, Texture* gNormal, Texture* gAlbedo)
     {
@@ -133,6 +153,8 @@ public:
         shaderCompose.setMatrix4f("matInvView", glm::inverse(Ethertia::getRenderEngine()->viewMatrix));
         shaderCompose.setMatrix4f("matInvProjection", glm::inverse(Ethertia::getRenderEngine()->projectionMatrix));
 
+        shaderCompose.setVector3f("tmpLightDir", tmpLightDir);
+        shaderCompose.setVector3f("tmpLightPos", tmpLightPos);
 
         glBindVertexArray(EntityRenderer::M_RECT->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, M_RECT->vertexCount);

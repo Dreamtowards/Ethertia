@@ -26,6 +26,9 @@ uniform float debugVar0 = 0;
 uniform float debugVar1 = 0;
 uniform float debugVar2 = 0;
 
+uniform vec3 tmpLightDir;
+uniform vec3 tmpLightPos;
+
 uniform float Time = 0;
 
 // plane degined by p (p.xyz must be normalized)
@@ -60,6 +63,44 @@ vec2 raySphere( vec3 ro, vec3 rd, vec3 ce, float ra )
     if( h<0.0 ) return vec2(-1.0); // no intersection
     h = sqrt( h );
     return vec2( -b-h, -b+h );
+}
+vec4 rayCone( in vec3  ro, in vec3  rd, in vec3  pa, in vec3  pb, in float ra, in float rb )
+{
+    vec3  ba = pb - pa;
+    vec3  oa = ro - pa;
+    vec3  ob = ro - pb;
+    float m0 = dot(ba,ba);
+    float m1 = dot(oa,ba);
+    float m2 = dot(rd,ba);
+    float m3 = dot(rd,oa);
+    float m5 = dot(oa,oa);
+    float m9 = dot(ob,ba);
+
+    // caps
+    if( m1<0.0 )
+    {
+        if( dot2(oa*m2-rd*m1)<(ra*ra*m2*m2) ) // delayed division
+        return vec4(-m1/m2,-ba*inversesqrt(m0));
+    }
+    else if( m9>0.0 )
+    {
+        float t = -m9/m2;                     // NOT delayed division
+        if( dot2(ob+rd*t)<(rb*rb) )
+        return vec4(t,ba*inversesqrt(m0));
+    }
+
+    // body
+    float rr = ra - rb;
+    float hy = m0 + rr*rr;
+    float k2 = m0*m0    - m2*m2*hy;
+    float k1 = m0*m0*m3 - m1*m2*hy + m0*ra*(rr*m2*1.0        );
+    float k0 = m0*m0*m5 - m1*m1*hy + m0*ra*(rr*m1*2.0 - m0*ra);
+    float h = k1*k1 - k2*k0;
+    if( h<0.0 ) return vec4(-1.0); //no intersection
+    float t = (-k1-sqrt(h))/k2;
+    float y = m1 + t*m2;
+    if( y<0.0 || y>m0 ) return vec4(-1.0); //no intersection
+    return vec4(t, normalize(m0*(m0*(oa+t*rd)+rr*ba*ra)-ba*hy*y));
 }
 
 vec2 samplePanoramaTex(vec3 rd) {
@@ -160,21 +201,21 @@ void main() {
 //    if (dot(Norm, CameraPos - FragPos) > 0)
 //    Norm = - Norm;
 
-    vec3 LightPos = vec3(-3, 2, -1) * 10000;
-    vec3 LightColor = vec3(2.0);
+    vec3 SunPos = vec3(-3, 2, -1) * 10000;
+    vec3 SunColor = vec3(2.0);
 
 
-    vec3 FragToLight = normalize(LightPos - FragPos);
+    vec3 FragToSun = normalize(SunPos - FragPos);
     vec3 FragToCamera = normalize(CameraPos - FragPos);
 
-    float diff = max(0.2, dot(FragToLight, Norm));
-    vec3 diffColor = diff * LightColor;
+    float diff = max(0.2, dot(FragToSun, Norm));
+    vec3 diffColor = diff * SunColor;
 
     float specularIntensity = (1.0 - Roughness);
     float shininess = 48;
-    vec3 lightReflect = reflect(-FragToLight, Norm);
+    vec3 lightReflect = reflect(-FragToSun, Norm);
     float spec = pow(max(dot(lightReflect, FragToCamera), 0.0), shininess);
-    vec3 specColor = spec * specularIntensity * LightColor;
+    vec3 specColor = spec * specularIntensity * SunColor;
 
     FragColor = vec4((diffColor + specColor) * Albedo, 1.0);
 //    FragColor = vec4(0,0,0,1);
@@ -193,6 +234,25 @@ void main() {
 
     vec3 RayPos = CameraPos;
     vec3 RayDir = compute_pixel_ray();
+
+    {
+        vec3 LightPos = tmpLightPos;
+        vec3 LighColor = vec3(1, 1.8, 1);
+
+        vec3 LightDir = tmpLightDir;
+        float LightAttenution = 100;
+
+        float coneAngle = 0.8;
+        float coneRound = 0;
+
+        float distance = length(LightPos - FragPos);
+        vec3 FragToLight = normalize(LightPos - FragPos);
+        if (dot(-FragToLight, LightDir) > coneAngle) {
+            FragColor.rgb += LighColor * (1.0 / (distance * 0.3));
+        }
+
+    }
+
 
 //    vec2 hitPlanet = raySphere(RayPos, RayDir, PlanetPos, PlanetRadius);
 //    if (hitPlanet.y - hitPlanet.x > 0.0) {

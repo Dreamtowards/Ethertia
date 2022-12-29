@@ -41,10 +41,12 @@ public:
 
         // init the proxy entity
         m_MeshTerrain = new EntityMesh();
-        m_MeshTerrain->setPosition(position);  m_MeshTerrain->m_GroupTag = Entity::GTAG_CHUNK_TERRAIN;
+        m_MeshTerrain->setPosition(position);
+        m_MeshTerrain->m_TypeTag = Entity::TypeTag::T_CHUNK_TERRAIN;
 
         m_MeshVegetable = new EntityMesh();
-        m_MeshVegetable->setPosition(position); m_MeshVegetable->m_GroupTag = Entity::GTAG_CHUNK_VEGETABLE;
+        m_MeshVegetable->setPosition(position);
+        m_MeshVegetable->m_TypeTag = Entity::TypeTag::T_CHUNK_VEGETABLE;
     }
     ~Chunk() {
 

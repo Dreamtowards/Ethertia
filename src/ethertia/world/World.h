@@ -30,6 +30,9 @@
 #include <glm/gtx/hash.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+
+#include <entt/entt.hpp>
+
 class World
 {
     std::unordered_map<glm::vec3, Chunk*> m_Chunks;
@@ -42,6 +45,8 @@ class World
 
 public:
     btDiscreteDynamicsWorld* m_DynamicsWorld;
+
+    entt::registry m_EnttRegistry;
 
     std::mutex lock_ChunkList;
 

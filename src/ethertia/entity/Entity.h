@@ -16,16 +16,22 @@
 class Entity
 {
 public:
-    std::string m_Name;
-
     btRigidBody* m_Rigidbody = nullptr;
 
     Model* m_Model = nullptr;
     Texture* m_DiffuseMap = nullptr;
 
-    inline static const uint32_t GTAG_CHUNK_TERRAIN = 16;
-    inline static const uint32_t GTAG_CHUNK_VEGETABLE = 17;
-    std::uint32_t m_GroupTag = 0;  // Synthetic{ChunkTerrain, ChunkVegetable}, Normal
+    std::uint32_t m_TypeTag = 0;
+
+    class TypeTag {
+    public:
+        static const uint32_t T_CHUNK_TERRAIN = 16,
+                              T_CHUNK_VEGETABLE = 17;
+
+        static bool isTerrain(uint32_t t) {
+            return t==T_CHUNK_TERRAIN || t==T_CHUNK_VEGETABLE;
+        }
+    };
 
     Entity() {
     }

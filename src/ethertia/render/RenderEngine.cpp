@@ -41,7 +41,7 @@ RenderEngine::RenderEngine()
         dcompose->checkFramebufferStatus();
     Framebuffer::gPopFramebuffer();
 
-    RenderEngine::checkGlError("Init End");
+    RenderEngine::checkGlError("End of RenderEngine Init");
 
 }
 
@@ -83,17 +83,16 @@ Framebuffer::gPushFramebuffer(gbuffer);
             continue;
         }
 
-        if (entity->m_GroupTag == Entity::GTAG_CHUNK_VEGETABLE) {
+        if (entity->m_TypeTag == Entity::TypeTag::T_CHUNK_VEGETABLE) {
             if (dbg_NoVegetable) continue;
             glDisable(GL_CULL_FACE);
         }
 
-        PROFILE("E/"+std::to_string(entity->m_GroupTag));
+        PROFILE("E/"+std::to_string(entity->m_TypeTag));
 
-        entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation());
+        entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation(), entity->m_DiffuseMap);
 
-
-        if (entity->m_GroupTag == Entity::GTAG_CHUNK_VEGETABLE) {
+        if (entity->m_TypeTag == Entity::TypeTag::T_CHUNK_VEGETABLE) {
             glEnable(GL_CULL_FACE);  // setback
         }
 

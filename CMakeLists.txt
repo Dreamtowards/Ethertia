@@ -3,7 +3,7 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-option(BUILD_SHARED_LIBS OFF)
+option(BUILD_SHARED_LIBS ON)
 option(CMAKE_BUILD_TYPE Release)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
@@ -36,6 +36,7 @@ if(BUILD_SHARED_LIBS)
 
     add_subdirectory(lib/bullet3)
     add_subdirectory(lib/fastnoise)
+    add_subdirectory(lib/entt)
 
     link_libraries(glfw BulletDynamics BulletCollision LinearMath FastNoise2)
 
@@ -65,6 +66,7 @@ include_directories(lib/json/include)
 include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
 include_directories(lib/fastnoise/include)
+include_directories(lib/entt/src)
 
 
 add_executable(Ethertia

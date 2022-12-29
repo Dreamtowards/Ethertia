@@ -2,15 +2,15 @@
 // Created by Dreamtowards on 2022/12/24.
 //
 
-#ifndef ETHERTIA_CLIENTNETWORKSYSTEM_H
-#define ETHERTIA_CLIENTNETWORKSYSTEM_H
+#ifndef ETHERTIA_NETWORKSYSTEM_H
+#define ETHERTIA_NETWORKSYSTEM_H
 
 #include <ethertia/network/Network.h>
 #include <ethertia/network/packet/Packet.h>
 
 // Client NetworkSystem
 
-class ClientNetworkSystem
+class NetworkSystem
 {
 public:
 
@@ -93,4 +93,4 @@ public:
 
 };
 
-#endif //ETHERTIA_CLIENTNETWORKSYSTEM_H
+#endif //ETHERTIA_NETWORKSYSTEM_H

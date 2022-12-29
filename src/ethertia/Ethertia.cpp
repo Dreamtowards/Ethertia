@@ -22,7 +22,7 @@
 #include <ethertia/render/chunk/ChunkRenderProcessor.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/network/client/ClientConnectionProc.h>
-#include <ethertia/network/client/ClientNetworkSystem.h>
+#include <ethertia/network/client/NetworkSystem.h>
 #include <ethertia/init/Controls.h>
 
 
@@ -68,12 +68,10 @@ void Ethertia::start()
 
     Controls::initControls();
 
-
-
     ClientConnectionProc::initPackets();
 
-    ClientNetworkSystem::init();
-    // ClientNetworkSystem::connect("127.0.0.1", 8081);
+    NetworkSystem::init();
+    // NetworkSystem::connect("127.0.0.1", 8081);
 
 
     m_Player = new EntityPlayer();
@@ -129,6 +127,10 @@ void Ethertia::runMainLoop()
         {
             PROFILE("GUI");
             renderGUI();
+            if (m_Window->isKeyDown(GLFW_KEY_L)) {
+                EntityRenderer::tmpLightDir = getCamera()->direction;
+                EntityRenderer::tmpLightPos = getCamera()->position;
+            }
         }
     }
 
@@ -170,7 +172,7 @@ void Ethertia::runTick()
 void Ethertia::destroy()
 {
     Settings::saveSettings();
-    ClientNetworkSystem::deinit();
+    NetworkSystem::deinit();
 
     delete m_RootGUI;
     delete m_World;
@@ -208,7 +210,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
 
     if (cmdline[0] != '/') {
-        ClientNetworkSystem::SendPacket(PacketChat{
+        NetworkSystem::SendPacket(PacketChat{
                 cmdline
         });
         return;
@@ -253,13 +255,12 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
         std::string hostname = args[1];
         int port = std::stoi(args[2]);
 
-        ClientNetworkSystem::connect(hostname, port);
+        NetworkSystem::connect(hostname, port);
     }
     else if (cmd == "/mesh")
     {
         if (args[1] == "new") {
             const std::string& path = args[2];
-
             if (!Loader::fileExists(path)){
                 Log::warn("No mesh file on: ", path);
                 return;
@@ -273,7 +274,17 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
             Ethertia::getWorld()->addEntity(entity);
 
-            Log::info("Added EntityMesh");
+            Log::info("Added EntityMesh Model ", path);
+        } else if (args[1] == "diff") {
+            const std::string& path = args[2];
+            if (!Loader::fileExists(path)){
+                Log::warn("No mesh file on: ", path);
+                return;
+            }
+
+            EntityMesh* entity = (EntityMesh*)Ethertia::getBrushCursor().hitEntity;
+            entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(Loader::loadFile(path)));
+
         }
     }
     else
