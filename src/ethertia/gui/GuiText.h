@@ -15,9 +15,7 @@ public:
 
     GuiText(std::string s) : text(std::move(s)), Gui(0, 0, 100, 16) {}
 
-    void onDraw() override {
-
-        Gui::onDraw();
+    void implDraw() override {
 
         Gui::drawString(getX(), getY(), text);
     }

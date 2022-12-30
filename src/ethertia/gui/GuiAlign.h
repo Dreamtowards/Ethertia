@@ -28,8 +28,12 @@ public:
 
     void onLayout() override
     {
-        setWidth(Inf);
-        setHeight(Inf);
+        if (ratioX != Inf || right != Inf) {
+            setWidth(Inf);
+        }
+        if (ratioY != Inf || bottom != Inf) {
+            setHeight(Inf);
+        }
 
         Gui* g = getContent();
         if (g) {

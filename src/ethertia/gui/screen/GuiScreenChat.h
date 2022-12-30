@@ -20,30 +20,18 @@ public:
 
     inline static GuiScreenChat* INST;
 
-    GuiStack* chatlist = nullptr;
-
 
     GuiScreenChat() {
         setWidth(Inf);
         setHeight(Inf);
 
-        GuiStack* vbox = new GuiStack(GuiStack::D_VERTICAL);
-        vbox->setWidth(800);
 
-        {
-            chatlist = new GuiStack(GuiStack::D_VERTICAL);
-
-            chatlist->addDrawBackground(Colors::BLACK40);
-            chatlist->setWidth(Inf);
-            chatlist->setHeight(300);
-            vbox->addGui(chatlist);
-        }
-
-        vbox->addGui(new Gui(0, 0, 0, 2));  // gap
 
         GuiTextBox* input = new GuiTextBox("");
         input->setWidth(Inf);
-        input->setHeight(16);
+        input->setHeight(20);
+        input->m_TextY = (input->getHeight() - input->getTextHeight()) / 2;
+        input->addDrawBackground(Colors::BLACK80);
         input->setSingleLine(true);
         input->setFocused(true);
         input->addOnReturnListener([this, input](GuiTextBox::OnReturn* e) {
@@ -57,24 +45,11 @@ public:
             Ethertia::getRootGUI()->removeGui(this);  // dismiss.
             input->setText("");
         });
-        vbox->addGui(input);
 
-        addGui(new GuiAlign(0, 1, vbox));
+        addGui(new GuiAlign(0, 1, input));
 
     }
 
-    void appendMessage(std::string msg) {
-        GuiText* g = new GuiText(std::move(msg));
-
-        chatlist->addGui(g);
-    }
-
-    void onDraw() override
-    {
-        Gui::drawRect(0, Gui::maxHeight() - 16, Gui::maxWidth(), 16, Colors::alpha(Colors::BLACK, 0.9f));
-
-        Gui::onDraw();
-    }
 };
 
 #endif //ETHERTIA_GUISCREENCHAT_H

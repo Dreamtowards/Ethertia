@@ -12,7 +12,9 @@ class GuiDelegate : public Gui
     Gui* content = nullptr;
 
 public:
-    GuiDelegate(Gui* content) : content(content) {}
+    GuiDelegate(Gui* _content) {
+        setContent(_content);
+    }
 
     GuiDelegate() {}
 

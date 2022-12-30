@@ -26,10 +26,18 @@ public:
 
 
     EntityPlayer() {
+        VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr("entity/capsule-1-2.obj"));
+        m_Model = Loader::loadModel(vbuf);
 
-        initRigidbodyConvexModel(50.0f, std::move(*Loader::loadOBJ(Loader::loadAssetsStr("entity/cube.obj"))));
+        auto* shapeCapsule = new btCapsuleShape(0.5, 2);
 
-        m_Rigidbody->setActivationState(DISABLE_DEACTIVATION);
+        initRigidbody(50.0f, shapeCapsule);
+
+        m_Rigidbody->setAngularFactor(0);  // no rotation
+
+        m_Rigidbody->setActivationState(DISABLE_DEACTIVATION);  // no auto deactivate
+        m_Rigidbody->setSleepingThresholds(0, 0);
+
     }
 
     void setFlying(bool f) {

@@ -22,7 +22,7 @@ public:
         setWidth(n.x + 16);
     }
 
-    void onDraw() override
+    void implDraw() override
     {
         float x = getX(), y = getY(), w = getWidth(), h = getHeight();
 
@@ -33,8 +33,6 @@ public:
         Gui::drawString(x+w/2, y+(h-16)/2, text,
                         isPressed() ? Colors::GOLD : isHover() ? Colors::YELLOW : Colors::WHITE,
                         16, 0.5, true);
-
-        Gui::onDraw();
     }
 
     static void drawButtonBackground(Gui* g) {

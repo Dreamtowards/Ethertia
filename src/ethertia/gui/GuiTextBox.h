@@ -17,8 +17,6 @@ class GuiTextBox : public Gui
 {
     std::string text;
 
-    float textX = 0;
-    float textY = 0;
     float textHeight = 16;
 
     int cursorPosition = 0;
@@ -31,12 +29,16 @@ class GuiTextBox : public Gui
     float _timeLastCursorModify;  // for rendering. after cursor move, it should show a while.
 
 public:
+
+    float m_TextX = 0;
+    float m_TextY = 0;
+
     GuiTextBox(std::string text) : text(std::move(text)), Gui(0, 0, 100, 20) {
 
 
     }
 
-    void onDraw() override
+    void implDraw() override
     {
         float x = getX(), y = getY(), w = getWidth(), h = getHeight();
 
@@ -46,14 +48,14 @@ public:
 
         // Selection
         if (isPressed()) {
-            int idx = fr->textIdx(text, textHeight, Gui::cursorX()-textX-x, Gui::cursorY()-textY-y);
+            int idx = fr->textIdx(text, textHeight, Gui::cursorX() - m_TextX - x, Gui::cursorY() - m_TextY - y);
             setCursorPosition(idx);
 
             selectionEnd = idx;
         }
         for (int i = getSelectionMin(); i < getSelectionMax(); ++i) {
             glm::vec2 p = fr->textPos(text, textHeight, i);
-            Gui::drawRect(x+textX + p.x, y+textY + p.y, fr->charFullWidth(text[i], textHeight), textHeight, Colors::WHITE30);
+            Gui::drawRect(x + m_TextX + p.x, y + m_TextY + p.y, fr->charFullWidth(text[i], textHeight), textHeight, Colors::WHITE30);
         }
 
         Gui::drawString(x, y, text, Colors::WHITE, textHeight);
@@ -62,10 +64,9 @@ public:
         if (isFocused() && (Mth::mod(Ethertia::getPreciseTime(), 1.0f) < 0.5f || Ethertia::getPreciseTime() - _timeLastCursorModify < 0.5f)) {
             glm::vec2 p = calcTextPos(getCursorPosition());
 
-            Gui::drawRect(x+textX + p.x, y+textY + p.y, 2, textHeight, Colors::WHITE);
+            Gui::drawRect(x + m_TextX + p.x, y + m_TextY + p.y, 2, textHeight, Colors::WHITE);
         }
 
-        Gui::onDraw();
     }
 
     void onKeyboard(int key, bool pressed) override {
@@ -122,7 +123,7 @@ public:
         Log::info("MB");
 
         if (pressed) {
-            int idx = Ethertia::getRenderEngine()->fontRenderer->textIdx(text, textHeight, Gui::cursorX()-textX-getX(), Gui::cursorY()-textY-getY());
+            int idx = Ethertia::getRenderEngine()->fontRenderer->textIdx(text, textHeight, Gui::cursorX() - m_TextX - getX(), Gui::cursorY() - m_TextY - getY());
             selectionBegin = idx;
             selectionEnd = idx;
         }
@@ -194,6 +195,10 @@ public:
 
     std::string getSelectedText() {
         return text.substr(getSelectionMin(), getSelectionMax()-getSelectionMin());
+    }
+
+    float getTextHeight() {
+        return textHeight;
     }
 
     void addOnTextChangedListener(const std::function<void(OnTextChanged*)>& lsr) {

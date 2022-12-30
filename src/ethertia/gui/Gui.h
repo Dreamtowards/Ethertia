@@ -297,12 +297,16 @@ public:
         return (T*)this;
     }
 
+    // override this instead of onDraw(). to keep the arch, OnDrawPre, OnDrawPost, visibility.
+    virtual void implDraw() {}
 
     virtual void onDraw()
     {
         if (!visible) return;
 
         fireEvent(OnDraw{this});
+
+        implDraw();
 
         for (Gui* g : children())
         {

@@ -58,6 +58,7 @@ void Ethertia::start()
     ChunkRenderProcessor::initWorkerThread();
     m_AsyncScheduler.initWorkerThread("Async Tasks");
 
+
     GuiIngame::INST = new GuiIngame();
     m_RootGUI->addGui(GuiIngame::INST);
 
@@ -195,6 +196,9 @@ void Ethertia::unloadWorld() {
     m_World = nullptr;
 }
 
+
+
+
 Entity* ofCommandEntityExpr(const std::string& expr) {
     Entity* result = nullptr;
     if (expr == "@t") {
@@ -210,6 +214,10 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
 
     if (cmdline[0] != '/') {
+        if (!NetworkSystem::m_Connection) {
+            Ethertia::notifyMessage("Failed send chat, you haven't connect a server.");
+            return;
+        }
         NetworkSystem::SendPacket(PacketChat{
                 cmdline
         });
@@ -274,7 +282,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
             Ethertia::getWorld()->addEntity(entity);
 
-            Log::info("Added EntityMesh Model ", path);
+            Ethertia::notifyMessage(Strings::fmt("Added EntityMesh Model ", path));
         } else if (args[1] == "diff") {
             const std::string& path = args[2];
             if (!Loader::fileExists(path)){
@@ -289,11 +297,14 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     }
     else
     {
-        Log::warn("Unknown command");
+        Ethertia::notifyMessage(Strings::fmt("Unknown command: ", cmdline));
     }
 }
 
-
+void Ethertia::notifyMessage(const std::string& msg) {
+    Log::info("[MSG/C] ", msg);
+    GuiMessageList::INST->addMessage(msg);
+}
 
 bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
 

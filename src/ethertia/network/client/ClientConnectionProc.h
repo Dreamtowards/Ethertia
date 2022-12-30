@@ -32,7 +32,7 @@ public:
 
         Log::info("", packet.message);
 
-        GuiScreenChat::INST->appendMessage(packet.message);
+        GuiMessageList::INST->addMessage(packet.message);
     }
 };
 

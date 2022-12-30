@@ -63,6 +63,10 @@ public:
                     saveScreenshot();
                     break;
                 }
+                case GLFW_KEY_F3: {
+                    GuiDebugV::INST->toggleVisible();
+                    break;
+                }
                 case GLFW_KEY_F11: {
                     Ethertia::getWindow()->toggleFullscreen();
                     break;
@@ -72,8 +76,10 @@ public:
                     break;
                 }
                 case GLFW_KEY_SLASH: {
-                    if (Ethertia::isIngame())
+                    if (Ethertia::isIngame()) {
+                        GuiMessageList::INST->setVisible(true);
                         Ethertia::getRootGUI()->addGui(GuiScreenChat::INST);
+                    }
                     break;
                 }
             }
@@ -259,7 +265,7 @@ public:
             throw std::logic_error("File already existed.");
 
         Log::info("Screenshot saving to '{}'.\1", path);
-        GuiScreenChat::INST->appendMessage(Strings::fmt("Saved screenshot to '{}'.", path));
+        GuiMessageList::INST->addMessage(Strings::fmt("Saved screenshot to '{}'.", path));
 
         Ethertia::getAsyncScheduler()->addTask([img, path]() {
             BenchmarkTimer _tm;

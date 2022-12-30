@@ -27,7 +27,7 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
 已完成:
-- [x] Surface Nets (Unified Grids) (基本平滑体素模型构建 Isosurface 对偶式等值面提取演算法)
+- [x] Surface Nets (Unified Grids) (基本平滑体素模型构建 Isosurface 对偶型等值面提取演算法)
 - [x] Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
 - [x] Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
 - [x] UDP 快速网络通信(optical reliable) 数据包 处理系统
@@ -35,10 +35,13 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 需要做:  
 - [ ] ___Rendering___
   - [ ] Reflection Mapping, Screen Space. 反射渲染 水面反射 或材质反射 (冰/汽车表面)
+  - [ ] 水面动态波纹, 斜视透度, 折射.
   - [ ] SSAO. 环境光遮蔽 提高层次感
   - [ ] Flat Atmosphere. 平面大气层渲染 基于半物理的天空散射&雾气
   - [ ] Light Shaft. 光锥
-  - [ ] 一些特殊效果 盗梦空间的世界卷曲 虚拟实惊的万花筒扭曲 刺客信条的点阵世界表面
+  - [ ] 地形挖掘 贴花
+  - [ ] 一些特殊效果 盗梦空间的世界卷曲 虚拟实惊的万花筒扭曲 刺客信条的点阵世界表面 极光
+  - [ ] Chunk Cave Culling 区块渲染剔除 [BSD](https://tomcc.github.io/2014/08/31/visibility-2.html)
 
 - [ ] ___World & Terrain___
   - [ ] WorldGen, Biomes. 地形生成 生物群系, 这是无底洞
@@ -51,7 +54,12 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
   - [ ] Theatrical. Screen Cast, Light,. 剧场设备 屏幕投射 光轴 音响 摄影机
   - [ ] 动物 猪牛羊 鸡 马驴螺
   - [ ] Item, Inventory, ItemStack. 物品系统
-  - [ ] 玩家血量 装备. 行走碰撞. 
+  - [ ] 玩家血量 装备. 行走碰撞.
+  - [ ] Spline Entity, Transformation Move Controller
+  - [ ] Mod 系统
+    - Distro 其他人的修改版
+    - Native C/Cpp Mod, 强大 强行修改 但是繁琐 平台依赖 权限过大应该验证
+    - Script Mod, 可控安全 相对简单
 
 - [ ] ___Multiplayer & Interactive___
   - [ ] Multiplayer 多人游戏系统
@@ -77,7 +85,7 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 ### Credits
 
 __Ethertia is developed by:__  
-Game design, programming, graphics: [Eldrine Le Prismarine]()  
+Game design, programming, graphics: [Eldrine Le Prismarine](https://elytra.dev/~pris)  
 Music and sounds:  
 Ingame artwork:   
 Used libs&tools: cpp, glfw, glm, stb, bulletphys

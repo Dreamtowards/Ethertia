@@ -72,6 +72,7 @@ public:
     static void unloadWorld();
 
     static void dispatchCommand(const std::string& cmd);
+    static void notifyMessage(const std::string& msg);
 
     static void shutdown() { m_Running = false; }
     static const bool& isRunning() { return m_Running; }
