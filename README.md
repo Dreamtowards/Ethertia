@@ -22,6 +22,7 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 
 预览视频:
 
+![](run/screenshots/2022-12-30_21.59.00_526.642.png)
 ![](run/screenshots/2022-12-29_10.34.08_418.762.png)
 
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
@@ -96,6 +97,40 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 - Build shared-library and the program.   
   `cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" -DBUILD_SHARED_LIBS=1`  
   Will compile to: e.g. `./run/bin/macos-x86-64`
+
+
+### Commands
+
+```
+/gamemode <1/2/3>   # Survival, Creative, Spectator
+/fly [on/off]
+/tp <target> <dest>
+/tp <x y z>
+/tp <target> <x y z>
+
+/connect <ip> <port>
+
+/mesh new  <obj_file>
+/mesh diff <tex_file>
+```
+
+### Quick Launch
+
+如果你想尝试本程序而不需开发环境，那将很简单。
+
+1. 在Releases中，下载适合你的系统的已编译的程序，例 `Ethertia.exe` (约10MB. DedicatedServer.exe 是服务端 可不管)
+
+   
+2. 下载"运行时/资源文件" `run.zip` (上百MB，含程序库~4MB, 及资源文件)
+   
+
+3. 解压 `run.zip`, 把第一步的 `Ethertia.exe` 放在例 `./run/bin/windows-amd64` 里 (根据你的系统)
+
+
+4. 回到 `./run` 目录, 执行例 `./run/bin/windows-amd64/Ethertia.exe`  
+
+> (因为./run是工作目录 所以在这里执行程序, 而程序可以放别处/和动态连接库放一起)
+
 
 <!--
 

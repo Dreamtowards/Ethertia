@@ -243,6 +243,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
             Entity* dst = ofCommandEntityExpr(args[2]);
             src->setPosition(dst->getPosition());
         }
+        Ethertia::notifyMessage("Teleported");
     }
     else if (cmd == "/gamemode")
     {
@@ -250,13 +251,13 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
         player->switchGamemode(mode);
 
-        Log::info("Gamemode: {}", mode);
+        Ethertia::notifyMessage(Strings::fmt("Gamemode has been set to {}", Gamemode::nameOf(mode)));
     }
     else if (cmd == "/fly")
     {
         player->setFlying(!player->isFlying());
 
-        Log::info("Flymode: {}", player->isFlying());
+        Ethertia::notifyMessage(Strings::fmt("Flymode tuned to {}", player->isFlying()));
     }
     else if (cmd == "/connect")  //  /connect 127.0.0.1:8081
     {
@@ -270,7 +271,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
         if (args[1] == "new") {
             const std::string& path = args[2];
             if (!Loader::fileExists(path)){
-                Log::warn("No mesh file on: ", path);
+                notifyMessage(Strings::fmt("No mesh file on: ", path));
                 return;
             }
 
@@ -286,7 +287,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
         } else if (args[1] == "diff") {
             const std::string& path = args[2];
             if (!Loader::fileExists(path)){
-                Log::warn("No mesh file on: ", path);
+                notifyMessage(Strings::fmt("No mesh file on: ", path));
                 return;
             }
 
