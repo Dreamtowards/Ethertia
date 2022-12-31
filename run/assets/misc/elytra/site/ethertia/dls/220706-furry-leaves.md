@@ -1,4 +1,0 @@
-
-# Furry Leaves
-
-dls

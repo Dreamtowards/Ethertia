@@ -94,7 +94,7 @@ public:
     {
         Camera& camera = *Ethertia::getCamera();
         Window& window = *Ethertia::getWindow();
-        Entity* player = Ethertia::getPlayer();
+        EntityPlayer* player = Ethertia::getPlayer();
         RenderEngine* renderEngine = Ethertia::getRenderEngine();
 
         float dt = Ethertia::getDelta();
@@ -106,26 +106,35 @@ public:
         {
             // Player Movement.
 
-            static bool sprint = false;
-            float speed = 0.5;
-            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
-            if (sprint) speed = 3.8;
-            float yaw = Ethertia::getCamera()->eulerAngles.y;
-
-            glm::vec3 vel(0);
-            if (window.isKeyDown(GLFW_KEY_W)) vel += Mth::angleh(yaw) * speed;
-            if (window.isKeyDown(GLFW_KEY_S)) vel += Mth::angleh(yaw + Mth::PI) * speed;
-            if (window.isKeyDown(GLFW_KEY_A)) vel += Mth::angleh(yaw + Mth::PI / 2) * speed;
-            if (window.isKeyDown(GLFW_KEY_D)) vel += Mth::angleh(yaw - Mth::PI / 2) * speed;
-
-            if (window.isShiftKeyDown())          vel.y -= speed;
-            if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
-
-            Ethertia::getPlayer()->applyLinearVelocity(vel);
-
-            if (!window.isKeyDown(GLFW_KEY_W)) {
-                sprint = false;
+//            static bool sprint = false;
+//            float speed = 0.5;
+//            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
+//            if (sprint) speed = 3.8;
+//            float yaw = Ethertia::getCamera()->eulerAngles.y;
+//
+//            glm::vec3 vel(0);
+//            if (window.isKeyDown(GLFW_KEY_W)) vel += Mth::angleh(yaw) * speed;
+//            if (window.isKeyDown(GLFW_KEY_S)) vel += Mth::angleh(yaw + Mth::PI) * speed;
+//            if (window.isKeyDown(GLFW_KEY_A)) vel += Mth::angleh(yaw + Mth::PI / 2) * speed;
+//            if (window.isKeyDown(GLFW_KEY_D)) vel += Mth::angleh(yaw - Mth::PI / 2) * speed;
+//
+//            if (window.isShiftKeyDown())          vel.y -= speed;
+//            if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
+//
+//            Ethertia::getPlayer()->applyLinearVelocity(vel);
+//
+//            if (!window.isKeyDown(GLFW_KEY_W)) {
+//                sprint = false;
+//            }
+            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+                player->setSprint(true);
+            } else if (!window.isKeyDown(GLFW_KEY_W)) {
+                player->setSprint(false);
             }
+
+            Ethertia::getPlayer()->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+                                        window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
+                                        window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
 
             static SmoothValue smFov;
             smFov.update(dt);

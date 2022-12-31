@@ -8,6 +8,13 @@
 #include <unordered_map>
 #include <mutex>
 #include <glm/vec3.hpp>
+#include <glm/gtx/hash.hpp>
+#include <glm/gtx/string_cast.hpp>
+
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+
+#include <entt/entt.hpp>
 
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/ChunkLoader.h>
@@ -23,16 +30,6 @@
 #include <ethertia/world/Octree.h>
 #include <ethertia/world/Cell.h>
 
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
-
-//#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
-#include <glm/gtx/string_cast.hpp>
-
-
-#include <entt/entt.hpp>
-
 class World
 {
     std::unordered_map<glm::vec3, Chunk*> m_Chunks;
@@ -44,7 +41,7 @@ class World
     ChunkLoader m_ChunkLoader{"saves/dim-1/"};
 
 public:
-    btDiscreteDynamicsWorld* m_DynamicsWorld;
+    btDynamicsWorld* m_DynamicsWorld;
 
     entt::registry m_EnttRegistry;
 
@@ -69,8 +66,8 @@ public:
 
         delete m_DynamicsWorld->getConstraintSolver();
         delete m_DynamicsWorld->getDispatcher();
-        delete m_DynamicsWorld->getBroadphase();
         delete m_DynamicsWorld;
+        delete m_DynamicsWorld->getBroadphase();  // why after dw
     }
 
     Cell& getCell(glm::vec3 p) {
@@ -209,6 +206,8 @@ public:
 
         auto old_grav = e->m_Rigidbody->getGravity(); // fix little stupid auto-change gravity
 
+        e->m_World = this;
+
         m_Entities.push_back(e);
         e->onLoad(m_DynamicsWorld);
 
@@ -218,6 +217,8 @@ public:
     void removeEntity(Entity* e) {
         Collections::erase(m_Entities, e);
         e->onUnload(m_DynamicsWorld);
+
+        e->m_World = nullptr;
     }
 
     std::vector<Entity*>& getEntities() {

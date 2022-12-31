@@ -23,6 +23,8 @@ public:
 
     std::uint32_t m_TypeTag = 0;
 
+    World* m_World;
+
     class TypeTag {
     public:
         static const uint32_t T_CHUNK_TERRAIN = 16,

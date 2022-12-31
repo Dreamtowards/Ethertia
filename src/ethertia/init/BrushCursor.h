@@ -10,10 +10,10 @@ class Entity;
 class BrushCursor {
 public:
     bool keepTracking = true;
-    bool hit;
+    bool hit = false;
     glm::vec3 position;
 
-    float brushSize = 0.0;
+    float brushSize = 2.0;
 
     Entity* hitEntity = nullptr;
 

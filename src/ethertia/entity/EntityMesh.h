@@ -10,6 +10,7 @@
 class EntityMesh : public Entity
 {
 public:
+    int m_NoCollision = false;
 
     EntityMesh() {
 
@@ -47,6 +48,12 @@ public:
             );
         }
         return new btBvhTriangleMeshShape(mesh, true);
+    }
+
+    void onLoad(btDynamicsWorld* dworld) override {
+        dworld->addRigidBody(m_Rigidbody,
+                             m_NoCollision ? btBroadphaseProxy::DebrisFilter : btBroadphaseProxy::DefaultFilter,
+                             m_NoCollision ? 0 : btBroadphaseProxy::AllFilter);
     }
 
 };

@@ -68,6 +68,15 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
   - [ ] Cel Shading, Character. 人物渲染
 
 
+开发安排:
+  - 2022-12-31
+    - 决定是否用 btKinematicCharacterController 还是自己实现相关控制器. 放弃 里面太复杂 而且已被官方弃用
+    - 关闭 T_ChunkVegetable 网格的碰撞 (但是raycast要有), 用 CollisionFilter Group&Mask 的方法. EntityMesh::m_NoCollision
+    - EntityPlayer onGround 判定, Capsule 方法
+    - 新方法取消 Spectator Gamemode 的碰撞。不替换CollisionShape，而是用 CollisionFlags
+    - EntityPlayer movement basics. 飞行加速 降落时移动减速 在地上时高跳跃
+    - 修复bug bulletphys 一旦无速且脚下没东西 就把我锁死 不会自由落体 除非施加强力
+
 特殊功能
 - 和OBS/直播媒体流对接 让视频/音频流 连接到我们的国家顶级剧院和顶级环绕巨型音响, 
   以便看电影, 举办发布会, 大型DJ音乐节。也可以请乐器专家连接MIDI或初音未来的作曲 举办海边音乐会

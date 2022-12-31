@@ -3,7 +3,7 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-option(BUILD_SHARED_LIBS ON)
+option(BUILD_SHARED_LIBS OFF)
 option(CMAKE_BUILD_TYPE Release)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")

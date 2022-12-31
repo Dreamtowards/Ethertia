@@ -106,6 +106,7 @@ void Ethertia::runMainLoop()
         {
             PROFILE("Phys");
             m_World->m_DynamicsWorld->stepSimulation(getDelta());
+            m_Player->onTick();
         }
     }
 
@@ -318,4 +319,23 @@ Camera* Ethertia::getCamera() { return &m_RenderEngine->m_Camera; }
 float Ethertia::getAspectRatio() {
     Window* w = getWindow(); if (w->getHeight() == 0) return 0;
     return (float)w->getWidth() / (float)w->getHeight();
+}
+
+
+void EntityPlayer::onTick() {
+
+    // Should not make a new Test, just check collision manifolds.
+    OnGroundCheck check;
+    m_World->m_DynamicsWorld->contactTest(m_Rigidbody, check);
+
+    m_OnGround = check.m_TestGround;
+
+//    if (m_OnGround)
+//    Log::info("OnGround ", m_OnGround);
+
+//    if (m_OnGround && m_Gamemode == Gamemode::SURVIVAL) {
+//        m_Rigidbody->setGravity({0, 0,  0});
+//    } else {
+//        m_Rigidbody->setGravity({0, -10,  0});
+//    }
 }

@@ -1,3 +1,0 @@
-
-# Member Access Statement
-
