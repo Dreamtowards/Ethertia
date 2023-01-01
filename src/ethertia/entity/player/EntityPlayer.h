@@ -14,12 +14,12 @@ class EntityPlayer : public Entity
 
     bool m_Flying = false;
 
-    int m_Health = 20;
 
     bool m_OnGround = false;
     bool m_Sprint = false;
 
 public:
+    float m_Health = 0.95f;
 
     EntityPlayer() {
         VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr("entity/capsule-1-2.obj"));
@@ -43,12 +43,16 @@ public:
             m_Rigidbody->setDamping(0.96, 0.96);
             m_Rigidbody->setGravity(btVector3(0, 0, 0));
         } else {
-            m_Rigidbody->setDamping(0.16, 0.16);
+            m_Rigidbody->setDamping(0, 0);
             m_Rigidbody->setGravity(btVector3(0, -10, 0));
         }
     }
     bool isFlying() const {
         return m_Flying;
+    }
+
+    int getGamemode() {
+        return m_Gamemode;
     }
 
     void switchGamemode(int mode)
@@ -100,8 +104,7 @@ public:
             if (down) v.y -= speed * fac;
         }
 
-        Log::info("Stat Active:", m_Rigidbody->isActive());
-
+        m_Rigidbody->activate();  // not working. bug: Lock when No-Contact or Less-Velocity
         applyLinearVelocity(v);
     }
 

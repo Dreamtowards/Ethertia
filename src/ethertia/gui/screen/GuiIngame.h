@@ -34,6 +34,46 @@ public:
 
     }
 
+    void implDraw() override
+    {
+
+        EntityPlayer* player = Ethertia::getPlayer();
+
+
+
+        // hotbar
+        const float HOTBAR_WIDTH = 500,
+                    HOTBAR_HEIGHT = 64;
+
+        float hbX = (Gui::maxWidth() - HOTBAR_WIDTH) / 2;
+        float hbY = Gui::maxHeight() - HOTBAR_HEIGHT - 24;
+
+        Gui::drawRect(hbX, hbY, HOTBAR_WIDTH, HOTBAR_HEIGHT, Colors::alpha(Colors::WHITE, 0.24), nullptr, 4);
+
+        if (player->getGamemode() == Gamemode::SURVIVAL)
+        {
+            // xp
+            float XP_HEIGHT = 6;
+            float xpY = hbY - 5 - XP_HEIGHT;
+            Gui::drawRect(hbX, xpY, HOTBAR_WIDTH, XP_HEIGHT, Colors::BLACK60, nullptr, 3);
+            Gui::drawRect(hbX, xpY, HOTBAR_WIDTH*0.32f, XP_HEIGHT, Colors::GREEN_DARK, nullptr, 3);
+
+            // health
+            float HEALTH_HEIGHT = 12;
+            float HEALTH_WIDTH = 200;
+            float htY = xpY - 5 - HEALTH_HEIGHT;
+            Gui::drawRect(hbX, htY, HEALTH_WIDTH, HEALTH_HEIGHT, Colors::BLACK60, nullptr, 6);
+            Gui::drawRect(hbX, htY, HEALTH_WIDTH*(player->m_Health), HEALTH_HEIGHT, Colors::RED, nullptr, 6);
+
+            // strain
+//            float STRAIN_HEIGHT = 4;
+//            float stY = htY - 2 - STRAIN_HEIGHT;
+//            Gui::drawRect(hbX, stY, HEALTH_WIDTH, STRAIN_HEIGHT, Colors::BLACK40);
+            // not another line, but over in Health bar.
+            Gui::drawRect(hbX, htY, HEALTH_WIDTH*(0.75), HEALTH_HEIGHT, Colors::alpha(Colors::WHITE, 0.4), nullptr, 6);
+
+        }
+    }
 
 
 };

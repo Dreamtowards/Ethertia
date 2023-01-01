@@ -57,6 +57,8 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
   - [ ] Item, Inventory, ItemStack. 物品系统
   - [ ] 玩家血量 装备. 行走碰撞.
   - [ ] Spline Entity, Transformation Move Controller
+  - [ ] 强力缰绳, 烟火
+  - [ ] 掉落物
   - [ ] Mod 系统
     - Distro 其他人的修改版
     - Native C/Cpp Mod, 强大 强行修改 但是繁琐 平台依赖 权限过大应该验证
@@ -69,13 +71,34 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 
 
 开发安排:
+  - 2022-12-23&24
+    - Networking UDP, Packet Trans & Process.
+  - 2022-12-27
+    - blender 建筑建模草案
+  - 2022-12-29
+    - screenshot 去除alpha分量 同时优化速度
+    - Mtl in UV，将MtlId数值融入UV.x，UV.y数值特征则显示其是否是 pure mtl
+    - +Ethertia::getCursor().hitEntity 
+    - /tp @t @s 表达式
+    - /mesh new mdl.obj, /mesh diff tex.png
+  - 2022-12-30
+    - Ethertia::notifyMessage()
+    - GuiMessageList 常显，定时消失。
+    - Character Capsule
   - 2022-12-31
     - 决定是否用 btKinematicCharacterController 还是自己实现相关控制器. 放弃 里面太复杂 而且已被官方弃用
     - 关闭 T_ChunkVegetable 网格的碰撞 (但是raycast要有), 用 CollisionFilter Group&Mask 的方法. EntityMesh::m_NoCollision
     - EntityPlayer onGround 判定, Capsule 方法
     - 新方法取消 Spectator Gamemode 的碰撞。不替换CollisionShape，而是用 CollisionFlags
     - EntityPlayer movement basics. 飞行加速 降落时移动减速 在地上时高跳跃
-    - 修复bug bulletphys 一旦无速且脚下没东西 就把我锁死 不会自由落体 除非施加强力
+    - [ ] 修复bug bulletphys 一旦无速且脚下没东西 就把我锁死 不会自由落体 除非施加强力
+  - 2023-01-01
+    - Vine 藤蔓材质
+      - 如果放入Atlas就浪费了其他Norm Disp的空间了。
+        没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物
+    - 血量条 物品栏示意渲染
+    - 掉落伤害 力的冲撞
+    - OpenAL Damage Sound
 
 特殊功能
 - 和OBS/直播媒体流对接 让视频/音频流 连接到我们的国家顶级剧院和顶级环绕巨型音响, 
