@@ -15,13 +15,17 @@ class EntityPlayer : public Entity
     bool m_Flying = false;
 
 
-    bool m_OnGround = false;
     bool m_Sprint = false;
 
 public:
     float m_Health = 0.95f;
 
+    float m_AppliedImpulse = 0;
+    bool m_OnGround = false;
+
     EntityPlayer() {
+        m_TypeTag = Entity::TypeTag::T_PLAYER;
+
         VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr("entity/capsule-1-2.obj"));
         m_Model = Loader::loadModel(vbuf);
 
@@ -104,38 +108,36 @@ public:
             if (down) v.y -= speed * fac;
         }
 
-        m_Rigidbody->activate();  // not working. bug: Lock when No-Contact or Less-Velocity
         applyLinearVelocity(v);
     }
 
+//    class OnGroundCheck : public btCollisionWorld::ContactResultCallback
+//    {
+//    public:
+//        bool m_TestGround = false;
+//
+//        btScalar addSingleResult(btManifoldPoint &cp,
+//                                 const btCollisionObjectWrapper *colObj0, int partId0, int index0,
+//                                 const btCollisionObjectWrapper *colObj1, int partId1, int index1) override
+//        {
+//            btRigidBody* self = Ethertia::getPlayer()->m_Rigidbody;
+//
+//            if (!m_TestGround && colObj0->getCollisionObject() == self) {
+//                btTransform& trans = self->getWorldTransform();
+//                btMatrix3x3 invBasis = trans.getBasis().transpose();
+//                btVector3 localpoint = invBasis * (cp.m_positionWorldOnB - trans.getOrigin());
+//                localpoint.setY(localpoint.getY() + 1.0f);
+//
+//                if (localpoint.length() < 0.6) {
+//                    m_TestGround = true;
+//                }
+//            }
+//
+//            return 0;
+//        }
+//    };
 
-    class OnGroundCheck : public btCollisionWorld::ContactResultCallback
-    {
-    public:
-        bool m_TestGround = false;
-
-        btScalar addSingleResult(btManifoldPoint &cp,
-                                 const btCollisionObjectWrapper *colObj0, int partId0, int index0,
-                                 const btCollisionObjectWrapper *colObj1, int partId1, int index1) override
-        {
-            btRigidBody* self = Ethertia::getPlayer()->m_Rigidbody;
-
-            if (!m_TestGround && colObj0->getCollisionObject() == self) {
-                btTransform& trans = self->getWorldTransform();
-                btMatrix3x3 invBasis = trans.getBasis().transpose();
-                btVector3 localpoint = invBasis * (cp.m_positionWorldOnB - trans.getOrigin());
-                localpoint.setY(localpoint.getY() + 1.0f);
-
-                if (localpoint.length() < 0.6) {
-                    m_TestGround = true;
-                }
-            }
-
-            return 0;
-        }
-    };
-
-    void onTick();
+//    void onTick();
 
 
 };

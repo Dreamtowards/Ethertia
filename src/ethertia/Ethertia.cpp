@@ -106,7 +106,9 @@ void Ethertia::runMainLoop()
         {
             PROFILE("Phys");
             m_World->m_DynamicsWorld->stepSimulation(getDelta());
-            m_Player->onTick();
+
+            m_World->processEntityCollision();
+
         }
     }
 
@@ -297,6 +299,10 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
         }
     }
+    else if (cmd == "/heal")
+    {
+        player->m_Health = 1.0f;
+    }
     else
     {
         Ethertia::notifyMessage(Strings::fmt("Unknown command: ", cmdline));
@@ -322,13 +328,76 @@ float Ethertia::getAspectRatio() {
 }
 
 
-void EntityPlayer::onTick() {
+
+static void processPlayerCollide(EntityPlayer* player, float appliedImpulse, btVector3 norm,
+                                 const btVector3& localpoint, const btVector3& worldpoint)
+{
+
+    player->m_AppliedImpulse += appliedImpulse;
+
+    if (localpoint.y() < 0 && norm.dot({0, -1, 0}) > 0.5) {
+        player->m_OnGround = true;
+    }
+
+}
+void World::processEntityCollision() {
+
+    // clear impulse
+    Ethertia::getPlayer()->m_AppliedImpulse = 0;
+    Ethertia::getPlayer()->m_OnGround = false;
+
+
+    btDispatcher* disp = m_DynamicsWorld->getDispatcher();
+    int numManifolds = disp->getNumManifolds();
+
+    for (int i = 0; i < numManifolds; ++i)
+    {
+        btPersistentManifold* manifold = disp->getManifoldByIndexInternal(i);
+        const btCollisionObject* objA = static_cast<const btCollisionObject*>(manifold->getBody0());
+        const btCollisionObject* objB = static_cast<const btCollisionObject*>(manifold->getBody1());
+
+        Entity* ptrA = static_cast<Entity*>(objA->getUserPointer());
+        Entity* ptrB = static_cast<Entity*>(objB->getUserPointer());
+
+        int numContacts = manifold->getNumContacts();
+        for (int j = 0; j < numContacts; ++j)
+        {
+            btManifoldPoint& pt = manifold->getContactPoint(j);
+
+            // if (pt.getDistance() <= 0)  ~< 0.03
+
+            // const btVector3& ptA = pt.m_positionWorldOnA;
+            // const btVector3& ptB = pt.m_positionWorldOnB;
+            // const btVector3& normB = pt.m_normalWorldOnB;
+
+            if (EntityPlayer* player = dynamic_cast<EntityPlayer*>(ptrA)) {
+                processPlayerCollide(player, pt.getAppliedImpulse(), -pt.m_normalWorldOnB, pt.m_localPointA, pt.m_positionWorldOnA);
+            }
+            if (EntityPlayer* player = dynamic_cast<EntityPlayer*>(ptrB)) {
+                processPlayerCollide(player, pt.getAppliedImpulse(), pt.m_normalWorldOnB, pt.m_localPointB, pt.m_positionWorldOnB);
+            }
+
+        }
+    }
+
+    EntityPlayer* player = Ethertia::getPlayer();
+//    if (player->m_OnGround)
+//        Log::info("onG");
+    if (player->m_AppliedImpulse > 200)
+        Log::info("AppliedI ", player->m_AppliedImpulse);
+
+    if (player->m_AppliedImpulse > 300) {
+        player->m_Health -= player->m_AppliedImpulse / 3000;
+    }
+}
+
+//void EntityPlayer::onTick() {
 
     // Should not make a new Test, just check collision manifolds.
-    OnGroundCheck check;
-    m_World->m_DynamicsWorld->contactTest(m_Rigidbody, check);
-
-    m_OnGround = check.m_TestGround;
+//    OnGroundCheck check;
+//    m_World->m_DynamicsWorld->contactTest(m_Rigidbody, check);
+//
+//    m_OnGround = check.m_TestGround;
 
 //    if (m_OnGround)
 //    Log::info("OnGround ", m_OnGround);
@@ -338,4 +407,4 @@ void EntityPlayer::onTick() {
 //    } else {
 //        m_Rigidbody->setGravity({0, -10,  0});
 //    }
-}
+//}

@@ -62,17 +62,20 @@ public:
             float HEALTH_HEIGHT = 12;
             float HEALTH_WIDTH = 200;
             float htY = xpY - 5 - HEALTH_HEIGHT;
-            Gui::drawRect(hbX, htY, HEALTH_WIDTH, HEALTH_HEIGHT, Colors::BLACK60, nullptr, 6);
-            Gui::drawRect(hbX, htY, HEALTH_WIDTH*(player->m_Health), HEALTH_HEIGHT, Colors::RED, nullptr, 6);
+            Gui::drawRect(hbX, htY, HEALTH_WIDTH, HEALTH_HEIGHT, Colors::BLACK60, nullptr, 4);
+            Gui::drawRect(hbX, htY, HEALTH_WIDTH*(player->m_Health), HEALTH_HEIGHT, Colors::RED, nullptr, 4);
 
             // strain
-//            float STRAIN_HEIGHT = 4;
-//            float stY = htY - 2 - STRAIN_HEIGHT;
-//            Gui::drawRect(hbX, stY, HEALTH_WIDTH, STRAIN_HEIGHT, Colors::BLACK40);
-            // not another line, but over in Health bar.
-            Gui::drawRect(hbX, htY, HEALTH_WIDTH*(0.75), HEALTH_HEIGHT, Colors::alpha(Colors::WHITE, 0.4), nullptr, 6);
+            // Gui::drawRect(hbX, htY, HEALTH_WIDTH*(0.75), HEALTH_HEIGHT, Colors::alpha(Colors::WHITE, 0.4), nullptr, 6);
 
         }
+
+
+
+
+        // Center Cursor.
+        Gui::drawRect(Gui::maxWidth()/2 -1, Gui::maxHeight()/2 -1,
+                      3, 3, Colors::WHITE);
     }
 
 

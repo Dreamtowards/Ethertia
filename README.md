@@ -93,11 +93,16 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
     - EntityPlayer movement basics. 飞行加速 降落时移动减速 在地上时高跳跃
     - [ ] 修复bug bulletphys 一旦无速且脚下没东西 就把我锁死 不会自由落体 除非施加强力
   - 2023-01-01
+    - 血量条 物品栏示意渲染
+    - GuiScreenChat, 打开确定性 不会重复"/"
+      - 上翻 下翻 / 最后编辑
+      - [ ] TabComplete 立刻放弃了 需要比较多工作量 命令都要提供Completes 不必现在做
+    - 掉落伤害 力的冲撞 根据 btContactPoint::getAppliedImpulse() 但是很不直觉，3米掉落就能达到 40米跌落的冲击力的一半
+      - 新的碰撞结果检测方法 主动检测而不是Callback 新的onGround判定方法 更统一简单
+      - [ ] 更直觉的摔落伤害
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
         没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物
-    - 血量条 物品栏示意渲染
-    - 掉落伤害 力的冲撞
     - OpenAL Damage Sound
 
 特殊功能

@@ -78,7 +78,9 @@ public:
                 case GLFW_KEY_SLASH: {
                     if (Ethertia::isIngame()) {
                         GuiMessageList::INST->setVisible(true);
+
                         Ethertia::getRootGUI()->addGui(GuiScreenChat::INST);
+                        GuiScreenChat::INST->openCommandInput();
                     }
                     break;
                 }

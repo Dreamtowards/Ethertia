@@ -173,11 +173,10 @@ public:
         addGui(menubar);
     }
 
-    void onDraw() override {
-        if (!isVisible())
-            return;
+    void implDraw() override {
 
         RenderEngine* rde = Ethertia::getRenderEngine();
+        EntityPlayer* player = Ethertia::getPlayer();
 
         if (dbgBasis) {
             rde->renderDebugBasis();
@@ -195,9 +194,10 @@ public:
             float dt = Ethertia::getDelta();
             static std::string dbg_s;
             if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 0.1f)) {
-                float meterPerSec = Ethertia::getPlayer()->m_Rigidbody->getLinearVelocity().length();
+                btRigidBody* playerRb = Ethertia::getPlayer()->m_Rigidbody;
+                float meterPerSec = playerRb->getLinearVelocity().length();
                 dbg_s = Strings::fmt(
-                        "cam p: {}, len: {}, spd {}mps {}kph.\n"
+                        "cam p: {}, len: {}, spd {}mps {}kph. activ: {}, ground: {}\n"
                         "E: {}/{}\n"
                         "ChunkGen ({} {}ms, avg {}ms), \n"
                         "ChunkMesh({} {}ms, avg {}ms)\n"
@@ -205,7 +205,7 @@ public:
                         "task {}, async {}\n"
                         "dt: {}, {}fps\n"
                         "mem: {}, alloc {}, freed: {}",
-                        glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f,
+                        glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, playerRb->isActive(), player->m_OnGround,
                         rde->g_NumEntityRendered, Ethertia::getWorld()->getEntities().size(),
                         cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                         cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
@@ -215,10 +215,6 @@ public:
                         Strings::size_str(MemoryTrack::g_MemoryPresent()), Strings::size_str(MemoryTrack::g_MemoryAllocated), Strings::size_str(MemoryTrack::g_MemoryFreed));
             }
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
-
-//            if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 30)) {
-//
-//            }
         }
 
         if (dbgEntityAABB) {
@@ -272,10 +268,6 @@ public:
 //        Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
 //    });
 
-        // Center Cursor.
-        Gui::drawRect(Gui::maxWidth()/2 -2, Gui::maxHeight()/2 -2,
-                      3, 3, Colors::WHITE);
-
         if (dbgDrawFrameProfiler) {
             float w = Gui::maxWidth() * 0.65f, h = 16 * 7;
             float x = 0, y = Gui::maxHeight() - h;
@@ -290,8 +282,6 @@ public:
 
             drawProfilerSection(sec, x, y+h-16, w, w_time);
         }
-
-        GuiCollection::onDraw();
 
         dbgLastDrawTime = Ethertia::getPreciseTime();
     }

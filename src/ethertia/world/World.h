@@ -47,6 +47,16 @@ public:
 
     std::mutex lock_ChunkList;
 
+
+//            dispatcher->setNearCallback(DispNearCallback);
+//    static void DispNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo) {
+//
+//        btCollisionObject* obj0 = collisionPair.m_pProxy0->m_clientObject;
+//        Log::info("NearCallback");
+//
+//        dispatcher.defaultNearCallback(collisionPair, dispatcher, dispatchInfo);
+//    }
+
     World() {
 
         // init Phys
@@ -108,6 +118,9 @@ public:
     }
 
 
+
+
+    void processEntityCollision();
 
 
 

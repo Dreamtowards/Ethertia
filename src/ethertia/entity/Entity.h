@@ -28,7 +28,8 @@ public:
     class TypeTag {
     public:
         static const uint32_t T_CHUNK_TERRAIN = 16,
-                              T_CHUNK_VEGETABLE = 17;
+                              T_CHUNK_VEGETABLE = 17,
+                              T_PLAYER = 32;
 
         static bool isTerrain(uint32_t t) {
             return t==T_CHUNK_TERRAIN || t==T_CHUNK_VEGETABLE;
@@ -127,7 +128,6 @@ public:
         return AABB(glm::vec3(min.x(), min.y(), min.z()),
                     glm::vec3(max.x(), max.y(), max.z()));
     }
-
 
 
 
