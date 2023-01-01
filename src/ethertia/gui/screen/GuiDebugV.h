@@ -195,9 +195,9 @@ public:
             static std::string dbg_s;
             if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 0.1f)) {
                 btRigidBody* playerRb = Ethertia::getPlayer()->m_Rigidbody;
-                float meterPerSec = playerRb->getLinearVelocity().length();
+                float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
                 dbg_s = Strings::fmt(
-                        "cam p: {}, len: {}, spd {}mps {}kph. activ: {}, ground: {}\n"
+                        "cam p: {}, len: {}, spd {}mps {}kph. ground: {}, CPs {}.\n"
                         "E: {}/{}\n"
                         "ChunkGen ({} {}ms, avg {}ms), \n"
                         "ChunkMesh({} {}ms, avg {}ms)\n"
@@ -205,7 +205,7 @@ public:
                         "task {}, async {}\n"
                         "dt: {}, {}fps\n"
                         "mem: {}, alloc {}, freed: {}",
-                        glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, playerRb->isActive(), player->m_OnGround,
+                        glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
                         rde->g_NumEntityRendered, Ethertia::getWorld()->getEntities().size(),
                         cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                         cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),

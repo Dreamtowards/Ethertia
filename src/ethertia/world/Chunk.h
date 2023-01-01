@@ -47,7 +47,7 @@ public:
         m_MeshVegetable = new EntityMesh();
         m_MeshVegetable->setPosition(position);
         m_MeshVegetable->m_TypeTag = Entity::TypeTag::T_CHUNK_VEGETABLE;
-        m_MeshVegetable->m_NoCollision = true;
+        m_MeshVegetable->setNoCollision();
     }
     ~Chunk() {
 

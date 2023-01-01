@@ -403,3 +403,69 @@ serv.listen("0.0.0.0", 8080);
 
 
 
+
+//        return;
+//        for (Entity* e : entities) {
+//            // motion
+//            e->prevposition = e->position;
+//
+//            e->position += e->velocity * dt;
+//
+//            float vels = glm::length(e->velocity);
+//            float linearDamping = 0.001f;
+//            e->velocity *= vels < 0.01 ? 0 : Mth::pow(linearDamping, dt);
+//
+//            // collide
+//            // get aabb of blocks that inside (prevpos, currpos)
+//            // for each axis xyz, test nearest plane, and clip position & velocity
+//
+////            for (int dx = Mth::floor(e->position.x); dx < Mth::ceil(e->prevposition.x); ++dx) {
+////                for (int dy = Mth::floor(e->position.y); dy < Mth::ceil(e->prevposition.y); ++dy) {
+////                    for (int dz = Mth::floor(e->position.z); dz < Mth::ceil(e->prevposition.z); ++dz) {
+////
+////                    }
+////                }
+////            }
+//
+//            {
+//                if (false ) {  // || !Ethertia::getWindow()->isAltKeyDown()
+//                    glm::vec3& v = e->velocity;
+//
+//                    glm::vec3 pp = e->prevposition;
+//                    AABB self = AABB({pp - glm::vec3(0.5f)},
+//                                     {pp + glm::vec3(0.5f)});
+//
+//                    glm::vec3 d = e->position - e->prevposition;
+//                    const glm::vec3 od = d;
+//
+//                    glm::vec3 bmin = glm::floor(glm::min(e->position, e->prevposition) - glm::vec3(0.5f));
+//                    glm::vec3 bmax = glm::ceil(glm::max(e->position, e->prevposition) + glm::vec3(0.5f));
+//
+//                    for (int dx = bmin.x; dx < bmax.x; ++dx) {
+//                        for (int dy = bmin.y; dy < bmax.y; ++dy) {
+//                            for (int dz = bmin.z; dz < bmax.z; ++dz) {
+//
+//                                glm::vec3 min(dx, dy, dz);
+//                                glm::vec3 max = min + glm::vec3(1);
+//
+//                                BlockState b = getBlock(min);
+//                                if (!b.id) continue;
+//
+//                                collideAABB(self, d, AABB(min, max));
+//                            }
+//                        }
+//                    }
+//
+//
+//                    if (d.x != od.x) v.x = 0;
+//                    if (d.y != od.y) v.y = 0;
+//                    if (d.z != od.z) v.z = 0;
+//
+//                    e->position = e->prevposition + d;
+//
+//                }
+//            }
+//
+//
+//
+//        }

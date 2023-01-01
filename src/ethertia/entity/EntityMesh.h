@@ -10,11 +10,14 @@
 class EntityMesh : public Entity
 {
 public:
-    int m_NoCollision = false;
 
     EntityMesh() {
 
         initRigidbody(0.0f, new btEmptyShape());
+    }
+
+    void setNoCollision() {
+        m_Rigidbody->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
 
     void setMesh(size_t vertCount, float* pos)
@@ -22,20 +25,30 @@ public:
         btCollisionShape* oldshape = m_Rigidbody->getCollisionShape();
         delete oldshape;
 
+        // reinsert Rigidbody once setCollisionShape(). or Collision Cache will not be clean properly
+        m_World->m_DynamicsWorld->removeRigidBody(m_Rigidbody);
+
         if (vertCount) {
             m_Rigidbody->setCollisionShape(createMeshShape(vertCount, pos));
         } else {
             m_Rigidbody->setCollisionShape(new btEmptyShape());
         }
+
+        m_World->m_DynamicsWorld->addRigidBody(m_Rigidbody);
     }
 
-    void setMesh_Model(float* pos, Model* new_model) {
+    void updateModel(Model* model) {
         delete m_Model;
-
-        m_Model = new_model;
-
-        setMesh(new_model->vertexCount, pos);
+        m_Model = model;
     }
+
+//    void setMesh_Model(float* pos, Model* new_model) {
+//        delete m_Model;
+//
+//        m_Model = new_model;
+//
+//        setMesh(new_model->vertexCount, pos);
+//    }
 
     static btBvhTriangleMeshShape* createMeshShape(size_t vertexCount, const float* position) {
         btTriangleMesh* mesh = new btTriangleMesh();
@@ -47,13 +60,7 @@ public:
                     btVector3(p[6], p[7], p[8])
             );
         }
-        return new btBvhTriangleMeshShape(mesh, true);
-    }
-
-    void onLoad(btDynamicsWorld* dworld) override {
-        dworld->addRigidBody(m_Rigidbody,
-                             m_NoCollision ? btBroadphaseProxy::DebrisFilter : btBroadphaseProxy::DefaultFilter,
-                             m_NoCollision ? 0 : btBroadphaseProxy::AllFilter);
+        return new btBvhTriangleMeshShape(mesh, false);
     }
 
 };

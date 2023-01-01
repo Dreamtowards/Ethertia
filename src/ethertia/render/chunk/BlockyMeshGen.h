@@ -6,7 +6,9 @@
 #define ETHERTIA_BLOCKYMESHGEN_H
 
 #include <glm/vec3.hpp>
+
 #include <ethertia/init/MaterialTextures.h>
+#include <ethertia/world/Chunk.h>
 
 class BlockyMeshGen
 {

@@ -100,6 +100,13 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
     - 掉落伤害 力的冲撞 根据 btContactPoint::getAppliedImpulse() 但是很不直觉，3米掉落就能达到 40米跌落的冲击力的一半
       - 新的碰撞结果检测方法 主动检测而不是Callback 新的onGround判定方法 更统一简单
       - [ ] 更直觉的摔落伤害
+    - /entity new/mesh/diff/delete 系列命令添加。删去/mesh命令 由于它的缺少通用性
+      (因为我想添加plane或hull，莫非还要再加新的类似命令? no, 还是用一个统一命令好了)
+    - World.cpp 分离出来了，World.h 现在可被包含进 Entity.h, Chunk.h
+    - 找到更改地形后玩家卡在空中的原因/解决方法了。因为碰撞点缓存还在。
+      不能直接setCollisionShape，要removeRigidBody后更改再add [refresh collision](https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9216)
+    - 尝试VelocityDiff 判定摔落伤害，也不直觉 随便也容易产生伤害
+    - 取消了 EntityMesh::m_NoCollision via CollisionFilter/Group/Mask 的方法，而是和观察者一样 用 CollisionFlags CF_NO_CONTACT_RESPONSE 了
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
         没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物

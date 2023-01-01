@@ -74,6 +74,7 @@ add_executable(Ethertia
 
         src/ethertia/gui/Gui.cpp
         src/ethertia/render/RenderEngine.cpp
+        src/ethertia/world/World.cpp
         src/ethertia/Ethertia.cpp
         )
 

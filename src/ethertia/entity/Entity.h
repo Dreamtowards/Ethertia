@@ -12,6 +12,12 @@
 #include <btBulletCollisionCommon.h>
 
 #include <ethertia/util/AABB.h>
+#include <ethertia/world/World.h>
+
+#include <ethertia/render/Model.h>
+#include <ethertia/render/Texture.h>
+#include <ethertia/render/VertexBuffer.h>
+#include <ethertia/util/Loader.h>
 
 class Entity
 {
@@ -81,15 +87,15 @@ public:
         dworld->removeRigidBody(m_Rigidbody);
     }
 
-    void setCollisionShape(btCollisionShape* s) {
-        float mass = m_Rigidbody->getMass();
-
-        btVector3 localInertia(0, 0, 0);
-        if (mass) {
-            s->calculateLocalInertia(mass, localInertia);
-        }
-        m_Rigidbody->setCollisionShape(s);
-    }
+//    void setCollisionShape(btCollisionShape* s) {
+//        float mass = m_Rigidbody->getMass();
+//
+//        btVector3 localInertia(0, 0, 0);
+//        if (mass) {
+//            s->calculateLocalInertia(mass, localInertia);
+//        }
+//        m_Rigidbody->setCollisionShape(s);
+//    }
 
     void setPosition(glm::vec3 p) {
         m_Rigidbody->getWorldTransform().setOrigin(btVector3(p.x, p.y, p.z));

@@ -113,15 +113,23 @@ public:
 
 
 
+
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable]() {
             BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeEmit, nullptr);  g_DebugGenInfo.numEmit++;
 
-            if (vbufTerrain->vertexCount() > 0)
-                chunk->m_MeshTerrain->setMesh_Model(vbufTerrain->positions.data(), Loader::loadModel(vbufTerrain));
+            if (vbufTerrain->vertexCount() > 0) {
+                chunk->m_MeshTerrain->setMesh(vbufTerrain->vertexCount(), vbufTerrain->positions.data());
+                chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
+            }
+            // chunk->m_MeshTerrain->setMesh_Model(vbufTerrain->positions.data(), Loader::loadModel(vbufTerrain));
+
             delete vbufTerrain;
 
-            if (vbufVegetable->vertexCount() > 0)
-                chunk->m_MeshVegetable->setMesh_Model(vbufVegetable->positions.data(), Loader::loadModel(vbufVegetable));
+            if (vbufVegetable->vertexCount() > 0) {
+                chunk->m_MeshVegetable->setMesh(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
+                chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
+            }
+            //chunk->m_MeshVegetable->setMesh_Model(vbufVegetable->positions.data(), Loader::loadModel(vbufVegetable));
             delete vbufVegetable;
 
         });

@@ -109,6 +109,11 @@ public:
         return (((i * i * 15731 + 789221) * i + 1376312589) & 0xffffffff) / (float)0xffffffff;
     }
 
+    static float floor_dn(float f, int n) {
+        float p = std::pow(10, n);
+        return Mth::floor(f * p) / p;
+    }
+
     static glm::vec3 angleh(float angle) {
         return glm::rotate(glm::mat4(1), angle, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1.0);
     }

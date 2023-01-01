@@ -105,6 +105,7 @@ void Ethertia::runMainLoop()
         if (m_World)
         {
             PROFILE("Phys");
+            m_Player->m_PrevVelocity = m_Player->m_Rigidbody->getLinearVelocity();
             m_World->m_DynamicsWorld->stepSimulation(getDelta());
 
             m_World->processEntityCollision();
@@ -269,33 +270,68 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
         NetworkSystem::connect(hostname, port);
     }
-    else if (cmd == "/mesh")
+    else if (cmd == "/entity")
     {
-        if (args[1] == "new") {
-            const std::string& path = args[2];
-            if (!Loader::fileExists(path)){
-                notifyMessage(Strings::fmt("No mesh file on: ", path));
+        if (args[1] == "new")
+        {
+            if (args[2] == "mesh")
+            {
+                EntityMesh* entity = new EntityMesh();
+                entity->setPosition(player->getPosition());
+
+                VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr("entity/plane.obj"));
+                entity->setMesh(vbuf->vertexCount(), vbuf->positions.data());
+                entity->updateModel(Loader::loadModel(vbuf));
+
+                Ethertia::getWorld()->addEntity(entity);
+
+                Ethertia::notifyMessage(Strings::fmt("EntityMesh created."));
+            }
+        }
+        else
+        {
+            Entity* target = Ethertia::getBrushCursor().hitEntity;
+            if (!target) {
+                notifyMessage("failed, no target entity.");
                 return;
             }
 
-            EntityMesh* entity = new EntityMesh();
-            entity->setPosition(player->getPosition());
+            if (args[1] == "mesh")
+            {
+                const std::string& path = args[2];
+                if (!Loader::fileExists(path)){
+                    notifyMessage(Strings::fmt("No mesh file on: ", path));
+                    return;
+                }
 
-            VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadFileStr(path));
-            entity->setMesh_Model(vbuf->positions.data(), Loader::loadModel(vbuf));
+                EntityMesh* eMesh = (EntityMesh*)target;
 
-            Ethertia::getWorld()->addEntity(entity);
+                VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadFileStr(path));
+                eMesh->updateModel(Loader::loadModel(vbuf));
+                eMesh->setMesh(vbuf->vertexCount(), vbuf->positions.data());
 
-            Ethertia::notifyMessage(Strings::fmt("Added EntityMesh Model ", path));
-        } else if (args[1] == "diff") {
-            const std::string& path = args[2];
-            if (!Loader::fileExists(path)){
-                notifyMessage(Strings::fmt("No mesh file on: ", path));
-                return;
+                notifyMessage("Mesh updated.");
             }
+            else if (args[1] == "diff")
+            {
+                const std::string& path = args[2];
+                if (!Loader::fileExists(path)){
+                    notifyMessage(Strings::fmt("No texture file on: ", path));
+                    return;
+                }
 
-            EntityMesh* entity = (EntityMesh*)Ethertia::getBrushCursor().hitEntity;
-            entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(Loader::loadFile(path)));
+                EntityMesh* entity = (EntityMesh*)Ethertia::getBrushCursor().hitEntity;
+                entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(Loader::loadFile(path)));
+
+                notifyMessage("Texture updated.");
+            }
+            else if (args[1] == "delete")
+            {
+
+                Ethertia::getWorld()->removeEntity(target);
+
+                notifyMessage("Entity deleted.");
+            }
 
         }
     }
@@ -329,7 +365,7 @@ float Ethertia::getAspectRatio() {
 
 
 
-static void processPlayerCollide(EntityPlayer* player, float appliedImpulse, btVector3 norm,
+static void processPlayerCollide(EntityPlayer* player, float appliedImpulse, const btVector3& norm,
                                  const btVector3& localpoint, const btVector3& worldpoint)
 {
 
@@ -339,12 +375,18 @@ static void processPlayerCollide(EntityPlayer* player, float appliedImpulse, btV
         player->m_OnGround = true;
     }
 
+    player->m_NumContactPoints++;
+
 }
 void World::processEntityCollision() {
 
-    // clear impulse
-    Ethertia::getPlayer()->m_AppliedImpulse = 0;
-    Ethertia::getPlayer()->m_OnGround = false;
+    {
+        // reset
+        EntityPlayer* player = Ethertia::getPlayer();
+        player->m_AppliedImpulse = 0;
+        player->m_OnGround = false;
+        player->m_NumContactPoints = 0;
+    }
 
 
     btDispatcher* disp = m_DynamicsWorld->getDispatcher();
@@ -383,11 +425,20 @@ void World::processEntityCollision() {
     EntityPlayer* player = Ethertia::getPlayer();
 //    if (player->m_OnGround)
 //        Log::info("onG");
-    if (player->m_AppliedImpulse > 200)
-        Log::info("AppliedI ", player->m_AppliedImpulse);
+//    if (player->m_AppliedImpulse > 200)
+//        Log::info("AppliedI ", player->m_AppliedImpulse);
+
+    if (player->m_NumContactPoints) {
+        btVector3 velDiff = player->m_PrevVelocity - player->m_Rigidbody->getLinearVelocity();
+        float f = velDiff.length();
+        if (f > 10) {
+            Log::info("Diff ", f);
+            player->m_Health -= f / 38.0f;
+        }
+    }
 
     if (player->m_AppliedImpulse > 300) {
-        player->m_Health -= player->m_AppliedImpulse / 3000;
+//        player->m_Health -= player->m_AppliedImpulse / 3000;
     }
 }
 

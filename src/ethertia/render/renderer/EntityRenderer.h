@@ -59,7 +59,7 @@ public:
                 {2, _RECT_UV}
         });
 
-        g_PanoramaTex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("misc/skybox/hdri5.png")));
+        g_PanoramaTex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("misc/skybox/hdri6.png")));
 
     }
 

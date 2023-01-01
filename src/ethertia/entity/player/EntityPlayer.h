@@ -22,6 +22,9 @@ public:
 
     float m_AppliedImpulse = 0;
     bool m_OnGround = false;
+    int m_NumContactPoints = 0;
+
+    btVector3 m_PrevVelocity{};
 
     EntityPlayer() {
         m_TypeTag = Entity::TypeTag::T_PLAYER;
