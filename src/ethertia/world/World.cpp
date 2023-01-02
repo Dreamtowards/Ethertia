@@ -15,6 +15,7 @@
 #include <ethertia/render/Window.h>
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
+#include <ethertia/entity/player/EntityPlayer.h>
 
 World::World()
 {
@@ -339,5 +340,88 @@ void World::populate(World* world, glm::vec3 chunkpos) {
                 }
             }
         }
+    }
+}
+
+
+
+
+
+
+
+static void processPlayerCollide(EntityPlayer* player, float appliedImpulse, const btVector3& norm,
+                                 const btVector3& localpoint, const btVector3& worldpoint)
+{
+
+    player->m_AppliedImpulse += appliedImpulse;
+
+    if (localpoint.y() < 0 && norm.dot({0, -1, 0}) > 0.5) {
+        player->m_OnGround = true;
+    }
+
+    player->m_NumContactPoints++;
+
+}
+void World::processEntityCollision() {
+
+    {
+        // reset
+        EntityPlayer* player = Ethertia::getPlayer();
+        player->m_AppliedImpulse = 0;
+        player->m_OnGround = false;
+        player->m_NumContactPoints = 0;
+    }
+
+
+    btDispatcher* disp = m_DynamicsWorld->getDispatcher();
+    int numManifolds = disp->getNumManifolds();
+
+    for (int i = 0; i < numManifolds; ++i)
+    {
+        btPersistentManifold* manifold = disp->getManifoldByIndexInternal(i);
+        const btCollisionObject* objA = static_cast<const btCollisionObject*>(manifold->getBody0());
+        const btCollisionObject* objB = static_cast<const btCollisionObject*>(manifold->getBody1());
+
+        Entity* ptrA = static_cast<Entity*>(objA->getUserPointer());
+        Entity* ptrB = static_cast<Entity*>(objB->getUserPointer());
+
+        int numContacts = manifold->getNumContacts();
+        for (int j = 0; j < numContacts; ++j)
+        {
+            btManifoldPoint& pt = manifold->getContactPoint(j);
+
+            // if (pt.getDistance() <= 0)  ~< 0.03
+
+            // const btVector3& ptA = pt.m_positionWorldOnA;
+            // const btVector3& ptB = pt.m_positionWorldOnB;
+            // const btVector3& normB = pt.m_normalWorldOnB;
+
+            if (EntityPlayer* player = dynamic_cast<EntityPlayer*>(ptrA)) {
+                processPlayerCollide(player, pt.getAppliedImpulse(), -pt.m_normalWorldOnB, pt.m_localPointA, pt.m_positionWorldOnA);
+            }
+            if (EntityPlayer* player = dynamic_cast<EntityPlayer*>(ptrB)) {
+                processPlayerCollide(player, pt.getAppliedImpulse(), pt.m_normalWorldOnB, pt.m_localPointB, pt.m_positionWorldOnB);
+            }
+
+        }
+    }
+
+    EntityPlayer* player = Ethertia::getPlayer();
+//    if (player->m_OnGround)
+//        Log::info("onG");
+//    if (player->m_AppliedImpulse > 200)
+//        Log::info("AppliedI ", player->m_AppliedImpulse);
+
+    if (player->m_NumContactPoints) {
+        btVector3 velDiff = player->m_PrevVelocity - player->m_Rigidbody->getLinearVelocity();
+        float f = velDiff.length();
+        if (f > 10) {
+//            Log::info("Diff ", f);
+            player->m_Health -= f / 38.0f;
+        }
+    }
+
+    if (player->m_AppliedImpulse > 300) {
+//        player->m_Health -= player->m_AppliedImpulse / 3000;
     }
 }

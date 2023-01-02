@@ -24,6 +24,7 @@
 #include <ethertia/network/client/ClientConnectionProc.h>
 #include <ethertia/network/client/NetworkSystem.h>
 #include <ethertia/init/Controls.h>
+#include <ethertia/world/gen/ChunkGenerator.h>
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -50,6 +51,7 @@ void Ethertia::start()
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, "Dysplay");
+    ChunkGenerator::initSIMD();
     m_RootGUI = new GuiRoot();
     m_RenderEngine = new RenderEngine();
 
@@ -58,19 +60,11 @@ void Ethertia::start()
     ChunkRenderProcessor::initWorkerThread();
     m_AsyncScheduler.initWorkerThread("Async Tasks");
 
-
-    GuiIngame::INST = new GuiIngame();
-    m_RootGUI->addGui(GuiIngame::INST);
-
-    GuiScreenMainMenu::INST = new GuiScreenMainMenu();
-    GuiScreenChat::INST = new GuiScreenChat();
-    GuiScreenPause::INST = new GuiScreenPause();
-    m_RootGUI->addGui(GuiScreenPause::INST);
+    GuiIngame::initGUIs();
 
     Controls::initControls();
 
     ClientConnectionProc::initPackets();
-
     NetworkSystem::init();
     // NetworkSystem::connect("127.0.0.1", 8081);
 
@@ -92,7 +86,7 @@ void Ethertia::runMainLoop()
 
     {
         PROFILE("SyncTask");
-        m_Scheduler.processTasks(0.001);
+        m_Scheduler.processTasks(0.005);
     }
 
     {
@@ -363,99 +357,3 @@ float Ethertia::getAspectRatio() {
     return (float)w->getWidth() / (float)w->getHeight();
 }
 
-
-
-static void processPlayerCollide(EntityPlayer* player, float appliedImpulse, const btVector3& norm,
-                                 const btVector3& localpoint, const btVector3& worldpoint)
-{
-
-    player->m_AppliedImpulse += appliedImpulse;
-
-    if (localpoint.y() < 0 && norm.dot({0, -1, 0}) > 0.5) {
-        player->m_OnGround = true;
-    }
-
-    player->m_NumContactPoints++;
-
-}
-void World::processEntityCollision() {
-
-    {
-        // reset
-        EntityPlayer* player = Ethertia::getPlayer();
-        player->m_AppliedImpulse = 0;
-        player->m_OnGround = false;
-        player->m_NumContactPoints = 0;
-    }
-
-
-    btDispatcher* disp = m_DynamicsWorld->getDispatcher();
-    int numManifolds = disp->getNumManifolds();
-
-    for (int i = 0; i < numManifolds; ++i)
-    {
-        btPersistentManifold* manifold = disp->getManifoldByIndexInternal(i);
-        const btCollisionObject* objA = static_cast<const btCollisionObject*>(manifold->getBody0());
-        const btCollisionObject* objB = static_cast<const btCollisionObject*>(manifold->getBody1());
-
-        Entity* ptrA = static_cast<Entity*>(objA->getUserPointer());
-        Entity* ptrB = static_cast<Entity*>(objB->getUserPointer());
-
-        int numContacts = manifold->getNumContacts();
-        for (int j = 0; j < numContacts; ++j)
-        {
-            btManifoldPoint& pt = manifold->getContactPoint(j);
-
-            // if (pt.getDistance() <= 0)  ~< 0.03
-
-            // const btVector3& ptA = pt.m_positionWorldOnA;
-            // const btVector3& ptB = pt.m_positionWorldOnB;
-            // const btVector3& normB = pt.m_normalWorldOnB;
-
-            if (EntityPlayer* player = dynamic_cast<EntityPlayer*>(ptrA)) {
-                processPlayerCollide(player, pt.getAppliedImpulse(), -pt.m_normalWorldOnB, pt.m_localPointA, pt.m_positionWorldOnA);
-            }
-            if (EntityPlayer* player = dynamic_cast<EntityPlayer*>(ptrB)) {
-                processPlayerCollide(player, pt.getAppliedImpulse(), pt.m_normalWorldOnB, pt.m_localPointB, pt.m_positionWorldOnB);
-            }
-
-        }
-    }
-
-    EntityPlayer* player = Ethertia::getPlayer();
-//    if (player->m_OnGround)
-//        Log::info("onG");
-//    if (player->m_AppliedImpulse > 200)
-//        Log::info("AppliedI ", player->m_AppliedImpulse);
-
-    if (player->m_NumContactPoints) {
-        btVector3 velDiff = player->m_PrevVelocity - player->m_Rigidbody->getLinearVelocity();
-        float f = velDiff.length();
-        if (f > 10) {
-//            Log::info("Diff ", f);
-            player->m_Health -= f / 38.0f;
-        }
-    }
-
-    if (player->m_AppliedImpulse > 300) {
-//        player->m_Health -= player->m_AppliedImpulse / 3000;
-    }
-}
-
-//void EntityPlayer::onTick() {
-
-    // Should not make a new Test, just check collision manifolds.
-//    OnGroundCheck check;
-//    m_World->m_DynamicsWorld->contactTest(m_Rigidbody, check);
-//
-//    m_OnGround = check.m_TestGround;
-
-//    if (m_OnGround)
-//    Log::info("OnGround ", m_OnGround);
-
-//    if (m_OnGround && m_Gamemode == Gamemode::SURVIVAL) {
-//        m_Rigidbody->setGravity({0, 0,  0});
-//    } else {
-//        m_Rigidbody->setGravity({0, -10,  0});
-//    }
-//}

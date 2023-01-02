@@ -6,6 +6,7 @@
 #define ETHERTIA_SETTINGS_H
 
 #include <ethertia/util/Loader.h>
+#include <ethertia/world/gen/ChunkGenerator.h>
 
 #include <nlohmann/json.hpp>
 
@@ -19,6 +20,8 @@ public:
 
     inline static int displayWidth  = 1280,
                       displayHeight = 720;
+
+    inline static std::string simdLevel = "";
 
     template<typename T>
     static void set_ifexists(json& j, const std::string& name, T* p) {
@@ -42,6 +45,12 @@ public:
         set_ifexists(settings, "display_width",  &displayWidth);
         set_ifexists(settings, "display_height", &displayHeight);
 
+        set_ifexists(settings, "mtl_resolution", &MaterialTextures::TEX_RESOLUTION);
+        set_ifexists(settings, "simd_level", &simdLevel);
+
+
+        ChunkGenerator::g_SIMDLevel = ChunkGenerator::FastSIMD_ofLevelName(simdLevel);
+
     }
 
     static void loadProgramArguments(int argc, const char* argv[]) {
@@ -59,6 +68,8 @@ public:
              {"display_height", Ethertia::getWindow()->getHeight()},
              {"vsync",          false},
              {"fullscreen",     false},
+             {"mtl_resolution", MaterialTextures::TEX_RESOLUTION},
+             {"simd_level",     ChunkGenerator::FastSIMD_LevelName(ChunkGenerator::g_SIMDLevel)}
         });
 
         std::ofstream f(SETTINGS_FILE);

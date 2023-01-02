@@ -1,0 +1,19 @@
+[2023-01-02.19:03:59.990.404][0x1021bedc0/INFO]: Load Settings. in 0.693507ms.
+[2023-01-02.19:04:00.106.248][0x1021bedc0/INFO]: Init GL_4.1 INTEL-14.7.22, Intel(R) Iris(TM) Plus Graphics 645 | GLFW 3.3.8 Cocoa NSGL EGL OSMesa. in 115.185323ms.
+[2023-01-02.19:04:00.106.295][0x1021bedc0/INFO]: Compiled SIMD Levels: SSE2/SSE3/SSSE3/SSE41/SSE42/AVX2/AVX512  CPU AVX2::AVX2.
+[2023-01-02.19:04:00.111.312][0x1021bedc0/INFO]: RenderEngine initializing. in 83.060366ms.
+[2023-01-02.19:04:00.194.395][0x1021bedc0/INFO]: Material Textures loading...
+[2023-01-02.19:04:00.194.444][0x1021bedc0/INFO]:  *diff load cached atlas from 'cache/atlas_diff.png'. in 174.488858ms.
+[2023-01-02.19:04:00.368.942][0x1021bedc0/INFO]:  *norm load cached atlas from 'cache/atlas_norm.png'. in 140.146727ms.
+[2023-01-02.19:04:00.509.111][0x1021bedc0/INFO]:  *disp load cached atlas from 'cache/atlas_disp.png'. in 119.896461ms.
+[2023-01-02.19:04:00.629.033][0x1021bedc0/INFO]:  *rough load cached atlas from 'cache/atlas_rough.png'. in 85.616320ms.
+[2023-01-02.19:04:00.714.654][0x1021bedc0/INFO]: Material Texture Atlases all loaded/generated. in 520.280488ms.
+[2023-01-02.19:04:00.714.749][0x700004f69000/INFO]: Async Tasks thread is ready.
+[2023-01-02.19:04:00.714.745][0x700004ee6000/INFO]: Chunk Processor thread is ready.
+[2023-01-02.19:04:00.714.838][0x700004fec000/INFO]: Console thread is ready
+System initialized in 734.522555ms.
+[2023-01-02.19:04:33.311.959][0x1021bedc0/INFO]: Save Settings. in 1.383656ms.
+
+Process finished with exit code 0
+
+[2023-01-02.19:04:00.106.295][0x1021bedc0/INFO]: FastSIMD Compiled Levels: SSE2 SSE3 SSSE3 SSE41 SSE42 AVX2 AVX512 CPU AVX2::AVX2.

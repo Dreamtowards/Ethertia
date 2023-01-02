@@ -21,6 +21,7 @@
 class MaterialTextures
 {
 public:
+    inline static int TEX_RESOLUTION = 256;
 
     inline static Texture* ATLAS_DIFFUSE = nullptr;
     inline static Texture* ATLAS_DISP    = nullptr;  // Displacement Maps.
@@ -51,7 +52,7 @@ public:
         // 512  pretty realistic
         // 256  pretty
         // 128  non-realistic
-        const int dest_res = 128;
+        const int dest_res = TEX_RESOLUTION;
         ATLAS_DIFFUSE = makeAtlas("diff", dest_res, "cache/atlas_diff.png");
         ATLAS_NORM    = makeAtlas("norm", dest_res, "cache/atlas_norm.png");
         ATLAS_DISP    = makeAtlas("disp", dest_res, "cache/atlas_disp.png");

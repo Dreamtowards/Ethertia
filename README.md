@@ -111,10 +111,18 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
   - 2023-01-02    
     - bugfix Extreme Mouse DX caused by glfwSetInputMode. 由于禁用启用鼠标时 内部会设置鼠标位置，因此我们的
       MousePos callback会产生巨大DX，造成视野瞬移等问题。解决方法 忽略启用/禁用鼠标后的下一个DX (鼠标位置要更新 只不过不计入DX)
+    - Snapshot Release r230101p. 
+      - Windows GNU dll(s) 补齐
+    - 修复FastSIMD 默认CPU最高等级不适应设备的问题，可自定义等级
+    - 配置 自定义MtlTexResolution
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
         没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物
     - OpenAL Damage Sound
+    - Items
+      - Pickaxe
+      - Materials 
+      - Inventory
 
 特殊功能
 - 和OBS/直播媒体流对接 让视频/音频流 连接到我们的国家顶级剧院和顶级环绕巨型音响, 

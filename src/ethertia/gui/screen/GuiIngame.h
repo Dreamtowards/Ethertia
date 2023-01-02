@@ -19,14 +19,26 @@ class GuiIngame : public GuiCollection
 public:
     inline static GuiIngame* INST;
 
+    static void initGUIs()
+    {
+        GuiRoot* rt = Ethertia::getRootGUI();
+
+        GuiDebugV::INST = new GuiDebugV();
+        GuiMessageList::INST = new GuiMessageList();
+
+        GuiIngame::INST = new GuiIngame();
+        rt->addGui(GuiIngame::INST);
+
+        GuiScreenMainMenu::INST = new GuiScreenMainMenu();
+        GuiScreenChat::INST = new GuiScreenChat();
+        GuiScreenPause::INST = new GuiScreenPause();
+        rt->addGui(GuiScreenPause::INST);
+    }
 
     GuiIngame()
     {
         setWidth(Inf);
         setHeight(Inf);
-
-        GuiDebugV::INST = new GuiDebugV();
-        GuiMessageList::INST = new GuiMessageList();
 
         addGui(GuiDebugV::INST);
         addGui(new GuiAlign(Inf, Inf, GuiMessageList::INST, 0, Inf, Inf, 24));
