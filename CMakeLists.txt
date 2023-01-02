@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 option(BUILD_SHARED_LIBS OFF)
 option(CMAKE_BUILD_TYPE Release)
+set(BUILD_DISTRO OFF)
+
+# there 3 build mode
+# 1. Dev: (DEBUG) + (Pre Compiled Shared Library, for faster compile, release-shared-library for faster speed & fastnoise correctness)
+# 2. Rel: (RELEASE) + No Shared Library. packed into one. be simple
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
@@ -27,8 +32,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROD_BINARY_DIR})  # for Windows
 message("Build Env: ${CMAKE_SYSTEM_PROCESSOR}; ${CMAKE_SYSTEM_NAME}")
 message("Binary Dir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 
+if(WIN32)
+    link_libraries(winmm gdi32 wsock32 ws2_32)  # for enet lib
+endif()
 
-if(BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS OR BUILD_DISTRO)
 
     set(GLFW_BUILD_EXAMPLES OFF)
     set(GLFW_BUILD_TESTS OFF)
@@ -50,8 +58,6 @@ else()
     if(WIN32)
         link_libraries(BulletDynamics BulletCollision LinearMath
                        glfw3 FastNoise)
-
-        link_libraries(winmm gdi32 wsock32 ws2_32)  # for enet lib
     endif()
 endif()
 

@@ -83,7 +83,7 @@ void main()
     float Roughness = 1.0;
 
 //    bool useMTL = TexCoord.y >= 1342 - 1;  // MTL magic number. Platform Error: Use exactly "==" compresion produces random result on some Win10 GL device
-    bool pureMTL = TexCoord.y == 1000;
+    bool pureMTL = TexCoord.y >= 999;  // UV.y == 1000, >= 999 for windows gl percision capability.
     if (!pureMTL) {  // no material id, use TexCoord.
         Albedo = texture(diffuseMap, TexCoord).rgba;
 
