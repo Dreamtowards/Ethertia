@@ -11,7 +11,7 @@
 
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/SmoothValue.h>
-
+#include <ethertia/util/Log.h>
 
 class Camera
 {

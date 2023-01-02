@@ -91,7 +91,7 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
     - EntityPlayer onGround 判定, Capsule 方法
     - 新方法取消 Spectator Gamemode 的碰撞。不替换CollisionShape，而是用 CollisionFlags
     - EntityPlayer movement basics. 飞行加速 降落时移动减速 在地上时高跳跃
-    - [ ] 修复bug bulletphys 一旦无速且脚下没东西 就把我锁死 不会自由落体 除非施加强力
+    - [x] 修复bug bulletphys 一旦无速且脚下没东西 就把我锁死 不会自由落体 除非施加强力 - 已修复于230101
   - 2023-01-01
     - 血量条 物品栏示意渲染
     - GuiScreenChat, 打开确定性 不会重复"/"
@@ -107,6 +107,10 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
       不能直接setCollisionShape，要removeRigidBody后更改再add [refresh collision](https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9216)
     - 尝试VelocityDiff 判定摔落伤害，也不直觉 随便也容易产生伤害
     - 取消了 EntityMesh::m_NoCollision via CollisionFilter/Group/Mask 的方法，而是和观察者一样 用 CollisionFlags CF_NO_CONTACT_RESPONSE 了
+    - [x] 发现bug 打开界面 关闭后 轻微移动鼠标 就会有巨大delta 视野"随机"变成了另一个视野 困扰了1.5小时 很无语。已修复于230102
+  - 2023-01-02    
+    - bugfix Extreme Mouse DX caused by glfwSetInputMode. 由于禁用启用鼠标时 内部会设置鼠标位置，因此我们的
+      MousePos callback会产生巨大DX，造成视野瞬移等问题。解决方法 忽略启用/禁用鼠标后的下一个DX (鼠标位置要更新 只不过不计入DX)
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
         没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物

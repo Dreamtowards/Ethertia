@@ -33,6 +33,8 @@ class Window
     float mouseDY = 0;
     float scrollDX = 0;
     float scrollDY = 0;
+    float m_GrabbedCursorX = 0;
+    float m_GrabbedCursorY = 0;
 
     int width  = 0;  // 600, 420
     int height = 0;
@@ -47,6 +49,8 @@ class Window
 
 public:
     GLFWwindow* m_WindowHandle = nullptr;
+
+    bool m_MouseGrabbed = false;
 
     Window(int _w, int _h, const char* _title) : width(_w), height(_h)
     {
@@ -188,16 +192,32 @@ public:
         glfwSetClipboardString(m_WindowHandle, str);
     }
 
+    bool m_GrabbedChanged = false;
     void setMouseGrabbed(bool grabbed) {
-        glfwSetInputMode(m_WindowHandle, GLFW_CURSOR, grabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+//        static double lastEnableX = 0, lastEnableY = 0;
+        if (m_MouseGrabbed != grabbed) {
+            m_MouseGrabbed = grabbed;
+            m_GrabbedChanged = true;
+
+//            if (grabbed) {
+//                glfwGetCursorPos(m_WindowHandle, &lastEnableX, &lastEnableY);
+//            }
+
+            glfwSetInputMode(m_WindowHandle, GLFW_CURSOR, m_MouseGrabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+
+//            if (!grabbed) {
+//                glfwSetCursorPos(m_WindowHandle, lastEnableX, lastEnableY);
+//            }
+        }
     }
+    void setStickyKeys(bool s) {
+        glfwSetInputMode(m_WindowHandle, GLFW_STICKY_KEYS, s ? GLFW_TRUE : GLFW_FALSE);
+    }
+
     void setMousePos(float x, float y) {
         glfwSetCursorPos(m_WindowHandle, x, y);
     }
 
-    void setStickyKeys(bool s) {
-        glfwSetInputMode(m_WindowHandle, GLFW_STICKY_KEYS, s ? GLFW_TRUE : GLFW_FALSE);
-    }
 
     void maximize() {
         glfwMaximizeWindow(m_WindowHandle);
@@ -261,10 +281,24 @@ public:
         win->eventbus().post(&e);
     }
 
+    // CNS: 这里有2个不准确的 DX，就是在切换 glfwSetInputMode(...DISABLE/NORMAL) 的时候
+    // 当case 1. 禁用变成启用后时 鼠标位置突然从 禁用时的最后位置(启用前的位置) 变成了上次最后启用时的位置 这是由于内部状态特例改变 而造成的没有意义的DX
+    //           但由于这种情况 通常只在禁用时检测DX 所以启用后产生的巨大DX 通常影响不到 因为自从启用 就已经不检测DX了
+    // 当case 2. 启用变成禁用后 内部会设置状态 产生巨大DX 由于禁用时会监听DX 所以会Bang的一下一个巨大DX 由最后启用状态位置 变成最后禁用状态位置的DX
+    //
     static void onCursorPos(GLFWwindow* _win, double xpos, double ypos) {
         Window* win = (Window*)glfwGetWindowUserPointer(_win);
         float x = (float)xpos;
         float y = (float)ypos;
+        // for fix bug:
+        // Extreme DX caused by glfwSetInputMode(GLFW_CURSOR_DISABLE/NORMAL), glfw internal will set CursorPos when
+        // switching Cursor's Disable/Normal. so we just ignore the first DX after that switch.
+        if (win->m_GrabbedChanged) {
+            win->m_GrabbedChanged = false;
+            win->mouseX = x;
+            win->mouseY = y;
+            return;
+        }
         win->mouseDX = x - win->mouseX;
         win->mouseDY = y - win->mouseY;
         win->mouseX = x;

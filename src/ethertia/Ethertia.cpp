@@ -432,7 +432,7 @@ void World::processEntityCollision() {
         btVector3 velDiff = player->m_PrevVelocity - player->m_Rigidbody->getLinearVelocity();
         float f = velDiff.length();
         if (f > 10) {
-            Log::info("Diff ", f);
+//            Log::info("Diff ", f);
             player->m_Health -= f / 38.0f;
         }
     }
