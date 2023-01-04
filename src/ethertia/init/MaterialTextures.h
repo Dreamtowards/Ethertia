@@ -26,8 +26,10 @@ public:
     inline static Texture* ATLAS_DIFFUSE = nullptr;
     inline static Texture* ATLAS_DISP    = nullptr;  // Displacement Maps.
     inline static Texture* ATLAS_NORM    = nullptr;
-    inline static Texture* ATLAS_AO      = nullptr;
     inline static Texture* ATLAS_ROUGH   = nullptr;
+    inline static Texture* ATLAS_AO      = nullptr;
+
+    // DRAM -> Disp, Rough, AO, Metal
 
     inline static std::vector<std::string> TEXTURES = {
             "rock",
