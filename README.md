@@ -33,41 +33,85 @@ Ethertia / Building World while Interacting People / 建造 探索 互动 生存
 - [x] Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
 - [x] UDP 快速网络通信(optical reliable) 数据包 处理系统
 
-需要做:  
-- [ ] ___Rendering___
-  - [ ] Reflection Mapping, Screen Space. 反射渲染 水面反射 或材质反射 (冰/汽车表面)
-  - [ ] 水面动态波纹, 斜视透度, 折射.
-  - [ ] SSAO. 环境光遮蔽 提高层次感
-  - [ ] Flat Atmosphere. 平面大气层渲染 基于半物理的天空散射&雾气
-  - [ ] Light Shaft. 光锥
-  - [ ] 地形挖掘 贴花
-  - [ ] 一些特殊效果 盗梦空间的世界卷曲 虚拟实惊的万花筒扭曲 刺客信条的点阵世界表面 极光
-  - [ ] Chunk Cave Culling 区块渲染剔除 [BSD](https://tomcc.github.io/2014/08/31/visibility-2.html)
+### All Versions / Plan
 
-- [ ] ___World & Terrain___
-  - [ ] WorldGen, Biomes. 地形生成 生物群系, 这是无底洞
-  - [ ] Voxel LoD 地形远处低细节等级，远景加载
-  - [ ] CSG, Advanced Modeling System. 更专业的建筑系统 实时构建更准确的建筑模型
+- Ethertia Beta 0.0.1
+  - [ ] World Storage
+  - [ ] Biomes, blend
+  - [ ] Dropped Items (Entity)
+  - [ ] Item System
+  - [ ] Player Inventory, equipments
+  - [ ] Player Health
+  - [ ] Crops, Carrots, Potatoes
+
+<br>
+
+- Ethertia Beta 0.0.2
+  - [ ] SSAO
+  - [ ] Particle System
+  - [ ] Reflection Mapping, in materials, Screen space.
+  - dynamic water waves. refract. view angle.
+  - Flat Atmosphere
+  - Light Shaft
+  - Chunk Culling
+  - Decals at Terrain digging
+
+<br>
+
+- Ethertia Beta 0.0.3
+  - [ ] Fireockets, 
+  - [ ] Hook Rope
+  - [ ] Rope (Lead)
+
+<br>
+
+- Ethertia Beta 0.0.4 
+  - [ ] Transformation Move Controller
+
+<br>
+
+- Ethertia Beta 0.0.5
+  - LoD Terrain
+  - CSG Advanced Modeling System.
+  - WorldGen.
+
+<br>
+
+- Ethertia Beta 0.1.2
+  - Animals. Skeleton Animation & Physics.
+    - Pig, Sheep, Chicken, Cow
+    - Horse, Donkey, Mule
+
+<br>
+
+- Ethertia Beta 0.2.0
+  - Multiplayer
     
-- [ ] ___Entity & Funcs___
-  - [ ] 农作物种植 马铃薯 胡萝卜
-  - [ ] Vehicles 汽车 火车 地铁 船 直升机 霍金轮椅
-  - [ ] Theatrical. Screen Cast, Light,. 剧场设备 屏幕投射 光轴 音响 摄影机
-  - [ ] 动物 猪牛羊 鸡 马驴螺
-  - [ ] Item, Inventory, ItemStack. 物品系统
-  - [ ] 玩家血量 装备. 行走碰撞.
-  - [ ] Spline Entity, Transformation Move Controller
-  - [ ] 强力缰绳, 烟火
-  - [ ] 掉落物
-  - [ ] Mod 系统
-    - Distro 其他人的修改版
-    - Native C/Cpp Mod, 强大 强行修改 但是繁琐 平台依赖 权限过大应该验证
-    - Script Mod, 可控安全 相对简单
+---
 
-- [ ] ___Multiplayer & Interactive___
-  - [ ] Multiplayer 多人游戏系统
-  - [ ] Skeleton Animation etc 骨骼动画 实时网络传输 穿戴定位器动作跟踪
-  - [ ] Cel Shading, Character. 人物渲染
+- Ethertia 1.0.3
+  - Theatrical
+    - Screen cast
+    - Audio
+    - SpotLight
+    - Camera
+    
+- Ethertia 1.0.5
+  - Vehicles
+    - Train
+    - Car
+    - Subway
+    - Truck
+    - Hawkins Wheelchair
+  
+- Ethertia 1.1.0
+  - Character, Avatar. Cel Shading
+
+- Ethertia 1.2.0
+  - Mod (Native / Script / Distro)
+  - VR, MotionTrack
+    
+- Ethertia 1.3.0 
 
 
 开发安排:
@@ -165,10 +209,11 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 
 /connect <ip> <port>
 
-/mesh new  <obj_file>
-/mesh diff <tex_file>
+/entity new mesh [obj_file]
+/entity diff <tex_file>
 ```
 
+<!--
 ### Quick Launch
 
 如果你想尝试本程序而不需开发环境，那将很简单。
@@ -187,7 +232,43 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 > (因为./run是工作目录 所以在这里执行程序, 而程序可以放别处/和动态连接库放一起)
 
 
-<!--
+
+需要做:  
+- [ ] ___Rendering___
+  - [ ] Reflection Mapping, Screen Space. 反射渲染 水面反射 或材质反射 (冰/汽车表面)
+  - [ ] 水面动态波纹, 斜视透度, 折射.
+  - [ ] SSAO. 环境光遮蔽 提高层次感
+  - [ ] Flat Atmosphere. 平面大气层渲染 基于半物理的天空散射&雾气
+  - [ ] Light Shaft. 光锥
+  - [ ] 地形挖掘 贴花
+  - [ ] 一些特殊效果 盗梦空间的世界卷曲 虚拟实惊的万花筒扭曲 刺客信条的点阵世界表面 极光
+  - [ ] Chunk Cave Culling 区块渲染剔除 [BSD](https://tomcc.github.io/2014/08/31/visibility-2.html)
+
+- [ ] ___World & Terrain___
+  - [ ] WorldGen, Biomes. 地形生成 生物群系, 这是无底洞
+  - [ ] Voxel LoD 地形远处低细节等级，远景加载
+  - [ ] CSG, Advanced Modeling System. 更专业的建筑系统 实时构建更准确的建筑模型
+    
+- [ ] ___Entity & Funcs___
+  - [ ] 农作物种植 马铃薯 胡萝卜
+  - [ ] Vehicles 汽车 火车 地铁 船 直升机 霍金轮椅
+  - [ ] Theatrical. Screen Cast, Light,. 剧场设备 屏幕投射 光轴 音响 摄影机
+  - [ ] 动物 猪牛羊 鸡 马驴螺
+  - [ ] Item, Inventory, ItemStack. 物品系统
+  - [ ] 玩家血量 装备. 行走碰撞.
+  - [ ] Spline Entity, Transformation Move Controller
+  - [ ] 强力缰绳, 烟火
+  - [ ] 掉落物
+  - [ ] Mod 系统
+    - Distro 其他人的修改版
+    - Native C/Cpp Mod, 强大 强行修改 但是繁琐 平台依赖 权限过大应该验证
+    - Script Mod, 可控安全 相对简单
+
+- [ ] ___Multiplayer & Interactive___
+  - [ ] Multiplayer 多人游戏系统
+  - [ ] Skeleton Animation etc 骨骼动画 实时网络传输 穿戴定位器动作跟踪
+  - [ ] Cel Shading, Character. 人物渲染
+
 
 ## Updates
 
