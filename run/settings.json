@@ -4,7 +4,7 @@
   "display_width": 1283,
   "fov": 90.0,
   "fullscreen": false,
-  "mtl_resolution": 256,
+  "mtl_resolution": 128,
   "simd_level": "",
   "view_distance": 4.0,
   "vsync": false

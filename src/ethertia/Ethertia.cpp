@@ -25,6 +25,7 @@
 #include <ethertia/network/client/NetworkSystem.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
+#include <ethertia/command/Commands.h>
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -197,17 +198,6 @@ void Ethertia::unloadWorld() {
 
 
 
-Entity* ofCommandEntityExpr(const std::string& expr) {
-    Entity* result = nullptr;
-    if (expr == "@t") {
-        result = Ethertia::getBrushCursor().hitEntity;
-        if (!result) Log::warn("Failed, invalid target entity");
-    } else if (expr == "@s") {
-        result = Ethertia::getPlayer();
-    }
-    return result;
-}
-
 void Ethertia::dispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
 
@@ -216,127 +206,27 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
             Ethertia::notifyMessage("Failed send chat, you haven't connect a server.");
             return;
         }
-        NetworkSystem::SendPacket(PacketChat{
-                cmdline
-        });
+        NetworkSystem::SendPacket(PacketChat{ cmdline });
         return;
     }
 
     std::vector<std::string> args = Strings::splitSpaces(cmdline);
     int argc = args.size();
-
-    std::string& cmd = args[0];
     EntityPlayer* player = Ethertia::getPlayer();
 
-    if (cmd == "/tp")
-    {
-        Entity* src = player;
-        if (argc == 4) { // /tp <x> <y> <z>
-            src->setPosition(Mth::vec3(&args[1]));
-        } else if (argc == 5) {
-            src = ofCommandEntityExpr(args[1]);
-            src->setPosition(Mth::vec3(&args[2]));
-        } else if (argc == 3) {
-            src = ofCommandEntityExpr(args[1]);
-            Entity* dst = ofCommandEntityExpr(args[2]);
-            src->setPosition(dst->getPosition());
-        }
-        Ethertia::notifyMessage("Teleported");
-    }
-    else if (cmd == "/gamemode")
-    {
-        int mode = std::stoi(args[1]);
+    std::string& cmd = args[0];
 
-        player->switchGamemode(mode);
-
-        Ethertia::notifyMessage(Strings::fmt("Gamemode has been set to {}", Gamemode::nameOf(mode)));
-    }
-    else if (cmd == "/fly")
-    {
-        player->setFlying(!player->isFlying());
-
-        Ethertia::notifyMessage(Strings::fmt("Flymode tuned to {}", player->isFlying()));
-    }
-    else if (cmd == "/connect")  //  /connect 127.0.0.1:8081
-    {
-        std::string hostname = args[1];
-        int port = std::stoi(args[2]);
-
-        NetworkSystem::connect(hostname, port);
-    }
-    else if (cmd == "/entity")
-    {
-        if (args[1] == "new")
-        {
-            if (args[2] == "mesh")
-            {
-                EntityMesh* entity = new EntityMesh();
-                entity->setPosition(player->getPosition());
-
-                VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr("entity/plane.obj"));
-                entity->setMesh(vbuf->vertexCount(), vbuf->positions.data());
-                entity->updateModel(Loader::loadModel(vbuf));
-
-                Ethertia::getWorld()->addEntity(entity);
-
-                Ethertia::notifyMessage(Strings::fmt("EntityMesh created."));
-            }
-        }
-        else
-        {
-            Entity* target = Ethertia::getBrushCursor().hitEntity;
-            if (!target) {
-                notifyMessage("failed, no target entity.");
-                return;
-            }
-
-            if (args[1] == "mesh")
-            {
-                const std::string& path = args[2];
-                if (!Loader::fileExists(path)){
-                    notifyMessage(Strings::fmt("No mesh file on: ", path));
-                    return;
-                }
-
-                EntityMesh* eMesh = (EntityMesh*)target;
-
-                VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadFileStr(path));
-                eMesh->updateModel(Loader::loadModel(vbuf));
-                eMesh->setMesh(vbuf->vertexCount(), vbuf->positions.data());
-
-                notifyMessage("Mesh updated.");
-            }
-            else if (args[1] == "diff")
-            {
-                const std::string& path = args[2];
-                if (!Loader::fileExists(path)){
-                    notifyMessage(Strings::fmt("No texture file on: ", path));
-                    return;
-                }
-
-                EntityMesh* entity = (EntityMesh*)Ethertia::getBrushCursor().hitEntity;
-                entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(Loader::loadFile(path)));
-
-                notifyMessage("Texture updated.");
-            }
-            else if (args[1] == "delete")
-            {
-
-                Ethertia::getWorld()->removeEntity(target);
-
-                notifyMessage("Entity deleted.");
-            }
-
-        }
-    }
-    else if (cmd == "/heal")
-    {
-        player->m_Health = 1.0f;
-    }
-    else
-    {
+    auto it = Commands::COMMANDS.find(cmd);
+    if (it == Commands::COMMANDS.end()) {
         Ethertia::notifyMessage(Strings::fmt("Unknown command: ", cmdline));
+        return;
     }
+
+    // Execute command
+
+    it->second(args);
+
+    //todo: sender? that only make sense on serverside.
 }
 
 void Ethertia::notifyMessage(const std::string& msg) {
