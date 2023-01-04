@@ -13,7 +13,6 @@
 #include <ethertia/init/Materials.h>
 #include <ethertia/world/Cell.h>
 #include <ethertia/world/Chunk.h>
-#include <ethertia/world/gen/NoiseGeneratorPerlin.h>
 #include <ethertia/util/Log.h>
 
 
@@ -38,9 +37,25 @@ public:
         }
     }
 
-    NoiseGeneratorPerlin noise{};
+    static const FastNoise::SmartNode<FastNoise::Perlin>& Perlin() {
+        static FastNoise::SmartNode<FastNoise::Perlin> perlin = FastNoise::New<FastNoise::Perlin>(g_SIMDLevel);
+        return perlin;
+    }
+    static const FastNoise::SmartNode<FastNoise::Simplex>& Simplex() {
+        static FastNoise::SmartNode<FastNoise::Simplex> simplex = FastNoise::New<FastNoise::Simplex>(g_SIMDLevel);
+        return simplex;
+    }
+
+    inline static int IdxXZ(int rx, int rz) {
+        return rz*16 + rx;
+    }
+    inline static int Idx3(int rx, int ry, int rz) {
+        return rz*256+ry*16+rx;
+    }
+
+
     ChunkGenerator() {
-        noise.initPermutations(1);
+
     }
 
     void GenChunk_Flat(Chunk* chunk)
@@ -60,34 +75,33 @@ public:
 
     Chunk* generateChunk(glm::vec3 chunkpos, World* world) {
         Chunk* chunk = new Chunk(chunkpos, world);
-        uint32_t seed = 1243;
+        uint32_t seed = world->m_Seed;
 
 //        GenChunk_Flat(chunk);
 //        return chunk;
 
-        auto fnSimplex = FastNoise::New<FastNoise::Perlin>(g_SIMDLevel);
         auto fnFrac = FastNoise::New<FastNoise::FractalFBm>(g_SIMDLevel);
 
-        fnFrac->SetSource(fnSimplex);
+        fnFrac->SetSource(Perlin());
         fnFrac->SetOctaveCount(10);
 
         float noiseVal[16 * 16 * 16];  // chunkpos is Block Coordinate,,
         fnFrac->GenUniformGrid3D(noiseVal, chunkpos.x, chunkpos.y, chunkpos.z, 16, 16, 16, 0.01, seed);
 
-        float terrHeight[16*16];
-        auto terrRg = fnFrac->GenUniformGrid2D(terrHeight, chunkpos.x, chunkpos.z, 16, 16, 0.01, seed);
+        float noiseTerrHeight[16*16];
+        fnFrac->GenUniformGrid2D(noiseTerrHeight, chunkpos.x, chunkpos.z, 16, 16, 1 / 200.0f, seed);
 
         int idxXZY = 0;
-        for (int rz = 0; rz < 16; ++rz) {
+        for (int rx = 0; rx < 16; ++rx) {
             for (int ry = 0; ry < 16; ++ry) {
-                for (int rx = 0; rx < 16; ++rx) {
-                    float terr = terrHeight[rz*16+rx];// - terrRg.min;
+                for (int rz = 0; rz < 16; ++rz) {  // rz*256+ry*16+rx
+                    float terr = noiseTerrHeight[IdxXZ(rx, rz)];// - terrRg.min;
 
                     float x = chunkpos.x + rx,
                           y = chunkpos.y + ry,
                           z = chunkpos.z + rz;
 
-                    float f = noiseVal[idxXZY++];
+                    float f = terr - y/64.0f;//noiseVal[idxXZY++];
 
 //                    f += terr;
 

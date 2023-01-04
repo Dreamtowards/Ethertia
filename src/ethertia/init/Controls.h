@@ -104,30 +104,11 @@ public:
         window.setMouseGrabbed(Ethertia::isIngame());
         window.setStickyKeys(!Ethertia::isIngame());
         // window.setTitle(("desp. "+std::to_string(1.0/dt)).c_str());
+
         if (Ethertia::isIngame())
         {
             // Player Movement.
 
-//            static bool sprint = false;
-//            float speed = 0.5;
-//            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) sprint = true;
-//            if (sprint) speed = 3.8;
-//            float yaw = Ethertia::getCamera()->eulerAngles.y;
-//
-//            glm::vec3 vel(0);
-//            if (window.isKeyDown(GLFW_KEY_W)) vel += Mth::angleh(yaw) * speed;
-//            if (window.isKeyDown(GLFW_KEY_S)) vel += Mth::angleh(yaw + Mth::PI) * speed;
-//            if (window.isKeyDown(GLFW_KEY_A)) vel += Mth::angleh(yaw + Mth::PI / 2) * speed;
-//            if (window.isKeyDown(GLFW_KEY_D)) vel += Mth::angleh(yaw - Mth::PI / 2) * speed;
-//
-//            if (window.isShiftKeyDown())          vel.y -= speed;
-//            if (window.isKeyDown(GLFW_KEY_SPACE)) vel.y += speed;
-//
-//            Ethertia::getPlayer()->applyLinearVelocity(vel);
-//
-//            if (!window.isKeyDown(GLFW_KEY_W)) {
-//                sprint = false;
-//            }
             if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
                 player->setSprint(true);
             } else if (!window.isKeyDown(GLFW_KEY_W)) {
@@ -146,10 +127,26 @@ public:
             RenderEngine::fov += smFov.delta;
 
             camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
+
+
+
+
+            // Cursor
+            BrushCursor& cursor = Ethertia::getBrushCursor();
+            if (cursor.keepTracking && Ethertia::getWorld()) {
+                glm::vec3 p, n;
+
+                void* usrptr = nullptr;
+                cursor.hit = Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n, &usrptr);
+
+                cursor.position = cursor.hit ? p : glm::vec3(0.0f);
+
+                cursor.hitEntity = (Entity*)usrptr;
+            }
         }
+
+
 //    player->intpposition = /*Mth::lerp(Ethertia::getTimer()->getPartialTick(), player->prevposition, */player->getPosition();//);
-
-
 
 
         // RenderEngine updates.
@@ -160,20 +157,6 @@ public:
         renderEngine->updateProjectionMatrix(Ethertia::getAspectRatio());
 
 
-
-
-        // Cursor
-        BrushCursor& cursor = Ethertia::getBrushCursor();
-        if (cursor.keepTracking) {
-            glm::vec3 p, n;
-
-            void* usrptr = nullptr;
-            cursor.hit = Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n, &usrptr);
-
-            cursor.position = cursor.hit ? p : glm::vec3(0.0f);
-
-            cursor.hitEntity = (Entity*)usrptr;
-        }
 
     }
 

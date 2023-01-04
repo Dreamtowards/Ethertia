@@ -52,22 +52,20 @@ void Ethertia::start()
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, "Dysplay");
-    ChunkGenerator::initSIMD();
     m_RootGUI = new GuiRoot();
     m_RenderEngine = new RenderEngine();
 
+    ChunkGenerator::initSIMD();
     MaterialTextures::init();
+    GuiIngame::initGUIs();
+    Commands::initCommands();
 
+    Controls::initControls();
     ChunkRenderProcessor::initWorkerThread();
     m_AsyncScheduler.initWorkerThread("Async Tasks");
 
-    GuiIngame::initGUIs();
-
-    Controls::initControls();
-
     ClientConnectionProc::initPackets();
     NetworkSystem::init();
-    // NetworkSystem::connect("127.0.0.1", 8081);
 
 
     m_Player = new EntityPlayer();
@@ -75,8 +73,7 @@ void Ethertia::start()
     m_Player->switchGamemode(Gamemode::SPECTATOR);
     m_Player->setFlying(true);
 
-    Ethertia::loadWorld();
-
+    // NetworkSystem::connect("127.0.0.1", 8081);
 
 }
 
@@ -118,19 +115,20 @@ void Ethertia::runMainLoop()
 
     {
         PROFILE("Render");
+
+        m_RenderEngine->clearRenderBuffer();
         if (m_World)
         {
             PROFILE("World");
             m_RenderEngine->renderWorld(m_World);
         }
-
         {
             PROFILE("GUI");
             renderGUI();
-            if (m_Window->isKeyDown(GLFW_KEY_L)) {
-                EntityRenderer::tmpLightDir = getCamera()->direction;
-                EntityRenderer::tmpLightPos = getCamera()->position;
-            }
+//            if (m_Window->isKeyDown(GLFW_KEY_L)) {
+//                EntityRenderer::tmpLightDir = getCamera()->direction;
+//                EntityRenderer::tmpLightPos = getCamera()->position;
+//            }
         }
     }
 
@@ -171,28 +169,35 @@ void Ethertia::runTick()
 
 void Ethertia::destroy()
 {
+    Ethertia::unloadWorld();
+
     Settings::saveSettings();
     NetworkSystem::deinit();
 
     delete m_RootGUI;
-    delete m_World;
     delete m_RenderEngine;
 
     glfwTerminate();
 }
 
-void Ethertia::loadWorld() {
+void Ethertia::loadWorld()
+{
     assert(m_World == nullptr);
 
-    m_World = new World();
+    m_World = new World("saves/world1", 1342);
     m_World->addEntity(m_Player);
 }
 
-void Ethertia::unloadWorld() {
+void Ethertia::unloadWorld()
+{
+    Ethertia::getBrushCursor().reset();
 
+    World* _world = m_World;
+    m_World = nullptr;  // set state unloaded. prevents access from other threads.
 
-    delete m_World;
-    m_World = nullptr;
+    Timer::wait_for(&ChunkRenderProcessor::g_Processing, false);
+
+    delete _world;
 }
 
 
@@ -214,11 +219,11 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     int argc = args.size();
     EntityPlayer* player = Ethertia::getPlayer();
 
-    std::string& cmd = args[0];
+    std::string cmd = args[0].substr(1);  // sub the leading '/'
 
     auto it = Commands::COMMANDS.find(cmd);
     if (it == Commands::COMMANDS.end()) {
-        Ethertia::notifyMessage(Strings::fmt("Unknown command: ", cmdline));
+        Ethertia::notifyMessage(Strings::fmt("Unknown command: {} ({})", cmd, cmdline));
         return;
     }
 

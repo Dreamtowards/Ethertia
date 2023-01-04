@@ -40,8 +40,10 @@ public:
 
     std::mutex lock_ChunkList;
 
+    uint32_t m_Seed = 0;
 
-    World();
+
+    World(const std::string& savedir, uint32_t seed);
     ~World();
 
     Cell& getCell(glm::vec3 p);

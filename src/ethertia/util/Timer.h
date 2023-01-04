@@ -60,6 +60,12 @@ public:
     static void sleep_for(int ms) {
         std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     }
+
+    static void wait_for(bool* state, bool until) {
+        while (*state != until) {
+            sleep_for(1);
+        }
+    }
 };
 
 #endif //ETHERTIA_TIMER_H

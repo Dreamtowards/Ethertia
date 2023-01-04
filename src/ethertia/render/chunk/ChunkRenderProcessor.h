@@ -32,9 +32,12 @@ public:
     }
     inline static bool dbg_ChunkUnload = false;
 
+    inline static std::thread* g_Thread = nullptr;
+    inline static bool g_Processing = false;
+
     static void initWorkerThread()
     {
-        new std::thread([]()
+        g_Thread = new std::thread([]()
         {
             Log::info("Chunk Processor thread is ready.");
 
@@ -42,6 +45,7 @@ public:
             {
                 if (World* world = Ethertia::getWorld())
                 {
+                    g_Processing = true;
                     std::lock_guard<std::mutex> guard(world->lock_ChunkList);
 
                     vec3 p = Ethertia::getCamera()->position;
@@ -62,6 +66,7 @@ public:
                         });
                     }
                 }
+                g_Processing = false;
 
                 std::this_thread::sleep_for(std::chrono::milliseconds (1));
             }
@@ -117,19 +122,23 @@ public:
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable]() {
             BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeEmit, nullptr);  g_DebugGenInfo.numEmit++;
 
-            if (vbufTerrain->vertexCount() > 0) {
-                chunk->m_MeshTerrain->setMesh(vbufTerrain->vertexCount(), vbufTerrain->positions.data());
-                chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
+            if (Ethertia::getWorld())  // task may defer to world unloaded. todo BUG: different world
+            {
+                if (vbufTerrain->vertexCount() > 0) {
+                    chunk->m_MeshTerrain->setMesh(vbufTerrain->vertexCount(), vbufTerrain->positions.data());
+                    chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
+                }
+                // chunk->m_MeshTerrain->setMesh_Model(vbufTerrain->positions.data(), Loader::loadModel(vbufTerrain));
+
+
+                if (vbufVegetable->vertexCount() > 0) {
+                    chunk->m_MeshVegetable->setMesh(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
+                    chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
+                }
+                //chunk->m_MeshVegetable->setMesh_Model(vbufVegetable->positions.data(), Loader::loadModel(vbufVegetable));
             }
-            // chunk->m_MeshTerrain->setMesh_Model(vbufTerrain->positions.data(), Loader::loadModel(vbufTerrain));
 
             delete vbufTerrain;
-
-            if (vbufVegetable->vertexCount() > 0) {
-                chunk->m_MeshVegetable->setMesh(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
-                chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
-            }
-            //chunk->m_MeshVegetable->setMesh_Model(vbufVegetable->positions.data(), Loader::loadModel(vbufVegetable));
             delete vbufVegetable;
 
         });

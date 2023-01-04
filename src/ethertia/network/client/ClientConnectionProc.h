@@ -16,12 +16,14 @@ class ClientConnectionProc
 public:
 
     static void initPackets() {
+        BenchmarkTimer _tm;
 
         _InitPacketIds();
 
         INIT_PACKET_PROC(PacketChat, ClientConnectionProc::handlePacket);
 
 
+        Log::info("Packets Initialized.\1");
     }
 
     static void nil(CPacketLogin& p) {

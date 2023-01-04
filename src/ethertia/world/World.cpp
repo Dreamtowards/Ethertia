@@ -17,8 +17,15 @@
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 
-World::World()
+
+
+World::World(const std::string& savedir, uint32_t seed)
 {
+    m_Seed = seed;  //1423
+
+    m_ChunkGenerator = new ChunkGenerator();
+    m_ChunkLoader = new ChunkLoader(savedir);  //  = "saves/dim-1"
+
     // init Phys
     {
         btCollisionConfiguration* collconf = new btDefaultCollisionConfiguration();
@@ -26,19 +33,23 @@ World::World()
         btBroadphaseInterface* broadphase = new btDbvtBroadphase();
         btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 
-        m_DynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collconf);
+        m_DynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, nullptr);
     }
-
-    m_ChunkGenerator = new ChunkGenerator();
-    m_ChunkLoader = new ChunkLoader("saves/dim-1");
 }
 
 World::~World() {
 
+    for (int i = m_DynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i) {
+        btCollisionObject* obj = m_DynamicsWorld->getCollisionObjectArray()[i];
+
+        m_DynamicsWorld->removeCollisionObject(obj);
+    }
+    // todo: delete entities.
+
     delete m_DynamicsWorld->getConstraintSolver();
     delete m_DynamicsWorld->getDispatcher();
-    delete m_DynamicsWorld;
     delete m_DynamicsWorld->getBroadphase();  // why after dw
+    delete m_DynamicsWorld;
 }
 
 Cell& World::getCell(glm::vec3 p)  {
@@ -120,7 +131,7 @@ void World::unloadChunk(glm::vec3 p)  {
     delete chunk;
 }
 
-Chunk * World::getLoadedChunk(glm::vec3 p)  {
+Chunk* World::getLoadedChunk(glm::vec3 p)  {
     auto it = m_Chunks.find(Chunk::chunkpos(p));
     if (it == m_Chunks.end())
         return nullptr;
@@ -197,18 +208,22 @@ Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {
 
 
 void World::populate(World* world, glm::vec3 chunkpos) {
+    float noiseSand[16*16];
+    float noiseFern[16*16];
+
+    ChunkGenerator::Perlin()->GenUniformGrid2D(noiseSand, chunkpos.x, chunkpos.z, 16, 16, 1/60.0f, world->m_Seed);
+
     for (int dx = 0; dx < 16; ++dx) {
         for (int dz = 0; dz < 16; ++dz) {
             int x = chunkpos.x + dx;
             int z = chunkpos.z + dz;
             int nextAir = -1;
+            const int idxXZ = ChunkGenerator::IdxXZ(dx, dz);
 
             for (int dy = 0; dy < 16; ++dy) {
                 int y = chunkpos.y + dy;
                 Cell tmpbl = world->getCell(x, y, z);
-//                    if (tmpbl.id == 0)// || tmpbl.id == Blocks::WATER)
-//                        continue;
-                if (tmpbl.id != Materials::STONE)
+                if (tmpbl.id != Materials::STONE)  // AIR or WATER.
                     continue;
 
                 if (nextAir < dy) {
@@ -223,11 +238,11 @@ void World::populate(World* world, glm::vec3 chunkpos) {
                 int nextToAir = nextAir - dy;
 
                 u8 replace = Materials::STONE;
-                if (y < 3 && nextToAir < 3 && world->m_ChunkGenerator->noise.noise(x / 60.0, y / 60.0, z / 60.0) > 0.1) {
+                if (y < 3 && nextToAir < 3 && noiseSand[idxXZ] > 0.1) {
                     replace = Materials::SAND;
                 } else if (nextToAir == 1 //|| nextToAir == 2
                         ) {
-                    bool tallgrass = world->m_ChunkGenerator->noise.noise(10 * x / 50.0, 10 * z / 50.0) > 0.2;
+                    bool tallgrass = noiseFern[idxXZ] > 0.2;
                     replace = tallgrass ? Materials::MOSS : Materials::GRASS;
                 } else if (nextToAir < 4) {
                     replace = Materials::DIRT;

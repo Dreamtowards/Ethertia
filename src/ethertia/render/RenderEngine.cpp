@@ -56,8 +56,7 @@ RenderEngine::~RenderEngine() {
 
 void RenderEngine::renderWorld(World* world)
 {
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    assert(world);
 
     // Geometry of Deferred Rendering
     {

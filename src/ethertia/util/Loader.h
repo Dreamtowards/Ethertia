@@ -10,10 +10,12 @@
 #include <fstream>
 #include <array>
 #include <filesystem>
+#include <span>
 
 #include <glad/glad.h>
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
+#include <tinyfd/tinyfiledialogs.h>
 
 #include <ethertia/render/Texture.h>
 #include <ethertia/util/BitmapImage.h>
@@ -29,6 +31,12 @@ public:
     inline static std::string ASSETS = "assets/";
 
 
+    static void showMessageBox(const char* title, const char* message) {
+        tinyfd_messageBox(title, message, "ok", "question", 1);
+    }
+    static std::string showInputBox(const char* title, const char* message, const char* def) {
+        return tinyfd_inputBox(title, message, def);  // free()?
+    }
 
     static std::pair<char*, size_t> loadFile(const std::string& path)
     {

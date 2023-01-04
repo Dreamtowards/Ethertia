@@ -177,6 +177,7 @@ public:
 
         RenderEngine* rde = Ethertia::getRenderEngine();
         EntityPlayer* player = Ethertia::getPlayer();
+        World* world = Ethertia::getWorld();
 
         if (dbgBasis) {
             rde->renderDebugBasis();
@@ -206,7 +207,7 @@ public:
                         "dt: {}, {}fps\n"
                         "mem: {}, alloc {}, freed: {}",
                         glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
-                        rde->g_NumEntityRendered, Ethertia::getWorld()->getEntities().size(),
+                        world ? rde->g_NumEntityRendered : 0, world ? world->getEntities().size() : 0,
                         cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
                         cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
                         cinfo.numEmit, cinfo.sumTimeEmit * 1000, (cinfo.sumTimeEmit / cinfo.numEmit * 1000),

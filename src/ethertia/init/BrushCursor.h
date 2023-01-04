@@ -20,6 +20,12 @@ public:
     int brushType;
     int brushMaterial;
 
+    void reset() {
+        hit = false;
+        position = {};
+        hitEntity = nullptr;
+    }
+
 #define BRUSH_SPHERE 1
 #define BRUSH_CUBE   2
 };

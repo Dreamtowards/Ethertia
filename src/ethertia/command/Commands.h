@@ -16,7 +16,7 @@ public:
     inline static std::map<std::string, CommandHandler> COMMANDS;
 
 
-    void initCommands()
+    static void initCommands()
     {
         COMMANDS["heal"] = [](auto& args)
         {

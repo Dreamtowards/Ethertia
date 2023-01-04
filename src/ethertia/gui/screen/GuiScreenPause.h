@@ -9,6 +9,8 @@
 #include <ethertia/gui/GuiStack.h>
 #include <ethertia/gui/GuiCollection.h>
 
+#include <ethertia/world/World.h>
+
 class GuiScreenPause : public GuiCollection
 {
 public:
@@ -29,7 +31,18 @@ public:
                 topbar->addGui(new GuiAlign(1.0, 0.0, rightbox));
 
                 rightbox->addGui(new GuiButton("Ops", false));
-                rightbox->addGui(new GuiButton("Ext", false));
+
+                GuiButton* btnNewWorld = new GuiButton("New", false);
+                rightbox->addGui(btnNewWorld);
+                btnNewWorld->addOnClickListener([](auto ) {
+                    Ethertia::loadWorld();
+                });
+
+                GuiButton* btnExitWorld = new GuiButton("Ext", false);
+                rightbox->addGui(btnExitWorld);
+                btnExitWorld->addOnClickListener([](auto){
+                    Ethertia::unloadWorld();
+                });
             }
             {
                 GuiStack* navbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
