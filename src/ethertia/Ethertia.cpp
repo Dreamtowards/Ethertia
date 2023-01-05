@@ -80,7 +80,7 @@ void Ethertia::start()
 
 
 
-    
+
     auto data = Loader::loadFile("cat.ogg");
     AudioBuffer* buf = Loader::loadOGG(data);
 
@@ -289,7 +289,7 @@ AudioBuffer* Loader::loadOGG(std::pair<char*, size_t> data) {
         throw std::runtime_error("failed decode ogg.");
     assert(pcm);
 
-    Log::info("Load ogg, pcm size {}, freq {}, cnls {}", Strings::size_str(len), sample_rate, channels);
+    // Log::info("Load ogg, pcm size {}, freq {}, cnls {}", Strings::size_str(len), sample_rate, channels);
     assert(channels == 2 || channels == 1);
     ALuint format = channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 
