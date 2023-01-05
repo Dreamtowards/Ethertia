@@ -55,13 +55,13 @@ else()
     link_directories(${PROD_BINARY_DIR})
 
     link_libraries(BulletDynamics BulletCollision LinearMath
-                   FastNoise openal)
+                   FastNoise)
 
     if (APPLE)
-        link_libraries(glfw.3)
+        link_libraries(glfw.3 openal)
     endif ()
     if(WIN32)
-        link_libraries(glfw3)
+        link_libraries(glfw3 OpenAL32)
     endif()
 endif()
 
