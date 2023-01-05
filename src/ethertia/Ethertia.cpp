@@ -40,8 +40,7 @@
 
 int main()
 {
-    AudioEngine aud{};
-    //Ethertia::run();
+    Ethertia::run();
 
 
     return 0;
@@ -56,9 +55,10 @@ void Ethertia::start()
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, "Dysplay");
     m_RootGUI = new GuiRoot();
-    m_RenderEngine = new RenderEngine();
-
     ChunkGenerator::initSIMD();
+    m_RenderEngine = new RenderEngine();
+    m_AudioEngine = new AudioEngine();
+
     MaterialTextures::init();
     GuiIngame::initGUIs();
     Commands::initCommands();
@@ -77,6 +77,16 @@ void Ethertia::start()
     m_Player->setFlying(true);
 
     // NetworkSystem::connect("127.0.0.1", 8081);
+
+    auto data = Loader::loadFile("test.ogg");
+    AudioBuffer* buf = Loader::loadOGG(data);
+
+    AudioSource* src = new AudioSource();
+
+    src->QueueBuffer(buf->m_BufferId);
+    src->play();
+
+
 
 }
 
@@ -138,6 +148,7 @@ void Ethertia::runMainLoop()
     {
         PROFILE("SwapBuffer");
         m_Window->swapBuffers();
+        AudioEngine::checkAlError("Frame");
     }
 }
 
@@ -179,6 +190,7 @@ void Ethertia::destroy()
 
     delete m_RootGUI;
     delete m_RenderEngine;
+    delete m_AudioEngine;
 
     glfwTerminate();
 }
@@ -257,3 +269,42 @@ float Ethertia::getAspectRatio() {
     return (float)w->getWidth() / (float)w->getHeight();
 }
 
+
+
+#include <stb/stb_vorbis.c>
+
+
+AudioBuffer* Loader::loadOGG(std::pair<char*, size_t> data) {
+    Log::warn("sth");
+    int channels = 0;
+    int sample_rate = 0;
+    int16_t* pcm;
+    int len = stb_vorbis_decode_memory((unsigned char*)data.first, data.second, &channels, &sample_rate, &pcm);
+    if (len == -1)
+        throw std::runtime_error("failed decode ogg.");
+    assert(pcm);
+
+    Log::info("Load ogg, {}, {}, {}", len, sample_rate, channels);
+
+    AudioBuffer* buf = new AudioBuffer();
+
+    assert(channels == 2);
+    buf->buffer_data(AL_FORMAT_STEREO16, pcm, len, sample_rate);
+    return buf;
+
+//    stb_vorbis_alloc alloc;
+//    int err;
+//    stb_vorbis* handle = stb_vorbis_open_memory((unsigned char*)data.first, data.second, &err, &alloc);
+//    if (!handle)
+//        throw std::runtime_error("failed open vorbis stream.");
+//
+//    stb_vorbis_info info = stb_vorbis_get_info(handle);
+//    int channels = info.channels;
+//    int sampleRate = info.sample_rate;
+//    size_t lenSamples = stb_vorbis_stream_length_in_samples(handle);
+//
+//    int16_t pcm[lenSamples];
+//    stb_vorbis_get_samples_short_interleaved(handle, channels, pcm, lenSamples);
+//
+//    stb_vorbis_close(handle);
+}

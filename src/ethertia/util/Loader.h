@@ -22,6 +22,7 @@
 #include <ethertia/render/VertexBuffer.h>
 #include <ethertia/render/Model.h>
 #include <ethertia/util/OBJLoader.h>
+#include <ethertia/audio/AudioEngine.h>
 
 
 class Loader {
@@ -92,6 +93,8 @@ public:
         fs << ss.str();
         fs.close();
     }
+
+    static AudioBuffer* loadOGG(std::pair<char*, size_t> data);
 
 
     static BitmapImage* loadPNG(const void* data, u32 len) {

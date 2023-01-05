@@ -22,11 +22,12 @@
 
 // __forward_declarations
 
-class RenderEngine;      // #include <ethertia/client/render/RenderEngine.h>
+class RenderEngine;      // #include <ethertia/render/RenderEngine.h>
 class World;             // #include <ethertia/world/World.h>
 class EntityPlayer;      // #include <ethertia/entity/player/EntityPlayer.h>
-class GuiRoot;           // #include <ethertia/client/gui/GuiRoot.h>
-class Window;            // #include <ethertia/client/Window.h>
+class GuiRoot;           // #include <ethertia/gui/GuiRoot.h>
+class Window;            // #include <ethertia/render/Window.h>
+class AudioEngine;       // #include <ethertia/audio/AudioEngine.h>
 
 
 class Ethertia
@@ -37,6 +38,7 @@ class Ethertia
     inline static EntityPlayer* m_Player       = nullptr;
     inline static GuiRoot*      m_RootGUI      = nullptr;
     inline static Window*       m_Window       = nullptr;
+    inline static AudioEngine*  m_AudioEngine  = nullptr;
     inline static Timer         m_Timer{};
     inline static Scheduler     m_Scheduler{};
     inline static Scheduler     m_AsyncScheduler{};

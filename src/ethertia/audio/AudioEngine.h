@@ -11,17 +11,132 @@
 
 #include <ethertia/util/Log.h>
 
+
+
+class AudioSource
+{
+public:
+    ALuint m_SourceId = 0;
+
+    AudioSource() {
+        alGenSources(1, &m_SourceId);
+    }
+    ~AudioSource() {
+        alDeleteSources(1, &m_SourceId);
+    }
+
+    void play() {
+        alSourcePlay(m_SourceId);
+    }
+    void pause() {
+        alSourcePause(m_SourceId);
+    }
+    void stop() {
+        alSourceStop(m_SourceId);
+    }
+
+    void looping(bool loop) {
+        alSourcei(m_SourceId, AL_LOOPING, loop ? AL_TRUE : AL_FALSE);
+    }
+
+    ALuint _state() {
+        ALint val;
+        alGetSourcei(m_SourceId, AL_SOURCE_STATE, &val);
+        return val;
+    }
+    bool isPlaying() {
+        return _state() == AL_PLAYING;
+    }
+    bool isPaused() {
+        return _state() == AL_PAUSED;
+    }
+    bool isStopped() {
+        return _state() == AL_STOPPED;
+    }
+
+    inline void _set(ALenum param, float f) {
+        alSourcef(m_SourceId, param, f);
+    }
+    inline float _get_f(ALenum param) {
+        float val;
+        alGetSourcef(m_SourceId, param, &val);
+        return val;
+    }
+
+    void setVolume(float f) {  _set  (AL_GAIN, f); }
+    float getVolume() { return _get_f(AL_GAIN);    }
+
+    void setPitch(float v) {  _set  (AL_PITCH, v); }
+    float getPitch() { return _get_f(AL_PITCH);    }
+
+    void setPosition(float x, float y, float z) {
+        alSource3f(m_SourceId, AL_POSITION, x,y,z);
+    }
+
+    // velocity
+    // direction
+
+    // min, max gain.
+    // cone inner,outer. cone gain.
+    // max distance, reference distance.
+    // rolloff factor
+
+
+
+
+    void QueueBuffer(ALuint bufId) {
+        alSourceQueueBuffers(m_SourceId, 1, &bufId);
+    }
+    void UnqueueBuffer() {
+        alSourceUnqueueBuffers(m_SourceId, 1, nullptr); // todo: nullptr?
+    }
+    void UnqueueAllBuffers() {
+
+    }
+
+    int BuffersQueued() {
+        ALint i;
+        alGetSourcei(m_SourceId, AL_BUFFERS_QUEUED, &i);
+        return i;
+    }
+    int BuffersProcessed() {
+        ALint i;
+        alGetSourcei(m_SourceId, AL_BUFFERS_PROCESSED, &i);
+        return i;
+    }
+
+
+};
+
+class AudioBuffer
+{
+public:
+    ALuint m_BufferId = 0;
+
+    AudioBuffer() {
+        alGenBuffers(1, &m_BufferId);
+    }
+    ~AudioBuffer() {
+        alDeleteBuffers(1, &m_BufferId);
+    }
+
+    void buffer_data(ALuint format, void* data, size_t datalen, int freq) {
+        alBufferData(m_BufferId, format, data, datalen, freq);
+    }
+};
+
 class AudioEngine
 {
 public:
 
-    ALCdevice* m_Device = nullptr;
+    ALCdevice*  m_Device = nullptr;
     ALCcontext* m_Context = nullptr;
 
     AudioEngine()
     {
-        const char* deviceName = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+        BENCHMARK_TIMER;
 
+        const char* deviceName = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
         m_Device = alcOpenDevice(deviceName);
         if (!m_Device)
             throw new std::runtime_error("failed open al device.");
@@ -32,31 +147,14 @@ public:
 
         alcMakeContextCurrent(m_Context);
 
-        Log::info("Init AL_{} | {} @{} .{} / Capture: {} ",
+        Log::info("Init AL_{} | {} @{} .{}, Rec: {}.\1",
                   alGetString(AL_VERSION),
                   deviceName,
                   alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER),
                   _infoOutputMode(m_Device),
                   alcGetString(nullptr, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
 
-#define FUNCTION_CAST(T, ptr) (T)(ptr)
-        LPALCGETSTRINGISOFT alcGetStringiSOFT;
-        alcGetStringiSOFT = FUNCTION_CAST(LPALCGETSTRINGISOFT,
-                                          alcGetProcAddress(m_Device, "alcGetStringiSOFT"));
-
-        ALCint numHRTFs;
-        alcGetIntegerv(m_Device, ALC_NUM_HRTF_SPECIFIERS_SOFT, 2, &numHRTFs);
-        for (int i = 0; i < numHRTFs; ++i) {
-            Log::info("HRTF: ", alcGetStringiSOFT(m_Device, ALC_HRTF_SPECIFIER_SOFT, i));
-        }
-
-
-
-
-        bool eax2 = alIsExtensionPresent("EAX2.0");
-        Log::info("EAX2: ", eax2);
-
-
+        checkAlError("Init AL");
     }
 
     ~AudioEngine()
@@ -65,6 +163,36 @@ public:
         alcDestroyContext(m_Context);
         alcCloseDevice(m_Device);
     }
+
+    static void checkAlError(std::string_view phase) {
+        ALenum err = alGetError();
+        if (err) {
+            Log::warn("OpenAL Error ## @{} ##: {}", phase, err);
+        }
+    }
+
+    // Master gain. value should be positive.
+    void setVolume(float f) {
+        alListenerf(AL_GAIN, f);
+    }
+    float getVolume() {
+        float f;
+        alGetListenerf(AL_GAIN, &f);
+        return f;
+    }
+
+    void setPosition() {
+
+    }
+
+    void setVelocity() {
+
+    }
+
+    void setOrientation() {
+
+    }
+
 
 
 

@@ -11,6 +11,8 @@
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Strings.h>
 
+#define BENCHMARK_TIMER BenchmarkTimer _tm;
+
 class BenchmarkTimer
 {
     double begin = Timer::nanoseconds();
