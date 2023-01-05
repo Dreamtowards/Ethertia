@@ -164,10 +164,21 @@ public:
         alcCloseDevice(m_Device);
     }
 
+
+    static const char* _AL_ErrorName(ALenum err) {
+        switch (err) {
+            case AL_INVALID_NAME: return "AL_INVALID_NAME";
+            case AL_INVALID_ENUM: return "AL_INVALID_ENUM";
+            case AL_INVALID_VALUE:return "AL_INVALID_VALUE";
+            case AL_INVALID_OPERATION:return "AL_INVALID_OPERATION";
+            case AL_OUT_OF_MEMORY:return "AL_OUT_OF_MEMORY";
+            default: return "unknown error";
+        }
+    }
     static void checkAlError(std::string_view phase) {
         ALenum err = alGetError();
         if (err) {
-            Log::warn("OpenAL Error ## @{} ##: {}", phase, err);
+            Log::warn("OpenAL Error ## @{} ##: {} ({})", phase, err, _AL_ErrorName(err));
         }
     }
 
@@ -181,16 +192,27 @@ public:
         return f;
     }
 
-    void setPosition() {
 
+
+    // Listener
+
+    void setPosition(float x, float y, float z) {
+        alListener3f(AL_POSITION, x,y,z);
+    }
+    void setPosition(glm::vec3 p) {
+        setPosition(p.x, p.y, p.z);
     }
 
     void setVelocity() {
 
     }
 
-    void setOrientation() {
-
+    void setOrientation(float x, float y, float z) {
+        float orie[6] = {x, y, z, 0, 1, 0};  // FaceDir, UpDir(Y-Up)
+        alListenerfv(AL_ORIENTATION, orie);
+    }
+    void setOrientation(glm::vec3 d) {
+        setOrientation(d.x, d.y, d.z);
     }
 
 

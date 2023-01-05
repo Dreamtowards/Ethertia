@@ -78,7 +78,7 @@ void Ethertia::start()
 
     // NetworkSystem::connect("127.0.0.1", 8081);
 
-    auto data = Loader::loadFile("test.ogg");
+    auto data = Loader::loadFile("cat.ogg");
     AudioBuffer* buf = Loader::loadOGG(data);
 
     AudioSource* src = new AudioSource();
@@ -149,6 +149,9 @@ void Ethertia::runMainLoop()
         PROFILE("SwapBuffer");
         m_Window->swapBuffers();
         AudioEngine::checkAlError("Frame");
+
+        m_AudioEngine->setPosition(Ethertia::getCamera()->position);
+        m_AudioEngine->setOrientation(Ethertia::getCamera()->direction);
     }
 }
 
@@ -275,36 +278,19 @@ float Ethertia::getAspectRatio() {
 
 
 AudioBuffer* Loader::loadOGG(std::pair<char*, size_t> data) {
-    Log::warn("sth");
     int channels = 0;
     int sample_rate = 0;
-    int16_t* pcm;
+    int16_t* pcm = nullptr;
     int len = stb_vorbis_decode_memory((unsigned char*)data.first, data.second, &channels, &sample_rate, &pcm);
     if (len == -1)
         throw std::runtime_error("failed decode ogg.");
     assert(pcm);
 
-    Log::info("Load ogg, {}, {}, {}", len, sample_rate, channels);
+    Log::info("Load ogg, pcm size {}, freq {}, cnls {}", Strings::size_str(len), sample_rate, channels);
+    assert(channels == 2 || channels == 1);
+    ALuint format = channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 
     AudioBuffer* buf = new AudioBuffer();
-
-    assert(channels == 2);
-    buf->buffer_data(AL_FORMAT_STEREO16, pcm, len, sample_rate);
+    buf->buffer_data(format, pcm, len, sample_rate);
     return buf;
-
-//    stb_vorbis_alloc alloc;
-//    int err;
-//    stb_vorbis* handle = stb_vorbis_open_memory((unsigned char*)data.first, data.second, &err, &alloc);
-//    if (!handle)
-//        throw std::runtime_error("failed open vorbis stream.");
-//
-//    stb_vorbis_info info = stb_vorbis_get_info(handle);
-//    int channels = info.channels;
-//    int sampleRate = info.sample_rate;
-//    size_t lenSamples = stb_vorbis_stream_length_in_samples(handle);
-//
-//    int16_t pcm[lenSamples];
-//    stb_vorbis_get_samples_short_interleaved(handle, channels, pcm, lenSamples);
-//
-//    stb_vorbis_close(handle);
 }

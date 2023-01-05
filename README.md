@@ -167,7 +167,11 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - All Versions plain init.
     - World Load/Unload
     - PerlinNoiseGen copy Deprecated.
-    - SurfaceNets 构建加速，缓存FPs
+    - SurfaceNets 构建加速，缓存FPs (avg 5.5ms -> 3.5ms)
+    - OpenAL Soft. init. Device, Context, Capture
+  - 2023-01-05
+    - OGG Load, stb_vorbis.
+    - AudioSource, AudioBuffer wrap.
       
     - World Storage 世界存储。  
       为什么你一直不做？因为你在纠结Octree体素结构。担心Uniform被弃用。
