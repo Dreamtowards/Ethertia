@@ -55,9 +55,9 @@ void Ethertia::start()
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, "Dysplay");
     m_RootGUI = new GuiRoot();
-    ChunkGenerator::initSIMD();
     m_RenderEngine = new RenderEngine();
     m_AudioEngine = new AudioEngine();
+    ChunkGenerator::initSIMD();
 
     MaterialTextures::init();
     GuiIngame::initGUIs();
@@ -70,14 +70,17 @@ void Ethertia::start()
     m_AsyncScheduler.initWorkerThread();
 
 
-
     m_Player = new EntityPlayer();
+
     m_Player->setPosition({10, 10, 10});
     m_Player->switchGamemode(Gamemode::SPECTATOR);
     m_Player->setFlying(true);
 
     // NetworkSystem::connect("127.0.0.1", 8081);
 
+
+
+    
     auto data = Loader::loadFile("cat.ogg");
     AudioBuffer* buf = Loader::loadOGG(data);
 

@@ -31,6 +31,7 @@ public:
 
         BitmapImage img(1, 1, new u32[1]{(u32)~0});
         TEX_WHITE = Loader::loadTexture(&img);
+
     }
 
     void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex =nullptr, float round =0, float border =FLT_MAX, int chnMode =0)

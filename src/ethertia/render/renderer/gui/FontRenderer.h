@@ -50,6 +50,7 @@ public:
         for (int i = 0; i < GLYPH_LIMIT; ++i) {
             shader.setFloat(UNIFORM_GLYPH_WIDTHS[i], glyphWidths[i]);
         }
+
     }
 
 

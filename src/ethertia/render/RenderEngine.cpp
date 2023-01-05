@@ -17,11 +17,13 @@ RenderEngine::RenderEngine()
     BenchmarkTimer _tm;
     Log::info("RenderEngine initializing.\1");
 
-    guiRenderer = new GuiRenderer();
-    fontRenderer = new FontRenderer();
-    entityRenderer = new EntityRenderer();
+    std::cout << " renderers[";
+    guiRenderer = new GuiRenderer();      std::cout << "gui, ";
+    fontRenderer = new FontRenderer();    std::cout << "font, ";
+    entityRenderer = new EntityRenderer();std::cout << "entity";
 //    skyGradientRenderer = new SkyGradientRenderer();
 //    skyboxRenderer = new SkyboxRenderer();
+    std::cout << "]";
 
     float qual = 0.6;
     gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));

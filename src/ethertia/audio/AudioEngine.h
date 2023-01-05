@@ -147,7 +147,7 @@ public:
 
         alcMakeContextCurrent(m_Context);
 
-        Log::info("Init AL_{} | {} @{} .{}, Rec: {}.\1",
+        Log::info("Init AL_{} | {} @{} .{}, Capt/ {}.\1",
                   alGetString(AL_VERSION),
                   deviceName,
                   alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER),

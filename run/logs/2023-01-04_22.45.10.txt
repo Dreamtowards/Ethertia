@@ -87,3 +87,23 @@ Process finished with exit code 0
 [2023-01-05.00:16:04.889.055][0x113984dc0/INFO]: EAX2: 0
 
 Process finished with exit code 0
+
+
+
+
+/Users/dreamtowards/Documents/YouRepository/Ethertia/run/bin/macos-x86-64/Ethertia --assets ./src/assets;sth2;678
+[2023-01-05.18:00:51.321.495][0x10ab0fdc0/INFO]: Load Settings. in 1.287076ms.
+[2023-01-05.18:00:51.465.541][0x10ab0fdc0/INFO]: Init GL_4.1 INTEL-14.7.22, Intel(R) Iris(TM) Plus Graphics 645 | GLFW 3.3.8 Cocoa NSGL EGL OSMesa dynamic. in 142.809186ms.
+[2023-01-05.18:00:51.577.337][0x10ab0fdc0/INFO]: RenderEngine initializing. in 172.967601ms.
+[2023-01-05.18:00:51.570.164][0x10ab0fdc0/INFO]: Init AL_1.1 ALSOFT 1.22.2 | OpenAL Soft @MacBook Pro Speakers .Stereo (basic), Rec: Loopback Audio. in 104.563266ms.
+[2023-01-05.18:00:51.570.249][0x10ab0fdc0/INFO]: Compiled SIMD Levels: SSE2/SSE3/SSSE3/SSE41/SSE42/AVX2/AVX512 : CPU AVX2.
+[2023-01-05.18:00:51.750.33 ][0x10ab0fdc0/INFO]: Material Textures loading...
+[2023-01-05.18:00:51.750.393][0x10ab0fdc0/INFO]:  *diff load cached atlas from 'cache/atlas_diff.png'. in 23.902493ms.
+[2023-01-05.18:00:51.774.346][0x10ab0fdc0/INFO]:  *norm load cached atlas from 'cache/atlas_norm.png'. in 25.341995ms.
+[2023-01-05.18:00:51.799.732][0x10ab0fdc0/INFO]:  *disp load cached atlas from 'cache/atlas_disp.png'. in 23.378142ms.
+[2023-01-05.18:00:51.823.128][0x10ab0fdc0/INFO]:  *rough load cached atlas from 'cache/atlas_rough.png'. in 22.401199ms.
+[2023-01-05.18:00:51.845.544][0x10ab0fdc0/INFO]: Material Texture Atlases all loaded/generated. in 95.249368ms.
+[2023-01-05.18:00:51.846.298][0x10ab0fdc0/INFO]: NetworkSystem and Packets Initializing. in 0.244321ms.
+[2023-01-05.18:00:51.846.623][0x700005c91000/INFO]: Chunk Processor thread is ready.
+[2023-01-05.18:00:52.367.199][0x10ab0fdc0/INFO]: Load ogg, pcm size 7.794970 MB, freq 44100, cnls 1
+System initialized in 1.176083s.
