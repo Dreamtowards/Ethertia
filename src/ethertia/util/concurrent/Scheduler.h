@@ -65,11 +65,11 @@ public:
         m_Tasks.push_back(task);
     }
 
-    void initWorkerThread(std::string_view workerName)
+    void initWorkerThread()
     {
-        new std::thread([this, workerName]()
+        new std::thread([this]()
         {
-            Log::info("{} thread is ready.", workerName);
+            // Log::info("Async Tasks thread is ready.", workerName);
 
             while (!m_Stopped)
             {

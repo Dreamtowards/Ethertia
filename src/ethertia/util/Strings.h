@@ -173,6 +173,20 @@ public:
         return splitConnected(str, ' ');
     }
 
+
+
+    static std::string walkStrings(const char* str) {
+        std::stringstream ss;
+        while (str && *str != '\0')
+        {
+            if (ss.tellp() > 0)
+                ss << ", ";
+            ss << str;
+            str += std::strlen(str) + 1;
+        }
+        return ss.str();
+    }
+
     // split command parts by spaces. quoted by " or ' will be seen as a whole part.
 //    static std::vector<std::string> splitCommand(const std::string& str) {
 //

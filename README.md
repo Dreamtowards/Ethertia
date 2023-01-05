@@ -160,6 +160,19 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
       - Windows GNU dll(s) 补齐
     - 修复FastSIMD 默认CPU最高等级不适应设备的问题，可自定义等级
     - 配置 自定义MtlTexResolution
+  - 2023-01-03
+    - Ethertia Site init. Header, KeyFeatures.
+  - 2023-01-04
+    - Commands::intiCommands(). Extract Cmd Impls. registry.
+    - All Versions plain init.
+    - World Load/Unload
+    - PerlinNoiseGen copy Deprecated.
+    - SurfaceNets 构建加速，缓存FPs
+      
+    - World Storage 世界存储。  
+      为什么你一直不做？因为你在纠结Octree体素结构。担心Uniform被弃用。
+      但这些可以一键转换，而且Uniform仍然有简单性优势。无论如何体素数据只占其中一部分而已。
+    - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
         没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物

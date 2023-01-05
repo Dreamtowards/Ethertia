@@ -24,7 +24,7 @@ public:
 
     inline static FastSIMD::eLevel g_SIMDLevel = FastSIMD::Level_Null;  // i.e. if it's null, it is dyn max
 
-    static void initSIMD()
+    static void initSIMD()  // 0.05ms in debug.
     {
         Log::info("Compiled SIMD Levels: {} : CPU {}\1",
                   ChunkGenerator::FastSIMD_CompiledLevels("/"),

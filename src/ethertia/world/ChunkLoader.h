@@ -16,9 +16,11 @@ class ChunkLoader
 {
 public:
 
-    std::string chunkdir;
+    std::string m_ChunkDir;
 
-    ChunkLoader(std::string savedir) : chunkdir(std::move(savedir)) {}
+    ChunkLoader(std::string savedir) : m_ChunkDir(std::move(savedir)) {
+        assert(!Loader::fileExists(savedir));
+    }
 
     Chunk* loadChunk(glm::vec3 chunkpos, World* world) {
         std::fstream file = openfile(chunkpos, std::ios::in);
@@ -33,6 +35,7 @@ public:
 
 
 
+
         file.close();
         return chunk;
     }
@@ -44,9 +47,10 @@ public:
 
     }
 
-    std::fstream openfile(glm::vec3 chunkpos, std::ios::openmode m) const {
+    // .vst Volume Store
+    [[nodiscard]] std::fstream openfile(glm::vec3 chunkpos, std::ios::openmode m) const {
         assert(Chunk::validchunkpos(chunkpos));
-        std::fstream file(Strings::fmt("{}/{}.{}.{}.vst", chunkdir, chunkpos.x, chunkpos.y, chunkpos.z), m);
+        std::fstream file(Strings::fmt("{}/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z), m);
         return file;
     }
 

@@ -1,0 +1,89 @@
+/Users/dreamtowards/Documents/YouRepository/Ethertia/run/bin/macos-x86-64/Ethertia --assets ./src/assets;sth2;678
+[2023-01-04.21:42:27.703.973][0x10d7c4dc0/INFO]: Load Settings. in 0.777980ms.
+[2023-01-04.21:42:27.829.182][0x10d7c4dc0/INFO]: Init GL_4.1 INTEL-14.7.22, Intel(R) Iris(TM) Plus Graphics 645 | GLFW 3.3.8 Cocoa NSGL EGL OSMesa dynamic. in 124.477518ms.
+[2023-01-04.21:42:27.835.12 ][0x10d7c4dc0/INFO]: RenderEngine initializing. in 143.173676ms.
+[2023-01-04.21:42:27.978.336][0x10d7c4dc0/INFO]: Compiled SIMD Levels: SSE2/SSE3/SSSE3/SSE41/SSE42/AVX2/AVX512 : CPU AVX2.
+[2023-01-04.21:42:27.978.36 ][0x10d7c4dc0/INFO]: Material Textures loading...
+[2023-01-04.21:42:27.978.393][0x10d7c4dc0/INFO]:  *diff load cached atlas from 'cache/atlas_diff.png'. in 21.516568ms.
+[2023-01-04.21:42:27.999.933][0x10d7c4dc0/INFO]:  *norm load cached atlas from 'cache/atlas_norm.png'. in 21.858596ms.
+[2023-01-04.21:42:28.21.8149][0x10d7c4dc0/INFO]:  *disp load cached atlas from 'cache/atlas_disp.png'. in 16.101141ms.
+[2023-01-04.21:42:28.37.9399][0x10d7c4dc0/INFO]:  *rough load cached atlas from 'cache/atlas_rough.png'. in 15.495878ms.
+[2023-01-04.21:42:28.53.439 ][0x10d7c4dc0/INFO]: Material Texture Atlases all loaded/generated. in 75.099775ms.
+[2023-01-04.21:42:28.53.8062][0x10d7c4dc0/INFO]: Packets Initialized. in 0.031417ms.
+[2023-01-04.21:42:28.53.542 ][0x70000a738000/INFO]: Chunk Processor thread is ready.
+[2023-01-04.21:42:28.53.77  ][0x70000a7bb000/INFO]: Async Tasks thread is ready.
+[2023-01-04.21:42:28.53.804 ][0x70000a83e000/INFO]: Console thread is ready
+System initialized in 391.357169ms.
+
+
+
+
+
+/Users/dreamtowards/Documents/YouRepository/Ethertia/run/bin/macos-x86-64/openal-info
+Available playback devices:
+    MacBook Pro Speakers
+    SONGREN W220
+    External Headphones
+Available capture devices:
+    Loopback Audio
+    MacBook Pro Microphone
+Default playback device: MacBook Pro Speakers
+Default capture device: Loopback Audio
+ALC version: 1.1
+
+** Info for device "MacBook Pro Speakers" **
+ALC version: 1.1
+ALC extensions:
+    ALC_ENUMERATE_ALL_EXT, ALC_ENUMERATION_EXT, ALC_EXT_CAPTURE,
+    ALC_EXT_DEDICATED, ALC_EXT_disconnect, ALC_EXT_EFX,
+    ALC_EXT_thread_local_context, ALC_SOFT_device_clock, ALC_SOFT_HRTF,
+    ALC_SOFT_loopback, ALC_SOFT_loopback_bformat, ALC_SOFT_output_limiter,
+    ALC_SOFT_output_mode, ALC_SOFT_pause_device, ALC_SOFT_reopen_device
+Available HRTFs:
+    Built-In HRTF
+Output channel mode: Stereo (basic)
+OpenAL vendor string: OpenAL Community
+OpenAL renderer string: OpenAL Soft
+OpenAL version string: 1.1 ALSOFT 1.22.2
+OpenAL extensions:
+    AL_EXT_ALAW, AL_EXT_BFORMAT, AL_EXT_DOUBLE, AL_EXT_EXPONENT_DISTANCE,
+    AL_EXT_FLOAT32, AL_EXT_IMA4, AL_EXT_LINEAR_DISTANCE, AL_EXT_MCFORMATS,
+    AL_EXT_MULAW, AL_EXT_MULAW_BFORMAT, AL_EXT_MULAW_MCFORMATS, AL_EXT_OFFSET,
+    AL_EXT_source_distance_model, AL_EXT_SOURCE_RADIUS, AL_EXT_STEREO_ANGLES,
+    AL_LOKI_quadriphonic, AL_SOFT_bformat_ex, AL_SOFTX_bformat_hoa,
+    AL_SOFT_block_alignment, AL_SOFT_callback_buffer,
+    AL_SOFTX_convolution_reverb, AL_SOFT_deferred_updates,
+    AL_SOFT_direct_channels, AL_SOFT_direct_channels_remix,
+    AL_SOFT_effect_target, AL_SOFT_events, AL_SOFT_gain_clamp_ex,
+    AL_SOFTX_hold_on_disconnect, AL_SOFT_loop_points, AL_SOFTX_map_buffer,
+    AL_SOFT_MSADPCM, AL_SOFT_source_latency, AL_SOFT_source_length,
+    AL_SOFT_source_resampler, AL_SOFT_source_spatialize,
+    AL_SOFTX_source_start_delay, AL_SOFT_UHJ
+Available resamplers:
+    Nearest
+    Linear *
+    Cubic
+    11th order Sinc (fast)
+    11th order Sinc
+    23rd order Sinc (fast)
+    23rd order Sinc
+EFX version: 1.0
+Max auxiliary sends: 2
+Supported filters:
+    Low-pass, High-pass, Band-pass
+Supported effects:
+    EAX Reverb, Reverb, Chorus, Distortion, Echo, Flanger, Frequency Shifter,
+    Vocal Morpher, Pitch Shifter, Ring Modulator, Autowah, Compressor,
+    Equalizer, Dedicated Dialog, Dedicated LFE
+
+Process finished with exit code 0
+
+
+
+
+/Users/dreamtowards/Documents/YouRepository/Ethertia/run/bin/macos-x86-64/Ethertia --assets ./src/assets;sth2;678
+[2023-01-05.00:16:04.888.497][0x113984dc0/INFO]: Init AL_1.1 ALSOFT 1.22.2 | OpenAL Soft @MacBook Pro Speakers .Stereo (basic) / Capture: Loopback Audio
+[2023-01-05.00:16:04.889.031][0x113984dc0/INFO]: HRTF: Built-In HRTF
+[2023-01-05.00:16:04.889.055][0x113984dc0/INFO]: EAX2: 0
+
+Process finished with exit code 0

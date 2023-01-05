@@ -8,6 +8,7 @@
 #include <ethertia/network/Network.h>
 
 #include <ethertia/network/packet/PacketChat.h>
+#include <ethertia/network/client/NetworkSystem.h>
 
 
 
@@ -17,13 +18,15 @@ public:
 
     static void initPackets() {
         BenchmarkTimer _tm;
+        Log::info("NetworkSystem and Packets Initializing.\1");
+
+        NetworkSystem::init();
 
         _InitPacketIds();
 
         INIT_PACKET_PROC(PacketChat, ClientConnectionProc::handlePacket);
 
 
-        Log::info("Packets Initialized.\1");
     }
 
     static void nil(CPacketLogin& p) {

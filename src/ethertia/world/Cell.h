@@ -14,6 +14,8 @@ public:
     u8 id;
     float density;
 
+    glm::vec3 fp;  // featurepoint cache. in-cell.
+
     Cell(u8 _id = 0, float _density = 0.0f) : id(_id), density(_density) {}
 
 };

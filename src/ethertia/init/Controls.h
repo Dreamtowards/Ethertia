@@ -14,7 +14,7 @@ public:
     {
         new std::thread([]()
         {
-            Log::info("Console thread is ready");
+            // Log::info("Console thread is ready");
 
             while (Ethertia::isRunning())
             {

@@ -5,6 +5,7 @@
 #ifndef ETHERTIA_SURFACENETSMESHGEN_H
 #define ETHERTIA_SURFACENETSMESHGEN_H
 
+#include <ethertia/world/Chunk.h>
 
 class SurfaceNetsMeshGen
 {
@@ -57,15 +58,16 @@ public:
 
 //        // pre eval feature points.
 //        vec3 fpTable[16][16][16];  // 16^3 * 3*4 = 49,152 bytes, 48kb
-//        for (int rx = 0; rx < 16; ++rx) {
-//            for (int ry = 0; ry < 16; ++ry) {
-//                for (int rz = 0; rz < 16; ++rz) {
-//                    vec3 rp(rx, ry, rz);
-//                    vec3 fp = featurepoint(rp, chunk);
-//                    fpTable[rx][ry][rz] = fp;
-//                }
-//            }
-//        }
+        for (int rx = 0; rx < 16; ++rx) {
+            for (int ry = 0; ry < 16; ++ry) {
+                for (int rz = 0; rz < 16; ++rz) {
+                    vec3 rp(rx, ry, rz);
+                    //vec3 fp = featurepoint(rp, chunk);
+                    //fpTable[rx][ry][rz] = fp;
+                    chunk->getCell(rp).fp.x = Mth::Inf;  // invalidate fp.
+                }
+            }
+        }
 
 
         for (int rx = 0; rx < 16; ++rx) {
@@ -89,7 +91,14 @@ public:
                                 vec3 quadp = rp + ADJACENT[axis_i][wind_vi];
                                 // todo: optim Cached Fp. if no eval fp, meshing only need 6ms per chunk instead of 15ms
                                 // vec3 fp = fpTable[(int)quadp.x][(int)quadp.y][(int)quadp.z];
-                                vec3 fp = featurepoint(quadp, chunk);
+
+                                vec3& fp = World::_GetCell(chunk, quadp).fp;
+                                if (fp.x == Mth::Inf) {
+                                    // Compute and !Assign to World
+                                    fp = featurepoint(quadp, chunk);
+                                }
+
+                                // vec3 fp = featurepoint(quadp, chunk);
 
                                 vbuf->addpos(quadp + fp);
 

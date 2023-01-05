@@ -31,9 +31,9 @@ class World
 
     ChunkGenerator* m_ChunkGenerator = nullptr;
 
+public:
     ChunkLoader* m_ChunkLoader = nullptr;
 
-public:
     btDynamicsWorld* m_DynamicsWorld = nullptr;
 
     entt::registry m_EnttRegistry;

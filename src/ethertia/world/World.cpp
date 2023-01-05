@@ -46,8 +46,9 @@ World::~World() {
     }
     // todo: delete entities.
 
-    delete m_DynamicsWorld->getConstraintSolver();
+    delete ((btCollisionDispatcher*)m_DynamicsWorld->getDispatcher())->getCollisionConfiguration();
     delete m_DynamicsWorld->getDispatcher();
+    delete m_DynamicsWorld->getConstraintSolver();
     delete m_DynamicsWorld->getBroadphase();  // why after dw
     delete m_DynamicsWorld;
 }

@@ -26,6 +26,8 @@
 #include <ethertia/init/Controls.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/command/Commands.h>
+#include <ethertia/world/ChunkLoader.h>
+#include <ethertia/audio/AudioEngine.h>
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -38,7 +40,8 @@
 
 int main()
 {
-    Ethertia::run();
+    AudioEngine aud{};
+    //Ethertia::run();
 
 
     return 0;
@@ -59,13 +62,13 @@ void Ethertia::start()
     MaterialTextures::init();
     GuiIngame::initGUIs();
     Commands::initCommands();
-
     Controls::initControls();
-    ChunkRenderProcessor::initWorkerThread();
-    m_AsyncScheduler.initWorkerThread("Async Tasks");
 
     ClientConnectionProc::initPackets();
-    NetworkSystem::init();
+
+    ChunkRenderProcessor::initWorkerThread();
+    m_AsyncScheduler.initWorkerThread();
+
 
 
     m_Player = new EntityPlayer();
@@ -186,6 +189,8 @@ void Ethertia::loadWorld()
 
     m_World = new World("saves/world1", 1342);
     m_World->addEntity(m_Player);
+
+    Log::info("Loading world @\"{}\" *{}", m_World->m_ChunkLoader->m_ChunkDir, m_World->m_Seed);
 }
 
 void Ethertia::unloadWorld()
