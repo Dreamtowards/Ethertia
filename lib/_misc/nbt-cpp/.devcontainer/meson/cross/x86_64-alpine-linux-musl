@@ -1,0 +1,11 @@
+[binaries]
+c = '/usr/bin/x86_64-alpine-linux-musl-gcc'
+cpp = '/usr/bin/x86_64-alpine-linux-musl-g++'
+ar = '/usr/bin/x86_64-alpine-linux-musl-gcc-ar'
+strip = '/usr/bin/x86_64-alpine-linux-musl-strip'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'

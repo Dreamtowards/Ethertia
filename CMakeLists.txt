@@ -38,6 +38,15 @@ if(WIN32)
     set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")  # disable warning for ENET
 endif()
 
+add_subdirectory(lib/yaml-cpp)
+link_libraries(yaml-cpp)
+
+
+set(NBT_BUILD_TESTS OFF)
+add_subdirectory(lib/nbt)
+link_libraries(nbt++)
+
+
 if(BUILD_SHARED_LIBS OR BUILD_DISTRO)
 
     set(GLFW_BUILD_EXAMPLES OFF)
@@ -45,7 +54,7 @@ if(BUILD_SHARED_LIBS OR BUILD_DISTRO)
     add_subdirectory(lib/glfw)
 
     add_subdirectory(lib/bullet3)
-    add_subdirectory(lib/fastnoise)
+    add_subdirectory(lib/fastnoise2)
     add_subdirectory(lib/entt)
     add_subdirectory(lib/openal-soft)
 
@@ -75,9 +84,11 @@ include_directories(lib/bullet3/src)
 include_directories(lib/json/include)
 include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
-include_directories(lib/fastnoise/include)
+include_directories(lib/fastnoise2/include)
 include_directories(lib/entt/src)
 include_directories(lib/openal-soft/include)
+include_directories(lib/yaml-cpp/include)
+include_directories(lib/nbt/include)
 
 
 add_executable(Ethertia
@@ -92,9 +103,4 @@ add_executable(Ethertia
 add_executable(DedicatedServer
         src/ethertia/network/DedicatedServer.cpp)
 
-
-
-
-if (WIN32)
-endif ()
 

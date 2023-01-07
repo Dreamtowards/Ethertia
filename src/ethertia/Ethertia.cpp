@@ -29,6 +29,11 @@
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/audio/AudioEngine.h>
 
+//#include <yaml-cpp/yaml.h>
+//#include <nbt.hpp>
+
+#include <nbt/nbt_tags.h>
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -40,8 +45,33 @@
 
 int main()
 {
-    Ethertia::run();
+    //Ethertia::run();
+//    YAML::Node node = YAML::LoadFile("settings.yml");
+//    Log::info(node["commands"]["/tp"].as<std::string>());
+//    {
+//        using namespace nbt;
+//
+//        nbt::tags::compound_tag root;
+//        root.put("UnifiedGrid", std::string("Sth"));
+//        root.put("ChunkX", 16);
+//        root.put("ChunkY", 16);
+//
+//        std::ofstream fout("test.nbt");
+//        fout << nbt::contexts::bedrock_disk << root;
+//    }
+    {
+        nbt::tag_compound mp;
+        mp.put("TheKey", "aText");
+        mp.put("ChunkX", 123);
+        mp.put("ChunkY", 567);
 
+        std::ofstream file("Test.nbt");
+        nbt::io::stream_writer writer(file);
+
+        writer.write_tag("TheKey", mp);
+
+
+    }
 
     return 0;
 }

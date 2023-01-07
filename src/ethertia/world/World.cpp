@@ -106,13 +106,13 @@ Chunk * World::provideChunk(glm::vec3 p)  {
     });
 
     // check populates
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
-    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
+//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
 
     return chunk;
 }
@@ -123,6 +123,7 @@ void World::unloadChunk(glm::vec3 p)  {
         throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
 
     Chunk* chunk = it->second;
+    assert(chunk);
     if (chunk) {
         removeEntity(chunk->m_MeshTerrain);
         removeEntity(chunk->m_MeshVegetable);

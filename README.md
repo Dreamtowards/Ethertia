@@ -172,11 +172,15 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
   - 2023-01-05
     - OGG Load, stb_vorbis.
     - AudioSource, AudioBuffer wrap.
-      
+    - Build OpenAL for Windows.
+  - 2023-01-06
+
+    - 高性能区块加载，现在看上去有点慢
+    - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
+    - binary 存储格式，类似于json的结构
     - World Storage 世界存储。  
       为什么你一直不做？因为你在纠结Octree体素结构。担心Uniform被弃用。
       但这些可以一键转换，而且Uniform仍然有简单性优势。无论如何体素数据只占其中一部分而已。
-    - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
         没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物
@@ -229,6 +233,8 @@ Used libs&tools: cpp, glfw, glm, stb, bulletphys
 
 /entity new mesh [obj_file]
 /entity diff <tex_file>
+/entity mesh <obj_file>
+/entity delete             # delete cursor target entity.
 ```
 
 <!--

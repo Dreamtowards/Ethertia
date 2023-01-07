@@ -32,19 +32,16 @@ public:
     }
     inline static bool dbg_ChunkUnload = false;
 
-    inline static std::thread* g_Thread = nullptr;
     inline static bool g_Processing = false;
 
     static void initWorkerThread()
     {
-        g_Thread = new std::thread([]()
+        new std::thread([]()
         {
             Log::info("Chunk Processor thread is ready.");
 
-            while (Ethertia::isRunning())
-            {
-                if (World* world = Ethertia::getWorld())
-                {
+            while (Ethertia::isRunning()) {
+                if (World* world = Ethertia::getWorld()) {
                     g_Processing = true;
                     std::lock_guard<std::mutex> guard(world->lock_ChunkList);
 
@@ -65,10 +62,11 @@ public:
                             if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
                         });
                     }
+                    g_Processing = false;
+                } else {
+                    g_Processing = false;
+                    std::this_thread::sleep_for(std::chrono::milliseconds (1));
                 }
-                g_Processing = false;
-
-                std::this_thread::sleep_for(std::chrono::milliseconds (1));
             }
         });
     }
@@ -160,7 +158,7 @@ public:
                     vec3 dif = vec3(dx, dy, dz) * 16.0f;
                     vec3 cp = base_chunkpos + dif;
 
-                    if (cp.y < -32 || cp.y > 128)
+                    if (cp.y < -16 || cp.y > 32)
                         continue;
 
                     Chunk* c = world->getLoadedChunk(cp);
@@ -179,12 +177,12 @@ public:
             BenchmarkTimer _tm(&g_DebugGenInfo.sumTimeGen, nullptr);  g_DebugGenInfo.numGen++;
             // Gen or Load
             nearest = world->provideChunk(nearest_pos_gen);
-            nearest->requestRemodel();
+            //nearest->requestRemodel();
 
             // CNS. 隐患：在密集生成区块时请求更新周围网格，可能造成过多的无用的互相更新。并且这里没有顾及到8个角
-            for (int i = 0; i < 6; ++i) {
-                world->requestRemodel(nearest_pos_gen + Mth::QFACES[i] * 16.0f, false);
-            }
+//            for (int i = 0; i < 6; ++i) {
+//                world->requestRemodel(nearest_pos_gen + Mth::QFACES[i] * 16.0f, false);
+//            }
         }
 
         return nearest;

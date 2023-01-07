@@ -26,7 +26,7 @@ public:
 
     bool populated = false;
 
-    bool needUpdateModel = true;
+    bool needUpdateModel = false;
 
     // VertexData positions. for fix Normal Smoothing at Chunk Boundary.
     // not use Physics Collision triangle positions yet, it's struct too complicated, BVH triangles, maybe later.
@@ -54,34 +54,34 @@ public:
 
     }
 
-    Cell& getCell(int rx, int ry, int rz) {
+    inline Cell& getCell(int rx, int ry, int rz) {
         return blocks[blockidx(rx, ry, rz)];
     }
-    Cell& getCell(glm::ivec3 rp) {
+    inline Cell& getCell(glm::ivec3 rp) {
         return getCell(rp.x, rp.y, rp.z);
     }
 
-    void setCell(int rx, int ry, int rz, const Cell& c) {
+    inline void setCell(int rx, int ry, int rz, const Cell& c) {
         blocks[blockidx(rx,ry,rz)] = c;
     }
-    void setCell(glm::ivec3 rp, const Cell& c) {
+    inline void setCell(glm::ivec3 rp, const Cell& c) {
         setCell(rp.x, rp.y, rp.z, c);
     }
 
-    static glm::ivec3 rpos(glm::vec3 p) {
+    inline static glm::ivec3 rpos(glm::vec3 p) {
         return glm::ivec3(Mth::floor(p.x) & 15,
                           Mth::floor(p.y) & 15,
                           Mth::floor(p.z) & 15);
     }
 
-    static inline int blockidx(int x, int y, int z) {
+    inline static int blockidx(int x, int y, int z) {
         // assert(x >= 0 && x < 16 && y >= 0 && y < 16 && z >= 0 && z < 16);
         return x << 8 | y << 4 | z;
     }
-    static inline glm::vec3 chunkpos(glm::vec3 p) {
+    inline static glm::vec3 chunkpos(glm::vec3 p) {
         return Mth::floor(p, SIZE);
     }
-    static inline bool validchunkpos(glm::vec3 chunkpos) {
+    inline static bool validchunkpos(glm::vec3 chunkpos) {
         return Mth::mod(chunkpos.x, 16.0f) == 0 &&
                Mth::mod(chunkpos.y, 16.0f) == 0 &&
                Mth::mod(chunkpos.z, 16.0f) == 0;
