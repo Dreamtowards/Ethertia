@@ -23,8 +23,6 @@ class Chunk;
 class ChunkGenerator;
 class ChunkLoader;
 
-#define LOCK_GUARD(x) std::lock_guard<std::mutex> _guard(x);
-
 class World
 {
     std::unordered_map<glm::vec3, Chunk*> m_Chunks;
@@ -41,7 +39,6 @@ public:
     entt::registry m_EnttRegistry;
 
     std::mutex lock_ChunkList;
-    std::mutex m_LockDynamicsWorld;
     std::mutex m_LockEntities;
 
     uint32_t m_Seed = 0;

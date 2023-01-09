@@ -4,6 +4,6 @@
 cmake-build-debug/*
 cmake-build-release/*
 
-run/bin/macos-x86-64/Ethertia
+run/bin/macos-x86-64/*
 
 run/cache/*.png

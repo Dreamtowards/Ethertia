@@ -82,6 +82,7 @@ public:
     static float getPreciseTime();
     static float getAspectRatio();
     static float getDelta();
+    static bool inMainThread() { return m_Scheduler.inThread(); }
 
     static RenderEngine* getRenderEngine() { return m_RenderEngine; }
     static Window* getWindow() { return m_Window; }
@@ -95,6 +96,7 @@ public:
     static BrushCursor& getBrushCursor() { return m_Cursor; }
     static Camera* getCamera();
     static Profiler& getProfiler() { return m_Profiler; }
+
 
 
 

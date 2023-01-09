@@ -13,12 +13,14 @@
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/Log.h>
 
+#define LOCK_GUARD(x) std::lock_guard<std::mutex> _guard(x);
+
 class Scheduler
 {
-    std::deque<std::function<void()>> m_Tasks;
-//    std::thread::id m_ThreadId{}; std::thread::id th = std::this_thread::get_id()
+    using TaskFunc = std::function<void()>;
 
-    // std::mutex lock;  // needs?
+    std::deque<TaskFunc> m_Tasks;
+    std::mutex m_LockTasks;
 
     bool m_Stopped = false;
 
@@ -43,11 +45,16 @@ public:
         {
             {
                 BenchmarkTimer _tm(&duration, nullptr);
-                auto& task = m_Tasks.front();
+                TaskFunc task;
+                {
+                    LOCK_GUARD(m_LockTasks);  // Lock too long.
+                    task = m_Tasks.front();
+                    m_Tasks.pop_front();
+                }
 
                 task();
 
-                m_Tasks.pop_front();  // pop after executed. or might destroy lambda captured variables.
+                // m_Tasks.pop_front();  // pop after executed. or might destroy lambda captured variables.
                 numTasks++;
             }
 
@@ -59,12 +66,18 @@ public:
         return numTasks;
     }
 
-    std::deque<std::function<void()>>& getTasks() {
+    const std::deque<std::function<void()>>& getTasks() {
+        LOCK_GUARD(m_LockTasks);
         return m_Tasks;
     }
 
     void addTask(const std::function<void()>& task) {
+        LOCK_GUARD(m_LockTasks);
         m_Tasks.push_back(task);
+    }
+
+    bool inThread() {
+        return std::this_thread::get_id() == m_ThreadId;
     }
 
     void initThread()
@@ -76,9 +89,11 @@ public:
 
             while (!m_Stopped)
             {
-                processTasks(1);
+                int n = processTasks(1);
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));  // prevents high frequency queue query while no task.
+                if (n == 0) {
+                    Timer::sleep_for(1);  // prevents high frequency queue query while no task.
+                }
             }
         });
     }

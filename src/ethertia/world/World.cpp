@@ -107,12 +107,12 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     std::lock_guard<std::mutex> guard(lock_ChunkList);
     m_Chunks[chunkpos] = chunk;
 
-//    Ethertia::getScheduler()->addTask([this, chunk]() {
+    Ethertia::getScheduler()->addTask([this, chunk]() {
 
 
         addEntity(chunk->m_MeshTerrain);
         addEntity(chunk->m_MeshVegetable);
-//    });
+    });
 
     // check populates
 //    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
@@ -160,7 +160,7 @@ Chunk* World::getLoadedChunk(glm::vec3 p)  {
 
 
 void World::addEntity(Entity* e)  {
-    //assert(std::this_thread::get_id() == Ethertia::getScheduler()->m_ThreadId);  // Ensure main thread.
+    assert(Ethertia::inMainThread());  // Ensure main thread.
     assert(e != nullptr);
     int find = Collections::find(m_Entities, e);
     assert(find == -1);
@@ -172,18 +172,16 @@ void World::addEntity(Entity* e)  {
 
     auto old_grav = e->m_Rigidbody->getGravity(); // fix little stupid auto-change gravity
 
-    {
-        LOCK_GUARD(m_LockDynamicsWorld);
-
-        // add entity bodies to DynamicsWorld.
-        e->onLoad(m_DynamicsWorld);
-    }
+    // add entity bodies to DynamicsWorld.
+    e->onLoad(m_DynamicsWorld);
 
     e->m_Rigidbody->setGravity(old_grav);
 }
 
 void World::removeEntity(Entity* e)  {
-    assert(false);
+    assert(Ethertia::inMainThread());
+    assert(e);
+
     Collections::erase(m_Entities, e);
     e->onUnload(m_DynamicsWorld);
 

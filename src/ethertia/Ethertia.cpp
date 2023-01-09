@@ -120,7 +120,6 @@ void Ethertia::runMainLoop()
         {
             PROFILE("Phys");
             m_Player->m_PrevVelocity = m_Player->m_Rigidbody->getLinearVelocity();
-            LOCK_GUARD(m_World->m_LockDynamicsWorld)
             m_World->m_DynamicsWorld->stepSimulation(getDelta());
 
             m_World->processEntityCollision();
