@@ -109,8 +109,8 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     m_Chunks[chunkpos] = chunk;
 
     Ethertia::getScheduler()->addTask([this, chunk]() {
-        if (Ethertia::getWorld() == nullptr)
-            return; // CNS 不是解决之道
+//        if (Ethertia::getWorld() == nullptr)
+//            return; // CNS 不是解决之道
 
 
         addEntity(chunk->m_MeshTerrain);
@@ -146,9 +146,16 @@ void World::unloadChunk(glm::vec3 p)  {
         m_ChunkLoader->saveChunk(chunk);
     }
 
-    removeEntity(chunk->m_MeshTerrain);
-    removeEntity(chunk->m_MeshVegetable);
-    delete chunk;
+
+    Ethertia::getScheduler()->addTask([this, chunk]()
+    {
+        removeEntity(chunk->m_MeshTerrain);
+        removeEntity(chunk->m_MeshVegetable);
+        delete chunk;
+    }, [chunk]() {
+        delete chunk;
+    });
+
 }
 
 Chunk* World::getLoadedChunk(glm::vec3 p)  {

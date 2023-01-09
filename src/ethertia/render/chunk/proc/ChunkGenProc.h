@@ -12,43 +12,43 @@ class ChunkGenProc
 public:
     using vec3 = glm::vec3;
 
+    inline static bool g_Processing = false;
+
     static void initThread() {
-    new std::thread([]()
-    {
-        while (Ethertia::isRunning())
+        new std::thread([]()
         {
-            World* world = Ethertia::getWorld();
-            if (!world) {
-                Timer::sleep_for(1);
-                continue;
-            }
-
-            vec3 chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
-
-            if (chunkpos.x != Mth::Inf) {
-                //BENCHMARK_TIMER(&ChunkProcStat::GEN.time, nullptr);  ChunkProcStat::GEN.num++;
-
-                // Gen or Load.
-                Chunk* chunk = world->provideChunk(chunkpos);
-
-                chunk->requestRemodel();
-
-                // CNS. 隐患：在密集生成区块时请求更新周围网格，可能造成过多的无用的互相更新。并且这里没有顾及到8个角
-//            for (int i = 0; i < 6; ++i) {
-//                world->requestRemodel(nearest_pos_gen + Mth::QFACES[i] * 16.0f, false);
-//            }
-            }
-
-            // Unload Chunks
-            Ethertia::getScheduler()->addTask([=]()
+            while (Ethertia::isRunning())
             {
-                if (Ethertia::getWorld() == nullptr) return ;  // CNS 不是解决之道，或许应该清空 Task
-                int numUnloaded = unloadChunks_OutOfViewDistance(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
-                if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
-            });
+                World* world = Ethertia::getWorld();
+                Timer::sleep_for(1);
+                if (!world) {
+                    continue;
+                }
+                g_Processing = true;
 
-        }
-    });
+                vec3 chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+
+                //if (chunkpos.y >=0 && chunkpos.y <= 48)
+                if (chunkpos.x != Mth::Inf)
+                {
+                    // Gen or Load.
+                    Chunk* chunk = world->provideChunk(chunkpos);
+
+                    chunk->invalidateMesh();
+
+                    // CNS. 隐患：在密集生成区块时请求更新周围网格，可能造成过多的无用的互相更新。并且这里没有顾及到8个角
+    //            for (int i = 0; i < 6; ++i) {
+    //                world->requestRemodel(nearest_pos_gen + Mth::QFACES[i] * 16.0f, false);
+    //            }
+                }
+
+                // Unload Chunks
+                int n = _UnloadChunks(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+                if (n) { Log::info("Unloaded {} Chunks", n); }
+
+                g_Processing = false;
+            }
+        });
     }
 
     static vec3 findNearestNotLoadedChunk(World* world, vec3 center, int viewDistance) {
@@ -61,6 +61,7 @@ public:
         {
             float dist = glm::length2(rel_chunkpos);
             vec3 chunkpos = origin_chunkpos + rel_chunkpos;
+            //if (chunkpos.y < -16 || chunkpos.y > 50) return ;
             if (dist < minDist && world->getLoadedChunk(chunkpos) == nullptr) {
                 minDist = dist;
                 nil_chunkpos = chunkpos;
@@ -69,12 +70,12 @@ public:
         return nil_chunkpos;
     }
 
-    static int unloadChunks_OutOfViewDistance(World* world, vec3 center, int viewDistance) {
+    static int _UnloadChunks(World* world, vec3 center, int viewDistance) {
         vec3 cpos = Chunk::chunkpos(center);
         int lim = viewDistance * 16;
 
         std::vector<glm::vec3> unloads;  // separate remove-op from iterate
-        for (auto it : world->getLoadedChunks()) {
+        for (auto it : world->getLoadedChunks()) {  // todo: Not Lock yet, need lock?
             vec3 p = it.first;
             if (abs(p.x-cpos.x) > lim ||
                 abs(p.y-cpos.y) > lim ||

@@ -18,8 +18,12 @@
 class Scheduler
 {
     using TaskFunc = std::function<void()>;
+    struct Task {
+        TaskFunc taskFunc;
+        TaskFunc cancelFunc;  // exec if force terminated the scheduler
+    };
 
-    std::deque<TaskFunc> m_Tasks;
+    std::deque<Task> m_Tasks;
     std::mutex m_LockTasks;
 
     bool m_Stopped = false;
@@ -39,23 +43,23 @@ public:
     int processTasks(float timeout)
     {
         float duration = 0;
-        int numTasks = 0;
+        int numTasksProcessed = 0;
 
-        while (!m_Tasks.empty())
+        while (numTasks())  // numTasks() is locked, thread-safe.
         {
             {
                 BenchmarkTimer _tm(&duration, nullptr);
-                TaskFunc task;
+                TaskFunc taskfunc;
                 {
                     LOCK_GUARD(m_LockTasks);  // Lock too long.
-                    task = m_Tasks.front();
+                    taskfunc = m_Tasks.front().taskFunc;
                     m_Tasks.pop_front();
                 }
 
-                task();
+                taskfunc();
 
                 // m_Tasks.pop_front();  // pop after executed. or might destroy lambda captured variables.
-                numTasks++;
+                numTasksProcessed++;
             }
 
             if (duration > timeout) {  // Log::info("Break. done {}, over {}s.", numTasks, duration-timeout);
@@ -63,7 +67,7 @@ public:
             }
         }
 
-        return numTasks;
+        return numTasksProcessed;
     }
 
     size_t numTasks() {
@@ -71,12 +75,26 @@ public:
         return m_Tasks.size();
     }
 
-    void addTask(const std::function<void()>& task) {
+    void addTask(const TaskFunc& taskfunc, const TaskFunc& cancelfunc = [](){}) {
         LOCK_GUARD(m_LockTasks);
-        m_Tasks.push_back(task);
+        m_Tasks.push_back({
+            taskfunc,
+            cancelfunc
+        });
     }
 
-    bool inThread() {
+    void clearTasks() {
+        LOCK_GUARD(m_LockTasks);
+        while (!m_Tasks.empty()) {
+            TaskFunc& cancelfunc = m_Tasks.front().cancelFunc;
+
+            cancelfunc();
+
+            m_Tasks.pop_front();
+        }
+    }
+
+    [[nodiscard]] bool inThread() const {
         return std::this_thread::get_id() == m_ThreadId;
     }
 

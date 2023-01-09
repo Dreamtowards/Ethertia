@@ -27,9 +27,8 @@ public:
             while (Ethertia::isRunning())
             {
                 World* world = Ethertia::getWorld();
-
+                Timer::sleep_for(1);
                 if (!world) {
-                    Timer::sleep_for(1);
                     continue;
                 }
                 g_Processing = true;
@@ -90,27 +89,35 @@ public:
 //        Loader::saveOBJ("test_chunk.obj", vbufTerrain->vertexCount(), vbufTerrain->positions.data());
 
 
-        auto* meshTerrain =   vbufTerrain->vertexCount()   == 0 ? nullptr :
-                EntityMesh::createMeshShape(vbufTerrain->vertexCount(), vbufTerrain->positions.data());
+        btBvhTriangleMeshShape* meshTerrain =
+            vbufTerrain->vertexCount()   == 0 ? nullptr :
+            EntityMesh::createMeshShape(vbufTerrain->vertexCount(), vbufTerrain->positions.data());
 
-        auto* meshVegetable = vbufVegetable->vertexCount() == 0 ? nullptr :
-                EntityMesh::createMeshShape(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
+        btBvhTriangleMeshShape* meshVegetable =
+            vbufVegetable->vertexCount() == 0 ? nullptr :
+            EntityMesh::createMeshShape(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
 
 
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
             BenchmarkTimer _tm(&ChunkProcStat::EMIT.time, nullptr);  ++ChunkProcStat::EMIT.num;
 
-            if (Ethertia::getWorld())  // task may defer to world unloaded. todo BUG: different world
-            {
-                chunk->m_MeshTerrain->setMesh(meshTerrain);
-                chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
+//            if (Ethertia::getWorld())  // task may defer to world unloaded. todo BUG: different world
+//            {
+//
+//            }
+            chunk->m_MeshTerrain->setMesh(meshTerrain);
+            chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
 
-                chunk->m_MeshVegetable->setMesh(meshVegetable);
-                chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
-            }
+            chunk->m_MeshVegetable->setMesh(meshVegetable);
+            chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
 
             delete vbufTerrain;
             delete vbufVegetable;
+        }, [=](){
+            delete vbufTerrain;
+            delete vbufVegetable;
+            delete meshTerrain;
+            delete meshVegetable;
         });
     }
 

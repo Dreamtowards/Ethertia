@@ -210,6 +210,7 @@ void Ethertia::destroy()
 void Ethertia::loadWorld()
 {
     assert(m_World == nullptr);
+    assert(Ethertia::getScheduler()->numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
 
     m_World = new World("saves/world1", 1342);
     m_World->addEntity(m_Player);
@@ -225,6 +226,9 @@ void Ethertia::unloadWorld()
     m_World = nullptr;  // set state unloaded. prevents access from other threads.
 
     Timer::wait_for(&ChunkMeshProc::g_Processing, false);
+    Timer::wait_for(&ChunkGenProc::g_Processing, false);
+
+    Ethertia::getScheduler()->clearTasks();  // clear after other threads, make sure no addTask() anymore.
 
     delete _world;
 }
