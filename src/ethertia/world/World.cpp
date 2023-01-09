@@ -99,6 +99,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     }
 
     if (!chunk) {
+        BENCHMARK_TIMER(&ChunkProcStat::GEN.time, nullptr);  ++ChunkProcStat::GEN.num;
         chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
     }
 
@@ -108,6 +109,8 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     m_Chunks[chunkpos] = chunk;
 
     Ethertia::getScheduler()->addTask([this, chunk]() {
+        if (Ethertia::getWorld() == nullptr)
+            return; // CNS 不是解决之道
 
 
         addEntity(chunk->m_MeshTerrain);
@@ -236,6 +239,7 @@ Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {
 
 
 void World::populate(World* world, glm::vec3 chunkpos) {
+    BENCHMARK_TIMER(&ChunkProcStat::GEN_POP.time, nullptr);  ++ChunkProcStat::GEN_POP.num;
     float noiseSand[16*16];
     float noiseFern[16*16];
 

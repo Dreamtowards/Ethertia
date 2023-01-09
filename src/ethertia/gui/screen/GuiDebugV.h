@@ -214,7 +214,7 @@ public:
                         ChunkProcStat::EMIT.str(),
                         ChunkProcStat::SAVE.str(),
                         ChunkProcStat::LOAD.str(),
-                        Ethertia::getScheduler()->getTasks().size(), Ethertia::getAsyncScheduler()->getTasks().size(),
+                        Ethertia::getScheduler()->numTasks(), Ethertia::getAsyncScheduler()->numTasks(),
                         dt, Mth::floor(1.0f/dt),
                         Strings::size_str(MemoryTrack::g_MemoryPresent()), Strings::size_str(MemoryTrack::g_MemoryAllocated), Strings::size_str(MemoryTrack::g_MemoryFreed));
             }

@@ -26,6 +26,7 @@ public:
 
     inline static ChunkProcStat::TimeAndNum
                              GEN,  // Chunk Gen
+                             GEN_POP,  // Chunk Populate
                              MESH, // Chunk Mesh Gen
                              EMIT, // Chunk Mesh Upload
                              LOAD, // Load from disk

@@ -29,7 +29,6 @@ public:
                 World* world = Ethertia::getWorld();
 
                 if (!world) {
-                    g_Processing = false;
                     Timer::sleep_for(1);
                     continue;
                 }
@@ -41,6 +40,8 @@ public:
                 {
                     meshChunk_Upload(chunk);
                 }
+
+                g_Processing = false;
             }
         });
     }
@@ -101,15 +102,11 @@ public:
 
             if (Ethertia::getWorld())  // task may defer to world unloaded. todo BUG: different world
             {
-                if (vbufTerrain->vertexCount() > 0) {
-                    chunk->m_MeshTerrain->setMesh(meshTerrain);
-                    chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
-                }
+                chunk->m_MeshTerrain->setMesh(meshTerrain);
+                chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
 
-                if (vbufVegetable->vertexCount() > 0) {
-                    chunk->m_MeshVegetable->setMesh(meshVegetable);
-                    chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
-                }
+                chunk->m_MeshVegetable->setMesh(meshVegetable);
+                chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
             }
 
             delete vbufTerrain;

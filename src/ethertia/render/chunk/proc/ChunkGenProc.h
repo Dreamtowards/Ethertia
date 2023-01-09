@@ -40,11 +40,12 @@ public:
             }
 
             // Unload Chunks
-//            Ethertia::getScheduler()->addTask([=]()
-//            {
-//                int numUnloaded = unloadChunks_OutOfViewDistance(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
-//                if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
-//            });
+            Ethertia::getScheduler()->addTask([=]()
+            {
+                if (Ethertia::getWorld() == nullptr) return ;  // CNS 不是解决之道，或许应该清空 Task
+                int numUnloaded = unloadChunks_OutOfViewDistance(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+                if (numUnloaded) { Log::info("Unloaded {} Chunks", numUnloaded); }
+            });
 
         }
     });

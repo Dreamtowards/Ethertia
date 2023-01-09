@@ -66,9 +66,9 @@ public:
         return numTasks;
     }
 
-    const std::deque<std::function<void()>>& getTasks() {
+    size_t numTasks() {
         LOCK_GUARD(m_LockTasks);
-        return m_Tasks;
+        return m_Tasks.size();
     }
 
     void addTask(const std::function<void()>& task) {
@@ -89,7 +89,7 @@ public:
 
             while (!m_Stopped)
             {
-                int n = processTasks(1);
+                int n = processTasks(1.0f);
 
                 if (n == 0) {
                     Timer::sleep_for(1);  // prevents high frequency queue query while no task.
