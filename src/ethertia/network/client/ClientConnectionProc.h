@@ -17,7 +17,7 @@ class ClientConnectionProc
 public:
 
     static void initPackets() {
-        BENCHMARK_TIMER;
+        BENCHMARK_TIMER(void);
         Log::info("NetworkSystem and Packets initializing.\1");
 
         NetworkSystem::init();

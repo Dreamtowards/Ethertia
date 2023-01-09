@@ -23,6 +23,8 @@ class Scheduler
     bool m_Stopped = false;
 
 public:
+    std::thread::id m_ThreadId;
+
     Scheduler() {}
 
     ~Scheduler() {
@@ -65,10 +67,11 @@ public:
         m_Tasks.push_back(task);
     }
 
-    void initWorkerThread()
+    void initThread()
     {
         new std::thread([this]()
         {
+            m_ThreadId = std::this_thread::get_id();
             // Log::info("Async Tasks thread is ready.", workerName);
 
             while (!m_Stopped)

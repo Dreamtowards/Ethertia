@@ -19,7 +19,8 @@
 #include <ethertia/util/Strings.h>
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/render/chunk/ChunkRenderProcessor.h>
+#include <ethertia/render/chunk/proc/ChunkMeshProc.h>
+#include <ethertia/render/chunk/proc/ChunkGenProc.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/network/client/ClientConnectionProc.h>
 #include <ethertia/network/client/NetworkSystem.h>
@@ -30,9 +31,7 @@
 #include <ethertia/audio/AudioEngine.h>
 
 //#include <yaml-cpp/yaml.h>
-//#include <nbt.hpp>
-
-#include <nbt/nbt_tags.h>
+//#include <nbt/nbt_tags.h>
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -45,33 +44,8 @@
 
 int main()
 {
-    //Ethertia::run();
-//    YAML::Node node = YAML::LoadFile("settings.yml");
-//    Log::info(node["commands"]["/tp"].as<std::string>());
-//    {
-//        using namespace nbt;
-//
-//        nbt::tags::compound_tag root;
-//        root.put("UnifiedGrid", std::string("Sth"));
-//        root.put("ChunkX", 16);
-//        root.put("ChunkY", 16);
-//
-//        std::ofstream fout("test.nbt");
-//        fout << nbt::contexts::bedrock_disk << root;
-//    }
-    {
-        nbt::tag_compound mp;
-        mp.put("TheKey", "aText");
-        mp.put("ChunkX", 123);
-        mp.put("ChunkY", 567);
+    Ethertia::run();
 
-        std::ofstream file("Test.nbt");
-        nbt::io::stream_writer writer(file);
-
-        writer.write_tag("TheKey", mp);
-
-
-    }
 
     return 0;
 }
@@ -79,7 +53,7 @@ int main()
 
 void Ethertia::start()
 {
-    BenchmarkTimer _tm(nullptr, "System initialized in {}.\n");
+    BENCHMARK_TIMER(nullptr, "System initialized in {}.\n");
     Settings::loadSettings();
 
     m_Running = true;
@@ -96,8 +70,10 @@ void Ethertia::start()
 
     ClientConnectionProc::initPackets();
 
-    ChunkRenderProcessor::initWorkerThread();
-    m_AsyncScheduler.initWorkerThread();
+    ChunkMeshProc::initThread();
+    ChunkGenProc::initThread();
+    m_AsyncScheduler.initThread();
+    m_Scheduler.m_ThreadId = std::this_thread::get_id();
 
 
     m_Player = new EntityPlayer();
@@ -144,6 +120,7 @@ void Ethertia::runMainLoop()
         {
             PROFILE("Phys");
             m_Player->m_PrevVelocity = m_Player->m_Rigidbody->getLinearVelocity();
+            LOCK_GUARD(m_World->m_LockDynamicsWorld)
             m_World->m_DynamicsWorld->stepSimulation(getDelta());
 
             m_World->processEntityCollision();
@@ -248,7 +225,7 @@ void Ethertia::unloadWorld()
     World* _world = m_World;
     m_World = nullptr;  // set state unloaded. prevents access from other threads.
 
-    Timer::wait_for(&ChunkRenderProcessor::g_Processing, false);
+    Timer::wait_for(&ChunkMeshProc::g_Processing, false);
 
     delete _world;
 }

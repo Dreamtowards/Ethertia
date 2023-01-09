@@ -12,8 +12,9 @@
 #include <ethertia/render/renderer/EntityRenderer.h>
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/render/chunk/ChunkRenderProcessor.h>
 #include <ethertia/util/MemoryTrack.h>
+#include <ethertia/render/chunk/proc/ChunkProcStat.h>
+#include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 
 class GuiDebugV : public GuiCollection
 {
@@ -92,7 +93,7 @@ public:
                 btnClearProfilerData->addOnClickListener([](OnReleased* e) {
                     Ethertia::getProfiler().sectionToBeClear = &Ethertia::getProfiler().m_RootSection.find("Frame");
 
-                    ChunkRenderProcessor::clearDebugChunkLoadInfo();
+                    ChunkProcStat::reset();
                 });
             }
 
@@ -108,7 +109,7 @@ public:
 
             opts->addGui(new GuiCheckBox("R/No Vegetable", &RenderEngine::dbg_NoVegetable));
             opts->addGui(new GuiCheckBox("D/Frame Profiler", &dbgDrawFrameProfiler));
-            opts->addGui(new GuiCheckBox("D/Chunk Unload", &ChunkRenderProcessor::dbg_ChunkUnload));
+            opts->addGui(new GuiCheckBox("D/Chunk Unload", &ChunkMeshProc::dbg_ChunkUnload));
 
             opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
             opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
@@ -190,8 +191,6 @@ public:
         glPolygonMode(GL_FRONT_AND_BACK, dbgPolyLine ? GL_LINE : GL_FILL);
 
         if (dbgText) {
-            ChunkRenderProcessor::ChunkLoadInfo& cinfo = ChunkRenderProcessor::g_DebugGenInfo;
-
             float dt = Ethertia::getDelta();
             static std::string dbg_s;
             if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 0.1f)) {
@@ -200,17 +199,21 @@ public:
                 dbg_s = Strings::fmt(
                         "cam p: {}, len: {}, spd {}mps {}kph. ground: {}, CPs {}.\n"
                         "E: {}/{}\n"
-                        "ChunkGen ({} {}ms, avg {}ms), \n"
-                        "ChunkMesh({} {}ms, avg {}ms)\n"
-                        "ChunkEmit({} {}ms, avg {}ms)\n"
+                        "ChunkGen {}\n"
+                        "ChunkMesh{}\n"
+                        "ChunkEmit{}\n"
+                        "ChunkSave{}\n"
+                        "ChunkLoad{}\n"
                         "task {}, async {}\n"
                         "dt: {}, {}fps\n"
                         "mem: {}, alloc {}, freed: {}",
                         glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
                         world ? rde->g_NumEntityRendered : 0, world ? world->getEntities().size() : 0,
-                        cinfo.numGen, cinfo.sumTimeGen * 1000, (cinfo.sumTimeGen / cinfo.numGen * 1000),
-                        cinfo.numMesh, cinfo.sumTimeMesh * 1000, (cinfo.sumTimeMesh / cinfo.numMesh * 1000),
-                        cinfo.numEmit, cinfo.sumTimeEmit * 1000, (cinfo.sumTimeEmit / cinfo.numEmit * 1000),
+                        ChunkProcStat::GEN.str(),
+                        ChunkProcStat::MESH.str(),
+                        ChunkProcStat::EMIT.str(),
+                        ChunkProcStat::SAVE.str(),
+                        ChunkProcStat::LOAD.str(),
                         Ethertia::getScheduler()->getTasks().size(), Ethertia::getAsyncScheduler()->getTasks().size(),
                         dt, Mth::floor(1.0f/dt),
                         Strings::size_str(MemoryTrack::g_MemoryPresent()), Strings::size_str(MemoryTrack::g_MemoryAllocated), Strings::size_str(MemoryTrack::g_MemoryFreed));

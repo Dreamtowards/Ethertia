@@ -11,7 +11,7 @@
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Strings.h>
 
-#define BENCHMARK_TIMER BenchmarkTimer _tm;
+#define BENCHMARK_TIMER(x, ...) BenchmarkTimer _tm(x, ##__VA_ARGS__);
 
 class BenchmarkTimer
 {

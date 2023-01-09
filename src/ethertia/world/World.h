@@ -23,6 +23,8 @@ class Chunk;
 class ChunkGenerator;
 class ChunkLoader;
 
+#define LOCK_GUARD(x) std::lock_guard<std::mutex> _guard(x);
+
 class World
 {
     std::unordered_map<glm::vec3, Chunk*> m_Chunks;
@@ -39,6 +41,8 @@ public:
     entt::registry m_EnttRegistry;
 
     std::mutex lock_ChunkList;
+    std::mutex m_LockDynamicsWorld;
+    std::mutex m_LockEntities;
 
     uint32_t m_Seed = 0;
 
@@ -65,7 +69,7 @@ public:
 
     Chunk* getLoadedChunk(glm::vec3 p);
 
-    std::unordered_map<glm::vec3, Chunk*>& getLoadedChunks() {
+    const std::unordered_map<glm::vec3, Chunk*>& getLoadedChunks() {
         return m_Chunks;
     }
 
@@ -90,7 +94,7 @@ public:
 
 
 
-    bool raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n, void** usrptr);
+    bool raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n, btCollisionObject** obj) const;
 
 
     void tick() {

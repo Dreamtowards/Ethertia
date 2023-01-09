@@ -1,4 +1,4 @@
-
+// found at internet.
 #ifndef NBT_EXPORT_H
 #define NBT_EXPORT_H
 

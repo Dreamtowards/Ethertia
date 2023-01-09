@@ -38,10 +38,13 @@ if(WIN32)
     set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")  # disable warning for ENET
 endif()
 
+
+
 add_subdirectory(lib/yaml-cpp)
 link_libraries(yaml-cpp)
 
 
+#set(NBT_BUILD_SHARED ON)
 set(NBT_BUILD_TESTS OFF)
 add_subdirectory(lib/nbt)
 link_libraries(nbt++)

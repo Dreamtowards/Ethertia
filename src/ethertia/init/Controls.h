@@ -136,12 +136,16 @@ public:
             if (cursor.keepTracking && Ethertia::getWorld()) {
                 glm::vec3 p, n;
 
-                void* usrptr = nullptr;
-                cursor.hit = Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n, &usrptr);
+                btCollisionObject* obj = nullptr;
+                cursor.hit = Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n, &obj);
 
-                cursor.position = cursor.hit ? p : glm::vec3(0.0f);
-
-                cursor.hitEntity = (Entity*)usrptr;
+                if (cursor.hit) {
+                    cursor.position = p;
+                    cursor.hitEntity = (Entity*)obj->getUserPointer();
+                } else {
+                    cursor.position = {};
+                    cursor.hitEntity = nullptr;
+                }
             }
         }
 

@@ -77,7 +77,7 @@ public:
                     entity->setPosition(player->getPosition());
 
                     VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr("entity/plane.obj"));
-                    entity->setMesh(vbuf->vertexCount(), vbuf->positions.data());
+                    entity->setMesh(EntityMesh::createMeshShape(vbuf->vertexCount(), vbuf->positions.data()));
                     entity->updateModel(Loader::loadModel(vbuf));
 
                     Ethertia::getWorld()->addEntity(entity);
@@ -105,7 +105,7 @@ public:
 
                     VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadFileStr(path));
                     eMesh->updateModel(Loader::loadModel(vbuf));
-                    eMesh->setMesh(vbuf->vertexCount(), vbuf->positions.data());
+                    eMesh->setMesh(EntityMesh::createMeshShape(vbuf->vertexCount(), vbuf->positions.data()));
 
                     Ethertia::notifyMessage("Mesh updated.");
                 }

@@ -134,7 +134,7 @@ public:
 
     AudioEngine()
     {
-        BENCHMARK_TIMER;
+        BENCHMARK_TIMER(void);
 
         const char* deviceName = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
         m_Device = alcOpenDevice(deviceName);

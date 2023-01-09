@@ -26,7 +26,7 @@ public:
 
     bool populated = false;
 
-    bool needUpdateModel = false;
+    bool m_MeshInvalid = false;  // invalidMesh
 
     // VertexData positions. for fix Normal Smoothing at Chunk Boundary.
     // not use Physics Collision triangle positions yet, it's struct too complicated, BVH triangles, maybe later.
@@ -96,7 +96,10 @@ public:
     }
 
     void requestRemodel() {
-        needUpdateModel = true;
+        m_MeshInvalid = true;
+    }
+    void invalidateMesh() {
+        m_MeshInvalid = true;
     }
 
 };

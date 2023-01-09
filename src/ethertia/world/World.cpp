@@ -16,6 +16,7 @@
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/render/chunk/proc/ChunkProcStat.h>
 
 
 
@@ -84,12 +85,18 @@ static void tryPopulate(World* world, glm::vec3 chunkpos) {
     }
 }
 
-Chunk * World::provideChunk(glm::vec3 p)  {
+Chunk* World::provideChunk(glm::vec3 p)  {
     Chunk* chunk = getLoadedChunk(p);
     if (chunk) return chunk;
     glm::vec3 chunkpos = Chunk::chunkpos(p);
 
-    chunk = m_ChunkLoader->loadChunk(chunkpos, this);
+    {
+        BENCHMARK_TIMER(&ChunkProcStat::LOAD.time, nullptr);
+
+        chunk = m_ChunkLoader->loadChunk(chunkpos, this);
+
+        if (chunk) { ++ChunkProcStat::LOAD.num; }
+    }
 
     if (!chunk) {
         chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
@@ -97,13 +104,15 @@ Chunk * World::provideChunk(glm::vec3 p)  {
 
     assert(chunk);
 
+    std::lock_guard<std::mutex> guard(lock_ChunkList);
     m_Chunks[chunkpos] = chunk;
 
-    Ethertia::getScheduler()->addTask([this, chunk]() {
+//    Ethertia::getScheduler()->addTask([this, chunk]() {
+
 
         addEntity(chunk->m_MeshTerrain);
         addEntity(chunk->m_MeshVegetable);
-    });
+//    });
 
     // check populates
 //    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
@@ -118,22 +127,30 @@ Chunk * World::provideChunk(glm::vec3 p)  {
 }
 
 void World::unloadChunk(glm::vec3 p)  {
+    LOCK_GUARD(lock_ChunkList);
+
     auto it = m_Chunks.find(Chunk::chunkpos(p));
     if (it == m_Chunks.end())
         throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
 
     Chunk* chunk = it->second;
+    m_Chunks.erase(it);
+
     assert(chunk);
-    if (chunk) {
-        removeEntity(chunk->m_MeshTerrain);
-        removeEntity(chunk->m_MeshVegetable);
+
+    {
+        BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
+        m_ChunkLoader->saveChunk(chunk);
     }
 
-    m_Chunks.erase(it);
+    removeEntity(chunk->m_MeshTerrain);
+    removeEntity(chunk->m_MeshVegetable);
     delete chunk;
 }
 
 Chunk* World::getLoadedChunk(glm::vec3 p)  {
+    LOCK_GUARD(lock_ChunkList);
+
     auto it = m_Chunks.find(Chunk::chunkpos(p));
     if (it == m_Chunks.end())
         return nullptr;
@@ -143,19 +160,30 @@ Chunk* World::getLoadedChunk(glm::vec3 p)  {
 
 
 void World::addEntity(Entity* e)  {
-    assert(Collections::find(m_Entities, e) == -1);  // make sure the entity is not in this world.
+    //assert(std::this_thread::get_id() == Ethertia::getScheduler()->m_ThreadId);  // Ensure main thread.
+    assert(e != nullptr);
+    int find = Collections::find(m_Entities, e);
+    assert(find == -1);
+//    assert(Collections::find(m_Entities, e) == -1);  // make sure the entity is not in this world.
+//    assert(std::find(m_Entities.begin(), m_Entities.end(), e) == m_Entities.end());
+
+    e->m_World = this;
+    m_Entities.push_back(e);
 
     auto old_grav = e->m_Rigidbody->getGravity(); // fix little stupid auto-change gravity
 
-    e->m_World = this;
+    {
+        LOCK_GUARD(m_LockDynamicsWorld);
 
-    m_Entities.push_back(e);
-    e->onLoad(m_DynamicsWorld);
+        // add entity bodies to DynamicsWorld.
+        e->onLoad(m_DynamicsWorld);
+    }
 
     e->m_Rigidbody->setGravity(old_grav);
 }
 
 void World::removeEntity(Entity* e)  {
+    assert(false);
     Collections::erase(m_Entities, e);
     e->onUnload(m_DynamicsWorld);
 
@@ -163,18 +191,18 @@ void World::removeEntity(Entity* e)  {
 }
 
 
-bool World::raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n, void** usrptr)  {
+bool World::raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n, btCollisionObject** obj) const {
     btVector3 _beg(begin.x, begin.y, begin.z);
     btVector3 _end(end.x, end.y, end.z);
-    btCollisionWorld::ClosestRayResultCallback rayCallback(_beg, _end);
+    btCollisionWorld::ClosestRayResultCallback _raycallback(_beg, _end);
 
-    m_DynamicsWorld->rayTest(_beg, _end, rayCallback);
-    if (rayCallback.hasHit()) {
-        p = Mth::vec3(rayCallback.m_hitPointWorld);
-        n = Mth::vec3(rayCallback.m_hitNormalWorld);
+    m_DynamicsWorld->rayTest(_beg, _end, _raycallback);
+    if (_raycallback.hasHit()) {
+        p = Mth::vec3(_raycallback.m_hitPointWorld);
+        n = Mth::vec3(_raycallback.m_hitNormalWorld);
 
-        if (usrptr) {
-            *usrptr = rayCallback.m_collisionObject->getUserPointer();
+        if (obj) {
+            *obj = (btCollisionObject*)_raycallback.m_collisionObject;
         }
         return true;
     }

@@ -20,7 +20,7 @@ public:
         m_Rigidbody->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
 
-    void setMesh(size_t vertCount, float* pos)
+    void setMesh(btCollisionShape* shap)
     {
         btCollisionShape* oldshape = m_Rigidbody->getCollisionShape();
         delete oldshape;
@@ -28,8 +28,8 @@ public:
         // reinsert Rigidbody once setCollisionShape(). or Collision Cache will not be clean properly
         m_World->m_DynamicsWorld->removeRigidBody(m_Rigidbody);
 
-        if (vertCount) {
-            m_Rigidbody->setCollisionShape(createMeshShape(vertCount, pos));
+        if (shap) {
+            m_Rigidbody->setCollisionShape(shap);
         } else {
             m_Rigidbody->setCollisionShape(new btEmptyShape());
         }

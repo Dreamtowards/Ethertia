@@ -12,6 +12,7 @@ public:
     bool keepTracking = true;
     bool hit = false;
     glm::vec3 position;
+    glm::vec3 normal;
 
     float brushSize = 2.0;
 
