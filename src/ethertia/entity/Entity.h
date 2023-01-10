@@ -22,7 +22,7 @@
 class Entity
 {
 public:
-    btRigidBody* m_Rigidbody = nullptr; bool _WasAddedWorld = false;
+    btRigidBody* m_Rigidbody = nullptr;
 
     Model* m_Model = nullptr;
     Texture* m_DiffuseMap = nullptr;

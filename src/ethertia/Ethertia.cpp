@@ -106,7 +106,7 @@ void Ethertia::runMainLoop()
 
     {
         PROFILE("SyncTask");
-        m_Scheduler.processTasks(0.001);
+        m_Scheduler.processTasks(0.1);
     }
 
     {
@@ -244,6 +244,9 @@ void Ethertia::unloadWorld()
 
     // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
     getScheduler()->processTasks(Mth::Inf);
+
+    // tmp save
+    getAsyncScheduler()->processTasks(Mth::Inf);
 
     assert(m_Scheduler.numTasks() == 0);
 

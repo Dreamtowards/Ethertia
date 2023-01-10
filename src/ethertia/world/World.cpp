@@ -106,10 +106,10 @@ Chunk* World::provideChunk(glm::vec3 p)  {
         chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
     }
 
-    assert(chunk);
-
-    std::lock_guard<std::mutex> guard(lock_ChunkList);
-    m_Chunks[chunkpos] = chunk;
+    {
+        LOCK_GUARD(lock_ChunkList);
+        m_Chunks[chunkpos] = chunk;
+    }
 
     Ethertia::getScheduler()->addTask([this, chunk, chunkpos]()
     {
@@ -121,13 +121,13 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     });
 
     // check populates
-//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
-//    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
-//    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
+    tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
+    tryPopulate(this, chunkpos + glm::vec3(16, 0, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, -16, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, 16, 0));
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, -16));
+    tryPopulate(this, chunkpos + glm::vec3(0, 0, 16));
 
     return chunk;
 }
@@ -142,11 +142,15 @@ void World::unloadChunk(glm::vec3 p)  {
         chunk = it->second;
         assert(chunk);
 
+        m_Chunks.erase(it);
         {
             BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
             m_ChunkLoader->saveChunk(chunk);
         }
-        m_Chunks.erase(it);
+//        Ethertia::getAsyncScheduler()->addTask([this, chunk](){
+//            BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
+//            m_ChunkLoader->saveChunk(chunk);
+//        });
     }
     chunk->m_World = nullptr;  // mesh gen needed for delay remove. but MeshUpload need immediate know is unloaded
 
@@ -166,8 +170,8 @@ void World::unloadChunk(glm::vec3 p)  {
                 Timer::sleep_for(1);
             }
             delete chunk;
-        });
-    }, -99999);
+        }, -1);  // after async save
+    }, -1);  // ? after addEntity().
 
 }
 
@@ -186,8 +190,7 @@ void World::addEntity(Entity* e)  {
     assert(Ethertia::inMainThread());  // Ensure main thread.
     assert(e != nullptr);
     assert(Collections::find(m_Entities, e) == -1);  // make sure the entity is not in this world.
-//    assert(std::find(m_Entities.begin(), m_Entities.end(), e) == m_Entities.end());
-e->_WasAddedWorld = true;
+
     e->m_World = this;
     m_Entities.push_back(e);
 
@@ -204,8 +207,8 @@ void World::removeEntity(Entity* e)  {
     assert(e);
     assert(Collections::find(m_Entities, e) != -1);
 
-    // todo: Rare Bug: Not thread-safe, Lock
-     Collections::erase(m_Entities, e);
+    Collections::erase(m_Entities, e);
+
     e->onUnload(m_DynamicsWorld);
 
     e->m_World = nullptr;

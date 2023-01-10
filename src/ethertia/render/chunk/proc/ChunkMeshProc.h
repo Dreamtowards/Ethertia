@@ -74,9 +74,9 @@ public:
 
             SurfaceNetsMeshGen::contouring(chunk, vbufTerrain, grass_fp);
 
-//            BlockyMeshGen::gen(chunk, vbufVegetable);
-//
-//            BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
+            BlockyMeshGen::gen(chunk, vbufVegetable);
+
+            BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
 
 // CNS BUG: 在区块Unloaded后，可能其Mesh刚刚开始。结果采集到被删除的区块 造成错误
 // 如何修复？1. try-catch 但不够纯粹。2. delete/unload 的时候wait 但又繁杂了
@@ -93,8 +93,6 @@ public:
             Mth::vec3out(glm::vec3(0, 1, 0), &vegnorms[n_i*3]);
         }
 //        VertexProcess::othonorm(vbufVegetable->vertexCount(), vbufVegetable->positions.data(), vbufVegetable->normals.data(), false);
-
-
 //        Loader::saveOBJ("test_chunk.obj", vbufTerrain->vertexCount(), vbufTerrain->positions.data());
 
 
