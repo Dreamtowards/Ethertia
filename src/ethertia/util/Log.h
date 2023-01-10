@@ -26,6 +26,7 @@
 //    return ss.str();
 //}
 
+#define ASSERT_WARN(expr, msg) if (!(expr)) Log::warn(msg);
 
 class Log
 {

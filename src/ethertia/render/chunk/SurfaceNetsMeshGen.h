@@ -154,10 +154,11 @@ public:
         }
 
         vec3 p = sumFp / (float)numIntersects;
-        assert(numIntersects > 0);
-        assert(p.x >= 0.0f && p.x <= 1.0f &&
-               p.y >= 0.0f && p.y <= 1.0f &&
-               p.z >= 0.0f && p.z <= 1.0f);
+//        assert(numIntersects > 0);
+//        assert(p.x >= 0.0f && p.x <= 1.0f &&
+//               p.y >= 0.0f && p.y <= 1.0f &&
+//               p.z >= 0.0f && p.z <= 1.0f);
+        ASSERT_WARN(numIntersects > 0, "Illegal FeaturePoint");
         return p;
     }
 

@@ -75,9 +75,11 @@ Framebuffer::gPushFramebuffer(gbuffer);
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    g_NumEntityRendered = 0;
+    dbg_NumEntityRendered = 0;
     for (Entity* entity : world->getEntities()) {
         if (!entity || !entity->m_Model) continue;
+        if (entity->m_Model->vertexCount == 0) // most are Empty Chunks.
+            continue;
 
         // Frustum Culling
         if (!viewFrustum.intersects(entity->getAABB())) {
@@ -97,9 +99,13 @@ Framebuffer::gPushFramebuffer(gbuffer);
             glEnable(GL_CULL_FACE);  // setback
         }
 
-        ++g_NumEntityRendered;
-        if (debugChunkGeo)
+        ++dbg_NumEntityRendered;
+        if (dbg_EntityGeo)
             renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
+        if (dbg_RenderedEntityAABB) {
+            AABB aabb = entity->getAABB();
+            renderLineBox(aabb.min, aabb.max-aabb.min, Colors::RED);
+        }
     }
 
     glEnable(GL_BLEND);

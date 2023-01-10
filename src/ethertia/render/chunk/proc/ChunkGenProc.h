@@ -28,7 +28,6 @@ public:
 
                 vec3 chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
 
-                //if (chunkpos.y >=0 && chunkpos.y <= 48)
                 if (chunkpos.x != Mth::Inf)
                 {
                     // Gen or Load.
@@ -43,8 +42,7 @@ public:
                 }
 
                 // Unload Chunks
-                int n = _UnloadChunks(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
-                if (n) { Log::info("Unloaded {} Chunks", n); }
+                _UnloadChunks(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
 
                 g_Processing = false;
             }

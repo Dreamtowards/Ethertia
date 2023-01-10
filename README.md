@@ -24,7 +24,8 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 预览视频:
 
 ![](run/screenshots/2022-12-30_21.59.00_526.642.png)
-![](run/screenshots/2022-12-29_10.34.08_418.762.png)
+
+[comment]: <> (![]&#40;run/screenshots/2022-12-29_10.34.08_418.762.png&#41;)
 
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
@@ -56,6 +57,7 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
   - Light Shaft
   - Chunk Culling
   - Decals at Terrain digging
+  - Volume Fog
 
 <br>
 
@@ -173,14 +175,13 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - OGG Load, stb_vorbis.
     - AudioSource, AudioBuffer wrap.
     - Build OpenAL for Windows.
-  - 2023-01-06
+  - 2023-01-09
+    - ChunkGenProc, ChunkMeshProc 分成两个线程 分别生成区块/处理网格
+    - Scheduler 上锁, 修复了相关的执行错误
 
-    - 高性能区块加载，现在看上去有点慢
     - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
-    - binary 存储格式，类似于json的结构
     - World Storage 世界存储。  
-      为什么你一直不做？因为你在纠结Octree体素结构。担心Uniform被弃用。
-      但这些可以一键转换，而且Uniform仍然有简单性优势。无论如何体素数据只占其中一部分而已。
+    - GUI 主界面
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
         没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物

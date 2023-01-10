@@ -26,8 +26,9 @@ public:
 
     inline static bool dbgBasis = true;
     inline static bool dbgWorldBasis = true;
-    inline static bool dbgEntityAABB = false;
+    inline static bool dbgAllEntityAABB = false;
     inline static bool dbgChunkAABB = false;
+    inline static bool dbgChunkBoundAABB = false;
 
     inline static bool dbgCursorRangeInfo = false;
 
@@ -100,11 +101,13 @@ public:
             opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
             opts->addGui(new GuiCheckBox("Basis", &dbgBasis));
             opts->addGui(new GuiCheckBox("World Basis", &dbgWorldBasis));
-            opts->addGui(new GuiCheckBox("Entity AABB", &dbgEntityAABB));
-            opts->addGui(new GuiCheckBox("Chunk AABB", &dbgChunkAABB));
+            opts->addGui(new GuiCheckBox("Rendered Entity AABB", &RenderEngine::dbg_RenderedEntityAABB));
+            opts->addGui(new GuiCheckBox("All Entity AABB", &dbgAllEntityAABB));
+            opts->addGui(new GuiCheckBox("Loaded Chunk AABB", &dbgChunkAABB));
+            opts->addGui(new GuiCheckBox("Chunk Bound AABB", &dbgChunkBoundAABB));
 
             opts->addGui(new GuiCheckBox("GBuffers", &dbgGBuffers));
-            opts->addGui(new GuiCheckBox("Norm & Border", &rde->debugChunkGeo));
+            opts->addGui(new GuiCheckBox("Norm & Border", &RenderEngine::dbg_EntityGeo));
             opts->addGui(new GuiCheckBox("glPoly Line", &dbgPolyLine));
 
             opts->addGui(new GuiCheckBox("R/No Vegetable", &RenderEngine::dbg_NoVegetable));
@@ -198,7 +201,7 @@ public:
                 float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
                 dbg_s = Strings::fmt(
                         "cam p: {}, len: {}, spd {}mps {}kph. ground: {}, CPs {}.\n"
-                        "E: {}/{}\n"
+                        "E: {}/{}, C{}\n"
                         "ChunkGen {}\n"
                         "ChunkMesh{}\n"
                         "ChunkEmit{}\n"
@@ -208,7 +211,7 @@ public:
                         "dt: {}, {}fps\n"
                         "mem: {}, alloc {}, freed: {}",
                         glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
-                        world ? rde->g_NumEntityRendered : 0, world ? world->getEntities().size() : 0,
+                        world ? rde->dbg_NumEntityRendered : 0, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
                         ChunkProcStat::GEN.str(),
                         ChunkProcStat::MESH.str(),
                         ChunkProcStat::EMIT.str(),
@@ -221,7 +224,7 @@ public:
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
         }
 
-        if (dbgEntityAABB) {
+        if (dbgAllEntityAABB) {
             for (Entity* e : Ethertia::getWorld()->getEntities()) {
                 AABB aabb = e->getAABB();
                 rde->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::RED);
@@ -235,6 +238,13 @@ public:
         }
 
         if (dbgChunkAABB) { using glm::vec3;
+            for (auto& it : world->getLoadedChunks()) {
+                vec3 pos = it.first;
+                rde->renderLineBox(pos, vec3(16), Colors::RED);
+            }
+        }
+
+        if (dbgChunkBoundAABB) { using glm::vec3;
             int n = 1;
             vec3 cpos = Mth::floor(Ethertia::getCamera()->position, 16);
             for (int dx = -n; dx <= n; ++dx) {

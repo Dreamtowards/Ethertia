@@ -98,13 +98,10 @@ public:
             EntityMesh::createMeshShape(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
 
 
+        // Dont upload/to be render if Current and Previous Mesh is Empty.
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
             BenchmarkTimer _tm(&ChunkProcStat::EMIT.time, nullptr);  ++ChunkProcStat::EMIT.num;
 
-//            if (Ethertia::getWorld())  // task may defer to world unloaded. todo BUG: different world
-//            {
-//
-//            }
             chunk->m_MeshTerrain->setMesh(meshTerrain);
             chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
 

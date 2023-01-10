@@ -49,8 +49,9 @@ public:
     inline static float viewDistance = 1;
     inline static int fpsCap = 60;
 
-    bool debugChunkGeo = false;
-    inline static int g_NumEntityRendered = 0;
+    inline static bool dbg_EntityGeo = false;
+    inline static bool dbg_RenderedEntityAABB = false;
+    inline static int dbg_NumEntityRendered = 0;
     inline static bool dbg_NoVegetable = false;
 
     RenderEngine();
