@@ -94,9 +94,7 @@ public:
 
     void removeEntity(Entity* e);
 
-    std::vector<Entity*>& getEntities() {
-        return m_Entities;
-    }
+    const std::vector<Entity*>& getEntities();
 
 
 

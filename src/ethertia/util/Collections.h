@@ -40,7 +40,8 @@ public:
 
     template<typename T>
     static void erase(std::vector<T>& ls, const T& r) {
-        ls.erase(ls.begin() + find(ls, r));
+        int i = find(ls, r);
+        ls.erase(ls.begin() + i);
     }
 
     template<typename T>

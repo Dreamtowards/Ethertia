@@ -1,11 +1,11 @@
 {
   "assets": "./assets/",
-  "display_height": 845,
-  "display_width": 1244,
+  "display_height": 918,
+  "display_width": 1526,
   "fov": 90.0,
   "fullscreen": false,
   "mtl_resolution": 128,
   "simd_level": "",
-  "view_distance": 2.0,
+  "view_distance": 16.0,
   "vsync": false
 }

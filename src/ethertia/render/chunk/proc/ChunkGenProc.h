@@ -12,19 +12,19 @@ class ChunkGenProc
 public:
     using vec3 = glm::vec3;
 
-    inline static bool g_Processing = false;
+    inline static int g_Running = 0;
 
     static void initThread() {
         new std::thread([]()
         {
             while (Ethertia::isRunning())
             {
-                World* world = Ethertia::getWorld();
-                if (!world) {
+                if (g_Running == -1 || g_Running == 0) {
+                    g_Running = 0;
                     Timer::sleep_for(1);
                     continue;
                 }
-                g_Processing = true;
+                World* world = Ethertia::getWorld();
 
                 vec3 chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
 
@@ -44,7 +44,6 @@ public:
                 // Unload Chunks
                 _UnloadChunks(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
 
-                g_Processing = false;
             }
         });
     }

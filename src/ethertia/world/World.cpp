@@ -53,6 +53,8 @@ World::~World() {
     delete m_DynamicsWorld->getConstraintSolver();
     delete m_DynamicsWorld->getBroadphase();  // why after dw
     delete m_DynamicsWorld;
+
+    m_DynamicsWorld = nullptr;
 }
 
 Cell& World::getCell(glm::vec3 p)  {
@@ -109,9 +111,11 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     std::lock_guard<std::mutex> guard(lock_ChunkList);
     m_Chunks[chunkpos] = chunk;
 
-    Ethertia::getScheduler()->addTask([this, chunk]()
+    Ethertia::getScheduler()->addTask([this, chunk, chunkpos]()
     {
         // bug: CNS 这个延时操作，可能刚添加进来的区块 立刻被卸载了，
+        if (!getLoadedChunk(chunkpos))
+            return;  // already been unloaded/deleted.
         addEntity(chunk->m_MeshTerrain);
         addEntity(chunk->m_MeshVegetable);
     });
@@ -138,21 +142,23 @@ void World::unloadChunk(glm::vec3 p)  {
         chunk = it->second;
         assert(chunk);
 
-//        {
-//            BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
-//            m_ChunkLoader->saveChunk(chunk);
-//        }
+        {
+            BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
+            m_ChunkLoader->saveChunk(chunk);
+        }
         m_Chunks.erase(it);
     }
+    chunk->m_World = nullptr;  // mesh gen needed for delay remove. but MeshUpload need immediate know is unloaded
 
-
-    chunk->m_World = nullptr;
 
 
     Ethertia::getScheduler()->addTask([this, chunk]()
     {
-        removeEntity(chunk->m_MeshTerrain);
-        removeEntity(chunk->m_MeshVegetable);
+        // CNS 有时Entity根本不会被加入世界 (当加入世界时发现区块已被卸载 将取消加入世界
+        if (chunk->m_MeshTerrain->m_World) {
+            removeEntity(chunk->m_MeshTerrain);
+            removeEntity(chunk->m_MeshVegetable);
+        }
 
         Ethertia::getAsyncScheduler()->addTask([=](){
             while (chunk->m_Meshing) {
@@ -161,16 +167,7 @@ void World::unloadChunk(glm::vec3 p)  {
             }
             delete chunk;
         });
-//    }, [chunk]() {
-//
-//        Ethertia::getAsyncScheduler()->addTask([=](){
-//            while (chunk->m_Meshing) {
-//                Log::warn("Waiting for Mesh done for prevents interrupt.");
-//                Timer::sleep_for(1);
-//            }
-//            delete chunk;
-//        });
-    });
+    }, -99999);
 
 }
 
@@ -188,11 +185,9 @@ Chunk* World::getLoadedChunk(glm::vec3 p)  {
 void World::addEntity(Entity* e)  {
     assert(Ethertia::inMainThread());  // Ensure main thread.
     assert(e != nullptr);
-    int find = Collections::find(m_Entities, e);
-    assert(find == -1);
-//    assert(Collections::find(m_Entities, e) == -1);  // make sure the entity is not in this world.
+    assert(Collections::find(m_Entities, e) == -1);  // make sure the entity is not in this world.
 //    assert(std::find(m_Entities.begin(), m_Entities.end(), e) == m_Entities.end());
-
+e->_WasAddedWorld = true;
     e->m_World = this;
     m_Entities.push_back(e);
 
@@ -207,11 +202,18 @@ void World::addEntity(Entity* e)  {
 void World::removeEntity(Entity* e)  {
     assert(Ethertia::inMainThread());
     assert(e);
+    assert(Collections::find(m_Entities, e) != -1);
 
-    Collections::erase(m_Entities, e);
+    // todo: Rare Bug: Not thread-safe, Lock
+     Collections::erase(m_Entities, e);
     e->onUnload(m_DynamicsWorld);
 
     e->m_World = nullptr;
+}
+
+const std::vector<Entity*>& World::getEntities() {
+    assert(Ethertia::inMainThread());
+    return m_Entities;
 }
 
 
@@ -257,7 +259,7 @@ void World::requestRemodel(glm::vec3 p, bool detectNeighbour) {
 
 
 Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {
-    return Chunk::outbound(rp) ? chunk->m_World->getCell(chunk->position + rp) : chunk->getCell(rp);
+    return Chunk::outbound(rp) ? /*chunk->m_World avoid interrupt Meshing*/Ethertia::getWorld()->getCell(chunk->position + rp) : chunk->getCell(rp);
 }
 
 

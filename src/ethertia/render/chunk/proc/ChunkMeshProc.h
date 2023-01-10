@@ -16,7 +16,7 @@ public:
 
     inline static bool dbg_ChunkUnload = true;
 
-    inline static bool g_Processing = false;
+    inline static int g_Running = 0;  // -1: To Stop Run (not stopped), 0: Stopped. 1: Running.
 
     static void initThread()
     {
@@ -26,12 +26,12 @@ public:
 
             while (Ethertia::isRunning())
             {
-                World* world = Ethertia::getWorld();
-                if (!world) {
+                if (g_Running == -1 || g_Running == 0) {
+                    g_Running = 0;
                     Timer::sleep_for(1);
                     continue;
                 }
-                g_Processing = true;
+                World* world = Ethertia::getWorld();
 
                 Chunk* chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
 
@@ -40,7 +40,6 @@ public:
                     meshChunk_Upload(chunk);
                 }
 
-                g_Processing = false;
             }
         });
     }
@@ -54,8 +53,8 @@ public:
 
     static void meshChunk_Upload(Chunk* chunk) {
         BENCHMARK_TIMER(&ChunkProcStat::MESH.time, nullptr);  ChunkProcStat::MESH.num++;
-        chunk->m_Meshing = true;
 
+        chunk->m_Meshing = true;  // May Already Been Deleted.
         chunk->m_MeshInvalid = false;
 
         VertexBuffer* vbufTerrain = new VertexBuffer();
@@ -111,13 +110,6 @@ public:
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
             BenchmarkTimer _tm(&ChunkProcStat::EMIT.time, nullptr);  ++ChunkProcStat::EMIT.num;
 
-            // 区块可能已经被删除了
-
-            // 移除 CancelTask。重复代码，而且，不解决问题
-            // 当初添加Cancel的时候，就是因为 卸载世界后 不需要再执行 不想影响到其他世界
-            // 但是并不解决问题：当某区块被卸载，其实也应该调用对应的Cancel 防止执行。但很明显不支持这种灵活度。
-            // 而且有重复代码
-
             if (chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);
                 chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
@@ -132,14 +124,8 @@ public:
 
             delete vbufTerrain;
             delete vbufVegetable;
-//        }, [=](){
-//            chunk->m_Meshing = false;
-//            delete vbufTerrain;
-//            delete vbufVegetable;
-//            delete meshTerrain;
-//            delete meshVegetable;
         }, -1 - (int)glm::length2(Ethertia::getCamera()->position - chunk->position));
-        // priority -1: after addEntity() to the world.
+        // priority <= -1: after addEntity() to the world.
     }
 
     static void walkViewDistanceChunks(int viewDistance, const std::function<void(vec3 rcp)>& fn) {

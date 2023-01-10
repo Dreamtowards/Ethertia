@@ -106,7 +106,7 @@ void Ethertia::runMainLoop()
 
     {
         PROFILE("SyncTask");
-        m_Scheduler.processTasks(0.005);
+        m_Scheduler.processTasks(0.001);
     }
 
     {
@@ -199,9 +199,12 @@ void Ethertia::runTick()
 
 void Ethertia::destroy()
 {
-    Ethertia::unloadWorld();
-
     Settings::saveSettings();
+
+    if (Ethertia::getWorld()) {
+        Ethertia::unloadWorld();
+    }
+
     NetworkSystem::deinit();
 
     delete m_RootGUI;
@@ -219,6 +222,9 @@ void Ethertia::loadWorld()
     m_World = new World("saves/world1", 1342);
     m_World->addEntity(m_Player);
 
+    ChunkMeshProc::g_Running = 1;
+    ChunkGenProc::g_Running = 1;
+
     Log::info("Loading world @\"{}\" *{}", m_World->m_ChunkLoader->m_ChunkDir, m_World->m_Seed);
 }
 
@@ -228,19 +234,22 @@ void Ethertia::unloadWorld()
 
     Ethertia::getBrushCursor().reset();
 
-    World* _world = m_World;
-    m_World = nullptr;  // set state unloaded. prevents access from other threads.
+    ChunkMeshProc::g_Running = -1;
+    ChunkGenProc::g_Running = -1;
 
-    Timer::wait_for(&ChunkMeshProc::g_Processing, false);
-    Timer::wait_for(&ChunkGenProc::g_Processing, false);
+    m_World->unloadAllChunks();
 
-    _world->unloadAllChunks();
+    Timer::wait_for(&ChunkMeshProc::g_Running, 0);
+    Timer::wait_for(&ChunkGenProc::g_Running, 0);
 
-    //Ethertia::getScheduler()->clearTasks();  // clear after other threads, make sure no addTask() anymore.
+    // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
     getScheduler()->processTasks(Mth::Inf);
-    // make sure no Task remain. Task is world-isolated.
 
-    delete _world;
+    assert(m_Scheduler.numTasks() == 0);
+
+    delete m_World;
+    m_World = nullptr;
+
     Log::info("World unloaded.");
 }
 
