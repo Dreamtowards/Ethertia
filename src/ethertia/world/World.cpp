@@ -161,15 +161,15 @@ void World::unloadChunk(glm::vec3 p)  {
             }
             delete chunk;
         });
-    }, [chunk]() {
-
-        Ethertia::getAsyncScheduler()->addTask([=](){
-            while (chunk->m_Meshing) {
-                Log::warn("Waiting for Mesh done for prevents interrupt.");
-                Timer::sleep_for(1);
-            }
-            delete chunk;
-        });
+//    }, [chunk]() {
+//
+//        Ethertia::getAsyncScheduler()->addTask([=](){
+//            while (chunk->m_Meshing) {
+//                Log::warn("Waiting for Mesh done for prevents interrupt.");
+//                Timer::sleep_for(1);
+//            }
+//            delete chunk;
+//        });
     });
 
 }

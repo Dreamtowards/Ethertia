@@ -231,13 +231,14 @@ void Ethertia::unloadWorld()
     World* _world = m_World;
     m_World = nullptr;  // set state unloaded. prevents access from other threads.
 
-    Timer::wait_for(&ChunkMeshProc::g_Processing, (Chunk*)nullptr);
+    Timer::wait_for(&ChunkMeshProc::g_Processing, false);
     Timer::wait_for(&ChunkGenProc::g_Processing, false);
 
     _world->unloadAllChunks();
 
-    Ethertia::getScheduler()->clearTasks();  // clear after other threads, make sure no addTask() anymore.
+    //Ethertia::getScheduler()->clearTasks();  // clear after other threads, make sure no addTask() anymore.
     getScheduler()->processTasks(Mth::Inf);
+    // make sure no Task remain. Task is world-isolated.
 
     delete _world;
     Log::info("World unloaded.");

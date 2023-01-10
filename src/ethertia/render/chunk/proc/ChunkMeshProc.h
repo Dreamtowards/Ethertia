@@ -16,7 +16,7 @@ public:
 
     inline static bool dbg_ChunkUnload = true;
 
-    inline static Chunk* g_Processing = nullptr;
+    inline static bool g_Processing = false;
 
     static void initThread()
     {
@@ -31,16 +31,16 @@ public:
                     Timer::sleep_for(1);
                     continue;
                 }
+                g_Processing = true;
 
                 Chunk* chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
-                g_Processing = chunk;
 
                 if (chunk)
                 {
                     meshChunk_Upload(chunk);
                 }
 
-                g_Processing = nullptr;
+                g_Processing = false;
             }
         });
     }
@@ -118,26 +118,26 @@ public:
             // 但是并不解决问题：当某区块被卸载，其实也应该调用对应的Cancel 防止执行。但很明显不支持这种灵活度。
             // 而且有重复代码
 
-//            if (chunk->m_World) {
+            if (chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);
                 chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
 
                 chunk->m_MeshVegetable->setMesh(meshVegetable);
                 chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
-//            } else {
-//                delete meshTerrain;
-//                delete meshVegetable;
-//            }
+            } else {
+                delete meshTerrain;
+                delete meshVegetable;
+            }
             chunk->m_Meshing = false;
 
             delete vbufTerrain;
             delete vbufVegetable;
-        }, [=](){
-            chunk->m_Meshing = false;
-            delete vbufTerrain;
-            delete vbufVegetable;
-            delete meshTerrain;
-            delete meshVegetable;
+//        }, [=](){
+//            chunk->m_Meshing = false;
+//            delete vbufTerrain;
+//            delete vbufVegetable;
+//            delete meshTerrain;
+//            delete meshVegetable;
         }, -1 - (int)glm::length2(Ethertia::getCamera()->position - chunk->position));
         // priority -1: after addEntity() to the world.
     }
