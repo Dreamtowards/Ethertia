@@ -36,9 +36,9 @@ public:
                     chunk->invalidateMesh();
 
                     // CNS. 隐患：在密集生成区块时请求更新周围网格，可能造成过多的无用的互相更新。并且这里没有顾及到8个角
-    //            for (int i = 0; i < 6; ++i) {
-    //                world->requestRemodel(nearest_pos_gen + Mth::QFACES[i] * 16.0f, false);
-    //            }
+                    for (int i = 0; i < 6; ++i) {
+                        world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
+                    }
                 }
 
                 // Unload Chunks

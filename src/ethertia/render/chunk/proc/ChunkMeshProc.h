@@ -45,6 +45,12 @@ public:
         });
     }
 
+    static void checkNonNaN(float* begin, size_t n) {
+        for (int i = 0; i < n; ++i) {
+            float f = begin[i];
+            assert(!std::isnan(f));
+        }
+    }
 
     static void meshChunk_Upload(Chunk* chunk) {
         BENCHMARK_TIMER(&ChunkProcStat::MESH.time, nullptr);  ChunkProcStat::MESH.num++;
@@ -67,13 +73,14 @@ public:
 
             SurfaceNetsMeshGen::contouring(chunk, vbufTerrain, grass_fp);
 
-            BlockyMeshGen::gen(chunk, vbufVegetable);
-
-            BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
+//            BlockyMeshGen::gen(chunk, vbufVegetable);
+//
+//            BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
 
 
         }
 
+        checkNonNaN(vbufTerrain->positions.data(), vbufTerrain->vertexCount()*3);
 
         vbufTerrain->normals.reserve(vbufTerrain->vertexCount() * 3);
         VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
@@ -115,7 +122,8 @@ public:
             delete vbufVegetable;
             delete meshTerrain;
             delete meshVegetable;
-        });
+        }, -1 - (int)glm::length2(Ethertia::getCamera()->position - chunk->position));
+        // priority -1: after addEntity() to the world.
     }
 
     static void walkViewDistanceChunks(int viewDistance, const std::function<void(vec3 rcp)>& fn) {

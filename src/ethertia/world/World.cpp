@@ -79,9 +79,9 @@ static bool isNeighbourChunksAllLoaded(World* world, glm::vec3 chunkpos) {
 
 static void tryPopulate(World* world, glm::vec3 chunkpos) {
     Chunk* c = world->getLoadedChunk(chunkpos);
-    if (c && !c->populated && isNeighbourChunksAllLoaded(world, chunkpos)) {  // && isNeighbourAllLoaded()
+    if (c && !c->m_Populated && isNeighbourChunksAllLoaded(world, chunkpos)) {  // && isNeighbourAllLoaded()
         World::populate(world, chunkpos);
-        c->populated = true;
+        c->m_Populated = true;
     }
 }
 
@@ -108,11 +108,8 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     std::lock_guard<std::mutex> guard(lock_ChunkList);
     m_Chunks[chunkpos] = chunk;
 
-    Ethertia::getScheduler()->addTask([this, chunk]() {
-//        if (Ethertia::getWorld() == nullptr)
-//            return; // CNS 不是解决之道
-
-
+    Ethertia::getScheduler()->addTask([this, chunk]()
+    {
         addEntity(chunk->m_MeshTerrain);
         addEntity(chunk->m_MeshVegetable);
     });
@@ -241,7 +238,7 @@ void World::requestRemodel(glm::vec3 p, bool detectNeighbour) {
 
 
 Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {
-    return Chunk::outbound(rp) ? chunk->world->getCell(chunk->position + rp) : chunk->getCell(rp);
+    return Chunk::outbound(rp) ? chunk->m_World->getCell(chunk->position + rp) : chunk->getCell(rp);
 }
 
 

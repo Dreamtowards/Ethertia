@@ -19,14 +19,20 @@ class Chunk
 public:
     static const int SIZE = 16;
 
-    Cell blocks[16*16*16] = {};
+    Cell m_Cells[16*16*16] = {};
 
     glm::vec3 position;
-    World* world;
+    World* m_World;
 
-    bool populated = false;
+    bool m_Populated = false;
 
     bool m_MeshInvalid = false;  // invalidMesh
+
+    uint64_t m_CreatedTime = 0;  // millis timestamp.
+
+    float m_InhabitedTime = 0;  // seconds.
+
+    bool dbg_LoadFromDisk = false;
 
     // VertexData positions. for fix Normal Smoothing at Chunk Boundary.
     // not use Physics Collision triangle positions yet, it's struct too complicated, BVH triangles, maybe later.
@@ -37,7 +43,9 @@ public:
 
     EntityMesh* m_MeshVegetable = nullptr;
 
-    Chunk(glm::vec3 p, World* w) : position(p), world(w) {
+    Chunk(glm::vec3 p, World* w) : position(p), m_World(w) {
+
+        m_CreatedTime = Timer::timestampMillis();  // will be reset when Load Chunk From File.
 
         // init the proxy entity
         m_MeshTerrain = new EntityMesh();
@@ -55,14 +63,14 @@ public:
     }
 
     inline Cell& getCell(int rx, int ry, int rz) {
-        return blocks[blockidx(rx, ry, rz)];
+        return m_Cells[blockidx(rx, ry, rz)];
     }
     inline Cell& getCell(glm::ivec3 rp) {
         return getCell(rp.x, rp.y, rp.z);
     }
 
     inline void setCell(int rx, int ry, int rz, const Cell& c) {
-        blocks[blockidx(rx,ry,rz)] = c;
+        m_Cells[blockidx(rx,ry,rz)] = c;
     }
     inline void setCell(glm::ivec3 rp, const Cell& c) {
         setCell(rp.x, rp.y, rp.z, c);

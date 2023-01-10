@@ -8,6 +8,7 @@
 #include <vector>
 #include <functional>
 #include <deque>
+#include <queue>
 #include <thread>
 
 #include <ethertia/util/BenchmarkTimer.h>
@@ -21,9 +22,14 @@ class Scheduler
     struct Task {
         TaskFunc taskFunc;
         TaskFunc cancelFunc;  // exec if force terminated the scheduler
+        int priority = 0;
+
+        bool operator <(const Task& rhs) const {
+            return priority < rhs.priority;
+        }
     };
 
-    std::deque<Task> m_Tasks;
+    std::priority_queue<Task> m_Tasks;
     std::mutex m_LockTasks;
 
     bool m_Stopped = false;
@@ -52,8 +58,8 @@ public:
                 TaskFunc taskfunc;
                 {
                     LOCK_GUARD(m_LockTasks);  // Lock too long.
-                    taskfunc = m_Tasks.front().taskFunc;
-                    m_Tasks.pop_front();
+                    taskfunc = m_Tasks.top().taskFunc;
+                    m_Tasks.pop();
                 }
 
                 taskfunc();
@@ -75,22 +81,23 @@ public:
         return m_Tasks.size();
     }
 
-    void addTask(const TaskFunc& taskfunc, const TaskFunc& cancelfunc = [](){}) {
+    void addTask(const TaskFunc& taskfunc, const TaskFunc& cancelfunc = [](){}, int priority = 0) {
         LOCK_GUARD(m_LockTasks);
-        m_Tasks.push_back({
+        m_Tasks.push({
             taskfunc,
-            cancelfunc
+            cancelfunc,
+            priority
         });
     }
 
     void clearTasks() {
         LOCK_GUARD(m_LockTasks);
         while (!m_Tasks.empty()) {
-            TaskFunc& cancelfunc = m_Tasks.front().cancelFunc;
+            const TaskFunc& cancelfunc = m_Tasks.top().cancelFunc;
 
             cancelfunc();
 
-            m_Tasks.pop_front();
+            m_Tasks.pop();
         }
     }
 

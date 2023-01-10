@@ -7,3 +7,5 @@ cmake-build-release/*
 run/bin/macos-x86-64/*
 
 run/cache/*.png
+
+run/saves/*

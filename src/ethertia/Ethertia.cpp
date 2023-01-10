@@ -124,6 +124,10 @@ void Ethertia::runMainLoop()
 
             m_World->processEntityCollision();
 
+            for (auto& it : m_World->getLoadedChunks()) {
+                Chunk* chunk = it.second;
+                chunk->m_InhabitedTime += getDelta();
+            }
         }
     }
 

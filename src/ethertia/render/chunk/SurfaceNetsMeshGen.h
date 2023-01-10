@@ -53,6 +53,9 @@ public:
         return c0.density > 0 != c1.density > 0;
     }
 
+    static bool _hasnan(vec3 v) {
+        return std::isnan(v.x) || std::isnan(v.y) || std::isnan(v.z);
+    }
 
     static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf, std::vector<glm::vec3>& grass_fp) {
 
@@ -93,14 +96,16 @@ public:
                                 // vec3 fp = fpTable[(int)quadp.x][(int)quadp.y][(int)quadp.z];
 
                                 vec3& fp = World::_GetCell(chunk, quadp).fp;
-                                if (fp.x == Mth::Inf) {
+//                                if (fp.x == Mth::Inf) {
                                     // Compute and !Assign to World
                                     fp = featurepoint(quadp, chunk);
-                                }
-
+//                                }
                                 // vec3 fp = featurepoint(quadp, chunk);
 
-                                vbuf->addpos(quadp + fp);
+                                assert(!_hasnan(fp));
+                                vec3 p = quadp + fp;
+
+                                vbuf->addpos(p);
 
                                 // determine the MtlId of 8 corners. use Nearest Positive Density Corner.
                                 float min_dist = Mth::Inf;
@@ -112,7 +117,8 @@ public:
                                         MtlId = c.id;
                                     }
                                 }
-                                assert(MtlId != 0);
+//                                assert(MtlId != 0);
+                                ASSERT_WARN(MtlId != 0, "MtlId == 0 Cell.");
                                 vbuf->add_pure_mtl(MtlId);
 
                                 if (MtlId == Materials::MOSS) {
@@ -153,12 +159,16 @@ public:
             }
         }
 
+//        assert(!_hasnan(sumFp));
+        ASSERT_WARN(numIntersects > 0, "Illegal FeaturePoint");
+        if (numIntersects == 0) {
+            return {0,0,0};  // Dont return NaN.
+        }
         vec3 p = sumFp / (float)numIntersects;
 //        assert(numIntersects > 0);
 //        assert(p.x >= 0.0f && p.x <= 1.0f &&
 //               p.y >= 0.0f && p.y <= 1.0f &&
 //               p.z >= 0.0f && p.z <= 1.0f);
-        ASSERT_WARN(numIntersects > 0, "Illegal FeaturePoint");
         return p;
     }
 

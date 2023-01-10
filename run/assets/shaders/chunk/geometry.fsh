@@ -109,9 +109,9 @@ void main()
         FragMtlId = int(TriMtlId[mostHeightVert]);
 #endif
 
-        if (FragMtlId == 0) {
-            discard;
-        }
+//        if (FragMtlId == 0) {
+//            discard;
+//        }
 
         Albedo =
 //        ((TriMtlId[0] == MTL_GRASS || TriMtlId[1] == MTL_GRASS || TriMtlId[2] == MTL_GRASS ) &&
@@ -124,6 +124,10 @@ void main()
 
         if (Albedo.a < 0.8) {
             discard;
+        }
+        // DEBUG
+        if (FragMtlId == 0) {
+            Albedo = vec4(1, 0, 0, 1);
         }
 
 #ifndef OPT
