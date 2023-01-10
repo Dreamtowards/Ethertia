@@ -124,10 +124,10 @@ void Ethertia::runMainLoop()
 
             m_World->processEntityCollision();
 
-            for (auto& it : m_World->getLoadedChunks()) {
-                Chunk* chunk = it.second;
+            m_World->forLoadedChunks([](Chunk* chunk)
+            {
                 chunk->m_InhabitedTime += getDelta();
-            }
+            });
         }
     }
 
@@ -224,17 +224,23 @@ void Ethertia::loadWorld()
 
 void Ethertia::unloadWorld()
 {
+    assert(m_World);
+
     Ethertia::getBrushCursor().reset();
 
     World* _world = m_World;
     m_World = nullptr;  // set state unloaded. prevents access from other threads.
 
-    Timer::wait_for(&ChunkMeshProc::g_Processing, false);
+    Timer::wait_for(&ChunkMeshProc::g_Processing, (Chunk*)nullptr);
     Timer::wait_for(&ChunkGenProc::g_Processing, false);
 
+    _world->unloadAllChunks();
+
     Ethertia::getScheduler()->clearTasks();  // clear after other threads, make sure no addTask() anymore.
+    getScheduler()->processTasks(Mth::Inf);
 
     delete _world;
+    Log::info("World unloaded.");
 }
 
 

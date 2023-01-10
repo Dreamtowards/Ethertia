@@ -16,7 +16,7 @@ public:
 
     inline static bool dbg_ChunkUnload = true;
 
-    inline static bool g_Processing = false;
+    inline static Chunk* g_Processing = nullptr;
 
     static void initThread()
     {
@@ -27,20 +27,20 @@ public:
             while (Ethertia::isRunning())
             {
                 World* world = Ethertia::getWorld();
-                Timer::sleep_for(1);
                 if (!world) {
+                    Timer::sleep_for(1);
                     continue;
                 }
-                g_Processing = true;
 
                 Chunk* chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+                g_Processing = chunk;
 
                 if (chunk)
                 {
                     meshChunk_Upload(chunk);
                 }
 
-                g_Processing = false;
+                g_Processing = nullptr;
             }
         });
     }
@@ -54,12 +54,14 @@ public:
 
     static void meshChunk_Upload(Chunk* chunk) {
         BENCHMARK_TIMER(&ChunkProcStat::MESH.time, nullptr);  ChunkProcStat::MESH.num++;
+        chunk->m_Meshing = true;
 
         chunk->m_MeshInvalid = false;
 
         VertexBuffer* vbufTerrain = new VertexBuffer();
 
         VertexBuffer* vbufVegetable = new VertexBuffer();
+
 
 //        VertexBuffer* vbufWater = new VertexBuffer();
 
@@ -77,7 +79,8 @@ public:
 //
 //            BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
 
-
+// CNS BUG: 在区块Unloaded后，可能其Mesh刚刚开始。结果采集到被删除的区块 造成错误
+// 如何修复？1. try-catch 但不够纯粹。2. delete/unload 的时候wait 但又繁杂了
         }
 
         checkNonNaN(vbufTerrain->positions.data(), vbufTerrain->vertexCount()*3);
@@ -104,20 +107,33 @@ public:
             vbufVegetable->vertexCount() == 0 ? nullptr :
             EntityMesh::createMeshShape(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
 
-
         // Dont upload/to be render if Current and Previous Mesh is Empty.
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
             BenchmarkTimer _tm(&ChunkProcStat::EMIT.time, nullptr);  ++ChunkProcStat::EMIT.num;
 
-            chunk->m_MeshTerrain->setMesh(meshTerrain);
-            chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
+            // 区块可能已经被删除了
 
-            chunk->m_MeshVegetable->setMesh(meshVegetable);
-            chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
+            // 移除 CancelTask。重复代码，而且，不解决问题
+            // 当初添加Cancel的时候，就是因为 卸载世界后 不需要再执行 不想影响到其他世界
+            // 但是并不解决问题：当某区块被卸载，其实也应该调用对应的Cancel 防止执行。但很明显不支持这种灵活度。
+            // 而且有重复代码
+
+//            if (chunk->m_World) {
+                chunk->m_MeshTerrain->setMesh(meshTerrain);
+                chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
+
+                chunk->m_MeshVegetable->setMesh(meshVegetable);
+                chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
+//            } else {
+//                delete meshTerrain;
+//                delete meshVegetable;
+//            }
+            chunk->m_Meshing = false;
 
             delete vbufTerrain;
             delete vbufVegetable;
         }, [=](){
+            chunk->m_Meshing = false;
             delete vbufTerrain;
             delete vbufVegetable;
             delete meshTerrain;

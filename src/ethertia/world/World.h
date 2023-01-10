@@ -17,6 +17,7 @@
 #include <entt/entt.hpp>
 
 #include <ethertia/world/Cell.h>
+#include <ethertia/util/concurrent/Scheduler.h>
 
 class Entity;
 class Chunk;
@@ -68,6 +69,25 @@ public:
 
     const std::unordered_map<glm::vec3, Chunk*>& getLoadedChunks() {
         return m_Chunks;
+    }
+
+    void forLoadedChunks(const std::function<void(Chunk*)>& fn) {
+        LOCK_GUARD(lock_ChunkList);
+        for (auto& it : m_Chunks) {
+            fn(it.second);
+        }
+    }
+    void unloadAllChunks() { using glm::vec3;
+        std::vector<vec3> posls;
+        {
+            LOCK_GUARD(lock_ChunkList);
+            for (auto& it : m_Chunks) {
+                posls.push_back(it.first);
+            }
+        }
+        for (vec3& p : posls) {
+            unloadChunk(p);
+        }
     }
 
     void addEntity(Entity* e);

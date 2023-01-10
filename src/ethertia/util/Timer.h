@@ -61,7 +61,14 @@ public:
         std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     }
 
-    static void wait_for(bool* state, bool until) {
+    template<typename T>
+    static void wait_for(T* state, const T& until) {
+        while (*state != until) {
+            sleep_for(1);
+        }
+    }
+    template<typename T>
+    static void wait_for(T* state, const std::function<bool(T*)>& until) {
         while (*state != until) {
             sleep_for(1);
         }

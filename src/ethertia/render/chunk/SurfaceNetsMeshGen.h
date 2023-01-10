@@ -59,18 +59,16 @@ public:
 
     static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf, std::vector<glm::vec3>& grass_fp) {
 
-//        // pre eval feature points.
-//        vec3 fpTable[16][16][16];  // 16^3 * 3*4 = 49,152 bytes, 48kb
-        for (int rx = 0; rx < 16; ++rx) {
-            for (int ry = 0; ry < 16; ++ry) {
-                for (int rz = 0; rz < 16; ++rz) {
-                    vec3 rp(rx, ry, rz);
-                    //vec3 fp = featurepoint(rp, chunk);
-                    //fpTable[rx][ry][rz] = fp;
-                    chunk->getCell(rp).fp.x = Mth::Inf;  // invalidate fp.
-                }
-            }
-        }
+//        for (int rx = 0; rx < 16; ++rx) {
+//            for (int ry = 0; ry < 16; ++ry) {
+//                for (int rz = 0; rz < 16; ++rz) {
+//                    vec3 rp(rx, ry, rz);
+//                    //vec3 fp = featurepoint(rp, chunk);
+//                    //fpTable[rx][ry][rz] = fp;
+//                    chunk->getCell(rp).fp.x = Mth::Inf;  // invalidate fp.
+//                }
+//            }
+//        }
 
 
         for (int rx = 0; rx < 16; ++rx) {
@@ -92,9 +90,8 @@ public:
                                 int wind_vi = ccw ? quadv_i : 5 - quadv_i;
 
                                 vec3 quadp = rp + ADJACENT[axis_i][wind_vi];
-                                // todo: optim Cached Fp. if no eval fp, meshing only need 6ms per chunk instead of 15ms
-                                // vec3 fp = fpTable[(int)quadp.x][(int)quadp.y][(int)quadp.z];
 
+                                // todo: Fp Cache?
                                 vec3& fp = World::_GetCell(chunk, quadp).fp;
 //                                if (fp.x == Mth::Inf) {
                                     // Compute and !Assign to World
@@ -159,7 +156,6 @@ public:
             }
         }
 
-//        assert(!_hasnan(sumFp));
         ASSERT_WARN(numIntersects > 0, "Illegal FeaturePoint");
         if (numIntersects == 0) {
             return {0,0,0};  // Dont return NaN.

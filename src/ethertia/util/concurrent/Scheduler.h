@@ -21,7 +21,7 @@ class Scheduler
     using TaskFunc = std::function<void()>;
     struct Task {
         TaskFunc taskFunc;
-        TaskFunc cancelFunc;  // exec if force terminated the scheduler
+        //TaskFunc cancelFunc;  // exec if force terminated the scheduler
         int priority = 0;
 
         bool operator <(const Task& rhs) const {
@@ -81,25 +81,24 @@ public:
         return m_Tasks.size();
     }
 
-    void addTask(const TaskFunc& taskfunc, const TaskFunc& cancelfunc = [](){}, int priority = 0) {
+    void addTask(const TaskFunc& taskfunc, int priority = 0) {
         LOCK_GUARD(m_LockTasks);
         m_Tasks.push({
             taskfunc,
-            cancelfunc,
             priority
         });
     }
 
-    void clearTasks() {
-        LOCK_GUARD(m_LockTasks);
-        while (!m_Tasks.empty()) {
-            const TaskFunc& cancelfunc = m_Tasks.top().cancelFunc;
-
-            cancelfunc();
-
-            m_Tasks.pop();
-        }
-    }
+//    void clearTasks() {
+//        LOCK_GUARD(m_LockTasks);
+//        while (!m_Tasks.empty()) {
+//            const TaskFunc& cancelfunc = m_Tasks.top().cancelFunc;
+//
+//            cancelfunc();
+//
+//            m_Tasks.pop();
+//        }
+//    }
 
     [[nodiscard]] bool inThread() const {
         return std::this_thread::get_id() == m_ThreadId;

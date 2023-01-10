@@ -17,7 +17,8 @@
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/chunk/proc/ChunkProcStat.h>
-
+#include <ethertia/render/RenderEngine.h>
+#include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 
 
 World::World(const std::string& savedir, uint32_t seed)
@@ -110,6 +111,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
 
     Ethertia::getScheduler()->addTask([this, chunk]()
     {
+        // bug: CNS 这个延时操作，可能刚添加进来的区块 立刻被卸载了，
         addEntity(chunk->m_MeshTerrain);
         addEntity(chunk->m_MeshVegetable);
     });
@@ -127,30 +129,47 @@ Chunk* World::provideChunk(glm::vec3 p)  {
 }
 
 void World::unloadChunk(glm::vec3 p)  {
-    LOCK_GUARD(lock_ChunkList);
-
-    auto it = m_Chunks.find(Chunk::chunkpos(p));
-    if (it == m_Chunks.end())
-        throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
-
-    Chunk* chunk = it->second;
-    m_Chunks.erase(it);
-
-    assert(chunk);
-
+    Chunk* chunk = nullptr;
     {
-        BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
-        m_ChunkLoader->saveChunk(chunk);
+        LOCK_GUARD(lock_ChunkList);
+        auto it = m_Chunks.find(Chunk::chunkpos(p));
+        if (it == m_Chunks.end())
+            throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
+        chunk = it->second;
+        assert(chunk);
+
+//        {
+//            BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
+//            m_ChunkLoader->saveChunk(chunk);
+//        }
+        m_Chunks.erase(it);
     }
+
+
+    chunk->m_World = nullptr;
 
 
     Ethertia::getScheduler()->addTask([this, chunk]()
     {
         removeEntity(chunk->m_MeshTerrain);
         removeEntity(chunk->m_MeshVegetable);
-        delete chunk;
+
+        Ethertia::getAsyncScheduler()->addTask([=](){
+            while (chunk->m_Meshing) {
+                Log::warn("Waiting for Mesh done for prevents interrupt.");
+                Timer::sleep_for(1);
+            }
+            delete chunk;
+        });
     }, [chunk]() {
-        delete chunk;
+
+        Ethertia::getAsyncScheduler()->addTask([=](){
+            while (chunk->m_Meshing) {
+                Log::warn("Waiting for Mesh done for prevents interrupt.");
+                Timer::sleep_for(1);
+            }
+            delete chunk;
+        });
     });
 
 }

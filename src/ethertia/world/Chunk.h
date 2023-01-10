@@ -32,8 +32,6 @@ public:
 
     float m_InhabitedTime = 0;  // seconds.
 
-    bool dbg_LoadFromDisk = false;
-
     // VertexData positions. for fix Normal Smoothing at Chunk Boundary.
     // not use Physics Collision triangle positions yet, it's struct too complicated, BVH triangles, maybe later.
 //    std::vector<float> vert_positions;
@@ -42,6 +40,8 @@ public:
     EntityMesh* m_MeshTerrain = nullptr;
 
     EntityMesh* m_MeshVegetable = nullptr;
+
+    bool m_Meshing = false;  // MeshGen, till Uploaded.
 
     Chunk(glm::vec3 p, World* w) : position(p), m_World(w) {
 

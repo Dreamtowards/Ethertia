@@ -29,7 +29,7 @@ public:
 
     std::uint32_t m_TypeTag = 0;
 
-    World* m_World;
+    World* m_World = nullptr;
 
     class TypeTag {
     public:

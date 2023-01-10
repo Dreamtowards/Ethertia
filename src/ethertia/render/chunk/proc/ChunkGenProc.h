@@ -20,8 +20,8 @@ public:
             while (Ethertia::isRunning())
             {
                 World* world = Ethertia::getWorld();
-                Timer::sleep_for(1);
                 if (!world) {
+                    Timer::sleep_for(1);
                     continue;
                 }
                 g_Processing = true;

@@ -35,7 +35,7 @@ public:
     }
 
     Chunk* loadChunk(glm::vec3 chunkpos, World* world) {
-        std::fstream file(_File(chunkpos), std::ios::in);
+        std::ifstream file(_File(chunkpos), std::ios::in);
         if (!file)
             return nullptr;
 
@@ -49,7 +49,6 @@ public:
         chunk->m_InhabitedTime = (float)tagChunk->at("InhabitedTime");
         chunk->m_Populated = (bool)tagChunk->at("Populated");
 
-        chunk->dbg_LoadFromDisk = true;
         {
             int8_t* cells = &tagChunk->at("Cells").as<nbt::tag_byte_array>().at(0);
 
@@ -71,7 +70,7 @@ public:
 
     void saveChunk(Chunk* chunk) {
         std::string filename = _File(chunk->position);
-        std::fstream file(filename, std::ios::out);
+        std::ofstream file(filename, std::ios::out);
         Loader::ensureFileParentDirsReady(filename);
 
         nbt::tag_compound tagChunk;
