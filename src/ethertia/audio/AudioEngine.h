@@ -112,6 +112,7 @@ class AudioBuffer
 {
 public:
     ALuint m_BufferId = 0;
+    int m_Frequence = 0;  // samples per sec.
 
     AudioBuffer() {
         alGenBuffers(1, &m_BufferId);
@@ -121,6 +122,7 @@ public:
     }
 
     void buffer_data(ALuint format, void* data, size_t datalen, int freq) {
+        m_Frequence = freq;
         alBufferData(m_BufferId, format, data, datalen, freq);
     }
 };
@@ -132,12 +134,13 @@ public:
     ALCdevice*  m_Device = nullptr;
     ALCcontext* m_Context = nullptr;
 
+    ALCdevice* m_CaptureDevice = nullptr;
+
     AudioEngine()
     {
-        BENCHMARK_TIMER(void);
+        BENCHMARK_TIMER;
 
-        const char* deviceName = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-        m_Device = alcOpenDevice(deviceName);
+        m_Device = alcOpenDevice(nullptr);
         if (!m_Device)
             throw new std::runtime_error("failed open al device.");
 
@@ -147,12 +150,35 @@ public:
 
         alcMakeContextCurrent(m_Context);
 
+        {
+            float r_SampleRate = 44100;  // 8000-96000
+
+            m_CaptureDevice = alcCaptureOpenDevice(nullptr, r_SampleRate, AL_FORMAT_MONO16, 32768);
+            if (!m_CaptureDevice)
+                throw std::runtime_error("Failed open capture device.");
+
+            alcCaptureStart(m_CaptureDevice);
+
+            ALCsizei captureSize = 0;
+            alcGetIntegerv(m_CaptureDevice, ALC_CAPTURE_SAMPLES, 1, &captureSize);
+            if (captureSize < 1) {
+                // sleep / await.
+            } // else if > buffer size
+
+//            char buf[25565];
+
+            // OpenAL gives native-endian.
+//            alcCaptureSamples(m_CaptureDevice, buf, captureSize);
+
+            alcCaptureStop(m_CaptureDevice);
+        }
+
         Log::info("Init AL_{} | {} @{} .{}, Capt/ {}.\1",
                   alGetString(AL_VERSION),
-                  deviceName,
-                  alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER),
+                  alcGetString(m_Device, ALC_DEVICE_SPECIFIER),
+                  alcGetString(m_Device, ALC_ALL_DEVICES_SPECIFIER),  // actual device name.
                   _infoOutputMode(m_Device),
-                  alcGetString(nullptr, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
+                  alcGetString(nullptr, ALC_CAPTURE_DEVICE_SPECIFIER));
 
         checkAlError("Init AL");
     }

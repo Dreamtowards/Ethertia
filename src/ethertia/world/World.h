@@ -44,6 +44,10 @@ public:
 
     uint32_t m_Seed = 0;
 
+    // [0, 1] t*24; 0: 0AM, 0.25: 6AM, 0.5: 0PM, 0.75: 6PM
+    float m_DayTime = 0;
+    float m_InhabitedTime = 0;
+
 
     World(const std::string& savedir, uint32_t seed);
     ~World();
@@ -97,6 +101,9 @@ public:
     const std::vector<Entity*>& getEntities();
 
 
+    void tick(float dt);
+
+
 
 
 
@@ -111,11 +118,6 @@ public:
 
     bool raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n, btCollisionObject** obj) const;
 
-
-    void tick() {
-//        float dt = Timer::T_DELTA;
-//        dynamicsWorld->stepSimulation(dt);
-    }
 
     static void populate(World* world, glm::vec3 chunkpos);
 

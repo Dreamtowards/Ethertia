@@ -59,8 +59,10 @@ public:
         return "WINDOWS";
 #elif __APPLE__
         return "DARWIN";
-#else
+#elif __unix__
         return "LINUX";
+#else
+        return "_UNKNOWN";
 #endif
     }
 
@@ -119,8 +121,57 @@ public:
         fs.close();
     }
 
-    static AudioBuffer* loadOGG(std::pair<char*, size_t> data);
+    static int16_t* loadOGG(std::pair<char*, size_t> data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
 
+
+    static AudioBuffer* loadOGG(std::pair<char*, size_t> data) {
+        size_t len;
+        int channels;
+        int sampleRate = 0;
+
+        int16_t* pcm = Loader::loadOGG(data, &len, &channels, &sampleRate);
+        ALuint format = channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+
+        AudioBuffer* buf = new AudioBuffer();
+        buf->buffer_data(format, pcm, len, sampleRate);
+        return buf;
+    }
+
+    // PCM, 16-bit sample, 1-channel
+    static void saveWAV(const void* pcm, size_t size, std::ostream& dst, int samplePerSec = 44100) {
+        // endianness problem. may cause wrong on big-endian system.
+        struct WAV_HEADER {
+            /* RIFF Chunk Descriptor */
+            uint8_t RIFF[4] = {'R', 'I', 'F', 'F'}; // RIFF Header Magic header
+            uint32_t ChunkSize;                     // RIFF Chunk Size
+            uint8_t WAVE[4] = {'W', 'A', 'V', 'E'}; // WAVE Header
+            /* "fmt" sub-chunk */
+            uint8_t fmt[4] = {'f', 'm', 't', ' '}; // FMT header
+            uint32_t Subchunk1Size = 16;           // Size of the fmt chunk
+            uint16_t AudioFormat = 1; // Audio format 1=PCM,6=mulaw,7=alaw,     257=IBM
+            // Mu-Law, 258=IBM A-Law, 259=ADPCM
+            uint16_t NumOfChan = 1;   // Number of channels 1=Mono 2=Sterio
+            uint32_t SamplesPerSec = 16000;   // Sampling Frequency in Hz
+            uint32_t bytesPerSec = 16000 * 2; // bytes per second
+            uint16_t blockAlign = 2;          // 2=16-bit mono, 4=16-bit stereo
+            uint16_t bitsPerSample = 16;      // Number of bits per sample
+            /* "data" sub-chunk */
+            uint8_t Subchunk2ID[4] = {'d', 'a', 't', 'a'}; // "data"  string
+            uint32_t Subchunk2Size;                        // Sampled data length
+        };
+        static_assert(sizeof(WAV_HEADER) == 44);
+
+        WAV_HEADER hdr;
+        hdr.ChunkSize = size + sizeof(WAV_HEADER) - 8;
+        hdr.Subchunk2Size = size;
+
+        hdr.SamplesPerSec = samplePerSec;
+        hdr.bytesPerSec = samplePerSec * 2;  // 16bit sample.
+
+        dst.write(reinterpret_cast<const char*>(&hdr), sizeof(WAV_HEADER));
+
+        dst.write((char*)pcm, size);
+    }
 
     static BitmapImage* loadPNG(const void* data, u32 len) {
         int width, height, channels;

@@ -94,7 +94,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     glm::vec3 chunkpos = Chunk::chunkpos(p);
 
     {
-        BENCHMARK_TIMER(&ChunkProcStat::LOAD.time, nullptr);
+        BENCHMARK_TIMER_VAL(&ChunkProcStat::LOAD.time);
 
         chunk = m_ChunkLoader->loadChunk(chunkpos, this);
 
@@ -102,7 +102,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     }
 
     if (!chunk) {
-        BENCHMARK_TIMER(&ChunkProcStat::GEN.time, nullptr);  ++ChunkProcStat::GEN.num;
+        BENCHMARK_TIMER_VAL(&ChunkProcStat::GEN.time);  ++ChunkProcStat::GEN.num;
         chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
     }
 
@@ -144,7 +144,7 @@ void World::unloadChunk(glm::vec3 p)  {
 
         m_Chunks.erase(it);
         {
-            BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
+            BENCHMARK_TIMER_VAL(&ChunkProcStat::SAVE.time); ChunkProcStat::SAVE.num++;
             m_ChunkLoader->saveChunk(chunk);
         }
 //        Ethertia::getAsyncScheduler()->addTask([this, chunk](){
@@ -219,6 +219,12 @@ const std::vector<Entity*>& World::getEntities() {
     return m_Entities;
 }
 
+void World::tick(float dt)
+{
+    m_InhabitedTime += dt;
+    m_DayTime = Mth::mod(m_DayTime + dt, 1.0f);
+}
+
 
 bool World::raycast(glm::vec3 begin, glm::vec3 end, glm::vec3& p, glm::vec3& n, btCollisionObject** obj) const {
     btVector3 _beg(begin.x, begin.y, begin.z);
@@ -267,7 +273,7 @@ Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {
 
 
 void World::populate(World* world, glm::vec3 chunkpos) {
-    BENCHMARK_TIMER(&ChunkProcStat::GEN_POP.time, nullptr);  ++ChunkProcStat::GEN_POP.num;
+    BENCHMARK_TIMER_VAL(&ChunkProcStat::GEN_POP.time);  ++ChunkProcStat::GEN_POP.num;
     float noiseSand[16*16];
     float noiseFern[16*16];
 

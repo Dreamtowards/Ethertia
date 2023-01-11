@@ -52,7 +52,7 @@ public:
     }
 
     static void meshChunk_Upload(Chunk* chunk) {
-        BENCHMARK_TIMER(&ChunkProcStat::MESH.time, nullptr);  ChunkProcStat::MESH.num++;
+        BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
 
         chunk->m_Meshing = true;  // May Already Been Deleted.
         chunk->m_MeshInvalid = false;

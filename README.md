@@ -183,8 +183,11 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
       - NBT Basic Info, InhabitedTime, Populated..
   - 2023-01-11
     - GuiScreenMainMenu init. text align y. 
+    - WAV file save. from PCM 16bit 1channel. little endian system.
+    - OpenAL Capture init.
 
-      - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
+    - Audio Frequency Spectrum 
+    - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
     - GUI 主界面
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。

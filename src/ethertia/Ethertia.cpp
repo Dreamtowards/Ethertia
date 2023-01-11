@@ -53,7 +53,7 @@ int main()
 
 void Ethertia::start()
 {
-    BENCHMARK_TIMER(nullptr, "System initialized in {}.\n");
+    BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::loadSettings();
 
     m_Running = true;
@@ -62,7 +62,7 @@ void Ethertia::start()
     m_RenderEngine = new RenderEngine();
     m_AudioEngine = new AudioEngine();
     ChunkGenerator::initSIMD();
-    Log::info("Core {}, {}", std::thread::hardware_concurrency(), Loader::system());
+    Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::system(), std::endian::native == std::endian::big ? "big" : "little");
 
     MaterialTextures::init();
     GuiIngame::initGUIs();
@@ -95,6 +95,15 @@ void Ethertia::start()
     src->QueueBuffer(buf->m_BufferId);
     src->play();
 
+//    {
+//        size_t len;
+//        int chan;
+//        int freq;
+//        int16_t* pcm = Loader::loadOGG(data, &len, &chan, &freq);
+//
+//        std::ofstream wavFile("testwrite.wav");
+//        Loader::saveWAV(pcm, len, wavFile, freq);
+//    }
 
 
 }
@@ -114,7 +123,7 @@ void Ethertia::runMainLoop()
 
         while (m_Timer.polltick())
         {
-            runTick();
+            // runTick();
         }
         if (m_World)
         {
@@ -128,6 +137,8 @@ void Ethertia::runMainLoop()
             {
                 chunk->m_InhabitedTime += getDelta();
             });
+
+            m_World->tick(getDelta());
         }
     }
 
@@ -191,10 +202,10 @@ void Ethertia::renderGUI()
 void Ethertia::runTick()
 {
 
-    if (m_World) {
-
-        m_World->tick();
-    }
+//    if (m_World) {
+//
+//        m_World->tick();
+//    }
 }
 
 void Ethertia::destroy()
@@ -326,7 +337,7 @@ float Ethertia::getAspectRatio() {
 #include <stb/stb_vorbis.c>
 
 
-AudioBuffer* Loader::loadOGG(std::pair<char*, size_t> data) {
+int16_t* Loader::loadOGG(std::pair<char*, size_t> data, size_t* dst_len, int* dst_channels, int* dst_sampleRate) {
     int channels = 0;
     int sample_rate = 0;
     int16_t* pcm = nullptr;
@@ -337,9 +348,10 @@ AudioBuffer* Loader::loadOGG(std::pair<char*, size_t> data) {
 
     // Log::info("Load ogg, pcm size {}, freq {}, cnls {}", Strings::size_str(len), sample_rate, channels);
     assert(channels == 2 || channels == 1);
-    ALuint format = channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 
-    AudioBuffer* buf = new AudioBuffer();
-    buf->buffer_data(format, pcm, len, sample_rate);
-    return buf;
+    *dst_channels = channels;
+    *dst_len = len;
+    *dst_sampleRate = sample_rate;
+
+    return pcm;
 }

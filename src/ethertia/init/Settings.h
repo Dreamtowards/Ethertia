@@ -30,7 +30,8 @@ public:
         }
     }
 
-    static void loadSettings() { BenchmarkTimer _tm;
+    static void loadSettings() {
+        BENCHMARK_TIMER;
         Log::info("Load Settings.\1");
         if (!Loader::fileExists(SETTINGS_FILE))
             return;
@@ -57,7 +58,8 @@ public:
 
     }
 
-    static void saveSettings() { BenchmarkTimer _tm;
+    static void saveSettings() {
+        BENCHMARK_TIMER;
         Log::info("Save Settings.\1");
 
         json settings = json::object({
