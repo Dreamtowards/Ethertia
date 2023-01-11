@@ -57,11 +57,12 @@ void Ethertia::start()
     Settings::loadSettings();
 
     m_Running = true;
-    m_Window = new Window(Settings::displayWidth, Settings::displayHeight, "Dysplay");
+    m_Window = new Window(Settings::displayWidth, Settings::displayHeight, std::string("Ethertia "+Ethertia::Version::name()).c_str());
     m_RootGUI = new GuiRoot();
     m_RenderEngine = new RenderEngine();
     m_AudioEngine = new AudioEngine();
     ChunkGenerator::initSIMD();
+    Log::info("Core ", std::thread::hardware_concurrency());
 
     MaterialTextures::init();
     GuiIngame::initGUIs();
@@ -83,7 +84,6 @@ void Ethertia::start()
     m_Player->setFlying(true);
 
     // NetworkSystem::connect("127.0.0.1", 8081);
-
 
 
 
@@ -226,6 +226,10 @@ void Ethertia::loadWorld()
     ChunkGenProc::g_Running = 1;
 
     Log::info("Loading world @\"{}\" *{}", m_World->m_ChunkLoader->m_ChunkDir, m_World->m_Seed);
+
+
+    Ethertia::getRootGUI()->removeAllGuis();
+    Ethertia::getRootGUI()->addGui(GuiIngame::INST);
 }
 
 void Ethertia::unloadWorld()
@@ -254,6 +258,12 @@ void Ethertia::unloadWorld()
     m_World = nullptr;
 
     Log::info("World unloaded.");
+
+    // remove gui after GuiEventPolling
+    getScheduler()->addTask([](){
+        Ethertia::getRootGUI()->removeAllGuis();
+        Ethertia::getRootGUI()->addGui(GuiScreenMainMenu::INST);
+    });
 }
 
 
@@ -295,7 +305,7 @@ void Ethertia::notifyMessage(const std::string& msg) {
     GuiMessageList::INST->addMessage(msg);
 }
 
-bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
+bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST; } // && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
 
 float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
 

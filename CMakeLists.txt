@@ -96,6 +96,7 @@ include_directories(lib/nbt/include)
 
 add_executable(Ethertia
         lib/glad/glad.c
+        lib/tinyfd/tinyfiledialogs.c
 
         src/ethertia/gui/Gui.cpp
         src/ethertia/render/RenderEngine.cpp

@@ -388,10 +388,11 @@ public:
                          float border =99999);
 
 
+    // alignY: -0.5 = Center, -1.0 = Upward.
     static void drawString(float x, float y, const std::string& str,
                            glm::vec4 color  =Colors::WHITE,
                            float textHeight =16,
-                           float alignX     =0,
+                           glm::vec2 align  ={0,0},
                            bool drawShadow  =true);
 
     static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);

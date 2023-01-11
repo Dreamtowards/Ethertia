@@ -5,11 +5,12 @@
 #ifndef ETHERTIA_GUIINGAME_H
 #define ETHERTIA_GUIINGAME_H
 
+
+#include <ethertia/gui/GuiCommon.h>
+
 #include "GuiScreenMainMenu.h"
 #include "GuiScreenPause.h"
 #include "GuiScreenChat.h"
-
-#include <ethertia/gui/GuiCommon.h>
 
 #include "GuiDebugV.h"
 #include "GuiMessageList.h"
@@ -27,12 +28,15 @@ public:
         GuiMessageList::INST = new GuiMessageList();
 
         GuiIngame::INST = new GuiIngame();
-        rt->addGui(GuiIngame::INST);
 
         GuiScreenMainMenu::INST = new GuiScreenMainMenu();
         GuiScreenChat::INST = new GuiScreenChat();
         GuiScreenPause::INST = new GuiScreenPause();
-        rt->addGui(GuiScreenPause::INST);
+
+//        rt->addGui(GuiIngame::INST);
+//        rt->addGui(GuiScreenPause::INST);
+
+        rt->addGui(GuiScreenMainMenu::INST);
     }
 
     GuiIngame()

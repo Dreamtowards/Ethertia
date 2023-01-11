@@ -235,7 +235,7 @@ public:
                         chunkInfo
                         );
             }
-            Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, 0, false);
+            Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, {0,0}, false);
         }
 
         if (dbgAllEntityAABB) {

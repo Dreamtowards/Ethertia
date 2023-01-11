@@ -22,14 +22,18 @@ void Gui::drawRect(float x, float y, float w, float h, glm::vec4 color, Texture*
 }
 
 
-void Gui::drawString(float x, float y, const std::string& str, glm::vec4 color, float textHeight, float alignX, bool drawShadow) {
+void Gui::drawString(float x, float y, const std::string& str, glm::vec4 color, float textHeight, glm::vec2 align, bool drawShadow) {
     FontRenderer* fr = Ethertia::getRenderEngine()->fontRenderer;
+    if (align.y != 0) {
+        float height = Strings::lines(str) * textHeight;
+        y += height * align.y;
+    }
     if (drawShadow) {
         float off = textHeight / 16;
         auto scolor = color * 0.24f; scolor.a = color.a;
-        fr->renderString(x+off, y+off, str, scolor, textHeight, alignX);
+        fr->renderString(x+off, y+off, str, scolor, textHeight, align.x);
     }
-    fr->renderString(x, y, str, color, textHeight, alignX);
+    fr->renderString(x, y, str, color, textHeight, align.x);
 }
 
 void Gui::drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn)

@@ -188,6 +188,16 @@ public:
         return ss.str();
     }
 
+    static int lines(const std::string& str) {
+        int line = 1;
+        for (int i = 0; i < str.length(); ++i) {
+            if (str[i] == '\n') {
+                ++line;
+            }
+        }
+        return line;
+    }
+
     // split command parts by spaces. quoted by " or ' will be seen as a whole part.
 //    static std::vector<std::string> splitCommand(const std::string& str) {
 //

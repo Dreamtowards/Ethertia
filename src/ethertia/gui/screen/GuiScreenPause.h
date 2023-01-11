@@ -8,6 +8,7 @@
 #include <ethertia/gui/GuiText.h>
 #include <ethertia/gui/GuiStack.h>
 #include <ethertia/gui/GuiCollection.h>
+#include <ethertia/gui/screen/GuiIngame.h>
 
 #include <ethertia/world/World.h>
 
@@ -32,15 +33,16 @@ public:
 
                 rightbox->addGui(new GuiButton("Ops", false));
 
-                GuiButton* btnNewWorld = new GuiButton("New", false);
-                rightbox->addGui(btnNewWorld);
-                btnNewWorld->addOnClickListener([](auto ) {
-                    Ethertia::loadWorld();
-                });
+//                GuiButton* btnNewWorld = new GuiButton("New", false);
+//                rightbox->addGui(btnNewWorld);
+//                btnNewWorld->addOnClickListener([](auto )
+//                {
+//                });
 
                 GuiButton* btnExitWorld = new GuiButton("Ext", false);
                 rightbox->addGui(btnExitWorld);
-                btnExitWorld->addOnClickListener([](auto){
+                btnExitWorld->addOnClickListener([](auto)
+                {
                     Ethertia::unloadWorld();
                 });
             }

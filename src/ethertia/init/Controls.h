@@ -8,7 +8,6 @@
 class Controls
 {
 public:
-    inline static Entity* m_FocusedEntity = nullptr;
 
     static void initConsoleThread()
     {
@@ -243,14 +242,24 @@ public:
 
     static void escape_PauseOrBack()
     {
-        if (Ethertia::isIngame())
+        if (Ethertia::getWorld())
         {
-            Ethertia::getRootGUI()->addGui(GuiScreenPause::INST);  // Pause
+            if (Ethertia::isIngame())
+            {
+                Ethertia::getRootGUI()->addGui(GuiScreenPause::INST);  // Pause
+            }
+            else
+            {
+                assert(Ethertia::getRootGUI()->last() != GuiIngame::INST);
+                Ethertia::getRootGUI()->removeLastGui();
+            }
         }
         else
         {
-            assert(Ethertia::getRootGUI()->last() != GuiIngame::INST);
-            Ethertia::getRootGUI()->removeLastGui();
+            if (Ethertia::getRootGUI()->last() != GuiScreenMainMenu::INST)
+            {
+                Ethertia::getRootGUI()->removeLastGui();
+            }
         }
     }
 

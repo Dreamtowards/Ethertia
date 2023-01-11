@@ -78,7 +78,7 @@ public:
 
     static void shutdown() { m_Running = false; }
     static const bool& isRunning() { return m_Running; }
-    static bool isIngame();
+    static bool isIngame();  // means is controlling game.
     static float getPreciseTime();
     static float getAspectRatio();
     static float getDelta();
@@ -98,8 +98,26 @@ public:
     static Profiler& getProfiler() { return m_Profiler; }
 
 
+    struct Version
+    {
+        inline static const int major = 0;
+        inline static const int minor = 1;
+        inline static const int revision = 1;
+        inline static const char* snapshot = "23u02b";  // release -> nullptr.
 
-
+        static std::string name() {
+            // todo: cache.
+            if (snapshot) {
+                return Strings::fmt("{}.{}.{}-{}", major, minor, revision, snapshot);
+            } else {
+                return Strings::fmt("{}.{}.{}", major, minor, revision);
+            }
+        }
+    };
+    static Version& getVersion() {
+        static Version vers{};
+        return vers;
+    }
 
 };
 

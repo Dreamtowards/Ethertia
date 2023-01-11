@@ -178,9 +178,13 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
   - 2023-01-09
     - ChunkGenProc, ChunkMeshProc 分成两个线程 分别生成区块/处理网格
     - Scheduler 上锁, 修复了相关的执行错误
+  - 2023-01-10
+    - World Storage 世界存储。
+      - NBT Basic Info, InhabitedTime, Populated..
+  - 2023-01-11
+    - GuiScreenMainMenu init. text align y. 
 
-    - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
-    - World Storage 世界存储。  
+      - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
     - GUI 主界面
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
