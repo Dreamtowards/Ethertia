@@ -39,6 +39,31 @@ public:
         return tinyfd_inputBox(title, message, def);  // free()?
     }
 
+    // File, Folder, URL
+    static void openURL(const std::string& url) {
+        const char* cmd = nullptr;
+#if _WIN32
+        cmd = "start ";  // windows
+#elif __APPLE__
+        cmd = "open ";  // macos
+#elif __unix__
+        cmd = "xdg-open ";  // linux
+#else
+        assert(false);  // Not supported OS yet.
+#endif
+        std::system(std::string(cmd + url).c_str());
+    }
+
+    static const char* system() {
+#if __WIN32__
+        return "WINDOWS";
+#elif __APPLE__
+        return "DARWIN";
+#else
+        return "LINUX";
+#endif
+    }
+
     static std::pair<char*, size_t> loadFile(const std::string& path)
     {
         std::ifstream file(path, std::ios_base::binary);

@@ -62,7 +62,7 @@ void Ethertia::start()
     m_RenderEngine = new RenderEngine();
     m_AudioEngine = new AudioEngine();
     ChunkGenerator::initSIMD();
-    Log::info("Core ", std::thread::hardware_concurrency());
+    Log::info("Core {}, {}", std::thread::hardware_concurrency(), Loader::system());
 
     MaterialTextures::init();
     GuiIngame::initGUIs();

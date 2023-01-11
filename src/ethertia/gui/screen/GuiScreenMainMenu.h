@@ -35,6 +35,9 @@ public:
 
         GuiButton* btnMultiplayer = new GuiButton("Multiplayer");
         vstack->addGui(btnMultiplayer);
+        btnMultiplayer->addOnClickListener([](auto) {
+            Loader::openURL(Loader::showInputBox("URL", "File, Folder, or URL", ""));
+        });
 
         GuiButton* btnSettings = new GuiButton("Settings");
         vstack->addGui(btnSettings);
@@ -42,7 +45,7 @@ public:
 
         });
 
-        GuiButton* btnExit = new GuiButton("Term");
+        GuiButton* btnExit = new GuiButton("Terminate");
         vstack->addGui(btnExit);
         btnExit->addOnClickListener([](auto)
         {
