@@ -187,6 +187,8 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - OpenAL Capture init.
   - 2023-01-12
     - // Vid WorldStore, poster
+    - Profiler: +MeshGen +ChunkProc. 
+      
     - World Saving Hint 世界保存的提示
     - 修复bug：有些地方没有population
     

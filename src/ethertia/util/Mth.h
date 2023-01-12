@@ -275,6 +275,228 @@ public:
     static glm::vec2 ndc(float x, float y, float w, float h) {
         return glm::vec2(x/w, 1.0f - y/h) * 2.0f - 1.0f;
     }
+
+
+
+
+
+
+
+//
+// 快速傅立叶变换 Fast Fourier Transform
+// By rappizit@yahoo.com.cn
+// 2007-07-20
+// 版本 2.0
+// 改进了《算法导论》的算法，旋转因子取 ωn-kj  (ωnkj 的共轭复数)
+// 且只计算 n / 2 次，而未改进前需要计算 (n * lg n) / 2 次。
+//
+
+
+    inline static void swap(float& a, float& b) {
+        float t = a;
+        a = b;
+        b = t;
+    }
+
+    // Bit-reversal Permutation
+    static void bitrp(float xreal[], float ximag[], int n)
+    {
+        int log2n = 0;
+        for (int i = 1; i < n; i *= 2) {
+            log2n ++;
+        }
+        for (int i = 0; i < n; i ++)
+        {
+            int a = i;
+            int b = 0;
+            for (int j = 0; j < log2n; j ++)
+            {
+                b = (b << 1) | (a & 1);    // b = b * 2 + a % 2;
+                a >>= 1;        // a = a / 2;
+            }
+            if (b > i)
+            {
+                assert(b > 0 && b < n);
+                swap (xreal [i], xreal [b]);
+                swap (ximag [i], ximag [b]);
+            }
+        }
+    }
+
+//    static int rbit(int x, int log2n) {
+//        int n = 0;
+//
+//    }
+
+
+    static void FFT(float xreal[], float ximag[], int n)
+    {
+        assert((n & (n - 1)) == 0 && "invalid input size");
+
+        const int N = 1024;
+        assert(n <= N);
+        float wreal [N / 2], wimag [N / 2], treal, timag, ureal, uimag, arg;
+        int m, k, j, t, index1, index2;
+
+        bitrp (xreal, ximag, n);
+
+//        return;
+
+        // 计算 1 的前 n / 2 个 n 次方根的共轭复数 W'j = wreal [j] + i * wimag [j] , j = 0, 1, ... , n / 2 - 1
+        arg = - 2 * PI / n;
+        treal = cos (arg);
+        timag = sin (arg);
+        wreal [0] = 1.0;
+        wimag [0] = 0.0;
+        for (j = 1; j < n / 2; j ++)
+        {
+            wreal [j] = wreal [j - 1] * treal - wimag [j - 1] * timag;
+            wimag [j] = wreal [j - 1] * timag + wimag [j - 1] * treal;
+        }
+
+        for (m = 2; m <= n; m *= 2)
+        {
+            for (k = 0; k < n; k += m)
+            {
+                for (j = 0; j < m / 2; j ++)
+                {
+                    index1 = k + j;
+                    index2 = index1 + m / 2;
+                    t = n * j / m;    // 旋转因子 w 的实部在 wreal [] 中的下标为 t
+                    treal = wreal [t] * xreal [index2] - wimag [t] * ximag [index2];
+                    timag = wreal [t] * ximag [index2] + wimag [t] * xreal [index2];
+                    ureal = xreal [index1];
+                    uimag = ximag [index1];
+                    xreal [index1] = ureal + treal;
+                    ximag [index1] = uimag + timag;
+                    xreal [index2] = ureal - treal;
+                    ximag [index2] = uimag - timag;
+                }
+            }
+        }
+    }
+
+
+    // FFT Inverse
+    void  IFFT (float xreal [], float ximag [], int n)
+    {
+        const int N = 1024;
+        float wreal [N / 2], wimag [N / 2], treal, timag, ureal, uimag, arg;
+        int m, k, j, t, index1, index2;
+
+        bitrp (xreal, ximag, n);
+
+        // 计算 1 的前 n / 2 个 n 次方根 Wj = wreal [j] + i * wimag [j] , j = 0, 1, ... , n / 2 - 1
+        arg = 2 * PI / n;
+        treal = cos (arg);
+        timag = sin (arg);
+        wreal [0] = 1.0;
+        wimag [0] = 0.0;
+        for (j = 1; j < n / 2; j ++)
+        {
+            wreal [j] = wreal [j - 1] * treal - wimag [j - 1] * timag;
+            wimag [j] = wreal [j - 1] * timag + wimag [j - 1] * treal;
+        }
+
+        for (m = 2; m <= n; m *= 2)
+        {
+            for (k = 0; k < n; k += m)
+            {
+                for (j = 0; j < m / 2; j ++)
+                {
+                    index1 = k + j;
+                    index2 = index1 + m / 2;
+                    t = n * j / m;    // 旋转因子 w 的实部在 wreal [] 中的下标为 t
+                    treal = wreal [t] * xreal [index2] - wimag [t] * ximag [index2];
+                    timag = wreal [t] * ximag [index2] + wimag [t] * xreal [index2];
+                    ureal = xreal [index1];
+                    uimag = ximag [index1];
+                    xreal [index1] = ureal + treal;
+                    ximag [index1] = uimag + timag;
+                    xreal [index2] = ureal - treal;
+                    ximag [index2] = uimag - timag;
+                }
+            }
+        }
+
+        for (j=0; j < n; j ++)
+        {
+            xreal [j] /= n;
+            ximag [j] /= n;
+        }
+    }
+
+
+
+
+};
+
+#include <complex>
+#include "valarray"
+
+
+class _FFT
+{
+public:
+    const double PI = 3.141592653589793238460;
+
+    typedef std::complex<double> Complex;
+    typedef std::valarray<Complex> CArray;
+
+// From http://rosettacode.org/wiki/Fast_Fourier_transform
+
+// Cooley-Tukey FFT (in-place, breadth-first, decimation-in-frequency)
+// Better optimized but less intuitive
+// !!! Warning : in some cases this code make result different from not optimased version above (need to fix bug)
+// The bug is now fixed @2017/05/30
+    static void fft(CArray &x)
+    {
+        // DFT
+        unsigned int N = x.size(), k = N, n;
+        double thetaT = 3.14159265358979323846264338328L / N;
+        Complex phiT = Complex(cos(thetaT), -sin(thetaT)), T;
+        while (k > 1)
+        {
+            n = k;
+            k >>= 1;
+            phiT = phiT * phiT;
+            T = 1.0L;
+            for (unsigned int l = 0; l < k; l++)
+            {
+                for (unsigned int a = l; a < N; a += n)
+                {
+                    unsigned int b = a + k;
+                    Complex t = x[a] - x[b];
+                    x[a] += x[b];
+                    x[b] = t * T;
+                }
+                T *= phiT;
+            }
+        }
+        // Decimate
+        unsigned int m = (unsigned int)log2(N);
+        for (unsigned int a = 0; a < N; a++)
+        {
+            unsigned int b = a;
+            // Reverse bits
+            b = (((b & 0xaaaaaaaa) >> 1) | ((b & 0x55555555) << 1));
+            b = (((b & 0xcccccccc) >> 2) | ((b & 0x33333333) << 2));
+            b = (((b & 0xf0f0f0f0) >> 4) | ((b & 0x0f0f0f0f) << 4));
+            b = (((b & 0xff00ff00) >> 8) | ((b & 0x00ff00ff) << 8));
+            b = ((b >> 16) | (b << 16)) >> (32 - m);
+            if (b > a)
+            {
+                Complex t = x[a];
+                x[a] = x[b];
+                x[b] = t;
+            }
+        }
+        //// Normalize (This section make it not working correctly)
+//        Complex f = 1.0 / sqrt(N);
+//        for (unsigned int i = 0; i < N; i++)
+//            x[i] *= f;
+    }
+
 };
 
 #endif //ETHERTIA_MTH_H

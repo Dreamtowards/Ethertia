@@ -32,7 +32,7 @@
 
 //#include <yaml-cpp/yaml.h>
 //#include <nbt/nbt_tags.h>
-
+//#include "dj-fft/dj_fft.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -46,6 +46,33 @@ int main()
 {
     Ethertia::run();
 
+//    float real[8] = {0, 1, 3, 4, 4, 3, 1, 0};
+//    float imag[8] = {0, 1, 3, 4, 4, 3, 1, 0};
+//    Mth::FFT(real, imag, 8);
+//
+//    for (int i = 0; i < 8; ++i) {
+//        Log::info("{}, {}", real[i], imag[i]);
+//    }
+
+//int samples = 8;
+//    _FFT::Complex comp[] = {{0,0}, {1,1}, {3,3}, {4,4}, {4,4}, {3,3}, {1,1}, {0,0}};
+//    _FFT::CArray arr(comp, samples);
+//    _FFT::fft(arr);
+//
+//    for (int i = 0; i < 8; ++i) {
+//        Log::info("{}, {}", comp[i].real(), comp[i].imag());
+//    }
+
+
+//    std::vector<std::complex<float>> arr({{0,0}, {1,1}, {3,3}, {4,4}, {4,4}, {3,3}, {1,1}, {0,0}});
+//    auto rst = dj::fft1d(arr, dj::fft_dir::DIR_BWD);
+//
+//    for (int i = 0; i < 8; ++i) {
+//        Log::info("{}, {}", rst[i].real(), rst[i].imag());
+//    }
+
+//
+//    simple_fft::FFT(arr, 2);
 
     return 0;
 }
@@ -105,6 +132,7 @@ void Ethertia::start()
 //        Loader::saveWAV(pcm, len, wavFile, freq);
 //    }
 
+    m_AudioEngine->startCapture();
 
 }
 

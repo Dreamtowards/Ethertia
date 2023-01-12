@@ -136,6 +136,10 @@ public:
 
     ALCdevice* m_CaptureDevice = nullptr;
 
+    inline static const int CAPTURE_BUF_SIZE = 32768;
+    inline static char CAPTURE_BUF[CAPTURE_BUF_SIZE];
+    bool m_CaptureStarted = false;
+
     AudioEngine()
     {
         BENCHMARK_TIMER;
@@ -152,25 +156,12 @@ public:
 
         {
             float r_SampleRate = 44100;  // 8000-96000
+            r_SampleRate =  12000;
 
-            m_CaptureDevice = alcCaptureOpenDevice(nullptr, r_SampleRate, AL_FORMAT_MONO16, 32768);
+            m_CaptureDevice = alcCaptureOpenDevice(nullptr, r_SampleRate, AL_FORMAT_MONO16, CAPTURE_BUF_SIZE);
             if (!m_CaptureDevice)
                 throw std::runtime_error("Failed open capture device.");
 
-            alcCaptureStart(m_CaptureDevice);
-
-            ALCsizei captureSize = 0;
-            alcGetIntegerv(m_CaptureDevice, ALC_CAPTURE_SAMPLES, 1, &captureSize);
-            if (captureSize < 1) {
-                // sleep / await.
-            } // else if > buffer size
-
-//            char buf[25565];
-
-            // OpenAL gives native-endian.
-//            alcCaptureSamples(m_CaptureDevice, buf, captureSize);
-
-            alcCaptureStop(m_CaptureDevice);
         }
 
         Log::info("Init AL_{} | {} @{} .{}, Capt/ {}.\1",
@@ -185,9 +176,39 @@ public:
 
     ~AudioEngine()
     {
+        if (m_CaptureStarted)
+            stopCapture();
+        alcCloseDevice(m_CaptureDevice);
+
         alcMakeContextCurrent(nullptr);
         alcDestroyContext(m_Context);
         alcCloseDevice(m_Device);
+    }
+
+    void startCapture() {
+        m_CaptureStarted = true;
+        alcCaptureStart(m_CaptureDevice);
+    }
+
+    void stopCapture() {
+        m_CaptureStarted = false;
+        alcCaptureStop(m_CaptureDevice);
+    }
+
+    size_t sampleCapture(int16_t** buf) {
+        ALCsizei captureSize = 0;
+        alcGetIntegerv(m_CaptureDevice, ALC_CAPTURE_SAMPLES, 1, &captureSize);
+        if (captureSize < 1) {
+            return 0;
+        }
+        assert(captureSize <= CAPTURE_BUF_SIZE);
+
+        // MONO16 PCM.
+        // OpenAL gives native-endian.
+        alcCaptureSamples(m_CaptureDevice, CAPTURE_BUF, captureSize);
+
+        *buf = (int16_t*)CAPTURE_BUF;
+        return captureSize;
     }
 
 

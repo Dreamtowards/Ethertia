@@ -98,6 +98,7 @@ public:
     static BrushCursor& getBrushCursor() { return m_Cursor; }
     static Camera* getCamera();
     static Profiler& getProfiler() { return m_Profiler; }
+    static AudioEngine* getAudioEngine() { return m_AudioEngine; }
 
 
     struct Version

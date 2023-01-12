@@ -14,6 +14,9 @@
 
 #include <ethertia/render/Camera.h>
 
+
+#include "dj-fft/dj_fft.h"
+
 class GuiScreenMainMenu : public GuiCollection
 {
 public:
@@ -64,6 +67,73 @@ public:
 
         Gui::drawString(Gui::maxWidth(), Gui::maxHeight(), "Seasonally Excellent Dev: Eldrine Le Prismarine.\n"
                                                   "Copyright Elytra Corporation. Do not distribute!", Colors::WHITE60, 16, {1.0, -1.0f});
+
+
+
+        {
+            float x = 100, y = 500;
+            float w = 1000, h = 100;
+            int16_t* buf;
+            size_t samples_act = Ethertia::getAudioEngine()->sampleCapture(&buf);
+
+            Log::info("Samples: {} : {}", samples_act, buf[0]);
+
+            int samples = 512;
+
+            // FFT Spectrum Frequency
+
+//            float* real = new float[samples];
+//            float* imag = new float[samples];
+//            for (int i = 0; i < samples; ++i) {
+//                int16_t val_raw = buf[i];
+//                float f = (float)val_raw / 32768.0f;
+//                real[i] = f;
+//                imag[i] = f;
+//            }
+//
+//            Mth::FFT(real, imag, samples);
+
+//            _FFT::Complex comp[samples];
+//            for (int i = 0; i < samples; ++i) {
+//                int16_t val_raw = buf[i];
+//                float f = (float)val_raw / 32768.0f;
+//                comp[i].imag(0);
+//                comp[i].real(f);
+//            }
+//
+//            _FFT::CArray arr(comp, samples);
+//            _FFT::fft(arr);
+
+            std::vector<std::complex<float>> src(samples);
+            for (int i = 0; i < samples; ++i) {
+                int16_t val_raw = buf[i];
+                float f = (float)val_raw / 32768.0f;
+
+                src[i].real(f);
+                src[i].imag(0);
+            }
+
+            auto dst = dj::fft1d(src, dj::fft_dir::DIR_BWD);
+
+
+
+
+            Gui::drawRect(x,y,w, 1, Colors::WHITE);
+
+            float col_w = w / samples;
+            for (int i = 0; i < samples; ++i) {
+                float f = dst[i].real();
+//                float f = real[i];
+
+                Gui::drawRect(x+ i*col_w, y, col_w, -f * h, Colors::WHITE);
+            }
+
+            Timer::sleep_for(80);
+
+        }
+
+
+
     }
 
     Gui* buildOptItem(const std::string& name, Gui* g) {

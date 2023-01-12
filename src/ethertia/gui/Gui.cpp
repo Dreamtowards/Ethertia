@@ -17,6 +17,10 @@ float Gui::mfbWidth()  { return Ethertia::getWindow()->getFramebufferWidth(); }
 float Gui::mfbHeight() { return Ethertia::getWindow()->getFramebufferHeight(); }
 
 void Gui::drawRect(float x, float y, float w, float h, glm::vec4 color, Texture* tex, float round, float border) {
+    if (h < 0) {
+        h = -h;
+        y = y - h;
+    }
     GuiRenderer* gr = Ethertia::getRenderEngine()->guiRenderer;
     gr->render(x, y, w, h, color, tex, round, border);
 }
