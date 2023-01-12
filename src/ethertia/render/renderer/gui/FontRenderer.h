@@ -56,12 +56,11 @@ public:
 
     void renderString(float x, float y, const std::string& str, glm::vec4 color, float textHeight, float align)
     {
-        uint len = str.length();
         float ww = Gui::maxWidth();
         float wh = Gui::maxHeight();
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texAscii->getTextureID());
+        glBindTexture(GL_TEXTURE_2D, texAscii->texId);
 
         shader.useProgram();
 

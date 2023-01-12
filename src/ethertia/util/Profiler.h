@@ -30,6 +30,7 @@ public:
         double _lasTime = 0.0f;
 
         Section& find(std::string_view _n) {
+            assert(_n.length() > 0);
             for (Section& s : sections) {
                 if (s.name == _n)
                     return s;
@@ -38,8 +39,19 @@ public:
             sec.name = _n;
             return sec;
         }
+        void reset() {
+            sumTime = 0;
+            numExec = 0;
+            _begin = 0;
+            _avgTime = 0;
+            _lasTime = 0;
+            for (Section& s : sections) {
+                s.reset();
+            }
+        }
     };
     Section* sectionToBeClear = nullptr;  // clear section should after it's pop().
+    std::thread::id m_LocalThreadId;
 
     Section m_RootSection;
 
@@ -47,6 +59,16 @@ public:
 
     void push(std::string_view name)
     {
+#ifndef _NDEBUG
+        if (m_RootSection.sections.size() == 0) {
+            m_LocalThreadId = std::this_thread::get_id();
+        } else {
+            assert(m_RootSection.sections.size() == 1);
+            assert(m_LocalThreadId == std::this_thread::get_id());
+        }
+#endif
+
+
         Section& sec = m_CurrentSection->find(name);
 
         sec.parent = m_CurrentSection;  // if (sec.parent == nullptr)
@@ -60,7 +82,7 @@ public:
         if (sectionToBeClear == m_CurrentSection) {
             sectionToBeClear = nullptr;
             auto parent = m_CurrentSection->parent;
-            *m_CurrentSection = {};
+            m_CurrentSection->reset();
             m_CurrentSection = parent;
             return;
         }
@@ -75,6 +97,19 @@ public:
 
         m_CurrentSection = m_CurrentSection->parent;
 
+    }
+
+    Section& GetRootSection() {
+        assert(m_RootSection.sections.size() == 1);
+        return m_RootSection.sections.at(0);
+    }
+    void laterClearRootSection() {
+        if (m_CurrentSection == &m_RootSection) {
+            m_RootSection.reset();
+        } else {
+            // Delay clear after pop.
+            sectionToBeClear = &GetRootSection();
+        }
     }
 
     class DtorIvkr

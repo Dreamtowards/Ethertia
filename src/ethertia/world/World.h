@@ -37,9 +37,7 @@ public:
 
     btDynamicsWorld* m_DynamicsWorld = nullptr;
 
-    entt::registry m_EnttRegistry;
-
-    std::mutex lock_ChunkList;
+    std::mutex m_LockChunks;
     std::mutex m_LockEntities;
 
     uint32_t m_Seed = 0;
@@ -47,6 +45,8 @@ public:
     // [0, 1] t*24; 0: 0AM, 0.25: 6AM, 0.5: 0PM, 0.75: 6PM
     float m_DayTime = 0;
     float m_InhabitedTime = 0;
+
+    entt::registry m_EnttRegistry;
 
 
     World(const std::string& savedir, uint32_t seed);
@@ -69,14 +69,15 @@ public:
 
     void unloadChunk(glm::vec3 p);
 
-    Chunk* getLoadedChunk(glm::vec3 p);
+    // Quick: Effective find, not lock, no thread-safe.
+    Chunk* getLoadedChunk(glm::vec3 p, bool quick = false);
 
     const std::unordered_map<glm::vec3, Chunk*>& getLoadedChunks() {
         return m_Chunks;
     }
 
     void forLoadedChunks(const std::function<void(Chunk*)>& fn) {
-        LOCK_GUARD(lock_ChunkList);
+        LOCK_GUARD(m_LockChunks);
         for (auto& it : m_Chunks) {
             fn(it.second);
         }
@@ -84,7 +85,7 @@ public:
     void unloadAllChunks() { using glm::vec3;
         std::vector<vec3> posls;
         {
-            LOCK_GUARD(lock_ChunkList);
+            LOCK_GUARD(m_LockChunks);
             for (auto& it : m_Chunks) {
                 posls.push_back(it.first);
             }

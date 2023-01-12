@@ -51,8 +51,11 @@ public:
         }
     }
 
+    inline static Profiler gp_MeshGen;
+
     static void meshChunk_Upload(Chunk* chunk) {
-        BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
+        //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
+        PROFILE_X(gp_MeshGen, "MeshGen");
 
         chunk->m_Meshing = true;  // May Already Been Deleted.
         chunk->m_MeshInvalid = false;
@@ -65,48 +68,62 @@ public:
 //        VertexBuffer* vbufWater = new VertexBuffer();
 
         {
-//        BenchmarkTimer _tm;
-//        Log::info("Chunk MeshGen. \1");
+            PROFILE_X(gp_MeshGen, "Mesh");
 
 //        vbuf = MarchingCubesMeshGen::genMesh(chunk);
 
             std::vector<glm::vec3> grass_fp;
 
-            SurfaceNetsMeshGen::contouring(chunk, vbufTerrain, grass_fp);
+            {
+                PROFILE_X(gp_MeshGen, "Iso");
+                SurfaceNetsMeshGen::contouring(chunk, vbufTerrain, grass_fp);
+            }
 
-            BlockyMeshGen::gen(chunk, vbufVegetable);
+            {
+                PROFILE_X(gp_MeshGen, "Blocky");
+                BlockyMeshGen::gen(chunk, vbufVegetable);
 
-            BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
+                BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
+            }
 
 // CNS BUG: 在区块Unloaded后，可能其Mesh刚刚开始。结果采集到被删除的区块 造成错误
 // 如何修复？1. try-catch 但不够纯粹。2. delete/unload 的时候wait 但又繁杂了
         }
 
-        checkNonNaN(vbufTerrain->positions.data(), vbufTerrain->vertexCount()*3);
+        {
+            PROFILE_X(gp_MeshGen, "Norm");
 
-        vbufTerrain->normals.reserve(vbufTerrain->vertexCount() * 3);
-        VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
+            checkNonNaN(vbufTerrain->positions.data(), vbufTerrain->vertexCount()*3);
 
-        vbufVegetable->normals.reserve(vbufVegetable->vertexCount() * 3);
-        float* vegnorms = vbufVegetable->normals.data();
-        for (int n_i = 0; n_i < vbufVegetable->vertexCount(); ++n_i) {
-            Mth::vec3out(glm::vec3(0, 1, 0), &vegnorms[n_i*3]);
+            vbufTerrain->normals.reserve(vbufTerrain->vertexCount() * 3);
+            VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
+
+            vbufVegetable->normals.reserve(vbufVegetable->vertexCount() * 3);
+            float* vegnorms = vbufVegetable->normals.data();
+            for (int n_i = 0; n_i < vbufVegetable->vertexCount(); ++n_i) {
+                Mth::vec3out(glm::vec3(0, 1, 0), &vegnorms[n_i*3]);
+            }
+    //        VertexProcess::othonorm(vbufVegetable->vertexCount(), vbufVegetable->positions.data(), vbufVegetable->normals.data(), false);
+    //        Loader::saveOBJ("test_chunk.obj", vbufTerrain->vertexCount(), vbufTerrain->positions.data());
         }
-//        VertexProcess::othonorm(vbufVegetable->vertexCount(), vbufVegetable->positions.data(), vbufVegetable->normals.data(), false);
-//        Loader::saveOBJ("test_chunk.obj", vbufTerrain->vertexCount(), vbufTerrain->positions.data());
 
 
-        btBvhTriangleMeshShape* meshTerrain =
-            vbufTerrain->vertexCount()   == 0 ? nullptr :
-            EntityMesh::createMeshShape(vbufTerrain->vertexCount(), vbufTerrain->positions.data());
+        btBvhTriangleMeshShape* meshTerrain = nullptr;
+        btBvhTriangleMeshShape* meshVegetable = nullptr;
 
-        btBvhTriangleMeshShape* meshVegetable =
-            vbufVegetable->vertexCount() == 0 ? nullptr :
-            EntityMesh::createMeshShape(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
+        {
+            PROFILE_X(gp_MeshGen, "Bvh");
+
+            if (vbufTerrain->vertexCount()) {
+                meshTerrain = EntityMesh::createMeshShape(vbufTerrain->vertexCount(), vbufTerrain->positions.data());
+            }
+            if (vbufVegetable->vertexCount()) {
+                meshVegetable = EntityMesh::createMeshShape(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
+            }
+        }
 
         // Dont upload/to be render if Current and Previous Mesh is Empty.
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
-            BenchmarkTimer _tm(&ChunkProcStat::EMIT.time, nullptr);  ++ChunkProcStat::EMIT.num;
 
             if (chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);

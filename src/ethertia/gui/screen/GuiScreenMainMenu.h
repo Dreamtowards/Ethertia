@@ -52,7 +52,7 @@ public:
             Ethertia::shutdown();
         });
 
-        addGui(new GuiAlign(0.12, 0.5, vstack));
+        addGui(new GuiAlign(0.5, 0.5, vstack));  // x 0.12
     }
 
     void implDraw() override
@@ -62,7 +62,7 @@ public:
                                                 "Ethertia "+Ethertia::Version::name(), Colors::WHITE60, 16,{0.0f, -1.0f});
 
 
-        Gui::drawString(Gui::maxWidth(), Gui::maxHeight(), "Eldrine Le Prismarine.\n"
+        Gui::drawString(Gui::maxWidth(), Gui::maxHeight(), "Seasonally Excellent Dev: Eldrine Le Prismarine.\n"
                                                   "Copyright Elytra Corporation. Do not distribute!", Colors::WHITE60, 16, {1.0, -1.0f});
     }
 

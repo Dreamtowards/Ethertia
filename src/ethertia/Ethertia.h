@@ -18,7 +18,9 @@
 // scope profiling
 #define PROFILE_VN_CONCAT_INNR(a, b) a ## b
 #define PROFILE_VN_CONCAT(a, b) PROFILE_VN_CONCAT_INNR(a, b)
-#define PROFILE(x) auto PROFILE_VN_CONCAT(_p_, __COUNTER__) = Ethertia::getProfiler().push_ap(x)
+#define PROFILE(x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = Ethertia::getProfiler().push_ap(x)
+
+#define PROFILE_X(p, x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
 
 // __forward_declarations
 
@@ -108,17 +110,12 @@ public:
         static std::string name() {
             // todo: cache.
             if (snapshot) {
-                return Strings::fmt("{}.{}.{}-{}", major, minor, revision, snapshot);
+                return Strings::fmt("v{}.{}.{}-{}", major, minor, revision, snapshot);
             } else {
                 return Strings::fmt("{}.{}.{}", major, minor, revision);
             }
         }
     };
-    static Version& getVersion() {
-        static Version vers{};
-        return vers;
-    }
-
 };
 
 #endif //ETHERTIA_ETHERTIA_H

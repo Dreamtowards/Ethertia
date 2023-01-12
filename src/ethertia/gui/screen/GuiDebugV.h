@@ -15,6 +15,7 @@
 #include <ethertia/util/MemoryTrack.h>
 #include <ethertia/render/chunk/proc/ChunkProcStat.h>
 #include <ethertia/render/chunk/proc/ChunkMeshProc.h>
+#include <ethertia/render/chunk/proc/ChunkGenProc.h>
 
 class GuiDebugV : public GuiCollection
 {
@@ -92,9 +93,10 @@ public:
                 GuiButton* btnClearProfilerData = new GuiButton("Reset Prof");
                 opts->addGui(btnClearProfilerData);
                 btnClearProfilerData->addOnClickListener([](OnReleased* e) {
-                    Ethertia::getProfiler().sectionToBeClear = &Ethertia::getProfiler().m_RootSection.find("Frame");
+                    Ethertia::getProfiler().laterClearRootSection();
 
-                    ChunkProcStat::reset();
+                    ChunkMeshProc::gp_MeshGen.laterClearRootSection();
+                    ChunkGenProc::gp_ChunkGen.laterClearRootSection();
                 });
             }
 
@@ -213,22 +215,22 @@ public:
                 dbg_s = Strings::fmt(
                         "cam p: {}, len: {}, spd {}mps {}kph. ground: {}, CPs {}.\n"
                         "E: {}/{}, C{}\n"
-                        "ChunkGen {}\n"
-                        "ChunkMesh{}\n"
-                        "ChunkEmit{}\n"
-                        "ChunkSave{}\n"
-                        "ChunkLoad{}\n"
+//                        "ChunkGen {}\n"
+//                        "ChunkMesh{}\n"
+//                        "ChunkEmit{}\n"
+//                        "ChunkSave{}\n"
+//                        "ChunkLoad{}\n"
                         "task {}, async {}\n"
                         "dt: {}, {}fps\n"
                         "mem: {}, alloc {}, freed: {}\n"
                         "C: {}",
                         glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
                         world ? rde->dbg_NumEntityRendered : 0, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
-                        ChunkProcStat::GEN.str(),
-                        ChunkProcStat::MESH.str(),
-                        ChunkProcStat::EMIT.str(),
-                        ChunkProcStat::SAVE.str(),
-                        ChunkProcStat::LOAD.str(),
+//                        ChunkProcStat::GEN.str(),
+//                        ChunkProcStat::MESH.str(),
+//                        ChunkProcStat::EMIT.str(),
+//                        ChunkProcStat::SAVE.str(),
+//                        ChunkProcStat::LOAD.str(),
                         Ethertia::getScheduler()->numTasks(), Ethertia::getAsyncScheduler()->numTasks(),
                         dt, Mth::floor(1.0f/dt),
                         Strings::size_str(MemoryTrack::g_MemoryPresent()), Strings::size_str(MemoryTrack::g_MemoryAllocated), Strings::size_str(MemoryTrack::g_MemoryFreed),
@@ -297,18 +299,36 @@ public:
 //    });
 
         if (dbgDrawFrameProfiler) {
-            float w = Gui::maxWidth() * 0.65f, h = 16 * 7;
-            float x = 0, y = Gui::maxHeight() - h;
+            float w = Gui::maxWidth() * 0.65f,
+                  h = 16 * 7;
+            float x = 0,
+                  y = Gui::maxHeight() - h;
 
             Gui::drawRect(x, y, w, h, Colors::BLACK20);
 
-            const Profiler::Section& sec = Ethertia::getProfiler().m_RootSection.find("Frame");
-            double w_time = sec.sumTime;
+            const Profiler::Section& sec = Ethertia::getProfiler().GetRootSection();
 
             // Standard FPS Time.
             Gui::drawRect(x, y, (1.0 / RenderEngine::fpsCap) / sec._avgTime * w, h, Colors::alpha(Colors::GREEN, 0.1f));
 
-            drawProfilerSection(sec, x, y+h-16, w, w_time);
+            drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
+
+            {
+                h = 16*3;
+                y -= h + 16;
+
+                const Profiler::Section& sec = ChunkMeshProc::gp_MeshGen.GetRootSection();
+
+                drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
+            }
+            {
+                h = 16*3;
+                y -= h + 16;
+
+                const Profiler::Section& sec = ChunkGenProc::gp_ChunkGen.GetRootSection();
+
+                drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
+            }
         }
 
         dbgLastDrawTime = Ethertia::getPreciseTime();
@@ -390,6 +410,9 @@ public:
         glm::vec4 color = Colors::ofRGB(std::hash<std::string>()(sec.name) * 256);
         Gui::drawRect(x, y, sec_width, SEC_H, color);
         Gui::drawString(x, y, sec.name);  // Section Name
+        if (sec_width > 200) {
+            Gui::drawString(x+sec_width, y, Strings::fmt("{}ms@{}", sec._avgTime * 1000.0, sec.numExec), Colors::WHITE80, 12, {1.0, 0.0});
+        }
 
         float dx = 0;
         for (const Profiler::Section& sub_sec : sec.sections)

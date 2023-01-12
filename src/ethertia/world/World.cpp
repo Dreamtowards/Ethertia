@@ -18,7 +18,7 @@
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/chunk/proc/ChunkProcStat.h>
 #include <ethertia/render/RenderEngine.h>
-#include <ethertia/render/chunk/proc/ChunkMeshProc.h>
+#include <ethertia/render/chunk/proc/ChunkGenProc.h>
 
 
 World::World(const std::string& savedir, uint32_t seed)
@@ -94,20 +94,20 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     glm::vec3 chunkpos = Chunk::chunkpos(p);
 
     {
-        BENCHMARK_TIMER_VAL(&ChunkProcStat::LOAD.time);
+        PROFILE_X(ChunkGenProc::gp_ChunkGen, "Load");  // not accurate. many times wouldn't load
 
         chunk = m_ChunkLoader->loadChunk(chunkpos, this);
-
-        if (chunk) { ++ChunkProcStat::LOAD.num; }
     }
 
-    if (!chunk) {
-        BENCHMARK_TIMER_VAL(&ChunkProcStat::GEN.time);  ++ChunkProcStat::GEN.num;
+    if (!chunk)
+    {
+        PROFILE_X(ChunkGenProc::gp_ChunkGen, "Gen");
+
         chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
     }
 
     {
-        LOCK_GUARD(lock_ChunkList);
+        LOCK_GUARD(m_LockChunks);
         m_Chunks[chunkpos] = chunk;
     }
 
@@ -120,6 +120,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
         addEntity(chunk->m_MeshVegetable);
     });
 
+    PROFILE_X(ChunkGenProc::gp_ChunkGen, "Popula");
     // check populates
     tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
     tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
@@ -135,7 +136,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
 void World::unloadChunk(glm::vec3 p)  {
     Chunk* chunk = nullptr;
     {
-        LOCK_GUARD(lock_ChunkList);
+        LOCK_GUARD(m_LockChunks);
         auto it = m_Chunks.find(Chunk::chunkpos(p));
         if (it == m_Chunks.end())
             throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
@@ -144,7 +145,6 @@ void World::unloadChunk(glm::vec3 p)  {
 
         m_Chunks.erase(it);
         {
-            BENCHMARK_TIMER_VAL(&ChunkProcStat::SAVE.time); ChunkProcStat::SAVE.num++;
             m_ChunkLoader->saveChunk(chunk);
         }
 //        Ethertia::getAsyncScheduler()->addTask([this, chunk](){
@@ -175,8 +175,9 @@ void World::unloadChunk(glm::vec3 p)  {
 
 }
 
-Chunk* World::getLoadedChunk(glm::vec3 p)  {
-    LOCK_GUARD(lock_ChunkList);
+Chunk* World::getLoadedChunk(glm::vec3 p, bool quick)  {
+    if (!quick)
+        LOCK_GUARD(m_LockChunks);
 
     auto it = m_Chunks.find(Chunk::chunkpos(p));
     if (it == m_Chunks.end())
@@ -273,7 +274,6 @@ Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {
 
 
 void World::populate(World* world, glm::vec3 chunkpos) {
-    BENCHMARK_TIMER_VAL(&ChunkProcStat::GEN_POP.time);  ++ChunkProcStat::GEN_POP.num;
     float noiseSand[16*16];
     float noiseFern[16*16];
 

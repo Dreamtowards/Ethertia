@@ -185,6 +185,11 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - GuiScreenMainMenu init. text align y. 
     - WAV file save. from PCM 16bit 1channel. little endian system.
     - OpenAL Capture init.
+  - 2023-01-12
+    - // Vid WorldStore, poster
+    - World Saving Hint 世界保存的提示
+    - 修复bug：有些地方没有population
+    
 
     - Audio Frequency Spectrum 
     - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
