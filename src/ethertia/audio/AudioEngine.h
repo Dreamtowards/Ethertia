@@ -139,6 +139,7 @@ public:
     inline static const int CAPTURE_BUF_SIZE = 32768;
     inline static char CAPTURE_BUF[CAPTURE_BUF_SIZE];
     bool m_CaptureStarted = false;
+    int m_CaptureSampleRate = 44100;  // 8000-96000
 
     AudioEngine()
     {
@@ -155,10 +156,7 @@ public:
         alcMakeContextCurrent(m_Context);
 
         {
-            float r_SampleRate = 44100;  // 8000-96000
-            r_SampleRate =  12000;
-
-            m_CaptureDevice = alcCaptureOpenDevice(nullptr, r_SampleRate, AL_FORMAT_MONO16, CAPTURE_BUF_SIZE);
+            m_CaptureDevice = alcCaptureOpenDevice(nullptr, m_CaptureSampleRate, AL_FORMAT_MONO16, CAPTURE_BUF_SIZE);
             if (!m_CaptureDevice)
                 throw std::runtime_error("Failed open capture device.");
 
@@ -195,20 +193,23 @@ public:
         alcCaptureStop(m_CaptureDevice);
     }
 
-    size_t sampleCapture(int16_t** buf) {
-        ALCsizei captureSize = 0;
-        alcGetIntegerv(m_CaptureDevice, ALC_CAPTURE_SAMPLES, 1, &captureSize);
-        if (captureSize < 1) {
+    size_t sampleCapture(int16_t** buf, size_t capacity = 0) {
+        ALCsizei samplesCaptured = 0;
+        alcGetIntegerv(m_CaptureDevice, ALC_CAPTURE_SAMPLES, 1, &samplesCaptured);
+        if (samplesCaptured < 1) {
             return 0;
         }
-        assert(captureSize <= CAPTURE_BUF_SIZE);
+        if (capacity != 0 && samplesCaptured > capacity) {
+            samplesCaptured = capacity;
+        }
+        assert(samplesCaptured <= CAPTURE_BUF_SIZE);
 
         // MONO16 PCM.
         // OpenAL gives native-endian.
-        alcCaptureSamples(m_CaptureDevice, CAPTURE_BUF, captureSize);
+        alcCaptureSamples(m_CaptureDevice, CAPTURE_BUF, samplesCaptured);
 
         *buf = (int16_t*)CAPTURE_BUF;
-        return captureSize;
+        return samplesCaptured;
     }
 
 

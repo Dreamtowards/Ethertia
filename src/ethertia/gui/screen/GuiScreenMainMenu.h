@@ -61,6 +61,8 @@ public:
     void implDraw() override
     {
 
+        drawAudioFreq();
+
         Gui::drawString(0, Gui::maxHeight(), "0 mods loaded.\n"
                                                 "Ethertia "+Ethertia::Version::name(), Colors::WHITE60, 16,{0.0f, -1.0f});
 
@@ -70,84 +72,107 @@ public:
 
 
 
+
+
+
+    }
+
+    void drawAudioFreq() {
+
         {
-            float x = 100, y = 500;
-            float w = 1000, h = 100;
+            float x = 100, y = Gui::maxHeight() - 48;
+            float w = Gui::maxWidth() - 2*x, h = 200;
+            Gui::drawRect(x,y,w, 1, Colors::WHITE);
+
             int16_t* buf;
-            size_t samples_act = Ethertia::getAudioEngine()->sampleCapture(&buf);
+            int nFFT = 1024;
+            int nFFT_2 = nFFT / 2;
 
-            Log::info("Samples: {} : {}", samples_act, buf[0]);
-
-            int samples = 512;
+            Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
 
             // FFT Spectrum Frequency
 
-//            float* real = new float[samples];
-//            float* imag = new float[samples];
-//            for (int i = 0; i < samples; ++i) {
-//                int16_t val_raw = buf[i];
-//                float f = (float)val_raw / 32768.0f;
-//                real[i] = f;
-//                imag[i] = f;
-//            }
-//
-//            Mth::FFT(real, imag, samples);
-
-//            _FFT::Complex comp[samples];
-//            for (int i = 0; i < samples; ++i) {
-//                int16_t val_raw = buf[i];
-//                float f = (float)val_raw / 32768.0f;
-//                comp[i].imag(0);
-//                comp[i].real(f);
-//            }
-//
-//            _FFT::CArray arr(comp, samples);
-//            _FFT::fft(arr);
-
-            std::vector<std::complex<float>> src(samples);
-            for (int i = 0; i < samples; ++i) {
+            std::vector<std::complex<float>> tFreq(nFFT);
+            for (int i = 0; i < nFFT; ++i) {
                 int16_t val_raw = buf[i];
                 float f = (float)val_raw / 32768.0f;
 
-                src[i].real(f);
-                src[i].imag(0);
+                tFreq[i].real(f);
+                tFreq[i].imag(0);
+            }
+            auto fft = dj::fft1d(tFreq, dj::fft_dir::DIR_BWD);
+
+
+
+
+
+            float sampFreq = Ethertia::getAudioEngine()->m_CaptureSampleRate;
+
+            for (int i = 0; i < nFFT_2; ++i)
+            {
+                float re = fft[i].real(), im = fft[i].imag();
+                float magnitude = std::sqrt(re*re + im*im);
+
+                // FFT_idx to Freq_bin: i * Fs / nFFT
+                float freqbin = i * sampFreq / 2.0 / nFFT_2;
+
+                float lx = x + w*(freqbin / (sampFreq / 2.0));
+
+                float dB = 10.0 * std::log10(re*re + im*im);//20.0f * std::log10(magnitude);
+
+                Gui::drawRect(lx, y, 2, -(magnitude * h), Colors::WHITE);
+
+                if (i % int(nFFT_2/16) == 0 && i != 0) {
+                    Gui::drawString(lx, y,
+                                    freqbin < 1000 ? std::to_string(Mth::floor_dn(freqbin, 1)) : Strings::fmt("{}k", Mth::floor_dn(
+                                            freqbin / 1000, 1)),
+                                    Colors::WHITE);
+                }
+
+            }
+            if (Gui::isCursorOver(x,y-h,w,h*2))
+            {
+                int i = int(((Gui::cursorX() - x) / w) * nFFT_2);
+                float freqbin = i * sampFreq / 2.0 / nFFT_2;
+
+                Gui::drawString(Gui::cursorX(), Gui::cursorY()-16,
+                                Strings::fmt("{} Hz", freqbin));
+                Gui::drawRect(Gui::cursorX(), y, 1, -h, Colors::GREEN_DARK);
             }
 
-            auto dst = dj::fft1d(src, dj::fft_dir::DIR_BWD);
-
-
-
-
-            Gui::drawRect(x,y,w, 1, Colors::WHITE);
-
-            float col_w = w / samples;
-            for (int i = 0; i < samples; ++i) {
-                float f = dst[i].real();
-//                float f = real[i];
-
-                Gui::drawRect(x+ i*col_w, y, col_w, -f * h, Colors::WHITE);
-            }
-
-            Timer::sleep_for(80);
+//            int numFreq = nFFT / 2;
+//            std::cout << "IDX ";
+//            for (int i = 0; i < numFreq; ++i)
+//            {
+//                const float skewedProportionY = 1.0f - std::exp(std::log ((float)(numFreq - 1 - i) / numFreq) * 0.2f);
+//                assert(skewedProportionY >= 0 && skewedProportionY <= 1.0f);
+//
+//                int fftIdx = (int)(skewedProportionY * numFreq);
+//
+//                float re = dst[fftIdx].real(), im = dst[fftIdx].imag();
+//                float magnitude = std::sqrt(re*re + im*im);
+//
+//                std::cout << fftIdx << " ";
+////                float dB = /*20.0f */ std::log10(magnitude) / 20.0;
+//
+//
+//                Gui::drawRect(x+ i*w/(float)numFreq, y, 2, -(magnitude * h), Colors::WHITE);
+//
+//            }
+//            std::cout << "\n";
+//
+//            int freqMark = 32;
+//            int numFreqMarks = 19;
+//            for (int i = 0; i < numFreqMarks; ++i) {
+//
+//
+//                Gui::drawString(x + i*w/numFreqMarks, y, freqMark < 1024 ? std::to_string(freqMark) : Strings::fmt("{}k", freqMark / 1024), Colors::WHITE);
+//                freqMark <<= 1;
+//            }
 
         }
-
-
-
     }
 
-    Gui* buildOptItem(const std::string& name, Gui* g) {
-
-        auto* it = new GuiStack(GuiStack::D_HORIZONTAL);
-
-        GuiText* label = new GuiText(name);
-
-
-        it->addGui(label);
-        it->addGui(g);
-
-        return it;
-    }
 };
 
 #endif //ETHERTIA_GUISCREENMAINMENU_H
