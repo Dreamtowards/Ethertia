@@ -64,8 +64,9 @@ public:
                         {0.0f, -1.0f});
 
 
-        Gui::drawString(Gui::maxWidth(), Gui::maxHeight(), "Seasonally Excellent Dev: Eldrine Le Prismarine.\n"
-                                                           "Copyright Elytra Corporation. Do not distribute!",
+        Gui::drawString(Gui::maxWidth(), Gui::maxHeight(),
+                        "Seasonally Excellent Dev: Eldrine Le Prismarine.\n"
+                        "Copyright Elytra Corporation. Do not distribute!",
                         Colors::WHITE60, 16, {1.0, -1.0f});
 
 
@@ -92,8 +93,8 @@ public:
 
         float grad_tk = 3;  // thickness
         float grad_sp = 2;  // spacing
-        Gui::drawRect(x, y + h + grad_sp, w, grad_tk, Colors::WHITE, TEX_HEAT);  // Temp  X
-        Gui::drawRect(x + w + grad_sp, y, grad_tk, h, Colors::WHITE, TEX_HUMI);  // Humid Y
+        Gui::drawRect(x, y + h + grad_sp, w, grad_tk, TEX_HEAT);  // Temp  X
+        Gui::drawRect(x + w + grad_sp, y, grad_tk, h, TEX_HUMI);  // Humid Y
 
         std::unordered_map<int, std::pair<float, glm::vec2>> bioCenters;  // dist and rel-center-pos
 

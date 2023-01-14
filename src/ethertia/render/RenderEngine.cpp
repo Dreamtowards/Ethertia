@@ -132,7 +132,7 @@ Framebuffer::gPopFramebuffer();
 
     // Result.
 
-    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::WHITE, dcompose->texColor[0]);
+    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), dcompose->texColor[0]);
 
     RenderEngine::checkGlError("End World Render");
 }

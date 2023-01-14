@@ -16,13 +16,22 @@ float Gui::cursorY()   { return Ethertia::getWindow()->getMouseY(); }
 float Gui::mfbWidth()  { return Ethertia::getWindow()->getFramebufferWidth(); }
 float Gui::mfbHeight() { return Ethertia::getWindow()->getFramebufferHeight(); }
 
-void Gui::drawRect(float x, float y, float w, float h, glm::vec4 color, Texture* tex, float round, float border) {
+void Gui::drawRect(float x, float y, float w, float h, Gui::DrawRectArgs args) {
     if (h < 0) {
         h = -h;
         y = y - h;
     }
+//    assert(args.tex_pos.x == 0);
+//    assert(args.tex_pos.y == 0);
+//    assert(args.tex_size.x == 0);
+//    assert(args.tex_size.y == 0);
     GuiRenderer* gr = Ethertia::getRenderEngine()->guiRenderer;
-    gr->render(x, y, w, h, color, tex, round, border);
+    gr->render(x, y, w, h,
+               args.color,
+               args.tex,
+               glm::vec4(args.tex_pos, args.tex_size),
+               args.round,
+               args.border);
 }
 
 

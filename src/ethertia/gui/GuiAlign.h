@@ -53,7 +53,7 @@ public:
             }
         }
 
-        Gui::onLayout();
+        GuiDelegate::onLayout();
     }
 
 };

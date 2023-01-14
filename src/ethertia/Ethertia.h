@@ -80,7 +80,7 @@ public:
 
     static void shutdown() { m_Running = false; }
     static const bool& isRunning() { return m_Running; }
-    static bool isIngame();  // means is controlling game.
+    static bool isIngame();  // controlling game.
     static float getPreciseTime();
     static float getAspectRatio();
     static float getDelta();

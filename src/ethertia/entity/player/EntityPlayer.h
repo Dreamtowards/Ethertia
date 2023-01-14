@@ -29,6 +29,7 @@ public:
     int m_NumContactPoints = 0;
     btVector3 m_PrevVelocity{};
 
+    int m_HotbarSlot = 0;
 
 
     EntityPlayer() {

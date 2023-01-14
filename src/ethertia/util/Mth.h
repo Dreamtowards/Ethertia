@@ -87,13 +87,13 @@ public:
         return std::fmod(v, u);
     }
 
-    static glm::vec3 mod(glm::vec3 v, float f) {
-        return glm::vec3{
-            Mth::mod(v.x, f),
-            Mth::mod(v.y, f),
-            Mth::mod(v.z, f)
-        };
-    }
+//    static glm::vec3 mod(glm::vec3 v, float f) {
+//        return glm::vec3{
+//            Mth::mod(v.x, f),
+//            Mth::mod(v.y, f),
+//            Mth::mod(v.z, f)
+//        };
+//    }
 
     template<typename T>
     static inline T fade(T t) {

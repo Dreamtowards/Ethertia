@@ -184,6 +184,7 @@ void Ethertia::renderGUI()
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
 
     rootGUI->onDraw();
 
@@ -309,7 +310,7 @@ void Ethertia::notifyMessage(const std::string& msg) {
     GuiMessageList::INST->addMessage(msg);
 }
 
-bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST; } // && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
+bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
 
 float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
 

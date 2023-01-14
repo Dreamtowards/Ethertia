@@ -284,13 +284,25 @@ public:
             float h = Gui::maxHeight() / 6;
             float w = h * 1.5f;
 
-            rde->guiRenderer->render(0, 0, w, h, Colors::WHITE, gbuffer->texColor[0], 0, FLT_MAX, 1);
-            rde->guiRenderer->render(0, h, w, h, Colors::WHITE, gbuffer->texColor[0], 0, FLT_MAX, 2);
+            Gui::drawRect(0, 0, w, h, {
+                .tex = gbuffer->texColor[0],
+                .channel_mode = Gui::DrawRectArgs::C_RGB
+            });
+            Gui::drawRect(0, h, w, h, {
+                    .tex = gbuffer->texColor[0],
+                    .channel_mode = Gui::DrawRectArgs::C_AAA
+            });
 
-            Gui::drawRect(0, h*2, w, h, Colors::WHITE, gbuffer->texColor[1]);
+            Gui::drawRect(0, h*2, w, h, gbuffer->texColor[1]);
 
-            rde->guiRenderer->render(0, h*3, w, h, Colors::WHITE, gbuffer->texColor[2], 0, FLT_MAX, 1);
-            rde->guiRenderer->render(0, h*4, w, h, Colors::WHITE, gbuffer->texColor[2], 0, FLT_MAX, 2);
+            Gui::drawRect(0, h*3, w, h, {
+                .tex = gbuffer->texColor[2],
+                .channel_mode = Gui::DrawRectArgs::C_RGB
+            });
+            Gui::drawRect(0, h*4, w, h, {
+                .tex = gbuffer->texColor[2],
+                .channel_mode = Gui::DrawRectArgs::C_AAA
+            });
         }
 
 

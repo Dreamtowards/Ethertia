@@ -17,29 +17,23 @@ class GuiScreenPause : public GuiCollection
 public:
     inline static GuiScreenPause* INST;
 
+    inline static const float TOP_WIDTH = 820;
 
     GuiScreenPause() {
         setWidth(Inf);
-        // setHeight(Inf);
+        setHeight(Inf);
 
         {
-            GuiCollection* topbar = new GuiCollection(0, 0, Inf, 16);
-            addGui(topbar);
-            topbar->addDrawBackground(Colors::R);
+            GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 64);
+            addGui(new GuiAlign(0.5, 0, topbar));
 
             {
                 GuiStack* rightbox = new GuiStack(GuiStack::D_HORIZONTAL, 8);
                 topbar->addGui(new GuiAlign(1.0, 0.0, rightbox));
 
-                rightbox->addGui(new GuiButton("Ops", false));
+                rightbox->addGui(new GuiButton("Settings", false));
 
-//                GuiButton* btnNewWorld = new GuiButton("New", false);
-//                rightbox->addGui(btnNewWorld);
-//                btnNewWorld->addOnClickListener([](auto )
-//                {
-//                });
-
-                GuiButton* btnExitWorld = new GuiButton("Ext", false);
+                GuiButton* btnExitWorld = new GuiButton("Quit", false);
                 rightbox->addGui(btnExitWorld);
                 btnExitWorld->addOnClickListener([](auto)
                 {
@@ -47,31 +41,58 @@ public:
                 });
             }
             {
-                GuiStack* navbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
-                topbar->addGui(navbox);
-                navbox->setRelativeXY(12, 0);//(48-16) / 2);
+                GuiStack* leftbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
+                topbar->addGui(leftbox);
 
-                navbox->addGui(new GuiButton("Map", false));
-                navbox->addGui(new GuiButton("Inventory", false));
-//                navbox->addGui(new GuiButton("Mails", false));
-                navbox->addGui(new GuiButton("Profile", false));
+                leftbox->addGui(new GuiButton("@Player483", false));
+                leftbox->addGui(new GuiButton("$100.00", false));
+            }
+
+            {
+                GuiStack* toolbar = new GuiStack(GuiStack::D_HORIZONTAL, 4);
+                addGui(toolbar);
+                toolbar->setY(32);
+                toolbar->addConstraintAlign(0.5, Inf);
+
+                toolbar->addGui(new GuiButton("Map", false));
+                toolbar->addGui(new GuiButton("Inventory", false));
+                toolbar->addGui(new GuiButton("Mails", false));
             }
         }
-//        {
-//            GuiCollection* leftbar = new GuiCollection(0, 16, Inf, 48);
-//            addGui(leftbar);
-//
-//
-//        }
+
     }
 
-    void onDraw() override {
-        float x = getX(), y = getY(), w = getWidth(), h = getHeight();
+    void implDraw() override
+    {
+        // background dark
+        Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::BLACK50);
+
+        // topbar
+        {
+//            float topbarX = (Gui::maxWidth()-TOP_WIDTH) / 2.0;
+//            Gui::drawRect(topbarX, 0-16, TOP_WIDTH, 64+16, Colors::GRAY, nullptr, 12);
+//            Gui::drawRect(topbarX, 0, TOP_WIDTH, 16, Colors::BLACK30);
+            Gui::drawRect(0, 0, Gui::maxWidth(), 64, Colors::GRAY);
+            Gui::drawRect(0, 0, Gui::maxWidth(), 16, Colors::BLACK30);
+        }
+
+        Gui::drawString(Gui::maxWidth()/2, 0, "Inventory", Colors::WHITE, 18, {-0.5, 0});
 
 
+        // Inventory
+        {
+            static Texture* TEX_FRAME = Loader::loadTexture("gui/frame.png");
+            static Texture* TEX_FRAME_ONC = Loader::loadTexture("gui/frame_onec.png");
 
 
-        Gui::onDraw();
+            float INV_WIDTH = 600;
+            float INV_HEIGHT = 400;
+
+            Gui::drawStretchCorners((Gui::maxWidth()-INV_WIDTH)/2, 400, INV_WIDTH, INV_HEIGHT, TEX_FRAME, 64);
+
+            Gui::drawStretchCorners(50, 400, 200, 300, TEX_FRAME_ONC, 72, true);
+        }
+
     }
 };
 

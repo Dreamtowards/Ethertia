@@ -21,6 +21,9 @@ class Gui
 {
     float x = 0;
     float y = 0;
+
+    // Inf: Match Parent, -Inf: Wrap Children
+    // Why not use NaN? because NaN cannot directly compare/determine, needs an extra isnan() call.
     float width = 0;
     float height = 0;
 
@@ -36,6 +39,92 @@ class Gui
     bool clipping = false;
 
     void* tag = nullptr;
+
+
+public:
+
+    // always use Inf to represents nil arguments. not NaN. because NaN needs an extra isnan() call when validating.
+    class Constraint
+    {
+    public:
+
+        virtual void layout(Gui* g) = 0;
+
+    };
+
+    class AlignConstraint : public Gui::Constraint
+    {
+    public:
+        float m_AlignX = Inf;
+        float m_AlignY = Inf;
+
+        AlignConstraint(float alignX, float alignY) : m_AlignX(alignX), m_AlignY(alignY) {}
+
+        void layout(Gui* g) override
+        {
+            if (m_AlignX != Inf) {
+                g->setRelativeX(
+                        (g->getParent()->getWidth() - g->getWidth()) * m_AlignX
+                );
+            }
+            if (m_AlignY != Inf) {
+                g->setRelativeY(
+                        (g->getParent()->getHeight() - g->getHeight()) * m_AlignY
+                );
+            }
+        }
+    };
+
+    class LTRBConstraint : public Gui::Constraint
+    {
+    public:
+        float m_Left = Inf,
+              m_Top = Inf,
+              m_Right = Inf,
+              m_Bottom = Inf;
+
+        // Stretch instead of move when set only one side.
+        bool m_Stretch = false;
+
+        LTRBConstraint(float l, float t, float r, float b, bool priorStretch) : m_Left(l),
+                                                                                m_Top(t),
+                                                                                m_Right(r),
+                                                                                m_Bottom(b),
+                                                                                m_Stretch(priorStretch) {}
+
+        void layout(Gui* g) override
+        {
+            if (m_Left != Inf) { g->setRelativeX( m_Left ); }
+            if (m_Top != Inf) {  g->setRelativeY( m_Top );  }
+
+            if (m_Right != Inf) {
+                float pw = g->getParent()->getWidth();
+                if (m_Left != Inf || m_Stretch) {
+                    g->setWidth( pw - g->getRelativeX() - m_Right );
+                } else {
+                    g->setRelativeX( pw - g->getWidth() - m_Right );
+                }
+            }
+
+            if (m_Bottom != Inf) {
+                float ph = g->getParent()->getHeight();
+                if (m_Top != Inf || m_Stretch) {
+                    g->setHeight( ph - g->getRelativeY() - m_Top );
+                }
+            }
+        }
+
+    };
+
+    std::vector<Constraint*> m_Constraints;
+
+    void addConstraintAlign(float alignX, float alignY) {
+        m_Constraints.push_back(new AlignConstraint(alignX, alignY));
+    }
+
+    void addConstraintLTRB(float l, float t, float r, float b, bool priorStretch = false) {
+        m_Constraints.push_back(new LTRBConstraint(l,t,r,b,priorStretch));
+    }
 
 
 public:
@@ -321,6 +410,11 @@ public:
 
         _update_childbound();
 
+        for (Constraint* c : m_Constraints)
+        {
+            c->layout(this);
+        }
+
         for (Gui* g : children())
         {
             g->onLayout();
@@ -382,10 +476,30 @@ public:
                cy >= y && cy < y+h;
     }
 
-    static void drawRect(float x, float y, float w, float h, glm::vec4 color,
-                         Texture* tex =nullptr,
-                         float round  =0,
-                         float border =99999);
+    struct DrawRectArgs {
+        inline static const int C_RGBA = 0,  // Channel Modes
+                                C_RGB = 1,
+                                C_AAA = 2;
+        glm::vec4 color = Colors::WHITE;
+        Texture* tex = nullptr;
+        float round = 0;
+        float border = 0;
+        int channel_mode = 0;
+        glm::vec2 tex_pos = {0,0};  // GL Tex Coords. 0,0: LB, 1,1: RT
+        glm::vec2 tex_size = {1,1}; // Dir toward: RT
+    };
+    static void drawRect(float x, float y, float w, float h, Gui::DrawRectArgs args);
+
+    static void drawRect(float x, float y, float w, float h, glm::vec4 color) {
+        Gui::drawRect(x,y,w,h,{
+            .color = color
+        });
+    }
+    static void drawRect(float x, float y, float w, float h, Texture* tex) {
+        Gui::drawRect(x,y,w,h,{
+                .tex = tex
+        });
+    }
 
 
     // alignX: x+=LineWidth *f  e.g.  0.5 = Center, 1.0 = Right
@@ -399,6 +513,48 @@ public:
     static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
 
 
+    //
+    static void drawStretchCorners(float x, float y, float w, float h, Texture* tex, float thickness = 16, bool onlyLTCornerTex = false) {
+
+        float tk = thickness;
+        float iw = w-tk-tk;  // inner width
+        float ih = h-tk-tk;
+
+        if (onlyLTCornerTex)
+        {
+            // 4 Corners
+            Gui::drawRect(x,y,tk,tk, {.tex=tex, .tex_pos={0,1.0}, .tex_size={1.0,1.0}});  // LT
+            Gui::drawRect(x+w-tk,y,tk,tk, {.tex=tex, .tex_pos={1.0,1.0}, .tex_size={-1.0,1.0}});  // RT
+            Gui::drawRect(x,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0,0}, .tex_size={1.0,-1.0}});  // LB
+            Gui::drawRect(x+w-tk,y+h-tk,tk,tk, {.tex=tex, .tex_pos={1.0, 0}, .tex_size={-1.0,-1.0}});  // RB
+            
+            // Center
+            Gui::drawRect(x+tk,y+tk,iw,ih, {.tex=tex, .tex_pos={0.99,0.01}, .tex_size={0,0}});  // RB
+
+            // 4 Borders
+            Gui::drawRect(x,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0}, .tex_size={1.0,0}});  // L
+            Gui::drawRect(x+w-tk,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0}, .tex_size={-1.0,0}});  // R
+            Gui::drawRect(x+tk,y,iw,tk, {.tex=tex, .tex_pos={0.99,1.0}, .tex_size={0,1.0}});  // T
+            Gui::drawRect(x+tk,y+h-tk,iw,tk, {.tex=tex, .tex_pos={0.99,0}, .tex_size={0,-1.0}});  // B
+        } 
+        else 
+        {
+            // 4 Corners
+            Gui::drawRect(x,y,tk,tk, {.tex=tex, .tex_pos={0,0.5}, .tex_size={0.5,0.5}});  // LT
+            Gui::drawRect(x+w-tk,y,tk,tk, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0.5,0.5}});  // RT
+            Gui::drawRect(x,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0,0}, .tex_size={0.5,0.5}});  // LB
+            Gui::drawRect(x+w-tk,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0.5, 0}, .tex_size={0.5,0.5}});  // RB
+
+            // Center
+            Gui::drawRect(x+tk,y+tk,iw,ih, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0,0}});  // RB
+
+            // 4 Borders
+            Gui::drawRect(x,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0.5}, .tex_size={0.5,0}});  // L
+            Gui::drawRect(x+w-tk,y+tk,tk,ih, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0.5,0}});  // R
+            Gui::drawRect(x+tk,y,iw,tk, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0,0.5}});  // T
+            Gui::drawRect(x+tk,y+h-tk,iw,tk, {.tex=tex, .tex_pos={0.5,0}, .tex_size={0,0.5}});  // B
+        }
+    }
 
 
     inline static std::vector<glm::vec4> g_Scissors;

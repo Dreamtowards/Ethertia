@@ -15,7 +15,7 @@ class GuiRenderer
                          Loader::loadAssetsStr("shaders/gui/gui.fsh")};
 
 public:
-    inline static Model* M_RECT;  // RB,RT,LB,LT. TRIANGLE_STRIP.
+    inline static Model* M_RECT_RB;  // RB,RT,LB,LT. TRIANGLE_STRIP.
 
     inline static Texture* TEX_WHITE;  // 1x1 pixel, RGBA=1 white tex.
 
@@ -24,7 +24,7 @@ public:
         // init M_RECT.
         float RECT_POS[] = {2,-2, 2, 0, 0,-2, 0, 0};
         float RECT_UV[]  = {1, 0, 1, 1, 0, 0, 0, 1};
-        M_RECT = Loader::loadModel(4, {
+        M_RECT_RB = Loader::loadModel(4, {
                 {2, RECT_POS},
                 {2, RECT_UV}
         });
@@ -32,12 +32,18 @@ public:
         BitmapImage img(1, 1, new u32[1]{(u32)~0});
         TEX_WHITE = Loader::loadTexture(&img);
 
+        // todo: Align(anchor), in_pos -= anchor * 2.0;
+        //
+        //  Rotation angle, -w -h flip draw.
     }
 
-    void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex =nullptr, float round =0, float border =FLT_MAX, int chnMode =0)
+    void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex =nullptr, glm::vec4 texPosSize = {0,0,1,1}, float round =0, float border =0, int chnMode =0)
     {
         if (!tex)
             tex = TEX_WHITE;
+        if (border == 0)
+            border = 999999;
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex->getTextureID());
 
@@ -46,10 +52,11 @@ public:
 
         shader.useProgram();
 
-        shader.setVector2f("offset", Mth::ndc(x, y, ww, wh));
-        shader.setVector2f("scale", glm::vec2(w/ww, h/wh));
+        shader.setVector4f("vertPosSize",
+                           glm::vec4(Mth::ndc(x, y, ww, wh),
+                           glm::vec2(w/ww, h/wh)));
 
-        shader.setVector2f("pixel_size", glm::vec2(w, h));
+        shader.setVector2f("sizePixel", glm::vec2(w, h));
         shader.setFloat("border", border);
         shader.setFloat("round", round);
 
@@ -57,7 +64,9 @@ public:
 
         shader.setInt("channelMode", chnMode);
 
-        glBindVertexArray(M_RECT->vaoId);
+        shader.setVector4f("texPosSize", texPosSize);
+
+        glBindVertexArray(M_RECT_RB->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 

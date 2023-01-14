@@ -66,6 +66,13 @@ public:
                     GuiDebugV::INST->toggleVisible();
                     break;
                 }
+                case GLFW_KEY_F4: {
+                    if (Ethertia::isIngame())
+                        Ethertia::getRootGUI()->addGui(GuiF4Lock::INST);
+                    else if (Ethertia::getRootGUI()->last() == GuiF4Lock::INST)
+                        Ethertia::getRootGUI()->removeLastGui();
+                    break;
+                }
                 case GLFW_KEY_F11: {
                     Ethertia::getWindow()->toggleFullscreen();
                     break;
@@ -118,6 +125,8 @@ public:
                                         window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
                                         window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
 
+
+            // Camera
             static SmoothValue smFov;
             smFov.update(dt);
             if (window.isKeyDown(GLFW_KEY_X)) {
@@ -127,6 +136,18 @@ public:
 
             camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
 
+
+
+            // Hotbar
+
+            int HOTBAR_SLOT_MAX = 8;
+            player->m_HotbarSlot += Mth::signal(-window.getDScroll());
+            player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, HOTBAR_SLOT_MAX);
+
+            for (int i = 0; i <= HOTBAR_SLOT_MAX; ++i) {
+                if (window.isKeyDown(GLFW_KEY_1+i))
+                    player->m_HotbarSlot = i;
+            }
 
 
 
@@ -244,13 +265,12 @@ public:
     {
         if (Ethertia::getWorld())
         {
-            if (Ethertia::isIngame())
+            if (Ethertia::getRootGUI()->last() == GuiIngame::INST)
             {
                 Ethertia::getRootGUI()->addGui(GuiScreenPause::INST);  // Pause
             }
             else
             {
-                assert(Ethertia::getRootGUI()->last() != GuiIngame::INST);
                 Ethertia::getRootGUI()->removeLastGui();
             }
         }
