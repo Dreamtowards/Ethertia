@@ -44,8 +44,9 @@ public:
 
         {
             m_CaptureDevice = alcCaptureOpenDevice(nullptr, m_CaptureSampleRate, AL_FORMAT_MONO16, CAPTURE_BUF_SIZE);
-            if (!m_CaptureDevice)
-                throw std::runtime_error("Failed open capture device.");
+            if (!m_CaptureDevice) {
+                Log::warn("Failed open capture device.");
+            }
 
         }
 
@@ -71,6 +72,7 @@ public:
     }
 
     void startCapture() {
+        assert(m_CaptureDevice);
         m_CaptureStarted = true;
         alcCaptureStart(m_CaptureDevice);
     }

@@ -79,6 +79,14 @@ public:
 
             float x = 10, y = 100, w = 200, h = 200;
 
+            for (int rx = 0; rx < w; ++rx) {
+                for (int ry = 0; ry < h; ++ry) {
+
+                    float temp = Mth::lerp(rx / w, -10, 30);
+                    float humi;
+
+                }
+            }
 
         }
 

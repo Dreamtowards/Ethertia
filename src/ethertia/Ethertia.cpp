@@ -96,7 +96,8 @@ void Ethertia::start()
 //    src->play();
 
 
-    m_AudioEngine->startCapture();
+    if (m_AudioEngine->m_CaptureDevice)
+        m_AudioEngine->startCapture();
 
 }
 
@@ -250,12 +251,12 @@ void Ethertia::unloadWorld()
     Timer::wait_for(&ChunkGenProc::g_Running, 0);
 
     // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
-    getScheduler()->processTasks(Mth::Inf);
+    m_Scheduler.processTasks(Mth::Inf);
+    assert(m_Scheduler.numTasks() == 0);
 
     // tmp save
     getAsyncScheduler()->processTasks(Mth::Inf);
 
-    assert(m_Scheduler.numTasks() == 0);
 
     delete m_World;
     m_World = nullptr;

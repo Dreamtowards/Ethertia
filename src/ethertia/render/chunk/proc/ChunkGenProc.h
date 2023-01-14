@@ -21,10 +21,11 @@ public:
     static void initThread() {
         new std::thread([]()
         {
-            while (Ethertia::isRunning())
+            while (true)
             {
                 if (g_Running == -1 || g_Running == 0) {
                     g_Running = 0;
+                    if (!Ethertia::isRunning()) { break; }
                     Timer::sleep_for(1);
                     continue;
                 }
