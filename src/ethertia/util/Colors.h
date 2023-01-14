@@ -43,6 +43,10 @@ public:
         ));
     }
 
+    inline static float luminance(glm::vec3 rgb) {
+        return (rgb.x*0.299f + rgb.y*0.587f + rgb.z*0.114f);
+    }
+
     inline static constexpr glm::vec4 WHITE = glm::vec4(1, 1, 1, 1);
     inline static constexpr glm::vec4 BLACK = glm::vec4(0, 0, 0, 1);
     inline static constexpr glm::vec4 TRANSPARENT = glm::vec4(0, 0, 0, 0);

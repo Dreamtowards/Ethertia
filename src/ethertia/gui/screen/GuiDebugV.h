@@ -411,7 +411,7 @@ public:
         Gui::drawRect(x, y, sec_width, SEC_H, color);
         Gui::drawString(x, y, sec.name);  // Section Name
         if (sec_width > 200) {
-            Gui::drawString(x+sec_width, y, Strings::fmt("{}ms@{}", sec._avgTime * 1000.0, sec.numExec), Colors::WHITE80, 12, {1.0, 0.0});
+            Gui::drawString(x+sec_width, y, Strings::fmt("{}ms@{}", sec._avgTime * 1000.0, sec.numExec), Colors::WHITE80, 12, {-1.0, 0.0});
         }
 
         float dx = 0;

@@ -388,7 +388,8 @@ public:
                          float border =99999);
 
 
-    // alignY: -0.5 = Center, -1.0 = Upward.
+    // alignX: x+=LineWidth *f  e.g.  0.5 = Center, 1.0 = Right
+    // alignY: y+=FullTextHeight*f   -0.5 = Center, -1.0 = Upward.
     static void drawString(float x, float y, const std::string& str,
                            glm::vec4 color  =Colors::WHITE,
                            float textHeight =16,

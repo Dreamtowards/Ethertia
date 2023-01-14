@@ -33,7 +33,7 @@ public:
         float textHeight = 16;
         Gui::drawString(x+w/2, y+(h-textHeight)/2, text,
                         isPressed() ? Colors::GOLD : isHover() ? Colors::YELLOW : Colors::WHITE,
-                        textHeight, {0.5, 0}, true);
+                        textHeight, {-0.5, 0}, true);
     }
 
     static void drawButtonBackground(Gui* g) {

@@ -232,6 +232,9 @@ public:
         return loadModel(vcount, std::vector(vdats));
     }
 
+    static Texture* loadTexture(const std::string& assets_p) {
+        return Loader::loadTexture(Loader::loadPNG(Loader::loadAssets(assets_p)));
+    }
     static Texture* loadTexture(BitmapImage* img) {
         std::unique_ptr<std::uint32_t> pixels(new std::uint32_t[img->getWidth() * img->getHeight()]);
         img->getVerticalFlippedPixels(pixels.get());

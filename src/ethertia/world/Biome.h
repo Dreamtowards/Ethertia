@@ -24,7 +24,8 @@ public:
     int m_Id = 0;
     const char* m_Name = nullptr;
 
-    float m_Temperature = 0;  // average annual / bio-temperature ('C) ~: -10 - 35
+    // should always in same scale [0, 1] or the 'distance' calculation will not balance
+    float m_Temperature = 0;  // [0, 1] average annual / bio-temperature ('C) ~: -10 - 35
     float m_Humidity = 0;     // [0, 1]
 
     // cancelled, use Humidity instead. some biomes wouldn't rain e.g. Hell,Cave and the mm-perc's relation have a little complex.
@@ -33,20 +34,45 @@ public:
 
     // color of Grass, Foliage, Water
 
-    Biome(const char* _name, float temp, float humid) : m_Name(_name), m_Temperature(temp), m_Humidity(humid) {
+    struct Temperature {
+        inline static const float C_MIN = -10,
+                C_MAX = 30.0;
+
+        static float ofCelsius(float c) {
+            return Mth::rlerp(c, C_MIN, C_MAX);
+        }
+        static float toCelsius(float t) {
+            return Mth::lerp(t, C_MIN, C_MAX);
+        }
+    };
+
+    Biome(const char* _name, float temp_c, float humid) : m_Name(_name), m_Humidity(humid) {
         m_Id = BIOMES.size();
         BIOMES.push_back(this);
+
+        m_Temperature = Biome::Temperature::ofCelsius(temp_c);
 
         std::cout << "Biome " << m_Id << " " << m_Name << "\n";
     }
 
 
+    static Biome* lookup(float temp, float humid, float* out_dist = nullptr)
+    {
+        float  min_dist = FLT_MAX;
+        Biome* min_bio = nullptr;
 
+        for (auto& it : BIOMES) {
+            float dist = glm::length2(glm::vec2(it->m_Temperature, it->m_Humidity) - glm::vec2(temp, humid));
+            if (min_dist > dist) {
+                min_dist = dist;
+                min_bio = it;
+            }
+        }
 
-
-    static void find(float temp, float humid) {
-
-
+        if (out_dist) {
+            *out_dist = min_dist;
+        }
+        return min_bio;
     }
 
 };
@@ -55,8 +81,8 @@ class Biomes {
 
     // decl out of the Biome class. for avoid incomplete-class error. there wanted define aside decl.
     inline static Biome
-            TUNDRA{"tundra", 1.5, 0.2},
-            TAIGA {"taiga", 5.2, 0.3},
+            TUNDRA{"tundra", 1.5,  0.2},
+            TAIGA {"taiga",  5.2,  0.3},
             FOREST{"forest", 17.0, 0.4},
             DESERT{"desert", 24.0, 0.1},
             JUNGLE{"jungle", 21.0, 0.8};
@@ -66,6 +92,17 @@ class Biomes {
     // Tropical Rainforest, Temperate Rainforest
 
     // Plateau
+
+public:
+    static glm::vec3 color(Biome* bio) {
+        if (bio == &Biomes::TUNDRA) return Colors::AQUA_DARK;
+        else if (bio == &Biomes::TAIGA) return Colors::AQUA;
+        else if (bio == &Biomes::FOREST) return Colors::GREEN;
+        else if (bio == &Biomes::JUNGLE) return Colors::GREEN_DARK;
+        else if (bio == &Biomes::DESERT) return Colors::YELLOW;
+        else return Colors::RED;
+    }
+
 };
 
 #endif //ETHERTIA_BIOME_H

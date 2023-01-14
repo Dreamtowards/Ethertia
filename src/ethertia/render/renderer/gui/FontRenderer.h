@@ -67,13 +67,13 @@ public:
         shader.setVector2f("scale", glm::vec2(textHeight / ww, textHeight / wh));
         shader.setVector4f("color", color);
 
-        float chX = x - lineWidth(str, 0, textHeight) * align;
+        float chX = x + lineWidth(str, 0, textHeight) * align;
         float chY = y;
         uint chIdx = 0;
         for (int strIdx = 0; strIdx < str.length(); ++strIdx) {  // index-access is not necessary. str.index != rendering-char-idx. we skip "\n" chars.
             uint ch = str.at(strIdx);
             if (ch == '\n') {
-                chX = x - lineWidth(str, strIdx+1, textHeight) * align;
+                chX = x + lineWidth(str, strIdx+1, textHeight) * align;
                 chY += textHeight * (1.0f+GAP_LINE_PERC);
             } else {
                 shader.setInt(UNIFORM_CHARS[chIdx], ch);
