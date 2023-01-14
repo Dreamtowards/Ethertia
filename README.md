@@ -188,7 +188,12 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
   - 2023-01-12
     - // Vid WorldStore, poster
     - Profiler: +MeshGen +ChunkProc. 
-      
+  - 2023-01-13
+    - FFT, Audio Frequency Spectrum basic. 音频频谱解析
+    - 尝试wasm. 很impressive, 但是区别还是太大 实时程序很多结构都要改变。放弃
+    
+    - DamageSource - 就像mc的Crepper被骷髅用火箭射到tnt炸死都能追踪到伤害来源是骷弓
+    - bugfix: 在关闭世界时 卡机
     - World Saving Hint 世界保存的提示
     - 修复bug：有些地方没有population
     

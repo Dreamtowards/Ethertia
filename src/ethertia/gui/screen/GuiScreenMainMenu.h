@@ -13,6 +13,7 @@
 #include "../GuiButton.h"
 
 #include <ethertia/render/Camera.h>
+#include <ethertia/world/Biome.h>
 
 
 #include "dj-fft/dj_fft.h"
@@ -71,106 +72,80 @@ public:
                                                   "Copyright Elytra Corporation. Do not distribute!", Colors::WHITE60, 16, {1.0, -1.0f});
 
 
+//        Biome::find()
 
+        {
+            // Biome Distribution of Temperature and Humidity
+
+            float x = 10, y = 100, w = 200, h = 200;
+
+
+        }
 
 
 
     }
 
-    void drawAudioFreq() {
+    void drawAudioFreq()
+    {
 
+        float x = 100, y = Gui::maxHeight() - 64;
+        float w = Gui::maxWidth() - 2*x, h = 200;
+        Gui::drawRect(x,y,w, 1, Colors::WHITE);
+
+        int16_t* buf;
+        int nFFT = 1024;
+        int nFFT_2 = nFFT / 2;
+
+        Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
+
+        // FFT Spectrum Frequency
+
+        std::vector<std::complex<float>> tFreq(nFFT);
+        for (int i = 0; i < nFFT; ++i) {
+            int16_t val_raw = buf[i];
+            float f = (float)val_raw / 32768.0f;
+
+            tFreq[i].real(f);
+            tFreq[i].imag(0);
+        }
+        auto fft = dj::fft1d(tFreq, dj::fft_dir::DIR_BWD);
+
+
+        float sampFreq = Ethertia::getAudioEngine()->m_CaptureSampleRate;
+
+        for (int i = 0; i < nFFT_2; ++i)
         {
-            float x = 100, y = Gui::maxHeight() - 48;
-            float w = Gui::maxWidth() - 2*x, h = 200;
-            Gui::drawRect(x,y,w, 1, Colors::WHITE);
+            float re = fft[i].real(), im = fft[i].imag();
+            float magnitude = std::sqrt(re*re + im*im);
 
-            int16_t* buf;
-            int nFFT = 1024;
-            int nFFT_2 = nFFT / 2;
+            // FFT_idx to Freq_bin: i * Fs / nFFT
+            float freqbin = i * sampFreq / 2.0 / nFFT_2;
 
-            Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
+            float lx = x + w*(freqbin / (sampFreq / 2.0));
 
-            // FFT Spectrum Frequency
+            float dB = 10.0 * std::log10(re*re + im*im);//20.0f * std::log10(magnitude);
 
-            std::vector<std::complex<float>> tFreq(nFFT);
-            for (int i = 0; i < nFFT; ++i) {
-                int16_t val_raw = buf[i];
-                float f = (float)val_raw / 32768.0f;
+            Gui::drawRect(lx, y, 2, -(magnitude * h), Colors::WHITE);
 
-                tFreq[i].real(f);
-                tFreq[i].imag(0);
+            if (i % int(nFFT_2/16) == 0 && i != 0) {
+                Gui::drawString(lx, y,
+                                freqbin < 1000 ? std::to_string(Mth::floor_dn(freqbin, 1)) : Strings::fmt("{}k", Mth::floor_dn(
+                                        freqbin / 1000, 1)),
+                                Colors::WHITE);
             }
-            auto fft = dj::fft1d(tFreq, dj::fft_dir::DIR_BWD);
-
-
-
-
-
-            float sampFreq = Ethertia::getAudioEngine()->m_CaptureSampleRate;
-
-            for (int i = 0; i < nFFT_2; ++i)
-            {
-                float re = fft[i].real(), im = fft[i].imag();
-                float magnitude = std::sqrt(re*re + im*im);
-
-                // FFT_idx to Freq_bin: i * Fs / nFFT
-                float freqbin = i * sampFreq / 2.0 / nFFT_2;
-
-                float lx = x + w*(freqbin / (sampFreq / 2.0));
-
-                float dB = 10.0 * std::log10(re*re + im*im);//20.0f * std::log10(magnitude);
-
-                Gui::drawRect(lx, y, 2, -(magnitude * h), Colors::WHITE);
-
-                if (i % int(nFFT_2/16) == 0 && i != 0) {
-                    Gui::drawString(lx, y,
-                                    freqbin < 1000 ? std::to_string(Mth::floor_dn(freqbin, 1)) : Strings::fmt("{}k", Mth::floor_dn(
-                                            freqbin / 1000, 1)),
-                                    Colors::WHITE);
-                }
-
-            }
-            if (Gui::isCursorOver(x,y-h,w,h*2))
-            {
-                int i = int(((Gui::cursorX() - x) / w) * nFFT_2);
-                float freqbin = i * sampFreq / 2.0 / nFFT_2;
-
-                Gui::drawString(Gui::cursorX(), Gui::cursorY()-16,
-                                Strings::fmt("{} Hz", freqbin));
-                Gui::drawRect(Gui::cursorX(), y, 1, -h, Colors::GREEN_DARK);
-            }
-
-//            int numFreq = nFFT / 2;
-//            std::cout << "IDX ";
-//            for (int i = 0; i < numFreq; ++i)
-//            {
-//                const float skewedProportionY = 1.0f - std::exp(std::log ((float)(numFreq - 1 - i) / numFreq) * 0.2f);
-//                assert(skewedProportionY >= 0 && skewedProportionY <= 1.0f);
-//
-//                int fftIdx = (int)(skewedProportionY * numFreq);
-//
-//                float re = dst[fftIdx].real(), im = dst[fftIdx].imag();
-//                float magnitude = std::sqrt(re*re + im*im);
-//
-//                std::cout << fftIdx << " ";
-////                float dB = /*20.0f */ std::log10(magnitude) / 20.0;
-//
-//
-//                Gui::drawRect(x+ i*w/(float)numFreq, y, 2, -(magnitude * h), Colors::WHITE);
-//
-//            }
-//            std::cout << "\n";
-//
-//            int freqMark = 32;
-//            int numFreqMarks = 19;
-//            for (int i = 0; i < numFreqMarks; ++i) {
-//
-//
-//                Gui::drawString(x + i*w/numFreqMarks, y, freqMark < 1024 ? std::to_string(freqMark) : Strings::fmt("{}k", freqMark / 1024), Colors::WHITE);
-//                freqMark <<= 1;
-//            }
 
         }
+        if (Gui::isCursorOver(x,y-h,w,h*2))
+        {
+            int i = int(((Gui::cursorX() - x) / w) * nFFT_2);
+            float freqbin = i * sampFreq / 2.0 / nFFT_2;
+
+            Gui::drawString(Gui::cursorX(), Gui::cursorY()-16,
+                            Strings::fmt("{} Hz", freqbin));
+            Gui::drawRect(Gui::cursorX(), y, 1, -h, Colors::GREEN_DARK);
+        }
+
     }
 
 };

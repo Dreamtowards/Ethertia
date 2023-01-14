@@ -8,23 +8,28 @@
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/player/Gamemode.h>
 
+#include <ethertia/item/Inventory.h>
+
 class EntityPlayer : public Entity
 {
     int m_Gamemode = Gamemode::SURVIVAL;
 
     bool m_Flying = false;
 
-
     bool m_Sprint = false;
+
+    Inventory m_Inventory{8};
+
 
 public:
     float m_Health = 0.95f;
 
-    float m_AppliedImpulse = 0;
     bool m_OnGround = false;
+    float m_AppliedImpulse = 0;
     int m_NumContactPoints = 0;
-
     btVector3 m_PrevVelocity{};
+
+
 
     EntityPlayer() {
         m_TypeTag = Entity::TypeTag::T_PLAYER;

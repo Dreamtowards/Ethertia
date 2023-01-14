@@ -14,6 +14,8 @@
 
 #include <ethertia/util/Strings.h>
 
+#define _ChunkLoader_Disable
+
 class ChunkLoader
 {
 public:
@@ -34,7 +36,7 @@ public:
         assert(!Loader::fileExists(savedir));
     }
 
-    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {
+    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {  return nullptr;
         std::ifstream file(_File(chunkpos), std::ios::in);
         if (!file)
             return nullptr;
@@ -68,7 +70,7 @@ public:
         return chunk;
     }
 
-    void saveChunk(Chunk* chunk) {
+    void saveChunk(Chunk* chunk) {  return;
         std::string filename = _File(chunk->position);
         std::ofstream file(filename, std::ios::out);
         Loader::ensureFileParentDirsReady(filename);

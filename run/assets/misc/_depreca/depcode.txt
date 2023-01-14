@@ -469,3 +469,33 @@ serv.listen("0.0.0.0", 8080);
 //
 //
 //        }
+
+//            int numFreq = nFFT / 2;
+//            std::cout << "IDX ";
+//            for (int i = 0; i < numFreq; ++i)
+//            {
+//                const float skewedProportionY = 1.0f - std::exp(std::log ((float)(numFreq - 1 - i) / numFreq) * 0.2f);
+//                assert(skewedProportionY >= 0 && skewedProportionY <= 1.0f);
+//
+//                int fftIdx = (int)(skewedProportionY * numFreq);
+//
+//                float re = dst[fftIdx].real(), im = dst[fftIdx].imag();
+//                float magnitude = std::sqrt(re*re + im*im);
+//
+//                std::cout << fftIdx << " ";
+////                float dB = /*20.0f */ std::log10(magnitude) / 20.0;
+//
+//
+//                Gui::drawRect(x+ i*w/(float)numFreq, y, 2, -(magnitude * h), Colors::WHITE);
+//
+//            }
+//            std::cout << "\n";
+//
+//            int freqMark = 32;
+//            int numFreqMarks = 19;
+//            for (int i = 0; i < numFreqMarks; ++i) {
+//
+//
+//                Gui::drawString(x + i*w/numFreqMarks, y, freqMark < 1024 ? std::to_string(freqMark) : Strings::fmt("{}k", freqMark / 1024), Colors::WHITE);
+//                freqMark <<= 1;
+//            }
