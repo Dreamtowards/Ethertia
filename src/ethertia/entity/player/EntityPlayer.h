@@ -18,8 +18,6 @@ class EntityPlayer : public Entity
 
     bool m_Sprint = false;
 
-    Inventory m_Inventory{8};
-
 
 public:
     float m_Health = 0.95f;
@@ -30,6 +28,8 @@ public:
     btVector3 m_PrevVelocity{};
 
     int m_HotbarSlot = 0;
+
+    Inventory m_Inventory{8};
 
 
     EntityPlayer() {

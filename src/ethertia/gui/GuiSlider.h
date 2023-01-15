@@ -44,7 +44,7 @@ public:
         Gui::drawString(x+w/2, y+(h-16)/2,
                         Strings::fmt("{}: {}", label, getValue()),
                         isPressed() ? Colors::GOLD : isHover() ? Colors::YELLOW : Colors::WHITE,
-                        16, {0.5, 0}, true);
+                        16, {-0.5, 0}, true);
 
         // Update trace value
         if (traceValue) {

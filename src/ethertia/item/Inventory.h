@@ -19,6 +19,10 @@ public:
 
     }
 
+    // length or size? size my confuse with 'bytes' concept. but widely used in std containers.
+    size_t size() const {
+        return m_ItemStacks.size();
+    }
 
 };
 

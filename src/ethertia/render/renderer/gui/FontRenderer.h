@@ -83,8 +83,8 @@ public:
             }
             // Render. if Reach Batched-Rendering-Limit or just End of String.
             if (chIdx == BATCH_CHARS_LIMIT || strIdx == str.length()-1) {
-                glBindVertexArray(GuiRenderer::M_RECT->vaoId);
-                glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, GuiRenderer::M_RECT->vertexCount, chIdx);
+                glBindVertexArray(GuiRenderer::M_RECT_RB->vaoId);
+                glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, GuiRenderer::M_RECT_RB->vertexCount, chIdx);
                 chIdx = 0;
             }
         }

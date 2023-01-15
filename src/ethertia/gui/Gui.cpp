@@ -61,6 +61,49 @@ void Gui::drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm
     }
 }
 
+void Gui::drawStretchCorners(glm::vec4 xywh, Texture* tex, float thickness, bool onlyLTCornerTex) {
+    float x = xywh.x, y = xywh.y, w = xywh.z, h = xywh.w;
+
+    float tk = thickness;
+    float iw = w-tk-tk;  // inner width
+    float ih = h-tk-tk;
+
+    if (onlyLTCornerTex)
+    {
+        // 4 Corners
+        Gui::drawRect(x,y,tk,tk, {.tex=tex, .tex_pos={0,1.0}, .tex_size={1.0,1.0}});  // LT
+        Gui::drawRect(x+w-tk,y,tk,tk, {.tex=tex, .tex_pos={1.0,1.0}, .tex_size={-1.0,1.0}});  // RT
+        Gui::drawRect(x,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0,0}, .tex_size={1.0,-1.0}});  // LB
+        Gui::drawRect(x+w-tk,y+h-tk,tk,tk, {.tex=tex, .tex_pos={1.0, 0}, .tex_size={-1.0,-1.0}});  // RB
+
+        // Center
+        Gui::drawRect(x+tk,y+tk,iw,ih, {.tex=tex, .tex_pos={0.99,0.01}, .tex_size={0,0}});  // RB
+
+        // 4 Borders
+        Gui::drawRect(x,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0}, .tex_size={1.0,0}});  // L
+        Gui::drawRect(x+w-tk,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0}, .tex_size={-0.99,0}});  // R
+        Gui::drawRect(x+tk,y,iw,tk, {.tex=tex, .tex_pos={0.99,1.0}, .tex_size={0,1.0}});  // T
+        Gui::drawRect(x+tk,y+h-tk,iw,tk, {.tex=tex, .tex_pos={0.99,0}, .tex_size={0,-1.0}});  // B
+    }
+    else
+    {
+        // 4 Corners
+        Gui::drawRect(x,y,tk,tk, {.tex=tex, .tex_pos={0,0.5}, .tex_size={0.5,0.5}});  // LT
+        Gui::drawRect(x+w-tk,y,tk,tk, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0.5,0.5}});  // RT
+        Gui::drawRect(x,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0,0}, .tex_size={0.5,0.5}});  // LB
+        Gui::drawRect(x+w-tk,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0.5, 0}, .tex_size={0.5,0.5}});  // RB
+
+        // Center
+        Gui::drawRect(x+tk,y+tk,iw,ih, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0,0}});  // RB
+
+        // 4 Borders
+        Gui::drawRect(x,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0.5}, .tex_size={0.5,0}});  // L
+        Gui::drawRect(x+w-tk,y+tk,tk,ih, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0.5,0}});  // R
+        Gui::drawRect(x+tk,y,iw,tk, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0,0.5}});  // T
+        Gui::drawRect(x+tk,y+h-tk,iw,tk, {.tex=tex, .tex_pos={0.5,0}, .tex_size={0,0.5}});  // B
+    }
+}
+
 float Gui::toFramebufferCoords(float f) {
     Window* w = Ethertia::getWindow();
     // makesure its same aspectRatio.

@@ -40,7 +40,8 @@ public:
         return i*u;
     }
     static inline int ceil(float v) {
-        return floor(v)+1;
+        // no floor(x)+1, it causes ceil(1) = 2
+        return std::ceil(v);
     }
     static inline float floor(float v, float u) {
         return floor(v / u) * u;

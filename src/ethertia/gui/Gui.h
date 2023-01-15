@@ -75,6 +75,7 @@ public:
         }
     };
 
+    // why LTRB order? LTRB -> XYWH -> XYXY.
     class LTRBConstraint : public Gui::Constraint
     {
     public:
@@ -386,7 +387,8 @@ public:
         return (T*)this;
     }
 
-    // override this instead of onDraw(). to keep the arch, OnDrawPre, OnDrawPost, visibility.
+    // override this instead of onDraw(). to keep functionality of onDraw. order/visibility etc.
+    // specified PreDraw. draw before children.
     virtual void implDraw() {}
 
     virtual void onDraw()
@@ -432,6 +434,11 @@ public:
         childbound = mx;
     }
 
+    void addPreDraw(const std::function<void(Gui* g)>& fn) {
+        addOnDrawListener([this, fn](OnDraw* e) {
+            fn(this);
+        });
+    }
 
 
     void addOnDrawListener(const std::function<void(OnDraw*)>& lsr) {
@@ -513,49 +520,24 @@ public:
     static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
 
 
-    //
-    static void drawStretchCorners(float x, float y, float w, float h, Texture* tex, float thickness = 16, bool onlyLTCornerTex = false) {
+    // use vec4 xywh, you can easily use Grow, ofGui, ofLTRBfor etc func.
+    static void drawStretchCorners(glm::vec4 xywh, Texture* tex, float thickness = 16, bool onlyLTCornerTex = false);
 
-        float tk = thickness;
-        float iw = w-tk-tk;  // inner width
-        float ih = h-tk-tk;
 
-        if (onlyLTCornerTex)
-        {
-            // 4 Corners
-            Gui::drawRect(x,y,tk,tk, {.tex=tex, .tex_pos={0,1.0}, .tex_size={1.0,1.0}});  // LT
-            Gui::drawRect(x+w-tk,y,tk,tk, {.tex=tex, .tex_pos={1.0,1.0}, .tex_size={-1.0,1.0}});  // RT
-            Gui::drawRect(x,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0,0}, .tex_size={1.0,-1.0}});  // LB
-            Gui::drawRect(x+w-tk,y+h-tk,tk,tk, {.tex=tex, .tex_pos={1.0, 0}, .tex_size={-1.0,-1.0}});  // RB
-            
-            // Center
-            Gui::drawRect(x+tk,y+tk,iw,ih, {.tex=tex, .tex_pos={0.99,0.01}, .tex_size={0,0}});  // RB
-
-            // 4 Borders
-            Gui::drawRect(x,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0}, .tex_size={1.0,0}});  // L
-            Gui::drawRect(x+w-tk,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0}, .tex_size={-1.0,0}});  // R
-            Gui::drawRect(x+tk,y,iw,tk, {.tex=tex, .tex_pos={0.99,1.0}, .tex_size={0,1.0}});  // T
-            Gui::drawRect(x+tk,y+h-tk,iw,tk, {.tex=tex, .tex_pos={0.99,0}, .tex_size={0,-1.0}});  // B
-        } 
-        else 
-        {
-            // 4 Corners
-            Gui::drawRect(x,y,tk,tk, {.tex=tex, .tex_pos={0,0.5}, .tex_size={0.5,0.5}});  // LT
-            Gui::drawRect(x+w-tk,y,tk,tk, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0.5,0.5}});  // RT
-            Gui::drawRect(x,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0,0}, .tex_size={0.5,0.5}});  // LB
-            Gui::drawRect(x+w-tk,y+h-tk,tk,tk, {.tex=tex, .tex_pos={0.5, 0}, .tex_size={0.5,0.5}});  // RB
-
-            // Center
-            Gui::drawRect(x+tk,y+tk,iw,ih, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0,0}});  // RB
-
-            // 4 Borders
-            Gui::drawRect(x,y+tk,tk,ih, {.tex=tex, .tex_pos={0,0.5}, .tex_size={0.5,0}});  // L
-            Gui::drawRect(x+w-tk,y+tk,tk,ih, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0.5,0}});  // R
-            Gui::drawRect(x+tk,y,iw,tk, {.tex=tex, .tex_pos={0.5,0.5}, .tex_size={0,0.5}});  // T
-            Gui::drawRect(x+tk,y+h-tk,iw,tk, {.tex=tex, .tex_pos={0.5,0}, .tex_size={0,0.5}});  // B
-        }
+    glm::vec4 xywh() {
+        return glm::vec4(getX(), getY(), getWidth(), getHeight());
     }
 
+    static glm::vec4 grow(glm::vec4 xywh, float grow, float growY = Inf) {
+        if (growY == Inf)
+            growY = grow;
+        return glm::vec4(
+                xywh.x - grow,
+                xywh.y - growY,
+                xywh.z + grow+grow,
+                xywh.w + growY+growY
+        );
+    }
 
     inline static std::vector<glm::vec4> g_Scissors;
 

@@ -29,6 +29,7 @@
 #include <ethertia/command/Commands.h>
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/audio/AudioEngine.h>
+#include <ethertia/init/ReloadControl.h>
 
 //#include <yaml-cpp/yaml.h>
 //#include <nbt/nbt_tags.h>
@@ -65,11 +66,12 @@ void Ethertia::start()
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::system(), std::endian::native == std::endian::big ? "big" : "little");
 
     MaterialTextures::init();
-    GuiIngame::initGUIs();
     Commands::initCommands();
     Controls::initControls();
-
     ClientConnectionProc::initPackets();
+
+    m_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
+    GuiIngame::initGUIs();
 
     ChunkMeshProc::initThread();
     ChunkGenProc::initThread();
@@ -77,11 +79,12 @@ void Ethertia::start()
     m_Scheduler.m_ThreadId = std::this_thread::get_id();
 
 
-    m_Player = new EntityPlayer();
-
     m_Player->setPosition({10, 10, 10});
     m_Player->switchGamemode(Gamemode::SPECTATOR);
     m_Player->setFlying(true);
+
+    ReloadControl::init();
+    ReloadControl::reload("");
 
     // NetworkSystem::connect("127.0.0.1", 8081);
 
