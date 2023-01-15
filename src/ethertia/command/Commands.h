@@ -20,7 +20,12 @@ public:
     {
         COMMANDS["heal"] = [](auto& args)
         {
-            Ethertia::getPlayer()->m_Health = 1.0f;
+            float heal = 20.0;
+            if (args.size() > 2) {
+                heal = std::stof(args[2]);
+            }
+
+            Ethertia::getPlayer()->m_Health = heal;
         };
 
         COMMANDS["tp"] = [](auto& args)
@@ -65,6 +70,29 @@ public:
             NetworkSystem::connect(hostname, port);
         };
 
+        // give <target> <item_id> [amount]
+        COMMANDS["give"] = [](auto& args)
+        {
+            EntityPlayer* target = (EntityPlayer*)resolveEntityExpr(args[1]);
+
+            std::string id = args[2];
+
+            if (!Item::REGISTRY.has(id)) {
+                Ethertia::notifyMessage(Strings::fmt("No such item id \"{}\".", id));
+                return;
+            }
+
+            int amount = 1;
+            if (args.size() > 3) {
+                amount = std::stoi(args[3]);
+            }
+
+            ItemStack stack(Item::REGISTRY.get(id), amount);
+
+            target->m_Inventory.putItemStack(stack);
+
+            Ethertia::notifyMessage(Strings::fmt("Given {} x{}", id, amount));
+        };
         COMMANDS["entity"] = [](auto& args)
         {
             EntityPlayer* player = Ethertia::getPlayer();
@@ -143,6 +171,7 @@ public:
         } else if (expr == "@s") {
             result = Ethertia::getPlayer();
         }
+        assert(result);
         return result;
     }
 };

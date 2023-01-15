@@ -14,6 +14,7 @@
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Profiler.h>
 #include <ethertia/util/concurrent/Scheduler.h>
+#include <ethertia/init/Registry.h>
 
 // scope profiling
 #define PROFILE_VN_CONCAT_INNR(a, b) a ## b
@@ -80,10 +81,6 @@ public:
 
     static void shutdown() { m_Running = false; }
     static const bool& isRunning() { return m_Running; }
-    static bool isIngame();  // controlling game.
-    static float getPreciseTime();
-    static float getAspectRatio();
-    static float getDelta();
     static bool inMainThread() { return m_Scheduler.inThread(); }
 
     static RenderEngine* getRenderEngine() { return m_RenderEngine; }
@@ -91,14 +88,24 @@ public:
     static World* getWorld() { return m_World; }
     static GuiRoot* getRootGUI() { return m_RootGUI; }
     static EntityPlayer* getPlayer() { return m_Player; }
-
     static Timer* getTimer() { return &m_Timer; }
     static Scheduler* getScheduler() { return &m_Scheduler; }
     static Scheduler* getAsyncScheduler() { return &m_AsyncScheduler; }
     static BrushCursor& getBrushCursor() { return m_Cursor; }
-    static Camera* getCamera();
     static Profiler& getProfiler() { return m_Profiler; }
     static AudioEngine* getAudioEngine() { return m_AudioEngine; }
+
+    static bool isIngame();  // controlling game.
+    static float getPreciseTime();
+    static float getAspectRatio();
+    static float getDelta();
+    static Camera* getCamera();
+
+    template<typename T>
+    static Registry<T>* getRegistry() {
+        // static_assert(std::is_same<T, Item>());
+        return &T::REGISTRY;
+    }
 
 
     struct Version

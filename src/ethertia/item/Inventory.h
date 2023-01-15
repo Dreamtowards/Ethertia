@@ -19,6 +19,23 @@ public:
 
     }
 
+    ItemStack& at(int i) {
+        return m_ItemStacks[i];
+    }
+
+    // moving.
+    void putItemStack(ItemStack& items) {
+        for (ItemStack& slot : m_ItemStacks)
+        {
+            if (slot.stackableWith(items)) {
+                items.moveTo(slot);
+            }
+
+            if (items.empty())
+                break;
+        }
+    }
+
     // length or size? size my confuse with 'bytes' concept. but widely used in std containers.
     size_t size() const {
         return m_ItemStacks.size();

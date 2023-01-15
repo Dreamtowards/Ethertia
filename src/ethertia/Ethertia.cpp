@@ -30,6 +30,8 @@
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/init/ReloadControl.h>
+#include <ethertia/init/ItemTextures.h>
+
 
 //#include <yaml-cpp/yaml.h>
 //#include <nbt/nbt_tags.h>
@@ -66,6 +68,7 @@ void Ethertia::start()
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::system(), std::endian::native == std::endian::big ? "big" : "little");
 
     MaterialTextures::init();
+    ItemTextures::load();
     Commands::initCommands();
     Controls::initControls();
     ClientConnectionProc::initPackets();
@@ -98,6 +101,7 @@ void Ethertia::start()
 //    src->QueueBuffer(buf->m_BufferId);
 //    src->play();
 
+    Log::info("RegistrySize {}", Ethertia::getRegistry<Item>()->size());
 
     if (m_AudioEngine->m_CaptureDevice)
         m_AudioEngine->startCapture();
@@ -325,7 +329,6 @@ float Ethertia::getAspectRatio() {
     Window* w = getWindow(); if (w->getHeight() == 0) return 0;
     return (float)w->getWidth() / (float)w->getHeight();
 }
-
 
 
 

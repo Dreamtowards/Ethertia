@@ -15,13 +15,14 @@
 #include "GuiDebugV.h"
 #include "GuiMessageList.h"
 #include "GuiF4Lock.h"
-
 #include <ethertia/util/Loader.h>
 
 class GuiIngame : public GuiCollection
 {
 public:
     inline static GuiIngame* INST;
+
+    inline static const int HOTBAR_SLOT_MAX = 8;
 
     static void initGUIs()
     {
@@ -61,43 +62,79 @@ public:
         EntityPlayer* player = Ethertia::getPlayer();
 
 
-
-        // hotbar
-        const float HOTBAR_WIDTH = 720 * 0.8,
-                    HOTBAR_HEIGHT = 80 * 0.8;
-
-        float hbX = (Gui::maxWidth() - HOTBAR_WIDTH) / 2;
-        float hbY = Gui::maxHeight() - HOTBAR_HEIGHT - 24;
-
-//        Gui::drawRect(hbX, hbY, HOTBAR_WIDTH, HOTBAR_HEIGHT, Colors::alpha(Colors::WHITE, 0.5), nullptr, 8, 2);
-//        Gui::drawRect(hbX, hbY, HOTBAR_WIDTH, HOTBAR_HEIGHT, Colors::alpha(Colors::BLACK, 0.24), nullptr, 8);
-
-        static Texture* TEX_HOTBAR_SLOTS = Loader::loadTexture("gui/hotbar_slots2.png");
-        static Texture* TEX_HOTBAR_SLOT_ACTIVE = Loader::loadTexture("gui/hotbar_slot_active2.png");
-
-        int hotbarIdx = Ethertia::getPlayer()->m_HotbarSlot;
-        Gui::drawRect(hbX, hbY, HOTBAR_WIDTH, HOTBAR_HEIGHT, TEX_HOTBAR_SLOTS);
-        Gui::drawRect(hbX + hotbarIdx*HOTBAR_HEIGHT, hbY, HOTBAR_HEIGHT, HOTBAR_HEIGHT, TEX_HOTBAR_SLOT_ACTIVE);
-
-        if (player->getGamemode() == Gamemode::SURVIVAL)
         {
-            // xp
-//            float XP_HEIGHT = 6;
-//            float xpY = hbY - 5 - XP_HEIGHT;
-//            Gui::drawRect(hbX, xpY, HOTBAR_WIDTH, XP_HEIGHT, Colors::BLACK60, nullptr, 3);
-//            Gui::drawRect(hbX, xpY, HOTBAR_WIDTH*0.32f, XP_HEIGHT, Colors::GREEN_DARK, nullptr, 3);
+            // hotbar
+            const float HOTBAR_WIDTH = 720 * 0.8,
+                        HOTBAR_HEIGHT = 80 * 0.8;
 
-            // health
-//            float HEALTH_HEIGHT = 12;
-//            float HEALTH_WIDTH = 200;
-//            float htY = xpY - 5 - HEALTH_HEIGHT;
-//            Gui::drawRect(hbX, htY, HEALTH_WIDTH, HEALTH_HEIGHT, Colors::BLACK60, nullptr, 4);
-//            Gui::drawRect(hbX, htY, HEALTH_WIDTH*(player->m_Health), HEALTH_HEIGHT, Colors::RED, nullptr, 4);
+            float hbX = (Gui::maxWidth() - HOTBAR_WIDTH) / 2;
+            float hbY = Gui::maxHeight() - HOTBAR_HEIGHT - 24 - 8;
 
-            // strain
-            // Gui::drawRect(hbX, htY, HEALTH_WIDTH*(0.75), HEALTH_HEIGHT, Colors::alpha(Colors::WHITE, 0.4), nullptr, 6);
+            static Texture *TEX_HOTBAR_SLOTS = Loader::loadTexture("gui/hotbar_slots2.png");
+            static Texture *TEX_HOTBAR_SLOT_ACTIVE = Loader::loadTexture("gui/hotbar_slot_active5.png");
 
+            int hotbarIdx = Ethertia::getPlayer()->m_HotbarSlot;
+            Gui::drawRect(hbX, hbY, HOTBAR_WIDTH, HOTBAR_HEIGHT, TEX_HOTBAR_SLOTS);
+            Gui::drawRect(hbX + hotbarIdx * HOTBAR_HEIGHT, hbY, HOTBAR_HEIGHT, HOTBAR_HEIGHT, {
+                .tex = TEX_HOTBAR_SLOT_ACTIVE,
+                .color = {1,1,1,0.35}
+            });
+
+            //float hbItemWG = HOTBAR_WIDTH / HOTBAR_SLOT_MAX;
+            float hbItemH = 48;
+
+            for (int i = 0; i < HOTBAR_SLOT_MAX; ++i)
+            {
+                GuiInventory::drawItemStack(hbX + i*HOTBAR_HEIGHT,
+                                            hbY + (HOTBAR_HEIGHT-hbItemH)*0.5,
+                                            Ethertia::getPlayer()->m_Inventory.at(i));
+            }
+
+
+            if (player->getGamemode() == Gamemode::SURVIVAL)
+            {
+                static Texture* TEX_XP_BAR = Loader::loadTexture("gui/bars.png");
+                static Texture* TEX_HEALTH = Loader::loadTexture("gui/health.png");
+
+                float lv = Ethertia::getPreciseTime() * 0.1;
+                // xp
+                float XP_HEIGHT = 14;
+                float xpY = hbY - 12 - XP_HEIGHT;
+                float xpPercent = Mth::mod(lv, 1.0);
+                Gui::drawRect(hbX, xpY, HOTBAR_WIDTH, XP_HEIGHT, {
+                        .tex = TEX_XP_BAR,
+                        .tex_size = {1.0, 1/6.0},
+                        .tex_pos = {0.0, 5/6.0}
+                });
+                Gui::drawRect(hbX, xpY, HOTBAR_WIDTH*xpPercent, XP_HEIGHT, {
+                        .tex = TEX_XP_BAR,
+                        .tex_size = {xpPercent, 1/6.0},
+                        .tex_pos = {0.0, 4/6.0}
+                });
+                Gui::drawString(hbX+HOTBAR_WIDTH*0.5, xpY-2, Strings::fmt("{}", int(lv)), Colors::WHITE, 18, {-0.5, 0});
+
+
+                float health = Ethertia::getPlayer()->m_Health;
+                // health
+                float HEALTH_SIZE = 20;
+                float htY = xpY - 10 - HEALTH_SIZE;
+                for (int i = 0; i < Mth::max(health/2.0, 10.0); ++i) {
+                    bool none = health < i*2;
+                    bool half = health < i*2 + 0.5;
+
+                    Gui::drawRect(hbX + i*(HEALTH_SIZE+2), htY, HEALTH_SIZE, HEALTH_SIZE, {
+                            .tex = TEX_HEALTH,
+                            .tex_size = {1/3.0, 1.0},
+                            .tex_pos = {none ? 2/3.0 : half ? 1/3.0 : 0.0, 0.0}
+                    });
+                }
+
+                // strain
+                // Gui::drawRect(hbX, htY, HEALTH_WIDTH*(0.75), HEALTH_HEIGHT, Colors::alpha(Colors::WHITE, 0.4), nullptr, 6);
+
+            }
         }
+
 
 
 

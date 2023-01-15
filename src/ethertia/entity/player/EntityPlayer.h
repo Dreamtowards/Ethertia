@@ -20,7 +20,7 @@ class EntityPlayer : public Entity
 
 
 public:
-    float m_Health = 0.95f;
+    float m_Health = 19.0f;
 
     bool m_OnGround = false;
     float m_AppliedImpulse = 0;

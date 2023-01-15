@@ -51,10 +51,6 @@ public:
         sZ.update(t);
         eulerAngles.z = sZ.current;
 
-        len += dScroll;
-        len = Mth::max(len, 0.0f);
-//        len = Mth::clamp(len, 0.0f, 1000.0f);
-
     }
 
     glm::mat4 computeViewMatrix() {

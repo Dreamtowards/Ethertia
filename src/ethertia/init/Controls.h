@@ -136,15 +136,18 @@ public:
 
             camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
 
+            if (window.isKeyDown(GLFW_KEY_F9))
+                camera.len += window.getDScroll();
+            camera.len = Mth::max(camera.len, 0.0f);
+
 
 
             // Hotbar
 
-            int HOTBAR_SLOT_MAX = 8;
             player->m_HotbarSlot += Mth::signal(-window.getDScroll());
-            player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, HOTBAR_SLOT_MAX);
+            player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, GuiIngame::HOTBAR_SLOT_MAX);
 
-            for (int i = 0; i <= HOTBAR_SLOT_MAX; ++i) {
+            for (int i = 0; i <= GuiIngame::HOTBAR_SLOT_MAX; ++i) {
                 if (window.isKeyDown(GLFW_KEY_1+i))
                     player->m_HotbarSlot = i;
             }

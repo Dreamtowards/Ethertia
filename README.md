@@ -191,14 +191,32 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
   - 2023-01-13
     - FFT, Audio Frequency Spectrum basic. 音频频谱解析
     - 尝试wasm. 很impressive, 但是区别还是太大 实时程序很多结构都要改变。放弃
-    
+  - 2023-01-14
+    - 地形存储视频 2497-pm1.30
+    - *Biomes init.
+    - bugfix: 在关闭世界时 卡机。因为线程自动关闭了 没等到他修改状态 现在在关闭前修改完成状态
+    - *BiomesMapDraw 温度 湿度 分布图 (+Colors::luminance()
+    - *Gui::Constraint 使用组件-功能方法添加layout，而不是flutter那种结构的 改变了策略。因为这样更原始直观 没有太多层次问题。
+      - Gui::AlignConstrint, LTRBConstraint
+    - GUI widgets tex init.
+    - *GuiRenderer texPosSize 支持自定义 纹理位置，支持负数TexSize(反转采样) , 负数w/h 反向w/h  
+      Gui::drawRect Gui::DrawRectArgs
+    - HotbarSlot Hotbar 显示 & Control, GuiScreenPause 顶部
+    - Gui::drawStretchCorners() 4corners / 1corners stretch
+  - 2023-01-15
+    - bugfix 开发环境 必须要ucrt 否则链接错误诡异
+    - ReloadControl 资源重载功能 尝试
+    - Gui::addPreDraw(), xywh(), grow()
+    - GuiInventory 初始化
+    - 经验条 血量条 初步
+    - init::ItemTextures. Apple, Lime, Pickaxe found assets
+
+    - 玩家血量 10
+    - 手拿物品渲染
     - DamageSource - 就像mc的Crepper被骷髅用火箭射到tnt炸死都能追踪到伤害来源是骷弓
-    - bugfix: 在关闭世界时 卡机
     - World Saving Hint 世界保存的提示
     - 修复bug：有些地方没有population
-    
 
-    - Audio Frequency Spectrum 
     - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
     - GUI 主界面
     - Vine 藤蔓材质
@@ -233,6 +251,8 @@ Ingame artwork:
 Used libs&tools: cpp, glfw, glm, stb, bulletphys
 
 ### Build
+
+> for Windows system, requires ucrt mingw64 "winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-15.0.6-mingw-w64ucrt-10.0.0-r3.zip"
 
 - Working directory: `./run`
 - Build shared-library and the program.   

@@ -8,6 +8,7 @@
 #include <ethertia/gui/GuiCommon.h>
 
 #include <ethertia/item/Inventory.h>
+#include <ethertia/init/ItemTextures.h>
 
 class GuiInventory : public Gui
 {
@@ -29,6 +30,22 @@ public:
         );
     }
 
+#define DECL_XYWH float x=xywh.x, y=xywh.y, w=xywh.z, h=xywh.w;
+
+    static void drawItemStack(float x, float y, const ItemStack& stack, float size = SLOT_SIZE)
+    {
+        if (stack.empty())
+            return;
+
+        Gui::drawRect(x,y,size,size, ItemTextures::TEXTURES[stack.m_ItemType->m_Name]);
+
+        Gui::drawString(x+size,y+size, std::to_string(stack.m_Amount), Colors::WHITE, 14, {-1.0, -1.0});
+
+        if (Gui::isCursorOver(x,y,size,size)) {
+            Gui::drawString(x,y, stack.item()->getRegistryId());
+        }
+    }
+
     void implDraw() override
     {
 
@@ -39,6 +56,14 @@ public:
         {
             bool hover = Gui::isCursorOver(x,y, SLOT_SIZE, SLOT_SIZE);
             Gui::drawRect(x,y,SLOT_SIZE,SLOT_SIZE, hover ? Colors::WHITE60 : Colors::WHITE10);
+
+            {
+                ItemStack& stack = m_Inventory->at(i);
+
+                if (!stack.empty()) {
+                    drawItemStack(x,y, stack);
+                }
+            }
 
             x += SLOT_SIZE + SLOT_GAP;
 

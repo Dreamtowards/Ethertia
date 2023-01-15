@@ -22,12 +22,12 @@ public:
     inline static const float TOP_WIDTH = 820;
 
     inline static Texture* TEX_FRAME = nullptr;
-    inline static Texture* TEX_FRAME_ONC = nullptr;
+//    inline static Texture* TEX_FRAME_ONC = nullptr;
 
     static void reloadTexture() {
 
-        TEX_FRAME = Loader::loadTexture("gui/frame.png");
-        TEX_FRAME_ONC = Loader::loadTexture("gui/frame_onec.png");
+        TEX_FRAME = Loader::loadTexture("gui/hotbar_slot_ex1.png");//"gui/frame.png");
+//        TEX_FRAME_ONC = Loader::loadTexture("gui/frame_onec.png");
     }
 
     GuiScreenPause() {
@@ -41,6 +41,20 @@ public:
             {
                 GuiStack* rightbox = new GuiStack(GuiStack::D_HORIZONTAL, 8);
                 topbar->addGui(new GuiAlign(1.0, 0.0, rightbox));
+
+                GuiButton* btnSignal = new GuiButton("  ");
+                rightbox->addGui(btnSignal);
+                btnSignal->addPreDraw([](Gui* g) {
+                    // 40:30
+                    static Texture* TEX_SIGNAL = Loader::loadTexture("gui/signals.png");
+
+                    float w = 24, h = 18;
+                    Gui::drawRect(g->getX() + (g->getWidth() - w) * 0.5, g->getY(), w, h, {
+                        .tex = TEX_SIGNAL,
+                        .tex_size = {1/2.0f, 1/6.0f},
+                        .tex_pos = {0, 0}
+                    });
+                });
 
                 rightbox->addGui(new GuiButton("Settings", false));
 
@@ -77,7 +91,7 @@ public:
             gInventory->addConstraintAlign(0.5, 0.4);
             gInventory->addPreDraw([](Gui* g)
             {
-                Gui::drawStretchCorners(Gui::grow(g->xywh(), 50), TEX_FRAME_ONC, 48, true);
+                Gui::drawStretchCorners(Gui::grow(g->xywh(), 50), TEX_FRAME, 48);
             });
         }
 
