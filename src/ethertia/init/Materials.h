@@ -7,23 +7,28 @@
 
 #include <ethertia/world/Cell.h>
 
+#include <ethertia/material/Material.h>
+
 class Materials
 {
 public:
 
-    inline static Cell STAT_EMPTY{};
+#define REGISTER_MTL(VAR, id) inline static Material* VAR = new Material{id};
 
-    static const u8 AIR   = 0;
-    static const u8 STONE = 1;
-    static const u8 GRASS = 2;
-    static const u8 MOSS  = 3;
-    static const u8 DIRT  = 4;
-    static const u8 SAND  = 5;
-    static const u8 LOG   = 6;
-    static const u8 PLANK = 7;
-    static const u8 LEAVES= 8;
-    static const u8 TALLGRASS   = 9;
-    static const u8 WATER = 10;
+    // 用0/nullptr 表示空气/空. 因为实在是太方便了 if(c.mtl)。而且目前没什么副作用
+    inline static Material* AIR = nullptr;
+
+    REGISTER_MTL(STONE, "rock");
+    REGISTER_MTL(GRASS, "grass");
+    REGISTER_MTL(MOSS, "moss");
+    REGISTER_MTL(DIRT, "black_dirt");
+    REGISTER_MTL(SAND, "sand");
+    REGISTER_MTL(LOG, "oak_log");
+    REGISTER_MTL(PLANKS, "plank");
+    REGISTER_MTL(LEAVES, "leaves");
+    REGISTER_MTL(TALLGRASS, "tallgrass");
+    REGISTER_MTL(WATER, "water");
+
 
 
 

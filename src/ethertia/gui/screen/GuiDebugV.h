@@ -390,7 +390,7 @@ public:
 
                     Cell& c = Ethertia::getWorld()->getCell(p);
                     Gui::drawWorldpoint(p, [=](glm::vec2 sp) {
-                        Gui::drawString(sp.x, sp.y, std::to_string(c.id)+"/"+std::to_string(c.density));
+                        Gui::drawString(sp.x, sp.y, c.mtl->getRegistryId()+"/"+std::to_string(c.density));
                     });
                 }
             }

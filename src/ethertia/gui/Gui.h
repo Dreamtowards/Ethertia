@@ -487,6 +487,7 @@ public:
         inline static const int C_RGBA = 0,  // Channel Modes
                                 C_RGB = 1,
                                 C_AAA = 2;
+        glm::vec4 xywh = {0, 0, 0, 0};
         glm::vec4 color = Colors::WHITE;
         Texture* tex = nullptr;
         float round = 0;
@@ -495,7 +496,12 @@ public:
         glm::vec2 tex_pos = {0,0};  // GL Tex Coords. 0,0: LB, 1,1: RT
         glm::vec2 tex_size = {1,1}; // Dir toward: RT
     };
-    static void drawRect(float x, float y, float w, float h, Gui::DrawRectArgs args);
+    static void drawRect(Gui::DrawRectArgs args);
+
+    static void drawRect(float x, float y, float w, float h, Gui::DrawRectArgs args) {
+        args.xywh = {x,y,w,h};
+        Gui::drawRect(args);
+    }
 
     static void drawRect(float x, float y, float w, float h, glm::vec4 color) {
         Gui::drawRect(x,y,w,h,{
@@ -524,6 +530,8 @@ public:
     static void drawStretchCorners(glm::vec4 xywh, Texture* tex, float thickness = 16, bool onlyLTCornerTex = false);
 
 
+#define DECL_XYWH float x=xywh.x, y=xywh.y, w=xywh.z, h=xywh.w;
+
     glm::vec4 xywh() {
         return glm::vec4(getX(), getY(), getWidth(), getHeight());
     }
@@ -536,6 +544,14 @@ public:
                 xywh.y - growY,
                 xywh.z + grow+grow,
                 xywh.w + growY+growY
+        );
+    }
+    static glm::vec4 grow(glm::vec4 xywh, float l, float t, float r, float b) {
+        return glm::vec4(
+                xywh[0] - l,
+                xywh[1] - t,
+                xywh[2] + l + r,
+                xywh[3] + t + b
         );
     }
 

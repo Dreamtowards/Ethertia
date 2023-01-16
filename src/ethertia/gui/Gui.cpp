@@ -16,7 +16,9 @@ float Gui::cursorY()   { return Ethertia::getWindow()->getMouseY(); }
 float Gui::mfbWidth()  { return Ethertia::getWindow()->getFramebufferWidth(); }
 float Gui::mfbHeight() { return Ethertia::getWindow()->getFramebufferHeight(); }
 
-void Gui::drawRect(float x, float y, float w, float h, Gui::DrawRectArgs args) {
+void Gui::drawRect(Gui::DrawRectArgs args) {
+    glm::vec4 xywh = args.xywh;
+    DECL_XYWH;
     if (h < 0) {
         h = -h;
         y = y - h;

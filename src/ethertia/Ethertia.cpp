@@ -67,7 +67,7 @@ void Ethertia::start()
     ChunkGenerator::initSIMD();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::system(), std::endian::native == std::endian::big ? "big" : "little");
 
-    MaterialTextures::init();
+    MaterialTextures::load();
     ItemTextures::load();
     Commands::initCommands();
     Controls::initControls();
@@ -91,6 +91,13 @@ void Ethertia::start()
 
     // NetworkSystem::connect("127.0.0.1", 8081);
 
+//    Material::REGISTRY.build();
+//    {
+//        int i = 0;
+//        for (Material *mtl : Material::REGISTRY.m_RuntimeNumIdTable) {
+//            mtl->m_CachedRuntimeId = i++;
+//        }
+//    }
 
 
 //    auto data = Loader::loadFile("cat.ogg");
@@ -101,7 +108,11 @@ void Ethertia::start()
 //    src->QueueBuffer(buf->m_BufferId);
 //    src->play();
 
-    Log::info("RegistrySize {}", Ethertia::getRegistry<Item>()->size());
+    Ethertia::getRegistry<Material>()->dbgPrintEntries("Materials");
+    Ethertia::getRegistry<Item>()->dbgPrintEntries("Items");
+    Ethertia::getRegistry<Biome>()->dbgPrintEntries("Biomes");
+
+
 
     if (m_AudioEngine->m_CaptureDevice)
         m_AudioEngine->startCapture();

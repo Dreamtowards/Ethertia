@@ -59,7 +59,10 @@ World::~World() {
 
 Cell& World::getCell(glm::vec3 p)  {
     Chunk* chunk = getLoadedChunk(p);
-    if (!chunk) return Materials::STAT_EMPTY;  // shouldn't
+    if (!chunk) {
+        static Cell EMP{0,0};
+        return EMP;  // shouldn't
+    }
     return chunk->getCell(Chunk::rpos(p));
 }
 
@@ -222,8 +225,10 @@ const std::vector<Entity*>& World::getEntities() {
 
 void World::tick(float dt)
 {
+    static const float DAY_SEC = 12*60;
+
     m_InhabitedTime += dt;
-    m_DayTime = Mth::mod(m_DayTime + dt, 1.0f);
+    m_DayTime = Mth::mod(m_DayTime + dt/DAY_SEC, 1.0f);
 }
 
 
@@ -289,12 +294,12 @@ void World::populate(World* world, glm::vec3 chunkpos) {
             for (int dy = 0; dy < 16; ++dy) {
                 int y = chunkpos.y + dy;
                 Cell tmpbl = world->getCell(x, y, z);
-                if (tmpbl.id != Materials::STONE)  // AIR or WATER.
+                if (tmpbl.mtl != Materials::STONE)  // AIR or WATER.
                     continue;
 
                 if (nextAir < dy) {
                     for (int i = 0; i < 16 - dy; ++i) {
-                        if (world->getCell(x, y + i, z).id == 0) {
+                        if (world->getCell(x, y + i, z).mtl == 0) {
                             nextAir = dy + i;
                             break;
                         }
@@ -303,7 +308,7 @@ void World::populate(World* world, glm::vec3 chunkpos) {
 
                 int nextToAir = nextAir - dy;
 
-                u8 replace = Materials::STONE;
+                Material* replace = Materials::STONE;
                 if (y < 3 && nextToAir < 3 && noiseSand[idxXZ] > 0.1) {
                     replace = Materials::SAND;
                 } else if (nextToAir == 1 //|| nextToAir == 2
@@ -313,7 +318,7 @@ void World::populate(World* world, glm::vec3 chunkpos) {
                 } else if (nextToAir < 4) {
                     replace = Materials::DIRT;
                 }
-                world->getCell(x, y, z).id = replace;
+                world->getCell(x, y, z).mtl = replace;
             }
         }
 
@@ -352,16 +357,16 @@ void World::populate(World* world, glm::vec3 chunkpos) {
             if (Mth::hash(x * z * 2349242) < (12.0f / 256.0f)) {
                 for (int dy = 0; dy < 16; ++dy) {
                     int y = chunkpos.y + dy;
-                    if (world->getCell(x, y, z).id == Materials::STONE &&
-                        world->getCell(x, y - 1, z).id == 0) {
+                    if (world->getCell(x, y, z).mtl == Materials::STONE &&
+                        world->getCell(x, y - 1, z).mtl == 0) {
 
 
                         for (int i = 0; i < 32 * Mth::hash(x * y * 47923); ++i) {
 
                             Cell &c = world->getCell(x, y - 1 - i, z);
-                            if (c.id)
+                            if (c.mtl)
                                 break;
-                            c.id = Materials::LEAVES;
+                            c.mtl = Materials::LEAVES;
                         }
 
                         break;
@@ -380,13 +385,13 @@ void World::populate(World* world, glm::vec3 chunkpos) {
             if (Mth::hash(x * z) < (1.5 / 256.0f)) {  // Make Tree
                 for (int dy = 0; dy < 16; ++dy) {
                     int y = chunkpos.y + dy;
-                    if (world->getCell(x, y, z).id == Materials::GRASS) {
+                    if (world->getCell(x, y, z).mtl == Materials::GRASS) {
 
                         float f = Mth::hash(x * z * y);
                         int trunkHeight = 3 + f * 8;
                         int leavesRadius = 2 + f * 5;
 
-                        u8 _leaf = Materials::LEAVES;
+                        Material* _leaf = Materials::LEAVES;
 //                            if (f > 0.8f) {
 //                                h *= 1.6f;
 //                                _leaf = Blocks::LEAVES_JUNGLE;
@@ -404,8 +409,8 @@ void World::populate(World* world, glm::vec3 chunkpos) {
 //                                            _leaf = Blocks::LEAVES_APPLE;
                                     //y +Mth::hash(y)*4
 //                                        world->setCell(x+lx, y+ly+h, z+lz, Cell(Materials::LEAVES, 0.0f));
-                                    Cell &c_leaf = world->getCell(x + lx, y + ly + trunkHeight, z + lz);
-                                    c_leaf.id = Materials::LEAVES;
+                                    Cell& c_leaf = world->getCell(x + lx, y + ly + trunkHeight, z + lz);
+                                    c_leaf.mtl = Materials::LEAVES;
                                     c_leaf.density = Mth::min(c_leaf.density, 0.0f);
                                 }
                             }

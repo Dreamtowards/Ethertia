@@ -34,10 +34,10 @@ public:
         setWidth(Inf);
         setHeight(Inf);
 
+        GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 64);
+        addGui(topbar);
+        topbar->addConstraintAlign(0.5, 0);
         {
-            GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 64);
-            addGui(new GuiAlign(0.5, 0, topbar));
-
             {
                 GuiStack* rightbox = new GuiStack(GuiStack::D_HORIZONTAL, 8);
                 topbar->addGui(new GuiAlign(1.0, 0.0, rightbox));
@@ -71,11 +71,22 @@ public:
 
                 leftbox->addGui(new GuiButton("@Player483", false));
                 leftbox->addGui(new GuiButton("$100.00", false));
+
+                GuiButton* btnClock = new GuiButton("        ", true);
+                leftbox->addGui(btnClock);
+                btnClock->addPreDraw([btnClock](auto) {
+                    float worldtime = Ethertia::getWorld()->m_DayTime;
+                    float hr = worldtime * 24;
+                    float hr_apm = std::fmod(hr, 12);
+                    float min = Mth::frac(hr) * 60;
+                    std::string s = Strings::fmt("{}:{} {}", (int)hr_apm, (int)min, worldtime > 0.5 ? "PM" : "AM");
+                    btnClock->m_Text = s;
+                });
             }
         }
 
         {
-            GuiStack* toolbar = new GuiStack(GuiStack::D_HORIZONTAL, 4);
+            GuiStack* toolbar = new GuiStack(GuiStack::D_HORIZONTAL, 8);
             addGui(toolbar);
             toolbar->setY(32);
             toolbar->addConstraintAlign(0.5, Inf);
@@ -83,31 +94,62 @@ public:
             toolbar->addGui(new GuiButton("Map", false));
             toolbar->addGui(new GuiButton("Inventory", false));
             toolbar->addGui(new GuiButton("Mails", false));
+
+            toolbar->addPreDraw([toolbar](auto) {
+                for (Gui* g : toolbar->children()) {
+                    bool isCurrent = g == toolbar->at(1);
+
+                    GuiInventory::drawSimpleInvBackground(g->xywh(), "", 4, glm::vec4{isCurrent ? 0.35f : 0.0f});
+                }
+            });
         }
 
         {
             GuiInventory* gInventory = new GuiInventory(&Ethertia::getPlayer()->m_Inventory);
             addGui(gInventory);
-            gInventory->addConstraintAlign(0.5, 0.4);
+            gInventory->addConstraintAlign(0.5, 0.8);
             gInventory->addPreDraw([](Gui* g)
             {
-                Gui::drawStretchCorners(Gui::grow(g->xywh(), 50), TEX_FRAME, 48);
+                GuiInventory::drawSimpleInvBackground(g->xywh(), "Inventory");
             });
         }
 
+        {
+            static Inventory allItemsInventory(40);
+
+            GuiInventory* gAllItemsInventory = new GuiInventory(&allItemsInventory);
+            addGui(gAllItemsInventory);
+            gAllItemsInventory->addConstraintAlign(0.5, 0.35);
+            gAllItemsInventory->addPreDraw([](Gui* g)
+            {
+                GuiInventory::drawSimpleInvBackground(g->xywh(), "Creative Repository");
+            });
+            for (auto& it : Item::REGISTRY)
+            {
+                ItemStack stack(it.second, 100);
+                allItemsInventory.putItemStack(stack);
+            }
+        }
+
+
+        addPreDraw([topbar](auto)
+        {
+            // background dark
+            Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::BLACK50);
+
+            GuiInventory::drawSimpleInvBackground(topbar->xywh());
+        });
     }
 
     void implDraw() override
     {
-        // background dark
-        Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::BLACK50);
 
         // topbar
         {
-            float topbarX = (Gui::maxWidth()-TOP_WIDTH) / 2.0;
+//            float topbarX = (Gui::maxWidth()-TOP_WIDTH) / 2.0;
 //            Gui::drawRect(topbarX, 0-16, TOP_WIDTH, 64+16, Colors::GRAY, nullptr, 12);
 //            Gui::drawRect(topbarX, 0, TOP_WIDTH, 16, Colors::BLACK30);
-            Gui::drawStretchCorners({topbarX - 32, 0 - 64, TOP_WIDTH + 64, 64 + 64 + 16}, TEX_FRAME, 48);
+//            Gui::drawStretchCorners({topbarX - 32, 0 - 64, TOP_WIDTH + 64, 64 + 64 + 16}, TEX_FRAME, 48);
 //            Gui::drawRect(0, 0, Gui::maxWidth(), 64, Colors::GRAY);
 //            Gui::drawRect(0, 0, Gui::maxWidth(), 16, Colors::BLACK30);
         }

@@ -106,19 +106,19 @@ public:
 
                                 // determine the MtlId of 8 corners. use Nearest Positive Density Corner.
                                 float min_dist = Mth::Inf;
-                                int MtlId = 0;
+                                Material* mtl = 0;
                                 for (vec3 cellv : VERT) {
                                     Cell& c = World::_GetCell(chunk, quadp + cellv);
-                                    if (c.id && c.density > 0 && c.density < min_dist) {
+                                    if (c.mtl && c.density > 0 && c.density < min_dist) {
                                         min_dist = c.density;
-                                        MtlId = c.id;
+                                        mtl = c.mtl;
                                     }
                                 }
 //                                assert(MtlId != 0);
-                                ASSERT_WARN(MtlId != 0, "MtlId == 0 Cell.");
-                                vbuf->add_pure_mtl(MtlId);
+                                ASSERT_WARN(mtl != 0, "MtlId == 0 Cell.");
+                                vbuf->add_pure_mtl(mtl->m_AtlasTexIdx);
 
-                                if (MtlId == Materials::MOSS) {
+                                if (mtl == Materials::MOSS) {
                                     grass_fp.push_back(quadp + fp);
                                 }
 

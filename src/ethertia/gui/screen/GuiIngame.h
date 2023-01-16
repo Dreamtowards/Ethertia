@@ -61,7 +61,6 @@ public:
 
         EntityPlayer* player = Ethertia::getPlayer();
 
-
         {
             // hotbar
             const float HOTBAR_WIDTH = 720 * 0.8,

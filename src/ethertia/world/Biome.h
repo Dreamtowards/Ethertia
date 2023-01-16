@@ -19,9 +19,8 @@ class Biome
 {
 public:
 
-    inline static std::vector<Biome*> BIOMES;
+    inline static Registry<Biome> REGISTRY;
 
-    int m_Id = 0;
     const char* m_Name = nullptr;
 
     // should always in same scale [0, 1] or the 'distance' calculation will not balance
@@ -47,12 +46,14 @@ public:
     };
 
     Biome(const char* _name, float temp_c, float humid) : m_Name(_name), m_Humidity(humid) {
-        m_Id = BIOMES.size();
-        BIOMES.push_back(this);
+        REGISTRY.regist(this);
 
         m_Temperature = Biome::Temperature::ofCelsius(temp_c);
 
-        std::cout << "Biome " << m_Id << " " << m_Name << "\n";
+    }
+
+    std::string getRegistryId() const {
+        return m_Name;
     }
 
 
@@ -61,11 +62,12 @@ public:
         float  min_dist = FLT_MAX;
         Biome* min_bio = nullptr;
 
-        for (auto& it : BIOMES) {
-            float dist = glm::length2(glm::vec2(it->m_Temperature, it->m_Humidity) - glm::vec2(temp, humid));
+        for (auto& it : REGISTRY) {
+            Biome* bio = it.second;
+            float dist = glm::length2(glm::vec2(bio->m_Temperature, bio->m_Humidity) - glm::vec2(temp, humid));
             if (min_dist > dist) {
                 min_dist = dist;
-                min_bio = it;
+                min_bio = bio;
             }
         }
 
@@ -94,7 +96,7 @@ class Biomes {
     // Plateau
 
 public:
-    static glm::vec3 color(Biome* bio) {
+    static glm::vec3 color(const Biome* bio) {
         if (bio == &Biomes::TUNDRA) return Colors::AQUA_DARK;
         else if (bio == &Biomes::TAIGA) return Colors::AQUA;
         else if (bio == &Biomes::FOREST) return Colors::GREEN;

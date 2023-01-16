@@ -5,18 +5,18 @@
 #ifndef ETHERTIA_CELL_H
 #define ETHERTIA_CELL_H
 
-#include <ethertia/util/UnifiedTypes.h>
+#include <ethertia/material/Material.h>
 
 class Cell
 {
 public:
 
-    u8 id;
+    Material* mtl;
     float density;
 
     glm::vec3 fp;  // featurepoint cache. in-cell.
 
-    Cell(u8 _id = 0, float _density = 0.0f) : id(_id), density(_density) {}
+    Cell(Material* _mtl = nullptr, float _density = 0.0f) : mtl(_mtl), density(_density) {}
 
 };
 

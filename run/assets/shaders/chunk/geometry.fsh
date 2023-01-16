@@ -41,10 +41,10 @@ float linear_depth(float pprojdepth) {  // for perspective projection
     return inv_lerp(pDepth, P_NEAR, P_FAR); // [0,1] linear.
 }
 
-vec4 tri_samp(sampler2D tex, int MtlId, vec3 FragPos, vec3 blend) {
+vec4 tri_samp(sampler2D tex, int MtlTexId, vec3 FragPos, vec3 blend) {
 
     float texScale = 1 / MtlTexScale;// 3.5;
-    float ReginPosX  = (MtlId-1) / MtlCap;
+    float ReginPosX  = MtlTexId / MtlCap;
     float ReginSizeX = 1.0 / MtlCap;
     vec2 uvX = vec2(mod(texScale * FragPos.z * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
     vec2 uvY = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.z);
@@ -126,9 +126,9 @@ void main()
             discard;
         }
         // DEBUG
-        if (FragMtlId == 0) {
-            Albedo = vec4(1, 0, 0, 1);
-        }
+//        if (FragMtlId == 0) {
+//            Albedo = vec4(1, 0, 0, 1);
+//        }
 
 #ifndef OPT
         Roughness = tri_samp(roughnessMap, FragMtlId, FragPos, abs(Norm)).r;
@@ -136,7 +136,7 @@ void main()
         {
             int MtlId = FragMtlId;
             float texScale = 1 / MtlTexScale;
-            float ReginPosX  = (MtlId-1) / MtlCap;
+            float ReginPosX  = MtlId / MtlCap;
             float ReginSizeX = 1.0 / MtlCap;
             vec2 uvX = vec2(mod(texScale * FragPos.z * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
             vec2 uvY = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.z);

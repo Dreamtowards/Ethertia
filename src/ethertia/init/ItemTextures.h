@@ -12,8 +12,6 @@ class ItemTextures
 {
 public:
 
-    inline static std::unordered_map<std::string, Texture*> TEXTURES;
-
     static void load()
     {
         BENCHMARK_TIMER;
@@ -22,8 +20,15 @@ public:
         for (auto& it : Item::REGISTRY)
         {
             std::string id = it.first;
+            Item* item = it.second;
 
-            TEXTURES[id] = Loader::loadTexture(Strings::fmt("item/{}/view.png", id));
+            std::string loc;
+            if (item->hasComponent<Item::ComponentMaterial>()) {
+                loc = Strings::fmt("materials/{}/view.png", id);
+            } else {
+                loc = Strings::fmt("item/{}/view.png", id);
+            }
+            item->m_CachedTexture = Loader::loadTexture(loc);
         }
     }
 

@@ -9,11 +9,11 @@
 #include <glm/vec3.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/Log.h>
 #include <ethertia/util/VertexProcess.h>
+#include <ethertia/material/Material.h>
 
 // 3d positions.
 class VertexBuffer
@@ -47,6 +47,7 @@ public:
         addnorm(n.x, n.y, n.z);
     }
 
+    // please Dont lookup MtlId in these high-density-call place.
     void set_uv_mtl(int MtlId, bool pureMTL = true) {
         assert(textureCoords.size()/2 == positions.size()/3);
         textureCoords[textureCoords.size()-2] += MtlId;

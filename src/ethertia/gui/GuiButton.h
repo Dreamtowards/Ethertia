@@ -12,13 +12,15 @@
 
 class GuiButton : public Gui
 {
-    std::string text;
 
     bool enableBackground = true;
 
 public:
-    GuiButton(std::string text, bool bg = true) : text(std::move(text)), enableBackground(bg), Gui(0, 0, 100, 20) {
-        glm::vec2 n = Ethertia::getRenderEngine()->fontRenderer->textBound(this->text, 16);
+
+    std::string m_Text;
+
+    GuiButton(std::string text, bool bg = true) : m_Text(std::move(text)), enableBackground(bg), Gui(0, 0, 100, 20) {
+        glm::vec2 n = Ethertia::getRenderEngine()->fontRenderer->textBound(m_Text, 16);
         setWidth(n.x + 16);
     }
 
@@ -31,7 +33,7 @@ public:
         }
 
         float textHeight = 16;
-        Gui::drawString(x+w/2, y+(h-textHeight)/2, text,
+        Gui::drawString(x+w/2, y+(h-textHeight)/2, m_Text,
                         isPressed() ? Colors::GOLD : isHover() ? Colors::YELLOW : Colors::WHITE,
                         textHeight, {-0.5, 0}, true);
     }

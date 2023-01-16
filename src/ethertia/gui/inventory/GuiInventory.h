@@ -30,16 +30,42 @@ public:
         );
     }
 
-#define DECL_XYWH float x=xywh.x, y=xywh.y, w=xywh.z, h=xywh.w;
+
+    static void drawSlotBorder(glm::vec4 xywh) {
+        DECL_XYWH;
+
+        Gui::drawRect(x,y,w,h, {
+            .color = {1,1,1,0.25},
+            .border = 3
+        });
+    }
+
+    static void drawSimpleInvBackground(glm::vec4 xywh, const std::string& title = "", float padding = 16, glm::vec4 addcolor = {}) {
+        xywh = Gui::grow(xywh, padding);
+        if (!title.empty()) {
+            xywh = Gui::grow(xywh, 0, padding+16, 0, 0);
+        }
+
+        static const glm::vec4 BG = {0.173, 0.157, 0.224, 0.9};
+        drawRect({
+            .xywh = xywh,
+            .color = BG+addcolor
+        });
+        drawSlotBorder(xywh);
+
+        if (!title.empty()) {
+            drawString(xywh.x+padding, xywh.y+padding, title);
+        }
+    }
 
     static void drawItemStack(float x, float y, const ItemStack& stack, float size = SLOT_SIZE)
     {
         if (stack.empty())
             return;
 
-        Gui::drawRect(x,y,size,size, ItemTextures::TEXTURES[stack.m_ItemType->m_Name]);
+        Gui::drawRect(x,y,size,size, stack.m_ItemType->m_CachedTexture);
 
-        Gui::drawString(x+size,y+size, std::to_string(stack.m_Amount), Colors::WHITE, 14, {-1.0, -1.0});
+        Gui::drawString(x+size,y+size, std::to_string(stack.m_Amount), Colors::WHITE, 15, {-1.0, -1.0});
 
         if (Gui::isCursorOver(x,y,size,size)) {
             Gui::drawString(x,y, stack.item()->getRegistryId());
@@ -54,9 +80,15 @@ public:
         float y = getY();
         for (int i = 0; i < m_Inventory->size(); ++i)
         {
+            if (i != 0 && i % ROW_SLOTS == 0) {
+                x = beginX;
+                y += SLOT_SIZE + SLOT_GAP;
+            }
+
             bool hover = Gui::isCursorOver(x,y, SLOT_SIZE, SLOT_SIZE);
             Gui::drawRect(x,y,SLOT_SIZE,SLOT_SIZE, hover ? Colors::WHITE60 : Colors::WHITE10);
 
+            drawSlotBorder({x,y,SLOT_SIZE,SLOT_SIZE});
             {
                 ItemStack& stack = m_Inventory->at(i);
 
@@ -66,11 +98,6 @@ public:
             }
 
             x += SLOT_SIZE + SLOT_GAP;
-
-            if (i != 0 && i % ROW_SLOTS == 0) {
-                x = beginX;
-                y += SLOT_SIZE + SLOT_GAP;
-            }
         }
     }
 

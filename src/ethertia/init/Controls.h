@@ -197,7 +197,7 @@ public:
             World* world = Ethertia::getWorld();
             Window* window = Ethertia::getWindow();
             if (e->isPressed() && world && Ethertia::isIngame()) {
-                static u8 placingBlock = Materials::GRASS;
+                static Material* placingBlock = Materials::GRASS;
 
                 int btn = e->getButton();
 
@@ -223,7 +223,7 @@ public:
                                     b.density = b.density - Mth::max(0.0f, f);
                                     if (f > 0 && b.density < 0 //&& b.id == Materials::LEAVES
                                         ) {
-                                        b.id = 0;
+                                        b.mtl = 0;
                                     }
                                     world->requestRemodel(p+d);
                                 }
@@ -242,7 +242,7 @@ public:
                                         b.density = Mth::max(b.density, f);
                                     }
                                     if (b.density >= 0.0f)
-                                        b.id = placingBlock;
+                                        b.mtl = placingBlock;
 
                                     world->requestRemodel(p+d);
                                 }
@@ -250,8 +250,8 @@ public:
                         }
                         world->requestRemodel(p);
                     } else if (btn == GLFW_MOUSE_BUTTON_3) {
-                        placingBlock = world->getCell(p).id;
-                        Log::info("Picking: {}", (int)placingBlock);
+                        placingBlock = world->getCell(p).mtl;
+                        Log::info("Picking: {}", placingBlock ? placingBlock->m_Name : "nil");
                     }
                 }
 

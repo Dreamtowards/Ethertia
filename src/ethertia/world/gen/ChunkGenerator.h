@@ -114,7 +114,7 @@ public:
                     }
 
 
-                    u8 mtl = 0;
+                    Material* mtl = 0;
                     if (f > 0) {
                         mtl = Materials::STONE;
                     } else if (y < 0) {

@@ -40,7 +40,7 @@ public:
         shaderGeometry.setInt("displacementMap", 2);
         shaderGeometry.setInt("roughnessMap", 3);
 
-        shaderGeometry.setFloat("MtlCap", MaterialTextures::TEXTURES.size());
+        shaderGeometry.setFloat("MtlCap", Material::REGISTRY.size());
 
 
         shaderCompose.useProgram();

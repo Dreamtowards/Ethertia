@@ -96,7 +96,7 @@ public:
         Gui::drawRect(x, y + h + grad_sp, w, grad_tk, TEX_HEAT);  // Temp  X
         Gui::drawRect(x + w + grad_sp, y, grad_tk, h, TEX_HUMI);  // Humid Y
 
-        std::unordered_map<int, std::pair<float, glm::vec2>> bioCenters;  // dist and rel-center-pos
+        std::unordered_map<std::string, std::pair<float, glm::vec2>> bioCenters;  // dist and rel-center-pos
 
         for (float rx = 0; rx < grainW; ++rx) {
             for (float ry = 0; ry < grainH; ++ry) {
@@ -110,7 +110,7 @@ public:
                 if (dist > 0.1)
                     continue;
 
-                auto &cent = bioCenters[bio->m_Id];
+                auto &cent = bioCenters[bio->getRegistryId()];
                 if (cent.first == 0 || dist < cent.first) {  // lazy. cent.first==0 means not-found/auto-created.
                     cent.first = dist;
                     cent.second = {rx * grain, ry * grain};
@@ -122,8 +122,8 @@ public:
 
                 if (Gui::isCursorOver(x + rx * grain, y + ry * grain, grain, grain)) {
                     Gui::drawString(x, y - 32,
-                                    Strings::fmt("{}:{} T{}({}'C) H{}\nT{}({}'C) H{}",
-                                                 bio->m_Name, bio->m_Id, bio->m_Temperature,
+                                    Strings::fmt("{} T{}({}'C) H{}\nT{}({}'C) H{}",
+                                                 bio->m_Name, bio->m_Temperature,
                                                  Biome::Temperature::toCelsius(bio->m_Temperature), bio->m_Humidity,
                                                  temp, Biome::Temperature::toCelsius(temp), humi),
                                     glm::vec4(color, 1.0));
@@ -132,7 +132,7 @@ public:
         }
 
         for (auto &it : bioCenters) {
-            Biome *bio = Biome::BIOMES[it.first];
+            const Biome* bio = Biome::REGISTRY.get(it.first);
             glm::vec2 p = it.second.second;
             glm::vec3 oriCol = Biomes::color(bio);
             glm::vec4 col = glm::vec4(Colors::luminance(oriCol) > 0.65 ? oriCol - 0.3f : oriCol + 0.5f, 1.0);

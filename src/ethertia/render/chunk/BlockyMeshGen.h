@@ -24,15 +24,11 @@ public:
                     vec3 rp(rx, ry, rz);
                     Cell& c = chunk->getCell(rx, ry, rz);
 
-                    switch (c.id) {
-                        case Materials::LEAVES:
+                    if (c.mtl == Materials::LEAVES) {
 
-                            putLeaves(vbuf, rp, chunk, c.id);
-                            break;
-                        case Materials::WATER:
-
-                            putCube(vbuf, rp, chunk, c.id);
-                            break;
+                        putLeaves(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                    } else if (c.mtl == Materials::WATER) {
+                        putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
                     }
                 }
             }
@@ -85,13 +81,13 @@ public:
     static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, int mtlId) {
 //        putCubeFace(vbuf, 2, rpos, frag);
 //        return;
-        u8 blk = chunk->getCell(rpos).id;
+        Material* mtl = chunk->getCell(rpos).mtl;
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = _CubeFaceDir(i);
             glm::vec3 np = rpos + dir;
             Cell& neib = World::_GetCell(chunk, np);
 
-            if (neib.id == 0) {  // neib.density < 0 ||
+            if (neib.mtl == 0) {  // neib.density < 0 ||
                 putCubeFace(vbuf, i, rpos, mtlId);
             }
 
@@ -155,7 +151,8 @@ public:
             // UV
             float* _u = &CUBE_UV[i*2];
             vec2 u = vec2(_u[0], _u[1]);
-            u = u * MaterialTextures::regionScale() + MaterialTextures::regionOffset(mtlId);
+//            u = u * MaterialTextures::regionScale() + MaterialTextures::regionOffset(mtlId);
+            u = MaterialTextures::uv_to_atlas_region(u, mtlId);
             vbuf->adduv(u.x, u.y);
             vbuf->set_uv_mtl(mtlId);
         }
@@ -219,7 +216,7 @@ public:
         for (int i = 0; i < grass_fp.size(); ++i) {
             glm::vec3 p = grass_fp[i];
 
-            putTallgrassStarMesh(vbuf, p, Materials::TALLGRASS);
+            putTallgrassStarMesh(vbuf, p, Materials::TALLGRASS->m_AtlasTexIdx);
         }
 
     }

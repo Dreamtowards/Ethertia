@@ -210,6 +210,11 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - GuiInventory 初始化
     - 经验条 血量条 初步
     - init::ItemTextures. Apple, Lime, Pickaxe found assets
+  - 2023-01-16
+    - *Material::REGISTRY! Material id 系统变了, 几乎没有性能损耗(除了指针空间) 但是可靠性/扩展性提升到顶 易用性也好了
+    - MaterialTextureAtlas 配合无序的REGISTRY，用了sort 确定离线id
+    - Item::ComponentMaterial, +stone.
+    - gui darkblue slots, gui daytime
 
     - 玩家血量 10
     - 手拿物品渲染
