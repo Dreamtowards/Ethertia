@@ -5,7 +5,7 @@
 #ifndef ETHERTIA_REGISTRY_H
 #define ETHERTIA_REGISTRY_H
 
-#include <unordered_map>
+#include <map>
 
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>
@@ -18,9 +18,10 @@ public:
     // 如果要全局数字id的话，那么后两者 中者是'缓存版'数字id (一旦注册表有改动/新物品) 那么之前的数字id失效
     // 最后者是'永久版'数字id 因为是按照顺序注册 顺序是永久的。但这种数字id 如果mod要添加新物品 就可能数字id冲突 或移除后 数字id失效/错乱
     // 所以为了可以自由添加/移除新物品，unordered_map是最佳的。毕竟数字id一般只在离线存储时用，可以用局部查找表。
+    // 然而还是打算用map 排序的。毕竟没什么坏处/性能损耗。而且易用于"当前版本缓存"
 
-    // No unordered_map. order is required to be identical when containing same content. e.g. We need int id, when Registry is
-    std::unordered_map<std::string, T*> m_Map;
+    // No unordered_map. order is guaranteed to be identical when containing same IDs. (now for mtl-atlas-cache indexing)
+    std::map<std::string, T*> m_Map;
 
 //    // 运行时数字id表。全部注册完后 生成。用于一些高性能组件 比如渲染时用数字id表示material类型
 //    std::vector<T*> m_RuntimeNumIdTable;

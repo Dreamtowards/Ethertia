@@ -15,7 +15,7 @@ public:
     static void load()
     {
         BENCHMARK_TIMER;
-        Log::info("Loading item textures...\1");
+        Log::info("Loading {} item textures...\1", Item::REGISTRY.size());
 
         for (auto& it : Item::REGISTRY)
         {

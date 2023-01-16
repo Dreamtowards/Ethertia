@@ -24,12 +24,12 @@ public:
 
     bool m_Stackable = true;
 
+    // client only.
     Texture* m_CachedTexture = nullptr;
 
-    Item(const std::string &name, std::initializer_list<Item::Component *> comps) : m_Name(name), m_Components(comps) {
+    Item(const std::string &name, std::initializer_list<Item::Component *> comps) : m_Name(name), m_Components(comps)
+    {
         REGISTRY.regist(this);
-
-        std::cout << "Item " << name << "\n";
 
     }
 
@@ -115,6 +115,10 @@ public:
     inline static const Item* LIME = new Item("lime", {new Item::ComponentFood(0.5)});
 //    inline static const Item* MELON = new Item("melon", {new Item::ComponentFood(1.0)});
 
+    // CNS 关于 MaterialItems, 应该每个material对应一个新物品吗? 还是所有的 material 都是同一个 Item::MATERIAL + 额外 MtlId 数据?
+    // 如果是前者, 那么可自定义性很大 一个mtl又可以摆放 又可以吃 又可以当工具.. 然而这种情况不常见?
+    // 如果是后者 那么不会有什么'id污染' 和特例。比如现在加载mtl item的材质时 要特例去读materials的资源 但其实就算后者也要读。
+    // 所以目前用前者 毕竟mtl是核心内容。而且还没发现坏处。
     inline static const Item* STONE = new Item("stone", {new Item::ComponentMaterial(1)});
 
 };

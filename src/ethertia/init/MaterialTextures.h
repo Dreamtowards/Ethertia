@@ -56,7 +56,7 @@ public:
     static void load()
     {
         BenchmarkTimer tm;
-        Log::info("Material Textures loading...");
+        Log::info("Loading material texture/atlases... ({})", Material::REGISTRY.size());
 
 
         // Build Mtl-to-AtlasTexIdx table.

@@ -150,10 +150,9 @@ public:
 
             // UV
             float* _u = &CUBE_UV[i*2];
-            vec2 u = vec2(_u[0], _u[1]);
-//            u = u * MaterialTextures::regionScale() + MaterialTextures::regionOffset(mtlId);
-            u = MaterialTextures::uv_to_atlas_region(u, mtlId);
-            vbuf->adduv(u.x, u.y);
+            vec2 uv = vec2(_u[0], _u[1]);
+            uv = MaterialTextures::uv_to_atlas_region(uv, mtlId);
+            vbuf->adduv(uv.x, uv.y);
             vbuf->set_uv_mtl(mtlId);
         }
 
