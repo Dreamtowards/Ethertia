@@ -53,6 +53,7 @@ public:
     inline static bool dbg_RenderedEntityAABB = false;
     inline static int dbg_NumEntityRendered = 0;
     inline static bool dbg_NoVegetable = false;
+    inline static bool dbg_HitPointEntityGeo = false;
 
     RenderEngine();
     ~RenderEngine();
@@ -83,7 +84,7 @@ public:
 
     ShaderProgram shaderDebugGeo = Loader::loadShaderProgram("shaders/debug/norm.{}", true);
 
-    void renderDebugGeo(Model* model, glm::vec3 pos, glm::mat3 rot) {
+    void renderDebugGeo(Model* model, glm::vec3 pos, glm::mat3 rot, float limitLen = 0, glm::vec3 limitPos = {}) {
         ShaderProgram& shader = shaderDebugGeo;
 
         shader.useProgram();
@@ -92,7 +93,16 @@ public:
         shader.setMatrix4f("matView", viewMatrix);
         shader.setMatrix4f("matProjection", projectionMatrix);
 
+        if (limitLen) {
+            shader.setFloat("limitLen", limitLen);
+            shader.setVector3f("limitPos", limitPos);
+        }
+
         glwDrawArrays(model);
+
+        if (limitLen) {
+            shader.setFloat("limitLen", 0);
+        }
     }
 
 

@@ -4,12 +4,14 @@
 
 [![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml)
 [![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml)
-[![Build-Ubuntu](https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml)
 [![Discord](https://img.shields.io/discord/870689606570508319?logo=discord)](https://discord.gg/2gzHbuXF)
+
+<a href="https://ethertia.elytra.dev" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">官方站点</a>
 <a href="https://jq.qq.com/?_wv=1027&k=tgM29oDM" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">QQ群组</a>
 <a style="background: #f44; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">All rights reserved</a>
 
 [comment]: <> ([![Linux]&#40;https://github.com/raysan5/raylib/workflows/Linux/badge.svg&#41;]&#40;https://github.com/raysan5/raylib/actions?query=workflow%3ALinux&#41;)
+[comment]: <> ([![Build-Ubuntu]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml/badge.svg&#41;]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml&#41;)
 
 
 Ethertia. Building World while Interacting People / 建造 互动 生存 探索  
@@ -23,10 +25,12 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 
 预览视频:
 
-![](run/screenshots/2022-12-30_21.59.00_526.642.png)
+![](run/screenshots/2023-01-16_01.04.07_473.938.png)
 
+[comment]: <> (![]&#40;run/screenshots/2023-01-17_17.24.46_751.785.png&#41;)
+
+[comment]: <> (![]&#40;run/screenshots/2022-12-30_21.59.00_526.642.png&#41;)
 [comment]: <> (![]&#40;run/screenshots/2022-12-29_10.34.08_418.762.png&#41;)
-
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
 已完成:
@@ -38,16 +42,17 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 ### All Versions / Plan
 
 - Ethertia Beta 0.0.1
+  - [x] ... 基础系统
   - [x] World Storage 世界存储
   - [ ] Item System 物品系统
-    - [x] ECS Item Arch. ECS物品组合设计
-    - [x] 食物类(恢复血量): Apple苹果, Lime酸橙
+    - [x] 食物类(恢复血量): Apple, Lime酸橙
     - [x] 材料类: 各种/所有地形材料 石头 草 树叶 泥土沙子
     - [ ] 工具类: 稿子 抓钩
-    - [x] Player Inventory, Hotbar. 玩家物品栏
-    - [x] GuiInventory etc. 物品栏操作
+    - [x] Player Inventory, Hotbar. 玩家物品栏 物品栏操作
     - [ ] Dropped Items (Entity) 掉落物
     - [ ] Hand HUD 手部渲染
+    - [ ] Crops, Carrots, Potatoes
+  - [ ] 更多模型/轮廓 + 配合不同材质
   - [ ] Biomes, blend
   - [ ] Player 
     - [x] Health, Damage. 
@@ -55,7 +60,6 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 <br>
 
 - Ethertia Beta 0.0.2
-  - [ ] Crops, Carrots, Potatoes
   - [ ] SSAO
   - [ ] Particle System
   - [ ] Reflection Mapping, in materials, Screen space.
@@ -65,35 +69,20 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
   - Chunk Culling
   - Decals at Terrain digging
   - Volume Fog
-
-<br>
-
-- Ethertia Beta 0.0.3
   - [ ] Fireockets, 
   - [ ] Hook Rope
   - [ ] Rope (Lead)
-
-<br>
-
-- Ethertia Beta 0.0.4 
   - [ ] Transformation Move Controller
 
 <br>
 
-- Ethertia Beta 0.0.5
+- Ethertia Beta 0.1.5
   - LoD Terrain
   - CSG Advanced Modeling System.
   - WorldGen.
-
-<br>
-
-- Ethertia Beta 0.1.2
   - Animals. Skeleton Animation & Physics.
     - Pig, Sheep, Chicken, Cow
     - Horse, Donkey, Mule
-
-<br>
-
 - Ethertia Beta 0.2.0
   - Multiplayer
     
@@ -228,9 +217,10 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - Material Items
     - GuiInventory HoveredItem, PickingItems
     - Grapple, ItemComponentMaterial onUse.
-    - +Some Materials
+    - +12 Materials, +Meadow StoneBrick BrickRoof
     - ItemTextures Atlas, Bake!
     - item material view.png ps准备物品预览图
+    - BlackTarget 黑色线框 瞄准
 
     - 受到 Cocricot的灵感: 一个轮廓+不同纹理?
     - 玩家血量 10

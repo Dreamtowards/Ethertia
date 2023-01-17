@@ -377,12 +377,13 @@ void ItemComponentMaterial::onUse() {
 
     Material* mtl = m_Material;
 
-    if (mtl == Materials::WATER || mtl == Materials::LEAVES || mtl == Materials::TALLGRASS)
+    if (mtl == Materials::WATER || mtl == Materials::LEAVES || mtl == Materials::TALLGRASS || GuiDebugV::g_BlockMode)
     {
-        Cell& c = Ethertia::getWorld()->getCell(p);
+        Cell& c = Ethertia::getWorld()->getCell(p + cur.normal*0.1f);
 
         c.density = 0;
         c.mtl = mtl;
+        c.exp_meta = 1;
 
         Ethertia::getWorld()->requestRemodel(p);
         return;

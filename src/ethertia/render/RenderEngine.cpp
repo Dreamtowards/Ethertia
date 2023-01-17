@@ -91,6 +91,9 @@ Framebuffer::gPushFramebuffer(gbuffer);
             glDisable(GL_CULL_FACE);
         }
 
+        if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera()->len == 0)
+            continue;
+
         PROFILE("E/"+std::to_string(entity->m_TypeTag));
 
         entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation(), entity->m_DiffuseMap);
@@ -100,8 +103,13 @@ Framebuffer::gPushFramebuffer(gbuffer);
         }
 
         ++dbg_NumEntityRendered;
-        if (dbg_EntityGeo)
+        if (dbg_EntityGeo) {
             renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
+        }
+        if (RenderEngine::dbg_HitPointEntityGeo && entity == Ethertia::getBrushCursor().hitEntity) {
+            renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation(),
+                                              Ethertia::getBrushCursor().brushSize, Ethertia::getBrushCursor().position);
+        }
         if (dbg_RenderedEntityAABB) {
             AABB aabb = entity->getAABB();
             renderLineBox(aabb.min, aabb.max-aabb.min, Colors::RED);

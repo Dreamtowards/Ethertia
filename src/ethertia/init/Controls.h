@@ -25,7 +25,6 @@ public:
         });
     }
 
-
     static void initControls()
     {
         Controls::initConsoleThread();
@@ -173,9 +172,11 @@ public:
 
                 if (cursor.hit) {
                     cursor.position = p;
+                    cursor.normal = n;
                     cursor.hitEntity = (Entity*)obj->getUserPointer();
                 } else {
                     cursor.position = {};
+                    cursor.normal = {};
                     cursor.hitEntity = nullptr;
                 }
             }
@@ -215,6 +216,18 @@ public:
                     float n = cur.brushSize;
 
                     if (btn == GLFW_MOUSE_BUTTON_1) {
+
+                        if (GuiDebugV::g_BlockMode) {
+
+                            Cell& c = world->getCell( p + -cur.normal*0.1f );
+
+                            c.mtl = 0;
+                            c.density = 0;
+
+                            world->requestRemodel(p);
+                            return;
+                        }
+
                         for (int dx = floor(-n); dx <= ceil(n); ++dx) {
                             for (int dz = floor(-n); dz <= ceil(n); ++dz) {
                                 for (int dy = floor(-n); dy <= ceil(n); ++dy) {

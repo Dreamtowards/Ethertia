@@ -29,6 +29,9 @@ public:
                         putLeaves(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
                     } else if (c.mtl == Materials::WATER) {
                         putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                    } else if (c.mtl && c.exp_meta == 1) {
+
+                        putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
                     }
                 }
             }
@@ -87,7 +90,7 @@ public:
             glm::vec3 np = rpos + dir;
             Cell& neib = World::_GetCell(chunk, np);
 
-            if (neib.mtl == 0) {  // neib.density < 0 ||
+            if (neib.mtl == 0 || neib.density > 0) {  // neib.density < 0 ||
                 putCubeFace(vbuf, i, rpos, mtlId);
             }
 

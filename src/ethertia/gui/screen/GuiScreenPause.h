@@ -5,10 +5,7 @@
 #ifndef ETHERTIA_GUISCREENPAUSE_H
 #define ETHERTIA_GUISCREENPAUSE_H
 
-#include <ethertia/gui/GuiText.h>
-#include <ethertia/gui/GuiStack.h>
-#include <ethertia/gui/GuiCollection.h>
-#include <ethertia/gui/screen/GuiIngame.h>
+#include <ethertia/gui/GuiCommon.h>
 
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/gui/inventory/GuiInventory.h>

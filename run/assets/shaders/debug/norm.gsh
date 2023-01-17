@@ -3,11 +3,14 @@ layout(triangles) in;
 layout(line_strip, max_vertices = 9) out;
 
 in vec3 VertNorm[3];
+in vec3 VertPos[3];
 
 out vec4 GeoColor;
+out vec3 FragPos;
 
 const vec4 NormColor = vec4(0.0, 0.0, 1.0, 1.0);
 const vec4 BorderColor = vec4(0.2);
+
 
 void pushNormLine(int i) {
     vec4 p = gl_in[i].gl_Position;
@@ -33,12 +36,15 @@ void main() {
     // Borders
     gl_Position = gl_in[0].gl_Position;
     GeoColor = BorderColor;
+    FragPos = VertPos[0];
     EmitVertex();
     gl_Position = gl_in[1].gl_Position;
     GeoColor = BorderColor;
+    FragPos = VertPos[1];
     EmitVertex();
     gl_Position = gl_in[2].gl_Position;
     GeoColor = BorderColor;
+    FragPos = VertPos[2];
     EmitVertex();
     EndPrimitive();
 }

@@ -5,12 +5,7 @@
 #ifndef ETHERTIA_GUISCREENMAINMENU_H
 #define ETHERTIA_GUISCREENMAINMENU_H
 
-#include "../GuiSlider.h"
-#include "../GuiText.h"
-#include "../GuiCollection.h"
-#include "../GuiAlign.h"
-#include "../GuiStack.h"
-#include "../GuiButton.h"
+#include "../GuiCommon.h"
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/world/Biome.h>

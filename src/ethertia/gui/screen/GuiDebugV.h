@@ -40,6 +40,10 @@ public:
     inline static bool dbgDrawFrameProfiler = true;
 
 
+    inline static bool g_BlockMode = false;
+
+    inline static bool dbg_CursorPt = false;
+
     Gui* optsGui = nullptr;
 
     GuiDebugV()
@@ -107,6 +111,9 @@ public:
             opts->addGui(new GuiCheckBox("All Entity AABB", &dbgAllEntityAABB));
             opts->addGui(new GuiCheckBox("Loaded Chunk AABB", &dbgChunkAABB));
             opts->addGui(new GuiCheckBox("Chunk Bound AABB", &dbgChunkBoundAABB));
+            opts->addGui(new GuiCheckBox("BlockMode", &g_BlockMode));
+            opts->addGui(new GuiCheckBox("CursorPoint", &dbg_CursorPt));
+            opts->addGui(new GuiCheckBox("HitPtGeo", &RenderEngine::dbg_HitPointEntityGeo));
 
             opts->addGui(new GuiCheckBox("GBuffers", &dbgGBuffers));
             opts->addGui(new GuiCheckBox("Norm & Border", &RenderEngine::dbg_EntityGeo));
@@ -247,11 +254,6 @@ public:
             }
         }
 
-        Entity* selEntity = Ethertia::getBrushCursor().hitEntity;
-        if (selEntity) {
-            AABB aabb = selEntity->getAABB();
-            rde->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::YELLOW);
-        }
 
         if (dbgChunkAABB) { using glm::vec3;
             world->forLoadedChunks([&](Chunk* chunk){
@@ -271,6 +273,18 @@ public:
                         rde->renderLineBox(p, vec3(16), Colors::RED);
                     }
                 }
+            }
+        }
+
+        if (dbg_CursorPt) {
+            BrushCursor& cur = Ethertia::getBrushCursor();
+
+            Ethertia::getRenderEngine()->drawLine(cur.position, cur.normal, Colors::GREEN);
+
+            Entity* selEntity = Ethertia::getBrushCursor().hitEntity;
+            if (selEntity) {
+                AABB aabb = selEntity->getAABB();
+                rde->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::YELLOW);
             }
         }
 

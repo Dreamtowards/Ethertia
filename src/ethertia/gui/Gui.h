@@ -391,6 +391,8 @@ public:
     // specified PreDraw. draw before children.
     virtual void implDraw() {}
 
+    virtual void lateDraw() {}
+
     virtual void onDraw()
     {
         if (!visible) return;
@@ -403,6 +405,8 @@ public:
         {
             g->onDraw();
         }
+
+        lateDraw();
     }
 
 

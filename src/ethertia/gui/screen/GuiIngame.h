@@ -56,7 +56,7 @@ public:
 
     }
 
-    void implDraw() override
+    void lateDraw() override
     {
 
         EntityPlayer* player = Ethertia::getPlayer();
@@ -141,6 +141,14 @@ public:
         // Center Cursor.
         Gui::drawRect(Gui::maxWidth()/2 -1, Gui::maxHeight()/2 -1,
                       3, 3, Colors::WHITE);
+
+
+        BrushCursor& cursor = Ethertia::getBrushCursor();
+        if (cursor.hit && GuiDebugV::g_BlockMode)
+        {
+            glm::vec3 pl = glm::floor(cursor.position - cursor.normal*0.2f);
+            Ethertia::getRenderEngine()->renderLineBox(pl, glm::vec3(1.0), Colors::BLACK80);
+        }
     }
 
 

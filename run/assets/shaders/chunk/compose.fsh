@@ -220,7 +220,9 @@ void main() {
     FragColor = vec4((diffColor + specColor) * Albedo, 1.0);
 //    FragColor = vec4(0,0,0,1);
 
-    FragColor.rgb += 0.1 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
+
+
+    FragColor.rgb += 0.03 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
 
 
