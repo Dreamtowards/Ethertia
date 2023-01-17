@@ -104,13 +104,13 @@ public:
         if (item.hasComponent<Item::ComponentTool>()) {
             info << "tool\n";
         }
-        drawString(x,y+w+4+19, info.str(), Colors::GRAY, 15);
+        drawString(x,y+w+4+20, info.str(), Colors::GRAY, 15);
     }
     static void doDrawPickingItem() {
 
         if (PICKING_ITEM) {
 
-            drawItemStack(Gui::cursorX(), Gui::cursorY(), *PICKING_ITEM);
+            drawItemStack(Gui::cursorX()-SLOT_SIZE/2, Gui::cursorY()-SLOT_SIZE/2, *PICKING_ITEM);
         }
     }
 
