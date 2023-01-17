@@ -19,16 +19,36 @@ public:
     // 用0/nullptr 表示空气/空. 因为实在是太方便了 if(c.mtl)。而且目前没什么副作用
     inline static Material* AIR = nullptr;
 
-    REGISTER_MTL(STONE, "rock");
     REGISTER_MTL(GRASS, "grass");
     REGISTER_MTL(MOSS, "moss");
     REGISTER_MTL(DIRT, "black_dirt");
+    REGISTER_MTL(DIRT_, "dirt");
     REGISTER_MTL(SAND, "sand");
-    REGISTER_MTL(LOG, "oak_log");
-    REGISTER_MTL(PLANKS, "plank");
+
     REGISTER_MTL(LEAVES, "leaves");
     REGISTER_MTL(TALLGRASS, "tallgrass");
     REGISTER_MTL(WATER, "water");
+    REGISTER_MTL(LOG, "oak_log");
+    REGISTER_MTL(PLANKS, "plank");
+    REGISTER_MTL(FARMLAND, "farmland");
+
+    REGISTER_MTL(STONE, "stone");
+    REGISTER_MTL(TUFF, "tuff");
+    REGISTER_MTL(CONCRETE, "concrete");
+    REGISTER_MTL(ROCK, "rock");
+    REGISTER_MTL(CLIFF_ROCK, "cliff_rock");
+    REGISTER_MTL(VOLCANIC, "volcanic_rock");
+    REGISTER_MTL(JUNGLE_ROCK, "jungle_rock");
+    REGISTER_MTL(DEEPSLATE, "deepslate");
+
+
+
+
+    REGISTER_MTL(IRON, "iron");
+    REGISTER_MTL(IRON_TREADPLATE, "iron_treadplate");
+
+
+
 
     // CNS 关于 MaterialItems, 应该每个material对应一个新物品吗? 还是所有的 material 都是同一个 Item::MATERIAL + 额外 MtlId 数据?
     // 如果是前者, 那么可自定义性很大 一个mtl又可以摆放 又可以吃 又可以当工具.. 然而这种情况不常见?

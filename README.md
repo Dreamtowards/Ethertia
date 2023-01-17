@@ -38,17 +38,24 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 ### All Versions / Plan
 
 - Ethertia Beta 0.0.1
-  - [ ] World Storage
+  - [x] World Storage 世界存储
+  - [ ] Item System 物品系统
+    - [x] ECS Item Arch. ECS物品组合设计
+    - [x] 食物类(恢复血量): Apple苹果, Lime酸橙
+    - [x] 材料类: 各种/所有地形材料 石头 草 树叶 泥土沙子
+    - [ ] 工具类: 稿子 抓钩
+    - [x] Player Inventory, Hotbar. 玩家物品栏
+    - [x] GuiInventory etc. 物品栏操作
+    - [ ] Dropped Items (Entity) 掉落物
+    - [ ] Hand HUD 手部渲染
   - [ ] Biomes, blend
-  - [ ] Dropped Items (Entity)
-  - [ ] Item System
-  - [ ] Player Inventory, equipments
-  - [ ] Player Health
-  - [ ] Crops, Carrots, Potatoes
+  - [ ] Player 
+    - [x] Health, Damage. 
 
 <br>
 
 - Ethertia Beta 0.0.2
+  - [ ] Crops, Carrots, Potatoes
   - [ ] SSAO
   - [ ] Particle System
   - [ ] Reflection Mapping, in materials, Screen space.
@@ -221,6 +228,9 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - Material Items
     - GuiInventory HoveredItem, PickingItems
     - Grapple, ItemComponentMaterial onUse.
+    - +Some Materials
+    - ItemTextures Atlas, Bake!
+    - item material view.png ps准备物品预览图
 
     - 受到 Cocricot的灵感: 一个轮廓+不同纹理?
     - 玩家血量 10

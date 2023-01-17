@@ -41,16 +41,15 @@ public:
         });
     }
 
-    static void drawSimpleInvBackground(glm::vec4 xywh, const std::string& title = "", float padding = 16, glm::vec4 addcolor = {}) {
+    static void drawSimpleInvBackground(glm::vec4 xywh, const std::string& title = "", float padding = 16, glm::vec4 bg = {0.173, 0.157, 0.224, 0.9}) {
         xywh = Gui::grow(xywh, padding);
         if (!title.empty()) {
             xywh = Gui::grow(xywh, 0, padding+16, 0, 0);
         }
 
-        static const glm::vec4 BG = {0.173, 0.157, 0.224, 0.9};
         drawRect({
             .xywh = xywh,
-            .color = BG+addcolor
+            .color = bg
         });
         drawSlotBorder(xywh);
 
@@ -66,11 +65,17 @@ public:
         if (stack.empty())
             return;
 
-        Gui::drawRect(x,y,size,size, stack.m_ItemType->m_CachedTexture);
+        float n = Item::REGISTRY.size();
+        float i = Collections::find(Item::REGISTRY.m_Ordered, (Item*)stack.item());
+        Gui::drawRect(x,y,size,size, {
+            .tex = ItemTextures::ITEM_ATLAS,
+            .tex_size = {1.0/n, 1.0},
+            .tex_pos  = {i/n, 0.0}
+        });
 
         Gui::drawString(x+size,y+size, std::to_string(stack.m_Amount), Colors::WHITE, 15, {-1.0, -1.0});
 
-        if (Gui::isCursorOver(x,y,size,size)) {
+        if (!HOVER_ITEM && Gui::isCursorOver(x,y,size,size)) {
             HOVER_ITEM = &stack;
         }
     }
@@ -81,12 +86,13 @@ public:
             return;
         const Item& item = *stack->item();
 
-        float x = Gui::cursorX() + 22, y = Gui::cursorY() - 32, w = 86, h = w +18+8+16;
+        float x = Gui::cursorX() + 22, y = Gui::cursorY() - 32, w = 128, h = w +18+8+16;
 
         drawSimpleInvBackground({x,y,w,h}, "", 12, Colors::BLACK80);
-        drawRect(x, y, w,w, item.m_CachedTexture);
 
-        drawString(x,y+w+8, item.getRegistryId(), Colors::WHITE, 18);
+        drawItemStack(x,y, *stack, w);
+
+        drawString(x,y+w+4, item.getRegistryId(), Colors::WHITE, 17);
 
         std::stringstream info;
         if (item.hasComponent<ItemComponentMaterial>()) {
@@ -98,7 +104,7 @@ public:
         if (item.hasComponent<Item::ComponentTool>()) {
             info << "tool\n";
         }
-        drawString(x,y+w+8+20, info.str(), Colors::GRAY);
+        drawString(x,y+w+4+19, info.str(), Colors::GRAY, 15);
     }
     static void doDrawPickingItem() {
 

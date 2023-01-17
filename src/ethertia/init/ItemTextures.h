@@ -12,30 +12,62 @@
 class ItemTextures
 {
 public:
+    inline static const int ITEM_RESOLUTION = 128;
+
+    inline static Texture* ITEM_ATLAS = nullptr;
+
+    static Texture* makeAtlas(const std::string& cache_file) {
+        if (Loader::fileExists(cache_file)) {
+            std::cout << "loading from cache '" << cache_file << "'";
+            return Loader::loadTexture(cache_file, false);
+        } else {
+            std::cout << "cache not found. start baking.";
+
+            int n = Item::REGISTRY.size();
+
+            BitmapImage atlas(ITEM_RESOLUTION*n, ITEM_RESOLUTION);
+            BitmapImage resized(ITEM_RESOLUTION, ITEM_RESOLUTION);
+
+            for (int i = 0;i < n;++i)
+            {
+                Item* item = Item::REGISTRY.m_Ordered[i];
+                std::string id = item->getRegistryId();
+
+                std::string loc;
+                if (item->hasComponent<ItemComponentMaterial>()) {
+                    loc = Strings::fmt("material/{}/view.png", id);
+                } else {
+                    loc = Strings::fmt("item/{}/view.png", id);
+                }
+
+                if (Loader::fileExists(Loader::fileAssets(loc)))
+                {
+                    BitmapImage img = Loader::loadPNG(Loader::loadAssets(loc));
+
+                    BitmapImage::resizeTo(img, resized);
+
+                    atlas.setPixels(i*ITEM_RESOLUTION, 0, resized);
+                }
+                else
+                {
+                    std::cerr  << Strings::fmt("missing item texture '{}'.", loc);
+                }
+            }
+
+            Loader::savePNG(atlas, cache_file);
+
+            return Loader::loadTexture(atlas);
+        }
+    }
 
     static void load()
     {
         BENCHMARK_TIMER;
-        Log::info("Loading {} item textures...\1", Item::REGISTRY.size());
+        Log::info("Loading {} item textures... \1", Item::REGISTRY.size());
 
-        for (auto& it : Item::REGISTRY)
-        {
-            std::string id = it.first;
-            Item* item = it.second;
 
-            std::string loc;
-            if (item->hasComponent<ItemComponentMaterial>()) {
-                loc = Strings::fmt("material/{}/view.png", id);
-            } else {
-                loc = Strings::fmt("item/{}/view.png", id);
-            }
-            if (Loader::fileExists(Loader::fileAssets(loc))) {
-                item->m_CachedTexture = Loader::loadTexture(loc);
-            } else {
-                Log::warn("missing item texture '{}'.", loc);
-                item->m_CachedTexture = GuiRenderer::TEX_WHITE;
-            }
-        }
+        ITEM_ATLAS = makeAtlas("./cache/item.png");
+        
     }
 
 };

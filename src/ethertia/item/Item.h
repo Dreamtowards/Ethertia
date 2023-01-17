@@ -26,8 +26,8 @@ public:
 
     bool m_Stackable = true;
 
-    // client only.
-    Texture* m_CachedTexture = nullptr;
+//    // client only.
+//    Texture* m_CachedTexture = nullptr;
 
     Item(const std::string &name, std::initializer_list<Item::Component *> comps) : m_Name(name), m_Components(comps)
     {
@@ -47,48 +47,6 @@ public:
         }
         return false;
     }
-
-
-    enum Id_ {
-        // Tools
-        PICKAXE,
-        SWORD,
-        AXE,
-        HOE,
-        SHEAR,
-        BACKPACK,
-
-        // Food, Vegetable, Meat
-        MELON,
-        PUMPKIN,
-        CARROT,
-        POTATO,
-        POTATO_BAKED,
-        APPLE,
-        BREAD,
-        PORKCHOP,
-        PORKCHOP_COOKED,
-        BEEF,
-        BEEF_COOCKED,
-        VINES,
-        LILY_PAD,
-        // Mushroom, Flower
-
-        COAL,
-        IRON_INGOT,
-        GOLD_INGOT,
-
-        BRICKS,
-        FLOWER_POT,
-        PAINTING,
-        SIGN,
-        RAIL,
-        TORCH,
-        LADDER,
-        MINECART,
-        SPAWN_EGG,
-    };
-
     class ComponentFood : public Item::Component {
     public:
 
