@@ -33,7 +33,8 @@ void Gui::drawRect(Gui::DrawRectArgs args) {
                args.tex,
                glm::vec4(args.tex_pos, args.tex_size),
                args.round,
-               args.border);
+               args.border,
+               args.channel_mode);
 }
 
 

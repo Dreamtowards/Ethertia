@@ -14,8 +14,7 @@ in vec3 TriMtlWeight;
 
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
-uniform sampler2D displacementMap;
-uniform sampler2D roughnessMap;
+uniform sampler2D dramMap;
 
 // actual int. use for calculate Mtl UV in the Texture Atlas. {x=MtlId/MtlCap, y=0.0, w=1.0/MtlCap, h=1.0}
 uniform float MtlCap;
@@ -102,9 +101,9 @@ void main()
 #else
 
         vec3 mtlw = pow(TriMtlWeight, vec3(0.6));  // 0.5-0.7. lesser -> more mix
-        float h0 = tri_samp(displacementMap, int(TriMtlId[0]), FragPos, blend).r * mtlw[0];
-        float h1 = tri_samp(displacementMap, int(TriMtlId[1]), FragPos, blend).r * mtlw[1];
-        float h2 = tri_samp(displacementMap, int(TriMtlId[2]), FragPos, blend).r * mtlw[2];
+        float h0 = tri_samp(dramMap, int(TriMtlId[0]), FragPos, blend).r * mtlw[0];
+        float h1 = tri_samp(dramMap, int(TriMtlId[1]), FragPos, blend).r * mtlw[1];
+        float h2 = tri_samp(dramMap, int(TriMtlId[2]), FragPos, blend).r * mtlw[2];
         int mostHeightVert = max_i(h0, h1, h2);
         FragMtlId = int(TriMtlId[mostHeightVert]);
 #endif
@@ -122,16 +121,16 @@ void main()
 //        :
         tri_samp(diffuseMap, FragMtlId, FragPos, blend);
 
-        if (Albedo.a < 0.8) {
-            discard;
-        }
-        // DEBUG
-//        if (FragMtlId == 0) {
-//            Albedo = vec4(1, 0, 0, 1);
+//        if (Albedo.a < 0.8) {
+//            discard;
 //        }
+        // DEBUG
+        if (FragMtlId == 0) {
+            Albedo = vec4(1, 0, 0, 1);
+        }
 
 #ifndef OPT
-        Roughness = tri_samp(roughnessMap, FragMtlId, FragPos, abs(Norm)).r;
+        Roughness = tri_samp(dramMap, FragMtlId, FragPos, abs(Norm)).y;
 
         {
             int MtlId = FragMtlId;

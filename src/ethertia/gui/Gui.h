@@ -492,7 +492,7 @@ public:
         Texture* tex = nullptr;
         float round = 0;
         float border = 0;
-        int channel_mode = 0;
+        int channel_mode = C_RGBA;
         glm::vec2 tex_pos = {0,0};  // GL Tex Coords. 0,0: LB, 1,1: RT
         glm::vec2 tex_size = {1,1}; // Dir toward: RT
     };

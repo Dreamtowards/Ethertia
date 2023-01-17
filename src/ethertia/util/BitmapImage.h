@@ -26,9 +26,8 @@ public:
         delete pixels;
     }
 
-    BitmapImage(const BitmapImage& cpy) {
-        assert(false && "Implicit copy is disabled due to big consume.");
-    }
+    BitmapImage(const BitmapImage& cpy) = delete;
+    BitmapImage(const BitmapImage&& cpy) = delete;
 
     void resize(int w, int h, std::uint32_t* pxs) {
         width = w;
@@ -38,8 +37,17 @@ public:
 
     static void resizeTo(const BitmapImage& src, BitmapImage& dst)
     {
+        int succ =
         stbir_resize_uint8((const unsigned char*)src.pixels, src.getWidth(), src.getHeight(), 0,
                            (      unsigned char*)dst.pixels, dst.getWidth(), dst.getHeight(), 0, 4);
+        assert(succ);
+    }
+
+    const char* pixel_rgba(int x, int y) const {
+        return (const char*)&pixels[y*width+x];
+    }
+    char* pixel_rgba_intl(int x, int y) {
+        return (char*)&pixels[y*width+x];
     }
 
     std::uint32_t getPixel(int x, int y) const {
@@ -48,11 +56,18 @@ public:
     void setPixel(int x, int y, std::uint32_t rgba) {
         pixels[y*width+x] = rgba;
     }
-    void setPixels(int x, int y, const BitmapImage& img) {
-        // todo check size.
+
+    // spec_channel: only one channel: -1: no. 0123 -> RGBA.
+    void setPixels(int x, int y, const BitmapImage& img, int spec_channel = -1) {
+        assert(x+img.getWidth() <= getWidth() && y+img.getHeight() <= getHeight());
         for (int dx = 0; dx < img.getWidth(); ++dx) {
             for (int dy = 0; dy < img.getHeight(); ++dy) {
-                setPixel(x+dx, y+dy, img.getPixel(dx, dy));
+                if (spec_channel != -1) {
+                    char* pix = pixel_rgba_intl(x+dx, y+dy);
+                    pix[spec_channel] = img.pixel_rgba(dx,dy)[spec_channel];
+                } else {
+                    setPixel(x+dx, y+dy, img.getPixel(dx, dy));
+                }
             }
         }
     }
@@ -62,7 +77,7 @@ public:
     void fillAlpha(float a) {
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                char* pix = (char*)&pixels[y*width+x];
+                char* pix = pixel_rgba_intl(x,y);
 
                 pix[3] = (char)(a * 255.0f);
             }
