@@ -63,7 +63,7 @@ public:
     static void load()
     {
         BENCHMARK_TIMER;
-        Log::info("Loading {} item textures... \1", Item::REGISTRY.size());
+        Log::info("Loading {} item textures... (x{}) \1", Item::REGISTRY.size(), ITEM_RESOLUTION);
 
 
         ITEM_ATLAS = makeAtlas("./cache/item.png");

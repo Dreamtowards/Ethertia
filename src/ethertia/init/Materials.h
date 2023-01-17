@@ -45,6 +45,7 @@ public:
 
     REGISTER_MTL(STONE_BRICK, "stone_brick");
     REGISTER_MTL(BRICK_ROOF, "brick_roof");
+    REGISTER_MTL(MEADOW, "meadow");
 
     REGISTER_MTL(IRON, "iron");
     REGISTER_MTL(IRON_TREADPLATE, "iron_treadplate");

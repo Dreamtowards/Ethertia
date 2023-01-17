@@ -75,6 +75,8 @@ public:
                 GuiButton* btnClock = new GuiButton("        ", true);
                 leftbox->addGui(btnClock);
                 btnClock->addPreDraw([btnClock](auto) {
+                    if (!Ethertia::getWorld())
+                        return;
                     float worldtime = Ethertia::getWorld()->m_DayTime;
                     float hr = worldtime * 24;
                     float hr_apm = std::fmod(hr, 12);

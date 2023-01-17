@@ -35,7 +35,7 @@ public:
     static void load()
     {
         BenchmarkTimer tm;
-        Log::info("Loading {} material texture/atlases...", Material::REGISTRY.size());
+        Log::info("Loading {} material texture/atlases... (x{})", Material::REGISTRY.size(), TEX_RESOLUTION);
 
 
         for (int i = 0; i < tex_size(); ++i) {
@@ -88,8 +88,9 @@ public:
 
         if (Loader::fileExists(cache_file))
         {
-            Log::info(" *{} load cached atlas from '{}'.\1", textype, cache_file);
-            return Loader::loadTexture(cache_file, false);
+            Texture* t = Loader::loadTexture(cache_file, false);
+            Log::info(" *{} loaded cached atlas from '{}'. (x{})\1", textype, cache_file, t->height);
+            return t;
         }
         else
         {
