@@ -213,7 +213,7 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - gui darkblue slots, gui daytime
   - 2023-01-17
     - 简化+强化 Loader::loadAssets 相关操作, 使用 ref 而不是 ptr
-    - DRAM Baking!!!! 将disp rough [ao, metal] 4张纹理图 烘烤到一张图里 并缓存。节省空间 加载时间 采样时间
+    - DRAM Baking!!!! 将disp rough [ao, metal] 4张纹理图 烘烤到一张图里 并缓存。节省空间 加载时间 采样时间 / [x] ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
     - Material Items
     - GuiInventory HoveredItem, PickingItems
     - Grapple, ItemComponentMaterial onUse.
@@ -221,24 +221,23 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - ItemTextures Atlas, Bake!
     - item material view.png ps准备物品预览图
     - BlackTarget 黑色线框 瞄准
-
+    - Hybrid BlockMode 方块
+    - HitPointEntityGeo 目标点附近网格显示
+    - 中键拾取 DebugTex HitCell信息
+    
+    - Material / Texture / Model /meta 架构模式?
     - 受到 Cocricot的灵感: 一个轮廓+不同纹理?
     - 玩家血量 10
     - 手拿物品渲染
     - DamageSource - 就像mc的Crepper被骷髅用火箭射到tnt炸死都能追踪到伤害来源是骷弓
     - World Saving Hint 世界保存的提示
     - 修复bug：有些地方没有population
-
-    - ARM 贴图，组合Disp/Rough/AO/Metal. DRAM Synthetic Atlas
-    - GUI 主界面
+    - [x] GUI 主界面初步
     - Vine 藤蔓材质
       - 如果放入Atlas就浪费了其他Norm Disp的空间了。
         没事先这样，等到时候浪费太多了，就再用新的渲染器 单独渲染这些植物
     - OpenAL Damage Sound
-    - Items
-      - Pickaxe
-      - Materials 
-      - Inventory
+    - [x] Items Pickaxe Materials Inventory
 
 [comment]: <> (特殊功能)
 [comment]: <> (- 和OBS/直播媒体流对接 让视频/音频流 连接到我们的国家顶级剧院和顶级环绕巨型音响, )

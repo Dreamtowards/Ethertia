@@ -38,7 +38,7 @@ public:
     }
 
     void clear() {
-        assert(m_Amount);
+        //assert(m_Amount);
         m_ItemType = nullptr;
         m_Amount = 0;
     }

@@ -206,16 +206,21 @@ public:
             float dt = Ethertia::getDelta();
             static std::string dbg_s;
             if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 0.1f)) {
-                std::string chunkInfo = "uil";
+                std::string chunkInfo = "nil";
                 Chunk* pointingChunk = nullptr;
-                if (world && Ethertia::getBrushCursor().hit) {
-                    pointingChunk = world->getLoadedChunk(Ethertia::getBrushCursor().position);
+                std::string cellInfo = "nil";
+                BrushCursor& cur = Ethertia::getBrushCursor();
+                if (world && cur.hit) {
+                    pointingChunk = world->getLoadedChunk(cur.position);
+                    Cell& c = world->getCell(cur.position - cur.normal*0.1f);
+                    cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {}", c.mtl ? c.mtl->getRegistryId() : "nil", c.density, c.exp_meta);
                 }
                 if (pointingChunk) {
                     chunkInfo = Strings::fmt("GenPop: {}, Inhabited: {}s",
                                              pointingChunk->m_Populated,
                                              pointingChunk->m_InhabitedTime);
                 }
+
 
                 btRigidBody* playerRb = Ethertia::getPlayer()->m_Rigidbody;
                 float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
@@ -230,7 +235,8 @@ public:
                         "task {}, async {}\n"
                         "dt: {}, {}fps\n"
                         "mem: {}, alloc {}, freed: {}\n"
-                        "C: {}",
+                        "ChunkHit: {}\n"
+                        "CellHit: {}",
                         glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
                         world ? rde->dbg_NumEntityRendered : 0, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
 //                        ChunkProcStat::GEN.str(),
@@ -241,7 +247,8 @@ public:
                         Ethertia::getScheduler()->numTasks(), Ethertia::getAsyncScheduler()->numTasks(),
                         dt, Mth::floor(1.0f/dt),
                         Strings::size_str(MemoryTrack::g_MemoryPresent()), Strings::size_str(MemoryTrack::g_MemoryAllocated), Strings::size_str(MemoryTrack::g_MemoryFreed),
-                        chunkInfo
+                        chunkInfo,
+                        cellInfo
                         );
             }
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, {0,0}, false);
