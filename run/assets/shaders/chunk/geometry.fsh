@@ -125,9 +125,9 @@ void main()
 //            discard;
 //        }
         // DEBUG
-        if (FragMtlId == 0) {
-            Albedo = vec4(1, 0, 0, 1);
-        }
+//        if (FragMtlId == 0) {  // MtlTexId==0 is allowed right now. since it is first tex at atlas.
+//            Albedo = vec4(1, 0, 0, 1);
+//        }
 
 #ifndef OPT
         Roughness = tri_samp(dramMap, FragMtlId, FragPos, abs(Norm)).y;

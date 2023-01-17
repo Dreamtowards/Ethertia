@@ -31,6 +31,7 @@
 #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/init/ReloadControl.h>
 #include <ethertia/init/ItemTextures.h>
+#include <ethertia/init/Items.h>
 
 
 //#include <yaml-cpp/yaml.h>
@@ -67,8 +68,10 @@ void Ethertia::start()
     ChunkGenerator::initSIMD();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::system(), std::endian::native == std::endian::big ? "big" : "little");
 
+    Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::load();
     ItemTextures::load();
+
     Commands::initCommands();
     Controls::initControls();
     ClientConnectionProc::initPackets();
@@ -126,7 +129,7 @@ void Ethertia::runMainLoop()
 
     {
         PROFILE("SyncTask");
-        m_Scheduler.processTasks(0.1);
+        m_Scheduler.processTasks(0.01);
     }
 
     {
@@ -204,7 +207,12 @@ void Ethertia::renderGUI()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_CULL_FACE);
 
+    GuiInventory::HOVER_ITEM = nullptr;
+
     rootGUI->onDraw();
+
+    GuiInventory::doDrawHoveredItem();
+    GuiInventory::doDrawPickingItem();
 
     glEnable(GL_DEPTH_TEST);
 
@@ -345,6 +353,71 @@ float Ethertia::getAspectRatio() {
 
 
 
+
+
+
+
+#include <ethertia/init/Items.h>
+
+
+void Item::ComponentFood::onUse()
+{
+    EntityPlayer* player = Ethertia::getPlayer();
+
+    player->m_Health += m_Heal;
+}
+
+void ItemComponentMaterial::onUse() {
+
+    BrushCursor& cur = Ethertia::getBrushCursor();
+    if (!cur.hit)
+        return;
+
+    glm::vec3 p = cur.position;
+
+    Material* mtl = m_Material;
+
+    if (mtl == Materials::WATER || mtl == Materials::LEAVES || mtl == Materials::TALLGRASS)
+    {
+        Cell& c = Ethertia::getWorld()->getCell(p);
+
+        c.density = 0;
+        c.mtl = mtl;
+
+        Ethertia::getWorld()->requestRemodel(p);
+        return;
+    }
+
+    int n = cur.brushSize;
+    for (int dx = -n; dx <= n; ++dx) {
+        for (int dz = -n; dz <= n; ++dz) {
+            for (int dy = -n; dy <= n; ++dy) {
+                glm::vec3 d(dx, dy, dz);
+
+                Cell& b = Ethertia::getWorld()->getCell(p + d);
+                float f = n - glm::length(d);
+
+                if (!Ethertia::getWindow()->isAltKeyDown())  {
+                    b.density = Mth::max(b.density, f);
+                }
+                if (b.density >= 0.0f)
+                    b.mtl = mtl;
+
+                Ethertia::getWorld()->requestRemodel(p+d);
+            }
+        }
+    }
+}
+
+void ItemComponentGrapple::onUse() {
+
+    glm::vec3 dir = Ethertia::getCamera()->direction;
+
+    Ethertia::getPlayer()->applyLinearVelocity(dir * 24.3f);
+
+}
+
+
 #include <stb/stb_vorbis.c>
 
 
@@ -366,3 +439,8 @@ int16_t* Loader::loadOGG(std::pair<char*, size_t> data, size_t* dst_len, int* ds
 
     return pcm;
 }
+
+
+
+
+

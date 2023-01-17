@@ -120,6 +120,10 @@ public:
         applyLinearVelocity(v);
     }
 
+    ItemStack& getHoldingItem() {
+        return m_Inventory.at(m_HotbarSlot);
+    }
+
 //    class OnGroundCheck : public btCollisionWorld::ContactResultCallback
 //    {
 //    public:

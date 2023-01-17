@@ -7,6 +7,7 @@
 
 #include <ethertia/item/Item.h>
 #include <ethertia/render/Texture.h>
+#include <ethertia/init/Items.h>
 
 class ItemTextures
 {
@@ -23,12 +24,17 @@ public:
             Item* item = it.second;
 
             std::string loc;
-            if (item->hasComponent<Item::ComponentMaterial>()) {
-                loc = Strings::fmt("materials/{}/view.png", id);
+            if (item->hasComponent<ItemComponentMaterial>()) {
+                loc = Strings::fmt("material/{}/view.png", id);
             } else {
                 loc = Strings::fmt("item/{}/view.png", id);
             }
-            item->m_CachedTexture = Loader::loadTexture(loc);
+            if (Loader::fileExists(Loader::fileAssets(loc))) {
+                item->m_CachedTexture = Loader::loadTexture(loc);
+            } else {
+                Log::warn("missing item texture '{}'.", loc);
+                item->m_CachedTexture = GuiRenderer::TEX_WHITE;
+            }
         }
     }
 

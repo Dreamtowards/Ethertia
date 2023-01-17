@@ -503,7 +503,7 @@ void World::processEntityCollision() {
         float f = velDiff.length();
         if (f > 10) {
 //            Log::info("Diff ", f);
-            player->m_Health -= f / 38.0f;
+            player->m_Health -= f / 8.0f;
         }
     }
 

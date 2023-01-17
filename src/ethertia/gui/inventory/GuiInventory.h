@@ -9,6 +9,7 @@
 
 #include <ethertia/item/Inventory.h>
 #include <ethertia/init/ItemTextures.h>
+#include <ethertia/init/Items.h>
 
 class GuiInventory : public Gui
 {
@@ -58,6 +59,8 @@ public:
         }
     }
 
+    inline static const ItemStack* HOVER_ITEM = nullptr;
+
     static void drawItemStack(float x, float y, const ItemStack& stack, float size = SLOT_SIZE)
     {
         if (stack.empty())
@@ -68,12 +71,48 @@ public:
         Gui::drawString(x+size,y+size, std::to_string(stack.m_Amount), Colors::WHITE, 15, {-1.0, -1.0});
 
         if (Gui::isCursorOver(x,y,size,size)) {
-            Gui::drawString(x,y, stack.item()->getRegistryId());
+            HOVER_ITEM = &stack;
         }
     }
 
+    static void doDrawHoveredItem() {
+        const ItemStack* stack = HOVER_ITEM;
+        if (!stack)
+            return;
+        const Item& item = *stack->item();
+
+        float x = Gui::cursorX() + 22, y = Gui::cursorY() - 32, w = 86, h = w +18+8+16;
+
+        drawSimpleInvBackground({x,y,w,h}, "", 12, Colors::BLACK80);
+        drawRect(x, y, w,w, item.m_CachedTexture);
+
+        drawString(x,y+w+8, item.getRegistryId(), Colors::WHITE, 18);
+
+        std::stringstream info;
+        if (item.hasComponent<ItemComponentMaterial>()) {
+            info << "material\n";
+        }
+        if (item.hasComponent<Item::ComponentFood>()) {
+            info << "food\n";
+        }
+        if (item.hasComponent<Item::ComponentTool>()) {
+            info << "tool\n";
+        }
+        drawString(x,y+w+8+20, info.str(), Colors::GRAY);
+    }
+    static void doDrawPickingItem() {
+
+        if (PICKING_ITEM) {
+
+            drawItemStack(Gui::cursorX(), Gui::cursorY(), *PICKING_ITEM);
+        }
+    }
+
+    inline static ItemStack* PICKING_ITEM = nullptr;
+
     void implDraw() override
     {
+        bool mlbPressed = Ethertia::getWindow()->isMouseDown(GLFW_MOUSE_BUTTON_LEFT);
 
         float beginX = getX();
         float x = beginX;
@@ -89,13 +128,29 @@ public:
             Gui::drawRect(x,y,SLOT_SIZE,SLOT_SIZE, hover ? Colors::WHITE60 : Colors::WHITE10);
 
             drawSlotBorder({x,y,SLOT_SIZE,SLOT_SIZE});
-            {
-                ItemStack& stack = m_Inventory->at(i);
 
-                if (!stack.empty()) {
-                    drawItemStack(x,y, stack);
+            ItemStack& stack = m_Inventory->at(i);
+
+            if (!mlbPressed && PICKING_ITEM && hover)
+            {
+                if (stack.empty()) {
+                    PICKING_ITEM->moveTo(stack);
+                    PICKING_ITEM = nullptr;
                 }
             }
+
+            if (!stack.empty() && !PICKING_ITEM && hover && mlbPressed)
+            {
+                PICKING_ITEM = &stack;
+            }
+
+            if (!stack.empty() && PICKING_ITEM!=&stack)
+            {
+
+
+                drawItemStack(x,y, stack);
+            }
+
 
             x += SLOT_SIZE + SLOT_GAP;
         }

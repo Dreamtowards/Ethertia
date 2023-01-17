@@ -6,6 +6,7 @@
 #define ETHERTIA_MATERIAL_H
 
 #include <ethertia/init/Registry.h>
+#include <ethertia/item/Item.h>
 
 class Material
 {
@@ -21,6 +22,8 @@ public:
     // 其实前者还好 可以运行时宏替换shaders取得id. 然而后者 让atlas根据其有效周期自己维护一个离线id吧
     // client. for mtl texture rendering
     int m_AtlasTexIdx = 0;
+
+    Item* m_MaterialItem = nullptr;
 
     Material(const std::string& name) : m_Name(name) {
 

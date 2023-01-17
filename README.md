@@ -215,7 +215,14 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - MaterialTextureAtlas 配合无序的REGISTRY，用了sort 确定离线id
     - Item::ComponentMaterial, +stone材质物品.
     - gui darkblue slots, gui daytime
+  - 2023-01-17
+    - 简化+强化 Loader::loadAssets 相关操作, 使用 ref 而不是 ptr
+    - DRAM Baking!!!! 将disp rough [ao, metal] 4张纹理图 烘烤到一张图里 并缓存。节省空间 加载时间 采样时间
+    - Material Items
+    - GuiInventory HoveredItem, PickingItems
+    - Grapple, ItemComponentMaterial onUse.
 
+    - 受到 Cocricot的灵感: 一个轮廓+不同纹理?
     - 玩家血量 10
     - 手拿物品渲染
     - DamageSource - 就像mc的Crepper被骷髅用火箭射到tnt炸死都能追踪到伤害来源是骷弓

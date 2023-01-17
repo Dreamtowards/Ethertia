@@ -37,7 +37,7 @@ public:
         BenchmarkTimer tm;
         Log::info("Loading {} material texture/atlases...", Material::REGISTRY.size());
 
-        
+
         for (int i = 0; i < tex_size(); ++i) {
             Material::REGISTRY.m_Ordered[i]->m_AtlasTexIdx = i;
         }
@@ -63,7 +63,7 @@ public:
     // 我们可以有很多 Mtl 的轮廓 各种装饰模型 复用MtlTex
 
     static bool loadMtlTex_ResizeTo(std::string_view mtl, std::string_view textype, BitmapImage& dst_resized) {
-        std::string path = Loader::fileAssets(Strings::fmt("materials/{}/{}.png", mtl, textype));
+        std::string path = Loader::fileAssets(Strings::fmt("material/{}/{}.png", mtl, textype));
         if (Loader::fileExists(path)) {
             BitmapImage src = Loader::loadPNG(Loader::loadFile(path));
             BitmapImage::resizeTo(src, dst_resized);
