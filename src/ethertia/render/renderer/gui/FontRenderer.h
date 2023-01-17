@@ -18,8 +18,7 @@ class FontRenderer
     static constexpr uint BATCH_CHARS_LIMIT = 128;  // actually is size. ie. max+1
     static constexpr uint GLYPH_LIMIT = 256;
 
-    ShaderProgram shader{Loader::loadAssetsStr("shaders/gui/font.vsh"),
-                         Loader::loadAssetsStr("shaders/gui/font.fsh")};
+    ShaderProgram shader = Loader::loadShaderProgram("shaders/gui/font.{}");
 
     Texture* texAscii = nullptr;
 
@@ -31,19 +30,15 @@ class FontRenderer
     // const char** UNIFORM_SCALE = Renderer::_GenArrayNames("scale[%i]", 128);
 public:
     FontRenderer() {
-        {
-            auto m = Loader::loadAssets("font/unicode_page_0.png");
-            texAscii = Loader::loadTexture(Loader::loadPNG(m.first, m.second));
-            delete m.first;
-        }
+
+        texAscii = Loader::loadTexture("font/unicode_page_0.png");
 
         {
             auto m = Loader::loadAssets("font/glyph_widths.bin");
-            u8* wglyph = (u8*)m.first;
+            uint8_t* wglyph = (uint8_t*)m.data;
             for (int i = 0; i < GLYPH_LIMIT; ++i) {
                 glyphWidths[i] = (float)wglyph[i] / 255.0f;
             }
-            delete m.first;
         }
 
         shader.useProgram();

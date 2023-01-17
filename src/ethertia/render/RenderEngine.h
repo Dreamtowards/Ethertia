@@ -81,9 +81,7 @@ public:
 
 
 
-    ShaderProgram shaderDebugGeo{Loader::loadAssetsStr("shaders/debug/norm.vsh"),
-                                Loader::loadAssetsStr("shaders/debug/norm.fsh"),
-                                Loader::loadAssetsStr("shaders/debug/norm.gsh")};
+    ShaderProgram shaderDebugGeo = Loader::loadShaderProgram("shaders/debug/norm.{}", true);
 
     void renderDebugGeo(Model* model, glm::vec3 pos, glm::mat3 rot) {
         ShaderProgram& shader = shaderDebugGeo;
@@ -98,8 +96,7 @@ public:
     }
 
 
-    ShaderProgram shaderDebugBasis{Loader::loadAssetsStr("shaders/debug/model.vsh"),
-                                   Loader::loadAssetsStr("shaders/debug/model.fsh")};
+    ShaderProgram shaderDebugBasis = Loader::loadShaderProgram("shaders/debug/model.{}");
 
 
     void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false) {

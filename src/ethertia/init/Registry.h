@@ -23,6 +23,8 @@ public:
     // No unordered_map. order is guaranteed to be identical when containing same IDs. (now for mtl-atlas-cache indexing)
     std::map<std::string, T*> m_Map;
 
+    std::vector<T*> m_Ordered;
+
 //    // 运行时数字id表。全部注册完后 生成。用于一些高性能组件 比如渲染时用数字id表示material类型
 //    std::vector<T*> m_RuntimeNumIdTable;
 
@@ -32,6 +34,7 @@ public:
 
         assert(!has(id) && "Already registered.");
         m_Map[id] = t;
+        m_Ordered.push_back(t);
         return t;
     }
 

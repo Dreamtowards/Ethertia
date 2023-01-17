@@ -13,8 +13,7 @@
 
 class SkyGradientRenderer
 {
-    ShaderProgram shader{Loader::loadAssetsStr("shaders/sky/gradient.vsh"),
-                         Loader::loadAssetsStr("shaders/sky/gradient.fsh")};
+    ShaderProgram shader = Loader::loadShaderProgram("shaders/sky/gradient.{}");
 
     inline static Model* M_PLANE;
 

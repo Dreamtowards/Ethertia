@@ -13,7 +13,6 @@
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
-#include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/util/Log.h>
 #include <ethertia/util/Strings.h>
 
@@ -61,6 +60,7 @@ public:
     ~ShaderProgram() {
         glDeleteProgram(program);
     }
+
 
     void useProgram() const {
         glUseProgram(program);

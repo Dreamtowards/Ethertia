@@ -12,17 +12,17 @@
 class Texture
 {
 public:
-    u32 texId;
+    GLuint texId;
     int width;
     int height;
 
-    Texture(u32 texId, int w, int h) : texId(texId), width(w), height(h) {}
+    Texture(GLuint texId, int w, int h) : texId(texId), width(w), height(h) {}
 
     ~Texture() {
         glDeleteTextures(1, &texId);
     }
 
-    u32 getTextureID() const {
+    GLuint getTextureID() const {
         return texId;
     }
 

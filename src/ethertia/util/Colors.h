@@ -11,10 +11,10 @@
 class Colors
 {
 public:
-    static glm::vec4 ofRGBA(u8 r, u8 g, u8 b, u8 a = 255) {
+    static glm::vec4 ofRGBA(int r, int g, int b, int a = 255) {
         return glm::vec4(r/255.0f, g/255.0f, b/255.0f, a/255.0f);
     }
-    static glm::vec4 ofRGB(u8 r, u8 g, u8 b) {  // ofRGBA() default argument are not allowed in static init.
+    static glm::vec4 ofRGB(int r, int g, int b) {  // ofRGBA() default argument are not allowed in static init.
         return Colors::ofRGBA(r,g,b,255);
     }
 

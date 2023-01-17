@@ -11,8 +11,7 @@
 
 class GuiRenderer
 {
-    ShaderProgram shader{Loader::loadAssetsStr("shaders/gui/gui.vsh"),
-                         Loader::loadAssetsStr("shaders/gui/gui.fsh")};
+    ShaderProgram shader = Loader::loadShaderProgram("shaders/gui/gui.{}");
 
 public:
     inline static Model* M_RECT_RB;  // RB,RT,LB,LT. TRIANGLE_STRIP.
@@ -30,7 +29,7 @@ public:
         });
 
         BitmapImage img(1, 1, new u32[1]{(u32)~0});
-        TEX_WHITE = Loader::loadTexture(&img);
+        TEX_WHITE = Loader::loadTexture(img);
 
         // todo: Align(anchor), in_pos -= anchor * 2.0;
         //

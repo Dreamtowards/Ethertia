@@ -23,6 +23,7 @@
 #include <ethertia/render/Model.h>
 #include <ethertia/util/OBJLoader.h>
 #include <ethertia/audio/AudioEngine.h>
+#include <ethertia/render/shader/ShaderProgram.h>
 
 
 class Loader {
@@ -31,42 +32,39 @@ public:
 
     inline static std::string ASSETS = "assets/";
 
+    struct end_scope_dealloc {
+        void* ptr;
 
-    static void showMessageBox(const char* title, const char* message) {
-        tinyfd_messageBox(title, message, "ok", "question", 1);
-    }
-    static std::string showInputBox(const char* title, const char* message, const char* def) {
-        return tinyfd_inputBox(title, message, def);  // free()?
-    }
+        end_scope_dealloc(void* _ptr) : ptr(_ptr) {}
 
-    // File, Folder, URL
-    static void openURL(const std::string& url) {
-        const char* cmd = nullptr;
-#if _WIN32
-        cmd = "start ";  // windows
-#elif __APPLE__
-        cmd = "open ";  // macos
-#elif __unix__
-        cmd = "xdg-open ";  // linux
-#else
-        assert(false);  // Not supported OS yet.
-#endif
-        std::system(std::string(cmd + url).c_str());
-    }
+        ~end_scope_dealloc() {
+            free(ptr);
+        }
+    };
+#define AUTO_DELETE(ptr) end_scope_dealloc _s(ptr);
 
-    static const char* system() {
-#if __WIN32__
-        return "WINDOWS";
-#elif __APPLE__
-        return "DARWIN";
-#elif __unix__
-        return "LINUX";
-#else
-        return "_UNKNOWN";
-#endif
-    }
+    struct datablock
+    {
+        void* data;
+        size_t length;  // len in bytes
 
-    static std::pair<char*, size_t> loadFile(const std::string& path)
+        std::string new_string() {
+            return std::string((char*)data, length);
+        }
+
+        datablock(void* _data, size_t _len) : data(_data), length(_len) {}
+
+        datablock(const datablock& cpy) {
+            assert(false && "Implicit copy is disabled due to big consume.");
+        }
+
+        ~datablock() {
+            free(data);
+        }
+    };
+
+
+    static datablock loadFile(const std::string& path)
     {
         std::ifstream file(path, std::ios_base::binary);
         if (!file.is_open()) {
@@ -82,26 +80,38 @@ public:
         file.read(buf, len);
         file.close();
 
-        return std::pair(buf, len);
+        return datablock(buf, len);
     }
     static bool fileExists(std::string_view path) {
         return std::filesystem::exists(path);
     }
-    inline static std::string assetsFile(const std::string& p) {
+    inline static std::string fileAssets(const std::string& p) {
         return ASSETS + p;
     }
 
-    static std::pair<char*, size_t> loadAssets(const std::string& p) {
-        return loadFile(assetsFile(p));
+    static datablock loadAssets(const std::string& p) {
+        return loadFile(fileAssets(p));
     }
 
-    static std::string loadAssetsStr(const std::string& p) {
-        auto m = loadAssets(p);
-        return std::string(m.first, m.second);
+//    static std::string loadAssetsStr(const std::string& p) {
+//        return loadAssets(p).new_string();
+//    }
+//    static std::string loadFileStr(const std::string& p) {
+//        return loadFile(p).new_string();
+//    }
+
+
+    static ShaderProgram loadShaderProgram(const std::string& assets_p, bool geo = false)
+    {
+        return ShaderProgram(Loader::loadAssets(Strings::fmt(assets_p, "vsh")).new_string(),
+                             Loader::loadAssets(Strings::fmt(assets_p, "fsh")).new_string(),
+                             geo ? Loader::loadAssets(Strings::fmt(assets_p, "gsh")).new_string() : "");
     }
-    static std::string loadFileStr(const std::string& p) {
-        auto m = loadFile(p);
-        return std::string(m.first, m.second);
+
+
+    static VertexBuffer* loadOBJ_(const char* p, bool isAssets = true) {
+        assert(isAssets);
+        return Loader::loadOBJ(Loader::loadAssets(p).new_string());
     }
 
     static VertexBuffer* loadOBJ(const std::string& objstr) {
@@ -173,18 +183,19 @@ public:
         dst.write((char*)pcm, size);
     }
 
-    static BitmapImage* loadPNG(const void* data, u32 len) {
+    static BitmapImage loadPNG(const void* data, u32 len) {
         int width, height, channels;
         void* pixels = stbi_load_from_memory((unsigned char*)data, len, &width, &height, &channels, 4);
-        return new BitmapImage(width, height, (unsigned int*)pixels);
+        return BitmapImage(width, height, (unsigned int*)pixels);
     }
-    static BitmapImage* loadPNG(std::pair<void*, u32> m) {
-        return loadPNG(m.first, m.second);
+    static BitmapImage loadPNG(const datablock& m) {
+        return loadPNG(m.data, m.length);
     }
 
-    static void savePNG(BitmapImage* img, const std::string& filename) {
+
+    static void savePNG(const BitmapImage& img, const std::string& filename) {
         ensureFileParentDirsReady(filename);
-        if (!stbi_write_png(filename.c_str(), img->getWidth(), img->getHeight(), 4, img->getPixels(), 0)) {
+        if (!stbi_write_png(filename.c_str(), img.getWidth(), img.getHeight(), 4, img.getPixels(), 0)) {
             throw std::runtime_error("Failed to write PNG. "+filename);
         }
     }
@@ -232,14 +243,15 @@ public:
         return loadModel(vcount, std::vector(vdats));
     }
 
-    static Texture* loadTexture(const std::string& assets_p) {
-        return Loader::loadTexture(Loader::loadPNG(Loader::loadAssets(assets_p)));
+    static Texture* loadTexture(const std::string& p, bool isAssets = true) {
+        assert(isAssets || p.starts_with("./"));
+        return Loader::loadTexture(Loader::loadPNG(isAssets ? Loader::loadAssets(p) : Loader::loadFile(p)));
     }
-    static Texture* loadTexture(BitmapImage* img) {
-        std::unique_ptr<std::uint32_t> pixels(new std::uint32_t[img->getWidth() * img->getHeight()]);
-        img->getVerticalFlippedPixels(pixels.get());
+    static Texture* loadTexture(const BitmapImage& img) {
+        std::unique_ptr<std::uint32_t> pixels(new std::uint32_t[img.getWidth() * img.getHeight()]);
+        img.getVerticalFlippedPixels(pixels.get());
 
-        return Loader::loadTexture(img->getWidth(), img->getHeight(), pixels.get());
+        return Loader::loadTexture(img.getWidth(), img.getHeight(), pixels.get());
     }
 
     /// pixels_VertInv: need y/vertical flipped pixels. cause of GL feature.
@@ -271,11 +283,24 @@ public:
         return tex;
     }
 
+    static Texture* loadCubeMap(const std::string& p, bool isAssets = true) {
+        assert(isAssets);
+
+        BitmapImage imgs[] = {
+                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "right"))),
+                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "left"))),
+                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "top"))),
+                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "bottom"))),
+                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "front"))),
+                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "back"))),
+        };
+        return loadCubeMap(imgs);
+    }
+
     // imgs order: Right, Left, Top, Bottom, Front, Back.
-    static Texture* loadCubeMap(std::vector<BitmapImage*> imgs) {
-        assert(imgs.size() == 6);
-        int w = imgs[0]->getWidth();
-        int h = imgs[0]->getHeight();
+    static Texture* loadCubeMap(const BitmapImage imgs[]) {
+        int w = imgs[0].getWidth();
+        int h = imgs[0].getHeight();
 
         GLuint texId;
         glGenTextures(1, &texId);
@@ -289,11 +314,11 @@ public:
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
         for (int i = 0; i < 6; ++i) {
-            BitmapImage* img = imgs[i];
-            assert(img->getWidth() == w && img->getHeight() == h);
+            const BitmapImage& img = imgs[i];
+            assert(img.getWidth() == w && img.getHeight() == h);
 
             // flipped y.
-            void* pixels = img->getPixels();
+            void* pixels = img.getPixels();
 
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
@@ -302,6 +327,45 @@ public:
         return tex;
     }
 
+
+
+
+
+    static void showMessageBox(const char* title, const char* message) {
+        tinyfd_messageBox(title, message, "ok", "question", 1);
+    }
+    static std::string showInputBox(const char* title, const char* message, const char* def) {
+        return tinyfd_inputBox(title, message, def);  // free()?
+    }
+
+
+
+    // File, Folder, URL
+    static void openURL(const std::string& url) {
+        const char* cmd = nullptr;
+#if _WIN32
+        cmd = "start ";  // windows
+#elif __APPLE__
+        cmd = "open ";  // macos
+#elif __unix__
+        cmd = "xdg-open ";  // linux
+#else
+        assert(false);  // Not supported OS yet.
+#endif
+        std::system(std::string(cmd + url).c_str());
+    }
+
+    static const char* system() {
+#if __WIN32__
+        return "WINDOWS";
+#elif __APPLE__
+        return "DARWIN";
+#elif __unix__
+        return "LINUX";
+#else
+        return "_UNKNOWN";
+#endif
+    }
 };
 
 #endif //ETHERTIA_LOADER_H

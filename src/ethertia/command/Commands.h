@@ -104,7 +104,7 @@ public:
                     EntityMesh* entity = new EntityMesh();
                     entity->setPosition(player->getPosition());
 
-                    VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr("entity/plane.obj"));
+                    VertexBuffer* vbuf = Loader::loadOBJ_("entity/plane.obj");
                     entity->setMesh(EntityMesh::createMeshShape(vbuf->vertexCount(), vbuf->positions.data()));
                     entity->updateModel(Loader::loadModel(vbuf));
 
@@ -131,7 +131,7 @@ public:
 
                     EntityMesh* eMesh = (EntityMesh*)target;
 
-                    VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadFileStr(path));
+                    VertexBuffer* vbuf = Loader::loadOBJ_(path.c_str());
                     eMesh->updateModel(Loader::loadModel(vbuf));
                     eMesh->setMesh(EntityMesh::createMeshShape(vbuf->vertexCount(), vbuf->positions.data()));
 

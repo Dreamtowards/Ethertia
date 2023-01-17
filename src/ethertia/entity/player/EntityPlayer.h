@@ -35,7 +35,7 @@ public:
     EntityPlayer() {
         m_TypeTag = Entity::TypeTag::T_PLAYER;
 
-        VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr("entity/capsule-1-2.obj"));
+        VertexBuffer* vbuf = Loader::loadOBJ_("entity/capsule-1-2.obj");
         m_Model = Loader::loadModel(vbuf);
 
         auto* shapeCapsule = new btCapsuleShape(0.5, 2);

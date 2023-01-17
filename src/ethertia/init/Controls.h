@@ -298,13 +298,13 @@ public:
         GuiMessageList::INST->addMessage(Strings::fmt("Saved screenshot to '{}'.", path));
 
         Ethertia::getAsyncScheduler()->addTask([img, path]() {
-            BenchmarkTimer _tm;
+            BENCHMARK_TIMER;
 
             // vertical-flip image back to normal. due to GL feature.
             BitmapImage fine_img(img->getWidth(), img->getHeight());
             img->getVerticalFlippedPixels(fine_img.getPixels());
 
-            Loader::savePNG(&fine_img, path);
+            Loader::savePNG(fine_img, path);
             delete img;
         });
     }

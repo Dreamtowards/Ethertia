@@ -7,8 +7,8 @@
 
 class SkyboxRenderer
 {
-    ShaderProgram m_Shader{Loader::loadAssetsStr("shaders/sky/skybox.vsh"),
-                           Loader::loadAssetsStr("shaders/sky/skybox.fsh")};
+    ShaderProgram m_Shader = Loader::loadShaderProgram("shaders/sky/skybox.{}");
+
 
     Texture* m_Cubemap = nullptr;
     Model* m_SkyboxModel = nullptr;
@@ -16,14 +16,7 @@ class SkyboxRenderer
 public:
     SkyboxRenderer() {
 
-        m_Cubemap = Loader::loadCubeMap({{
-             Loader::loadPNG(Loader::loadAssets("misc/skybox/right.jpg")),
-             Loader::loadPNG(Loader::loadAssets("misc/skybox/left.jpg")),
-             Loader::loadPNG(Loader::loadAssets("misc/skybox/top.jpg")),
-             Loader::loadPNG(Loader::loadAssets("misc/skybox/bottom.jpg")),
-             Loader::loadPNG(Loader::loadAssets("misc/skybox/front.jpg")),
-             Loader::loadPNG(Loader::loadAssets("misc/skybox/back.jpg")),
-        }});
+        m_Cubemap = Loader::loadCubeMap("misc/skybox/{}.jpg");
 
         float skyboxVertices[] = {
                 // positions

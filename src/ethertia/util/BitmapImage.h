@@ -5,8 +5,9 @@
 #ifndef ETHERTIA_BITMAPIMAGE_H
 #define ETHERTIA_BITMAPIMAGE_H
 
-#include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/util/Colors.h>
+
+#include <stb/stb_image_resize.h>
 
 class BitmapImage
 {
@@ -19,7 +20,14 @@ public:
         resize(w, h, pxs);
     }
     BitmapImage(int w, int h) {
-        resize(w, h, new u32[w*h]);
+        resize(w, h, new uint32_t[w*h]);
+    }
+    ~BitmapImage() {
+        delete pixels;
+    }
+
+    BitmapImage(const BitmapImage& cpy) {
+        assert(false && "Implicit copy is disabled due to big consume.");
     }
 
     void resize(int w, int h, std::uint32_t* pxs) {
@@ -28,17 +36,23 @@ public:
         pixels = pxs;
     }
 
-    std::uint32_t getPixel(int x, int y) {
+    static void resizeTo(const BitmapImage& src, BitmapImage& dst)
+    {
+        stbir_resize_uint8((const unsigned char*)src.pixels, src.getWidth(), src.getHeight(), 0,
+                           (      unsigned char*)dst.pixels, dst.getWidth(), dst.getHeight(), 0, 4);
+    }
+
+    std::uint32_t getPixel(int x, int y) const {
         return pixels[y*width+x];
     }
     void setPixel(int x, int y, std::uint32_t rgba) {
         pixels[y*width+x] = rgba;
     }
-    void setPixels(int x, int y, BitmapImage* img) {
+    void setPixels(int x, int y, const BitmapImage& img) {
         // todo check size.
-        for (int dx = 0; dx < img->getWidth(); ++dx) {
-            for (int dy = 0; dy < img->getHeight(); ++dy) {
-                setPixel(x+dx, y+dy, img->getPixel(dx, dy));
+        for (int dx = 0; dx < img.getWidth(); ++dx) {
+            for (int dy = 0; dy < img.getHeight(); ++dy) {
+                setPixel(x+dx, y+dy, img.getPixel(dx, dy));
             }
         }
     }
@@ -55,12 +69,15 @@ public:
         }
     }
 
-    std::uint32_t* getPixels() {
+    std::uint32_t* getPixelsInternal() {
         return pixels;
     }
-    void getVerticalFlippedPixels(std::uint32_t* dst) {  // for OpenGL internal
+    std::uint32_t* getPixels() const {
+        return pixels;
+    }
+    void getVerticalFlippedPixels(std::uint32_t* dst) const {  // for OpenGL internal
         for (int y = 0; y < height; ++y) {
-            u32 bas = (height-1-y) * width;
+            uint32_t bas = (height-1-y) * width;
             for (int x = 0; x < width; ++x) {
                 dst[y*width+x] = pixels[bas+x];
             }
@@ -70,9 +87,6 @@ public:
     int getWidth()  const { return width; }
     int getHeight() const { return height; }
 
-    ~BitmapImage() {
-        delete pixels;
-    }
 };
 
 #endif //ETHERTIA_BITMAPIMAGE_H

@@ -12,14 +12,9 @@
 class EntityRenderer
 {
 public:
-    ShaderProgram shaderGeometry{Loader::loadAssetsStr("shaders/chunk/geometry.vsh"),
-                         Loader::loadAssetsStr("shaders/chunk/geometry.fsh"),
-                         Loader::loadAssetsStr("shaders/chunk/geometry.gsh")};
+    ShaderProgram shaderGeometry = Loader::loadShaderProgram("shaders/chunk/geometry.{}", true);
 
-    ShaderProgram shaderCompose{
-        Loader::loadAssetsStr("shaders/chunk/compose.vsh"),
-        Loader::loadAssetsStr("shaders/chunk/compose.fsh")
-    };
+    ShaderProgram shaderCompose = Loader::loadShaderProgram("shaders/chunk/compose.{}");
 
     inline static Model* M_RECT;  // RB,RT,LB,LT. TRIANGLE_STRIP.
 
@@ -37,8 +32,7 @@ public:
         shaderGeometry.useProgram();
         shaderGeometry.setInt("diffuseMap", 0);
         shaderGeometry.setInt("normalMap", 1);
-        shaderGeometry.setInt("displacementMap", 2);
-        shaderGeometry.setInt("roughnessMap", 3);
+        shaderGeometry.setInt("dramMap", 2);
 
         shaderGeometry.setFloat("MtlCap", Material::REGISTRY.size());
 
@@ -81,10 +75,7 @@ public:
             glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_NORM->texId);
 
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DISP->texId);
-
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_ROUGH->texId);
+            glBindTexture(GL_TEXTURE_2D, MaterialTextures::ATLAS_DRAM->texId);
 
                 // Experimental
                 glActiveTexture(GL_TEXTURE5);

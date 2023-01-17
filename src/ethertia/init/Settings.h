@@ -36,7 +36,7 @@ public:
         if (!Loader::fileExists(SETTINGS_FILE))
             return;
 
-        json settings = json::parse(Loader::loadFileStr(SETTINGS_FILE));
+        json settings = json::parse(Loader::loadFile(SETTINGS_FILE).new_string());
 
         set_ifexists(settings, "view_distance",  &RenderEngine::viewDistance);
         set_ifexists(settings, "fov",            &RenderEngine::fov);
