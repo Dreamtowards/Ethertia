@@ -188,7 +188,7 @@ public:
 
         // RenderEngine updates.
         camera.position = player->getPosition();
-        renderEngine->viewMatrix = camera.computeViewMatrix();
+        RenderEngine::matView = camera.computeViewMatrix();
 
         renderEngine->updateViewFrustum();
         renderEngine->updateProjectionMatrix(Ethertia::getAspectRatio());

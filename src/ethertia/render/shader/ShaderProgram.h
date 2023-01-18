@@ -95,6 +95,9 @@ public:
         glUniform1f(getUniformLocation(name), f);
     }
 
+    void setViewProjection(bool view = true);
+    void setMVP(const glm::mat4& matModel);
+
 
 
     // GenArrayNames("chars[%i]", 128);

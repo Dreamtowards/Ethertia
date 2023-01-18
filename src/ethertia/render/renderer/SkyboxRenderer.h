@@ -75,10 +75,9 @@ public:
         m_Shader.useProgram();
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_Cubemap->getTextureID());
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_Cubemap->texId);
 
-        m_Shader.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
-        m_Shader.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
+        m_Shader.setViewProjection();
 
         glBindVertexArray(m_SkyboxModel->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, m_SkyboxModel->vertexCount);

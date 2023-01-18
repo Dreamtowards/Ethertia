@@ -34,9 +34,10 @@ public:
         shader.setVector3f("CameraPos", Ethertia::getCamera()->position);
         // CamPos+
 
-        shader.setMatrix4f("matModel", Mth::matModel(Ethertia::getCamera()->position + glm::vec3{0, 80, 0},glm::vec3 {500}));
-        shader.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
-        shader.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
+
+        shader.setMVP(
+                Mth::matModel(Ethertia::getCamera()->position + glm::vec3{0, 80, 0},glm::vec3 {500})
+        );
 
 
         glBindVertexArray(M_PLANE->vaoId);

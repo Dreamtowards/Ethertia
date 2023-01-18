@@ -32,6 +32,7 @@
 #include <ethertia/init/ReloadControl.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/Items.h>
+#include <ethertia/render/renderer/ParticleRenderer.h>
 
 
 //#include <yaml-cpp/yaml.h>
@@ -115,6 +116,15 @@ void Ethertia::start()
     Ethertia::getRegistry<Biome>()->dbgPrintEntries("Biomes");
     Ethertia::getRegistry<Command>()->dbgPrintEntries("Commands");
 
+
+    {
+        Particle* par = new Particle();
+
+        par->texture = MaterialTextures::ATLAS_DIFFUSE;
+        par->position = {10, 10, 10};
+
+        Ethertia::getRenderEngine()->m_ParticleRenderer->m_Particles.push_back(par);
+    }
 
 
     if (m_AudioEngine->m_CaptureDevice)
@@ -455,6 +465,18 @@ int16_t* Loader::loadOGG(std::pair<char*, size_t> data, size_t* dst_len, int* ds
 }
 
 
+void ShaderProgram::setViewProjection(bool view)
+{
+    setMatrix4f("matProjection", RenderEngine::matProjection);
 
+    setMatrix4f("matView", view ? RenderEngine::matView : glm::mat4(1.0));
+}
+
+void ShaderProgram::setMVP(const glm::mat4& matModel)
+{
+    setMatrix4f("matModel", matModel);
+
+    setViewProjection();
+}
 
 

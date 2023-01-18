@@ -11,6 +11,8 @@
 #include <ethertia/render/renderer/SkyboxRenderer.h>
 #include <ethertia/render/renderer/gui/GuiRenderer.h>
 #include <ethertia/render/renderer/gui/FontRenderer.h>
+#include <ethertia/render/renderer/ParticleRenderer.h>
+
 
 RenderEngine::RenderEngine()
 {
@@ -23,6 +25,7 @@ RenderEngine::RenderEngine()
     entityRenderer = new EntityRenderer();std::cout << "entity";
 //    skyGradientRenderer = new SkyGradientRenderer();
 //    skyboxRenderer = new SkyboxRenderer();
+    m_ParticleRenderer = new ParticleRenderer();
     std::cout << "]";
 
     float qual = 0.6;
@@ -82,7 +85,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
             continue;
 
         // Frustum Culling
-        if (!viewFrustum.intersects(entity->getAABB())) {
+        if (!m_ViewFrustum.intersects(entity->getAABB())) {
             continue;
         }
 
@@ -116,6 +119,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
         }
     }
 
+
     glEnable(GL_BLEND);
 
 Framebuffer::gPopFramebuffer();
@@ -141,6 +145,11 @@ Framebuffer::gPopFramebuffer();
     // Result.
 
     Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), dcompose->texColor[0]);
+
+
+    glDisable(GL_DEPTH_TEST);
+    Ethertia::getRenderEngine()->m_ParticleRenderer->renderAll();
+
 
     RenderEngine::checkGlError("End World Render");
 }

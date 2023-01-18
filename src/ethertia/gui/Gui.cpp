@@ -54,7 +54,7 @@ void Gui::drawString(float x, float y, const std::string& str, glm::vec4 color, 
 
 void Gui::drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn)
 {
-    glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getRenderEngine()->viewMatrix, Ethertia::getRenderEngine()->projectionMatrix);
+    glm::vec3 p = Mth::projectWorldpoint(worldpos, RenderEngine::matView, RenderEngine::matProjection);
 
     p.x = p.x * Gui::maxWidth();
     p.y = p.y * Gui::maxHeight();

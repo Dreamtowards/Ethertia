@@ -14,6 +14,7 @@ class FontRenderer;
 class EntityRenderer;
 class SkyGradientRenderer;
 class SkyboxRenderer;
+class ParticleRenderer;
 
 class World;
 
@@ -35,12 +36,13 @@ public:
     EntityRenderer* entityRenderer           = nullptr;
 //    SkyGradientRenderer* skyGradientRenderer = nullptr;
 //    SkyboxRenderer* skyboxRenderer           = nullptr;
+    ParticleRenderer* m_ParticleRenderer     = nullptr;
 
-    glm::mat4 projectionMatrix{1};
-    glm::mat4 viewMatrix{1};
+    inline static glm::mat4 matProjection{1};
+    inline static glm::mat4 matView{1};
 
     Camera m_Camera{};
-    Frustum viewFrustum{};
+    Frustum m_ViewFrustum{};
 
     Framebuffer* gbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
     Framebuffer* dcompose = nullptr;  // Deferred Rendering Compose FBO
@@ -59,11 +61,11 @@ public:
     ~RenderEngine();
 
     void updateProjectionMatrix(float ratio_wdh) {
-        projectionMatrix = glm::perspective(Mth::radians(fov), ratio_wdh, 0.01f, 1000.0f);
+        matProjection = glm::perspective(Mth::radians(fov), ratio_wdh, 0.01f, 1000.0f);
     }
 
     void updateViewFrustum() {
-        viewFrustum.set(projectionMatrix * viewMatrix);
+        m_ViewFrustum.set(matProjection * matView);
     }
 
     void renderWorld(World* world);
@@ -79,9 +81,6 @@ public:
 
 
 
-
-
-
     ShaderProgram shaderDebugGeo = Loader::loadShaderProgram("shaders/debug/norm.{}", true);
 
     void renderDebugGeo(Model* model, glm::vec3 pos, glm::mat3 rot, float limitLen = 0, glm::vec3 limitPos = {}) {
@@ -90,8 +89,7 @@ public:
         shader.useProgram();
 
         shader.setMatrix4f("matModel", Mth::matModel(pos, rot, glm::vec3(1.0f)));
-        shader.setMatrix4f("matView", viewMatrix);
-        shader.setMatrix4f("matProjection", projectionMatrix);
+        shader.setViewProjection();
 
         if (limitLen) {
             shader.setFloat("limitLen", limitLen);
@@ -118,16 +116,13 @@ public:
         static Model* mBox = Loader::loadModel(24, {{3, M_BOX}});
         Model* model = boxOutline ? mBox : mLine;
 
-        ShaderProgram& shader = shaderDebugBasis;
+        shaderDebugBasis.useProgram();
 
-        shader.useProgram();
+        shaderDebugBasis.setViewProjection(viewMat);
 
-        shader.setMatrix4f("matView", viewMat ? viewMatrix : glm::mat4(1.0f));
-        shader.setMatrix4f("matProjection", projectionMatrix);
-
-        shader.setVector4f("color", color);
-        shader.setVector3f("direction", dir);
-        shader.setVector3f("position", pos);
+        shaderDebugBasis.setVector4f("color", color);
+        shaderDebugBasis.setVector3f("direction", dir);
+        shaderDebugBasis.setVector3f("position", pos);
 
         glBindVertexArray(model->vaoId);
         glDrawArrays(GL_LINES, 0, model->vertexCount);
@@ -153,9 +148,9 @@ public:
         glm::vec3 p = glm::vec3(0.0f, 0.0f, -1.0f);
         float len = 0.2f;
 
-        drawLine(p, glm::mat3(viewMatrix) * glm::vec3(len, 0, 0), Colors::R, false);
-        drawLine(p, glm::mat3(viewMatrix) * glm::vec3(0, len, 0), Colors::G, false);
-        drawLine(p, glm::mat3(viewMatrix) * glm::vec3(0, 0, len), Colors::B, false);
+        drawLine(p, glm::mat3(matView) * glm::vec3(len, 0, 0), Colors::R, false);
+        drawLine(p, glm::mat3(matView) * glm::vec3(0, len, 0), Colors::G, false);
+        drawLine(p, glm::mat3(matView) * glm::vec3(0, 0, len), Colors::B, false);
     }
     void renderLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color) {
         drawLine(min, size, color, true, true);

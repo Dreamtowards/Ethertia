@@ -86,9 +86,8 @@ public:
 
         shaderGeometry.useProgram();
 
+        shaderGeometry.setViewProjection();
         shaderGeometry.setMatrix4f("matModel", Mth::matModel(pos, rot, glm::vec3(1.0f)));
-        shaderGeometry.setMatrix4f("matView", Ethertia::getRenderEngine()->viewMatrix);
-        shaderGeometry.setMatrix4f("matProjection", Ethertia::getRenderEngine()->projectionMatrix);
 
         shaderGeometry.setFloat("debugVar1", debugVar1);
         shaderGeometry.setFloat("debugVar2", debugVar2);
@@ -143,9 +142,10 @@ public:
         shaderCompose.setFloat("debugVar2", debugVar2);
 
         shaderCompose.setFloat("Time", Ethertia::getPreciseTime());
+        shaderCompose.setFloat("DayTime", Ethertia::getWorld()->m_DayTime);
 
-        shaderCompose.setMatrix4f("matInvView", glm::inverse(Ethertia::getRenderEngine()->viewMatrix));
-        shaderCompose.setMatrix4f("matInvProjection", glm::inverse(Ethertia::getRenderEngine()->projectionMatrix));
+        shaderCompose.setMatrix4f("matInvView", glm::inverse(RenderEngine::matView));
+        shaderCompose.setMatrix4f("matInvProjection", glm::inverse(RenderEngine::matProjection));
 
         shaderCompose.setVector3f("tmpLightDir", tmpLightDir);
         shaderCompose.setVector3f("tmpLightPos", tmpLightPos);
