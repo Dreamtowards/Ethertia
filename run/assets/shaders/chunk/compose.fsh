@@ -29,6 +29,8 @@ uniform float debugVar2 = 0;
 uniform vec3 tmpLightDir;
 uniform vec3 tmpLightPos;
 
+uniform vec3 SunPos;
+
 uniform float Time = 0;
 
 // plane degined by p (p.xyz must be normalized)
@@ -124,61 +126,61 @@ vec3 compute_pixel_ray() {
 
 //////////////// Atomsphere ////////////////
 
-const vec3 SunPos = vec3(-1000, 1000, -1000);
-const vec3 dirToSun = normalize(vec3(-1,1,-1));//normalize(SunPos - inScatterPoint);
-const vec3 PlanetPos = vec3(0, 0, 0);
-const float PlanetRadius = 20.0;
-const float AtmosphereRaius = 500.0;
-//const float densityFalloff = 1.0;
-
-
-float DensityAtPoint(vec3 P) {  float densityFalloff = debugVar1;
-    // t from gound 0.0, to atmosphere 1.0.
-    float t = (length(P - PlanetPos) - PlanetRadius) / (AtmosphereRaius - PlanetRadius);
-    float localDensity = exp(-t * densityFalloff) * (1.0 - t);
-    return localDensity;
-}
-
-float DensityAlongRay(vec3 RayPos, vec3 RayDir, float RayLen) {  const int numOpticalDepthPoints = 10;
-    vec3 P = RayPos;
-    float step = RayLen / (numOpticalDepthPoints);
-    float sumDensity = 0;
-
-    for (int i = 0;i < numOpticalDepthPoints;++i) {
-        sumDensity += DensityAtPoint(P) * step;
-        P += RayDir * step;
-    }
-    return sumDensity;
-}
-
-vec3 ComputeLight(vec3 RayPos, vec3 RayDir, float RayLen, vec3 origCol) {  const int numInScatteringPoints = 10;
-    vec3 inScatterPoint = RayPos;
-    float step = RayLen / (numInScatteringPoints);  //!Why -1?
-    vec3 inScatteredLight = vec3(0);
-
-    vec3 wavelengths = vec3(680, 550, 440);  //440, 550, 680  //Seb: 700, 530, 440
-    float scatteringStrength = 1;//1.0;
-    vec3 scatterRGB = pow(400 / vec3(wavelengths), vec3(4)) * scatteringStrength;
-
-    float last_viewRayOpticalDepth;
-
-    for (int i = 0;i < numInScatteringPoints;++i) {
-        float  sunRayLen = raySphere(inScatterPoint, dirToSun, PlanetPos, AtmosphereRaius).y;
-        float  sunRayOpticalDepth = DensityAlongRay(inScatterPoint, dirToSun, sunRayLen);
-        float viewRayOpticalDepth = DensityAlongRay(inScatterPoint, -RayDir, step * i); //!Why -RayDir
-        vec3 transmittance = exp(-(sunRayOpticalDepth + viewRayOpticalDepth) * scatterRGB);
-        float localDensity = DensityAtPoint(inScatterPoint);
-
-        inScatteredLight += localDensity* transmittance * scatterRGB * step;
-        inScatterPoint += RayDir * step;
-        last_viewRayOpticalDepth = viewRayOpticalDepth;
-    }
-
-    // float origColTransmittance = exp(-last_viewRayOpticalDepth);
-    return origCol * (1.0 - inScatteredLight)
-    + inScatteredLight;
-}
-
+//const vec3 SunPos = vec3(-1000, 1000, -1000);
+//const vec3 dirToSun = normalize(vec3(-1,1,-1));//normalize(SunPos - inScatterPoint);
+//const vec3 PlanetPos = vec3(0, 0, 0);
+//const float PlanetRadius = 20.0;
+//const float AtmosphereRaius = 500.0;
+////const float densityFalloff = 1.0;
+//
+//
+//float DensityAtPoint(vec3 P) {  float densityFalloff = debugVar1;
+//    // t from gound 0.0, to atmosphere 1.0.
+//    float t = (length(P - PlanetPos) - PlanetRadius) / (AtmosphereRaius - PlanetRadius);
+//    float localDensity = exp(-t * densityFalloff) * (1.0 - t);
+//    return localDensity;
+//}
+//
+//float DensityAlongRay(vec3 RayPos, vec3 RayDir, float RayLen) {  const int numOpticalDepthPoints = 10;
+//    vec3 P = RayPos;
+//    float step = RayLen / (numOpticalDepthPoints);
+//    float sumDensity = 0;
+//
+//    for (int i = 0;i < numOpticalDepthPoints;++i) {
+//        sumDensity += DensityAtPoint(P) * step;
+//        P += RayDir * step;
+//    }
+//    return sumDensity;
+//}
+//
+//vec3 ComputeLight(vec3 RayPos, vec3 RayDir, float RayLen, vec3 origCol) {  const int numInScatteringPoints = 10;
+//    vec3 inScatterPoint = RayPos;
+//    float step = RayLen / (numInScatteringPoints);  //!Why -1?
+//    vec3 inScatteredLight = vec3(0);
+//
+//    vec3 wavelengths = vec3(680, 550, 440);  //440, 550, 680  //Seb: 700, 530, 440
+//    float scatteringStrength = 1;//1.0;
+//    vec3 scatterRGB = pow(400 / vec3(wavelengths), vec3(4)) * scatteringStrength;
+//
+//    float last_viewRayOpticalDepth;
+//
+//    for (int i = 0;i < numInScatteringPoints;++i) {
+//        float  sunRayLen = raySphere(inScatterPoint, dirToSun, PlanetPos, AtmosphereRaius).y;
+//        float  sunRayOpticalDepth = DensityAlongRay(inScatterPoint, dirToSun, sunRayLen);
+//        float viewRayOpticalDepth = DensityAlongRay(inScatterPoint, -RayDir, step * i); //!Why -RayDir
+//        vec3 transmittance = exp(-(sunRayOpticalDepth + viewRayOpticalDepth) * scatterRGB);
+//        float localDensity = DensityAtPoint(inScatterPoint);
+//
+//        inScatteredLight += localDensity* transmittance * scatterRGB * step;
+//        inScatterPoint += RayDir * step;
+//        last_viewRayOpticalDepth = viewRayOpticalDepth;
+//    }
+//
+//    // float origColTransmittance = exp(-last_viewRayOpticalDepth);
+//    return origCol * (1.0 - inScatteredLight)
+//    + inScatteredLight;
+//}
+//
 
 
 
@@ -201,7 +203,6 @@ void main() {
 //    if (dot(Norm, CameraPos - FragPos) > 0)
 //    Norm = - Norm;
 
-    vec3 SunPos = vec3(-3, 2, -1) * 10000;
     vec3 SunColor = vec3(2.0);
 
 

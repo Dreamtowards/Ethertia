@@ -74,12 +74,7 @@ public:
                 btnClock->addPreDraw([btnClock](auto) {
                     if (!Ethertia::getWorld())
                         return;
-                    float worldtime = Ethertia::getWorld()->m_DayTime;
-                    float hr = worldtime * 24;
-                    float hr_apm = std::fmod(hr, 12);
-                    float min = Mth::frac(hr) * 60;
-                    std::string s = Strings::fmt("{}:{} {}", (int)hr_apm, (int)min, worldtime > 0.5 ? "PM" : "AM");
-                    btnClock->m_Text = s;
+                    btnClock->m_Text = Strings::daytime(Ethertia::getWorld()->m_DayTime, true);
                 });
             }
         }

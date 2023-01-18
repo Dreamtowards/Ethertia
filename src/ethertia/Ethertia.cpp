@@ -214,6 +214,10 @@ void Ethertia::renderGUI()
     GuiInventory::doDrawHoveredItem();
     GuiInventory::doDrawPickingItem();
 
+    Gui::drawWorldpoint(EntityRenderer::SunPos, [](glm::vec2 p) {
+        Gui::drawRect(p.x, p.y, 3, 3, Colors::RED);
+    });
+
     glEnable(GL_DEPTH_TEST);
 
 }

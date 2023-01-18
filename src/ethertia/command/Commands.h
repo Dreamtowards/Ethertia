@@ -11,6 +11,7 @@
 
 #include <ethertia/command/CommandTp.h>
 #include <ethertia/command/CommandMesh.h>
+#include <ethertia/command/CommandTime.h>
 
 
 class Commands
@@ -90,6 +91,7 @@ public:
     REGISTER_CMD(GAMEMODE, "gamemode", new CommandGamemode());
     REGISTER_CMD(FLY, "fly", new CommandFly());
     REGISTER_CMD(MESH, "mesh", new CommandMesh());
+    REGISTER_CMD(TIME, "time", new CommandTime());
 
 };
 

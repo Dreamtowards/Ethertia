@@ -126,6 +126,9 @@ public:
     static glm::vec3 angleh(float angle) {
         return glm::rotate(glm::mat4(1), angle, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1.0);
     }
+    static glm::vec3 anglez(float angle) {
+        return glm::rotate(glm::mat4(1), angle, glm::vec3(0, 0, 1)) * glm::vec4(1, 0, 0, 1.0);
+    }
 
     static btTransform btTransf(const glm::vec3& p, const btQuaternion& rot = btQuaternion::getIdentity()) {
         return btTransform(rot, btVector3(p.x, p.y, p.z));

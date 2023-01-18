@@ -13,7 +13,6 @@ class EntityRenderer
 {
 public:
     ShaderProgram shaderGeometry = Loader::loadShaderProgram("shaders/chunk/geometry.{}", true);
-
     ShaderProgram shaderCompose = Loader::loadShaderProgram("shaders/chunk/compose.{}");
 
     inline static Model* M_RECT;  // RB,RT,LB,LT. TRIANGLE_STRIP.
@@ -26,6 +25,8 @@ public:
     inline static float debugVar0 = 0;
     inline static float debugVar1 = 0;
     inline static float debugVar2 = 0;
+
+    inline static glm::vec3 SunPos;
 
     EntityRenderer() {
 
@@ -114,6 +115,8 @@ public:
 
     void renderCompose(Texture* gPosition, Texture* gNormal, Texture* gAlbedo)
     {
+        // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
+        SunPos = Mth::anglez(Ethertia::getWorld()->m_DayTime * 2*Mth::PI - 0.5f*Mth::PI) * 100.0f + Ethertia::getCamera()->position;
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, gPosition->texId);
@@ -146,6 +149,8 @@ public:
 
         shaderCompose.setVector3f("tmpLightDir", tmpLightDir);
         shaderCompose.setVector3f("tmpLightPos", tmpLightPos);
+
+        shaderCompose.setVector3f("SunPos", SunPos);
 
         glBindVertexArray(EntityRenderer::M_RECT->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, M_RECT->vertexCount);

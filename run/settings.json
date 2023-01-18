@@ -6,6 +6,6 @@
   "fullscreen": false,
   "mtl_resolution": 256,
   "simd_level": "",
-  "view_distance": 2.0,
+  "view_distance": 5.0,
   "vsync": false
 }

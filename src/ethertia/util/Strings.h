@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <cstring>
 
+#include <ethertia/util/Mth.h>
+
 class Strings
 {
 public:
@@ -196,6 +198,65 @@ public:
             }
         }
         return line;
+    }
+
+    static std::string iw2(int i) {
+        return i < 10 ? "0"+std::to_string(i) : std::to_string(i);
+    }
+    // complete 0
+    static std::string int_0(int i, int wide) {
+        std::stringstream ss;
+        ss << i;
+        int n = ss.tellp();
+        ss.seekp(0);
+        for (int j = 0; j < wide - n; ++j) {
+            ss << '0';
+        }
+        return ss.str();
+    }
+
+    static std::string daytime(float daytime, bool apm = false) {
+        float hr = daytime * 24.0;
+        float mn = Mth::frac(hr) * 60.0;
+        float sec = Mth::frac(mn) * 60.0;
+        if (apm) {
+            bool am = hr < 12;
+            return Strings::fmt("{}:{} {}", iw2(int(am ? hr : hr-12)), iw2((int)mn),
+                                am ? "AM" : "PM");
+        } else {
+            return Strings::fmt("{}:{}", iw2((int)hr), iw2((int)mn));
+        }
+    }
+
+    static float daytime(const std::string& str)
+    {
+        std::string hr;
+        std::string mn;
+        int apm = 0;
+        int strlen = str.length();
+
+        if (str.ends_with("pm") || str.ends_with("PM")) {
+            apm = 2;
+        } else if (str.ends_with("am") || str.ends_with("AM")) {
+            apm = 1;
+        }
+
+        int sp = str.find(':');
+        if (sp != std::string::npos) {
+            hr = str.substr(0, sp);
+            mn = str.substr(sp+1, apm ? strlen-2 : strlen);
+        } else {
+            hr = apm ? str.substr(0, strlen-2) : str;
+        }
+
+        float f = std::stof(hr) / 24.0f;
+        if (apm == 2) {  // PM
+            f += 0.5;
+        }
+        if (!mn.empty()) {
+            f += std::stof(mn) / 60.0f / 24.0f;;
+        }
+        return f;
     }
 
     // split command parts by spaces. quoted by " or ' will be seen as a whole part.

@@ -224,6 +224,10 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - Hybrid BlockMode 方块
     - HitPointEntityGeo 目标点附近网格显示
     - 中键拾取 DebugTex HitCell信息
+  - 2023-01-18
+    - BlockyTerrainMeshGen, -mix 
+    - Command::REGISTRY, onCommand, onComplete.
+    - command /mesh <new/set>
     
     - Material / Texture / Model /meta 架构模式?
     - 受到 Cocricot的灵感: 一个轮廓+不同纹理?

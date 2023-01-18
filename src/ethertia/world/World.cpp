@@ -225,10 +225,9 @@ const std::vector<Entity*>& World::getEntities() {
 
 void World::tick(float dt)
 {
-    static const float DAY_SEC = 12*60;
 
     m_InhabitedTime += dt;
-    m_DayTime = Mth::mod(m_DayTime + dt/DAY_SEC, 1.0f);
+    m_DayTime = Mth::mod(m_DayTime + dt/m_DayTimeScale, 1.0f);
 }
 
 
