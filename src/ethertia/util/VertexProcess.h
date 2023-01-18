@@ -50,6 +50,12 @@ public:
         }
     }
 
+    static void set_all_vec3(float* data, size_t numVert, glm::vec3 v) {
+        for (int n_i = 0; n_i < numVert; ++n_i) {
+            Mth::vec3out(v, &data[n_i*3]);
+        }
+    }
+
     // Only have pos info, assume its CCW winding Triangles pos, use cross product get norm.
     // use for Chunk Boundary Normal Smoothing fix, only have neighbour vert positions
     static void gen_avgnorm(size_t sampleVertCount, const float* samplePos, size_t normVertCount, float* out_norm) {

@@ -47,11 +47,15 @@ public:
         addnorm(n.x, n.y, n.z);
     }
 
+    // CNS 只是额外地添加了MtlId到uv中，为了shaders去判断 可以做特殊处理
+    // just set additional MtlId info into UV.x (uv=(u+MtlId, v)), for shaders spec process.
     // please Dont lookup MtlId in these high-density-call place.
-    void set_uv_mtl(int MtlId, bool pureMTL = true) {
+    void set_uv_mtl(int MtlId) {
         assert(textureCoords.size()/2 == positions.size()/3);
         textureCoords[textureCoords.size()-2] += MtlId;
     }
+
+    /// CNS 表示这个顶点是"纯MTL"，即 他的uv是无效的 会自动生成"UV"(triplanar mapping)，采集其MtlId的tex
     void add_pure_mtl(int MtlId) {
         adduv(MtlId, 1000);
         assert(textureCoords.size()/2 == positions.size()/3);

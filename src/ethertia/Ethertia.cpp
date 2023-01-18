@@ -72,7 +72,6 @@ void Ethertia::start()
     MaterialTextures::load();
     ItemTextures::load();
 
-    Commands::initCommands();
     Controls::initControls();
     ClientConnectionProc::initPackets();
 
@@ -114,6 +113,7 @@ void Ethertia::start()
     Ethertia::getRegistry<Material>()->dbgPrintEntries("Materials");
     Ethertia::getRegistry<Item>()->dbgPrintEntries("Items");
     Ethertia::getRegistry<Biome>()->dbgPrintEntries("Biomes");
+    Ethertia::getRegistry<Command>()->dbgPrintEntries("Commands");
 
 
 
@@ -318,15 +318,24 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
     std::string cmd = args[0].substr(1);  // sub the leading '/'
 
-    auto it = Commands::COMMANDS.find(cmd);
-    if (it == Commands::COMMANDS.end()) {
+    Command* command = (Command*)Command::REGISTRY.get(cmd);
+    if (!command) {
         Ethertia::notifyMessage(Strings::fmt("Unknown command: {} ({})", cmd, cmdline));
         return;
     }
 
     // Execute command
 
-    it->second(args);
+    try
+    {
+        command->onCommand(args);
+    }
+    catch (...)
+    {
+        std::exception_ptr p = std::current_exception();
+
+        Ethertia::notifyMessage(Strings::fmt("Error occurred when command execution."));
+    }
 
     //todo: sender? that only make sense on serverside.
 }

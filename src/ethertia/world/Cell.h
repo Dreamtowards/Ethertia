@@ -21,6 +21,9 @@ public:
 
     Cell(Material* _mtl = nullptr, float _density = 0.0f) : mtl(_mtl), density(_density) {}
 
+    bool isOpaqueCube() {
+        return mtl && exp_meta == 1;
+    }
 };
 
 #endif //ETHERTIA_CELL_H

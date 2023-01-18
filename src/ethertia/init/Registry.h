@@ -25,12 +25,11 @@ public:
 
     std::vector<T*> m_Ordered;
 
-//    // 运行时数字id表。全部注册完后 生成。用于一些高性能组件 比如渲染时用数字id表示material类型
-//    std::vector<T*> m_RuntimeNumIdTable;
-
     T* regist(T* t) {
-//        assert(m_RuntimeNumIdTable.empty() && "Cache table already built, cannot modify registry.");
         std::string id = t->getRegistryId();
+        return regist(id, t);
+    }
+    T* regist(const std::string& id, T* t) {
 
         assert(!has(id) && "Already registered.");
         m_Map[id] = t;

@@ -14,7 +14,7 @@ class BlockyMeshGen
 {
 public:
 
-    static void gen(Chunk* chunk, VertexBuffer* vbuf)
+    static void gen(Chunk* chunk, VertexBuffer* vbuf, bool vegetable)
     {
         using glm::vec3;
 
@@ -24,15 +24,23 @@ public:
                     vec3 rp(rx, ry, rz);
                     Cell& c = chunk->getCell(rx, ry, rz);
 
-                    if (c.mtl == Materials::LEAVES) {
+                    if (!c.mtl)
+                        continue;
 
-                        putLeaves(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
-                    } else if (c.mtl == Materials::WATER) {
-                        putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
-                    } else if (c.mtl && c.exp_meta == 1) {
+                    if (vegetable) {
+                        if (c.mtl == Materials::LEAVES) {
 
-                        putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                            putLeaves(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                        } else if (c.mtl == Materials::WATER) {
+                            putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                        }
+                    } else {
+                        if (c.mtl && c.exp_meta == 1) {
+
+                            putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                        }
                     }
+
                 }
             }
         }
@@ -82,27 +90,16 @@ public:
 
 
     static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, int mtlId) {
-//        putCubeFace(vbuf, 2, rpos, frag);
-//        return;
-        Material* mtl = chunk->getCell(rpos).mtl;
+
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = _CubeFaceDir(i);
             glm::vec3 np = rpos + dir;
             Cell& neib = World::_GetCell(chunk, np);
 
-            if (neib.mtl == 0 || neib.density > 0) {  // neib.density < 0 ||
+            if (!neib.isOpaqueCube())
+            {
                 putCubeFace(vbuf, i, rpos, mtlId);
             }
-
-//            bool opaq = neib == Blocks::LEAVES || (neib == Blocks::WATER && neib != blk);
-//            if (blk == Blocks::WATER && neib == blk)
-//                opaq = false;
-
-//            if (neib == 0) {  // || !Blocks::REGISTRY[neib]->isOpaque() ) {
-////                if (neib == Blocks::WATER && neib == blk) {
-////                    continue;
-////                }
-//            }
         }
     }
 
@@ -115,18 +112,19 @@ public:
             vbuf->addnorm(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
 
 //            int cornerMtlId = World::_GetCell(chunk, rvp + chunk->position).id;
+//            vbuf->add_pure_mtl(mtlId);
 
-            vbuf->add_pure_mtl(mtlId);
+            // put uv
+            bas = face*12 + i*2 ;  // 12=6vec*2f
+
+            glm::vec2 uv(CUBE_UV[bas], CUBE_UV[bas+1]);
+
+            uv = MaterialTextures::uv_to_atlas_region(uv, mtlId);
+
+            vbuf->adduv(uv.x, uv.y);
+            vbuf->set_uv_mtl(mtlId);
+
         }
-//        // put uv
-//        for (int i = 0; i < 6; ++i) {
-//            int bas = face*12 + i*2 ;  // 12=6vec*2f
-//            // todo: Need Fix
-////            TextureAtlas::Region* frag = MaterialTextures::of(mtlId);
-////            vbuf->adduv(CUBE_UV[bas]   * frag->size.x + frag->pos.x,
-////                        CUBE_UV[bas+1] * frag->size.y + frag->pos.y);
-//
-//        }
     }
 
     static glm::vec3 _CubeFaceDir(int face) {

@@ -81,10 +81,11 @@ public:
             }
 
             {
-                PROFILE_X(gp_MeshGen, "Blocky");
-                BlockyMeshGen::gen(chunk, vbufVegetable);
+                PROFILE_X(gp_MeshGen, "Vegetable");
+                BlockyMeshGen::gen(chunk, vbufVegetable, true);
 
                 BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
+
             }
 
 // CNS BUG: 在区块Unloaded后，可能其Mesh刚刚开始。结果采集到被删除的区块 造成错误
@@ -96,18 +97,20 @@ public:
 
             checkNonNaN(vbufTerrain->positions.data(), vbufTerrain->vertexCount()*3);
 
-            vbufTerrain->normals.reserve(vbufTerrain->vertexCount() * 3);
+            vbufTerrain->normals.resize(vbufTerrain->vertexCount() * 3);
             VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
 
-            vbufVegetable->normals.reserve(vbufVegetable->vertexCount() * 3);
-            float* vegnorms = vbufVegetable->normals.data();
-            for (int n_i = 0; n_i < vbufVegetable->vertexCount(); ++n_i) {
-                Mth::vec3out(glm::vec3(0, 1, 0), &vegnorms[n_i*3]);
-            }
-    //        VertexProcess::othonorm(vbufVegetable->vertexCount(), vbufVegetable->positions.data(), vbufVegetable->normals.data(), false);
-    //        Loader::saveOBJ("test_chunk.obj", vbufTerrain->vertexCount(), vbufTerrain->positions.data());
+            vbufVegetable->normals.resize(vbufVegetable->vertexCount() * 3);
+            VertexProcess::set_all_vec3(vbufVegetable->normals.data(), vbufVegetable->vertexCount(), {0,1,0});
         }
 
+        {
+            PROFILE_X(gp_MeshGen, "Blocky");
+
+            // CNS. 在 Norm生成之后。因为这里会自带Norm 不需要别人处理。
+
+            BlockyMeshGen::gen(chunk, vbufTerrain, false);
+        }
 
         btBvhTriangleMeshShape* meshTerrain = nullptr;
         btBvhTriangleMeshShape* meshVegetable = nullptr;

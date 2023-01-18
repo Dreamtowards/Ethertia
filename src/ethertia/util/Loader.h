@@ -64,11 +64,14 @@ public:
     };
 
 
-    static datablock loadFile(const std::string& path)
+    static datablock loadFile(std::string_view path, bool isAssets = false)
     {
+        if (isAssets)
+            path = fileAssets(path);
+
         std::ifstream file(path, std::ios_base::binary);
         if (!file.is_open()) {
-            throw std::runtime_error("Failed open file. "+path);
+            throw std::runtime_error(Strings::fmt("Failed open file. ", path));
             //Log::warn("Failed open file: ", path);
             //return std::make_pair(nullptr, -1);
         }
@@ -85,8 +88,8 @@ public:
     static bool fileExists(std::string_view path) {
         return std::filesystem::exists(path);
     }
-    inline static std::string fileAssets(const std::string& p) {
-        return ASSETS + p;
+    inline static std::string fileAssets(std::string_view p) {
+        return ASSETS + std::string(p);
     }
 
     static datablock loadAssets(const std::string& p) {
@@ -110,8 +113,7 @@ public:
 
 
     static VertexBuffer* loadOBJ_(const char* p, bool isAssets = true) {
-        assert(isAssets);
-        return Loader::loadOBJ(Loader::loadAssets(p).new_string());
+        return Loader::loadOBJ(Loader::loadFile(p, isAssets).new_string());
     }
 
     static VertexBuffer* loadOBJ(const std::string& objstr) {
