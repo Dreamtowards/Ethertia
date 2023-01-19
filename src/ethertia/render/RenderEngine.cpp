@@ -3,6 +3,7 @@
 //
 
 #include "RenderEngine.h"
+#include "GlState.h"
 
 
 #include <ethertia/world/World.h>
@@ -12,6 +13,7 @@
 #include <ethertia/render/renderer/gui/GuiRenderer.h>
 #include <ethertia/render/renderer/gui/FontRenderer.h>
 #include <ethertia/render/renderer/ParticleRenderer.h>
+#include <ethertia/render/Window.h>
 
 
 RenderEngine::RenderEngine()
@@ -23,9 +25,9 @@ RenderEngine::RenderEngine()
     guiRenderer = new GuiRenderer();      std::cout << "gui, ";
     fontRenderer = new FontRenderer();    std::cout << "font, ";
     entityRenderer = new EntityRenderer();std::cout << "entity";
-//    skyGradientRenderer = new SkyGradientRenderer();
-//    skyboxRenderer = new SkyboxRenderer();
+    m_SkyboxRenderer = new SkyboxRenderer();
     m_ParticleRenderer = new ParticleRenderer();
+//    skyGradientRenderer = new SkyGradientRenderer();
     std::cout << "]";
 
     float qual = 0.6;
@@ -55,13 +57,16 @@ RenderEngine::~RenderEngine() {
     delete guiRenderer;
     delete fontRenderer;
     delete entityRenderer;
+    delete m_SkyboxRenderer;
+    delete m_ParticleRenderer;
 //    delete skyGradientRenderer;
-//    delete skyboxRenderer;
 }
 
 void RenderEngine::renderWorld(World* world)
 {
     assert(world);
+
+    ParticleRenderer::updateSunMoonPos();
 
     // Geometry of Deferred Rendering
     {
@@ -130,25 +135,64 @@ Framebuffer::gPopFramebuffer();
     // Compose of Deferred Rendering
 
     {
-        PROFILE("Cmp");
-Framebuffer::gPushFramebuffer(dcompose);
+    PROFILE("Cmp");
+    Framebuffer::gPushFramebuffer(dcompose);
 
-    glClearColor(0, 0, 0, 1);
+    glClearColor(0.702, 0.812, 0.969, 1);
     glClear(GL_COLOR_BUFFER_BIT);
+
+//    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+//        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+        if (!Ethertia::getWindow()->isKeyDown(GLFW_KEY_P)) {
+            float time = Ethertia::getPreciseTime();
+
+            if (world->m_DayTime >= 0.25 && world->m_DayTime < 0.75) { // 6AM-6PM
+                GlState::blendMode(GlState::ADD);
+                m_SkyboxRenderer->render(SkyboxRenderer::Tex_Cloud, {0,1,0}, -time / 60, glm::vec4{0.15});
+//                GlState::blendMode(GlState::ALPHA);
+//                m_SkyboxRenderer->render(SkyboxRenderer::Tex_Cloud, {0,1,0}, -time / 60, glm::vec4{1});
+
+                GlState::blendMode(GlState::ADD);
+                static Texture *Atmos = Loader::loadCubeMap1("misc/sky/cloudbox/atmosphere.png");
+                m_SkyboxRenderer->render(Atmos, {0,1,0}, time / 60);
+
+                GlState::blendMode(GlState::ADD);
+                static Texture* Horizon = Loader::loadCubeMap1("misc/sky/cloudbox/horizon.png");
+                m_SkyboxRenderer->render(Horizon, {0,1,0}, -time/40);
+            } else {
+                static Texture* Stars = Loader::loadCubeMap1("misc/sky/nightbox/stars.png");
+                m_SkyboxRenderer->render(Stars, {0,0,1}, time/60);
+
+                static Texture *Aurora = Loader::loadCubeMap1("misc/sky/nightbox/aurora.png");
+                m_SkyboxRenderer->render(Aurora, {-0.3,1,0}, -time / 70);
+
+                static Texture *Galaxies = Loader::loadCubeMap1("misc/sky/nightbox/galaxies.png");
+                m_SkyboxRenderer->render(Galaxies, {0.4,0.4,0}, -time / 70);
+
+                static Texture *Depth = Loader::loadCubeMap1("misc/sky/nightbox/depth.png");
+                m_SkyboxRenderer->render(Depth, {1,0,0}, -time / 50);
+            }
+
+        }
+
+        if (!Ethertia::getWindow()->isKeyDown(GLFW_KEY_O)) {
+
+            GlState::blendMode(GlState::ADD);
+            Ethertia::getRenderEngine()->m_ParticleRenderer->renderAll();
+
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // set back.
+        }
 
     entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
 
 Framebuffer::gPopFramebuffer();
     }
 
-
     // Result.
 
     Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), dcompose->texColor[0]);
 
 
-    glDisable(GL_DEPTH_TEST);
-    Ethertia::getRenderEngine()->m_ParticleRenderer->renderAll();
 
 
     RenderEngine::checkGlError("End World Render");

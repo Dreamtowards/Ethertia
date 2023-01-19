@@ -29,9 +29,24 @@ uniform float debugVar2 = 0;
 uniform vec3 tmpLightDir;
 uniform vec3 tmpLightPos;
 
-uniform vec3 SunPos;
+uniform float DayTime;
+uniform vec3 SunPos;  // also moon
 
 uniform float Time = 0;
+
+
+mat4 rotation3d(vec3 axis, float angle) {
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    return mat4(
+    oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+    oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+    oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+    0.0,                                0.0,                                0.0,                                1.0
+    );
+}
 
 // plane degined by p (p.xyz must be normalized)
 float rayPlane( vec3 ro, vec3 rd, vec4 p )
@@ -203,7 +218,8 @@ void main() {
 //    if (dot(Norm, CameraPos - FragPos) > 0)
 //    Norm = - Norm;
 
-    vec3 SunColor = vec3(2.0);
+    bool isDay = DayTime > 0.25 && DayTime < 0.75;
+    vec3 SunColor = vec3(isDay ? 2.0 : 0.3);
 
 
     vec3 FragToSun = normalize(SunPos - FragPos);
@@ -298,14 +314,15 @@ void main() {
 //    }
 
 
-    vec3 bgSkyColor = texture(panoramaMap, samplePanoramaTex(RayDir)).rgb;
+    //vec3 bgSkyColor = texture(panoramaMap, samplePanoramaTex(RayDir)).rgb;
     if (_PosDepth.w == 1.0f) {
 
-
-        FragColor.rgb = bgSkyColor;
+        discard;
+        //FragColor.rgb = bgSkyColor;
     } else {
-            vec3 fogColor = vec3(0.5, 0.6, 0.8) * 1;
+        vec3 fogColor = vec3(0.5, 0.6, 0.8);
         fogColor = vec3(0.584, 0.58, 0.702);  // 9594b3
+        fogColor *= SunColor * 0.5f;
 
         FragColor.rgb = mix(FragColor.rgb, fogColor, FragDepth / 200.0f);
     }

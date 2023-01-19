@@ -34,9 +34,9 @@ public:
     GuiRenderer* guiRenderer                 = nullptr;
     FontRenderer* fontRenderer               = nullptr;
     EntityRenderer* entityRenderer           = nullptr;
-//    SkyGradientRenderer* skyGradientRenderer = nullptr;
-//    SkyboxRenderer* skyboxRenderer           = nullptr;
+    SkyboxRenderer* m_SkyboxRenderer         = nullptr;
     ParticleRenderer* m_ParticleRenderer     = nullptr;
+//    SkyGradientRenderer* skyGradientRenderer = nullptr;
 
     inline static glm::mat4 matProjection{1};
     inline static glm::mat4 matView{1};

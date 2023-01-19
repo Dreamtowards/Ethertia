@@ -327,7 +327,7 @@ public:
     static void onKeyboardKey(GLFWwindow* _win, int key, int scancode, int action, int mods) {
         Window* win = (Window*)glfwGetWindowUserPointer(_win);
 
-        KeyboardEvent e(key, action==GLFW_PRESS);
+        KeyboardEvent e(key, action==GLFW_PRESS );
         win->eventbus().post(&e);
     }
 

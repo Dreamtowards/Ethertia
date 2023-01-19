@@ -57,6 +57,16 @@ public:
 
         win->eventbus().listen([](KeyboardEvent* e)
         {
+            if (e->getKey() == GLFW_KEY_C) {
+                static float fov;
+                if (e->isPressed()) {
+                    fov = RenderEngine::fov;
+                    RenderEngine::fov = 20;
+                } else if (e->isReleased()) {
+                    RenderEngine::fov = fov;
+                }
+            }
+
             if (!e->isPressed())
                 return;
 

@@ -20,7 +20,6 @@ class GuiTextBox : public Gui
     float textHeight = 16;
 
     int m_CursorIndex = 0;
-    glm::vec2 m_CursorPos;
 
     int selectionBegin = 0;
     int selectionEnd   = 0;
@@ -62,12 +61,8 @@ public:
         // Cursor
         if (isFocused() && (Mth::mod(Ethertia::getPreciseTime(), 1.0f) < 0.5f || Ethertia::getPreciseTime() - _timeLastCursorModify < 0.5f)) {
             glm::vec2 p = calcTextPos(getCursorPosition());
-            m_CursorPos = {
-                    x + m_TextX + p.x,
-                    y + m_TextY + p.y
-            };
 
-            Gui::drawRect(m_CursorPos.x, m_CursorPos.y, 2, textHeight, Colors::WHITE);
+            Gui::drawRect(p.x, p.y, 2, textHeight, Colors::WHITE);
         }
 
     }
@@ -79,15 +74,15 @@ public:
             if (key == GLFW_KEY_LEFT) {
                 if (hasSelection()) {
                     setCursorPosition(getSelectionMin());
-                    clearSelection();
+                } else {
+                    incCursorPosition(-1);
                 }
-                incCursorPosition(-1);
             } else if (key == GLFW_KEY_RIGHT) {
                 if (hasSelection()) {
                     setCursorPosition(getSelectionMax());
-                    clearSelection();
+                } else {
+                    incCursorPosition(1);
                 }
-                incCursorPosition(1);
             } else if (key == GLFW_KEY_BACKSPACE) {
                 backspaceText();
             } else if (key == GLFW_KEY_ENTER) {
@@ -104,9 +99,7 @@ public:
                 Ethertia::getWindow()->setClipboard(getSelectedText().c_str());
                 insertText("");
             } else if (key == GLFW_KEY_A && Ethertia::getWindow()->isCtrlKeyDown()) {
-                selectionBegin = 0;
-                selectionEnd = this->m_Text.length();
-                setCursorPosition(selectionEnd);
+                setSelection(0, m_Text.length());
             }
         }
 
@@ -127,8 +120,9 @@ public:
 
         if (pressed) {
             int idx = Ethertia::getRenderEngine()->fontRenderer->textIdx(m_Text, textHeight, Gui::cursorX() - m_TextX - getX(), Gui::cursorY() - m_TextY - getY());
-            selectionBegin = idx;
-            selectionEnd = idx;
+//            selectionBegin = idx;
+//            selectionEnd = idx;
+            setCursorPosition(idx);
         }
 
     }
@@ -157,12 +151,19 @@ public:
     int getSelectionMax() {
         return Mth::min(Mth::max(selectionBegin, selectionEnd), (int)m_Text.length());
     }
+    void setSelection(int min, int max) {
+        selectionBegin = min;
+        selectionEnd = max;
+        setCursorPosition(max);
+    }
 
     int getCursorPosition() {
         return Mth::clamp(m_CursorIndex, 0, (int)m_Text.length());
     }
     void setCursorPosition(int i) {
         m_CursorIndex = i;
+        selectionBegin = i;
+        selectionEnd = i;
 
         _timeLastCursorModify = Ethertia::getPreciseTime();
     }
@@ -170,12 +171,12 @@ public:
         setCursorPosition(getCursorPosition() + n);
     }
 
-    glm::vec2 getCursorXY() {
-        return m_CursorPos;
-    }
-
     glm::vec2 calcTextPos(int i) {
-        return Ethertia::getRenderEngine()->fontRenderer->textPos(m_Text, textHeight, i);
+        glm::vec2 p = Ethertia::getRenderEngine()->fontRenderer->textPos(m_Text, textHeight, i);
+        return {
+                getX() + m_TextX + p.x,
+                getY() + m_TextY + p.y
+        };
     }
 
     class OnTextChanged {};

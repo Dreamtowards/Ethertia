@@ -23,6 +23,7 @@ class Scheduler
         TaskFunc taskFunc;
         //TaskFunc cancelFunc;  // exec if force terminated the scheduler
         int priority = 0;
+        std::function<bool()> condition;  // ture -> process. use for e.g. delay countdown task
 
         bool operator <(const Task& rhs) const {
             return priority < rhs.priority;
@@ -58,7 +59,11 @@ public:
                 TaskFunc taskfunc;
                 {
                     LOCK_GUARD(m_LockTasks);  // Lock too long.
-                    taskfunc = m_Tasks.top().taskFunc;
+                    const Task& task = m_Tasks.top();
+                    if (!task.condition()) {
+                        continue;
+                    }
+                    taskfunc = task.taskFunc;
                     m_Tasks.pop();
                 }
 
@@ -81,13 +86,15 @@ public:
         return m_Tasks.size();
     }
 
-    void addTask(const TaskFunc& taskfunc, int priority = 0) {
+    void addTask(const TaskFunc& taskfunc, int priority = 0, const std::function<bool()>& cond = [](){return true;}) {
         LOCK_GUARD(m_LockTasks);
         m_Tasks.push({
             taskfunc,
-            priority
+            priority,
+            cond
         });
     }
+    void addDelayTask(const TaskFunc& taskfunc, float delay);
 
 //    void clearTasks() {
 //        LOCK_GUARD(m_LockTasks);

@@ -31,7 +31,7 @@ public:
         setWidth(Inf);
         setHeight(Inf);
 
-        GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 64);
+        GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 12);
         addGui(topbar);
         topbar->addConstraintAlign(0.5, 0);
         {

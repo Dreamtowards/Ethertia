@@ -17,6 +17,8 @@ public:
 
     Texture* texture = nullptr;
 
+    float size = 1;
+
 };
 
 #endif //ETHERTIA_PARTICLE_H

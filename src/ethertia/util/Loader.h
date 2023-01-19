@@ -285,7 +285,26 @@ public:
         return tex;
     }
 
-    static Texture* loadCubeMap(const std::string& p, bool isAssets = true) {
+    // a 3x2 grid png. first row: bottom, top, back, second row: left front, right
+    static Texture* loadCubeMap1(const std::string& p, bool isAssets = true) {
+        assert(isAssets);
+        BitmapImage comp = Loader::loadPNG(Loader::loadFile(p, isAssets));
+        int size = comp.getHeight() / 2;
+        assert(std::abs(comp.getWidth() - size*3) < 3 && "Expect 3x2 grid image.");
+
+        BitmapImage imgs[] = {{size,size},{size,size},{size,size},
+                              {size,size},{size,size},{size,size}};
+
+        comp.get_pixels_to(2*size, size, imgs[0]);  // +X Right
+        comp.get_pixels_to(0, size, imgs[1]);  // -X Left
+        comp.get_pixels_to(size, 0, imgs[2]);  // +Y Top
+        comp.get_pixels_to(0, 0, imgs[3]);  // -Y Bottom
+        comp.get_pixels_to(size, size, imgs[4]);  // +Z Front (GL)
+        comp.get_pixels_to(2*size, 0, imgs[5]);  // -Z Back (GL)
+
+        return loadCubeMap(imgs);
+    }
+    static Texture* loadCubeMap6(const std::string& p, bool isAssets = true) {
         assert(isAssets);
 
         BitmapImage imgs[] = {

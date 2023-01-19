@@ -96,7 +96,8 @@ public:
             glm::vec3 np = rpos + dir;
             Cell& neib = World::_GetCell(chunk, np);
 
-            if (!neib.isOpaqueCube())
+            if (!neib.isOpaqueCube() &&
+                (!neib.mtl || neib.mtl->m_AtlasTexIdx != mtlId))  // and not same mtl e.g. water
             {
                 putCubeFace(vbuf, i, rpos, mtlId);
             }

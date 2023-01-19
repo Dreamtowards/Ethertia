@@ -42,20 +42,30 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 ### All Versions / Plan
 
 - Ethertia Beta 0.0.1
-  - [x] ... 基础系统
-  - [x] World Storage 世界存储
-  - [ ] Item System 物品系统
-    - [x] 食物类(恢复血量): Apple, Lime酸橙
-    - [x] 材料类: 各种/所有地形材料 石头 草 树叶 泥土沙子
-    - [ ] 工具类: 稿子 抓钩
-    - [x] Player Inventory, Hotbar. 玩家物品栏 物品栏操作
-    - [ ] Dropped Items (Entity) 掉落物
-    - [ ] Hand HUD 手部渲染
-    - [ ] Crops, Carrots, Potatoes
-  - [ ] 更多模型/轮廓 + 配合不同材质
-  - [ ] Biomes, blend
-  - [ ] Player 
-    - [x] Health, Damage. 
+  - [x] GUI
+    - Inventory Ops
+    - HUD, Hotbar, Health, XP
+  - [ ] World
+    - World Storage 世界存储
+    - Physics Integration (bullet3)
+  - [ ] Items
+    - [x] 食物: Apple, Lime酸橙
+    - [x] 地形材料: 石头 草地 树叶 泥土 沙子 原木
+    - [ ] 合成材料: 木棒
+    - [ ] 工具: 稿子 抓钩
+  - [ ] Entity
+      - EntityPlayer
+      - EntityMesh
+      - [ ] Player
+          - [x] Health, Damage.
+  - [ ] Materials
+    - [ ] 基于体素系统上 +更多模型/轮廓 + 配合不同材质
+    - [ ] 农作物 Crops, Carrots, Potatoes
+  - [ ] Biomes
+    - [ ] Distribution
+    - [ ] Boundary Blend & Mixing
+    - [ ] EntityDroppedItem 掉落物
+  
 
 <br>
 
@@ -227,7 +237,12 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
   - 2023-01-18
     - BlockyTerrainMeshGen, -mix 
     - Command::REGISTRY, onCommand, onComplete.
-    - command /mesh <new/set>
+    - command /mesh <new/set>, /time set 2:30pm
+    - SunPos 初步太阳位置光线 但还没月亮光线
+    - Particle Renderer,shader 粒子渲染初步 广告牌，+Vertical
+  - 2023-01-19
+    - Ethertia Wiki init
+    - TabCompete 第一段
     
     - Material / Texture / Model /meta 架构模式?
     - 受到 Cocricot的灵感: 一个轮廓+不同纹理?

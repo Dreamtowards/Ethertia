@@ -13,6 +13,7 @@
 #include "../GuiAlign.h"
 
 #include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/command/Command.h>
 
 class GuiScreenChat : public GuiCollection
 {
@@ -28,8 +29,11 @@ public:
     std::string m_PresentEditing;
 
     bool m_ShowTabComplete = false;
-    std::vector<std::string> m_TabCompletes = {"gamemode", "fly", "tp", "mesh"};
+    std::vector<std::string> m_TabCompletes;
     int m_TabIndex = 0;
+    int m_TabPosX = 0;
+
+    bool m_AutoCompleteCmd = true;
 
     GuiScreenChat() {
         setWidth(Inf);
@@ -60,7 +64,17 @@ public:
             m_PresentEditing = m_Input->getText();
             m_HistoryViewIndex = m_History.size();
 
-            m_ShowTabComplete = false;
+            m_TabIndex = 0;
+
+            bool isCmd = m_Input->getText().starts_with('/');
+
+            if (m_AutoCompleteCmd && isCmd) {
+                m_ShowTabComplete = true;
+                feedTabComplete();
+            } else {
+                m_ShowTabComplete = false;
+            }
+
         });
 
         addGui(new GuiAlign(0, 1, m_Input));
@@ -80,7 +94,7 @@ public:
         if (m_ShowTabComplete) {
             float singleTabHeight = 16;
             float tabHeight = m_TabCompletes.size() * singleTabHeight;
-            float tabX = m_Input->getCursorXY().x;
+            float tabX = m_TabPosX;
             float tabY = m_Input->getY() - tabHeight;
 
             drawRect(tabX, tabY, 100, tabHeight, Colors::BLACK40);
@@ -124,15 +138,89 @@ public:
                 if (!m_ShowTabComplete) {
                     m_TabIndex = 0;
                     m_ShowTabComplete = true;
-                } else {
+                    feedTabComplete();
+                } else if (m_TabCompletes.size() > 0) {
                     m_TabIndex++;
                     m_TabIndex = m_TabIndex % m_TabCompletes.size();
+                    updateTabPos();  // for chat text-inc
                 }
 
+                if (!m_TabCompletes.empty())
+                {
+                    std::string& comple = m_TabCompletes[m_TabIndex];
+                    const std::string& line = m_Input->getText();
+                    int cur = m_Input->getCursorPosition();
+
+                    int before = line.rfind(' ', cur);
+                    if (before == -1) {
+                        if (line.starts_with('/')) {
+                            before = 1;
+                        } else {
+                            before = cur;
+                        }
+                    } else {
+                        before += 1;
+                    }
+
+                    std::string replaced = line.substr(0, before) + comple;
+
+                    int after = line.find(' ', cur);
+                    if (after != -1)
+                        replaced += line.substr(after);
+
+                    m_Input->setText(replaced);
+
+                }
             }
         }
 
         GuiCollection::onKeyboard(key, pressed);
+    }
+
+    void feedTabComplete() {
+        m_TabCompletes.clear();
+
+        int cur = m_Input->getCursorPosition();
+        const std::string& line = m_Input->getText();
+        if (line.starts_with('/'))
+        {
+            std::vector<std::string> args = Strings::splitSpaces(line.substr(0, cur));
+            std::string cmd = args[0].substr(1);
+
+            if (args.size() == 1 && !line.ends_with(' '))
+            {
+                for (auto& it : Command::REGISTRY) {
+                    if (it.first.starts_with(cmd))
+                        m_TabCompletes.push_back(it.first);
+                }
+            }
+            else
+            {
+
+                m_TabCompletes.push_back("Sth1");
+                m_TabCompletes.push_back("Sth234");
+            }
+        }
+        else
+        {
+            m_TabCompletes.push_back("@TestPlayer1");
+            m_TabCompletes.push_back("@TestPlayer2");
+        }
+
+        updateTabPos();
+    }
+
+    void updateTabPos() {
+        int cur = m_Input->getCursorPosition();
+        const std::string& line = m_Input->getText();
+
+        int i = line.rfind(' ', cur);
+        if (i == -1) {
+            i = line.starts_with('/') ? 1 : cur;
+        } else {
+            i = i+1;
+        }
+        m_TabPosX = m_Input->calcTextPos(i).x;
     }
 
 };

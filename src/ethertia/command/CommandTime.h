@@ -17,6 +17,7 @@ public:
     {
         if (args[1] == "set")
         {
+            // midnight=0, sunrise=5, day=7, noon=12, sunset=18, night=19
             float daytime = Strings::daytime(args[2]);
 
             Ethertia::getWorld()->m_DayTime = daytime;

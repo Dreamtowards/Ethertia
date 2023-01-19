@@ -71,6 +71,18 @@ public:
             }
         }
     }
+    void get_pixels_to(int x, int y, BitmapImage& dst)
+    {
+        assert(x+dst.getWidth() <= getWidth() && y+dst.getHeight() <= getHeight());
+
+        for (int dx = 0; dx < dst.getWidth(); ++dx) {
+            for (int dy = 0; dy < dst.getHeight(); ++dy) {
+
+                dst.setPixel(dx,dy, getPixel(x+dx, y+dy));
+            }
+        }
+    }
+
     void fillPixels(std::uint32_t rgba) {
         std::fill(pixels, pixels + width*height, rgba);
     }

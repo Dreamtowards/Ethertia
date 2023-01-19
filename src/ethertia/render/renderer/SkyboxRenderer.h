@@ -9,14 +9,16 @@ class SkyboxRenderer
 {
     ShaderProgram m_Shader = Loader::loadShaderProgram("shaders/sky/skybox.{}");
 
-
-    Texture* m_Cubemap = nullptr;
-    Model* m_SkyboxModel = nullptr;
+    inline static Model* m_SkyboxModel = nullptr;
 
 public:
+    inline static Texture* Tex_Cloud = nullptr;
+//    inline static Texture* Tex_NightStar = nullptr;
+
     SkyboxRenderer() {
 
-        m_Cubemap = Loader::loadCubeMap("misc/skybox/{}.jpg");
+        Tex_Cloud = Loader::loadCubeMap1("misc/sky/cloud1.png");
+//        Tex_NightStar = Loader::loadCubeMap1("misc/sky/starfield1.png");
 
         float skyboxVertices[] = {
                 // positions
@@ -67,7 +69,7 @@ public:
         });
     }
 
-    void render() {
+    void render(Texture* cubemap, glm::vec3 rotAxis, float angle, glm::vec4 colMul = {1,1,1,1}) {
 
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -75,9 +77,11 @@ public:
         m_Shader.useProgram();
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_Cubemap->texId);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->texId);
 
-        m_Shader.setViewProjection();
+        m_Shader.setMVP(Mth::rot(glm::normalize(rotAxis), angle));
+
+        m_Shader.setVector4f("ColorMul", colMul);
 
         glBindVertexArray(m_SkyboxModel->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, m_SkyboxModel->vertexCount);

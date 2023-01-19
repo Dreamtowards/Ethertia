@@ -8,6 +8,7 @@
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/init/MaterialTextures.h>
+#include <ethertia/render/renderer/ParticleRenderer.h>
 
 class EntityRenderer
 {
@@ -114,9 +115,6 @@ public:
 
     void renderCompose(Texture* gPosition, Texture* gNormal, Texture* gAlbedo)
     {
-        // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
-        SunPos = Mth::anglez(Ethertia::getWorld()->m_DayTime * 2*Mth::PI - 0.5f*Mth::PI) * 100.0f + Ethertia::getCamera()->position;
-
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, gPosition->texId);
 
@@ -150,7 +148,9 @@ public:
         shaderCompose.setVector3f("tmpLightDir", tmpLightDir);
         shaderCompose.setVector3f("tmpLightPos", tmpLightPos);
 
-        shaderCompose.setVector3f("SunPos", SunPos);
+        float daytime = Ethertia::getWorld()->m_DayTime;
+        bool isDay = daytime > 0.25 && daytime < 0.75;
+        shaderCompose.setVector3f("SunPos", isDay ? ParticleRenderer::SUN->position : -ParticleRenderer::SUN->position);
 
         glBindVertexArray(EntityRenderer::M_RECT->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, M_RECT->vertexCount);

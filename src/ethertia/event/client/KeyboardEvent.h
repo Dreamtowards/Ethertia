@@ -8,17 +8,20 @@
 class KeyboardEvent
 {
     int key;
-    bool pressed;
+    int action;
 
 public:
-    KeyboardEvent(int key, bool pressed) : key(key), pressed(pressed) {}
+    KeyboardEvent(int key, bool action) : key(key), action(action) {}
 
     int getKey() const {
         return key;
     }
 
     bool isPressed() const {
-        return pressed;
+        return action == GLFW_PRESS;
+    }
+    bool isReleased() const {
+        return action == GLFW_RELEASE;
     }
 };
 
