@@ -55,10 +55,11 @@ public:
 
                     Ethertia::getAsyncScheduler()->addDelayTask([=]()
                     {
+                        Log::info("DelayReq");
                         for (int i = 0; i < 6; ++i) {
                             world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
                         }
-                    }, 1.0);
+                    }, 0.5f);
                 }
 
 

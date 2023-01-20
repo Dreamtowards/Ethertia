@@ -9,3 +9,5 @@ run/bin/macos-x86-64/*
 run/cache/*.png
 
 run/saves/*
+
+run/screenshots/2023*.png

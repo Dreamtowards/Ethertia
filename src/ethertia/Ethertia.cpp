@@ -481,10 +481,10 @@ void ShaderProgram::setMVP(const glm::mat4& matModel)
     setViewProjection();
 }
 
-void Scheduler::addDelayTask(const TaskFunc &taskfunc, float delay)  {
-    float after = Ethertia::getPreciseTime() + delay;
-    addTask(taskfunc, 0, [after](){
+void Scheduler::addDelayTask(const TaskFunc& taskfunc, float delay)  {
+    const float after = Ethertia::getPreciseTime() + delay;
+    addTask(taskfunc, 0, std::move([=]() {
         return Ethertia::getPreciseTime() > after;
-    });
+    }));
 }
 
