@@ -53,13 +53,13 @@ public:
 //                        world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
 //                    }
 
+
                     Ethertia::getAsyncScheduler()->addDelayTask([=]()
                     {
-                        Log::info("DelayReq");
                         for (int i = 0; i < 6; ++i) {
                             world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
                         }
-                    }, 0.5f);
+                    }, Mth::clamp(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 1.0f, 3.0f));
                 }
 
 

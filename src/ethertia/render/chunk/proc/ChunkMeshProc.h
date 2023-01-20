@@ -143,8 +143,12 @@ public:
 
             delete vbufTerrain;
             delete vbufVegetable;
-        }, -1 - (int)glm::length2(Ethertia::getCamera()->position - chunk->position));
+        }, -1 - (int)dist2ChunkCam(chunk));
         // priority <= -1: after addEntity() to the world.
+    }
+
+    inline static float dist2ChunkCam(Chunk* c) {
+        return glm::length2(Ethertia::getCamera()->position - c->position);
     }
 
     static void walkViewDistanceChunks(int viewDistance, const std::function<void(vec3 rcp)>& fn) {

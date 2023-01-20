@@ -21,9 +21,12 @@ class Scheduler
     using TaskFunc = std::function<void()>;
     struct Task {
         TaskFunc taskFunc;
-        //TaskFunc cancelFunc;  // exec if force terminated the scheduler
-        int priority = 0;
-        std::function<bool()> condition;  // ture -> process. use for e.g. delay countdown task
+        // TaskFunc cancelFunc;  // exec if force terminated the scheduler
+        float priority = 0;  // higher - prior
+
+        // execute when (Ethertia::getPreciseTime() >= until). (program time, in seconds)
+        // delay task should be minor priority, or will block other lower-priority tasks
+        float until = 0;
 
         bool operator <(const Task& rhs) const {
             return priority < rhs.priority;
@@ -60,7 +63,7 @@ public:
                 {
                     LOCK_GUARD(m_LockTasks);  // Lock too long.
                     const Task& task = m_Tasks.top();
-                    if (!task.condition()) {
+                    if (_intl_program_time() < task.until) {
                         continue;
                     }
                     taskfunc = task.taskFunc;
@@ -86,15 +89,22 @@ public:
         return m_Tasks.size();
     }
 
-    void addTask(const TaskFunc& taskfunc, int priority = 0, const std::function<bool()>& cond = [](){return true;}) {
+    void addTask(const TaskFunc& taskfunc, float priority = 0, float until = 0) {
         LOCK_GUARD(m_LockTasks);
         m_Tasks.push({
             taskfunc,
             priority,
-            cond
+            until
         });
     }
-    void addDelayTask(const TaskFunc& taskfunc, float delay);
+
+    // use for delay task "until"
+    static float _intl_program_time();
+
+    void addDelayTask(const TaskFunc& taskfunc, float delay) {
+        // make priority as most low. or will block other tasks.
+        addTask(taskfunc, -delay * 1000.0f, _intl_program_time() + delay);
+    }
 
 //    void clearTasks() {
 //        LOCK_GUARD(m_LockTasks);

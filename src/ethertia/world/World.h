@@ -43,7 +43,7 @@ public:
     uint32_t m_Seed = 0;
 
     // Seconds Per Day
-    float m_DayTimeScale = 60;
+    float m_DayTimeScale = 12*60;
 
     // [0, 1] t*24; 0: 0AM, 0.25: 6AM, 0.5: 0PM, 0.75: 6PM
     float m_DayTime = 0;

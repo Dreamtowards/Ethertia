@@ -277,6 +277,10 @@ void Ethertia::loadWorld()
 
     Ethertia::getRootGUI()->removeAllGuis();
     Ethertia::getRootGUI()->addGui(GuiIngame::INST);
+
+
+    // debug:
+    m_World->m_DayTime = 0.25;
 }
 
 void Ethertia::unloadWorld()
@@ -481,10 +485,6 @@ void ShaderProgram::setMVP(const glm::mat4& matModel)
     setViewProjection();
 }
 
-void Scheduler::addDelayTask(const TaskFunc& taskfunc, float delay)  {
-    const float after = Ethertia::getPreciseTime() + delay;
-    addTask(taskfunc, 0, std::move([=]() {
-        return Ethertia::getPreciseTime() > after;
-    }));
+float Scheduler::_intl_program_time() {
+    return Ethertia::getPreciseTime();
 }
-
