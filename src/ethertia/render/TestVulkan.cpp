@@ -8,7 +8,7 @@
 
 #include "Vulkan.h"
 
-
+// 不要手动链接 MoltenVK
 
 int main()
 {
@@ -20,7 +20,7 @@ int main()
 
     GLFWwindow* m_WindowHandle = glfwCreateWindow(1280, 720, "Test", nullptr, nullptr);
 
-    Vulkan::initVkInstance();
+    Vulkan::init();
 
     while (!glfwWindowShouldClose(m_WindowHandle))
     {
@@ -28,8 +28,6 @@ int main()
 
         glfwPollEvents();
     }
-
-//    vkDestroyInstance(vkInstance, nullptr);
 
     glfwDestroyWindow(m_WindowHandle);
 

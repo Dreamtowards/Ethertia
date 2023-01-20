@@ -98,14 +98,21 @@ include_directories(lib/yaml-cpp/include)
 include_directories(lib/nbt/include)
 
 
+
+# VK_ICD_FILENAMES = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json;VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d
+# VK_ICD_FILENAMES = vulkansdk/macOS/share/vulkan/icd.d/MoltenVK_icd.json
+# VK_LAYER_PATH = vulkansdk/macOS/share/vulkan/explicit_layer.d
 # https://vulkan.lunarg.com/sdk/home
 # include Vulkan SDK.
-include_directories(/Users/dreamtowards/Dev/SDK/VulkanSDK/1.3.236.0/macOS/include)
-link_directories(/Users/dreamtowards/Dev/SDK/VulkanSDK/1.3.236.0/macOS/lib/)
+include_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/include)
+link_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/lib)
 if (APPLE)
-    link_libraries(MoltenVK)  # before link vulkan. required.
+#    link_libraries(MoltenVK)  # before link vulkan. required.
 endif ()
-link_libraries(vulkan)
+
+#include_directories(/usr/local/include)
+#link_directories(/usr/local/lib)
+link_libraries(  vulkan.1.3.236 )
 
 
 add_executable(Ethertia
@@ -117,6 +124,7 @@ add_executable(Ethertia
 #        src/ethertia/world/World.cpp
 #        src/ethertia/Ethertia.cpp
         src/ethertia/render/TestVulkan.cpp
+#        src/ethertia/render/test2.cpp
 #        src/ethertia/world/gen/BiomeGen.cpp
         )
 
