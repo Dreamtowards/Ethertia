@@ -16,6 +16,7 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 #include <tinyfd/tinyfiledialogs.h>
+#include <tiny_obj_loader/tiny_obj_loader.h>
 
 #include <ethertia/render/Texture.h>
 #include <ethertia/util/BitmapImage.h>
@@ -91,6 +92,10 @@ public:
     inline static std::string fileAssets(std::string_view p) {
         return ASSETS + std::string(p);
     }
+    inline static std::string fileResolve(std::string_view p) {
+        if (p.starts_with('@')) return fileAssets(p);
+        else return std::string(p);
+    }
 
     static datablock loadAssets(const std::string& p) {
         return loadFile(fileAssets(p));
@@ -113,14 +118,70 @@ public:
 
 
     static VertexBuffer* loadOBJ_(const char* p, bool isAssets = true) {
-        return Loader::loadOBJ(Loader::loadFile(p, isAssets).new_string());
+        VertexBuffer* vbuf = new VertexBuffer();
+        loadOBJ_Tiny(isAssets ? Loader::fileAssets(p).c_str() : p, *vbuf);
+        return vbuf;
+//        return Loader::loadOBJ(Loader::loadFile(p, isAssets).new_string());
     }
 
-    static VertexBuffer* loadOBJ(const std::string& objstr) {
-        VertexBuffer* vbuf = new VertexBuffer();
-        std::stringstream ss(objstr);
-        OBJLoader::loadOBJ(ss, vbuf);
-        return vbuf;
+//    static VertexBuffer* loadOBJ(const std::string& objstr) {
+//        VertexBuffer* vbuf = new VertexBuffer();
+//        std::stringstream ss(objstr);
+//        OBJLoader::loadOBJ(ss, vbuf);
+//        return vbuf;
+//    }
+
+    // tiny_obj_loader: 2-5 times faster than util::OBJLoader. especially in little. 6.6MB obj 2times faster: 1.9s/0.9s, 632KB obj 4.3 times faster.
+    static void loadOBJ_Tiny(const char* filename, VertexBuffer& vbuf) {
+        tinyobj::attrib_t attrib;
+        std::vector<tinyobj::shape_t> shapes;
+        std::vector<tinyobj::material_t> materials;
+        std::string err;
+        bool succ = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename);
+        if (!succ) {
+            throw std::runtime_error(Strings::fmt("failed load obj tiny: ", err));
+        }
+
+        for (tinyobj::shape_t& shape : shapes)
+        {
+            tinyobj::mesh_t& mesh = shape.mesh;
+            size_t idx_offset = 0;
+
+            vbuf.reserve(vbuf.vertexCount() + mesh.indices.size());
+
+            for (int face_i = 0; face_i < mesh.num_face_vertices.size(); ++face_i)
+            {
+                int face_verts = mesh.num_face_vertices[face_i];
+                for (int fvi = 0; fvi < face_verts; ++fvi)
+                {
+                    tinyobj::index_t idx = mesh.indices[idx_offset + fvi];
+
+                    int ip = 3*idx.vertex_index;
+                    tinyobj::real_t px = attrib.vertices[ip],
+                                    py = attrib.vertices[ip+1],
+                                    pz = attrib.vertices[ip+3];
+                    vbuf.addpos(px,py,pz);
+
+                    if (idx.normal_index >= 0) {
+                        int in = 3*idx.normal_index;
+                        tinyobj::real_t nx = attrib.normals[in],
+                                        ny = attrib.normals[in+1],
+                                        nz = attrib.normals[in+2];
+                        vbuf.addnorm(nx,ny,nz);
+                    }
+
+                    if (idx.texcoord_index >= 0) {
+                        int it = 3*idx.texcoord_index;
+                        tinyobj::real_t tx = attrib.texcoords[it],
+                                        ty = attrib.texcoords[it+1];
+                        vbuf.adduv(tx,ty);
+                    }
+                }
+                idx_offset += face_verts;
+
+                // mesh.material_ids[face_i];
+            }
+        }
     }
 
     static void saveOBJ(const std::string& filename, size_t verts, float* pos, float* uv =nullptr, float* norm =nullptr) {

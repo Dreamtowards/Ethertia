@@ -9,6 +9,7 @@
 
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/world/Chunk.h>
+#include <ethertia/init/MaterialMeshes.h>
 
 class BlockyMeshGen
 {
@@ -27,23 +28,39 @@ public:
                     if (!c.mtl)
                         continue;
 
-                    if (vegetable) {
+                    if (vegetable)   // Generating Vegetable
+                    {
                         if (c.mtl == Materials::LEAVES) {
 
                             putLeaves(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
                         } else if (c.mtl == Materials::WATER) {
                             putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
                         }
-                    } else {
-                        if (c.mtl && c.exp_meta == 1) {
+                    }
+                    else
+                    {
+                        if (c.exp_meta == 1)
+                        {
 
                             putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                        }
+                        else if (c.mtl == Materials::STOOL)
+                        {
+
+                            putOBJ(*vbuf, rp, *chunk, c.mtl->m_AtlasTexIdx, *MaterialMeshes::STOOL);
                         }
                     }
 
                 }
             }
         }
+
+    }
+
+    static void putOBJ(VertexBuffer& vbuf, glm::vec3 rp, Chunk& chunk, int mtlId, const VertexBuffer& obj_vbuf)
+    {
+
+        vbuf.add_vbuf(obj_vbuf, rp, mtlId);
 
     }
 
@@ -104,26 +121,18 @@ public:
     }
 
     static void putCubeFace(VertexBuffer* vbuf, int face, glm::vec3 rpos, int mtlId) {
-        // put pos
-        for (int i = 0; i < 6; ++i) {  // 6 pos vecs.
-            int bas = face*18+i*3;  // 18 = 6vec * 3scalar
-            glm::vec3 rvp(CUBE_POS[bas]+rpos.x, CUBE_POS[bas+1]+rpos.y, CUBE_POS[bas+2]+rpos.z);
-            vbuf->addpos(rvp);
+        for (int i = 0; i < 6; ++i)  // 6 verts
+        {
+            int bas = face*18 + i*3;  // 18 = 6vec * 3scalar
+            vbuf->addpos(CUBE_POS[bas]+rpos.x, CUBE_POS[bas+1]+rpos.y, CUBE_POS[bas+2]+rpos.z);
             vbuf->addnorm(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
-
-//            int cornerMtlId = World::_GetCell(chunk, rvp + chunk->position).id;
-//            vbuf->add_pure_mtl(mtlId);
 
             // put uv
             bas = face*12 + i*2 ;  // 12=6vec*2f
-
             glm::vec2 uv(CUBE_UV[bas], CUBE_UV[bas+1]);
-
             uv = MaterialTextures::uv_to_atlas_region(uv, mtlId);
-
             vbuf->adduv(uv.x, uv.y);
             vbuf->set_uv_mtl(mtlId);
-
         }
     }
 
@@ -185,16 +194,7 @@ public:
 
     static void putTallgrassStarMesh(VertexBuffer* vbuf, glm::vec3 pos, int mtlId) {
 
-//        float deg45 = Mth::PI / 4.0f;
-
         float s = 1.2f;
-
-//        putFace(vbuf, pos, Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
-//                                         Mth::matEulerAngles(glm::vec3(0.0f, deg45*2, 0.0f)),
-//                                         glm::vec3(1)*s), mtlId);
-//        putFace(vbuf, pos, Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
-//                                         Mth::matEulerAngles(glm::vec3(0.0f, 0, 0.0f)),
-//                                         glm::vec3(1)*s), mtlId);
 
         glm::vec3 off(0, 0.7, 0);
 

@@ -19,6 +19,8 @@
 class VertexBuffer
 {
 public:
+    using vec3 = glm::vec3;
+
     std::vector<float> positions;
     std::vector<float> textureCoords;
     std::vector<float> normals;
@@ -29,23 +31,40 @@ public:
         positions.push_back(y);
         positions.push_back(z);
     }
-    void addpos(const glm::vec3& p) {
+    void addpos(const vec3& p) {
         addpos(p.x, p.y, p.z);
+    }
+    vec3 atpos(int vi) const {
+        int i = vi*3;
+        return {positions[i], positions[i+1], positions[i+2]};
     }
 
     void adduv(float x, float y) {
         textureCoords.push_back(x);
         textureCoords.push_back(y);
     }
+    void adduv(const glm::vec2& uv) {
+        adduv(uv.x, uv.y);
+    }
+    glm::vec2 atuv(int vi) const {
+        int i = vi*2;
+        return {textureCoords[i], textureCoords[i+1]};
+    }
+
 
     void addnorm(float x, float y, float z) {
         normals.push_back(x);
         normals.push_back(y);
         normals.push_back(z);
     }
-    void addnorm(const glm::vec3& n) {
+    void addnorm(const vec3& n) {
         addnorm(n.x, n.y, n.z);
     }
+    vec3 atnorm(int vi) const {
+        int i = vi*3;
+        return {normals[i], normals[i+1], normals[i+2]};
+    }
+
 
     // CNS 只是额外地添加了MtlId到uv中，为了shaders去判断 可以做特殊处理
     // just set additional MtlId info into UV.x (uv=(u+MtlId, v)), for shaders spec process.
@@ -56,7 +75,7 @@ public:
     }
 
     /// CNS 表示这个顶点是"纯MTL"，即 他的uv是无效的 会自动生成"UV"(triplanar mapping)，采集其MtlId的tex
-    void add_pure_mtl(int MtlId) {
+    void add_uv_mtl_pure(int MtlId) {
         adduv(MtlId, 1000);
         assert(textureCoords.size()/2 == positions.size()/3);
     }
@@ -64,6 +83,34 @@ public:
     [[nodiscard]] size_t vertexCount() const {
         return positions.size() / 3;
     }
+
+    void reserve(size_t verts) {
+        positions.reserve(verts*3);
+        textureCoords.reserve(verts*2);
+        normals.reserve(verts*3);
+    }
+
+
+    void add_vbuf(const VertexBuffer& vbuf, const vec3& rpos, int MtlId) {
+
+        positions.reserve(positions.size() + vbuf.positions.size());
+        normals.reserve(normals.size() + vbuf.normals.size());
+        textureCoords.reserve(textureCoords.size() + vbuf.textureCoords.size());
+
+        // CNS. 有很多优化的空间
+        for (int i = 0; i < vbuf.vertexCount(); ++i) {
+            addpos(vbuf.atpos(i) + rpos);
+            addnorm(vbuf.atnorm(i));
+
+            adduv(vbuf.atuv(i));
+            set_uv_mtl(MtlId);
+        }
+
+    }
+
+
+
+
 
     void initnorm(bool smooth = false) {
 

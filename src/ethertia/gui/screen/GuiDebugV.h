@@ -13,7 +13,6 @@
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/util/MemoryTrack.h>
-#include <ethertia/render/chunk/proc/ChunkProcStat.h>
 #include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
 

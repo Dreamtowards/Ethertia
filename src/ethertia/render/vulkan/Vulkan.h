@@ -70,6 +70,42 @@ public:
 
 
 
+    class GraphicsPipeline
+    {
+    public:
+
+        static VkShaderModule newShaderModule(VkDevice device, size_t codeSize, uint32_t* codeData) {
+            VkShaderModuleCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+            createInfo.codeSize = codeSize;
+            createInfo.pCode = codeData;
+
+            VkShaderModule shaderModule;
+            VkResult vkErr = vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
+            if (vkErr != VK_SUCCESS)
+                throw std::runtime_error("failed to create shader module.");
+
+            return shaderModule;
+        }
+
+        static void newGraphicsPipeline(VkDevice* device) {
+
+            VkShaderModule vshModule = newShaderModule(device, );
+
+            VkPipelineShaderStageCreateInfo vshStageInfo{};
+            vshStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            vshStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+            vshStageInfo.module = vshModule;
+            vshStageInfo.pName = "main";
+            // vshStageInfo.pSpecializationInfo
+
+//            vkDestroyShaderModule(device, vshModule, nullptr);
+//            vkDestroyShaderModule(device, fshModule, nullptr);
+        }
+
+
+    };
+
 
 
 

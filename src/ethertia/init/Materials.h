@@ -52,6 +52,13 @@ public:
 
 
 
+    REGISTER_MTL(STOOL, "stool");
+
+
+
+
+
+
 
     // CNS 关于 MaterialItems, 应该每个material对应一个新物品吗? 还是所有的 material 都是同一个 Item::MATERIAL + 额外 MtlId 数据?
     // 如果是前者, 那么可自定义性很大 一个mtl又可以摆放 又可以吃 又可以当工具.. 然而这种情况不常见?

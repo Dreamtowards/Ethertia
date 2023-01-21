@@ -7,7 +7,6 @@
 
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include <ethertia/render/chunk/BlockyMeshGen.h>
-#include <ethertia/render/chunk/proc/ChunkProcStat.h>
 
 class ChunkMeshProc
 {

@@ -16,7 +16,6 @@
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/render/chunk/proc/ChunkProcStat.h>
 #include <ethertia/render/RenderEngine.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
 

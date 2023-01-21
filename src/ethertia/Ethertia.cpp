@@ -35,6 +35,7 @@
 #include <ethertia/render/renderer/ParticleRenderer.h>
 #include <ethertia/render/renderer/SkyboxRenderer.h>
 #include <ethertia/render/GlState.h>
+#include <ethertia/init/MaterialMeshes.h>
 
 
 //#include <yaml-cpp/yaml.h>
@@ -48,10 +49,30 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <stb/stb_image_resize.h>
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader/tiny_obj_loader.h>
 
 int main()
 {
-    Ethertia::run();
+
+    const char* p = "/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/entity/sponza_closed.obj";
+
+    {
+        BENCHMARK_TIMER;
+
+        VertexBuffer* vbuf = Loader::loadOBJ_(p, false);
+        Log::info("Verts ", vbuf->vertexCount());
+    }
+    {
+        BENCHMARK_TIMER;
+
+        VertexBuffer vbuf;
+        Loader::loadOBJ_Tiny(p, vbuf);
+        Log::info("Verts ", vbuf.vertexCount());
+    }
+
+
+//    Ethertia::run();
 
 
     return 0;
@@ -73,6 +94,7 @@ void Ethertia::start()
 
     Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::load();
+    MaterialMeshes::load();
     ItemTextures::load();
 
     Controls::initControls();
@@ -96,13 +118,7 @@ void Ethertia::start()
 
     // NetworkSystem::connect("127.0.0.1", 8081);
 
-//    Material::REGISTRY.build();
-//    {
-//        int i = 0;
-//        for (Material *mtl : Material::REGISTRY.m_RuntimeNumIdTable) {
-//            mtl->m_CachedRuntimeId = i++;
-//        }
-//    }
+
 
 
 //    auto data = Loader::loadFile("cat.ogg");
@@ -125,7 +141,7 @@ void Ethertia::start()
         par->texture = MaterialTextures::ATLAS_DIFFUSE;
         par->position = {10, 10, 10};
 
-        Ethertia::getRenderEngine()->m_ParticleRenderer->m_Particles.push_back(par);
+        ParticleRenderer::m_Particles.push_back(par);
     }
 
 

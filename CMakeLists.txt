@@ -111,15 +111,15 @@ link_libraries(  vulkan.1.3.236 )
 #if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. Not anymore.!
 
 add_executable(Ethertia
-#        lib/glad/glad.c
-#        lib/tinyfd/tinyfiledialogs.c
-#
-#        src/ethertia/gui/Gui.cpp
-#        src/ethertia/render/RenderEngine.cpp
-#        src/ethertia/world/World.cpp
-#        src/ethertia/Ethertia.cpp
+        lib/glad/glad.c
+        lib/tinyfd/tinyfiledialogs.c
+
+        src/ethertia/gui/Gui.cpp
+        src/ethertia/render/RenderEngine.cpp
+        src/ethertia/world/World.cpp
+        src/ethertia/Ethertia.cpp
 #        src/ethertia/world/gen/BiomeGen.cpp
-        src/ethertia/render/vulkan/TestVulkan.cpp
+#        src/ethertia/render/vulkan/TestVulkan.cpp
         )
 
 add_executable(DedicatedServer

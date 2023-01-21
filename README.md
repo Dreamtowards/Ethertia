@@ -243,7 +243,17 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
   - 2023-01-19
     - Ethertia Wiki init
     - TabCompete 第一段
-    
+    - Skyboxes, Blend
+    - Skybox 3*2 Load.
+    - Basic Sun/Moon shader SunPos/SunColor/FogColor
+  - 2023-01-20
+    - Vulkan. MoltenVK, PhysDevice, LogicalDevice
+    - addDelayTask fix
+  - 2023-01-21
+    - Vulkan Surface, Swapchain
+    - 添加一个Blocky Mesh via OBJ.    
+
+    - Lighting
     - Material / Texture / Model /meta 架构模式?
     - 受到 Cocricot的灵感: 一个轮廓+不同纹理?
     - 玩家血量 10
