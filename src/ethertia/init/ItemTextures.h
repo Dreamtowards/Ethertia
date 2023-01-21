@@ -28,14 +28,18 @@ public:
             BitmapImage atlas(ITEM_RESOLUTION*n, ITEM_RESOLUTION);
             BitmapImage resized(ITEM_RESOLUTION, ITEM_RESOLUTION);
 
-            for (int i = 0;i < n;++i)
+            int i = 0;
+            for (auto& it : Item::REGISTRY)
             {
-                Item* item = Item::REGISTRY.m_Ordered[i];
-                std::string id = item->getRegistryId();
+                Item* item = it.second;
+                const std::string& id = it.first;
 
                 std::string loc;
                 if (item->hasComponent<ItemComponentMaterial>()) {
                     loc = Strings::fmt("material/{}/view.png", id);
+                    if (!Loader::fileExists(Loader::fileAssets(loc))) {
+                        loc = Strings::fmt("material/{}/diff.png", id);
+                    }
                 } else {
                     loc = Strings::fmt("item/{}/view.png", id);
                 }
@@ -43,15 +47,14 @@ public:
                 if (Loader::fileExists(Loader::fileAssets(loc)))
                 {
                     BitmapImage img = Loader::loadPNG(Loader::loadAssets(loc));
-
                     BitmapImage::resizeTo(img, resized);
-
                     atlas.setPixels(i*ITEM_RESOLUTION, 0, resized);
                 }
                 else
                 {
                     std::cerr  << Strings::fmt("missing item texture '{}'.", loc);
                 }
+                i++;
             }
 
             Loader::savePNG(atlas, cache_file);

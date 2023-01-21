@@ -54,25 +54,7 @@
 
 int main()
 {
-
-    const char* p = "/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/entity/sponza_closed.obj";
-
-    {
-        BENCHMARK_TIMER;
-
-        VertexBuffer* vbuf = Loader::loadOBJ_(p, false);
-        Log::info("Verts ", vbuf->vertexCount());
-    }
-    {
-        BENCHMARK_TIMER;
-
-        VertexBuffer vbuf;
-        Loader::loadOBJ_Tiny(p, vbuf);
-        Log::info("Verts ", vbuf.vertexCount());
-    }
-
-
-//    Ethertia::run();
+    Ethertia::run();
 
 
     return 0;

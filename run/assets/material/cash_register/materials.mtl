@@ -1,4 +1,6 @@
 # Made in Blockbench 4.3.1
 newmtl m_1
-map_Kd dead_tube_coral.png 
+map_Kd diff.png
+newmtl m_2
+map_Kd receipt.png 
 newmtl none

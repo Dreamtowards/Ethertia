@@ -20,9 +20,9 @@ public:
             Ethertia::getWorld()->addEntity(entity);
             entity->setPosition(player->getPosition());
 
-            VertexBuffer* vbuf = Loader::loadOBJ_("entity/plane.obj");
-            entity->setMesh(EntityMesh::createMeshShape(vbuf->vertexCount(), vbuf->positions.data()));
-            entity->updateModel(Loader::loadModel(vbuf));
+            const VertexBuffer& vbuf = *MaterialMeshes::STOOL;
+            entity->setMesh(EntityMesh::createMeshShape(vbuf.vertexCount(), vbuf.positions.data()));
+            entity->updateModel(Loader::loadModel(&vbuf));
 
             Ethertia::notifyMessage(Strings::fmt("EntityMesh created."));
         }
@@ -44,7 +44,7 @@ public:
 
                 EntityMesh* eMesh = (EntityMesh*)target;
 
-                VertexBuffer* vbuf = Loader::loadOBJ_(path.c_str(), false);
+                VertexBuffer* vbuf = Loader::loadOBJ(path.c_str());
                 eMesh->updateModel(Loader::loadModel(vbuf));
                 eMesh->setMesh(EntityMesh::createMeshShape(vbuf->vertexCount(), vbuf->positions.data()));
 

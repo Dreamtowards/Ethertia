@@ -117,7 +117,7 @@ public:
 //                                assert(MtlId != 0);
                                 ASSERT_WARN(mtl != 0, "MtlId == 0 Cell.");
 
-                                vbuf->add_uv_mtl_pure(mtl ? mtl->m_AtlasTexIdx : 0);
+                                vbuf->add_uv_mtl_pure(mtl ? mtl->m_TexId : 0);
 
                                 if (mtl == Materials::MOSS) {
                                     grass_fp.push_back(quadp + fp);

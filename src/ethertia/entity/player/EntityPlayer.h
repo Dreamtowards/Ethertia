@@ -7,6 +7,7 @@
 
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/player/Gamemode.h>
+#include <ethertia/init/MaterialMeshes.h>
 
 #include <ethertia/item/Inventory.h>
 
@@ -35,8 +36,7 @@ public:
     EntityPlayer() {
         m_TypeTag = Entity::TypeTag::T_PLAYER;
 
-        VertexBuffer* vbuf = Loader::loadOBJ_("entity/capsule-1-2.obj");
-        m_Model = Loader::loadModel(vbuf);
+        m_Model = Loader::loadModel(MaterialMeshes::CAPSULE);
 
         auto* shapeCapsule = new btCapsuleShape(0.5, 2);
 

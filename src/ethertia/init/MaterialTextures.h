@@ -37,11 +37,11 @@ public:
         BenchmarkTimer tm;
         Log::info("Loading {} material texture/atlases... (x{})", Material::REGISTRY.size(), TEX_RESOLUTION);
 
-
-        for (int i = 0; i < tex_size(); ++i) {
-            Material::REGISTRY.m_Ordered[i]->m_AtlasTexIdx = i;
+        int i = 0;
+        for (auto& it : Material::REGISTRY) {
+            it.second->m_TexId = i;
+            ++i;
         }
-
 
 
         ATLAS_DIFFUSE = makeAtlas("diff", TEX_RESOLUTION, "./cache/atlas_diff.png");
@@ -52,12 +52,6 @@ public:
         Log::info("Material Texture Atlases all loaded/generated.\1");
     }
 
-    static int tex_size() {
-        return Material::REGISTRY.size();
-    }
-    static std::string tex_name(int i) {
-        return Material::REGISTRY.m_Ordered[i]->getRegistryId();
-    }
 
     // 我在思考 Mtl 不一定要等于/对应一个 MtlTex
     // 我们可以有很多 Mtl 的轮廓 各种装饰模型 复用MtlTex
@@ -95,7 +89,7 @@ public:
         else
         {
             Log::info(" *{} generate new atlas to '{}'.\1", textype, cache_file);
-            const int n = tex_size();
+            const int n = Material::REGISTRY.size();
             BitmapImage atlas(px * n, px);
 
             if (composeDRAM)
@@ -105,9 +99,10 @@ public:
                         BitmapImage(px, px)
                 };
 
-                for (int i = 0; i < n; ++i)
+                int i = 0;
+                for (auto& it : Material::REGISTRY)
                 {
-                    std::string id = tex_name(i);
+                    const std::string& id = it.first;
 
                     loadMtlTex_ResizeTo(id, "disp", resized_dram[0]);
                     loadMtlTex_ResizeTo(id, "rough", resized_dram[1]);
@@ -119,19 +114,23 @@ public:
                     composed.setPixels(0,0,resized_dram[1], 1);
 
                     atlas.setPixels(i*px, 0, composed);
+                    ++i;
                 }
             }
             else
             {
                 BitmapImage resized(px, px);  // resized img.
 
-                for (int i = 0; i < n; ++i)
+                int i = 0;
+                for (auto& it : Material::REGISTRY)
                 {
+                    const std::string& id = it.first;
 
-                    if (loadMtlTex_ResizeTo(tex_name(i), textype, resized))
+                    if (loadMtlTex_ResizeTo(id, textype, resized))
                     {
                         atlas.setPixels(i * px, 0, resized);
                     }
+                    ++i;
                 }
             }
 
@@ -140,6 +139,13 @@ public:
 
             return Loader::loadTexture(atlas);
         }
+    }
+
+    static glm::vec2 uv_add(int mtlId) {
+        return {(float)mtlId / Material::REGISTRY.size(), 0.0f};
+    }
+    static glm::vec2 uv_mul() {
+        return {1.0f / Material::REGISTRY.size(), 1.0f};
     }
 
     static glm::vec2 uv_to_atlas_region(glm::vec2 uv, int mtlId) {

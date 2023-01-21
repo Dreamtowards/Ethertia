@@ -23,7 +23,7 @@ public:
     // No unordered_map. order is guaranteed to be identical when containing same IDs. (now for mtl-atlas-cache indexing)
     std::map<std::string, T*> m_Map;
 
-    std::vector<T*> m_Ordered;
+//    std::vector<T*> m_Ordered;
 
     T* regist(T* t) {
         std::string id = t->getRegistryId();
@@ -33,7 +33,7 @@ public:
 
         assert(!has(id) && "Already registered.");
         m_Map[id] = t;
-        m_Ordered.push_back(t);
+        // m_Ordered.push_back(t);
         return t;
     }
 
@@ -65,6 +65,18 @@ public:
 //        assert(!m_RuntimeNumIdTable.empty() && "RuntimeNumIdTable have not build yet.");
 //        return Collections::find(m_RuntimeNumIdTable, entry);
 //    }
+
+    int getOrderId(T* entry) {
+        // Extreme Low Effective
+        int i = 0;
+        for (auto& it : m_Map) {
+            if (it.second == entry) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
 
     auto begin() {
         return m_Map.begin();

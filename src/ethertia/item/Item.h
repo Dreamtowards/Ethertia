@@ -22,7 +22,7 @@ public:
     std::string m_Name;
 
     // ECS for Items
-    std::vector<Item::Component *> m_Components;
+    std::vector<Item::Component*> m_Components;
 
     bool m_Stackable = true;
 

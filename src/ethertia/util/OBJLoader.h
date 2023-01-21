@@ -72,7 +72,7 @@ public:
 
     }
 
-    static void saveOBJ(std::stringstream& out, size_t verts, float* pos, float* uv, float* norm) {
+    static void saveOBJ(std::stringstream& out, size_t verts, const float* pos, const float* uv, const float* norm) {
 
         for (int vi = 0; vi < verts; ++vi) {
             int _b = vi*3;

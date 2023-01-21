@@ -12,16 +12,30 @@ class MaterialMeshes
 {
 public:
 
+    inline static const VertexBuffer* CAPSULE = nullptr;
     inline static const VertexBuffer* STOOL = nullptr;
+    inline static const VertexBuffer* CASH_REGISTER = nullptr;
+    inline static const VertexBuffer* SHORT_GRASS = nullptr;
+
+
 
     static void load()
     {
         BENCHMARK_TIMER;
         Log::info("Loading material meshes...\1");
 
-        STOOL = Loader::loadOBJ_("material/material_mesh/stool/mesh.obj");
+        CAPSULE = Loader::loadOBJ("@entity/capsule-1-2.obj");
 
+        for (auto& it : Material::REGISTRY)
+        {
+            const std::string& id = it.first;
+            Material* mtl = it.second;
 
+            if (mtl->m_CustomMesh)
+            {
+                mtl->m_VertexBuffer = Loader::loadOBJ(Strings::fmt("@material/{}/mesh.obj", id).c_str());
+            }
+        }
     }
 
 };

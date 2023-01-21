@@ -93,7 +93,7 @@ public:
         return ASSETS + std::string(p);
     }
     inline static std::string fileResolve(std::string_view p) {
-        if (p.starts_with('@')) return fileAssets(p);
+        if (p.starts_with('@')) return fileAssets(p.substr(1));
         else return std::string(p);
     }
 
@@ -117,9 +117,9 @@ public:
     }
 
 
-    static VertexBuffer* loadOBJ_(const char* p, bool isAssets = true) {
+    static VertexBuffer* loadOBJ(const char* p) {
         VertexBuffer* vbuf = new VertexBuffer();
-        loadOBJ_Tiny(isAssets ? Loader::fileAssets(p).c_str() : p, *vbuf);
+        loadOBJ_Tiny(Loader::fileResolve(p).c_str(), *vbuf);
         return vbuf;
 //        return Loader::loadOBJ(Loader::loadFile(p, isAssets).new_string());
     }
@@ -159,7 +159,7 @@ public:
                     int ip = 3*idx.vertex_index;
                     tinyobj::real_t px = attrib.vertices[ip],
                                     py = attrib.vertices[ip+1],
-                                    pz = attrib.vertices[ip+3];
+                                    pz = attrib.vertices[ip+2];
                     vbuf.addpos(px,py,pz);
 
                     if (idx.normal_index >= 0) {
@@ -171,7 +171,7 @@ public:
                     }
 
                     if (idx.texcoord_index >= 0) {
-                        int it = 3*idx.texcoord_index;
+                        int it = 2*idx.texcoord_index;
                         tinyobj::real_t tx = attrib.texcoords[it],
                                         ty = attrib.texcoords[it+1];
                         vbuf.adduv(tx,ty);
@@ -184,7 +184,7 @@ public:
         }
     }
 
-    static void saveOBJ(const std::string& filename, size_t verts, float* pos, float* uv =nullptr, float* norm =nullptr) {
+    static void saveOBJ(const std::string& filename, size_t verts, const float* pos, const float* uv =nullptr, const float* norm =nullptr) {
         std::stringstream ss;
         OBJLoader::saveOBJ(ss, verts, pos, uv, norm);
 
@@ -294,11 +294,11 @@ public:
         }
         return m;
     }
-    static Model* loadModel(VertexBuffer* vbuf) {
+    static Model* loadModel(const VertexBuffer* vbuf) {
         std::vector<std::pair<int, float*>> ls;
-        ls.emplace_back(3, &vbuf->positions[0]);
-        ls.emplace_back(2, &vbuf->textureCoords[0]);
-        ls.emplace_back(3, &vbuf->normals[0]);
+        ls.emplace_back(3, (float*)vbuf->positions.data());
+        ls.emplace_back(2, (float*)vbuf->textureCoords.data());
+        ls.emplace_back(3, (float*)vbuf->normals.data());
 
         return loadModel(vbuf->vertexCount(), ls);
     }

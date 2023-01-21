@@ -14,7 +14,7 @@ class Materials
 {
 public:
 
-#define REGISTER_MTL(VAR, id) inline static Material* VAR = new Material{id};
+#define REGISTER_MTL(VAR, ...) inline static Material* VAR = new Material{__VA_ARGS__};
 
     // 用0/nullptr 表示空气/空. 因为实在是太方便了 if(c.mtl)。而且目前没什么副作用
     inline static Material* AIR = nullptr;
@@ -52,8 +52,12 @@ public:
 
 
 
-    REGISTER_MTL(STOOL, "stool");
+    REGISTER_MTL(STOOL, "stool", true);
 
+    REGISTER_MTL(CASH_REGISTER, "cash_register", true);
+
+    REGISTER_MTL(SHORT_GRASS, "short_grass", true);
+    REGISTER_MTL(TALL_FERN, "tall_fern", true);
 
 
 

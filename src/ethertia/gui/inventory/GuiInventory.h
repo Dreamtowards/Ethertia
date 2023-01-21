@@ -66,7 +66,7 @@ public:
             return;
 
         float n = Item::REGISTRY.size();
-        float i = Collections::find(Item::REGISTRY.m_Ordered, (Item*)stack.item());
+        float i = Item::REGISTRY.getOrderId((Item*)stack.item());
         Gui::drawRect(x,y,size,size, {
             .tex = ItemTextures::ITEM_ATLAS,
             .tex_size = {1.0/n, 1.0},

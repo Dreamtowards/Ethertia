@@ -15,6 +15,7 @@
 #include <ethertia/util/VertexProcess.h>
 #include <ethertia/material/Material.h>
 
+
 // 3d positions.
 class VertexBuffer
 {
@@ -91,7 +92,7 @@ public:
     }
 
 
-    void add_vbuf(const VertexBuffer& vbuf, const vec3& rpos, int MtlId) {
+    void add_vbuf(const VertexBuffer& vbuf, const vec3& rpos, int MtlId, glm::vec2 uvAdd = {0,0}, glm::vec2 uvMul = {1,1}) {
 
         positions.reserve(positions.size() + vbuf.positions.size());
         normals.reserve(normals.size() + vbuf.normals.size());
@@ -102,7 +103,7 @@ public:
             addpos(vbuf.atpos(i) + rpos);
             addnorm(vbuf.atnorm(i));
 
-            adduv(vbuf.atuv(i));
+            adduv(vbuf.atuv(i)*uvMul + uvAdd);
             set_uv_mtl(MtlId);
         }
 

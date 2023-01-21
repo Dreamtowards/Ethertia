@@ -15,7 +15,7 @@ class BlockyMeshGen
 {
 public:
 
-    static void gen(Chunk* chunk, VertexBuffer* vbuf, bool vegetable)
+    static void gen(Chunk* chunk, VertexBuffer* vbuf, bool genVegetable)
     {
         using glm::vec3;
 
@@ -28,26 +28,29 @@ public:
                     if (!c.mtl)
                         continue;
 
-                    if (vegetable)   // Generating Vegetable
-                    {
-                        if (c.mtl == Materials::LEAVES) {
+                    Material* mtl = c.mtl;
+                    int texId = Material::REGISTRY.getOrderId(mtl);
 
-                            putLeaves(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
-                        } else if (c.mtl == Materials::WATER) {
-                            putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                    if (genVegetable)   // Generating Vegetable
+                    {
+                        if (mtl == Materials::LEAVES)
+                        {
+                            putLeaves(vbuf, rp, chunk, texId);
+                        }
+                        else if (mtl == Materials::WATER)
+                        {
+                            putCube(vbuf, rp, chunk, mtl);
                         }
                     }
                     else
                     {
-                        if (c.exp_meta == 1)
+                        if (mtl->m_CustomMesh)
                         {
-
-                            putCube(vbuf, rp, chunk, c.mtl->m_AtlasTexIdx);
+                            putOBJ(*vbuf, rp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);
                         }
-                        else if (c.mtl == Materials::STOOL)
+                        else if (c.exp_meta == 1)
                         {
-
-                            putOBJ(*vbuf, rp, *chunk, c.mtl->m_AtlasTexIdx, *MaterialMeshes::STOOL);
+                            putCube(vbuf, rp, chunk, mtl);
                         }
                     }
 
@@ -60,7 +63,8 @@ public:
     static void putOBJ(VertexBuffer& vbuf, glm::vec3 rp, Chunk& chunk, int mtlId, const VertexBuffer& obj_vbuf)
     {
 
-        vbuf.add_vbuf(obj_vbuf, rp, mtlId);
+        vbuf.add_vbuf(obj_vbuf, rp+0.5f, mtlId,
+                      MaterialTextures::uv_add(mtlId), MaterialTextures::uv_mul());
 
     }
 
@@ -106,16 +110,16 @@ public:
     };
 
 
-    static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, int mtlId) {
+    static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, Material* mtl) {
 
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = _CubeFaceDir(i);
             glm::vec3 np = rpos + dir;
             Cell& neib = World::_GetCell(chunk, np);
 
-            if ((!neib.mtl || neib.mtl->m_AtlasTexIdx != mtlId))  // and not same mtl e.g. water
+            if (!neib.mtl || neib.mtl != mtl)  // and not same mtl e.g. water
             {
-                putCubeFace(vbuf, i, rpos, mtlId);
+                putCubeFace(vbuf, i, rpos, mtl->m_TexId);
             }
         }
     }
@@ -216,7 +220,7 @@ public:
         for (int i = 0; i < grass_fp.size(); ++i) {
             glm::vec3 p = grass_fp[i];
 
-            putTallgrassStarMesh(vbuf, p, Materials::TALLGRASS->m_AtlasTexIdx);
+            putTallgrassStarMesh(vbuf, p, Materials::TALLGRASS->m_TexId);
         }
 
     }
