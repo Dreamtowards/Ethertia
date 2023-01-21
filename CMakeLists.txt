@@ -106,14 +106,9 @@ include_directories(lib/nbt/include)
 # include Vulkan SDK.
 include_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/include)
 link_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/lib)
-if (APPLE)
-#    link_libraries(MoltenVK)  # before link vulkan. required.
-endif ()
-
-#include_directories(/usr/local/include)
-#link_directories(/usr/local/lib)
 link_libraries(  vulkan.1.3.236 )
 
+#if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. Not anymore.!
 
 add_executable(Ethertia
 #        lib/glad/glad.c
@@ -123,9 +118,8 @@ add_executable(Ethertia
 #        src/ethertia/render/RenderEngine.cpp
 #        src/ethertia/world/World.cpp
 #        src/ethertia/Ethertia.cpp
-        src/ethertia/render/TestVulkan.cpp
-#        src/ethertia/render/test2.cpp
 #        src/ethertia/world/gen/BiomeGen.cpp
+        src/ethertia/render/vulkan/TestVulkan.cpp
         )
 
 add_executable(DedicatedServer

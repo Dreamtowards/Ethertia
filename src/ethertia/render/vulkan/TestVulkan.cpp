@@ -6,9 +6,7 @@
 
 #include <ethertia/util/Log.h>
 
-#include "Vulkan.h"
-
-// 不要手动链接 MoltenVK
+#include <ethertia/render/vulkan/Vulkan.h>
 
 int main()
 {
@@ -18,18 +16,19 @@ int main()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 
-    GLFWwindow* m_WindowHandle = glfwCreateWindow(1280, 720, "Test", nullptr, nullptr);
+    GLFWwindow* glfwWindow = glfwCreateWindow(1280, 720, "Test", nullptr, nullptr);
 
-    Vulkan::init();
+    Vulkan::init(glfwWindow);
 
-    while (!glfwWindowShouldClose(m_WindowHandle))
+    while (!glfwWindowShouldClose(glfwWindow))
     {
 
 
         glfwPollEvents();
     }
 
-    glfwDestroyWindow(m_WindowHandle);
+    Vulkan::deinit();
 
+    glfwDestroyWindow(glfwWindow);
     glfwTerminate();
 }
