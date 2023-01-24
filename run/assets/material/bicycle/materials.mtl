@@ -1,0 +1,16 @@
+# Made in Blockbench 4.6.0
+newmtl m_314d7cd3-9f3b-407b-feec-0f69817bcfa5
+map_Kd tin_red_bicycle.png 
+newmtl m_a25090d1-96d1-c522-6751-3ee46434230f
+map_Kd sewing1d.png 
+newmtl m_41d7c85a-3f7d-c413-e744-c3363d660383
+map_Kd car_tire.png 
+newmtl m_49f59553-f4ea-6569-5921-6869f011e836
+map_Kd trap_steel_silver_grill.png 
+newmtl m_4302dfa5-2370-5a62-ae03-94b975343f13
+map_Kd casterchair_brown.png 
+newmtl m_f0eec69c-8f1f-0ad4-ce2b-daaec5b17e63
+map_Kd traffic_plates.png 
+newmtl m_1732dac5-1d10-4e0a-7c05-c3f26f0ea65f
+map_Kd chain_fence.png 
+newmtl none

@@ -30,6 +30,8 @@ public:
         }
     };
 
+    std::unordered_map<glm::vec3, void*> m_OpendFiles;
+
     std::string m_ChunkDir;
 
     ChunkLoader(std::string savedir) : m_ChunkDir(std::move(savedir)) {

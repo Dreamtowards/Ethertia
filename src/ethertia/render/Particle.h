@@ -20,6 +20,7 @@ public:
     int tex_grids = 1;
 
     float size = 1;
+    float size_grow = 0;
 
     float max_lifetime = 0;
 
@@ -37,6 +38,8 @@ public:
         position += velocity * dt;
 
         lifetime += dt;
+
+        size += size_grow * dt;
 
         return lifetime <= max_lifetime;
     }
