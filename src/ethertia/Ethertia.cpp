@@ -117,15 +117,6 @@ void Ethertia::start()
     Ethertia::getRegistry<Command>()->dbgPrintEntries("Commands");
 
 
-    {
-        Particle* par = new Particle();
-
-        par->texture = MaterialTextures::ATLAS_DIFFUSE;
-        par->position = {10, 10, 10};
-
-        ParticleRenderer::m_Particles.push_back(par);
-    }
-
 
     if (m_AudioEngine->m_CaptureDevice)
         m_AudioEngine->startCapture();

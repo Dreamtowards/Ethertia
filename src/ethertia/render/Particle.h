@@ -17,6 +17,7 @@ public:
     glm::vec3 velocity = {0,0,0};
 
     Texture* texture = nullptr;
+    int tex_grids = 1;
 
     float size = 1;
 
@@ -24,20 +25,32 @@ public:
 
     float lifetime = 0;
 
-    Particle(const glm::vec3& position = {0,0,0}, Texture* texture = nullptr, float size = 1, float maxLifetime = 10) : position(position),
+    Particle(const glm::vec3& position, Texture* texture, float size, float maxLifetime) : position(position),
                                                                                            texture(texture), size(size),
                                                                                            max_lifetime(maxLifetime) {}
 
     // return false: need to be delete. out of lifetime
     bool update(float dt)
     {
-        velocity += glm::vec3(0, -9.81, 0) * dt;
+        velocity += glm::vec3(0, -9.81/5, 0) * dt;
 
         position += velocity * dt;
 
         lifetime += dt;
 
         return lifetime <= max_lifetime;
+    }
+
+    glm::vec2 uv_pos() const
+    {
+        float life_perc = lifetime / max_lifetime;
+
+        int idx_grid = int(life_perc * (tex_grids*tex_grids));
+
+        return {
+          (idx_grid % tex_grids) / (float)tex_grids,
+          (1.0-1.0/tex_grids) - (idx_grid / tex_grids) / (float)tex_grids
+        };
     }
 
 };

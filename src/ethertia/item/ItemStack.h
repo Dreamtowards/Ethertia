@@ -25,7 +25,7 @@ public:
     ItemStack(const Item* item = nullptr, int amount = 0) : m_ItemType(item), m_Amount(amount) {}
 
     [[nodiscard]] bool empty() const {
-        assert((m_Amount==0) == (m_ItemType== nullptr));
+        //assert((m_Amount==0) == (m_ItemType== nullptr));
         return m_Amount == 0;
     }
 

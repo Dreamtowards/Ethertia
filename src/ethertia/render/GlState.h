@@ -62,6 +62,7 @@ public:
                 break;
             case OVERLAY:
                 glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+                break;
             default:
                 assert(false);
         }

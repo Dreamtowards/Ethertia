@@ -12,13 +12,9 @@ class SkyboxRenderer
     inline static Model* m_SkyboxModel = nullptr;
 
 public:
-    inline static Texture* Tex_Cloud = nullptr;
-//    inline static Texture* Tex_NightStar = nullptr;
 
     SkyboxRenderer() {
 
-        Tex_Cloud = Loader::loadCubeMap1("misc/sky/cloud1.png");
-//        Tex_NightStar = Loader::loadCubeMap1("misc/sky/starfield1.png");
 
         float skyboxVertices[] = {
                 // positions
@@ -90,6 +86,46 @@ public:
         glDepthMask(GL_TRUE);
     }
 
+
+    void renderWorldSkybox(float daytime) {
+        float time = Ethertia::getPreciseTime();
+
+        if (daytime >= 0.25 && daytime < 0.75)  // 6AM-6PM
+        {
+//        Tex_NightStar = Loader::loadCubeMap1("misc/sky/starfield1.png");
+
+            GlState::blendMode(GlState::ADD);
+            static Texture* TEX_CLOUDS = Loader::loadCubeMap1("misc/sky/cloud1.png");
+            render(TEX_CLOUDS, {0,1,0}, -time / 60, glm::vec4{0.15});
+
+//                GlState::blendMode(GlState::ALPHA);
+//                m_SkyboxRenderer->render(SkyboxRenderer::Tex_Cloud, {0,1,0}, -time / 60, glm::vec4{1});
+
+            GlState::blendMode(GlState::ADD);
+            static Texture *Atmos = Loader::loadCubeMap1("misc/sky/cloudbox/atmosphere.png");
+            render(Atmos, {0,1,0}, time / 60);
+
+            static Texture* Horizon = Loader::loadCubeMap1("misc/sky/cloudbox/horizon.png");
+            render(Horizon, {0,1,0}, -time/40);
+        }
+        else
+        {
+            GlState::blendMode(GlState::ADD);
+
+            static Texture* Stars = Loader::loadCubeMap1("misc/sky/nightbox/stars.png");
+            render(Stars, {0,0,1}, time/60);
+
+            static Texture *Aurora = Loader::loadCubeMap1("misc/sky/nightbox/aurora.png");
+            render(Aurora, {-0.3,1,0}, -time / 70);
+
+            static Texture *Galaxies = Loader::loadCubeMap1("misc/sky/nightbox/galaxies.png");
+            render(Galaxies, {0.4,0.4,0}, -time / 70);
+
+            static Texture *Depth = Loader::loadCubeMap1("misc/sky/nightbox/depth.png");
+            render(Depth, {1,0,0}, -time / 50);
+        }
+
+    }
 };
 
 #endif //ETHERTIA_SKYBOXRENDERER_H

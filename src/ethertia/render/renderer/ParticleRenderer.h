@@ -9,6 +9,7 @@
 
 #include <ethertia/render/Particle.h>
 #include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/render/GlState.h>
 
 class ParticleRenderer
 {
@@ -20,9 +21,6 @@ public:
     inline static std::vector<Particle*> m_Particles;
 
     inline static Model* M_PLANE_C_STRIP = nullptr;
-
-    inline static Particle* SUN  = nullptr;
-    inline static Particle* MOON = nullptr;
 
     ParticleRenderer()
     {
@@ -43,10 +41,6 @@ public:
                     {3, pos},
                     {2, tex}
             });
-        }
-
-        {
-
         }
     }
 
@@ -83,10 +77,10 @@ public:
 
     void render(const Particle& p)
     {
-        render(p.texture, p.position, p.size);
+        render(p.texture, p.position, p.size, p.uv_pos(), glm::vec2(1.0f / p.tex_grids));
     }
 
-    void render(Texture* tex, glm::vec3 position, float size)
+    void render(Texture* tex, glm::vec3 position, float size, glm::vec2 uvPos = {0,0}, glm::vec2 uvSize = {1,1})
     {
 
         glActiveTexture(GL_TEXTURE0);
@@ -97,9 +91,40 @@ public:
         m_ParticleShader.setVector3f("position", position);
         m_ParticleShader.setFloat("size", size);
 
+        m_ParticleShader.setVector2f("uv_pos", uvPos);
+        m_ParticleShader.setVector2f("uv_size", uvSize);
+
         glBindVertexArray(M_PLANE_C_STRIP->vaoId);
-//        glDrawArraysInstanced();
         glDrawArrays(GL_TRIANGLE_STRIP, 0, M_PLANE_C_STRIP->vertexCount);
+//        glDrawArraysInstanced();
+    }
+
+
+
+    // temporary.
+    inline static glm::vec3 _SUN_POS;
+
+    void renderSunMoonTex(float worldDayTime)
+    {
+        // render Sun and Moon img.
+
+        GlState::blendMode(GlState::ADD);
+
+        static Texture* TEX_SUN = Loader::loadTexture("misc/sky/sun.png");
+        static Texture* TEX_MOON = Loader::loadTexture("misc/sky/moon.png");
+
+        using glm::vec3;
+        // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
+        // glm::rotate(glm::mat4(1), angle, glm::vec3(0, 0, 1)) * glm::vec4(1, 0, 0, 1.0);
+        vec3 relSunPos = Mth::anglez(worldDayTime * 2*Mth::PI - 0.5f*Mth::PI) * 300.0f;
+
+        vec3 CamPos = Ethertia::getCamera()->position;
+        vec3 SunPos = CamPos + relSunPos;
+        vec3 MoonPos = CamPos - relSunPos;
+        _SUN_POS = SunPos;
+
+        render(TEX_SUN, SunPos, 180.0f);
+        render(TEX_MOON, MoonPos, 180.0f);
     }
 
 };

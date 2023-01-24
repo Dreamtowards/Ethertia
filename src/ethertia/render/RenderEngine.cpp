@@ -64,20 +64,13 @@ RenderEngine::~RenderEngine() {
     delete m_SkyGradientRenderer;
 }
 
-void RenderEngine::renderWorld(World* world)
-{
-    assert(world);
 
-
-    ParticleRenderer::updateSunMoonPos();
-
-    m_ParticleRenderer->updateAll(Ethertia::getDelta());
-
+void RenderEngine::renderWorldGeometry(World* world) {
 
     // Geometry of Deferred Rendering
-    {
-        PROFILE("Geo");
-Framebuffer::gPushFramebuffer(gbuffer);
+
+    PROFILE("Geo");
+    Framebuffer::gPushFramebuffer(gbuffer);
 
     glClearColor(0, 0, 0, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -86,8 +79,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
     glEnable(GL_CULL_FACE);
 
     glDisable(GL_BLEND);  // Blending is inhabited in Deferred Rendering.
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
     dbg_NumEntityRendered = 0;
     for (Entity* entity : world->getEntities()) {
@@ -123,7 +115,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
         }
         if (RenderEngine::dbg_HitPointEntityGeo && entity == Ethertia::getBrushCursor().hitEntity) {
             renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation(),
-                                              Ethertia::getBrushCursor().brushSize, Ethertia::getBrushCursor().position);
+                           Ethertia::getBrushCursor().brushSize, Ethertia::getBrushCursor().position);
         }
         if (dbg_RenderedEntityAABB) {
             AABB aabb = entity->getAABB();
@@ -134,111 +126,70 @@ Framebuffer::gPushFramebuffer(gbuffer);
 
     glEnable(GL_BLEND);
 
-Framebuffer::gPopFramebuffer();
-    }
+    Framebuffer::gPopFramebuffer();
+}
 
 
-
+void RenderEngine::renderWorldCompose(World* world)
+{
     // Compose of Deferred Rendering
 
-    {
     PROFILE("Cmp");
     Framebuffer::gPushFramebuffer(dcompose);
 
-    static glm::vec3 SkyColor = Colors::parseHexRGB("87cef4");  // 0.702, 0.812, 0.969  McPulp: 969df7 (0.588, 0.616, 0.969)
-
     glClearColor(0,0,0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-//        m_SkyGradientRenderer->render();
-
-//        if (Ethertia::getWindow()->isKeyDown(GLFW_KEY_K)) {
-//            const char* col = Loader::showInputBox("", "", "66ccff");
-//            if (col)
-//                SkyColor = Colors::parseHexRGB(col);
-//        }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-//    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-//        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-        if (!Ethertia::getWindow()->isKeyDown(GLFW_KEY_P)) {
-            float time = Ethertia::getPreciseTime();
+    m_SkyboxRenderer->renderWorldSkybox(world->m_DayTime);
 
-            if (world->m_DayTime >= 0.25 && world->m_DayTime < 0.75) { // 6AM-6PM
-                GlState::blendMode(GlState::ADD);
-                m_SkyboxRenderer->render(SkyboxRenderer::Tex_Cloud, {0,1,0}, -time / 60, glm::vec4{0.15});
-//                GlState::blendMode(GlState::ALPHA);
-//                m_SkyboxRenderer->render(SkyboxRenderer::Tex_Cloud, {0,1,0}, -time / 60, glm::vec4{1});
+    m_ParticleRenderer->renderSunMoonTex(world->m_DayTime);
 
-                GlState::blendMode(GlState::ADD);
-                static Texture *Atmos = Loader::loadCubeMap1("misc/sky/cloudbox/atmosphere.png");
-                m_SkyboxRenderer->render(Atmos, {0,1,0}, time / 60);
 
-                GlState::blendMode(GlState::ADD);
-                static Texture* Horizon = Loader::loadCubeMap1("misc/sky/cloudbox/horizon.png");
-                m_SkyboxRenderer->render(Horizon, {0,1,0}, -time/40);
-            } else {
-                static Texture* Stars = Loader::loadCubeMap1("misc/sky/nightbox/stars.png");
-                m_SkyboxRenderer->render(Stars, {0,0,1}, time/60);
+    // CNS. 让接下来Alpha!=1.0的地方的颜色 添加到背景颜色中 为了接下来的天空颜色叠加
+    // Blend: addictive color when src.alpha != 1.0, for sky background add.
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-                static Texture *Aurora = Loader::loadCubeMap1("misc/sky/nightbox/aurora.png");
-                m_SkyboxRenderer->render(Aurora, {-0.3,1,0}, -time / 70);
+    entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
 
-                static Texture *Galaxies = Loader::loadCubeMap1("misc/sky/nightbox/galaxies.png");
-                m_SkyboxRenderer->render(Galaxies, {0.4,0.4,0}, -time / 70);
+    GlState::blendMode(GlState::ALPHA);
 
-                static Texture *Depth = Loader::loadCubeMap1("misc/sky/nightbox/depth.png");
-                m_SkyboxRenderer->render(Depth, {1,0,0}, -time / 50);
-            }
-
-        }
-
+    for (Entity* e : world->getEntities())
+    {
+        if (EntityDroppedItem* droppedItem = dynamic_cast<EntityDroppedItem*>(e))
         {
-            // render Sun and Moon img.
+            const Item& item = *droppedItem->m_DroppedItem.item();
 
-            GlState::blendMode(GlState::ADD);
+            float i = Item::REGISTRY.getOrderId((Item*)&item);
+            float n = Item::REGISTRY.size();
 
-            static Texture* TEX_SUN = Loader::loadTexture("misc/sky/sun.png");
-            static Texture* TEX_MOON = Loader::loadTexture("misc/sky/moon.png");
-
-            using glm::vec3;
-            // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
-            // glm::rotate(glm::mat4(1), angle, glm::vec3(0, 0, 1)) * glm::vec4(1, 0, 0, 1.0);
-            vec3 relSunPos = Mth::anglez(world->m_DayTime * 2*Mth::PI - 0.5f*Mth::PI) * 300.0f;
-
-            vec3 CamPos = Ethertia::getCamera()->position;
-            vec3 SunPos = CamPos + relSunPos;
-            vec3 MoonPos = CamPos - relSunPos;
-
-            m_ParticleRenderer->render(TEX_SUN, SunPos, 180.0f);
-            m_ParticleRenderer->render(TEX_MOON, MoonPos, 180.0f);
-
+            m_ParticleRenderer->render(ItemTextures::ITEM_ATLAS, droppedItem->getPosition(), 0.3f,
+                                       {i/n, 0},
+                                       {1/n, 1});
         }
-
-        // CNS. 让接下来Alpha!=1.0的地方的颜色 添加到背景颜色中 为了接下来的天空颜色叠加
-        // use Screen Blend: addictive color.
-        GlState::blendMode(GlState::SCREEN);  // glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-        entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
-
-        for (Entity* e : world->getEntities())
-        {
-            if (EntityDroppedItem* droppedItem = dynamic_cast<EntityDroppedItem*>(e))
-            {
-                const Item& item = *droppedItem->m_DroppedItem.item();
-
-                m_ParticleRenderer->render(ItemTextures::ITEM_ATLAS, droppedItem->getPosition(), 0.3f);
-            }
-        }
-
-Framebuffer::gPopFramebuffer();
     }
 
-    // Result.
+    glEnable(GL_DEPTH_TEST);
+
+    m_ParticleRenderer->renderAll();
+
+    Framebuffer::gPopFramebuffer();
+}
+
+void RenderEngine::renderWorld(World* world)
+{
+    assert(world);
+
+    m_ParticleRenderer->updateAll(Ethertia::getDelta());
+
+    // Heavy
+    renderWorldGeometry(world);
+
+
+    renderWorldCompose(world);
+
 
     Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), dcompose->texColor[0]);
-
-
 
 
     RenderEngine::checkGlError("End World Render");

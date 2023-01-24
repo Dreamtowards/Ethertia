@@ -221,11 +221,28 @@ void main() {
 
     vec3 Norm = texture(gNormal, TexCoord).rgb;
 
-//    if (dot(Norm, CameraPos - FragPos) > 0)
-//    Norm = - Norm;
 
-    bool isDay = DayTime > 0.25 && DayTime < 0.75;
-    vec3 SunColor = vec3(isDay ? 2.0 : 0.3);
+
+    vec3 SkyBg = vec3(0.529, 0.808, 0.957);
+    vec3 SkyTop = vec3(0.298, 0.612, 0.831);
+
+    SkyTop = vec3(0.16, 0.27, 0.45); // Shader DarkBlue
+    SkyBg = vec3(0.51, 0.75, 0.83);
+//    SkyTop = vec3(0.576, 0.569, 0.969); // MC Purple #9391f7
+//    SkyBg = vec3(0.659, 0.718, 0.965);
+//    SkyTop = vec3(0.31, 0.31, 0.41);  // Glow Sunset
+//    SkyBg = vec3(0.90, 0.71, 0.36);
+//    SkyTop = vec3(0.26, 0.29, 0.42);  // MC Sunset
+//    SkyBg = vec3(0.49, 0.36, 0.36);
+//    SkyTop = vec3(0.00, 0.00, 0.16);  // DeepSky
+//    SkyBg = vec3(0.24, 0.72, 0.82);
+
+    //bool isDay = DayTime > 0.25 && DayTime < 0.75;
+   // vec3 SunColor = vec3(isDay ? 2.0 : 0.3);
+
+    // midnight=0, noon=1.
+    float DayBrightness = 1.0 - abs(DayTime-0.5) * 2.0;
+    vec3 SunColor = vec3(1.0) * DayBrightness * 2.5;
 
 
     vec3 FragToSun = normalize(SunPos - FragPos);
@@ -241,10 +258,13 @@ void main() {
     vec3 specColor = spec * specularIntensity * SunColor;
 
     FragColor = vec4((diffColor + specColor) * Albedo, 1.0);
-//    FragColor = vec4(0,0,0,1);
 
 
 
+
+
+
+    // Brush hint.
     FragColor.rgb += 0.03 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
 
@@ -321,23 +341,6 @@ void main() {
 
     //vec3 bgSkyColor = texture(panoramaMap, samplePanoramaTex(RayDir)).rgb;
 
-    vec3 SkyBg = vec3(0.529, 0.808, 0.957);
-    vec3 SkyTop = vec3(0.298, 0.612, 0.831);
-
-        SkyTop = vec3(0.16, 0.27, 0.45); // Shader DarkBlue
-        SkyBg = vec3(0.51, 0.75, 0.83);
-
-//            SkyTop = vec3(0.576, 0.569, 0.969); // MC Purple #9391f7
-//            SkyBg = vec3(0.659, 0.718, 0.965);
-//
-//            SkyTop = vec3(0.31, 0.31, 0.41);  // Glow Sunset
-//            SkyBg = vec3(0.90, 0.71, 0.36);
-////    //
-            SkyTop = vec3(0.26, 0.29, 0.42);  // MC Sunset
-            SkyBg = vec3(0.49, 0.36, 0.36);
-
-    SkyTop = vec3(0.00, 0.00, 0.16);  // DeepSky
-    SkyBg = vec3(0.24, 0.72, 0.82);
 
     if (_PosDepth.w == 1.0f) {
 

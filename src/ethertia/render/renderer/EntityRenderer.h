@@ -150,9 +150,10 @@ public:
         shaderCompose.setVector3f("tmpLightDir", tmpLightDir);
         shaderCompose.setVector3f("tmpLightPos", tmpLightPos);
 
+        // CNS 这是不准确的，不能直接取反 否则月亮位置可能会错误
         float daytime = Ethertia::getWorld()->m_DayTime;
         bool isDay = daytime > 0.25 && daytime < 0.75;
-        shaderCompose.setVector3f("SunPos", isDay ? ParticleRenderer::SUN->position : -ParticleRenderer::SUN->position);
+        shaderCompose.setVector3f("SunPos", isDay ? ParticleRenderer::_SUN_POS : -ParticleRenderer::_SUN_POS);
 
         glBindVertexArray(EntityRenderer::M_RECT->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, M_RECT->vertexCount);

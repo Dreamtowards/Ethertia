@@ -42,7 +42,7 @@ public:
     inline static glm::mat4 matView{1};
 
     Camera m_Camera{};
-    Frustum m_ViewFrustum{};
+    inline static Frustum m_ViewFrustum{};
 
     Framebuffer* gbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
     Framebuffer* dcompose = nullptr;  // Deferred Rendering Compose FBO
@@ -69,6 +69,11 @@ public:
     }
 
     void renderWorld(World* world);
+
+    void renderWorldGeometry(World* world);
+
+    void renderWorldCompose(World* world);
+
 
     static void checkGlError(std::string_view phase = "");
 
