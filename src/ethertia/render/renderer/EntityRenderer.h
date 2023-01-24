@@ -61,7 +61,7 @@ public:
 
 
 
-    void renderGeometryChunk(Model* model, glm::vec3 pos, glm::mat3 rot, Texture* diff)
+    void renderGeometryChunk(Model* model, glm::vec3 pos, glm::mat3 rot, Texture* diff, float vertexWaving)
     {
         if (diff)
         {
@@ -94,6 +94,8 @@ public:
         shaderGeometry.setFloat("debugVar2", debugVar2);
 
         shaderGeometry.setFloat("Time", Ethertia::getPreciseTime());
+
+        shaderGeometry.setFloat("WaveFactor", vertexWaving);
 
 
         glBindVertexArray(model->vaoId);

@@ -48,14 +48,19 @@ public:
         return dst.m_ItemType == m_ItemType || (empty() || dst.empty());
     }
 
-    void moveTo(ItemStack& dst) {
+    void moveTo(ItemStack& dst, int amount = 0) {
         if (dst.empty()) {
             dst.m_ItemType = m_ItemType;
         }
         assert(stackableWith(dst));
 
-        dst.m_Amount += m_Amount;
-        clear();
+        if (amount == 0) {  // move all.
+            dst.m_Amount += m_Amount;
+            clear();
+        } else if (m_Amount >= amount) {
+            dst.m_Amount += amount;
+            m_Amount -= amount;
+        }
     }
 };
 

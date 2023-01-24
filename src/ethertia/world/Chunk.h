@@ -43,6 +43,8 @@ public:
 
     bool m_Meshing = false;  // MeshGen, till Uploaded.
 
+    std::vector<VertexBuffer*> m_BakeMeshes;
+
     Chunk(glm::vec3 p, World* w) : position(p), m_World(w) {
 
         m_CreatedTime = Timer::timestampMillis();  // will be reset when Load Chunk From File.

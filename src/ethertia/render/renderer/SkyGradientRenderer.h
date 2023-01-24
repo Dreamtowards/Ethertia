@@ -21,8 +21,8 @@ public:
     SkyGradientRenderer() {
 
         float vts[] = {
-            -1, 0, 1, 1, 0, 1, 1, 0, -1,  // Bottom +Y
-            -1, 0, 1, 1, 0, -1, -1, 0, -1
+             1, 0, -1,   1, 0, 1,   -1, 0, 1,  // Bottom -Y
+            -1, 0, -1,   1, 0, -1,  -1, 0, 1,
         };
         M_PLANE = Loader::loadModel(6, {{3, vts}});
     }
@@ -36,7 +36,7 @@ public:
 
 
         shader.setMVP(
-                Mth::matModel(Ethertia::getCamera()->position + glm::vec3{0, 80, 0},glm::vec3 {500})
+                Mth::matModel(/*Ethertia::getCamera()->position + */glm::vec3{0, 80, 0},glm::vec3 {500})
         );
 
 

@@ -46,31 +46,28 @@ public:
         }
 
         {
-            SUN = new Particle();
-            SUN->texture = Loader::loadTexture("misc/sky/sun.png");
-            SUN->size = 180;
-            m_Particles.push_back(SUN);
 
-            MOON = new Particle();
-            MOON->texture = Loader::loadTexture("misc/sky/moon.png");
-            MOON->size = 70;
-            m_Particles.push_back(MOON);
         }
     }
 
-    static void updateSunMoonPos()
+    void updateAll(float dt)
     {
-        glm::vec3 relSun = Mth::anglez(Ethertia::getWorld()->m_DayTime * 2*Mth::PI - 0.5f*Mth::PI) * 300.0f;
+        std::vector<Particle*> tobeDelete;
 
-        // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
-        SUN->position = relSun + Ethertia::getCamera()->position;
+        for (Particle* p : m_Particles)
+        {
+            if (!p->update(dt))
+            {
+                tobeDelete.push_back(p);
+            }
+        }
 
-        MOON->position = -relSun + Ethertia::getCamera()->position;
-    }
-
-    void update(float dt)
-    {
-
+        // Delete particles that out of lifetime.
+        for (Particle* p : tobeDelete)
+        {
+            Collections::erase(m_Particles, p);
+            delete p;
+        }
     }
 
     void renderAll()
@@ -80,20 +77,25 @@ public:
 
         for (Particle* p : m_Particles)
         {
-            render(p);
+            render(*p);
         }
     }
 
-    void render(Particle* particle)
+    void render(const Particle& p)
+    {
+        render(p.texture, p.position, p.size);
+    }
+
+    void render(Texture* tex, glm::vec3 position, float size)
     {
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, particle->texture->texId);
+        glBindTexture(GL_TEXTURE_2D, tex->texId);
 
         m_ParticleShader.useProgram();
 
-        m_ParticleShader.setVector3f("position", particle->position);
-        m_ParticleShader.setFloat("size", particle->size);
+        m_ParticleShader.setVector3f("position", position);
+        m_ParticleShader.setFloat("size", size);
 
         glBindVertexArray(M_PLANE_C_STRIP->vaoId);
 //        glDrawArraysInstanced();

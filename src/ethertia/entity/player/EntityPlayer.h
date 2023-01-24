@@ -124,6 +124,10 @@ public:
         return m_Inventory.at(m_HotbarSlot);
     }
 
+    glm::vec3 getViewDirection() {
+        return Ethertia::getCamera()->direction;
+    }
+
 //    class OnGroundCheck : public btCollisionWorld::ContactResultCallback
 //    {
 //    public:

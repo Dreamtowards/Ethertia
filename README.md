@@ -33,6 +33,59 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 [comment]: <> (![]&#40;run/screenshots/2022-12-29_10.34.08_418.762.png&#41;)
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
+
+Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3个月+3个月初步完成。详细为:
+- 建筑
+  - [x] 平滑体素 (纯材质) | Smooth Voxel Terrain (Pure MTL)
+    - 材质: 石头 草地 泥土 沙子 岩石 石砖 
+  - [ ] 自定模型体素 (方块, 树叶 / 椅子) | Custom Mesh Voxel 
+    - 树叶 高草 椅子 / 衣架
+  - [ ] 离散烘培模型 (旋转 位置 尺寸) (纯材质/自定纹理) | Offgrid Baked Mesh
+  - [ ] Spline 规则生成模型: 铁轨 围栏 
+- 生存
+  - [ ] 耕种
+    - 农作物: 胡萝卜 马铃薯 小麦 / 水稻 番茄 玉米 葡萄
+  - [ ] 生物
+    - 动物: 猪 牛 羊 鸡 / 马 驴 骡 骆驼 / 猫 狼 兔
+  - [ ] 挖矿
+    - 矿物: 铁, 煤, 
+  - [ ] 探索&收集
+    - [ ] 生物群系: 平原 沙漠 冻原 热带雨林 森林
+    - [ ] 遗迹: 村庄 地牢 矿脉
+  - [ ] 建筑
+  - [ ] Boss
+  - [ ] 载具: 汽车 火车 单车
+- 交互
+  - [ ] 多人
+  - [ ] 自定义人物模型
+  - [ ] VR支持
+  - [ ] 动作跟踪 IK动画
+    
+- 其他/扩展
+  - 命令
+    - /gamemode, /fly, /tp, /time 
+    - /mesh
+  - 渲染
+    - 日夜交替
+    - 穹顶深色
+    - SSAO
+    - Reflection Mapping
+    - Normal Mapping 微分BTN矩阵
+    - Bloom 辉光
+    - Light Shaft
+    - 光晕
+    - 体积云
+    - Atmosphere 物理大气层
+  - GUI
+  - 世界存储
+  - 凋落物
+  - Mods系统
+  - 剧院Mod | Theatrical Mod
+  - 暮色森林Mod | Twilight Forest Mod
+
+[comment]: <> (以上为*游戏性列表*，接下来为*功能性列表*:)
+
+
 已完成:
 - [x] Surface Nets (Unified Grids) (基本平滑体素模型构建 Isosurface 对偶型等值面提取演算法)
 - [x] Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
@@ -251,7 +304,8 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
     - addDelayTask fix
   - 2023-01-21
     - Vulkan Surface, Swapchain
-    - 添加一个Blocky Mesh via OBJ.    
+    - 添加一个Blocky Mesh via OBJ.
+    - cash_register, short_grass, stool, tall_fern. id -> map-order, no reg-order.
 
     - Lighting
     - Material / Texture / Model /meta 架构模式?

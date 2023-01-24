@@ -8,6 +8,7 @@ uniform mat4 matView;
 uniform mat4 matProjection;
 
 uniform float Time;
+uniform float WaveFactor;
 
 out Vsh {
     vec3 FragPos;
@@ -16,16 +17,13 @@ out Vsh {
     float MtlId;
 } vsh;
 
-#define MTL_LEAVES 8
-#define MTL_TALLGRASS 9
-
 void main()
 {
     vec4 worldpos = matModel * vec4(in_pos, 1.0);
-    int MtlId = int(in_texCoord.x);
-    if (MtlId == MTL_LEAVES || MtlId == MTL_TALLGRASS) {
-        worldpos.xyz += vec3(cos(worldpos.yzx * 1000 + Time * 1.3).xyz) * 0.1;
-    }
+
+    // Folige Waving
+    worldpos.xyz += vec3(cos(worldpos.yzx * 1000 + Time * 1.3).xyz) * WaveFactor;
+
     gl_Position = matProjection * matView * worldpos;
 
     vsh.Norm = normalize(vec3(matModel * vec4(in_norm, 0.0f)));

@@ -59,7 +59,7 @@ public:
                         for (int i = 0; i < 6; ++i) {
                             world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
                         }
-                    }, Mth::clamp(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 1.0f, 3.0f));
+                    }, Mth::clamp(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 0.5f, 4.0f));
                 }
 
 

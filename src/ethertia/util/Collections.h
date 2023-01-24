@@ -45,6 +45,13 @@ public:
     }
 
     template<typename T>
+    static void eraseAll(std::vector<T>& ls, const std::vector<T>& tobeErase) {
+        for (const T& e : tobeErase) {
+            Collections::erase(ls, e);
+        }
+    }
+
+    template<typename T>
     static T* range(T* arr, int n, T from = 0) {
         for (int i = 0;i < n;++i) {
             arr[i] = from + i;

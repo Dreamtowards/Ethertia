@@ -5,6 +5,8 @@
 #ifndef ETHERTIA_CONTROLS_H
 #define ETHERTIA_CONTROLS_H
 
+#include <ethertia/entity/EntityDroppedItem.h>
+
 class Controls
 {
 public:
@@ -108,6 +110,24 @@ public:
                     }
                     break;
                 }
+                case GLFW_KEY_Q: {
+                    if (Ethertia::isIngame()) {
+                        EntityPlayer& player = *Ethertia::getPlayer();
+                        ItemStack& stack = player.getHoldingItem();
+                        if (!stack.empty())
+                        {
+                            EntityDroppedItem* eDroppedItem = new EntityDroppedItem();
+
+                            stack.moveTo(eDroppedItem->m_DroppedItem, 1);
+
+                            eDroppedItem->setPosition(player.getPosition());
+                            eDroppedItem->applyLinearVelocity(player.getViewDirection() * 3.0f);
+
+                            Ethertia::getWorld()->addEntity(eDroppedItem);
+                        }
+                    }
+                    break;
+                }
             }
         });
 
@@ -158,6 +178,12 @@ public:
                 camera.len += window.getDScroll();
             camera.len = Mth::max(camera.len, 0.0f);
 
+
+            // Test Particle Emit
+            if (window.isKeyDown(GLFW_KEY_K)) {
+                Particle* p = new Particle();
+
+            }
 
 
             // Hotbar

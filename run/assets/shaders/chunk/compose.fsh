@@ -197,7 +197,13 @@ vec3 compute_pixel_ray() {
 //}
 //
 
-
+float rayDisk( in vec3 ro, in vec3 rd, vec3 c, vec3 n, float r )
+{
+    vec3  o = ro - c;
+    float t = -dot(n,o)/dot(rd,n);
+    vec3  q = o + rd*t;
+    return (dot(q,q)<r*r) ? t : -1.0;
+}
 
 
 void main() {
@@ -313,18 +319,41 @@ void main() {
 //        FragColor.rgb = texture(panoramaMap, samplePanoramaTex(camRefract)).rgb;
 //    }
 
-
     //vec3 bgSkyColor = texture(panoramaMap, samplePanoramaTex(RayDir)).rgb;
+
+    vec3 SkyBg = vec3(0.529, 0.808, 0.957);
+    vec3 SkyTop = vec3(0.298, 0.612, 0.831);
+
+        SkyTop = vec3(0.16, 0.27, 0.45); // Shader DarkBlue
+        SkyBg = vec3(0.51, 0.75, 0.83);
+
+//            SkyTop = vec3(0.576, 0.569, 0.969); // MC Purple #9391f7
+//            SkyBg = vec3(0.659, 0.718, 0.965);
+//
+//            SkyTop = vec3(0.31, 0.31, 0.41);  // Glow Sunset
+//            SkyBg = vec3(0.90, 0.71, 0.36);
+////    //
+            SkyTop = vec3(0.26, 0.29, 0.42);  // MC Sunset
+            SkyBg = vec3(0.49, 0.36, 0.36);
+
+    SkyTop = vec3(0.00, 0.00, 0.16);  // DeepSky
+    SkyBg = vec3(0.24, 0.72, 0.82);
+
     if (_PosDepth.w == 1.0f) {
 
-        discard;
+        float skydist = max(0, rayDisk(RayPos, RayDir, vec3(0,100, 0), vec3(0,1,0), 99000));
+        float skyTopColorFactor = skydist == 0 ? 0 : max(0, 1.0 - skydist / 400);
+
+        FragColor.rgb = mix(SkyBg,SkyTop, skyTopColorFactor);
+        FragColor.a = 0;//skyTopColorFactor;
+//        discard;
         //FragColor.rgb = bgSkyColor;
     } else {
-        vec3 fogColor = vec3(0.5, 0.6, 0.8);
-        fogColor = vec3(0.584, 0.58, 0.702);  // 9594b3
+        vec3 fogColor = SkyBg;//vec3(0.5, 0.6, 0.8);
+//        fogColor = vec3(0.584, 0.58, 0.702);
         fogColor *= SunColor * 0.5f;
 
-        FragColor.rgb = mix(FragColor.rgb, fogColor, FragDepth / 200.0f);
+        FragColor.rgb = mix(FragColor.rgb, fogColor, min(1.0, FragDepth / 100.0f));
     }
 
 }

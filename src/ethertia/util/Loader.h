@@ -416,8 +416,15 @@ public:
     static void showMessageBox(const char* title, const char* message) {
         tinyfd_messageBox(title, message, "ok", "question", 1);
     }
-    static std::string showInputBox(const char* title, const char* message, const char* def) {
+    static const char* showInputBox(const char* title, const char* message, const char* def) {
         return tinyfd_inputBox(title, message, def);  // free()?
+    }
+    static glm::vec3 openColorPick() {
+        uint8_t rgb[3] = {};
+        tinyfd_colorChooser("Color Choose", nullptr, rgb, rgb);
+        Log::info("Pick Color");
+
+        return {rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f};
     }
 
 

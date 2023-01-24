@@ -149,6 +149,9 @@ public:
 
         m_Rigidbody = new btRigidBody(mass, new btDefaultMotionState(startTransform), shape, localInertia);
         m_Rigidbody->setUserPointer(this);
+
+        m_Rigidbody->setGravity(btVector3(0, -10, 0));
+        m_Rigidbody->setDamping(0.86, 0.86);
     }
 
     void initRigidbodyConvexModel(float mass, VertexBuffer&& vbuf) {

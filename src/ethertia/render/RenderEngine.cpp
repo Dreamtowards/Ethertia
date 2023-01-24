@@ -14,6 +14,8 @@
 #include <ethertia/render/renderer/gui/FontRenderer.h>
 #include <ethertia/render/renderer/ParticleRenderer.h>
 #include <ethertia/render/Window.h>
+#include <ethertia/entity/EntityDroppedItem.h>
+#include <ethertia/init/ItemTextures.h>
 
 
 RenderEngine::RenderEngine()
@@ -27,7 +29,7 @@ RenderEngine::RenderEngine()
     entityRenderer = new EntityRenderer();std::cout << "entity";
     m_SkyboxRenderer = new SkyboxRenderer();
     m_ParticleRenderer = new ParticleRenderer();
-//    skyGradientRenderer = new SkyGradientRenderer();
+    m_SkyGradientRenderer = new SkyGradientRenderer();
     std::cout << "]";
 
     float qual = 0.6;
@@ -59,14 +61,18 @@ RenderEngine::~RenderEngine() {
     delete entityRenderer;
     delete m_SkyboxRenderer;
     delete m_ParticleRenderer;
-//    delete skyGradientRenderer;
+    delete m_SkyGradientRenderer;
 }
 
 void RenderEngine::renderWorld(World* world)
 {
     assert(world);
 
+
     ParticleRenderer::updateSunMoonPos();
+
+    m_ParticleRenderer->updateAll(Ethertia::getDelta());
+
 
     // Geometry of Deferred Rendering
     {
@@ -94,7 +100,8 @@ Framebuffer::gPushFramebuffer(gbuffer);
             continue;
         }
 
-        if (entity->m_TypeTag == Entity::TypeTag::T_CHUNK_VEGETABLE) {
+        bool isFolige = entity->m_TypeTag == Entity::TypeTag::T_CHUNK_VEGETABLE;
+        if (isFolige) {
             if (dbg_NoVegetable) continue;
             glDisable(GL_CULL_FACE);
         }
@@ -104,7 +111,7 @@ Framebuffer::gPushFramebuffer(gbuffer);
 
         PROFILE("E/"+std::to_string(entity->m_TypeTag));
 
-        entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation(), entity->m_DiffuseMap);
+        entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation(), entity->m_DiffuseMap, isFolige ? 0.1 : 0.0);
 
         if (entity->m_TypeTag == Entity::TypeTag::T_CHUNK_VEGETABLE) {
             glEnable(GL_CULL_FACE);  // setback
@@ -138,8 +145,19 @@ Framebuffer::gPopFramebuffer();
     PROFILE("Cmp");
     Framebuffer::gPushFramebuffer(dcompose);
 
-    glClearColor(0.702, 0.812, 0.969, 1);
+    static glm::vec3 SkyColor = Colors::parseHexRGB("87cef4");  // 0.702, 0.812, 0.969  McPulp: 969df7 (0.588, 0.616, 0.969)
+
+    glClearColor(0,0,0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
+
+//        m_SkyGradientRenderer->render();
+
+//        if (Ethertia::getWindow()->isKeyDown(GLFW_KEY_K)) {
+//            const char* col = Loader::showInputBox("", "", "66ccff");
+//            if (col)
+//                SkyColor = Colors::parseHexRGB(col);
+//        }
+
 
 //    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 //        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
@@ -175,15 +193,43 @@ Framebuffer::gPopFramebuffer();
 
         }
 
-        if (!Ethertia::getWindow()->isKeyDown(GLFW_KEY_O)) {
+        {
+            // render Sun and Moon img.
 
             GlState::blendMode(GlState::ADD);
-            Ethertia::getRenderEngine()->m_ParticleRenderer->renderAll();
 
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // set back.
+            static Texture* TEX_SUN = Loader::loadTexture("misc/sky/sun.png");
+            static Texture* TEX_MOON = Loader::loadTexture("misc/sky/moon.png");
+
+            using glm::vec3;
+            // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
+            // glm::rotate(glm::mat4(1), angle, glm::vec3(0, 0, 1)) * glm::vec4(1, 0, 0, 1.0);
+            vec3 relSunPos = Mth::anglez(world->m_DayTime * 2*Mth::PI - 0.5f*Mth::PI) * 300.0f;
+
+            vec3 CamPos = Ethertia::getCamera()->position;
+            vec3 SunPos = CamPos + relSunPos;
+            vec3 MoonPos = CamPos - relSunPos;
+
+            m_ParticleRenderer->render(TEX_SUN, SunPos, 180.0f);
+            m_ParticleRenderer->render(TEX_MOON, MoonPos, 180.0f);
+
         }
 
-    entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
+        // CNS. 让接下来Alpha!=1.0的地方的颜色 添加到背景颜色中 为了接下来的天空颜色叠加
+        // use Screen Blend: addictive color.
+        GlState::blendMode(GlState::SCREEN);  // glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+        entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
+
+        for (Entity* e : world->getEntities())
+        {
+            if (EntityDroppedItem* droppedItem = dynamic_cast<EntityDroppedItem*>(e))
+            {
+                const Item& item = *droppedItem->m_DroppedItem.item();
+
+                m_ParticleRenderer->render(ItemTextures::ITEM_ATLAS, droppedItem->getPosition(), 0.3f);
+            }
+        }
 
 Framebuffer::gPopFramebuffer();
     }

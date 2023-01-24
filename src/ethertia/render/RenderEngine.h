@@ -36,7 +36,7 @@ public:
     EntityRenderer* entityRenderer           = nullptr;
     SkyboxRenderer* m_SkyboxRenderer         = nullptr;
     ParticleRenderer* m_ParticleRenderer     = nullptr;
-//    SkyGradientRenderer* skyGradientRenderer = nullptr;
+    SkyGradientRenderer* m_SkyGradientRenderer = nullptr;
 
     inline static glm::mat4 matProjection{1};
     inline static glm::mat4 matView{1};

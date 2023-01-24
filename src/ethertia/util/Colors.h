@@ -43,6 +43,22 @@ public:
         ));
     }
 
+    static float parseHex2(const char* hex) {
+        char s[3] = {
+                hex[0],
+                hex[1],
+                '\0'
+        };
+        return std::stoul(s, nullptr, 16) / 255.0f;
+    }
+    static glm::vec3 parseHexRGB(const char* str) {
+        return {
+            parseHex2(str),
+            parseHex2(str+2),
+            parseHex2(str+4)
+        };
+    }
+
     inline static float luminance(glm::vec3 rgb) {
         return (rgb.x*0.299f + rgb.y*0.587f + rgb.z*0.114f);
     }
