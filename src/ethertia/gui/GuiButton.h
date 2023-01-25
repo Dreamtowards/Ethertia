@@ -16,6 +16,7 @@ class GuiButton : public Gui
     bool enableBackground = true;
 
 public:
+    bool m_Enable = true;
 
     std::string m_Text;
 
@@ -32,9 +33,14 @@ public:
             drawButtonBackground(this);
         }
 
+        glm::vec4 textColor = Colors::WHITE;
+        if (isHover()) textColor = Colors::YELLOW;
+        if (isPressed()) textColor = Colors::GOLD;
+        if (!m_Enable) textColor = Colors::GRAY_DARK;
+
         float textHeight = 16;
         Gui::drawString(x+w/2, y+(h-textHeight)/2, m_Text,
-                        isPressed() ? Colors::GOLD : isHover() ? Colors::YELLOW : Colors::WHITE,
+                        textColor,
                         textHeight, {-0.5, 0}, true);
     }
 

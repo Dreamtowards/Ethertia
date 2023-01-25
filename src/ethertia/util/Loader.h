@@ -17,6 +17,7 @@
 #include <stb/stb_image_write.h>
 #include <tinyfd/tinyfiledialogs.h>
 #include <tiny_obj_loader/tiny_obj_loader.h>
+#include <nbt/nbt_tags.h>
 
 #include <ethertia/render/Texture.h>
 #include <ethertia/util/BitmapImage.h>
@@ -263,12 +264,13 @@ public:
         }
     }
 
-    static void ensureFileParentDirsReady(const std::string& filename) {
+    static const std::string& ensureFileParentDirsReady(const std::string& filename) {
         // mkdirs for parents of the file.
         int _dir = filename.rfind('/');
         if (_dir != std::string::npos) {
             std::filesystem::create_directories(filename.substr(0, _dir));
         }
+        return filename;
     }
 
     static Model* loadModel(size_t vcount, const std::vector<std::pair<int, float*>>& vdats) {
@@ -411,6 +413,20 @@ public:
 
 
 
+
+
+
+    static size_t calcDirectorySize(const std::string& dir)
+    {
+        size_t sumSize = 0;
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(dir))
+        {
+            if (!entry.is_directory()) {
+                sumSize += entry.file_size();
+            }
+        }
+        return sumSize;
+    }
 
 
     static void showMessageBox(const char* title, const char* message) {

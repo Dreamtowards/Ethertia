@@ -250,12 +250,12 @@ void Ethertia::destroy()
     glfwTerminate();
 }
 
-void Ethertia::loadWorld()
+void Ethertia::loadWorld(const std::string& savedir)
 {
     assert(m_World == nullptr);
     assert(Ethertia::getScheduler()->numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
 
-    m_World = new World("saves/world1", 1342);
+    m_World = new World(savedir, 1342);
     m_World->addEntity(m_Player);
 
     ChunkMeshProc::g_Running = 1;

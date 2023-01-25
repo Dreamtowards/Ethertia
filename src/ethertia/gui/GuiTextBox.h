@@ -33,7 +33,9 @@ public:
     float m_TextX = 0;
     float m_TextY = 0;
 
-    GuiTextBox(std::string text) : m_Text(std::move(text)), Gui(0, 0, 100, 20) {
+    GuiTextBox(std::string text) : m_Text(std::move(text)), Gui(0, 0, 100, 24) {
+        m_TextX = 4;
+        m_TextY = 4;
     }
 
     void implDraw() override
@@ -41,6 +43,16 @@ public:
         float x = getX(), y = getY(), w = getWidth(), h = getHeight();
 
         GuiButton::drawButtonBackground(this);
+
+        drawRect({
+           .xywh = xywh(),
+           .color = Colors::BLACK60
+        });
+        drawRect({
+            .xywh = xywh(),
+            .color = Colors::WHITE20,
+            .border = 2
+        });
 
         FontRenderer* fr = Ethertia::getRenderEngine()->fontRenderer;
 

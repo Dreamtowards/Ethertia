@@ -77,6 +77,16 @@ public:
         }
         return -1;
     }
+    T* getOrderEntry(int n) {
+        int i = 0;
+        for (auto& it : m_Map) {
+            if (i == n) {
+                return it.second;
+            }
+            i++;
+        }
+        return nullptr;
+    }
 
     auto begin() {
         return m_Map.begin();

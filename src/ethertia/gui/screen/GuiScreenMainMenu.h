@@ -6,6 +6,7 @@
 #define ETHERTIA_GUISCREENMAINMENU_H
 
 #include "../GuiCommon.h"
+#include "GuiScreenSingleplayer.h"
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/world/Biome.h>
@@ -18,30 +19,31 @@ public:
     inline static GuiScreenMainMenu *INST;
 
     GuiScreenMainMenu() {
-        addDrawBackground(Colors::WHITE80);
         setWidthHeight(Inf, Inf);
 
-        GuiStack *vstack = new GuiStack(GuiStack::D_VERTICAL, 16);
+        GuiStack* vstack = new GuiStack(GuiStack::D_VERTICAL, 16);
 
-        GuiButton *btnSingleplayer = new GuiButton("Singleplayer");
+        GuiButton* btnSingleplayer = new GuiButton("Singleplayer");
         vstack->addGui(btnSingleplayer);
         btnSingleplayer->addOnClickListener([](auto) {
-            Ethertia::loadWorld();
+            Ethertia::loadWorld("saves/world1");
         });
 
-        GuiButton *btnMultiplayer = new GuiButton("Multiplayer");
+        GuiButton* btnMultiplayer = new GuiButton("Multiplayer");
         vstack->addGui(btnMultiplayer);
         btnMultiplayer->addOnClickListener([](auto) {
-            Loader::openURL(Loader::showInputBox("URL", "File, Folder, or URL", ""));
+            // Loader::openURL(Loader::showInputBox("URL", "File, Folder, or URL", ""));
+
+            Ethertia::getRootGUI()->addGui(GuiScreenSingleplayer::INST);
         });
 
-        GuiButton *btnSettings = new GuiButton("Settings");
+        GuiButton* btnSettings = new GuiButton("Settings");
         vstack->addGui(btnSettings);
         btnSettings->addOnClickListener([](auto) {
 
         });
 
-        GuiButton *btnExit = new GuiButton("Terminate");
+        GuiButton* btnExit = new GuiButton("Terminate");
         vstack->addGui(btnExit);
         btnExit->addOnClickListener([](auto) {
             Ethertia::shutdown();
@@ -51,6 +53,8 @@ public:
     }
 
     void implDraw() override {
+
+        drawOptionsBackground();
 
         drawAudioFreq();
 

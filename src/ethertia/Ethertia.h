@@ -73,7 +73,7 @@ public:
 
     static void destroy();
 
-    static void loadWorld();
+    static void loadWorld(const std::string& savedir);
     static void unloadWorld();
 
     static void dispatchCommand(const std::string& cmd);

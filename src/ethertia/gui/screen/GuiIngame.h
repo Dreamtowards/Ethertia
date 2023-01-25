@@ -11,6 +11,7 @@
 #include "GuiScreenMainMenu.h"
 #include "GuiScreenPause.h"
 #include "GuiScreenChat.h"
+#include "GuiScreenSingleplayer.h"
 
 #include "GuiDebugV.h"
 #include "GuiMessageList.h"
@@ -38,6 +39,7 @@ public:
         GuiScreenPause::INST = new GuiScreenPause();
 
         GuiF4Lock::INST = new GuiF4Lock();
+        GuiScreenSingleplayer::INST = new GuiScreenSingleplayer();
 
 //        rt->addGui(GuiIngame::INST);
 //        rt->addGui(GuiScreenPause::INST);

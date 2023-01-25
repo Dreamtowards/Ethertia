@@ -40,7 +40,8 @@ public:
     std::mutex m_LockChunks;
     std::mutex m_LockEntities;
 
-    uint32_t m_Seed = 0;
+    std::string m_Name;
+    uint64_t m_Seed = 0;
 
     // Seconds Per Day
     float m_DayTimeScale = 12*60;
@@ -129,6 +130,15 @@ public:
 
 
     static Cell& _GetCell(Chunk* chunk, glm::vec3 rp);
+
+
+    struct DayTime
+    {
+        // 6AM - 6PM.
+        static bool isDay(float daytime) {
+            return daytime > 0.25 && daytime < 0.75;
+        }
+    };
 };
 
 #endif //ETHERTIA_WORLD_H

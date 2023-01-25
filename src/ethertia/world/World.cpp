@@ -27,6 +27,8 @@ World::World(const std::string& savedir, uint32_t seed)
     m_ChunkGenerator = new ChunkGenerator();
     m_ChunkLoader = new ChunkLoader(savedir);  //  = "saves/dim-1"
 
+    m_ChunkLoader->loadWorldInfo(*this);
+
     // init Phys
     {
         btCollisionConfiguration* collconf = new btDefaultCollisionConfiguration();
@@ -39,6 +41,8 @@ World::World(const std::string& savedir, uint32_t seed)
 }
 
 World::~World() {
+
+    m_ChunkLoader->saveWorldInfo(*this);
 
     for (int i = m_DynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i) {
         btCollisionObject* obj = m_DynamicsWorld->getCollisionObjectArray()[i];

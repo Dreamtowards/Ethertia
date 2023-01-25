@@ -534,6 +534,12 @@ public:
     static void drawStretchCorners(glm::vec4 xywh, Texture* tex, float thickness = 16, bool onlyLTCornerTex = false);
 
 
+    static void drawOptionsBackground() {
+
+        drawRect(0,0,Gui::maxWidth(), Gui::maxHeight(), Colors::GRAY);
+    }
+
+
 #define DECL_XYWH float x=xywh.x, y=xywh.y, w=xywh.z, h=xywh.w;
 
     glm::vec4 xywh() {
