@@ -28,12 +28,16 @@ struct WorldInfo
 {
 
     uint64_t Seed = 0;
-    float DayTime = 0;
-    float DayLength = 12*60;
-    float InhabitedTime = 0;
+    float DayTime = 0;        // 0-1. 0: midnight, = t*24h.
+    float DayLength = 12*60;  // seconds per day.
+    float InhabitedTime = 0;  // seconds world running.
 
     std::string Name;
     int ProtocolVersion = 0;
+
+    uint64_t SavedTime = 0;
+
+    inline static const float WORLD_SAVE_INTERVAL = 2*60;
 
 };
 
