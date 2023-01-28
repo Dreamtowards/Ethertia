@@ -48,8 +48,8 @@ public:
                     float w = 24, h = 18;
                     Gui::drawRect(g->getX() + (g->getWidth() - w) * 0.5, g->getY(), w, h, {
                         .tex = TEX_SIGNAL,
-                        .tex_size = {1/2.0f, 1/6.0f},
-                        .tex_pos = {0, 0}
+                        .tex_pos = {0, 0},
+                        .tex_size = {1/2.0f, 1/6.0f}
                     });
                 });
 

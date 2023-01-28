@@ -75,8 +75,8 @@ public:
             int hotbarIdx = Ethertia::getPlayer()->m_HotbarSlot;
             Gui::drawRect(hbX, hbY, HOTBAR_WIDTH, HOTBAR_HEIGHT, TEX_HOTBAR_SLOTS);
             Gui::drawRect(hbX + hotbarIdx * HOTBAR_HEIGHT, hbY, HOTBAR_HEIGHT, HOTBAR_HEIGHT, {
-                .tex = TEX_HOTBAR_SLOT_ACTIVE,
-                .color = {1,1,1,0.35}
+                .color = {1,1,1,0.35},
+                .tex = TEX_HOTBAR_SLOT_ACTIVE
             });
 
             //float hbItemWG = HOTBAR_WIDTH / HOTBAR_SLOT_MAX;
@@ -102,13 +102,13 @@ public:
                 float xpPercent = Mth::mod(lv, 1.0);
                 Gui::drawRect(hbX, xpY, HOTBAR_WIDTH, XP_HEIGHT, {
                         .tex = TEX_XP_BAR,
-                        .tex_size = {1.0, 1/6.0},
-                        .tex_pos = {0.0, 5/6.0}
+                        .tex_pos = {0.0, 5/6.0},
+                        .tex_size = {1.0, 1/6.0}
                 });
                 Gui::drawRect(hbX, xpY, HOTBAR_WIDTH*xpPercent, XP_HEIGHT, {
                         .tex = TEX_XP_BAR,
-                        .tex_size = {xpPercent, 1/6.0},
-                        .tex_pos = {0.0, 4/6.0}
+                        .tex_pos = {0.0, 4/6.0},
+                        .tex_size = {xpPercent, 1/6.0}
                 });
                 Gui::drawString(hbX+HOTBAR_WIDTH*0.5, xpY-2, Strings::fmt("{}", int(lv)), Colors::WHITE, 18, {-0.5, 0});
 
@@ -123,8 +123,8 @@ public:
 
                     Gui::drawRect(hbX + i*(HEALTH_SIZE+2), htY, HEALTH_SIZE, HEALTH_SIZE, {
                             .tex = TEX_HEALTH,
-                            .tex_size = {1/3.0, 1.0},
-                            .tex_pos = {none ? 2/3.0 : half ? 1/3.0 : 0.0, 0.0}
+                            .tex_pos = {none ? 2/3.0 : half ? 1/3.0 : 0.0, 0.0},
+                            .tex_size = {1/3.0, 1.0}
                     });
                 }
 

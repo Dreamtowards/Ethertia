@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <thread>
+#include <functional>
 
 class Timer
 {

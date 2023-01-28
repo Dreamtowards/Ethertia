@@ -69,8 +69,8 @@ public:
         float i = Item::REGISTRY.getOrderId((Item*)stack.item());
         Gui::drawRect(x,y,size,size, {
             .tex = ItemTextures::ITEM_ATLAS,
-            .tex_size = {1.0/n, 1.0},
-            .tex_pos  = {i/n, 0.0}
+            .tex_pos  = {i/n, 0.0},
+            .tex_size = {1.0/n, 1.0}
         });
 
         Gui::drawString(x+size,y+size, std::to_string(stack.m_Amount), Colors::WHITE, 15, {-1.0, -1.0});

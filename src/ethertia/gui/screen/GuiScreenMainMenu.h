@@ -32,7 +32,9 @@ public:
         GuiButton *btnMultiplayer = new GuiButton("Multiplayer");
         vstack->addGui(btnMultiplayer);
         btnMultiplayer->addOnClickListener([](auto) {
-            Loader::openURL(Loader::showInputBox("URL", "File, Folder, or URL", ""));
+            const char* r = Loader::showInputBox("URL", "File, Folder, or URL", "");
+            if (r)
+                Loader::openURL(r);
         });
 
         GuiButton *btnSettings = new GuiButton("Settings");
