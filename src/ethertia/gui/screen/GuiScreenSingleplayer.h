@@ -23,31 +23,31 @@ public:
         GuiStack* lsBtnWorldOps = new GuiStack(GuiStack::D_VERTICAL, 8);
         addGui(lsBtnWorldOps);
 
-        GuiButton* btnOpenWorld = new GuiButton("Open World");
+        GuiButton* btnOpenWorld = new GuiButton("Open World", false);
         lsBtnWorldOps->addGui(btnOpenWorld);
         btnOpenWorld->addOnClickListener([](auto) {
 
             Ethertia::loadWorld("saves/world-2");
         });
 
-        GuiButton* btnNewWorld = new GuiButton("New World");
+        GuiButton* btnNewWorld = new GuiButton("New World", false);
         lsBtnWorldOps->addGui(btnNewWorld);
         btnNewWorld->addOnClickListener([](auto) {
 
             Ethertia::getRootGUI()->addGui(GuiScreenNewWorld::Inst());
         });
 
-        GuiButton* btnModifyWorld = new GuiButton("Modify World");
+        GuiButton* btnModifyWorld = new GuiButton("Modify World", false);
         lsBtnWorldOps->addGui(btnModifyWorld);
 
-        GuiButton* btnDeleteWorld = new GuiButton("Delete World");
+        GuiButton* btnDeleteWorld = new GuiButton("Delete World", false);
         lsBtnWorldOps->addGui(btnDeleteWorld);
         btnDeleteWorld->addOnClickListener([](auto) {
             Loader::showMessageBox("Delete World", "Are you sure to delete world?");
 
         });
 
-        GuiButton* btnRefresh = new GuiButton("Refresh");
+        GuiButton* btnRefresh = new GuiButton("Refresh", false);
         lsBtnWorldOps->addGui(btnRefresh);
         btnRefresh->addOnClickListener([](auto){
             SELECTED_WORLD = nullptr;
@@ -117,12 +117,12 @@ public:
                 Gui::drawRect({
                                       .xywh = g->xywh(),
                                       .color = SELECTED_WORLD == itemWorld ? Colors::WHITE80 : Colors::WHITE20,
-                                      .border = 3
+                                      .border = 2
                               });
                 float x = g->getX() + 12, y = g->getY() + 12;
 
                 Gui::drawString(x, y, worldName);
-                Gui::drawString(x, y+20, desc, Colors::WHITE40, 15);
+                Gui::drawString(x, y+20, desc, Colors::GRAY, 15);
             });
         }
     }

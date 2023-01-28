@@ -30,10 +30,11 @@ public:
 class ChunkLoader
 {
 public:
+    using vec3 = glm::vec3;
 
     std::string m_ChunkDir;
 
-    std::unordered_map<glm::vec3, std::fstream*> m_OpendFiles;
+    std::unordered_map<glm::vec3, std::fstream*> m_LoadedChunkFiles;
 
     ChunkLoader(std::string savedir) : m_ChunkDir(std::move(savedir)) {
         assert(!Loader::fileExists(savedir));
@@ -70,6 +71,67 @@ public:
     }
 
 
+
+
+/**
+ * VST Chunk Store Format.
+ *
+ * the VST file:
+ * +--------------------------+
+ * | ChunkData Pointer Table  | 16*16*16 (4096) entries of {u32 pos_absfile, u32 len}, order: x*256 + y*16 + z
+ * +--------------------------+
+ * | ... ChunkData[]          |
+ * +--------------------------+
+ */
+
+    std::fstream* getChunkStoreFile(glm::vec3 chunkpos, bool write = false) {
+        assert(Chunk::validchunkpos(chunkpos));
+
+        auto it = m_LoadedChunkFiles.find(chunkpos);
+        if (it != m_LoadedChunkFiles.end())
+            return it->second;
+
+        std::string filename = Strings::fmt("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
+        std::fstream* file = new std::fstream(filename, std::ios::binary);
+
+        if (!file->good() && !write)
+            return nullptr;
+
+        m_LoadedChunkFiles[chunkpos] = file;
+        return file;
+    }
+
+    static int ChunkDataPointer_Offset(vec3 chunkpos) {
+        assert(Chunk::validchunkpos(chunkpos));
+        // to local chunk key. xyz: [0, 16)
+        vec3 lc = Mth::floor(chunkpos, 256) / 16.0f;
+        assert(glm::fract(lc) == glm::vec3{0});
+        return lc.x*256 + lc.y*16 + lc.z;
+    }
+
+    std::unique_ptr<nbt::tag_compound> getChunkData(vec3 chunkpos) {
+        std::fstream* file = getChunkStoreFile(chunkpos);
+        if (!file)  // read fail. no file exists.
+            return nullptr;
+
+        file->seekg(ChunkDataPointer_Offset(chunkpos));
+
+        uint32_t chunkdata_begin;
+        *file >> chunkdata_begin;
+
+        uint32_t chunkdata_len;
+        *file >> chunkdata_len;
+
+        if (chunkdata_begin == 0)  // read fail. no chunk stored there.
+            return nullptr;
+
+        file->seekg(chunkdata_begin);
+        nbt::io::read_compound()
+    }
+
+    void setChunkData(vec3 chunkpos, std::unique_ptr<nbt::tag_compound> chunkdata) {
+
+    }
 
     Chunk* loadChunk(glm::vec3 chunkpos, World* world) {
         std::ifstream file(_ChunkFile(chunkpos), std::ios::in);
@@ -138,12 +200,6 @@ public:
 
         nbt::io::write_tag("Chunk", tagChunk, file);
 
-    }
-
-    // .vst Volume Store
-    [[nodiscard]] std::string _ChunkFile(glm::vec3 chunkpos) const {
-        assert(Chunk::validchunkpos(chunkpos));
-        return Strings::fmt("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
     }
 
     std::string _FileWorldInfo() const {

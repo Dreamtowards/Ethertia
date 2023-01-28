@@ -36,7 +36,7 @@ public:
         glm::vec4 textColor = Colors::WHITE;
         if (isHover()) textColor = Colors::YELLOW;
         if (isPressed()) textColor = Colors::GOLD;
-        if (!m_Enable) textColor = Colors::GRAY_DARK;
+        if (!m_Enable) textColor = Colors::GRAY;
 
         float textHeight = 16;
         Gui::drawString(x+w/2, y+(h-textHeight)/2, m_Text,
@@ -51,6 +51,11 @@ public:
             Gui::drawRect(x,y,w,h,Colors::BLACK20);
         } else if (g->isHover()) {
             Gui::drawRect(x,y,w,h,Colors::BLACK10);
+        } else {
+            Gui::drawRect(x,y,w,h, {
+                .color = {0,0,0,0.2},
+                .border = 2
+            });
         }
     }
 };

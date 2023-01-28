@@ -33,7 +33,7 @@ public:
     float m_TextX = 0;
     float m_TextY = 0;
 
-    GuiTextBox(std::string text) : m_Text(std::move(text)), Gui(0, 0, 100, 24) {
+    GuiTextBox(std::string text) : m_Text(std::move(text)), Gui(0, 0, 200, 24) {
         m_TextX = 4;
         m_TextY = 4;
     }
@@ -46,7 +46,7 @@ public:
 
         drawRect({
            .xywh = xywh(),
-           .color = Colors::BLACK60
+           .color = Colors::BLACK20
         });
         drawRect({
             .xywh = xywh(),
@@ -68,7 +68,7 @@ public:
             Gui::drawRect(x + m_TextX + p.x, y + m_TextY + p.y, fr->charFullWidth(m_Text[i], textHeight), textHeight, Colors::WHITE30);
         }
 
-        Gui::drawString(x, y, m_Text, Colors::WHITE, textHeight);
+        Gui::drawString(x+m_TextX, y+m_TextY, m_Text, Colors::WHITE, textHeight);
 
         // Cursor
         if (isFocused() && (Mth::mod(Ethertia::getPreciseTime(), 1.0f) < 0.5f || Ethertia::getPreciseTime() - _timeLastCursorModify < 0.5f)) {

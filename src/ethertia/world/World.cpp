@@ -24,10 +24,11 @@ World::World(const std::string& savedir, uint32_t seed)
 {
     m_Seed = seed;  //1423
 
-    m_ChunkGenerator = new ChunkGenerator();
     m_ChunkLoader = new ChunkLoader(savedir);  //  = "saves/dim-1"
-
     m_ChunkLoader->loadWorldInfo(*this);
+
+    m_ChunkGenerator = new ChunkGenerator();
+
 
     // init Phys
     {
@@ -139,6 +140,10 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     return chunk;
 }
 
+void checkForChunkSave() {
+    // chunks will be force save when: 1. 太多区块在卸载列表 2. 太久没保存
+}
+
 void World::unloadChunk(glm::vec3 p)  {
     Chunk* chunk = nullptr;
     {
@@ -150,13 +155,10 @@ void World::unloadChunk(glm::vec3 p)  {
         assert(chunk);
 
         m_Chunks.erase(it);
-        {
-            m_ChunkLoader->saveChunk(chunk);
-        }
-//        Ethertia::getAsyncScheduler()->addTask([this, chunk](){
-//            BENCHMARK_TIMER(&ChunkProcStat::SAVE.time, nullptr); ChunkProcStat::SAVE.num++;
-//            m_ChunkLoader->saveChunk(chunk);
-//        });
+
+        // later save.
+        m_UnloadedChunks.push_back(chunk);
+        //    m_ChunkLoader->saveChunk(chunk);
     }
     chunk->m_World = nullptr;  // mesh gen needed for delay remove. but MeshUpload need immediate know is unloaded
 

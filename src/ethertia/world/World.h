@@ -24,24 +24,49 @@ class Chunk;
 class ChunkGenerator;
 class ChunkLoader;
 
+struct WorldInfo
+{
+
+    uint64_t Seed = 0;
+    float DayTime = 0;
+    float DayLength = 12*60;
+    float InhabitedTime = 0;
+
+    std::string Name;
+    int ProtocolVersion = 0;
+
+};
+
 class World
 {
-    std::unordered_map<glm::vec3, Chunk*> m_Chunks;
-
-    std::vector<Entity*> m_Entities;
-
-    ChunkGenerator* m_ChunkGenerator = nullptr;
 
 public:
-    ChunkLoader* m_ChunkLoader = nullptr;
 
-    btDynamicsWorld* m_DynamicsWorld = nullptr;
+    ChunkGenerator* m_ChunkGenerator = nullptr;
+    ChunkLoader*    m_ChunkLoader = nullptr;
 
+    // Loaded Chunks
+    std::unordered_map<glm::vec3, Chunk*> m_Chunks;
     std::mutex m_LockChunks;
+
+    // Unlaoded Chunks waiting to be batch-save.
+    std::vector<Chunk*> m_UnloadedChunks;
+
+
+    // Loaded Entities
+    std::vector<Entity*> m_Entities;
     std::mutex m_LockEntities;
 
-    std::string m_Name;
+
+    // Bullet Physics.
+    btDynamicsWorld* m_DynamicsWorld = nullptr;
+
+
+    WorldInfo worldinfo;
+
     uint64_t m_Seed = 0;
+
+    std::string m_Name;
 
     // Seconds Per Day
     float m_DayTimeScale = 12*60;
@@ -49,7 +74,7 @@ public:
     // [0, 1] t*24; 0: 0AM, 0.25: 6AM, 0.5: 0PM, 0.75: 6PM
     float m_DayTime = 0;
 
-    // Total Seconds.
+    // World total living seconds.
     float m_InhabitedTime = 0;
 
     entt::registry m_EnttRegistry;

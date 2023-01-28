@@ -225,7 +225,7 @@ public:
                 float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
                 dbg_s = Strings::fmt(
                         "cam p: {}, len: {}, spd {}mps {}kph. ground: {}, CPs {}.\n"
-                        "E: {}/{}, C{}\n"
+                        "Entity: {}/{}, LoadedChunks: {}\n"
 //                        "ChunkGen {}\n"
 //                        "ChunkMesh{}\n"
 //                        "ChunkEmit{}\n"
@@ -235,7 +235,8 @@ public:
                         "dt: {}, {}fps\n"
                         "mem: {}, alloc {}, freed: {}\n"
                         "ChunkHit: {}\n"
-                        "CellHit: {}",
+                        "CellHit: {}\n"
+                        "World {}, {}s #{}. seed {}",
                         glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
                         world ? rde->dbg_NumEntityRendered : 0, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
 //                        ChunkProcStat::GEN.str(),
@@ -247,8 +248,9 @@ public:
                         dt, Mth::floor(1.0f/dt),
                         Strings::size_str(MemoryTrack::g_MemoryPresent()), Strings::size_str(MemoryTrack::g_MemoryAllocated), Strings::size_str(MemoryTrack::g_MemoryFreed),
                         chunkInfo,
-                        cellInfo
-                        );
+                        cellInfo,
+                        world->m_Name, world->m_InhabitedTime, Strings::daytime(world->m_DayTime), world->m_Seed
+                );
             }
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, {0,0}, false);
         }

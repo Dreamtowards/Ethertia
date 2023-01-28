@@ -22,6 +22,7 @@ public:
 
         GuiStack* vStack = new GuiStack(GuiStack::D_VERTICAL, 8);
         addGui(vStack);
+        vStack->setWidth(500);
         vStack->addConstraintAlign(0.5, 0.25);
 
         GuiTextBox* textWorldName = new GuiTextBox("New World");
@@ -29,7 +30,12 @@ public:
         textWorldName->setWidth(Inf);
 
 
-        vStack->addGui(new GuiButton("Create!"));
+        GuiButton* btnOpGamemode = new GuiButton("Gamemode: Creative");
+        vStack->addGui(btnOpGamemode);
+
+        GuiButton* btnCreate = new GuiButton("Create!");
+        vStack->addGui(btnCreate);
+        btnCreate->setWidth(Inf);
 
         vStack->addGui(new GuiButton("Advanced options..."));
 

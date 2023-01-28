@@ -536,7 +536,7 @@ public:
 
     static void drawOptionsBackground() {
 
-        drawRect(0,0,Gui::maxWidth(), Gui::maxHeight(), Colors::GRAY);
+        drawRect(0,0,Gui::maxWidth(), Gui::maxHeight(), Colors::brightness(0.42));
     }
 
 

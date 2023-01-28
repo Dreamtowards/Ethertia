@@ -21,7 +21,9 @@ public:
 
     Cell m_Cells[16*16*16] = {};
 
+    // chunkpos. World Coordinate, p MOD 16 == 0.
     glm::vec3 position;
+
     World* m_World;
 
     bool m_Populated = false;
@@ -31,6 +33,9 @@ public:
     uint64_t m_CreatedTime = 0;  // millis timestamp.
 
     float m_InhabitedTime = 0;  // seconds.
+
+    bool m_NeedsSave = false;
+    uint64_t m_LastSavedTime = 0;
 
     // VertexData positions. for fix Normal Smoothing at Chunk Boundary.
     // not use Physics Collision triangle positions yet, it's struct too complicated, BVH triangles, maybe later.
@@ -62,6 +67,10 @@ public:
     ~Chunk() {
 
 
+    }
+
+    inline const glm::vec3 chunkpos() {
+        return position;
     }
 
     inline Cell& getCell(int rx, int ry, int rz) {

@@ -63,6 +63,10 @@ public:
         return (rgb.x*0.299f + rgb.y*0.587f + rgb.z*0.114f);
     }
 
+    static glm::vec4 brightness(float f) {
+        return {f, f, f, 1.0};
+    }
+
     inline static constexpr glm::vec4 WHITE = glm::vec4(1, 1, 1, 1);
     inline static constexpr glm::vec4 BLACK = glm::vec4(0, 0, 0, 1);
     inline static constexpr glm::vec4 TRANSPARENT = glm::vec4(0, 0, 0, 0);
