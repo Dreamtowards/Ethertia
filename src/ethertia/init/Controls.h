@@ -15,7 +15,7 @@ public:
     {
         new std::thread([]()
         {
-            // Log::info("Console thread is ready");
+            Log::info("Console thread is ready");
 
             while (Ethertia::isRunning())
             {
@@ -300,7 +300,7 @@ public:
                             }
                         }
                     } else if (btn == GLFW_MOUSE_BUTTON_3) {
-                        Material* mtl = world->getCell(p - cur.normal*0.1f).mtl;
+                        const Material* mtl = world->getCell(p - cur.normal*0.1f).mtl;
                         if (mtl && player->getGamemode() != Gamemode::SURVIVAL)
                         {
                             ItemStack stack(mtl->m_MaterialItem, 1);

@@ -66,7 +66,7 @@ public:
 //        return Collections::find(m_RuntimeNumIdTable, entry);
 //    }
 
-    int getOrderId(T* entry) {
+    int getOrderId(const T* entry) {
         // Extreme Low Effective
         int i = 0;
         for (auto& it : m_Map) {

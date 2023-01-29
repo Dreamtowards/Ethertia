@@ -35,7 +35,7 @@ public:
         REGISTRY.regist(this);
     }
 
-    std::string getRegistryId() const {
+    const std::string getRegistryId() const {
         return m_Name;
     }
 

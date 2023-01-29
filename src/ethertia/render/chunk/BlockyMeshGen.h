@@ -28,7 +28,7 @@ public:
                     if (!c.mtl)
                         continue;
 
-                    Material* mtl = c.mtl;
+                    const Material* mtl = c.mtl;
                     int texId = Material::REGISTRY.getOrderId(mtl);
 
                     if (genVegetable)   // Generating Vegetable
@@ -110,7 +110,7 @@ public:
     };
 
 
-    static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, Material* mtl) {
+    static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, const Material* mtl) {
 
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = _CubeFaceDir(i);

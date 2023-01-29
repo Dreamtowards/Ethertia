@@ -104,6 +104,8 @@ public:
 
     void unloadChunk(glm::vec3 p);
 
+    void saveUnloadedChunks();
+
     // Quick: Effective find, not lock, no thread-safe.
     Chunk* getLoadedChunk(glm::vec3 p, bool quick = false);
 

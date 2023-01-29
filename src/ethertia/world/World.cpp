@@ -140,8 +140,28 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     return chunk;
 }
 
-void checkForChunkSave() {
+void World::saveUnloadedChunks() {
     // chunks will be force save when: 1. 太多区块在卸载列表 2. 太久没保存
+
+    int i = 0;
+    for (Chunk* chunk : m_UnloadedChunks) {
+
+        Log::info("Saving chunk {}/{}", i, m_UnloadedChunks.size()); ++i;
+        m_ChunkLoader->saveChunk(chunk);
+
+        Ethertia::getScheduler()->addTask([this, chunk]()
+        {
+            // CNS 有时Entity根本不会被加入世界 (当加入世界时发现区块已被卸载 将取消加入世界
+            if (chunk->m_MeshTerrain->m_World) {
+                removeEntity(chunk->m_MeshTerrain);
+                removeEntity(chunk->m_MeshVegetable);
+            }
+            delete chunk;
+        }, -1);  // ? after addEntity().
+    }
+
+    m_UnloadedChunks.clear();
+
 }
 
 void World::unloadChunk(glm::vec3 p)  {
@@ -161,25 +181,6 @@ void World::unloadChunk(glm::vec3 p)  {
         //    m_ChunkLoader->saveChunk(chunk);
     }
     chunk->m_World = nullptr;  // mesh gen needed for delay remove. but MeshUpload need immediate know is unloaded
-
-
-
-    Ethertia::getScheduler()->addTask([this, chunk]()
-    {
-        // CNS 有时Entity根本不会被加入世界 (当加入世界时发现区块已被卸载 将取消加入世界
-        if (chunk->m_MeshTerrain->m_World) {
-            removeEntity(chunk->m_MeshTerrain);
-            removeEntity(chunk->m_MeshVegetable);
-        }
-
-        Ethertia::getAsyncScheduler()->addTask([=](){
-            while (chunk->m_Meshing) {
-                Log::warn("Waiting for Mesh done for prevents interrupt.");
-                Timer::sleep_for(1);
-            }
-            delete chunk;
-        }, -1);  // after async save
-    }, -1);  // ? after addEntity().
 
 }
 

@@ -89,19 +89,22 @@ public:
             if (!savedir.is_directory())
                 continue;
 
-            GuiCollection* itemWorld = new GuiCollection(0, 0, 500, 60);
-            lsWorlds->addGui(itemWorld);
+            std::string fileWorldInfo = Strings::fmt("{}/{}", savedir.path().string(), "world.dat");
+            std::ifstream file(fileWorldInfo, std::ios::in);
+            if (!file)
+                continue;
+            auto tagWorld = nbt::io::read_compound(file).second;
+            file.close();
 
             long dirsize = Loader::calcDirectorySize(savedir.path());
             std::string desc = Strings::fmt("{} | {}", savedir.path(), Strings::size_str(dirsize));
 
-            std::string fileWorldInfo = Strings::fmt("{}/{}", savedir.path().string(), "world.dat");
-            std::ifstream file(fileWorldInfo, std::ios::in);
-            auto tagWorld = nbt::io::read_compound(file).second;
-            file.close();
-
             std::string worldName = (std::string)tagWorld->at("Name");
             //int64_t savedTime = (int64_t)tagWorld->at("SavedTime");
+
+
+            GuiCollection* itemWorld = new GuiCollection(0, 0, 500, 60);
+            lsWorlds->addGui(itemWorld);
 
             itemWorld->addPreDraw([=](Gui* g) {
                 if (g->isPressed() || g->isHover()) {

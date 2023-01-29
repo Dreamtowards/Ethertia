@@ -79,8 +79,8 @@ void Ethertia::start()
     MaterialMeshes::load();
     ItemTextures::load();
 
-    Controls::initControls();
     ClientConnectionProc::initPackets();
+    Controls::initControls();
 
     m_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
     GuiIngame::initGUIs();

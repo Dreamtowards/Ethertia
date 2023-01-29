@@ -106,7 +106,7 @@ public:
 
                                 // determine the MtlId of 8 corners. use Nearest Positive Density Corner.
                                 float min_dist = Mth::Inf;
-                                Material* mtl = 0;
+                                const Material* mtl = 0;
                                 for (vec3 cellv : VERT) {
                                     Cell& c = World::_GetCell(chunk, quadp + cellv);
                                     if (c.mtl && c.density > 0 && c.density < min_dist) {

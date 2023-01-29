@@ -51,9 +51,10 @@ public:
         };
 
         std::unordered_map<glm::vec3, ChunkDataInfo> heaptable;  // key: world-coordinate chunkpos.
+
         std::fstream* file;
     };
-    std::unordered_map<glm::vec3, std::fstream*> m_LoadedChunkFiles;
+    std::unordered_map<glm::vec3, VolumeStore*> m_LoadedChunkFiles;
 
     bool m_DisableSave = false;
     bool m_DisableLoad = false;
@@ -128,12 +129,17 @@ public:
  * - 堆内存的方法 无序排列 查找表 甚至可能有大空隙。每当修改一次 就失效老内存 查找一块新内存。优点是无序移动数据 无需修改后续查找表，但可能有存储空隙(可以接受)。
  */
 
-    std::fstream* getChunkStoreFile(glm::vec3 chunkpos, bool readonly = true) {
+    std::string _OldChunkFileName(glm::vec3 chunkpos) {
+        return Strings::fmt("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
+    }
+
+
+    VolumeStore* getChunkStoreFile(glm::vec3 chunkpos, bool readonly = true) {
         assert(Chunk::validchunkpos(chunkpos));
 
         auto it = m_LoadedChunkFiles.find(chunkpos);
         if (it != m_LoadedChunkFiles.end())
-            return it->second;
+            return it->second;  // todo: May Dangerous?
 
         std::string filename = Strings::fmt("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
         if (readonly && !Loader::fileExists(filename)) {
@@ -143,51 +149,86 @@ public:
         Loader::ensureFileParentDirsReady(filename);
         std::fstream* file = new std::fstream(filename, std::ios::binary);
 
-        m_LoadedChunkFiles[chunkpos] = file;
-        return file;
+        VolumeStore* vst = new VolumeStore();
+        vst->file = file;
+
+        if (file->good()) {
+            // assert(file.size >= 4096*8);
+
+            // read the ChunkData Info Table
+            vec3 region_pos = Mth::floor(chunkpos, 256);
+            for (int x = 0; x < 16; ++x) {
+                for (int y = 0; y < 16; ++y) {
+                    for (int z = 0; z < 16; ++z) {
+
+                        uint32_t chunkdata_begin; *file >> chunkdata_begin;  // !Endianness.
+                        uint32_t chunkdata_len;   *file >> chunkdata_len;
+
+                        vec3 cp = vec3(x,y,z) * 16.0f + region_pos;
+                        vst->heaptable[cp] = {
+                                .pos = chunkdata_begin,
+                                .len = chunkdata_len
+                        };
+                    }
+                }
+            }
+        }
+
+        m_LoadedChunkFiles[chunkpos] = vst;
+        return vst;
     }
 
-    static int ChunkDataInfoAddr(vec3 chunkpos) {
-        assert(Chunk::validchunkpos(chunkpos));
-
-        // to local region chunk key. xyz: [0, 16)
-        vec3 lc = Mth::floor(chunkpos, 256) / 16.0f;
-        assert(glm::fract(lc) == glm::vec3{0});
-
-        int idx = (lc.x*256 + lc.y*16 + lc.z);
-        static const int CHUNK_DATA_INFO_LEN = 8;
-        return idx * CHUNK_DATA_INFO_LEN;
-    }
+//    static int ChunkDataInfoAddr(vec3 chunkpos) {
+//        assert(Chunk::validchunkpos(chunkpos));
+//
+//        // to local region chunk key. xyz: [0, 16)
+//        vec3 lc = Mth::floor(chunkpos, 256) / 16.0f;
+//        assert(glm::fract(lc) == glm::vec3{0});
+//
+//        int idx = (lc.x*256 + lc.y*16 + lc.z);
+//        static const int CHUNK_DATA_INFO_LEN = 8;
+//        return idx * CHUNK_DATA_INFO_LEN;
+//    }
 
     std::unique_ptr<nbt::tag_compound> getChunkData(vec3 chunkpos)
     {
-        std::fstream* file = getChunkStoreFile(chunkpos);
-        if (!file)  // no file exists.
+//        VolumeStore* store = getChunkStoreFile(chunkpos);
+//        if (!store)  // no file exists.
+//            return nullptr;
+//
+//        VolumeStore::ChunkDataInfo info = store->heaptable[chunkpos];
+//        if (info.pos == 0 || info.len == 0)  // no chunk stored there.
+//            return nullptr;
+//
+//        store->file->seekg(info.pos);
+//        return nbt::io::read_compound(*store->file).second;  // CNS 读一部分能成功/允许吗
+
+
+        std::ifstream file(_OldChunkFileName(chunkpos), std::ios::in | std::ios::binary);
+        if (!file)
             return nullptr;
-
-        file->seekg(ChunkDataInfoAddr(chunkpos));
-
-        uint32_t chunkdata_begin; *file >> chunkdata_begin;
-        uint32_t chunkdata_len;   *file >> chunkdata_len;
-
-        if (chunkdata_begin == 0 || chunkdata_len == 0)  // no chunk stored there.
-            return nullptr;
-
-        file->seekg(chunkdata_begin);
-        return nbt::io::read_compound(*file).second;
+        return nbt::io::read_compound(file).second;
     }
 
     void setChunkData(vec3 chunkpos, const nbt::tag_compound& chunkdata)
     {
-        std::fstream& file = *getChunkStoreFile(chunkpos, false);
+//        VolumeStore& store = *getChunkStoreFile(chunkpos, false);
+//
+//        std::stringstream buf;
+//        nbt::io::write_tag("ChunkData", chunkdata, buf);
+//
+//        // find/alloc a space of size n.
+//        auto info = store.reallocSpace(chunkpos, n);
+//
+//        // move buf to file[info.pos];
 
-        // invalidate old store.
+        std::ofstream file(Loader::ensureFileParentDirsReady(_OldChunkFileName(chunkpos)), std::ios::out | std::ios::binary);
 
+        nbt::io::write_tag("ChunkData", chunkdata, file);
 
-        // allocate an new store.
-
-
+        file.close();
     }
+    static const size_t CELL_SIZE = 1+4, CELLS_ALL_SIZE = 4096 * CELL_SIZE;
 
     Chunk* loadChunk(glm::vec3 chunkpos, World* world) {
         auto tagChunk = getChunkData(chunkpos);
@@ -201,20 +242,39 @@ public:
         chunk->m_InhabitedTime = (float)tagChunk->at("InhabitedTime");
         chunk->m_Populated = (bool)tagChunk->at("Populated");
 
+        auto tagVoxel = tagChunk->at("Voxel").as<nbt::tag_compound>();
         {
-            int8_t* cells = &tagChunk->at("Cells").as<nbt::tag_byte_array>().at(0);
-
-            for (int rx = 0; rx < 16; ++rx) {
-                for (int ry = 0; ry < 16; ++ry) {
-                    for (int rz = 0; rz < 16; ++rz) {
-                        int idx = (rx*256 + ry*16 + rz) * (4+1);
-                        Cell& c = chunk->getCell(rx,ry,rz);
-                        uint8_t u8Id = cells[idx];
-                        c.mtl = Material::REGISTRY.getOrderEntry(u8Id);
-                        std::memcpy(&c.density, &cells[idx+1], 4);
-                    }
-                }
+            nbt::tag_list tagPalette = tagVoxel.at("Palette").as<nbt::tag_list>();
+            std::vector<std::string> palette(tagPalette.size());
+            for (int i = 0; i < tagPalette.size(); ++i) {
+                palette[i] = (std::string)tagPalette.at(i);
             }
+
+            int8_t* cells_data = &tagVoxel.at("Cells").as<nbt::tag_byte_array>().at(0);
+
+            for (int i = 0; i < 4096; ++i) {
+                int data_i = i * CELL_SIZE;
+
+                Cell& c = chunk->m_Cells[i];
+                uint8_t palette_i =  cells_data[data_i];
+                if (palette_i > 0) {
+                    c.mtl = Material::REGISTRY.get(palette[palette_i-1]);
+                } else {
+                    c.mtl = nullptr;
+                }
+                std::memcpy(&c.density, &cells_data[data_i+1], 4);  // density requires always read. even mtl is nil/air.
+            }
+//            for (int rx = 0; rx < 16; ++rx) {
+//                for (int ry = 0; ry < 16; ++ry) {
+//                    for (int rz = 0; rz < 16; ++rz) {
+//                        int idx = (rx*256 + ry*16 + rz) * (4+1);
+//                        Cell& c = chunk->getCell(rx,ry,rz);
+//                        uint8_t u8Id = cells[idx];
+//                        c.mtl = Material::REGISTRY.getOrderEntry(u8Id);
+//                        std::memcpy(&c.density, &cells[idx+1], 4);
+//                    }
+//                }
+//            }
         }
 
         return chunk;
@@ -229,27 +289,47 @@ public:
         tagChunk.put("InhabitedTime", chunk->m_InhabitedTime);
         tagChunk.put("Populated", chunk->m_Populated);
 
-        // Palette? not need yet, not String Id yet.
+        // Voxel Cells (16^3 Uniform Grids)
+        nbt::tag_compound tagVoxel;
         {
-            // Uniform Grids Cells.
-            static const size_t CELL_SIZE = 1+4,
-                                CELLS_ALL_SIZE = 4096 * CELL_SIZE;
-            static int8_t cells[CELLS_ALL_SIZE];
+            // Palette (no order, local string-id to num-id table.)
+            std::set<std::string> palette;
 
-            for (int rx = 0; rx < 16; ++rx) {
-                for (int ry = 0; ry < 16; ++ry) {
-                    for (int rz = 0; rz < 16; ++rz) {
-                        int idx = (rx*256 + ry*16 + rz) * CELL_SIZE;
-                        const Cell& c = chunk->getCell(rx,ry,rz);
-                        cells[idx] = Material::REGISTRY.getOrderId(c.mtl);
-                        std::memcpy(&cells[idx+1], &c.density, 4);
-                    }
+            for (int i = 0; i < 4096; ++i) {
+                const Cell& c = chunk->m_Cells[i];
+                if (c.mtl) {
+                    palette.emplace(c.mtl->getRegistryId());
                 }
             }
 
-            tagChunk.put("Cells", nbt::tag_byte_array(std::vector<int8_t>(cells, cells+CELLS_ALL_SIZE)));
-        }
+            auto tagPalette = nbt::tag_list(nbt::tag_string::type);
+            for (auto& s : palette) {
+                tagPalette.push_back(s);
+            }
+            tagVoxel.put("Palette", std::move(tagPalette));
 
+            // Cells (binary, 16^3 entry of {u8 type_id, u8 metadata, u8 density}  // needs varying len?
+            static int8_t cells_data[CELLS_ALL_SIZE];
+
+            for (int i = 0; i < 4096; ++i) {
+                int data_i = i * CELL_SIZE;
+
+                const Cell& c = chunk->m_Cells[i];
+                if (c.mtl) {
+                    int palette_i = 1 + std::distance(palette.begin(), palette.find(c.mtl->getRegistryId()));  // +1: remain 0 for nil.
+                    cells_data[data_i] = palette_i;
+                } else {
+                    cells_data[data_i] = 0;
+                }
+                // density always need to be stored. regardless whether mtl is nil(air). it will affect adjacent cells.
+                std::memcpy(&cells_data[data_i+1], &c.density, 4);
+            }
+
+            tagVoxel.put("Cells", nbt::tag_byte_array(std::vector<int8_t>(cells_data, cells_data+CELLS_ALL_SIZE)));
+        }
+        tagChunk.put("Voxel", std::move(tagVoxel));
+
+        // Entities
 
         setChunkData(chunk->chunkpos(), tagChunk);
     }

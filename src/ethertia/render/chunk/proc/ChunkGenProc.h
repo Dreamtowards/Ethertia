@@ -21,6 +21,8 @@ public:
     static void initThread() {
         new std::thread([]()
         {
+            Log::info("ChunkGen&Load&Store thread is ready.");
+
             while (true)
             {
                 if (g_Running == -1 || g_Running == 0) {
@@ -108,6 +110,9 @@ public:
         for (glm::vec3 cp : unloads) {
             world->unloadChunk(cp);
         }
+
+        world->saveUnloadedChunks();
+
         return unloads.size();
     }
 

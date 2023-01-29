@@ -12,7 +12,7 @@ class Cell
 {
 public:
 
-    Material* mtl = nullptr;
+    const Material* mtl = nullptr;
     float density = 0;
 
     char exp_meta = 0;

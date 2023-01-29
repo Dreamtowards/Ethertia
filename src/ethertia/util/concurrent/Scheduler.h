@@ -126,7 +126,7 @@ public:
         new std::thread([this]()
         {
             m_ThreadId = std::this_thread::get_id();
-            // Log::info("Async Tasks thread is ready.", workerName);
+            Log::info("Async Tasks thread is ready.");
 
             while (!m_Stopped)
             {

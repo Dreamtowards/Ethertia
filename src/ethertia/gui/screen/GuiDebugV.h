@@ -201,7 +201,7 @@ public:
 
         glPolygonMode(GL_FRONT_AND_BACK, dbgPolyLine ? GL_LINE : GL_FILL);
 
-        if (dbgText) {
+        if (dbgText && world) {
             float dt = Ethertia::getDelta();
             static std::string dbg_s;
             if (span_crossed(dbgLastDrawTime, Ethertia::getPreciseTime(), 0.1f)) {
