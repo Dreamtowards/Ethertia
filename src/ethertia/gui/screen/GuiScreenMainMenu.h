@@ -65,7 +65,7 @@ public:
         Gui::drawString(Gui::maxWidth(), Gui::maxHeight(),
                         "Seasonally Excellent Dev: Eldrine Le Prismarine.\n"
                         "Copyright Elytra Corporation. Do not distribute!",
-                        Colors::WHITE60, 16, {1.0, -1.0f});
+                        Colors::WHITE60, 16, {-1.0, -1.0f});
 
 
 

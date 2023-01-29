@@ -219,6 +219,10 @@ void Ethertia::renderGUI()
         Gui::drawRect(p.x, p.y, 3, 3, Colors::RED);
     });
 
+    if (ChunkGenProc::dbg_SavingChunks) {
+        Gui::drawString(Gui::maxWidth() - 32, Gui::maxHeight() - 32, "Saving chunks...", Colors::YELLOW, 16, {-1, -1});
+    }
+
     glEnable(GL_DEPTH_TEST);
 
 }
@@ -278,10 +282,13 @@ void Ethertia::unloadWorld()
 
     Ethertia::getBrushCursor().reset();
 
+    m_World->unloadAllChunks();
+
+    World* oldWorld = m_World;
+    m_World = nullptr;
+
     ChunkMeshProc::g_Running = -1;
     ChunkGenProc::g_Running = -1;
-
-    m_World->unloadAllChunks();
 
     Timer::wait_for(&ChunkMeshProc::g_Running, 0);
     Timer::wait_for(&ChunkGenProc::g_Running, 0);
@@ -289,13 +296,10 @@ void Ethertia::unloadWorld()
     // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
     m_Scheduler.processTasks(Mth::Inf);
     assert(m_Scheduler.numTasks() == 0);
-
-    // tmp save
-    getAsyncScheduler()->processTasks(Mth::Inf);
+    assert(m_AsyncScheduler.numTasks() == 0);
 
 
-    delete m_World;
-    m_World = nullptr;
+    delete oldWorld;
 
     Log::info("World unloaded.");
 

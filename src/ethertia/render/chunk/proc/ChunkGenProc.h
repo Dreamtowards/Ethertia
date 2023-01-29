@@ -61,7 +61,7 @@ public:
                         for (int i = 0; i < 6; ++i) {
                             world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
                         }
-                    }, Mth::clamp(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 0.5f, 4.0f));
+                    }, 0.5f + Mth::min(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 4.0f));
                 }
 
 
@@ -93,6 +93,8 @@ public:
         return nil_chunkpos;
     }
 
+    inline static bool dbg_SavingChunks = false;
+
     static int _UnloadChunks(World* world, vec3 center, int viewDistance) {
         vec3 cpos = Chunk::chunkpos(center);
         int lim = viewDistance * 16;
@@ -111,7 +113,9 @@ public:
             world->unloadChunk(cp);
         }
 
+        dbg_SavingChunks = true;
         world->saveUnloadedChunks();
+        dbg_SavingChunks = false;
 
         return unloads.size();
     }

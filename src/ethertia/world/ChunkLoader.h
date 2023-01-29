@@ -240,7 +240,7 @@ public:
         assert(NBT::vec3(tagChunk->at("ChunkPos")) == chunkpos);
         chunk->m_CreatedTime = (int64_t)tagChunk->at("CreatedTime");
         chunk->m_InhabitedTime = (float)tagChunk->at("InhabitedTime");
-        chunk->m_Populated = (int8_t)tagChunk->at("Populated") != 0;
+        chunk->m_Populated = (int8_t)tagChunk->at("Populated") != 0;  // bugfix: notice nbt++ not supports bool. need manually use int8
 
         auto tagVoxel = tagChunk->at("Voxel").as<nbt::tag_compound>();
         {
@@ -320,8 +320,7 @@ public:
                 } else {
                     cells_data[data_i] = 0;
                 }
-                // density always need to be stored. regardless whether mtl is nil(air). it will affect adjacent cells.
-                std::memcpy(&cells_data[data_i+1], &c.density, 4);
+                std::memcpy(&cells_data[data_i+1], &c.density, 4);  // density always need to be stored. regardless whether mtl is nil(air). it will affect adjacent cells.
             }
 
             tagVoxel.put("Cells", nbt::tag_byte_array(std::vector<int8_t>(cells_data, cells_data+CELLS_ALL_SIZE)));

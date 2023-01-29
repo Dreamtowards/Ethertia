@@ -53,19 +53,7 @@ public:
 
     inline static Profiler gp_MeshGen;
 
-    static void meshChunk_Upload(Chunk* chunk) {
-        //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
-        PROFILE_X(gp_MeshGen, "MeshGen");
-
-        chunk->m_Meshing = true;  // May Already Been Deleted.
-        chunk->m_MeshInvalid = false;
-
-        VertexBuffer* vbufTerrain = new VertexBuffer();
-
-        VertexBuffer* vbufVegetable = new VertexBuffer();
-
-
-//        VertexBuffer* vbufWater = new VertexBuffer();
+    static void processMesh(Chunk* chunk, VertexBuffer* vbufTerrain, VertexBuffer* vbufVegetable) {
 
         {
             PROFILE_X(gp_MeshGen, "Mesh");
@@ -111,6 +99,35 @@ public:
             BlockyMeshGen::gen(chunk, vbufTerrain, false);
         }
 
+    }
+
+    static void meshChunk_Upload(Chunk* chunk) {
+        //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
+        PROFILE_X(gp_MeshGen, "MeshGen");
+
+        chunk->m_Meshing = true;  // May Already Been Deleted.
+        chunk->m_MeshInvalid = false;
+
+        VertexBuffer* vbufTerrain = new VertexBuffer();
+
+        VertexBuffer* vbufVegetable = new VertexBuffer();
+
+        try
+        {
+            processMesh(chunk, vbufTerrain, vbufVegetable);
+        }
+        catch (...)
+        {
+            // Only cause error when immediately unloadWorld. just skip and clean resources.
+            Log::info("Chunk Mesh cancelled.");
+
+            delete vbufTerrain;
+            delete vbufVegetable;
+
+            return;
+        }
+
+
         btBvhTriangleMeshShape* meshTerrain = nullptr;
         btBvhTriangleMeshShape* meshVegetable = nullptr;
 
@@ -128,17 +145,18 @@ public:
         // Dont upload/to be render if Current and Previous Mesh is Empty.
         Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
 
-            if (chunk->m_World) {
+            if (Ethertia::getWorld() && chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);
                 chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
 
                 chunk->m_MeshVegetable->setMesh(meshVegetable);
                 chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
+
+                chunk->m_Meshing = false;
             } else {
                 delete meshTerrain;
                 delete meshVegetable;
             }
-            chunk->m_Meshing = false;
 
             delete vbufTerrain;
             delete vbufVegetable;

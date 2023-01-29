@@ -143,20 +143,23 @@ Chunk* World::provideChunk(glm::vec3 p)  {
 void World::saveUnloadedChunks() {
     // chunks will be force save when: 1. 太多区块在卸载列表 2. 太久没保存
 
-    int i = 0;
-    for (Chunk* chunk : m_UnloadedChunks) {
-
-        Log::info("Saving chunk {}/{}", i, m_UnloadedChunks.size()); ++i;
+    //int i = 0;
+    for (Chunk* chunk : m_UnloadedChunks)
+    {
+        // Log::info("Saving chunk {}/{}", i, m_UnloadedChunks.size()); ++i;
         m_ChunkLoader->saveChunk(chunk);
 
-        Ethertia::getScheduler()->addTask([this, chunk]()
+        Entity* meshTerr = chunk->m_MeshTerrain;
+        Entity* meshVege = chunk->m_MeshVegetable;
+        delete chunk;
+
+        Ethertia::getScheduler()->addTask([this, meshTerr, meshVege]()
         {
             // CNS 有时Entity根本不会被加入世界 (当加入世界时发现区块已被卸载 将取消加入世界
-            if (chunk->m_MeshTerrain->m_World) {
-                removeEntity(chunk->m_MeshTerrain);
-                removeEntity(chunk->m_MeshVegetable);
+            if (meshTerr->m_World) {
+                removeEntity(meshTerr);
+                removeEntity(meshVege);
             }
-            delete chunk;
         }, -1);  // ? after addEntity().
     }
 
