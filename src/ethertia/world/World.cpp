@@ -282,6 +282,10 @@ void World::requestRemodel(glm::vec3 p, bool detectNeighbour) {
 
 
 Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {
+    if (!Ethertia::getWorld()) {
+        static Cell EMP{0,0};
+        return EMP;  // No..
+    }
     return Chunk::outbound(rp) ? /*chunk->m_World avoid interrupt Meshing*/Ethertia::getWorld()->getCell(chunk->position + rp) : chunk->getCell(rp);
 }
 

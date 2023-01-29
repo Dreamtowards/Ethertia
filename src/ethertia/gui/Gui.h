@@ -536,7 +536,8 @@ public:
 
     static void drawOptionsBackground() {
 
-        drawRect(0,0,Gui::maxWidth(), Gui::maxHeight(), Colors::brightness(0.42));
+        drawRect(0,0,Gui::maxWidth(), Gui::maxHeight(),
+                 Ethertia::getWorld() ? Colors::alpha(Colors::brightness(0.34), 0.96) : Colors::brightness(0.42));
     }
 
 

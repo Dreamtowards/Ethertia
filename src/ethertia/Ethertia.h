@@ -111,16 +111,16 @@ public:
     struct Version
     {
         inline static const int major = 0;
-        inline static const int minor = 1;
-        inline static const int revision = 1;
-        inline static const char* snapshot = "23u02b";  // release -> nullptr.
+        inline static const int minor = 0;
+        inline static const int revision = 2;
+        inline static const char* snapshot = "23u06";  // release: nullptr.
 
         static std::string name() {
             // todo: cache.
             if (snapshot) {
-                return Strings::fmt("v{}.{}.{}-{}", major, minor, revision, snapshot);
+                return Strings::fmt("Ethertia Alpha {} *{}.{}.{}", snapshot, major, minor, revision);
             } else {
-                return Strings::fmt("{}.{}.{}", major, minor, revision);
+                return Strings::fmt("Ethertia Alpha {}.{}.{}", major, minor, revision);
             }
         }
     };

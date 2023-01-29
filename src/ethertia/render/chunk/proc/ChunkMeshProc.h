@@ -53,7 +53,17 @@ public:
 
     inline static Profiler gp_MeshGen;
 
-    static void processMesh(Chunk* chunk, VertexBuffer* vbufTerrain, VertexBuffer* vbufVegetable) {
+    static void meshChunk_Upload(Chunk* chunk) {
+        //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
+        PROFILE_X(gp_MeshGen, "MeshGen");
+
+        chunk->m_Meshing = true;  // May Already Been Deleted.
+        chunk->m_MeshInvalid = false;
+
+        VertexBuffer* vbufTerrain = new VertexBuffer();
+
+        VertexBuffer* vbufVegetable = new VertexBuffer();
+
 
         {
             PROFILE_X(gp_MeshGen, "Mesh");
@@ -97,34 +107,6 @@ public:
             // CNS. 在 Norm生成之后。因为这里会自带Norm 不需要别人处理。
 
             BlockyMeshGen::gen(chunk, vbufTerrain, false);
-        }
-
-    }
-
-    static void meshChunk_Upload(Chunk* chunk) {
-        //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
-        PROFILE_X(gp_MeshGen, "MeshGen");
-
-        chunk->m_Meshing = true;  // May Already Been Deleted.
-        chunk->m_MeshInvalid = false;
-
-        VertexBuffer* vbufTerrain = new VertexBuffer();
-
-        VertexBuffer* vbufVegetable = new VertexBuffer();
-
-        try
-        {
-            processMesh(chunk, vbufTerrain, vbufVegetable);
-        }
-        catch (...)
-        {
-            // Only cause error when immediately unloadWorld. just skip and clean resources.
-            Log::info("Chunk Mesh cancelled.");
-
-            delete vbufTerrain;
-            delete vbufVegetable;
-
-            return;
         }
 
 

@@ -67,7 +67,7 @@ void Ethertia::start()
     Settings::loadSettings();
 
     m_Running = true;
-    m_Window = new Window(Settings::displayWidth, Settings::displayHeight, std::string("Ethertia "+Ethertia::Version::name()).c_str());
+    m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
     m_RootGUI = new GuiRoot();
     m_RenderEngine = new RenderEngine();
     m_AudioEngine = new AudioEngine();

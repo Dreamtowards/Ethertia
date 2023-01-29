@@ -41,7 +41,7 @@ public:
         });
     }
 
-    static void drawSimpleInvBackground(glm::vec4 xywh, const std::string& title = "", float padding = 16, glm::vec4 bg = {0.173, 0.157, 0.224, 0.9}) {
+    static void drawSimpleInvBackground(glm::vec4 xywh, const std::string& title = "", float padding = 16, glm::vec4 bg = {0.15,0.15,0.15, 0.85}) {  //bg = {0.173, 0.157, 0.224, 0.9}
         xywh = Gui::grow(xywh, padding);
         if (!title.empty()) {
             xywh = Gui::grow(xywh, 0, padding+16, 0, 0);

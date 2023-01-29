@@ -31,31 +31,51 @@ public:
         setWidth(Inf);
         setHeight(Inf);
 
-        GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 12);
+        GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 64);
         addGui(topbar);
         topbar->addConstraintAlign(0.5, 0);
         {
             {
                 GuiStack* rightbox = new GuiStack(GuiStack::D_HORIZONTAL, 8);
-                topbar->addGui(new GuiAlign(1.0, 0.0, rightbox));
+                topbar->addGui(rightbox);
+                rightbox->addConstraintAlign(1.0, 0.0);
 
-                GuiButton* btnSignal = new GuiButton("  ");
-                rightbox->addGui(btnSignal);
-                btnSignal->addPreDraw([](Gui* g) {
-                    // 40:30
-                    static Texture* TEX_SIGNAL = Loader::loadTexture("gui/signals.png");
+                float topbarTextHeight = 13;
 
-                    float w = 24, h = 18;
-                    Gui::drawRect(g->getX() + (g->getWidth() - w) * 0.5, g->getY(), w, h, {
-                        .tex = TEX_SIGNAL,
-                        .tex_pos = {0, 0},
-                        .tex_size = {1/2.0f, 1/6.0f}
-                    });
+//                rightbox->addGui(new GuiButton("@Player483", false));
+//                rightbox->addGui(new GuiButton("$100.00", false));
+
+                GuiButton* btnClock = new GuiButton("        ", false, topbarTextHeight, 4);
+                rightbox->addGui(btnClock);
+                btnClock->addPreDraw([btnClock](auto) {
+                    if (!Ethertia::getWorld())
+                        return;
+                    btnClock->m_Text = Strings::daytime(Ethertia::getWorld()->m_DayTime, true);
                 });
 
-                rightbox->addGui(new GuiButton("Settings", false));
+//                GuiButton* btnSignal = new GuiButton("  ");
+//                rightbox->addGui(btnSignal);
+//                btnSignal->addPreDraw([](Gui* g) {
+//                    // 40:30
+//                    static Texture* TEX_SIGNAL = Loader::loadTexture("gui/signals.png");
+//
+//                    float w = 24, h = 18;
+//                    Gui::drawRect(g->getX() + (g->getWidth() - w) * 0.5, g->getY(), w, h, {
+//                        .tex = TEX_SIGNAL,
+//                        .tex_pos = {0, 0},
+//                        .tex_size = {1/2.0f, 1/6.0f}
+//                    });
+//                });
+//                rightbox->addGui(new GuiButton("offline"));
 
-                GuiButton* btnExitWorld = new GuiButton("Quit", false);
+                GuiButton* btnSettings = new GuiButton("Settings", false, topbarTextHeight, 4);
+                rightbox->addGui(btnSettings);
+                btnSettings->addOnClickListener([](auto)
+                {
+                    Ethertia::getRootGUI()->addGui(GuiScreenSettings::Inst());
+                });
+
+                GuiButton* btnExitWorld = new GuiButton("Quit", false, topbarTextHeight, 4);
                 rightbox->addGui(btnExitWorld);
                 btnExitWorld->addOnClickListener([](auto)
                 {
@@ -65,38 +85,42 @@ public:
             {
                 GuiStack* leftbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
                 topbar->addGui(leftbox);
+                leftbox->addConstraintAlign(0, 0.5);
 
-                leftbox->addGui(new GuiButton("@Player483", false));
+                leftbox->addGui(new GuiButton("Map", false));
+                leftbox->addGui(new GuiButton("Inventory", false));
+                leftbox->addGui(new GuiButton("Mail", false));
+                leftbox->addGui(new GuiButton("Calendar", false));
+            }
+
+            {
+                GuiStack* leftbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
+                topbar->addGui(leftbox);
+                leftbox->addConstraintAlign(1.0, 0.5);
+
                 leftbox->addGui(new GuiButton("$100.00", false));
-
-                GuiButton* btnClock = new GuiButton("        ", true);
-                leftbox->addGui(btnClock);
-                btnClock->addPreDraw([btnClock](auto) {
-                    if (!Ethertia::getWorld())
-                        return;
-                    btnClock->m_Text = Strings::daytime(Ethertia::getWorld()->m_DayTime, true);
-                });
+                leftbox->addGui(new GuiButton("@Dreamtowards", false));
             }
         }
 
-        {
-            GuiStack* toolbar = new GuiStack(GuiStack::D_HORIZONTAL, 8);
-            addGui(toolbar);
-            toolbar->setY(32);
-            toolbar->addConstraintAlign(0.5, Inf);
-
-            toolbar->addGui(new GuiButton("Map", false));
-            toolbar->addGui(new GuiButton("Inventory", false));
-            toolbar->addGui(new GuiButton("Mails", false));
-
-            toolbar->addPreDraw([toolbar](auto) {
-                for (Gui* g : toolbar->children()) {
-                    bool isCurrent = g == toolbar->at(1);
-
-                    GuiInventory::drawSimpleInvBackground(g->xywh(), "", 4, glm::vec4{isCurrent ? 0.35f : 0.0f});
-                }
-            });
-        }
+//        {
+//            GuiStack* toolbar = new GuiStack(GuiStack::D_HORIZONTAL, 8);
+//            addGui(toolbar);
+//            toolbar->setY(32);
+//            toolbar->addConstraintAlign(0.5, Inf);
+//
+//            toolbar->addGui(new GuiButton("Map", false));
+//            toolbar->addGui(new GuiButton("Inventory", false));
+//            toolbar->addGui(new GuiButton("Mails", false));
+//
+//            toolbar->addPreDraw([toolbar](auto) {
+//                for (Gui* g : toolbar->children()) {
+//                    bool isCurrent = g == toolbar->at(1);
+//
+//                    GuiInventory::drawSimpleInvBackground(g->xywh(), "", 4, glm::vec4{isCurrent ? 0.35f : 0.0f});
+//                }
+//            });
+//        }
 
         {
             GuiInventory* gInventory = new GuiInventory(&Ethertia::getPlayer()->m_Inventory);
@@ -131,7 +155,7 @@ public:
             // background dark
             Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::BLACK50);
 
-            GuiInventory::drawSimpleInvBackground(topbar->xywh());
+            GuiInventory::drawSimpleInvBackground({-16, -16, Gui::maxWidth()+32, 48+16});
         });
     }
 
@@ -148,7 +172,7 @@ public:
 //            Gui::drawRect(0, 0, Gui::maxWidth(), 16, Colors::BLACK30);
         }
 
-        Gui::drawString(Gui::maxWidth()/2, 0, "Inventory", Colors::WHITE, 18, {-0.5, 0});
+        //Gui::drawString(Gui::maxWidth()/2, 0, "Inventory", Colors::WHITE, 18, {-0.5, 0});
 
 
 

@@ -13,7 +13,10 @@
 class GuiScreenSingleplayer : public GuiCollection
 {
 public:
-    inline static GuiScreenSingleplayer* INST = nullptr;
+    static GuiScreenSingleplayer* Inst() {
+        static GuiScreenSingleplayer* INST = new GuiScreenSingleplayer();
+        return INST;
+    }
 
     inline static Gui* SELECTED_WORLD = nullptr;
 

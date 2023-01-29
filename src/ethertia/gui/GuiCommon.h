@@ -15,5 +15,6 @@
 #include <ethertia/gui/GuiScrollBox.h>
 #include <ethertia/gui/GuiCollection.h>
 #include <ethertia/gui/GuiTextBox.h>
+#include <ethertia/gui/GuiSeparator.h>
 
 #endif //ETHERTIA_GUICOMMON_H

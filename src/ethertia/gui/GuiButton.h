@@ -20,9 +20,12 @@ public:
 
     std::string m_Text;
 
-    GuiButton(std::string text, bool bg = true) : m_Text(std::move(text)), enableBackground(bg), Gui(0, 0, 100, 20) {
-        glm::vec2 n = Ethertia::getRenderEngine()->fontRenderer->textBound(m_Text, 16);
-        setWidth(n.x + 16);
+    float m_TextHeight = 16;
+
+    GuiButton(std::string text, bool bg = true, float hei = 16, float xPadding=8) : m_Text(std::move(text)), m_TextHeight(hei), enableBackground(bg),
+                                                                                    Gui(0, 0, 100, hei+4) {
+        glm::vec2 n = Ethertia::getRenderEngine()->fontRenderer->textBound(m_Text, m_TextHeight);
+        setWidth(n.x + xPadding*2);
     }
 
     void implDraw() override
@@ -38,10 +41,9 @@ public:
         if (isPressed()) textColor = Colors::GOLD;
         if (!m_Enable) textColor = Colors::GRAY;
 
-        float textHeight = 16;
-        Gui::drawString(x+w/2, y+(h-textHeight)/2, m_Text,
+        Gui::drawString(x+w/2, y+(h-m_TextHeight)/2, m_Text,
                         textColor,
-                        textHeight, {-0.5, 0}, true);
+                        m_TextHeight, {-0.5, 0}, true);
     }
 
     static void drawButtonBackground(Gui* g) {

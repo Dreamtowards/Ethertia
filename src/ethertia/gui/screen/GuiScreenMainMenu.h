@@ -7,6 +7,7 @@
 
 #include "../GuiCommon.h"
 #include "GuiScreenSingleplayer.h"
+#include "GuiScreenSettings.h"
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/world/Biome.h>
@@ -33,15 +34,19 @@ public:
         GuiButton* btnMultiplayer = new GuiButton("Multiplayer", false);
         vstack->addGui(btnMultiplayer);
         btnMultiplayer->addOnClickListener([](auto) {
-            const char* r = Loader::showInputBox("URL", "File, Folder, or URL", "");
-            if (r)
-                Loader::openURL(r);
+//            const char* r = Loader::showInputBox("URL", "File, Folder, or URL", "");
+//            if (r) {
+//                Loader::openURL(r);
+//            }
+
+            Ethertia::getRootGUI()->addGui(GuiScreenSingleplayer::Inst());
         });
 
         GuiButton* btnSettings = new GuiButton("Settings", false);
         vstack->addGui(btnSettings);
         btnSettings->addOnClickListener([](auto) {
 
+            Ethertia::getRootGUI()->addGui(GuiScreenSettings::Inst());
         });
 
         GuiButton* btnExit = new GuiButton("Terminate", false);
@@ -57,8 +62,7 @@ public:
 
         drawAudioFreq();
 
-        Gui::drawString(0, Gui::maxHeight(), "0 mods loaded.\n"
-                                             "Ethertia " + Ethertia::Version::name(), Colors::WHITE60, 16,
+        Gui::drawString(0, Gui::maxHeight(), "0 mods loaded.\n" + Ethertia::Version::name(), Colors::WHITE60, 16,
                         {0.0f, -1.0f});
 
 
