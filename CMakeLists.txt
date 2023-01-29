@@ -3,7 +3,7 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(BUILD_SHARED_LIBS ON)
+set(BUILD_SHARED_LIBS OFF)
 option(CMAKE_BUILD_TYPE Release)
 set(BUILD_STATIC OFF)
 
@@ -21,7 +21,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(PROD_BINARY_TARGET "nil")
 if (APPLE)
-    set(PROD_BINARY_TARGET "macos-x86-64")
+    set(PROD_BINARY_TARGET "darwin-x64")
 elseif (WIN32)
     set(PROD_BINARY_TARGET "windows-amd64")
 endif ()
@@ -48,6 +48,11 @@ endif()
 #link_libraries(yaml-cpp)
 
 
+#set(NBT_BUILD_SHARED ON)  # required for build shared-library.
+set(NBT_BUILD_TESTS OFF)
+add_subdirectory(lib/nbt)
+link_libraries(nbt++)
+
 
 
 if(BUILD_SHARED_LIBS OR BUILD_STATIC)
@@ -65,11 +70,6 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 
     add_subdirectory(lib/openal-soft)
     link_libraries(OpenAL)
-
-    set(NBT_BUILD_SHARED ON)  # required for build shared-library.
-    set(NBT_BUILD_TESTS OFF)
-    add_subdirectory(lib/nbt)
-    link_libraries(nbt++)
 
     add_subdirectory(lib/entt)
 

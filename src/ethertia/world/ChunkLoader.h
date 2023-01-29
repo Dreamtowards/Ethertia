@@ -230,7 +230,7 @@ public:
     }
     static const size_t CELL_SIZE = 1+4, CELLS_ALL_SIZE = 4096 * CELL_SIZE;
 
-    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {
+    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {  if (m_DisableLoad) return nullptr;
         auto tagChunk = getChunkData(chunkpos);
         if (!tagChunk) return nullptr;
 
@@ -240,7 +240,7 @@ public:
         assert(NBT::vec3(tagChunk->at("ChunkPos")) == chunkpos);
         chunk->m_CreatedTime = (int64_t)tagChunk->at("CreatedTime");
         chunk->m_InhabitedTime = (float)tagChunk->at("InhabitedTime");
-        chunk->m_Populated = (bool)tagChunk->at("Populated");
+        chunk->m_Populated = (int8_t)tagChunk->at("Populated") != 0;
 
         auto tagVoxel = tagChunk->at("Voxel").as<nbt::tag_compound>();
         {
@@ -280,14 +280,13 @@ public:
         return chunk;
     }
 
-    void saveChunk(Chunk* chunk)
-    {
+    void saveChunk(Chunk* chunk) {  if (m_DisableSave) return;
         nbt::tag_compound tagChunk;
         tagChunk.put("ChunkPos", NBT::vec3(chunk->position));
         tagChunk.put("CreatedTime", (int64_t)chunk->m_CreatedTime);
         tagChunk.put("SavedTime", (int64_t)Timer::timestampMillis());
         tagChunk.put("InhabitedTime", chunk->m_InhabitedTime);
-        tagChunk.put("Populated", chunk->m_Populated);
+        tagChunk.put("Populated", (int8_t)chunk->m_Populated);
 
         // Voxel Cells (16^3 Uniform Grids)
         nbt::tag_compound tagVoxel;
