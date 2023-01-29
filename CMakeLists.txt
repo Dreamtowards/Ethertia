@@ -3,7 +3,7 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(BUILD_SHARED_LIBS OFF)
+set(BUILD_SHARED_LIBS ON)
 option(CMAKE_BUILD_TYPE Release)
 set(BUILD_STATIC OFF)
 
@@ -44,14 +44,10 @@ endif()
 
 
 
-add_subdirectory(lib/yaml-cpp)
-link_libraries(yaml-cpp)
+#add_subdirectory(lib/yaml-cpp)
+#link_libraries(yaml-cpp)
 
 
-#set(NBT_BUILD_SHARED ON)
-set(NBT_BUILD_TESTS OFF)
-add_subdirectory(lib/nbt)
-link_libraries(nbt++)
 
 
 if(BUILD_SHARED_LIBS OR BUILD_STATIC)
@@ -62,12 +58,20 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
     link_libraries(glfw)
 
     add_subdirectory(lib/bullet3)
-    add_subdirectory(lib/fastnoise2)
-    add_subdirectory(lib/entt)
-    add_subdirectory(lib/openal-soft)
+    link_libraries(BulletDynamics BulletCollision LinearMath)
 
-    link_libraries(BulletDynamics BulletCollision LinearMath
-                   FastNoise2 OpenAL)
+    add_subdirectory(lib/fastnoise2)
+    link_libraries(FastNoise2)
+
+    add_subdirectory(lib/openal-soft)
+    link_libraries(OpenAL)
+
+    set(NBT_BUILD_SHARED ON)  # required for build shared-library.
+    set(NBT_BUILD_TESTS OFF)
+    add_subdirectory(lib/nbt)
+    link_libraries(nbt++)
+
+    add_subdirectory(lib/entt)
 
 else()
     link_directories(${PROD_BINARY_DIR})
@@ -104,9 +108,9 @@ include_directories(lib/nbt/include)
 # VK_LAYER_PATH = vulkansdk/macOS/share/vulkan/explicit_layer.d
 # https://vulkan.lunarg.com/sdk/home
 # include Vulkan SDK.
-include_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/include)
-link_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/lib)
-link_libraries(  vulkan.1.3.236 )
+#include_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/include)
+#link_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/lib)
+#link_libraries(  vulkan.1.3.236 )
 
 #if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. Not anymore.!
 

@@ -66,12 +66,11 @@ public:
     };
 
 
-    static datablock loadFile(std::string_view path, bool isAssets = false)
+    static datablock loadFile(const std::string& __path, bool isAssets = false)
     {
-        if (isAssets)
-            path = fileAssets(path);
+        const std::string& path = isAssets ? fileAssets(__path) : __path;
 
-        std::ifstream file(path, std::ios_base::binary);
+        std::ifstream file(std::string(path), std::ios_base::binary);
         if (!file.is_open()) {
             throw std::runtime_error(Strings::fmt("Failed open file. ", path));
             //Log::warn("Failed open file: ", path);
