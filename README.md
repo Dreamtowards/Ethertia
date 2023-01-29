@@ -306,6 +306,20 @@ Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3�
     - Vulkan Surface, Swapchain
     - 添加一个Blocky Mesh via OBJ.
     - cash_register, short_grass, stool, tall_fern. id -> map-order, no reg-order.
+    - tinyobj loader
+  - 2023-01-22+
+    - sky gradient.
+    - *dyn particles, atlas.
+    - some mtl mesh.
+    - *gui worldlist, newworld.
+    - think 'heap' chunk store.
+  - 2023-01-29
+    - *World Store. Palette. simple separate chunk files.
+    - bugfix: population incorrect: 错误原因是nbt++不支持bool, 所以读到的popul总是true. 要手动int8 as bool
+      bugfix: delay chunk near mesh. 仅小提升 更精确合理的延迟时间 不阻塞 近处优先
+    - *GuiScreenSettings init.
+    - GuiScreenPause top modify. 顶部结构修改
+    - World Saving Hint 世界保存的提示 (简单
 
     - Lighting
     - Material / Texture / Model /meta 架构模式?
@@ -313,7 +327,6 @@ Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3�
     - 玩家血量 10
     - 手拿物品渲染
     - DamageSource - 就像mc的Crepper被骷髅用火箭射到tnt炸死都能追踪到伤害来源是骷弓
-    - World Saving Hint 世界保存的提示
     - 修复bug：有些地方没有population
     - [x] GUI 主界面初步
     - Vine 藤蔓材质
