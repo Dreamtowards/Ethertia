@@ -112,8 +112,8 @@ public:
     {
         inline static const int major = 0;
         inline static const int minor = 0;
-        inline static const int revision = 2;
-        inline static const char* snapshot = "23u06";  // release: nullptr.
+        inline static const int revision = 1;
+        inline static const char* snapshot = "23u04";  // release: nullptr.
 
         static std::string name() {
             // todo: cache.

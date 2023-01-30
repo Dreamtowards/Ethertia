@@ -66,7 +66,7 @@ public:
             navsSettings->addGui(new GuiButton("Misc.", false));  // Miscellaneous
         }
 
-        addPreDraw([=](auto)
+        addPreDraw([=, this](auto)
         {
             Gui::drawOptionsBackground();
             Gui::drawString(Gui::getWidth()/2, 32, "Settings", Colors::WHITE, 16, {-0.5, 0});

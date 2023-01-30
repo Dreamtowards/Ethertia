@@ -6,6 +6,7 @@ cmake-build-release/*
 
 run/bin/macos-x86-64/*
 run/bin/darwin-x64/*
+run/bin/windows-amd64/*
 
 run/cache/*.png
 

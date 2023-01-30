@@ -99,7 +99,7 @@ public:
             auto tagWorld = nbt::io::read_compound(file).second;
             file.close();
 
-            long dirsize = Loader::calcDirectorySize(savedir.path());
+            long dirsize = Loader::calcDirectorySize(savedir.path().string());
             std::string desc = Strings::fmt("{} | {}", savedir.path(), Strings::size_str(dirsize));
 
             std::string worldName = (std::string)tagWorld->at("Name");
