@@ -48,11 +48,6 @@ endif()
 #link_libraries(yaml-cpp)
 
 
-#set(NBT_BUILD_SHARED ON)  # required for build shared-library.
-set(NBT_BUILD_TESTS OFF)
-add_subdirectory(lib/nbt)
-link_libraries(nbt++)
-
 
 
 if(BUILD_SHARED_LIBS OR BUILD_STATIC)
@@ -60,18 +55,19 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
     set(GLFW_BUILD_EXAMPLES OFF)
     set(GLFW_BUILD_TESTS OFF)
     add_subdirectory(lib/glfw)
-    link_libraries(glfw)
+#    link_libraries(glfw)
 
     add_subdirectory(lib/bullet3)
-    link_libraries(BulletDynamics BulletCollision LinearMath)
+#    link_libraries(BulletDynamics BulletCollision LinearMath)
 
     add_subdirectory(lib/fastnoise2)
-    link_libraries(FastNoise2)
+#    link_libraries(FastNoise2)
 
     add_subdirectory(lib/openal-soft)
-    link_libraries(OpenAL)
+#    link_libraries(OpenAL)
 
     add_subdirectory(lib/entt)
+    link_libraries(BulletDynamics BulletCollision LinearMath OpenAL FastNoise2 glfw)
 
 else()
     link_directories(${PROD_BINARY_DIR})
@@ -86,6 +82,14 @@ else()
         link_libraries(glfw3 OpenAL32)
     endif()
 endif()
+
+
+#set(NBT_BUILD_SHARED ON)  # required for build shared-library.
+set(NBT_BUILD_TESTS OFF)
+add_subdirectory(lib/nbt)
+link_libraries(nbt++)
+
+
 
 
 include_directories(src)
