@@ -20,7 +20,6 @@
 #define PROFILE_VN_CONCAT_INNR(a, b) a ## b
 #define PROFILE_VN_CONCAT(a, b) PROFILE_VN_CONCAT_INNR(a, b)
 #define PROFILE(x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = Ethertia::getProfiler().push_ap(x)
-
 #define PROFILE_X(p, x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
 
 // __forward_declarations

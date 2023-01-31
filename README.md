@@ -321,7 +321,14 @@ Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3�
     - GuiScreenPause top modify. 顶部结构修改
     - World Saving Hint 世界保存的提示 (简单
 
-    - Lighting
+
+    - Lantern, Torch
+    - Workbench, Bed, Ladder
+    - IronChain, Cobweb
+    - Wheat Crops
+    - Glass
+
+      
     - Material / Texture / Model /meta 架构模式?
     - 受到 Cocricot的灵感: 一个轮廓+不同纹理?
     - 玩家血量 10

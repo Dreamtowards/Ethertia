@@ -177,11 +177,11 @@ void World::unloadChunk(glm::vec3 p)  {
         chunk = it->second;
         assert(chunk);
 
-        m_Chunks.erase(it);
-
         // later save.
         m_UnloadedChunks.push_back(chunk);
         //    m_ChunkLoader->saveChunk(chunk);
+
+        m_Chunks.erase(it);
     }
     chunk->m_World = nullptr;  // mesh gen needed for delay remove. but MeshUpload need immediate know is unloaded
 

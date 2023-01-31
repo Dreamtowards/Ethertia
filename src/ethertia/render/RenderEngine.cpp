@@ -145,12 +145,27 @@ void RenderEngine::renderWorldCompose(World* world)
 
     m_ParticleRenderer->renderSunMoonTex(world->m_DayTime);
 
+    std::vector<Light*> renderLights;  // lights to be render.
+//    {
+//        static Light l{};
+//        l.position = Ethertia::getCamera()->position;
+//        l.color = glm::vec3(0.4, 1, 0.8);
+//        l.direction = Ethertia::getCamera()->direction;
+//        l.attenuation = {0,0,0};
+//        renderLights.push_back(&l);
+//    }
+    for (Entity* e : world->m_Entities) {
+        if (EntityLantern* lat = dynamic_cast<EntityLantern*>(e)) {
+            renderLights.push_back(lat->getLights());
+        }
+    }
+
 
     // CNS. 让接下来Alpha!=1.0的地方的颜色 添加到背景颜色中 为了接下来的天空颜色叠加
     // Blend: addictive color when src.alpha != 1.0, for sky background add.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2]);
+    entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2], renderLights);
 
     GlState::blendMode(GlState::ALPHA);
 

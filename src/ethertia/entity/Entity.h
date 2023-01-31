@@ -14,10 +14,12 @@
 #include <ethertia/util/AABB.h>
 #include <ethertia/world/World.h>
 
+#include <ethertia/entity/EntityComponent.h>
 #include <ethertia/render/Model.h>
 #include <ethertia/render/Texture.h>
 #include <ethertia/render/VertexBuffer.h>
 #include <ethertia/util/Loader.h>
+
 
 class Entity
 {

@@ -96,7 +96,10 @@ public:
     }
 
     void setViewProjection(bool view = true);
-    void setMVP(const glm::mat4& matModel);
+    void setMVP(const glm::mat4& matModel) {
+        setMatrix4f("matModel", matModel);
+        setViewProjection();
+    }
 
 
 

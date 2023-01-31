@@ -102,20 +102,14 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, model->vertexCount);
     }
 
-    class Light
-    {
-    public:
-        glm::vec3 position;
-        glm::vec3 color;
+    const char** UNIFORM_LIGHT_POSITION    = ShaderProgram::_GenArrayNames("lights[%i].position", 64);
+    const char** UNIFORM_LIGHT_COLOR       = ShaderProgram::_GenArrayNames("lights[%i].color", 64);
+    const char** UNIFORM_LIGHT_ATTENUATION = ShaderProgram::_GenArrayNames("lights[%i].attenuation", 64);
+    const char** UNIFORM_LIGHT_DIRECTION   = ShaderProgram::_GenArrayNames("lights[%i].direction", 64);
+    const char** UNIFORM_LIGHT_CONEANGLE   = ShaderProgram::_GenArrayNames("lights[%i].coneAngle", 64);
 
-        glm::vec3 direction;
-        float coneAngle = 0;
-        float coneRound = 0;
-    };
-    inline static glm::vec3 tmpLightDir;
-    inline static glm::vec3 tmpLightPos;
 
-    void renderCompose(Texture* gPosition, Texture* gNormal, Texture* gAlbedo)
+    void renderCompose(Texture* gPosition, Texture* gNormal, Texture* gAlbedo, const std::vector<Light*>& lights)
     {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, gPosition->texId);
@@ -147,8 +141,18 @@ public:
         shaderCompose.setMatrix4f("matInvView", glm::inverse(RenderEngine::matView));
         shaderCompose.setMatrix4f("matInvProjection", glm::inverse(RenderEngine::matProjection));
 
-        shaderCompose.setVector3f("tmpLightDir", tmpLightDir);
-        shaderCompose.setVector3f("tmpLightPos", tmpLightPos);
+
+        shaderCompose.setInt("lightsCount", lights.size());
+        for (int i = 0; i < std::min(64, (int)lights.size()); ++i)
+        {
+            Light* light = lights[i];
+            shaderCompose.setVector3f(UNIFORM_LIGHT_POSITION[i], light->position);
+            shaderCompose.setVector3f(UNIFORM_LIGHT_COLOR[i], light->color);
+            shaderCompose.setVector3f(UNIFORM_LIGHT_ATTENUATION[i], light->attenuation);
+            shaderCompose.setVector3f(UNIFORM_LIGHT_DIRECTION[i], light->direction);
+            shaderCompose.setVector2f(UNIFORM_LIGHT_CONEANGLE[i], glm::vec2(light->coneAngle, 0));
+        }
+
 
         // CNS 这是不准确的，不能直接取反 否则月亮位置可能会错误
         float daytime = Ethertia::getWorld()->m_DayTime;

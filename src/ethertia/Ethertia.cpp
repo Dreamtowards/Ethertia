@@ -440,6 +440,32 @@ void ItemComponentGrapple::onUse() {
 
 }
 
+void ItemComponentEntity::onUse() {
+
+    Entity* e = m_New();
+
+    BrushCursor& cur = Ethertia::getBrushCursor();
+
+    e->setPosition(cur.position + cur.normal * 1.0f);
+    Ethertia::getWorld()->addEntity(e);
+
+}
+
+
+
+
+void ShaderProgram::setViewProjection(bool view)
+{
+    setMatrix4f("matProjection", RenderEngine::matProjection);
+
+    setMatrix4f("matView", view ? RenderEngine::matView : glm::mat4(1.0));
+}
+
+float Scheduler::_intl_program_time() {
+    return Ethertia::getPreciseTime();
+}
+
+
 
 #include <stb/stb_vorbis.c>
 
@@ -463,21 +489,3 @@ int16_t* Loader::loadOGG(std::pair<char*, size_t> data, size_t* dst_len, int* ds
     return pcm;
 }
 
-
-void ShaderProgram::setViewProjection(bool view)
-{
-    setMatrix4f("matProjection", RenderEngine::matProjection);
-
-    setMatrix4f("matView", view ? RenderEngine::matView : glm::mat4(1.0));
-}
-
-void ShaderProgram::setMVP(const glm::mat4& matModel)
-{
-    setMatrix4f("matModel", matModel);
-
-    setViewProjection();
-}
-
-float Scheduler::_intl_program_time() {
-    return Ethertia::getPreciseTime();
-}

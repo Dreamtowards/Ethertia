@@ -24,6 +24,20 @@ public:
 
 };
 
+class ItemComponentEntity : public Item::Component
+{
+public:
+
+    std::function<Entity*()> m_New;
+
+    ItemComponentEntity(const std::function<Entity*()>& mNew) : m_New(mNew) {}
+
+    void onUse() override;
+
+};
+
+#include <ethertia/entity/EntityLantern.h>
+
 class Items
 {
 public:
@@ -37,6 +51,9 @@ public:
 
     REGISTER_ITEM(PICKAXE, "pickaxe", {new Item::ComponentTool()});
     REGISTER_ITEM(GRAPPLE, "grapple", {new ItemComponentGrapple()});
+
+    REGISTER_ITEM(LANTERN, "lantern", {new ItemComponentEntity([](){ return new EntityLantern(); })
+                                                 });
 
 //    inline static const Item* MELON = new Item("melon", {new Item::ComponentFood(1.0)});
 
