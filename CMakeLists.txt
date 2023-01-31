@@ -48,12 +48,6 @@ endif()
 #link_libraries(yaml-cpp)
 
 
-#set(NBT_BUILD_SHARED ON)  # required for build shared-library.
-set(NBT_BUILD_TESTS OFF)
-add_subdirectory(lib/nbt)
-link_libraries(nbt++)
-
-
 
 if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 
@@ -86,6 +80,13 @@ else()
         link_libraries(glfw3 OpenAL32)
     endif()
 endif()
+
+
+#set(NBT_BUILD_SHARED ON)  # required for build shared-library.
+set(NBT_BUILD_TESTS OFF)
+add_subdirectory(lib/nbt)
+link_libraries(nbt++)
+
 
 
 include_directories(src)
