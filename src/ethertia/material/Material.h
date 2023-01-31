@@ -26,13 +26,23 @@ public:
     bool m_CustomMesh = false;
     void* m_VertexBuffer = nullptr;
 
+    // vegetable another chunk mesh. NoCollision, Render WavingVertex, Render NoFaceCulling.
+    bool m_IsVegetable = false;
+
 
     Item* m_MaterialItem = nullptr;
 
+    struct MtlParams {
+        bool mesh = false;
+        bool vege = false;
+    };
 
-    Material(const std::string& name, bool mesh = false) : m_Name(name), m_CustomMesh(mesh) {
+    Material(const std::string& name, const MtlParams& params = {false, false}) : m_Name(name) {
 
         REGISTRY.regist(this);
+
+        m_CustomMesh = params.mesh;
+        m_IsVegetable = params.vege;
     }
 
     const std::string getRegistryId() const {

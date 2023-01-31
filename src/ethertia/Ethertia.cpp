@@ -399,7 +399,7 @@ void ItemComponentMaterial::onUse() {
 
     Material* mtl = m_Material;
 
-    if (mtl == Materials::WATER || mtl == Materials::LEAVES || mtl == Materials::TALLGRASS || GuiDebugV::g_BlockMode)
+    if (mtl->m_IsVegetable || mtl->m_CustomMesh || GuiDebugV::g_BlockMode)
     {
         Cell& c = Ethertia::getWorld()->getCell(p + cur.normal*0.1f);
 

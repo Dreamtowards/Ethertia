@@ -320,8 +320,14 @@ Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3�
     - *GuiScreenSettings init.
     - GuiScreenPause top modify. 顶部结构修改
     - World Saving Hint 世界保存的提示 (简单
-
-
+  - 2023-01-31
+    - 多光源 Diffuse Specular Ambient Attenuation
+    - EntityLantern
+    - BUG 从32x像素纹理 upsampling到512细节纹理 默认是模糊采样 而不是nearest. 应该做一个判断 原纹理尺寸 太小就nearest 但是stb image resize好像不支持nearest?
+    - +rock_mossy, rock_smooth, shurb, spruce_leaves..
+    - remove grass_fp gen      
+    - Material.m_IsVegetable 简化 ChunkMeshGenBlocky判断
+      
     - Lantern, Torch
     - Workbench, Bed, Ladder
     - IronChain, Cobweb

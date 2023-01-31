@@ -1,0 +1,12 @@
+# Made in Blockbench 4.6.0
+newmtl m_a2868724-03ab-1cba-b57d-efefe449f0b7
+map_Kd box_fru0.png 
+newmtl m_cca24361-e045-0254-e83d-6ddd2f0ca168
+map_Kd box_vege_bottom.png 
+newmtl m_45f777f7-14ac-9e8e-30ea-552219d6c36a
+map_Kd box_vege_side2.png 
+newmtl m_79be70f8-f10a-8c82-9f4b-6ca3a82ca7cc
+map_Kd box_vege_side2.png 
+newmtl m_41fb663a-a8c4-af88-d4bb-bd38e4d70ac3
+map_Kd box_fru0.png 
+newmtl none

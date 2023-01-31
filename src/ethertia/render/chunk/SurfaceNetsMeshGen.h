@@ -57,7 +57,7 @@ public:
         return std::isnan(v.x) || std::isnan(v.y) || std::isnan(v.z);
     }
 
-    static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf, std::vector<glm::vec3>& grass_fp) {
+    static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf) {
 
 //        for (int rx = 0; rx < 16; ++rx) {
 //            for (int ry = 0; ry < 16; ++ry) {
@@ -119,9 +119,9 @@ public:
 
                                 vbuf->add_uv_mtl_pure(mtl ? mtl->m_TexId : 0);
 
-                                if (mtl == Materials::MOSS) {
-                                    grass_fp.push_back(quadp + fp);
-                                }
+//                                if (mtl == Materials::MOSS) {
+//                                    grass_fp.push_back(quadp + fp);
+//                                }
 
                             }
                         }

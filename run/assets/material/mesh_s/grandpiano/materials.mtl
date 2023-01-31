@@ -1,0 +1,24 @@
+# Made in Blockbench 4.6.0
+newmtl m_025bcfd9-4596-6196-1065-e5a5e21a1acb
+map_Kd table_lightbrown_top.png 
+newmtl m_3758c515-951f-11f6-c3d3-7767e04b3f78
+map_Kd piano_top_brown.png 
+newmtl m_8b233b2e-38d0-fbb9-bae5-4c76f517f3cb
+map_Kd piano_plate_brown.png 
+newmtl m_b8aec7a0-d428-4373-b7b0-7327a668691a
+map_Kd brass_parts.png 
+newmtl m_53949767-d104-79c1-c42f-24b93f2631ec
+map_Kd table_marron_top.png 
+newmtl m_1b9d2321-0e27-b21b-b312-ffd7dfbf5f3e
+map_Kd piano_key_middle_brown.png 
+newmtl m_2dba7f1b-bed3-f831-e953-9e354ed8062f
+map_Kd piano_key_parts_brown.png 
+newmtl m_83fcc620-b7da-0ea7-fed3-4354684ec683
+map_Kd score.png 
+newmtl m_12bea4ca-24a7-8769-500c-ce6226166c2c
+map_Kd piano_key_left_brown.png 
+newmtl m_506efe8d-5295-06e6-1ae4-c73472f41a78
+map_Kd piano_key_right_brown.png 
+newmtl m_1880a402-ffc8-6c64-db08-ed6cda7d16b8
+map_Kd piano_top_brown.png 
+newmtl none

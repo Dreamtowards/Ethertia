@@ -33,6 +33,9 @@ public:
 
                     if (genVegetable)   // Generating Vegetable
                     {
+                        if (!mtl->m_IsVegetable)
+                            continue;
+
                         if (mtl == Materials::LEAVES)
                         {
                             putLeaves(vbuf, rp, chunk, texId);
@@ -41,9 +44,16 @@ public:
                         {
                             putCube(vbuf, rp, chunk, mtl);
                         }
+                        else if (mtl->m_CustomMesh)
+                        {
+                            putOBJ(*vbuf, rp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);
+                        }
                     }
                     else
                     {
+                        if (mtl->m_IsVegetable)
+                            continue;
+
                         if (mtl->m_CustomMesh)
                         {
                             putOBJ(*vbuf, rp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);
@@ -215,15 +225,15 @@ public:
 
     }
 
-    static void genGrasses(VertexBuffer* vbuf, const std::vector<glm::vec3>& grass_fp) {
-
-        for (int i = 0; i < grass_fp.size(); ++i) {
-            glm::vec3 p = grass_fp[i];
-
-            putTallgrassStarMesh(vbuf, p, Materials::TALLGRASS->m_TexId);
-        }
-
-    }
+//    static void genGrasses(VertexBuffer* vbuf, const std::vector<glm::vec3>& grass_fp) {
+//
+//        for (int i = 0; i < grass_fp.size(); ++i) {
+//            glm::vec3 p = grass_fp[i];
+//
+//            putTallgrassStarMesh(vbuf, p, Materials::TALLGRASS->m_TexId);
+//        }
+//
+//    }
 };
 
 #endif //ETHERTIA_BLOCKYMESHGEN_H

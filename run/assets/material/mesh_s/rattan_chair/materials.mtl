@@ -1,0 +1,8 @@
+# Made in Blockbench 4.6.0
+newmtl m_04f0f944-355d-f74a-af16-e1ef7b6fc2cc
+map_Kd rattan_chair_a.png 
+newmtl m_81c42279-e1e3-78d4-d539-431c16a32612
+map_Kd rattan_rack_leg_front.png 
+newmtl m_879f9d68-f22e-e4fd-2912-570ef5d85e4a
+map_Kd rattan_closet_side.png 
+newmtl none
