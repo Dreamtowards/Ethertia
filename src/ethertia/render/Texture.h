@@ -9,6 +9,7 @@
 
 #include <ethertia/util/BitmapImage.h>
 
+// Represents an OpenGL Texture. data in GPU.
 class Texture
 {
 public:

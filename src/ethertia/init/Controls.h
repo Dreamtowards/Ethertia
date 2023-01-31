@@ -180,27 +180,27 @@ public:
 
 
             // Test Particle Emit
-            if (window.isKeyDown(GLFW_KEY_K)) {
-
-                static Texture* TEX_FIRE = Loader::loadTexture("misc/particles/ParticleSmoke_04_8x8_C.png");
-                static Texture* TEX_SMOKE = Loader::loadTexture("misc/particles/ParticleFlames_06_8x8_C.png");
-
-                Particle* p = new Particle(
-                        player->getPosition(),
-                        GuiRenderer::TEX_WHITE,
-                        1.0f,
-                        5.0f
-                );
-                p->texture = window.isMouseDown(2) ? TEX_FIRE : TEX_SMOKE;
-                p->tex_grids = 8;
-                p->size_grow = 3;
-
-//                int i = Ethertia::getPreciseTime() * 7293423;
-//                glm::vec3 rand{Mth::hash(i), Mth::hash(i*34243), Mth::hash(i*279128)};
-                p->velocity += player->getViewDirection() * 4.3f;// + rand * 1.0f;
-
-                ParticleRenderer::m_Particles.push_back(p);
-            }
+//            if (window.isKeyDown(GLFW_KEY_K)) {
+//
+//                static Texture* TEX_FIRE = Loader::loadTexture("misc/particles/smoke_8x8_2.png");
+//                static Texture* TEX_SMOKE = Loader::loadTexture("misc/particles/flames_16x4_c.png");
+//
+//                Particle* p = new Particle(
+//                        player->getPosition(),
+//                        GuiRenderer::TEX_WHITE,
+//                        1.0f,
+//                        5.0f
+//                );
+//                p->texture = window.isMouseDown(2) ? TEX_FIRE : TEX_SMOKE;
+//                p->tex_grids = 8;
+//                p->size_grow = 3;
+//
+////                int i = Ethertia::getPreciseTime() * 7293423;
+////                glm::vec3 rand{Mth::hash(i), Mth::hash(i*34243), Mth::hash(i*279128)};
+//                p->velocity += player->getViewDirection() * 4.3f;// + rand * 1.0f;
+//
+//                ParticleRenderer::m_Particles.push_back(p);
+//            }
 
 
             // Hotbar

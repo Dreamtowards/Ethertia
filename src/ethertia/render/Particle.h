@@ -20,15 +20,17 @@ public:
     int tex_grids = 1;
 
     float size = 1;
+
+    // size grow per second
     float size_grow = 0;
 
-    float max_lifetime = 0;
+    float max_lifetime = 5;
 
     float lifetime = 0;
 
-    Particle(const glm::vec3& position, Texture* texture, float size, float maxLifetime) : position(position),
-                                                                                           texture(texture), size(size),
-                                                                                           max_lifetime(maxLifetime) {}
+//    Particle(const glm::vec3& position, Texture* texture, float size, float maxLifetime) : position(position),
+//                                                                                           texture(texture), size(size),
+//                                                                                           max_lifetime(maxLifetime) {}
 
     // return false: need to be delete. out of lifetime
     bool update(float dt)

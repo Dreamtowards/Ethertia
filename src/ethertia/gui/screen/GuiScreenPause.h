@@ -133,7 +133,7 @@ public:
         }
 
         {
-            static Inventory allItemsInventory(40);
+            static Inventory allItemsInventory(60);
 
             GuiInventory* gAllItemsInventory = new GuiInventory(&allItemsInventory);
             addGui(gAllItemsInventory);

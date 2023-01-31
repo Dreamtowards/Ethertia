@@ -16,12 +16,13 @@
 #include <ethertia/material/Material.h>
 
 
-// 3d positions.
+
 class VertexBuffer
 {
 public:
     using vec3 = glm::vec3;
 
+    // required 3d positions.
     std::vector<float> positions;
     std::vector<float> textureCoords;
     std::vector<float> normals;
