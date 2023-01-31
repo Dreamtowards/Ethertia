@@ -70,18 +70,18 @@ public:
 
 //        vbuf = MarchingCubesMeshGen::genMesh(chunk);
 
-            std::vector<glm::vec3> grass_fp;
+            //std::vector<glm::vec3> grass_fp;
 
             {
                 PROFILE_X(gp_MeshGen, "Iso");
-                SurfaceNetsMeshGen::contouring(chunk, vbufTerrain, grass_fp);
+                SurfaceNetsMeshGen::contouring(chunk, vbufTerrain);
             }
 
             {
                 PROFILE_X(gp_MeshGen, "Vegetable");
                 BlockyMeshGen::gen(chunk, vbufVegetable, true);
 
-                BlockyMeshGen::genGrasses(vbufVegetable, grass_fp);
+                //BlockyMeshGen::genGrasses(vbufVegetable);
 
             }
 

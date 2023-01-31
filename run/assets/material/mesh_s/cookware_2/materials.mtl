@@ -1,0 +1,10 @@
+# Made in Blockbench 4.6.0
+newmtl m_bfa30d50-5ca3-80c8-0cf8-9957365460a7
+map_Kd cookware_bronze.png 
+newmtl m_b16311b7-3318-c121-7809-75f22a3648cb
+map_Kd stew_b.png 
+newmtl m_a8c78119-67c3-d880-c493-94625b7bfed9
+map_Kd cookware_black.png 
+newmtl m_5accf73c-b1cb-8bec-7ac7-ccc14b5ed90a
+map_Kd hot.png 
+newmtl none

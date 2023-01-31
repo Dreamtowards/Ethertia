@@ -7,20 +7,22 @@
 
 #include "Entity.h"
 
+#include <BulletDynamics/Vehicle/btRaycastVehicle.h>
+
 class EntityRaycastCar : public Entity
 {
 public:
 
-//    btRaycastVehicle* m_vehicle;
-//
-//    EntityRaycastCar() {
-//
-//
-//        loadModelAndShape("entity/bulletcar.obj", &m_Model);
-//    }
-//
-//
-//
+    btRaycastVehicle* m_RaycastVehicle = nullptr;
+
+    EntityRaycastCar() {
+
+
+        loadModelAndShape("entity/bulletcar.obj", &m_Model);
+    }
+
+
+
 //    void onRender() {
 //
 //

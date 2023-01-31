@@ -26,12 +26,12 @@ class Entity
 public:
     btRigidBody* m_Rigidbody = nullptr;
 
+    World* m_World = nullptr;
+
     Model* m_Model = nullptr;
     Texture* m_DiffuseMap = nullptr;
 
     std::uint32_t m_TypeTag = 0;
-
-    World* m_World = nullptr;
 
     class TypeTag {
     public:

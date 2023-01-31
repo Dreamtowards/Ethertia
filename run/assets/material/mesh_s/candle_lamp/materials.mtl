@@ -1,0 +1,8 @@
+# Made in Blockbench 4.6.0
+newmtl m_bf0a3408-c2a3-33b9-e377-913d625e965a
+map_Kd brass_parts.png 
+newmtl m_0ade1260-d5ad-5839-d08e-b7f53da6ff59
+map_Kd candle_arm_gold.png 
+newmtl m_956f1ea4-37c7-8c8f-b897-00c323cba88b
+map_Kd candle.png 
+newmtl none

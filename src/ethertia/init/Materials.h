@@ -24,10 +24,6 @@ public:
     REGISTER_MTL(DIRT, "black_dirt");
     REGISTER_MTL(DIRT_, "dirt");
     REGISTER_MTL(SAND, "sand");
-
-    REGISTER_MTL(LEAVES, "leaves");
-    REGISTER_MTL(TALLGRASS, "tallgrass");
-    REGISTER_MTL(WATER, "water");
     REGISTER_MTL(LOG, "oak_log");
     REGISTER_MTL(PLANKS, "plank");
     REGISTER_MTL(FARMLAND, "farmland");
@@ -36,13 +32,12 @@ public:
     REGISTER_MTL(TUFF, "tuff");
     REGISTER_MTL(CONCRETE, "concrete");
     REGISTER_MTL(ROCK, "rock");
+    REGISTER_MTL(ROCK_MOSSY, "rock_mossy");
+    REGISTER_MTL(ROCK_SMOOTH, "rock_smooth");
     REGISTER_MTL(CLIFF_ROCK, "cliff_rock");
     REGISTER_MTL(VOLCANIC, "volcanic_rock");
     REGISTER_MTL(JUNGLE_ROCK, "jungle_rock");
     REGISTER_MTL(DEEPSLATE, "deepslate");
-
-
-
     REGISTER_MTL(STONE_BRICK, "stone_brick");
     REGISTER_MTL(BRICK_ROOF, "brick_roof");
     REGISTER_MTL(MEADOW, "meadow");
@@ -52,12 +47,22 @@ public:
 
 
 
-    REGISTER_MTL(STOOL, "stool", true);
+    REGISTER_MTL(WATER, "water", { .vege = true });
+    REGISTER_MTL(LEAVES, "leaves", { .mesh = true, .vege = true });
+    REGISTER_MTL(TALL_GRASS, "tall_grass", { .mesh = true, .vege = true });
+    REGISTER_MTL(SHORT_GRASS, "short_grass", { .mesh = true, .vege = true });
+    REGISTER_MTL(TALL_FERN, "tall_fern", { .mesh = true, .vege = true });
+    REGISTER_MTL(SHRUB, "shrub", { .mesh = true, .vege = true });
+    REGISTER_MTL(ROSE_BUSH, "rose_bush", { .mesh = true, .vege = true });
+    REGISTER_MTL(SPRUCE_LEAVES, "spruce_leaves", { .mesh = true, .vege = true });
 
-    REGISTER_MTL(CASH_REGISTER, "cash_register", true);
 
-    REGISTER_MTL(SHORT_GRASS, "short_grass", true);
-    REGISTER_MTL(TALL_FERN, "tall_fern", true);
+    REGISTER_MTL(STOOL, "stool", { .mesh = true });
+    REGISTER_MTL(SHORT_STOOL, "short_stool", { .mesh = true });
+    REGISTER_MTL(CHAIR, "chair", { .mesh = true });
+    REGISTER_MTL(CASH_REGISTER, "cash_register", { .mesh = true });
+    REGISTER_MTL(LADDER, "ladder", { .mesh = true });
+
 
 
 
