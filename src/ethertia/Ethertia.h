@@ -114,13 +114,10 @@ public:
         inline static const int revision = 1;
         inline static const char* snapshot = "23u04";  // release: nullptr.
 
-        static std::string name() {
-            // todo: cache.
-            if (snapshot) {
-                return Strings::fmt("Ethertia Alpha {} *{}.{}.{}", snapshot, major, minor, revision);
-            } else {
-                return Strings::fmt("Ethertia Alpha {}.{}.{}", major, minor, revision);
-            }
+        static const std::string& name() {
+            static std::string _CACHE = snapshot ? Strings::fmt("Ethertia Alpha {} *{}.{}.{}", snapshot, major, minor, revision)
+                                                 : Strings::fmt("Ethertia Alpha {}.{}.{}", major, minor, revision);
+            return _CACHE;
         }
     };
 };

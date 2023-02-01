@@ -41,21 +41,16 @@ public:
         return false;
     }
 
-    bool addDriver(EntityPlayer* entityPlayer) {
-        if (driver == nullptr) {
-            driver = entityPlayer;
-            return true;
-        }
-        return false;
+    void addDriver(EntityPlayer* entityPlayer) {
+        assert(driver == nullptr && "Driver already existed.");
+        driver = entityPlayer;
     }
 
-    bool removeDriver() {
-        if (driver == nullptr) {
-            return false;
-        }
+    void removeDriver() {
+        assert(driver && "No driver exists.");
         driver = nullptr;
-        return true;
     }
+
 };
 
 #endif //ETHERTIA_ENTITYVEHICLE_H

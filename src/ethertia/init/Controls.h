@@ -73,85 +73,90 @@ public:
             if (!e->isPressed())
                 return;
 
-            switch (e->getKey())
-            {
-                case GLFW_KEY_F1: {
-                    GuiIngame::Inst()->toggleVisible();
-                    break;
-                }
-                case GLFW_KEY_F2: {
-                    saveScreenshot();
-                    break;
-                }
-                case GLFW_KEY_F3: {
-                    GuiDebugV::Inst()->toggleVisible();
-                    break;
-                }
-                case GLFW_KEY_F4: {
-                    if (Ethertia::isIngame())
-                        Ethertia::getRootGUI()->addGui(GuiF4Lock::Inst());
-                    else if (Ethertia::getRootGUI()->last() == GuiF4Lock::Inst())
-                        Ethertia::getRootGUI()->removeLastGui();
-                    break;
-                }
-                case GLFW_KEY_F11: {
-                    Ethertia::getWindow()->toggleFullscreen();
-                    break;
-                }
-                case GLFW_KEY_ESCAPE: {
-                    escape_PauseOrBack();
-                    break;
-                }
-                case GLFW_KEY_SLASH: {
-                    if (Ethertia::isIngame()) {
-                        GuiMessageList::Inst()->setVisible(true);
-
-                        Ethertia::getRootGUI()->addGui(GuiScreenChat::Inst());
-                        GuiScreenChat::Inst()->openCommandInput();
-                    }
-                    break;
-                }
-                case GLFW_KEY_Q: {
-                    if (Ethertia::isIngame()) {
-                        EntityPlayer& player = *Ethertia::getPlayer();
-                        ItemStack& stack = player.getHoldingItem();
-                        if (!stack.empty())
-                        {
-                            EntityDroppedItem* eDroppedItem = new EntityDroppedItem();
-
-                            stack.moveTo(eDroppedItem->m_DroppedItem, 1);
-
-                            eDroppedItem->setPosition(player.getPosition());
-                            eDroppedItem->applyLinearVelocity(player.getViewDirection() * 3.0f);
-
-                            Ethertia::getWorld()->addEntity(eDroppedItem);
-                        }
-                    }
-                    break;
-                }
-                case GLFW_KEY_F: {
-
-                    EntityPlayer* player = Ethertia::getPlayer();
-
-                    if (player->m_Riding) {
-                        player->exitVehicle()->removeDriver();
-                        return;
-                    }
-
-                    BrushCursor& cur = Ethertia::getBrushCursor();
-                    if (EntityVehicle* car = dynamic_cast<EntityVehicle*>(cur.hitEntity)) {
-                        if (cur.length > 10)
-                            return;
-                        Log::info("Tes");
-                        player->enterVehicle(car);
-                        car->addDriver(player);
-                    }
-                    break;
-                }
-            }
+            handleKeyDown(e->getKey());
         });
 
 
+    }
+
+
+    static void handleKeyDown(int key) {
+        switch (key)
+        {
+            case GLFW_KEY_F1: {
+                GuiIngame::Inst()->toggleVisible();
+                break;
+            }
+            case GLFW_KEY_F2: {
+                saveScreenshot();
+                break;
+            }
+            case GLFW_KEY_F3: {
+                GuiDebugV::Inst()->toggleVisible();
+                break;
+            }
+            case GLFW_KEY_F4: {
+                if (Ethertia::isIngame())
+                    Ethertia::getRootGUI()->addGui(GuiF4Lock::Inst());
+                else if (Ethertia::getRootGUI()->last() == GuiF4Lock::Inst())
+                    Ethertia::getRootGUI()->removeLastGui();
+                break;
+            }
+            case GLFW_KEY_F11: {
+                Ethertia::getWindow()->toggleFullscreen();
+                break;
+            }
+            case GLFW_KEY_ESCAPE: {
+                escape_PauseOrBack();
+                break;
+            }
+            case GLFW_KEY_SLASH: {
+                if (Ethertia::isIngame()) {
+                    GuiMessageList::Inst()->setVisible(true);
+
+                    Ethertia::getRootGUI()->addGui(GuiScreenChat::Inst());
+                    GuiScreenChat::Inst()->openCommandInput();
+                }
+                break;
+            }
+            case GLFW_KEY_Q: {
+                if (Ethertia::isIngame()) {
+                    EntityPlayer& player = *Ethertia::getPlayer();
+                    ItemStack& stack = player.getHoldingItem();
+                    if (!stack.empty())
+                    {
+                        EntityDroppedItem* eDroppedItem = new EntityDroppedItem();
+
+                        stack.moveTo(eDroppedItem->m_DroppedItem, 1);
+
+                        eDroppedItem->setPosition(player.getPosition());
+                        eDroppedItem->applyLinearVelocity(player.getViewDirection() * 3.0f);
+
+                        Ethertia::getWorld()->addEntity(eDroppedItem);
+                    }
+                }
+                break;
+            }
+            case GLFW_KEY_F: {
+
+                EntityPlayer* player = Ethertia::getPlayer();
+
+                if (player->m_RidingOn) {
+                    player->m_RidingOn->removeDriver();
+                    player->m_RidingOn = nullptr;
+                    return;
+                }
+
+                BrushCursor& cur = Ethertia::getBrushCursor();
+                if (EntityVehicle* car = dynamic_cast<EntityVehicle*>(cur.hitEntity)) {
+                    // if (cur.length > 10)  return;
+
+                    player->m_RidingOn = car;
+                    car->addDriver(player);
+                }
+                break;
+            }
+        }
     }
 
 
@@ -171,25 +176,6 @@ public:
 
         if (Ethertia::isIngame())
         {
-            // Player enter Vehicle
-
-
-//            if (window.isKeyDown(GLFW_KEY_F)) {
-//                if (!player->m_Riding) {
-                    //
-//                    auto _ =Ethertia::getWorld()->getEntities_<EntityVehicle*>();
-//                    for (EntityVehicle* entityVehicle : _) {
-//                        if (player->canSeeEntity(entityVehicle->getPosition(), 10, 0.5)) {
-//                            player->enterVehicle(entityVehicle);
-//                            entityVehicle->addDriver(player);
-//                            break;
-//                        }
-//                    }
-//                }
-//                else {
-//                    player->exitVehicle()->removeDriver();
-//                }
-//            }
 
             // Player Movement.
 
@@ -199,7 +185,8 @@ public:
                 player->setSprint(false);
             }
 
-            Ethertia::getPlayer()->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+            if (!player->m_RidingOn)
+                player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
                                         window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
                                         window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
 
@@ -219,32 +206,8 @@ public:
             camera.len = Mth::max(camera.len, 0.0f);
 
 
-            // Test Particle Emit
-//            if (window.isKeyDown(GLFW_KEY_K)) {
-//
-//                static Texture* TEX_FIRE = Loader::loadTexture("misc/particles/smoke_8x8_2.png");
-//                static Texture* TEX_SMOKE = Loader::loadTexture("misc/particles/flames_16x4_c.png");
-//
-//                Particle* p = new Particle(
-//                        player->getPosition(),
-//                        GuiRenderer::TEX_WHITE,
-//                        1.0f,
-//                        5.0f
-//                );
-//                p->texture = window.isMouseDown(2) ? TEX_FIRE : TEX_SMOKE;
-//                p->tex_grids = 8;
-//                p->size_grow = 3;
-//
-////                int i = Ethertia::getPreciseTime() * 7293423;
-////                glm::vec3 rand{Mth::hash(i), Mth::hash(i*34243), Mth::hash(i*279128)};
-//                p->velocity += player->getViewDirection() * 4.3f;// + rand * 1.0f;
-//
-//                ParticleRenderer::m_Particles.push_back(p);
-//            }
-
 
             // Hotbar
-
             player->m_HotbarSlot += Mth::signal(-window.getDScroll());
             player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, GuiIngame::HOTBAR_SLOT_MAX);
 
