@@ -37,6 +37,7 @@ public:
 };
 
 #include <ethertia/entity/EntityLantern.h>
+#include <ethertia/entity/vehicle/EntityHelicopter.h>
 #include <ethertia/entity/EntityTorch.h>
 
 class Items
@@ -55,6 +56,9 @@ public:
 
     REGISTER_ITEM(LANTERN, "lantern", {new ItemComponentEntity([](){ return new EntityLantern(); })});
     REGISTER_ITEM(TORCH, "torch", {new ItemComponentEntity([](){ return new EntityTorch(); })});
+
+
+    REGISTER_ITEM(HELICOPTER, "helicopter", {new ItemComponentEntity([](){ return new EntityHelicopter(); })});
 
 //    inline static const Item* MELON = new Item("melon", {new Item::ComponentFood(1.0)});
 

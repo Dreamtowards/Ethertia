@@ -36,13 +36,13 @@
 #include <ethertia/render/renderer/SkyboxRenderer.h>
 #include <ethertia/render/GlState.h>
 #include <ethertia/init/MaterialMeshes.h>
-#include <ethertia/mod/SharedlibraryLoader.h>
+//#include <ethertia/mod/SharedlibraryLoader.h>
 
 
 
 int main()
 {
-    SharedlibraryLoader::load("bin/darwin-x64/libTwilightForest.dylib");
+//    SharedlibraryLoader::load("bin/darwin-x64/libTwilightForest.dylib");
     Ethertia::run();
 
     return 0;

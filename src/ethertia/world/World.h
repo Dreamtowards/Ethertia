@@ -24,6 +24,8 @@ class Chunk;
 class ChunkGenerator;
 class ChunkLoader;
 
+class EntityVehicle;
+
 struct WorldInfo
 {
 
@@ -138,6 +140,8 @@ public:
 
     const std::vector<Entity*>& getEntities();
 
+    template<typename T>
+    std::vector<T> getEntities_();
 
     void tick(float dt);
 

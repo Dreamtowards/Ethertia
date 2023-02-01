@@ -231,6 +231,18 @@ const std::vector<Entity*>& World::getEntities() {
     return m_Entities;
 }
 
+template<typename T>
+std::vector<T> World::getEntities_() {  // just temporary
+    assert(Ethertia::inMainThread());
+    std::vector<T> filtered;
+    for (void* e : m_Entities) {
+        if (dynamic_cast<T>(e)) {
+            filtered.push_back(e);
+        }
+    }
+    return filtered;
+}
+
 void World::tick(float dt)
 {
 

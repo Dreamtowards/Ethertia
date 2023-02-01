@@ -128,6 +128,25 @@ public:
                     }
                     break;
                 }
+                case GLFW_KEY_F: {
+
+                    EntityPlayer* player = Ethertia::getPlayer();
+
+                    if (player->m_Riding) {
+                        player->exitVehicle()->removeDriver();
+                        return;
+                    }
+
+                    BrushCursor& cur = Ethertia::getBrushCursor();
+                    if (EntityVehicle* car = dynamic_cast<EntityVehicle*>(cur.hitEntity)) {
+                        if (cur.length > 10)
+                            return;
+                        Log::info("Tes");
+                        player->enterVehicle(car);
+                        car->addDriver(player);
+                    }
+                    break;
+                }
             }
         });
 
@@ -151,6 +170,27 @@ public:
 
         if (Ethertia::isIngame())
         {
+            // Player enter Vehicle
+
+
+            // 有些迷惑
+            if (window.isKeyDown(GLFW_KEY_F)) {
+                if (!player->m_Riding) {
+                    //
+//                    auto _ =Ethertia::getWorld()->getEntities_<EntityVehicle*>();
+//                    for (EntityVehicle* entityVehicle : _) {
+//                        if (player->canSeeEntity(entityVehicle->getPosition(), 10, 0.5)) {
+//                            player->enterVehicle(entityVehicle);
+//                            entityVehicle->addDriver(player);
+//                            break;
+//                        }
+//                    }
+                }
+                else {
+                    player->exitVehicle()->removeDriver();
+                }
+            }
+
             // Player Movement.
 
             if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
@@ -219,18 +259,18 @@ public:
             BrushCursor& cursor = Ethertia::getBrushCursor();
             if (cursor.keepTracking && Ethertia::getWorld()) {
                 glm::vec3 p, n;
+                glm::vec3 pos_begin = camera.position;
 
                 btCollisionObject* obj = nullptr;
-                cursor.hit = Ethertia::getWorld()->raycast(camera.position, camera.position + camera.direction * 100.0f, p, n, &obj);
+                cursor.hit = Ethertia::getWorld()->raycast(pos_begin, pos_begin + camera.direction * 100.0f, p, n, &obj);
 
                 if (cursor.hit) {
                     cursor.position = p;
                     cursor.normal = n;
                     cursor.hitEntity = (Entity*)obj->getUserPointer();
+                    cursor.length = glm::length(p - pos_begin);
                 } else {
-                    cursor.position = {};
-                    cursor.normal = {};
-                    cursor.hitEntity = nullptr;
+                    cursor.reset();
                 }
             }
         }

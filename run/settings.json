@@ -7,6 +7,5 @@
   "mtl_resolution": 256,
   "simd_level": "",
   "view_distance": 5.0,
-  "vsync": false,
-  "mods": ["./mods/TwilightForest"]
+  "vsync": false
 }

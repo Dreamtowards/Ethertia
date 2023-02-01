@@ -8,7 +8,6 @@
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/player/Gamemode.h>
 #include <ethertia/init/MaterialMeshes.h>
-
 #include <ethertia/item/Inventory.h>
 
 class EntityPlayer : public Entity
@@ -19,11 +18,14 @@ class EntityPlayer : public Entity
 
     bool m_Sprint = false;
 
+    EntityVehicle* m_RidingVehicle = nullptr;
+
 
 public:
     float m_Health = 19.0f;
 
     bool m_OnGround = false;
+    bool m_Riding = false;
     float m_AppliedImpulse = 0;
     int m_NumContactPoints = 0;
     btVector3 m_PrevVelocity{};
@@ -94,6 +96,10 @@ public:
 
     void move(bool up, bool down, bool front, bool back, bool left, bool right)
     {
+        if (m_Riding) {
+
+            return;
+        }
         float speed = m_Sprint ? 30 : 15;
         speed *= Ethertia::getDelta();
 
@@ -118,6 +124,34 @@ public:
         }
 
         applyLinearVelocity(v);
+    }
+
+    void enterVehicle(EntityVehicle* pVehicle) {
+        m_RidingVehicle = pVehicle;
+        m_Riding = true;
+    }
+
+    EntityVehicle* exitVehicle() {
+        m_Riding = false;
+        EntityVehicle* tmp = m_RidingVehicle;
+        m_RidingVehicle = nullptr;
+        return tmp;
+    }
+
+    bool canSeeEntity(glm::vec3 entityVec3, float maxDistance, float maxRadius)
+    {
+        glm::vec3 playerViewDirection = getViewDirection();
+        glm::vec3 playerVec3 = getPosition();
+        glm::vec3 viewVec = entityVec3 - playerVec3;
+        float distance = glm::length(viewVec);
+        if (distance > maxDistance) {
+            return false;
+        }
+        float cosRadius = glm::dot(glm::normalize(viewVec), playerViewDirection);
+        if (cosRadius < maxRadius) {
+            return false;
+        }
+        return true;
     }
 
     ItemStack& getHoldingItem() {

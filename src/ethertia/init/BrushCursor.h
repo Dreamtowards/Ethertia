@@ -13,6 +13,7 @@ public:
     bool hit = false;
     glm::vec3 position;
     glm::vec3 normal;
+    float length = 0;
 
     float brushSize = 2.0;
 
@@ -25,6 +26,7 @@ public:
         hit = false;
         position = {};
         hitEntity = nullptr;
+        length = 0;
     }
 
 #define BRUSH_SPHERE 1
