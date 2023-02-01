@@ -16,14 +16,12 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 #include <tinyfd/tinyfiledialogs.h>
-#include <tiny_obj_loader/tiny_obj_loader.h>
 #include <nbt/nbt_tags.h>
 
 #include <ethertia/render/Texture.h>
 #include <ethertia/util/BitmapImage.h>
 #include <ethertia/render/VertexBuffer.h>
 #include <ethertia/render/Model.h>
-#include <ethertia/util/OBJLoader.h>
 #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/render/shader/ShaderProgram.h>
 
@@ -34,16 +32,16 @@ public:
 
     inline static std::string ASSETS = "assets/";
 
-    struct end_scope_dealloc {
-        void* ptr;
-
-        end_scope_dealloc(void* _ptr) : ptr(_ptr) {}
-
-        ~end_scope_dealloc() {
-            free(ptr);
-        }
-    };
-#define AUTO_DELETE(ptr) end_scope_dealloc _s(ptr);
+//    struct end_scope_dealloc {
+//        void* ptr;
+//
+//        end_scope_dealloc(void* _ptr) : ptr(_ptr) {}
+//
+//        ~end_scope_dealloc() {
+//            free(ptr);
+//        }
+//    };
+//#define AUTO_DELETE(ptr) end_scope_dealloc _s(ptr);
 
     struct datablock
     {
@@ -132,67 +130,9 @@ public:
 //    }
 
     // tiny_obj_loader: 2-5 times faster than util::OBJLoader. especially in little. 6.6MB obj 2times faster: 1.9s/0.9s, 632KB obj 4.3 times faster.
-    static void loadOBJ_Tiny(const char* filename, VertexBuffer& vbuf) {
-        tinyobj::attrib_t attrib;
-        std::vector<tinyobj::shape_t> shapes;
-        std::vector<tinyobj::material_t> materials;
-        std::string err;
-        bool succ = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename);
-        if (!succ) {
-            throw std::runtime_error(Strings::fmt("failed load obj tiny: ", err));
-        }
+    static void loadOBJ_Tiny(const char* filename, VertexBuffer& vbuf);
 
-        for (tinyobj::shape_t& shape : shapes)
-        {
-            tinyobj::mesh_t& mesh = shape.mesh;
-            size_t idx_offset = 0;
-
-            vbuf.reserve(vbuf.vertexCount() + mesh.indices.size());
-
-            for (int face_i = 0; face_i < mesh.num_face_vertices.size(); ++face_i)
-            {
-                int face_verts = mesh.num_face_vertices[face_i];
-                for (int fvi = 0; fvi < face_verts; ++fvi)
-                {
-                    tinyobj::index_t idx = mesh.indices[idx_offset + fvi];
-
-                    int ip = 3*idx.vertex_index;
-                    tinyobj::real_t px = attrib.vertices[ip],
-                                    py = attrib.vertices[ip+1],
-                                    pz = attrib.vertices[ip+2];
-                    vbuf.addpos(px,py,pz);
-
-                    if (idx.normal_index >= 0) {
-                        int in = 3*idx.normal_index;
-                        tinyobj::real_t nx = attrib.normals[in],
-                                        ny = attrib.normals[in+1],
-                                        nz = attrib.normals[in+2];
-                        vbuf.addnorm(nx,ny,nz);
-                    }
-
-                    if (idx.texcoord_index >= 0) {
-                        int it = 2*idx.texcoord_index;
-                        tinyobj::real_t tx = attrib.texcoords[it],
-                                        ty = attrib.texcoords[it+1];
-                        vbuf.adduv(tx,ty);
-                    }
-                }
-                idx_offset += face_verts;
-
-                // mesh.material_ids[face_i];
-            }
-        }
-    }
-
-    static void saveOBJ(const std::string& filename, size_t verts, const float* pos, const float* uv =nullptr, const float* norm =nullptr) {
-        std::stringstream ss;
-        OBJLoader::saveOBJ(ss, verts, pos, uv, norm);
-
-        ensureFileParentDirsReady(filename);
-        std::ofstream fs(filename);
-        fs << ss.str();
-        fs.close();
-    }
+    static void saveOBJ(const std::string& filename, size_t verts, const float* pos, const float* uv =nullptr, const float* norm =nullptr);
 
     static int16_t* loadOGG(std::pair<char*, size_t> data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
 
@@ -447,7 +387,7 @@ public:
     // File, Folder, URL
     static void openURL(const std::string& url) {
         const char* cmd = nullptr;
-#if _WIN32
+#if __WIN32__
         cmd = "start ";  // windows
 #elif __APPLE__
         cmd = "open ";  // macos
@@ -459,7 +399,8 @@ public:
         std::system(std::string(cmd + url).c_str());
     }
 
-    static const char* system() {
+    // WINDOWS / DARWIN / LINUX / nullptr
+    static const char* sysname() {
 #if __WIN32__
         return "WINDOWS";
 #elif __APPLE__
@@ -467,9 +408,10 @@ public:
 #elif __unix__
         return "LINUX";
 #else
-        return "_UNKNOWN";
+        return nullptr;
 #endif
     }
+
 };
 
 #endif //ETHERTIA_LOADER_H

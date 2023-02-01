@@ -119,6 +119,7 @@ add_executable(Ethertia
         lib/glad/glad.c
         lib/tinyfd/tinyfiledialogs.c
 
+        src/ethertia/util/Loader.cpp
         src/ethertia/gui/Gui.cpp
         src/ethertia/render/RenderEngine.cpp
         src/ethertia/world/World.cpp
@@ -130,3 +131,8 @@ add_executable(Ethertia
 add_executable(DedicatedServer
         src/ethertia/network/DedicatedServer.cpp)
 
+
+
+add_library(TwilightForest SHARED
+        run/mods/TwilightForest/src/TwilightForest.cpp
+        )

@@ -36,26 +36,14 @@
 #include <ethertia/render/renderer/SkyboxRenderer.h>
 #include <ethertia/render/GlState.h>
 #include <ethertia/init/MaterialMeshes.h>
+#include <ethertia/mod/SharedlibraryLoader.h>
 
 
-//#include <yaml-cpp/yaml.h>
-//#include <nbt/nbt_tags.h>
-//#include "dj-fft/dj_fft.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb/stb_image_write.h>
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include <stb/stb_image_resize.h>
-
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader/tiny_obj_loader.h>
 
 int main()
 {
+    SharedlibraryLoader::load("bin/darwin-x64/libTwilightForest.dylib");
     Ethertia::run();
-
 
     return 0;
 }
@@ -72,7 +60,7 @@ void Ethertia::start()
     m_RenderEngine = new RenderEngine();
     m_AudioEngine = new AudioEngine();
     ChunkGenerator::initSIMD();
-    Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::system(), std::endian::native == std::endian::big ? "big" : "little");
+    Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sysname(), std::endian::native == std::endian::big ? "big" : "little");
 
     Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::load();
@@ -463,29 +451,5 @@ void ShaderProgram::setViewProjection(bool view)
 
 float Scheduler::_intl_program_time() {
     return Ethertia::getPreciseTime();
-}
-
-
-
-#include <stb/stb_vorbis.c>
-
-
-int16_t* Loader::loadOGG(std::pair<char*, size_t> data, size_t* dst_len, int* dst_channels, int* dst_sampleRate) {
-    int channels = 0;
-    int sample_rate = 0;
-    int16_t* pcm = nullptr;
-    int len = stb_vorbis_decode_memory((unsigned char*)data.first, data.second, &channels, &sample_rate, &pcm);
-    if (len == -1)
-        throw std::runtime_error("failed decode ogg.");
-    assert(pcm);
-
-    // Log::info("Load ogg, pcm size {}, freq {}, cnls {}", Strings::size_str(len), sample_rate, channels);
-    assert(channels == 2 || channels == 1);
-
-    *dst_channels = channels;
-    *dst_len = len;
-    *dst_sampleRate = sample_rate;
-
-    return pcm;
 }
 
