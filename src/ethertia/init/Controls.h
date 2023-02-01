@@ -173,9 +173,8 @@ public:
             // Player enter Vehicle
 
 
-            // 有些迷惑
-            if (window.isKeyDown(GLFW_KEY_F)) {
-                if (!player->m_Riding) {
+//            if (window.isKeyDown(GLFW_KEY_F)) {
+//                if (!player->m_Riding) {
                     //
 //                    auto _ =Ethertia::getWorld()->getEntities_<EntityVehicle*>();
 //                    for (EntityVehicle* entityVehicle : _) {
@@ -185,11 +184,11 @@ public:
 //                            break;
 //                        }
 //                    }
-                }
-                else {
-                    player->exitVehicle()->removeDriver();
-                }
-            }
+//                }
+//                else {
+//                    player->exitVehicle()->removeDriver();
+//                }
+//            }
 
             // Player Movement.
 
