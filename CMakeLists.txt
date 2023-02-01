@@ -124,8 +124,6 @@ add_executable(Ethertia
         src/ethertia/render/RenderEngine.cpp
         src/ethertia/world/World.cpp
         src/ethertia/Ethertia.cpp
-#        src/ethertia/world/gen/BiomeGen.cpp
-#        src/ethertia/render/vulkan/TestVulkan.cpp
         )
 
 add_executable(DedicatedServer
