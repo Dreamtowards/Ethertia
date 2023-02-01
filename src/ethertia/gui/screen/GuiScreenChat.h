@@ -7,10 +7,7 @@
 
 #include <utility>
 
-#include "../GuiCollection.h"
-#include "../GuiStack.h"
-#include "../GuiTextBox.h"
-#include "../GuiAlign.h"
+#include <ethertia/gui/GuiCommon.h>
 
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/command/Command.h>
@@ -18,8 +15,7 @@
 class GuiScreenChat : public GuiCollection
 {
 public:
-
-    inline static GuiScreenChat* INST;
+    DECL_Inst_(GuiScreenChat);
 
     GuiTextBox* m_Input = nullptr;
 

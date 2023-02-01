@@ -9,18 +9,18 @@
 #include <ethertia/gui/GuiCommon.h>
 
 #include "GuiScreenMainMenu.h"
-#include "GuiScreenPause.h"
-#include "GuiScreenChat.h"
-
 #include "GuiDebugV.h"
 #include "GuiMessageList.h"
-#include "GuiF4Lock.h"
+#include <ethertia/gui/inventory/GuiInventory.h>
+
+//#include "GuiScreenChat.h"
+//#include "GuiF4Lock.h"
 #include <ethertia/util/Loader.h>
 
 class GuiIngame : public GuiCollection
 {
 public:
-    inline static GuiIngame* INST;
+    DECL_Inst_(GuiIngame);
 
     inline static const int HOTBAR_SLOT_MAX = 8;
 
@@ -28,25 +28,13 @@ public:
     {
         GuiRoot* rt = Ethertia::getRootGUI();
 
-        GuiDebugV::INST = new GuiDebugV();
-        GuiMessageList::INST = new GuiMessageList();
-
-        GuiIngame::INST = new GuiIngame();
-
-        GuiScreenMainMenu::INST = new GuiScreenMainMenu();
-        GuiScreenChat::INST = new GuiScreenChat();
-        GuiScreenPause::INST = new GuiScreenPause();
-
-        GuiF4Lock::INST = new GuiF4Lock();
-
 //        rt->addGui(GuiIngame::INST);
 //        rt->addGui(GuiScreenPause::INST);
 
-
         // default not show Debug
-        GuiDebugV::INST->setVisible(false);
+        GuiDebugV::Inst()->setVisible(false);
 
-        rt->addGui(GuiScreenMainMenu::INST);
+        rt->addGui(GuiScreenMainMenu::Inst());
     }
 
     GuiIngame()
@@ -54,8 +42,8 @@ public:
         setWidth(Inf);
         setHeight(Inf);
 
-        addGui(GuiDebugV::INST);
-        addGui(new GuiAlign(Inf, Inf, GuiMessageList::INST, 0, Inf, Inf, 24));
+        addGui(GuiDebugV::Inst());
+        addGui(new GuiAlign(Inf, Inf, GuiMessageList::Inst(), 0, Inf, Inf, 24));
 
 
     }

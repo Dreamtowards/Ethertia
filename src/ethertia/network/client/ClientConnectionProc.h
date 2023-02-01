@@ -37,7 +37,7 @@ public:
 
         Log::info("", packet.message);
 
-        GuiMessageList::INST->addMessage(packet.message);
+        Ethertia::notifyMessage(packet.message);
     }
 };
 

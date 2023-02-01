@@ -6,6 +6,7 @@
 #define ETHERTIA_CONTROLS_H
 
 #include <ethertia/entity/EntityDroppedItem.h>
+#include <ethertia/gui/screen/GuiF4Lock.h>
 
 class Controls
 {
@@ -75,7 +76,7 @@ public:
             switch (e->getKey())
             {
                 case GLFW_KEY_F1: {
-                    GuiIngame::INST->toggleVisible();
+                    GuiIngame::Inst()->toggleVisible();
                     break;
                 }
                 case GLFW_KEY_F2: {
@@ -83,13 +84,13 @@ public:
                     break;
                 }
                 case GLFW_KEY_F3: {
-                    GuiDebugV::INST->toggleVisible();
+                    GuiDebugV::Inst()->toggleVisible();
                     break;
                 }
                 case GLFW_KEY_F4: {
                     if (Ethertia::isIngame())
-                        Ethertia::getRootGUI()->addGui(GuiF4Lock::INST);
-                    else if (Ethertia::getRootGUI()->last() == GuiF4Lock::INST)
+                        Ethertia::getRootGUI()->addGui(GuiF4Lock::Inst());
+                    else if (Ethertia::getRootGUI()->last() == GuiF4Lock::Inst())
                         Ethertia::getRootGUI()->removeLastGui();
                     break;
                 }
@@ -103,10 +104,10 @@ public:
                 }
                 case GLFW_KEY_SLASH: {
                     if (Ethertia::isIngame()) {
-                        GuiMessageList::INST->setVisible(true);
+                        GuiMessageList::Inst()->setVisible(true);
 
-                        Ethertia::getRootGUI()->addGui(GuiScreenChat::INST);
-                        GuiScreenChat::INST->openCommandInput();
+                        Ethertia::getRootGUI()->addGui(GuiScreenChat::Inst());
+                        GuiScreenChat::Inst()->openCommandInput();
                     }
                     break;
                 }
@@ -363,9 +364,9 @@ public:
     {
         if (Ethertia::getWorld())
         {
-            if (Ethertia::getRootGUI()->last() == GuiIngame::INST)
+            if (Ethertia::getRootGUI()->last() == GuiIngame::Inst())
             {
-                Ethertia::getRootGUI()->addGui(GuiScreenPause::INST);  // Pause
+                Ethertia::getRootGUI()->addGui(GuiScreenPause::Inst());  // Pause
             }
             else
             {
@@ -374,7 +375,7 @@ public:
         }
         else
         {
-            if (Ethertia::getRootGUI()->last() != GuiScreenMainMenu::INST)
+            if (Ethertia::getRootGUI()->last() != GuiScreenMainMenu::Inst())
             {
                 Ethertia::getRootGUI()->removeLastGui();
             }
@@ -390,7 +391,7 @@ public:
             throw std::logic_error("File already existed.");
 
         Log::info("Screenshot saving to '{}'.\1", path);
-        GuiMessageList::INST->addMessage(Strings::fmt("Saved screenshot to '{}'.", path));
+        GuiMessageList::Inst()->addMessage(Strings::fmt("Saved screenshot to '{}'.", path));
 
         Ethertia::getAsyncScheduler()->addTask([img, path]() {
             BENCHMARK_TIMER;

@@ -7,9 +7,7 @@
 #include <ethertia/gui/GuiRoot.h>
 #include <ethertia/gui/screen/GuiIngame.h>
 #include <ethertia/gui/screen/GuiScreenMainMenu.h>
-#include <ethertia/gui/screen/GuiScreenChat.h>
 #include <ethertia/gui/screen/GuiScreenPause.h>
-#include <ethertia/render/chunk/BlockyMeshGen.h>
 #include <ethertia/render/chunk/MarchingCubesMeshGen.h>
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include <ethertia/world/World.h>
@@ -32,11 +30,7 @@
 #include <ethertia/init/ReloadControl.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/Items.h>
-#include <ethertia/render/renderer/ParticleRenderer.h>
-#include <ethertia/render/renderer/SkyboxRenderer.h>
-#include <ethertia/render/GlState.h>
 #include <ethertia/init/MaterialMeshes.h>
-//#include <ethertia/mod/SharedlibraryLoader.h>
 
 
 
@@ -257,7 +251,7 @@ void Ethertia::loadWorld(const std::string& savedir)
 
 
     Ethertia::getRootGUI()->removeAllGuis();
-    Ethertia::getRootGUI()->addGui(GuiIngame::INST);
+    Ethertia::getRootGUI()->addGui(GuiIngame::Inst());
 
 
     // debug:
@@ -294,7 +288,7 @@ void Ethertia::unloadWorld()
     // remove gui after GuiEventPolling
     getScheduler()->addTask([](){
         Ethertia::getRootGUI()->removeAllGuis();
-        Ethertia::getRootGUI()->addGui(GuiScreenMainMenu::INST);
+        Ethertia::getRootGUI()->addGui(GuiScreenMainMenu::Inst());
     });
 }
 
@@ -343,10 +337,10 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
 void Ethertia::notifyMessage(const std::string& msg) {
     Log::info("[MSG/C] ", msg);
-    GuiMessageList::INST->addMessage(msg);
+    GuiMessageList::Inst()->addMessage(msg);
 }
 
-bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::INST && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
+bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::Inst() && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
 
 float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
 

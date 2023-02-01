@@ -15,9 +15,10 @@
 
 #include "dj-fft/dj_fft.h"
 
-class GuiScreenMainMenu : public GuiCollection {
+class GuiScreenMainMenu : public GuiCollection
+{
 public:
-    inline static GuiScreenMainMenu *INST;
+    DECL_Inst_(GuiScreenMainMenu);
 
     GuiScreenMainMenu() {
         addDrawBackground(Colors::WHITE80);

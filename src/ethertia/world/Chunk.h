@@ -58,6 +58,7 @@ public:
         m_MeshTerrain = new EntityMesh();
         m_MeshTerrain->setPosition(position);
         m_MeshTerrain->m_TypeTag = Entity::TypeTag::T_CHUNK_TERRAIN;
+        m_MeshTerrain->m_Rigidbody->setFriction(0.8f);
 
         m_MeshVegetable = new EntityMesh();
         m_MeshVegetable->setPosition(position);

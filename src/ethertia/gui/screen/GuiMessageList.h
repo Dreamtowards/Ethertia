@@ -7,10 +7,12 @@
 
 #include <ethertia/gui/GuiCommon.h>
 
+#include <ethertia/gui/screen/GuiScreenChat.h>
+
 class GuiMessageList : public GuiCollection
 {
 public:
-    inline static GuiMessageList* INST = nullptr;
+    DECL_Inst_(GuiMessageList);
 
     GuiStack* m_MsgList = nullptr;
 
@@ -44,8 +46,10 @@ public:
 
         Gui::drawRect(x,y,w,h, Colors::BLACK40);
 
+
+        // auto dismiss.
         const float DEACTIVATE_SEC = 4;
-        if (Ethertia::getRootGUI()->last() != GuiScreenChat::INST && Ethertia::getPreciseTime() - m_TimeLastMessage > DEACTIVATE_SEC) {
+        if (Ethertia::getRootGUI()->last() != GuiScreenChat::Inst() && Ethertia::getPreciseTime() - m_TimeLastMessage > DEACTIVATE_SEC) {
             setVisible(false);
         }
     }

@@ -5,12 +5,12 @@
 #ifndef ETHERTIA_GUIF4LOCK_H
 #define ETHERTIA_GUIF4LOCK_H
 
-#include <ethertia/gui/Gui.h>
+#include <ethertia/gui/GuiCommon.h>
 
 class GuiF4Lock : public Gui
 {
 public:
-    inline static GuiF4Lock* INST = nullptr;
+    DECL_Inst_(GuiF4Lock);
 
     void implDraw() override
     {

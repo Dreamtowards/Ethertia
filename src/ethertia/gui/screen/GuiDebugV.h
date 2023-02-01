@@ -19,7 +19,7 @@
 class GuiDebugV : public GuiCollection
 {
 public:
-    inline static GuiDebugV* INST = nullptr;
+    DECL_Inst_(GuiDebugV);
 
     inline static bool dbgText = true;
     inline static bool dbgPolyLine = false;
