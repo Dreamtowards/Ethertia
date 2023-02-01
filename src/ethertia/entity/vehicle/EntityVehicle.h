@@ -51,6 +51,9 @@ public:
         driver = nullptr;
     }
 
+    virtual void move(bool up, bool down, bool front, bool back, bool left, bool right, bool rollLeft, bool rollRight) {
+
+    }
 };
 
 #endif //ETHERTIA_ENTITYVEHICLE_H
