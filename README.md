@@ -4,19 +4,17 @@
 
 [![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml)
 [![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml)
-[![Discord](https://img.shields.io/discord/870689606570508319?logo=discord)](https://discord.gg/2gzHbuXF)
-
 <a href="https://ethertia.elytra.dev" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">官方站点</a>
 <a href="https://jq.qq.com/?_wv=1027&k=tgM29oDM" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">QQ群组</a>
-<a style="background: #f44; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">All rights reserved</a>
+<a style="background: #f44; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">(C) Ethertia, Elytra Corporation All rights reserved</a>
 
 [comment]: <> ([![Linux]&#40;https://github.com/raysan5/raylib/workflows/Linux/badge.svg&#41;]&#40;https://github.com/raysan5/raylib/actions?query=workflow%3ALinux&#41;)
 [comment]: <> ([![Build-Ubuntu]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml/badge.svg&#41;]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml&#41;)
 
 
-Ethertia. Building World while Interacting People / 建造 互动 生存 探索  
+Building · Survive · Interact / 建造 · 生存 · 交互
 
-
+[comment]: <> ([![Discord]&#40;https://img.shields.io/discord/870689606570508319?logo=discord&#41;]&#40;https://discord.gg/2gzHbuXF&#41;)
 [comment]: <> (目标:)
 [comment]: <> (和挚友一起互动玩耍，坐火车，去剧场听DJ或看演出。建造喜欢的地方，学校，或幻想之地。)
 [comment]: <> (去领略大自然风光 深奥地形生成。)
@@ -25,7 +23,8 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 
 预览视频:
 
-![](run/screenshots/2023-01-16_01.04.07_473.938.png)
+[comment]: <> (![]&#40;run/screenshots/2023-01-16_01.04.07_473.938.png&#41;)
+![](run/screenshots/2023-01-23_16.07.58_976.654.png)
 
 [comment]: <> (![]&#40;run/screenshots/2023-01-17_17.24.46_751.785.png&#41;)
 
@@ -34,72 +33,44 @@ Ethertia. Building World while Interacting People / 建造 互动 生存 探索
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
 
-Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3个月+3个月初步完成。详细为:
-- 建筑
-  - [x] 平滑体素 (纯材质) | Smooth Voxel Terrain (Pure MTL)
-    - 材质: 石头 草地 泥土 沙子 岩石 石砖 
-  - [ ] 自定模型体素 (方块, 树叶 / 椅子) | Custom Mesh Voxel 
-    - 树叶 高草 椅子 / 衣架
-  - [ ] 离散烘培模型 (旋转 位置 尺寸) (纯材质/自定纹理) | Offgrid Baked Mesh
-  - [ ] Spline 规则生成模型: 铁轨 围栏 
-- 生存
-  - [ ] 耕种
-    - 农作物: 胡萝卜 马铃薯 小麦 / 水稻 番茄 玉米 葡萄
-  - [ ] 生物
-    - 动物: 猪 牛 羊 鸡 / 马 驴 骡 骆驼 / 猫 狼 兔
-  - [ ] 挖矿
-    - 矿物: 铁, 煤, 
-  - [ ] 探索&收集
-    - [ ] 生物群系: 平原 沙漠 冻原 热带雨林 森林
-    - [ ] 遗迹: 村庄 地牢 矿脉
-  - [ ] 建筑
-  - [ ] Boss
-  - [ ] 载具: 汽车 火车 单车
-- 交互
-  - [ ] 多人
-  - [ ] 自定义人物模型
-  - [ ] VR支持
-  - [ ] 动作跟踪 IK动画
+Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3个月+3个月初步完成。
+
+[comment]: <> (- 建筑)
+[comment]: <> (  - [x] 平滑体素 &#40;纯材质&#41; | Smooth Voxel Terrain &#40;Pure MTL&#41;)
+[comment]: <> (    - 材质: 石头 草地 泥土 沙子 岩石 石砖 )
+[comment]: <> (  - [ ] 自定模型体素 &#40;方块, 树叶 / 椅子&#41; | Custom Mesh Voxel )
+[comment]: <> (    - 树叶 高草 椅子 / 衣架)
+[comment]: <> (  - [ ] 离散烘培模型 &#40;旋转 位置 尺寸&#41; &#40;纯材质/自定纹理&#41; | Offgrid Baked Mesh)
+[comment]: <> (  - [ ] Spline 规则生成模型: 铁轨 围栏 )
+[comment]: <> (- 生存)
+[comment]: <> (  - [ ] 耕种)
+[comment]: <> (    - 农作物: 胡萝卜 马铃薯 小麦 / 水稻 番茄 玉米 葡萄)
+[comment]: <> (  - [ ] 生物)
+[comment]: <> (    - 动物: 猪 牛 羊 鸡 / 马 驴 骡 骆驼 / 猫 狼 兔)
+[comment]: <> (  - [ ] 挖矿)
+[comment]: <> (    - 矿物: 铁, 煤, )
+[comment]: <> (  - [ ] 探索&收集)
+[comment]: <> (    - [ ] 生物群系: 平原 沙漠 冻原 热带雨林 森林)
+[comment]: <> (    - [ ] 遗迹: 村庄 地牢 矿脉)
+[comment]: <> (  - [ ] 建筑)
+[comment]: <> (  - [ ] Boss)
+[comment]: <> (- 交互)
     
-- 其他/扩展
-  - 命令
-    - /gamemode, /fly, /tp, /time 
-    - /mesh
-  - 渲染
-    - 日夜交替
-    - 穹顶深色
-    - SSAO
-    - Reflection Mapping
-    - Normal Mapping 微分BTN矩阵
-    - Bloom 辉光
-    - Light Shaft
-    - 光晕
-    - 体积云
-    - Atmosphere 物理大气层
-  - GUI
-  - 世界存储
-  - 凋落物
-  - Mods系统
-  - 剧院Mod | Theatrical Mod
-  - 暮色森林Mod | Twilight Forest Mod
 
 [comment]: <> (以上为*游戏性列表*，接下来为*功能性列表*:)
 
 
 已完成:
-- [x] Surface Nets (Unified Grids) (基本平滑体素模型构建 Isosurface 对偶型等值面提取演算法)
-- [x] Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
-- [x] Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
-- [x] UDP 快速网络通信(optical reliable) 数据包 处理系统
 
 ### All Versions / Plan
 
-- Ethertia Beta 0.0.1
-  - [x] GUI
-    - Inventory Ops
-    - HUD, Hotbar, Health, XP
+- Ethertia Alpha 0.1.0 Building 建筑系统
+  - [ ] Voxel
+    - [x] Surface Nets (Unified Grids) (基本平滑体素对偶型模型构建)
+    - [x] Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
   - [ ] World
     - World Storage 世界存储
+    - DayTime 日时间 / 日月交替
     - Physics Integration (bullet3)
   - [ ] Items
     - [x] 食物: Apple, Lime酸橙
@@ -109,6 +80,7 @@ Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3�
   - [ ] Entity
       - EntityPlayer
       - EntityMesh
+      - EntityDroppedItem
       - [ ] Player
           - [x] Health, Damage.
   - [ ] Materials
@@ -118,17 +90,19 @@ Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3�
     - [ ] Distribution
     - [ ] Boundary Blend & Mixing
     - [ ] EntityDroppedItem 掉落物
+  - [x] GUI
+      - Inventory Ops
+      - HUD, Hotbar, Health, XP
   
 
 <br>
 
-- Ethertia Beta 0.0.2
-  - [ ] SSAO
-  - [ ] Particle System
-  - [ ] Reflection Mapping, in materials, Screen space.
+- Ethertia Alpha 0.2.0 Graphics 渲染
+  - [x] Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
+  - 穹顶深色
+  - SSAO, SS Reflection Mapping, Normal Mapping 微分BTN矩阵, Bloom 辉光, Light Shaft, 光晕
+  - 体积云, Atmosphere 物理大气层
   - dynamic water waves. refract. view angle.
-  - Flat Atmosphere
-  - Light Shaft
   - Chunk Culling
   - Decals at Terrain digging
   - Volume Fog
@@ -139,41 +113,39 @@ Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3�
 
 <br>
 
-- Ethertia Beta 0.1.5
+- Ethertia Alpha 0.3.0 Survive 生存 地形生成
   - LoD Terrain
   - CSG Advanced Modeling System.
   - WorldGen.
   - Animals. Skeleton Animation & Physics.
     - Pig, Sheep, Chicken, Cow
     - Horse, Donkey, Mule
-- Ethertia Beta 0.2.0
-  - Multiplayer
+  - [ ] 载具: 汽车 火车 单车
+  - Vehicles Train, Car, Subway, Truck, Hawkins Wheelchair
+
+
+- Ethertia Beta 0.4.0 Multiplayer 多人与网络
+  - [x] UDP optical reliable networking. Packet Handling
+
+<br>
+
+- Ethertia Beta 0.6.0 Mod 模组支持
+  - 剧院Mod | Theatrical Mod (Screen cast, Audio, SpotLight, Camera)
+  - 暮色森林Mod | Twilight Forest Mod
+  - Mod (Native / Script / Distro)
+
+<br>
+
+- Ethertia Beta 0.8.0 VR, Avatar and MotionTrack
+  - [ ] 多人
+  - [ ] 自定义人物模型
+  - [ ] VR支持
+  - [ ] 动作跟踪 IK动画
+  - Character, Avatar. Cel Shading
     
+
 ---
 
-- Ethertia 1.0.3
-  - Theatrical
-    - Screen cast
-    - Audio
-    - SpotLight
-    - Camera
-    
-- Ethertia 1.0.5
-  - Vehicles
-    - Train
-    - Car
-    - Subway
-    - Truck
-    - Hawkins Wheelchair
-  
-- Ethertia 1.1.0
-  - Character, Avatar. Cel Shading
-
-- Ethertia 1.2.0
-  - Mod (Native / Script / Distro)
-  - VR, MotionTrack
-    
-- Ethertia 1.3.0 
 
 
 开发安排:
@@ -327,8 +299,9 @@ Ethertia 有3个更新主题: 建筑 生存 交互，分别预计在 4个月+3�
     - +rock_mossy, rock_smooth, shurb, spruce_leaves..
     - remove grass_fp gen      
     - Material.m_IsVegetable 简化 ChunkMeshGenBlocky判断
+    - EntityTorch, particles.
+    - dll load. mod init call.
       
-    - Lantern, Torch
     - Workbench, Bed, Ladder
     - IronChain, Cobweb
     - Wheat Crops

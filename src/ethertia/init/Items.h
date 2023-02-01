@@ -37,6 +37,7 @@ public:
 };
 
 #include <ethertia/entity/EntityLantern.h>
+#include <ethertia/entity/EntityTorch.h>
 
 class Items
 {
@@ -52,8 +53,8 @@ public:
     REGISTER_ITEM(PICKAXE, "pickaxe", {new Item::ComponentTool()});
     REGISTER_ITEM(GRAPPLE, "grapple", {new ItemComponentGrapple()});
 
-    REGISTER_ITEM(LANTERN, "lantern", {new ItemComponentEntity([](){ return new EntityLantern(); })
-                                                 });
+    REGISTER_ITEM(LANTERN, "lantern", {new ItemComponentEntity([](){ return new EntityLantern(); })});
+    REGISTER_ITEM(TORCH, "torch", {new ItemComponentEntity([](){ return new EntityTorch(); })});
 
 //    inline static const Item* MELON = new Item("melon", {new Item::ComponentFood(1.0)});
 

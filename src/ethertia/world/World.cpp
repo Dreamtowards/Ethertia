@@ -167,7 +167,7 @@ void World::saveUnloadedChunks() {
 
 }
 
-void World::unloadChunk(glm::vec3 p)  {
+void World::unloadChunk(glm::vec3 p) {
     Chunk* chunk = nullptr;
     {
         LOCK_GUARD(m_LockChunks);
@@ -179,7 +179,6 @@ void World::unloadChunk(glm::vec3 p)  {
 
         // later save.
         m_UnloadedChunks.push_back(chunk);
-        //    m_ChunkLoader->saveChunk(chunk);
 
         m_Chunks.erase(it);
     }

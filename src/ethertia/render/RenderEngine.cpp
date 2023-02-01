@@ -154,9 +154,18 @@ void RenderEngine::renderWorldCompose(World* world)
 //        l.attenuation = {0,0,0};
 //        renderLights.push_back(&l);
 //    }
-    for (Entity* e : world->m_Entities) {
-        if (EntityLantern* lat = dynamic_cast<EntityLantern*>(e)) {
+    for (Entity* e : world->m_Entities)
+    {
+        if (EntityLantern* lat = dynamic_cast<EntityLantern*>(e))
+        {
             renderLights.push_back(lat->getLights());
+        }
+
+        if (EntityTorch* lat = dynamic_cast<EntityTorch*>(e))
+        {
+            renderLights.push_back(lat->getLights());
+
+            ParticleRenderer::m_Particles.push_back(lat->genParticles());
         }
     }
 

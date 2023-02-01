@@ -87,6 +87,11 @@ public:
 
     void refreshWorldList(GuiStack* lsWorlds) {
 
+        if (!Loader::fileExists("saves/")) {
+
+            return;
+        }
+
         for (const auto& savedir : std::filesystem::directory_iterator("saves/"))
         {
             if (!savedir.is_directory())

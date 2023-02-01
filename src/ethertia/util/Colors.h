@@ -5,8 +5,9 @@
 #ifndef ETHERTIA_COLORS_H
 #define ETHERTIA_COLORS_H
 
-#include <ethertia/util/Endian.h>
 #include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
+#include <ethertia/util/Endian.h>
 
 class Colors
 {

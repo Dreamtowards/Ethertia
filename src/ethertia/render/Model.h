@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 #include <vector>
 
+// Represents an OpenGL VAO. vertex data has already been transmitted to GPU.
 class Model
 {
 public:

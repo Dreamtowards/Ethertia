@@ -49,25 +49,23 @@ endif()
 
 
 
-
 if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 
     set(GLFW_BUILD_EXAMPLES OFF)
     set(GLFW_BUILD_TESTS OFF)
     add_subdirectory(lib/glfw)
-#    link_libraries(glfw)
+    link_libraries(glfw)
 
     add_subdirectory(lib/bullet3)
-#    link_libraries(BulletDynamics BulletCollision LinearMath)
+    link_libraries(BulletDynamics BulletCollision LinearMath)
 
     add_subdirectory(lib/fastnoise2)
-#    link_libraries(FastNoise2)
+    link_libraries(FastNoise2)
 
     add_subdirectory(lib/openal-soft)
-#    link_libraries(OpenAL)
+    link_libraries(OpenAL)
 
     add_subdirectory(lib/entt)
-    link_libraries(BulletDynamics BulletCollision LinearMath OpenAL FastNoise2 glfw)
 
 else()
     link_directories(${PROD_BINARY_DIR})
@@ -88,7 +86,6 @@ endif()
 set(NBT_BUILD_TESTS OFF)
 add_subdirectory(lib/nbt)
 link_libraries(nbt++)
-
 
 
 
@@ -122,14 +119,18 @@ add_executable(Ethertia
         lib/glad/glad.c
         lib/tinyfd/tinyfiledialogs.c
 
+        src/ethertia/util/Loader.cpp
         src/ethertia/gui/Gui.cpp
         src/ethertia/render/RenderEngine.cpp
         src/ethertia/world/World.cpp
         src/ethertia/Ethertia.cpp
-#        src/ethertia/world/gen/BiomeGen.cpp
-#        src/ethertia/render/vulkan/TestVulkan.cpp
         )
 
 add_executable(DedicatedServer
         src/ethertia/network/DedicatedServer.cpp)
 
+
+
+add_library(TwilightForest SHARED
+        run/mods/TwilightForest/src/TwilightForest.cpp
+        )
