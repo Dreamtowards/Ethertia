@@ -61,7 +61,7 @@ public:
 
 
 
-    void renderGeometryChunk(Model* model, glm::vec3 pos, glm::mat3 rot, Texture* diff, float vertexWaving)
+    void renderGeometryChunk(Model* model, glm::vec3 pos, glm::mat3 rot, Texture* diff, float vertexWaving = 0)
     {
         if (diff)
         {

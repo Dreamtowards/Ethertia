@@ -10,6 +10,12 @@
 class EntityMesh : public Entity
 {
 public:
+    bool m_FaceCulling = true;
+
+//    static bool isFaceCulling(Entity* e) {
+//        EntityMesh* m = dynamic_cast<EntityMesh*>(e);
+//        return m ? m->m_FaceCulling : false;
+//    }
 
     EntityMesh() {
 
@@ -19,6 +25,8 @@ public:
     void setNoCollision() {
         m_Rigidbody->setCollisionFlags(btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
+
+    void onRender() override;
 
     void setMesh(btCollisionShape* shap)
     {

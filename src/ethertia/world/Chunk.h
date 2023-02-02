@@ -34,8 +34,8 @@ public:
 
     float m_InhabitedTime = 0;  // seconds.
 
-    bool m_NeedsSave = false;
-    uint64_t m_LastSavedTime = 0;
+//    bool m_NeedsSave = false;
+//    uint64_t m_LastSavedTime = 0;
 
     // VertexData positions. for fix Normal Smoothing at Chunk Boundary.
     // not use Physics Collision triangle positions yet, it's struct too complicated, BVH triangles, maybe later.
@@ -57,12 +57,11 @@ public:
         // init the proxy entity
         m_MeshTerrain = new EntityMesh();
         m_MeshTerrain->setPosition(position);
-        m_MeshTerrain->m_TypeTag = Entity::TypeTag::T_CHUNK_TERRAIN;
         m_MeshTerrain->m_Rigidbody->setFriction(0.8f);
 
         m_MeshVegetable = new EntityMesh();
         m_MeshVegetable->setPosition(position);
-        m_MeshVegetable->m_TypeTag = Entity::TypeTag::T_CHUNK_VEGETABLE;
+        m_MeshVegetable->m_FaceCulling = false;
         m_MeshVegetable->setNoCollision();
     }
     ~Chunk() {

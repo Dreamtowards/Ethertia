@@ -35,7 +35,6 @@ public:
 
 
     EntityPlayer() {
-        m_TypeTag = Entity::TypeTag::T_PLAYER;
 
         m_Model = Loader::loadModel(MaterialMeshes::CAPSULE);
 

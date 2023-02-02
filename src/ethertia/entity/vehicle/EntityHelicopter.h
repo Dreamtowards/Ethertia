@@ -88,7 +88,7 @@ public:
         m_Rigidbody->applyForce(Mth::btVec3(bias * m_EngineForce),
                                 {0, 0.6f, 0});  //螺旋桨位置
 
-                                // 模拟质心 回归平衡
+        // 模拟质心 回归平衡
         m_Rigidbody->applyForce({0, -2000, 0},
                                 Mth::btVec3(to_helicopter_basis_space({0, -5, 0})));
 

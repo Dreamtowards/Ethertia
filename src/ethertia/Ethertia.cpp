@@ -159,10 +159,6 @@ void Ethertia::runMainLoop()
         {
             PROFILE("GUI");
             renderGUI();
-//            if (m_Window->isKeyDown(GLFW_KEY_L)) {
-//                EntityRenderer::tmpLightDir = getCamera()->direction;
-//                EntityRenderer::tmpLightPos = getCamera()->position;
-//            }
         }
     }
 
@@ -278,7 +274,7 @@ void Ethertia::unloadWorld()
     // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
     m_Scheduler.processTasks(Mth::Inf);
     assert(m_Scheduler.numTasks() == 0);
-    assert(m_AsyncScheduler.numTasks() == 0);
+//    assert(m_AsyncScheduler.numTasks() == 0);
 
 
     delete oldWorld;
@@ -447,3 +443,25 @@ float Scheduler::_intl_program_time() {
     return Ethertia::getPreciseTime();
 }
 
+
+
+
+void Entity::onRender()
+{
+    Ethertia::getRenderEngine()->entityRenderer->renderGeometryChunk(
+            m_Model, getPosition(), getRotation(), m_DiffuseMap);
+}
+
+void EntityMesh::onRender()
+{
+    bool isFoliage = m_FaceCulling;  if (isFoliage && RenderEngine::dbg_NoVegetable) return;
+
+    if (isFoliage)
+        glDisable(GL_CULL_FACE);
+
+    Ethertia::getRenderEngine()->entityRenderer->renderGeometryChunk(
+            m_Model, getPosition(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
+
+    if (isFoliage)
+        glEnable(GL_CULL_FACE);  // set back
+}

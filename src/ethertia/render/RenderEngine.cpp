@@ -92,22 +92,25 @@ void RenderEngine::renderWorldGeometry(World* world) {
             continue;
         }
 
-        bool isFolige = entity->m_TypeTag == Entity::TypeTag::T_CHUNK_VEGETABLE;
-        if (isFolige) {
-            if (dbg_NoVegetable) continue;
-            glDisable(GL_CULL_FACE);
-        }
+//        bool noFaceCulling = EntityMesh::isFaceCulling(entity);
+//        if (noFaceCulling) {
+//            if (dbg_NoVegetable) continue;
+//            glDisable(GL_CULL_FACE);
+//        }
 
         if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera()->len == 0)
             continue;
 
-        PROFILE("E/"+std::to_string(entity->m_TypeTag));
+        //PROFILE("E/"+std::to_string(entity->m_TypeTag));
 
-        entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation(), entity->m_DiffuseMap, isFolige ? 0.1 : 0.0);
-
-        if (entity->m_TypeTag == Entity::TypeTag::T_CHUNK_VEGETABLE) {
-            glEnable(GL_CULL_FACE);  // setback
-        }
+        entity->onRender();
+//
+//        entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation(),
+//                                            entity->m_DiffuseMap, noFaceCulling ? 0.1 : 0.0);
+//
+//        if (noFaceCulling) {
+//            glEnable(GL_CULL_FACE);  // setback
+//        }
 
         ++dbg_NumEntityRendered;
         if (dbg_EntityGeo) {

@@ -20,6 +20,8 @@
 #include <ethertia/render/VertexBuffer.h>
 #include <ethertia/util/Loader.h>
 
+#include <ethertia/render/RenderEngine.h>
+
 
 class Entity
 {
@@ -31,18 +33,7 @@ public:
     Model* m_Model = nullptr;
     Texture* m_DiffuseMap = nullptr;
 
-    std::uint32_t m_TypeTag = 0;
-
-    class TypeTag {
-    public:
-        static const uint32_t T_CHUNK_TERRAIN = 16,
-                              T_CHUNK_VEGETABLE = 17,
-                              T_PLAYER = 32;
-
-        static bool isTerrain(uint32_t t) {
-            return t==T_CHUNK_TERRAIN || t==T_CHUNK_VEGETABLE;
-        }
-    };
+    std::vector<EntityComponent*> m_Components;
 
     Entity() {
     }
@@ -81,9 +72,16 @@ public:
     }
 
 
-    virtual void onRender() {
-
+    template<typename T>
+    T* getComponent() {
+        for (EntityComponent* c : m_Components) {
+            T* t = dynamic_cast<T*>(c);
+            if (t) return t;
+        }
+        return nullptr;
     }
+
+    virtual void onRender();
 
 
     virtual void onLoad(btDynamicsWorld* dworld) {
