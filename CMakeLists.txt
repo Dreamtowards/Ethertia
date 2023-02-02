@@ -127,7 +127,8 @@ add_executable(Ethertia
         )
 
 add_executable(DedicatedServer
-        src/ethertia/network/DedicatedServer.cpp)
+        src/ethertia/network/DedicatedServer.cpp
+        )
 
 
 

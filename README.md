@@ -65,6 +65,7 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
   - [ ] Voxel
     - [x] Surface Nets (Unified Grids) (基本平滑体素对偶型模型构建)
     - [x] Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
+  - [ ] Decorations
   - [ ] World
     - World Storage 世界存储
     - DayTime 日时间 / 日月交替
@@ -298,6 +299,10 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
     - Material.m_IsVegetable 简化 ChunkMeshGenBlocky判断
     - EntityTorch, particles.
     - dll load. mod init call.
+  - 2023-02-01
+    - 分离出了 Loader.cpp
+  - 2023-02-02
+    - Deco CTM拼接纹理 如何只用很少的基本纹理 创建出 实体拼接- 先去学学他们怎么做的
       
     - Workbench, Bed, Ladder
     - IronChain, Cobweb

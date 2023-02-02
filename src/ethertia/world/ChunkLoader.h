@@ -56,7 +56,7 @@ public:
     };
     std::unordered_map<glm::vec3, VolumeStore*> m_LoadedChunkFiles;
 
-    bool m_DisableSave = false;
+    bool m_DisableSave = true;
     bool m_DisableLoad = false;
 
     ChunkLoader(const std::string& savedir) : m_ChunkDir(savedir) {

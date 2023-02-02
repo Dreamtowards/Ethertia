@@ -81,6 +81,11 @@ public:
     }
 
 
+    virtual void onRender() {
+
+    }
+
+
     virtual void onLoad(btDynamicsWorld* dworld) {
         dworld->addRigidBody(m_Rigidbody);
     }
@@ -124,7 +129,6 @@ public:
 //        if (glm::length2(vel)) {
 //            rigidbody->setActivationState(ACTIVE_TAG);
 //        }
-
         auto o = m_Rigidbody->getLinearVelocity();
         m_Rigidbody->setLinearVelocity(btVector3(o.x()+vel.x, o.y()+vel.y, o.z()+vel.z));
     }

@@ -185,17 +185,19 @@ public:
                 player->setSprint(false);
             }
 
-            if (Ethertia::getPlayer()->m_RidingOn == nullptr) {
-                Ethertia::getPlayer()->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+            if (player->m_RidingOn == nullptr) {
+                player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
                                             window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
                                             window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
             }
-            // Vehicle Control
-            else {
-                Ethertia::getPlayer()->m_RidingOn->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+            else
+            {
+                // Vehicle Control.
+                player->m_RidingOn->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
                                                         window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
                                                         window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
-                                                        window.isKeyDown(GLFW_KEY_HOME), window.isKeyDown(GLFW_KEY_PAGE_UP));
+                                                        window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
+                                                        //window.isCtrlKeyDown() && window.isKeyDown(GLFW_KEY_A),window.isCtrlKeyDown() && window.isKeyDown(GLFW_KEY_D));
             }
 
             // Camera
