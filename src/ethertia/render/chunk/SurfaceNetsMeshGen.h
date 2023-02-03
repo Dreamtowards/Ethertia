@@ -157,7 +157,7 @@ public:
             }
         }
 
-        ASSERT_WARN(numIntersects > 0, "Illegal FeaturePoint");
+        //ASSERT_WARN(numIntersects > 0, "Illegal FeaturePoint");
         if (numIntersects == 0) {
             return {0,0,0};  // Dont return NaN.
         }

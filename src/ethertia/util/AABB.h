@@ -21,6 +21,33 @@ public:
 //        return p[axis] >= min[axis] && p[axis] < max[axis];
 //    }
 
+    bool empty() {
+        return min == max;
+    }
+    glm::vec3 size() {
+        return max - min;
+    }
+
+    void wrap(glm::vec3 a, glm::vec3 b) {
+        min = glm::min(a, b);
+        max = glm::max(a, b);
+    }
+
+    void set(glm::vec3 p) {
+        min = p;
+        max = p;
+    }
+
+    static void forEach(glm::vec3 min, glm::vec3 max, const std::function<void(glm::vec3)>& fn, float step) {
+        for (float rx = min.x; rx < max.x; ++rx) {
+            for (float ry = min.y; ry < max.y; ++ry) {
+                for (float rz = min.z; rz < max.z; ++rz) {
+                    glm::vec3 p(rx,ry,rz);
+                    fn(p);
+                }
+            }
+        }
+    }
 
     static bool intersectsAxis(const AABB& a, const AABB& b, int axis) {
         return a.min[axis] < b.max[axis] && a.max[axis] > b.min[axis];

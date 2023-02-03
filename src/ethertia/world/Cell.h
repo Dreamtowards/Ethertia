@@ -15,7 +15,7 @@ public:
     const Material* mtl = nullptr;
     float density = 0;
 
-    char exp_meta = 0;
+    char exp_meta = 0;  // tmp: 1=block.
 
     glm::vec3 fp{Mth::Inf};  // featurepoint cache. in-cell.
 

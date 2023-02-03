@@ -201,6 +201,11 @@ void Ethertia::renderGUI()
         Gui::drawString(Gui::maxWidth() - 32, Gui::maxHeight() - 32, "Saving chunks...", Colors::YELLOW, 16, {-1, -1});
     }
 
+    if (!WorldEdit::selection.empty()) {
+        AABB& s = WorldEdit::selection;
+        m_RenderEngine->renderLineBox(s.min, s.size(), Colors::GREEN);
+    }
+
     glEnable(GL_DEPTH_TEST);
 
 }
@@ -311,7 +316,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
     Command* command = (Command*)Command::REGISTRY.get(cmd);
     if (!command) {
-        Ethertia::notifyMessage(Strings::fmt("Unknown command: {} ({})", cmd, cmdline));
+        SendMessage("Unknown command: {} ({})", cmd, cmdline);
         return;
     }
 
@@ -325,7 +330,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     {
         std::exception_ptr p = std::current_exception();
 
-        Ethertia::notifyMessage(Strings::fmt("Error occurred when command execution."));
+        SendMessage("Error occurred when command execution.");
     }
 
     //todo: sender? that only make sense on serverside.
@@ -454,7 +459,7 @@ void Entity::onRender()
 
 void EntityMesh::onRender()
 {
-    bool isFoliage = m_FaceCulling;  if (isFoliage && RenderEngine::dbg_NoVegetable) return;
+    bool isFoliage = !m_FaceCulling;  if (isFoliage && RenderEngine::dbg_NoVegetable) return;
 
     if (isFoliage)
         glDisable(GL_CULL_FACE);

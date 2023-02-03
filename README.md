@@ -303,6 +303,8 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
     - 分离出了 Loader.cpp
   - 2023-02-02
     - Deco CTM拼接纹理 如何只用很少的基本纹理 创建出 实体拼接- 先去学学他们怎么做的
+    - helicopter move control. 
+    - 面向场景的功能更新 
       
     - Workbench, Bed, Ladder
     - IronChain, Cobweb

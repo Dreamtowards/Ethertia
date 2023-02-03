@@ -42,7 +42,7 @@ public:
     }
 
     const T* get(const std::string& id) {
-        assert(has(id));
+        // assert(has(id));
         return m_Map[id];
     }
 

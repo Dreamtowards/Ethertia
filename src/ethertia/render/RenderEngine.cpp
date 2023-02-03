@@ -92,25 +92,12 @@ void RenderEngine::renderWorldGeometry(World* world) {
             continue;
         }
 
-//        bool noFaceCulling = EntityMesh::isFaceCulling(entity);
-//        if (noFaceCulling) {
-//            if (dbg_NoVegetable) continue;
-//            glDisable(GL_CULL_FACE);
-//        }
-
         if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera()->len == 0)
             continue;
 
-        //PROFILE("E/"+std::to_string(entity->m_TypeTag));
 
         entity->onRender();
-//
-//        entityRenderer->renderGeometryChunk(entity->m_Model, entity->getPosition(), entity->getRotation(),
-//                                            entity->m_DiffuseMap, noFaceCulling ? 0.1 : 0.0);
-//
-//        if (noFaceCulling) {
-//            glEnable(GL_CULL_FACE);  // setback
-//        }
+
 
         ++dbg_NumEntityRendered;
         if (dbg_EntityGeo) {
@@ -125,7 +112,6 @@ void RenderEngine::renderWorldGeometry(World* world) {
             renderLineBox(aabb.min, aabb.max-aabb.min, Colors::RED);
         }
     }
-
 
     glEnable(GL_BLEND);
 

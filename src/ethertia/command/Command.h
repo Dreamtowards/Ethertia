@@ -5,14 +5,21 @@
 #ifndef ETHERTIA_COMMAND_H
 #define ETHERTIA_COMMAND_H
 
-#define DECL_COMMAND_ID(x) std::string getRegistryId() const override { return x; }
+#include <vector>
+#include <string>
+
+//#define DECL_COMMAND_ID(x) std::string getRegistryId() const override { return x; }
+
+#define SendMessage(msg, ...) Ethertia::notifyMessage(Strings::fmt(msg, ##__VA_ARGS__))
 
 class Command
 {
 public:
     inline static Registry<Command> REGISTRY;
 
-    virtual void onCommand(const std::vector<std::string>& args)  {
+    using Args = const std::vector<std::string>&;
+
+    virtual void onCommand(Args args)  {
 
     }
 

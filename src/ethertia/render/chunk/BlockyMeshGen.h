@@ -127,7 +127,7 @@ public:
             glm::vec3 np = rpos + dir;
             Cell& neib = World::_GetCell(chunk, np);
 
-            if (!neib.mtl || neib.mtl != mtl)  // and not same mtl e.g. water
+            if (!neib.isOpaqueCube() && !(mtl == Materials::WATER && mtl==neib.mtl))  // and not same mtl e.g. water
             {
                 putCubeFace(vbuf, i, rpos, mtl->m_TexId);
             }
@@ -144,9 +144,10 @@ public:
             // put uv
             bas = face*12 + i*2 ;  // 12=6vec*2f
             glm::vec2 uv(CUBE_UV[bas], CUBE_UV[bas+1]);
-            uv = MaterialTextures::uv_to_atlas_region(uv, mtlId);
-            vbuf->adduv(uv.x, uv.y);
-            vbuf->set_uv_mtl(mtlId);
+//            uv = MaterialTextures::uv_to_atlas_region(uv, mtlId);
+//            vbuf->adduv(uv.x, uv.y);
+//            vbuf->set_uv_mtl(mtlId);
+            vbuf->add_uv_mtl_pure(mtlId);
         }
     }
 

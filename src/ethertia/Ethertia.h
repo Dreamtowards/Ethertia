@@ -91,6 +91,7 @@ public:
     static Scheduler* getScheduler() { return &m_Scheduler; }
     static Scheduler* getAsyncScheduler() { return &m_AsyncScheduler; }
     static BrushCursor& getBrushCursor() { return m_Cursor; }
+    static BrushCursor& getCursor() { return m_Cursor; }
     static Profiler& getProfiler() { return m_Profiler; }
     static AudioEngine* getAudioEngine() { return m_AudioEngine; }
 

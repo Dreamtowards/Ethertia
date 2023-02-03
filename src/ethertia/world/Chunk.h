@@ -43,9 +43,10 @@ public:
 
     /// the 'proxy' entity, for unified functionalities e.g. collisions
     EntityMesh* m_MeshTerrain = nullptr;
-
     EntityMesh* m_MeshVegetable = nullptr;
 
+    // 表示区块正在被 MeshGen线程使用中 不能删除(Unloaded后) 直到Meshing=false才能删除
+    // 否则会造成内存错误崩溃 这种底层错误由于效率原因不会被捕获
     bool m_Meshing = false;  // MeshGen, till Uploaded.
 
     std::vector<VertexBuffer*> m_BakeMeshes;

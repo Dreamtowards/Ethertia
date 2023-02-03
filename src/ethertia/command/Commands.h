@@ -12,6 +12,7 @@
 #include <ethertia/command/CommandTp.h>
 #include <ethertia/command/CommandMesh.h>
 #include <ethertia/command/CommandTime.h>
+#include <ethertia/command/CommandWorldEdit.h>
 
 
 class Commands
@@ -92,6 +93,10 @@ public:
     REGISTER_CMD(FLY, "fly", new CommandFly());
     REGISTER_CMD(MESH, "mesh", new CommandMesh());
     REGISTER_CMD(TIME, "time", new CommandTime());
+
+    REGISTER_CMD(WE_SET, "/set", new CommandWESet());
+    REGISTER_CMD(WE_POS1, "/pos1", new CommandWEPos1());
+    REGISTER_CMD(WE_POS2, "/pos2", new CommandWEPos2());
 
 };
 

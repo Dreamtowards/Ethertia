@@ -151,16 +151,27 @@ void World::saveUnloadedChunks() {
 
         Entity* meshTerr = chunk->m_MeshTerrain;
         Entity* meshVege = chunk->m_MeshVegetable;
-        delete chunk;
 
         Ethertia::getScheduler()->addTask([this, meshTerr, meshVege]()
         {
             // CNS 有时Entity根本不会被加入世界 (当加入世界时发现区块已被卸载 将取消加入世界
+            // ps 真的假的 为什么我现在不明白了
             if (meshTerr->m_World) {
                 removeEntity(meshTerr);
                 removeEntity(meshVege);
             }
         }, -1);  // ? after addEntity().
+
+
+        // Delete chunk but after MeshGen thread finish use.
+        if (chunk->m_Meshing) {
+            Ethertia::getAsyncScheduler()->addDelayTask([chunk](){
+                Timer::wait_for(&chunk->m_Meshing, false);
+                delete chunk;
+            }, 2.0f);
+        } else {
+            delete chunk;
+        }
     }
 
     m_UnloadedChunks.clear();

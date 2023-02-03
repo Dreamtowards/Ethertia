@@ -80,9 +80,6 @@ public:
             {
                 PROFILE_X(gp_MeshGen, "Vegetable");
                 BlockyMeshGen::gen(chunk, vbufVegetable, true);
-
-                //BlockyMeshGen::genGrasses(vbufVegetable);
-
             }
 
 // CNS BUG: 在区块Unloaded后，可能其Mesh刚刚开始。结果采集到被删除的区块 造成错误
