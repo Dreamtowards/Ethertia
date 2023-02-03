@@ -77,6 +77,25 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
 
 ### Versions & Plan
 
+- Ethertia Alpha 0.1.0 Building 建筑系统 est. 2023.02.28
+
+- Ethertia Alpha 0.2.0 Survive & Gameplay 生存&游戏性
+    - Framing, Animals, Vehicle, Brewing
+  
+- Ethertia Alpha 0.3.0 Graphics 渲染
+
+- Ethertia Alpha 0.4.0 WorldGen 地形生成
+
+- Ethertia Beta 0.5.0 VR, Avatar & MotionTrack 自定人物&动作跟踪, VR.
+
+- Ethertia Beta 0.7.0 Multiplayer 多人&网络
+
+- Ethertia Beta 0.8.0 Mod 模组支持 (Theatrical, TwilightForest)
+
+- Ethertia 1.0.0 Building, Survive, Interact. 建筑 生存 交互
+
+---
+
 - Ethertia Alpha 0.1.0 Building 建筑系统  
   *est. 2023.02.28 | 建筑与生存 是Ethertia的核心 而前者是核心特点*
   - [ ] Voxel
