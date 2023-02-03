@@ -19,12 +19,12 @@ public:
 
     using Args = const std::vector<std::string>&;
 
+
     virtual void onCommand(Args args)  {
 
     }
 
-    virtual void onComplete() {
-
+    virtual void onComplete(Args args, int argi, std::vector<std::string>& completes) const {
     }
 
     static Entity* resolveEntityExpr(const std::string& expr) {

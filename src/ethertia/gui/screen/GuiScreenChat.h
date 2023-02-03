@@ -136,8 +136,12 @@ public:
                     m_ShowTabComplete = true;
                     feedTabComplete();
                 } else if (m_TabCompletes.size() > 0) {
-                    m_TabIndex++;
-                    m_TabIndex = m_TabIndex % m_TabCompletes.size();
+                    if (Ethertia::getWindow()->isShiftKeyDown()) {
+                        m_TabIndex--;
+                    } else {
+                        m_TabIndex++;
+                    }
+                    m_TabIndex = Mth::mod(m_TabIndex, m_TabCompletes.size());
                     updateTabPos();  // for chat text-inc
                 }
 
@@ -192,9 +196,16 @@ public:
             }
             else
             {
+                const Command* command = Command::REGISTRY.get(cmd);
 
-                m_TabCompletes.push_back("Sth1");
-                m_TabCompletes.push_back("Sth234");
+                int argi = 0;
+                for (int i = 0; i < cur; ++i) {
+                    if (line[i] == ' ') ++argi;
+                }
+
+                if (command) {
+                    command->onComplete(args, argi, m_TabCompletes);
+                }
             }
         }
         else

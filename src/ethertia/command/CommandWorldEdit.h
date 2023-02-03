@@ -27,19 +27,25 @@ public:
         return p;
     }
 
-    //  //pos1 [l]   # l: use lookat pos instead of camera pos.
+    //  //pos1 [-l]   # l: use lookat pos instead of camera pos.
     void onCommand(Args args) override {
         WorldEdit::selection.set(pos(args));
         SendMessage("Set pos1.");
+    }
+    void onComplete(Args args, int argi, std::vector<std::string> &completes) const override {
+        if (argi > 0) completes.push_back("-l");
     }
 };
 
 class CommandWEPos2 : public Command {
 public:
-    //  //pos2 [l]
+    //  //pos2 [-l]
     void onCommand(Args args) override {
         WorldEdit::selection.wrap(WorldEdit::selection.min, CommandWEPos1::pos(args));
         SendMessage("Set pos2");
+    }
+    void onComplete(Args args, int argi, std::vector<std::string> &completes) const override {
+        if (argi > 0) completes.push_back("-l");
     }
 };
 
@@ -83,7 +89,17 @@ public:
         }, 1.0f);
 
         Ethertia::notifyMessage("Filled.");
-        WorldEdit::selection.set({});  // clear selection
+
+        // WorldEdit::selection.set({});  // clear selection
+    }
+    void onComplete(Args args, int argi, std::vector<std::string> &completes) const override {
+        if (argi == 1) {
+            for (auto& it : Material::REGISTRY) {
+                completes.push_back(it.first);
+            }
+        } else if (argi == 2) {
+            completes.push_back("-b");
+        }
     }
 };
 

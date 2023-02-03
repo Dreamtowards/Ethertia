@@ -59,13 +59,31 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
 
 [comment]: <> (以上为*游戏性列表*，接下来为*功能性列表*:)
 
+### Developers & Credits
+
+- Program & Game Design (程序 & 游戏设计)
+    - **Eldrine Le Prismarine** (Voxel, Graphics, Gameplay)
+
+
+- Creative Director (创意总监)
+    - **Thaumstrial** 
+
+
+- Genius Composer (音乐天才)
+    - [need] 奇幻/平静/悲怆
+
+
+
+
 ### Versions & Plan
 
-- Ethertia Alpha 0.1.0 Building 建筑系统
+- Ethertia Alpha 0.1.0 Building 建筑系统  
+  *est. 2023.02.28 | 建筑与生存 是Ethertia的核心 而前者是核心特点*
   - [ ] Voxel
     - [x] Surface Nets (Unified Grids) (基本平滑体素对偶型模型构建)
     - [x] Multi-Material Terrain, 多材质地形 高度图边缘过渡，纹理映射
   - [ ] Decorations
+    - 装饰品/小玩意 (Bake ? Entity)
   - [ ] World
     - World Storage 世界存储
     - DayTime 日时间 / 日月交替
@@ -76,18 +94,11 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
     - [ ] 合成材料: 木棒
     - [ ] 工具: 稿子 抓钩
   - [ ] Entity
-      - EntityPlayer
-      - EntityMesh
-      - EntityDroppedItem
-      - [ ] Player
-          - [x] Health, Damage.
+      - EntityPlayer 
+      - EntityDroppedItem 掉落物
   - [ ] Materials
     - [ ] 基于体素系统上 +更多模型/轮廓 + 配合不同材质
     - [ ] 农作物 Crops, Carrots, Potatoes
-  - [ ] Biomes
-    - [ ] Distribution
-    - [ ] Boundary Blend & Mixing
-    - [ ] EntityDroppedItem 掉落物
   - [x] GUI
       - Inventory Ops
       - HUD, Hotbar, Health, XP
@@ -97,9 +108,8 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
 
 - Ethertia Alpha 0.2.0 Graphics 渲染
   - [x] Deferred Rendering 延迟渲染, Cubic Chunk 方形区块
-  - 穹顶深色
   - SSAO, SS Reflection Mapping, Normal Mapping 微分BTN矩阵, Bloom 辉光, Light Shaft, 光晕
-  - 体积云, Atmosphere 物理大气层
+  - 体积云, Atmosphere 物理大气层 穹顶深色
   - dynamic water waves. refract. view angle.
   - Chunk Culling
   - Decals at Terrain digging
@@ -119,6 +129,9 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
     - Pig, Sheep, Chicken, Cow
     - Horse, Donkey, Mule
   - [ ] 载具: 汽车 火车 单车
+  - [ ] Biomes
+      - [ ] Distribution
+      - [ ] Boundary Blend & Mixing
   - Vehicles Train, Car, Subway, Truck, Hawkins Wheelchair
 
 
@@ -144,7 +157,9 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
 
 ---
 
+    
 
+    
 
 开发安排:
   - 2022-12-23&24
