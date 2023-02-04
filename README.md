@@ -63,24 +63,25 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
 
 - Program & Game Design (程序 & 游戏设计)
     - **Eldrine Le Prismarine** (Voxel, Graphics, Gameplay)
+    - N/A (Shaders, Gameplay)
 
 
 - Creative Director (创意总监)
     - **Thaumstrial** 
+    - N/A (游戏性, 灵感, 甚至剧情)
 
 
 - Genius Composer (音乐天才)
-    - [need] 奇幻/平静/悲怆
-
-
-
+    - N/A 奇幻/平静/悲怆
+    
 
 ### Versions & Plan
+Overview:
 
 - Ethertia Alpha 0.1.0 Building 建筑系统 est. 2023.02.28
 
-- Ethertia Alpha 0.2.0 Survive & Gameplay 生存&游戏性
-    - Framing, Animals, Vehicle, Brewing
+- Ethertia Alpha 0.2.0 Survive & Gameplay 生存&游戏性  
+  Framing, Animals, Vehicle, Brewing
   
 - Ethertia Alpha 0.3.0 Graphics 渲染
 
@@ -95,6 +96,7 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
 - Ethertia 1.0.0 Building, Survive, Interact. 建筑 生存 交互
 
 ---
+Detail:
 
 - Ethertia Alpha 0.1.0 Building 建筑系统  
   *est. 2023.02.28 | 建筑与生存 是Ethertia的核心 而前者是核心特点*
