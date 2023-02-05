@@ -8,6 +8,8 @@ run/bin/macos-x86-64/*
 run/bin/darwin-x64/*
 run/bin/windows-amd64/*
 
+run/settings.json
+
 run/cache/*.png
 
 run/saves/*

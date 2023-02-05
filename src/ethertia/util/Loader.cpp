@@ -16,6 +16,8 @@
 #include <tiny_obj_loader/tiny_obj_loader.h>
 
 
+#include <nlohmann/json.hpp>
+
 
 void Loader::saveOBJ(const std::string &filename, size_t verts, const float *pos, const float *uv, const float *norm)  {
     std::stringstream ss;

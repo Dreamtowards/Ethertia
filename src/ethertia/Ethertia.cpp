@@ -31,12 +31,12 @@
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/Items.h>
 #include <ethertia/init/MaterialMeshes.h>
+#include <ethertia/mod/ModLoader.h>
 
 
 
 int main()
 {
-//    SharedlibraryLoader::load("bin/darwin-x64/libTwilightForest.dylib");
     Ethertia::run();
 
     return 0;
@@ -47,6 +47,8 @@ void Ethertia::start()
 {
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::loadSettings();
+
+    ModLoader::loadProgram("bin/darwin-x64/libTwilightForest.dylib");
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
@@ -301,7 +303,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
     if (cmdline[0] != '/') {
         if (!NetworkSystem::m_Connection) {
-            Ethertia::notifyMessage("Failed send chat, you haven't connect a server.");
+            _SendMessage("Failed send chat, you haven't connect a server.");
             return;
         }
         NetworkSystem::SendPacket(PacketChat{ cmdline });
