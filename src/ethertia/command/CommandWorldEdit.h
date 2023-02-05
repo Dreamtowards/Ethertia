@@ -30,7 +30,7 @@ public:
     //  //pos1 [-l]   # l: use lookat pos instead of camera pos.
     void onCommand(Args args) override {
         WorldEdit::selection.set(pos(args));
-        SendMessage("Set pos1.");
+        _SendMessage("Set pos1.");
     }
     void onComplete(Args args, int argi, std::vector<std::string> &completes) const override {
         if (argi > 0) completes.push_back("-l");
@@ -42,7 +42,7 @@ public:
     //  //pos2 [-l]
     void onCommand(Args args) override {
         WorldEdit::selection.wrap(WorldEdit::selection.min, CommandWEPos1::pos(args));
-        SendMessage("Set pos2");
+        _SendMessage("Set pos2");
     }
     void onComplete(Args args, int argi, std::vector<std::string> &completes) const override {
         if (argi > 0) completes.push_back("-l");
@@ -56,13 +56,13 @@ public:
         std::string id = args[1];
         const Material* mtl = Material::REGISTRY.get(id);
         if (!mtl) {
-            SendMessage("Material '{}' not found.", id);
+            _SendMessage("Material '{}' not found.", id);
             return;
         }
 
         AABB& sel = WorldEdit::selection;
         if (sel.empty()) {
-            Ethertia::notifyMessage("No selection.");
+            _SendMessage("No selection.");
             return;
         }
 
@@ -88,7 +88,7 @@ public:
 
         }, 1.0f);
 
-        Ethertia::notifyMessage("Filled.");
+        _SendMessage("Filled.");
 
         // WorldEdit::selection.set({});  // clear selection
     }

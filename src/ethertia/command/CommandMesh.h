@@ -24,13 +24,13 @@ public:
             entity->setMesh(EntityMesh::createMeshShape(vbuf.vertexCount(), vbuf.positions.data()));
             entity->updateModel(Loader::loadModel(&vbuf));
 
-            Ethertia::notifyMessage(Strings::fmt("EntityMesh created."));
+            _SendMessage("EntityMesh created.");
         }
         else
         {
             Entity* target = Ethertia::getBrushCursor().hitEntity;
             if (!target) {
-                Ethertia::notifyMessage("failed, no target entity.");
+                _SendMessage("failed, no target entity.");
                 return;
             }
 
@@ -38,7 +38,7 @@ public:
             {
                 const std::string& path = args[2];
                 if (!Loader::fileExists(path)){
-                    Ethertia::notifyMessage(Strings::fmt("No mesh file on: ", path));
+                    _SendMessage("No mesh file on: ", path);
                     return;
                 }
 
@@ -48,27 +48,27 @@ public:
                 eMesh->updateModel(Loader::loadModel(vbuf));
                 eMesh->setMesh(EntityMesh::createMeshShape(vbuf->vertexCount(), vbuf->positions.data()));
 
-                Ethertia::notifyMessage("Mesh updated.");
+                _SendMessage("Mesh updated.");
             }
             else if (args[1] == "diff")
             {
                 const std::string& path = args[2];
                 if (!Loader::fileExists(path)){
-                    Ethertia::notifyMessage(Strings::fmt("No texture file on: ", path));
+                    _SendMessage("No texture file on: ", path);
                     return;
                 }
 
                 EntityMesh* entity = (EntityMesh*)Ethertia::getBrushCursor().hitEntity;
                 entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(Loader::loadFile(path)));
 
-                Ethertia::notifyMessage("Texture updated.");
+                _SendMessage("Texture updated.");
             }
             else if (args[1] == "delete")
             {
 
                 Ethertia::getWorld()->removeEntity(target);
 
-                Ethertia::notifyMessage("Entity deleted.");
+                _SendMessage("Entity deleted.");
             }
 
         }

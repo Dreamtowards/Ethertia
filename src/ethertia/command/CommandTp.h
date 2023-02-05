@@ -24,7 +24,7 @@ public:
             Entity* dst = resolveEntityExpr(args[2]);
             src->setPosition(dst->getPosition());
         }
-        Ethertia::notifyMessage("Teleported");
+        _SendMessage("Teleported");
     }
 };
 

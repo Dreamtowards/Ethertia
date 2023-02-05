@@ -41,7 +41,7 @@ public:
 
             Ethertia::getPlayer()->switchGamemode(mode);
 
-            Ethertia::notifyMessage(Strings::fmt("Gamemode has been set to {}", Gamemode::nameOf(mode)));
+            _SendMessage("Gamemode has been set to {}", Gamemode::nameOf(mode));
         }
     };
     class CommandFly : public Command
@@ -52,7 +52,7 @@ public:
             EntityPlayer* player = Ethertia::getPlayer();
             player->setFlying(!player->isFlying());
 
-            Ethertia::notifyMessage(Strings::fmt("Flymode tuned to {}", player->isFlying()));
+            _SendMessage("Flymode tuned to {}", player->isFlying());
         }
     };
     class CommandGive : public Command
@@ -66,7 +66,7 @@ public:
             std::string id = args[2];
 
             if (!Item::REGISTRY.has(id)) {
-                Ethertia::notifyMessage(Strings::fmt("No such item id \"{}\".", id));
+                _SendMessage("No such item id \"{}\".", id);
                 return;
             }
 
@@ -79,7 +79,7 @@ public:
 
             target->m_Inventory.putItemStack(stack);
 
-            Ethertia::notifyMessage(Strings::fmt("Given {} x{}", id, amount));
+            _SendMessage("Given {} x{}", id, amount);
         }
     };
 

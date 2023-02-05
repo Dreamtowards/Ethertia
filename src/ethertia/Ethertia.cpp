@@ -316,7 +316,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
     Command* command = (Command*)Command::REGISTRY.get(cmd);
     if (!command) {
-        SendMessage("Unknown command: {} ({})", cmd, cmdline);
+        _SendMessage("Unknown command: {} ({})", cmd, cmdline);
         return;
     }
 
@@ -330,7 +330,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     {
         std::exception_ptr p = std::current_exception();
 
-        SendMessage("Error occurred when command execution.");
+        _SendMessage("Error occurred when command execution.");
     }
 
     //todo: sender? that only make sense on serverside.

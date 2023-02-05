@@ -22,14 +22,14 @@ public:
 
             Ethertia::getWorld()->m_DayTime = daytime;
 
-            Ethertia::notifyMessage(Strings::fmt("Time set to {}.", Strings::daytime(daytime, true)));
+            _SendMessage("Time set to {}.", Strings::daytime(daytime, true));
         }
         else if (args[1] == "spd")
         {
             float f = std::stof(args[2]);
             Ethertia::getWorld()->m_DayTimeScale = f;
 
-            Ethertia::notifyMessage(Strings::fmt("DayTime already set to {} seconds per day", f));
+            _SendMessage("DayTime already set to {} seconds per day", f);
         }
     }
 

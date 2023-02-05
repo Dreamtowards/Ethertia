@@ -10,7 +10,7 @@
 
 //#define DECL_COMMAND_ID(x) std::string getRegistryId() const override { return x; }
 
-#define SendMessage(msg, ...) Ethertia::notifyMessage(Strings::fmt(msg, ##__VA_ARGS__))
+#define _SendMessage(msg, ...) Ethertia::notifyMessage(Strings::fmt(msg, ##__VA_ARGS__))
 
 class Command
 {
@@ -30,7 +30,7 @@ public:
     static Entity* resolveEntityExpr(const std::string& expr) {
         Entity* result = nullptr;
         if (expr == "@t") {
-            result = Ethertia::getBrushCursor().hitEntity;
+            result = Ethertia::getCursor().hitEntity;
             if (!result) Log::warn("Failed, invalid target entity");
         } else if (expr == "@s") {
             result = Ethertia::getPlayer();

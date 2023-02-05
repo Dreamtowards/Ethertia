@@ -81,7 +81,7 @@ Overview:
 - Ethertia Alpha 0.1.0 Building 建筑系统 est. 2023.02.28
 
 - Ethertia Alpha 0.2.0 Survive & Gameplay 生存&游戏性  
-  Framing, Animals, Vehicle, Brewing
+  Framing, Mining, Melting & Crafting, Animals, Vehicle, Brewing
   
 - Ethertia Alpha 0.3.0 Graphics 渲染
 
@@ -94,6 +94,10 @@ Overview:
 - Ethertia Beta 0.8.0 Mod 模组支持 (Theatrical, TwilightForest)
 
 - Ethertia 1.0.0 Building, Survive, Interact. 建筑 生存 交互
+
+---
+Todo:
+- 胡萝卜
 
 ---
 Detail:
