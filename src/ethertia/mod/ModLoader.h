@@ -21,6 +21,27 @@ class ModLoader
 public:
     using InitFunc = void(*)();
 
+    static std::string mapLibraryFile(const std::string& name) {
+#if __APPLE__
+        return "lib" + name + ".dylib";
+#elif __WIN32__
+        return name + ".dll";
+#endif
+    }
+    static std::string sysTargetName() {
+#if defined(__APPLE__) && defined(__x86_64__)
+        return "darwin-x64";
+#elif defined(__APPLE__) && defined(__aarch64__)
+        return "darwin-arm64";
+#elif defined(__WIN32__) && defined(__x86_64__)
+        return "windows-x64";
+#endif
+    }
+
+    static std::string mapProgramFile(std::string modname) {
+
+    }
+
     static void loadMod(const std::string& modpath)
     {
         using nlohmann::json;
@@ -31,7 +52,11 @@ public:
         manifest.name = data["name"];
         manifest.id = data["id"];
         manifest.version = data["version"];
-        manifest.website = data["website"];
+        // manifest.website = data["website"];
+
+        // bin/darwin-<x64|arm64>
+        // bin/windows-<x64>
+        std::string programfile = ;
     }
 
     static bool loadProgram(const char* file)

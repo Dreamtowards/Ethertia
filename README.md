@@ -76,22 +76,29 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
     
 
 ### Versions & Plan
+
+[Ethertia Dev Schedule (Github Projects)](https://github.com/users/Dreamtowards/projects/2)
+
 Overview:
 
-- Ethertia Alpha 0.1.0 Building 建筑系统 est. 2023.02.28
+- Ethertia Alpha 0.1.0 :: Building & Creative Mode (建筑系统)  
+  est. -2023.02.28
 
-- Ethertia Alpha 0.2.0 Survive & Gameplay 生存&游戏性  
-  Framing, Mining, Melting & Crafting, Animals, Vehicle, Brewing
+- Ethertia Alpha 0.2.0 Gameplay & Survival Mode (游戏性)  
+  est. -2023.4.30. Framing, Mining, Melting & Crafting, Animals, Vehicle, Brewing
   
-- Ethertia Alpha 0.3.0 Graphics 渲染
+- Ethertia Alpha 0.3.0 :: Graphics (渲染)
 
-- Ethertia Alpha 0.4.0 WorldGen 地形生成
+- Ethertia Alpha 0.4.0 :: WorldGen (地形生成)  
+  Biomes, Structures, Caves & Ores
 
-- Ethertia Beta 0.5.0 VR, Avatar & MotionTrack 自定人物&动作跟踪, VR.
+- Ethertia Beta 0.5.0 :: VR, Avatar & MotionTrack (自定人物&动作跟踪, VR.)
 
-- Ethertia Beta 0.7.0 Multiplayer 多人&网络
+- Ethertia Beta 0.7.0 :: Multiplayer (多人)  
+  多人系统会增加很多复杂性 导致开发进度缓慢 所以放在后期. 以免前期样子还没出来就破产了
 
-- Ethertia Beta 0.8.0 Mod 模组支持 (Theatrical, TwilightForest)
+- Ethertia Beta 0.8.0 :: Mod (模组支持)  
+  Theatrical, TwilightForest
 
 - Ethertia 1.0.0 Building, Survive, Interact. 建筑 生存 交互
 
