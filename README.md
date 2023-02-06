@@ -103,8 +103,12 @@ Overview:
 - Ethertia 1.0.0 Building, Survive, Interact. 建筑 生存 交互
 
 ---
-Todo:
-- 胡萝卜
+
+Comparers:
+- Minecraft
+- RisingWorld
+- Valheim
+- _etc._ [VoxelFarm, Upvoid] / GTA:V,SA / VRChat / World of Warcraft / Skyrim
 
 ---
 Detail:
