@@ -4,15 +4,22 @@
 
 [![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml)
 [![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml)
-<a href="https://ethertia.elytra.dev" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">官方站点</a>
-<a href="https://jq.qq.com/?_wv=1027&k=tgM29oDM" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">QQ群组</a>
-<a style="background: #f44; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">(C) Ethertia, Elytra Corporation All rights reserved</a>
+
+[comment]: <> (<a href="https://ethertia.com" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">官方站点</a>)
+[comment]: <> (<a href="https://space.bilibili.com/19483166" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">bilibili</a>)
+[comment]: <> (<a href="https://jq.qq.com/?_wv=1027&k=tgM29oDM" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">QQ群组</a>)
+[comment]: <> (<a style="background: #f44; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">&#40;C&#41; Ethertia, Elytra Corporation All rights reserved</a>)
+
+[官网](https://ethertia.com)
+[bilibili](https://space.bilibili.com/19483166)
+[QQ群组](https://jq.qq.com/?_wv=1027&k=tgM29oDM)
+[开发安排](https://github.com/users/Dreamtowards/projects/2) | 
+[(C) Elytra Corporation All rights reserved](https://elytra.dev)
 
 [comment]: <> ([![Linux]&#40;https://github.com/raysan5/raylib/workflows/Linux/badge.svg&#41;]&#40;https://github.com/raysan5/raylib/actions?query=workflow%3ALinux&#41;)
 [comment]: <> ([![Build-Ubuntu]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml/badge.svg&#41;]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml&#41;)
 
 
-Building · Survive · Interact / 建造 · 生存 · 交互
 
 [comment]: <> ([![Discord]&#40;https://img.shields.io/discord/870689606570508319?logo=discord&#41;]&#40;https://discord.gg/2gzHbuXF&#41;)
 [comment]: <> (目标:)
@@ -21,7 +28,10 @@ Building · Survive · Interact / 建造 · 生存 · 交互
 
 ---
 
-预览视频:
+Building · Survive · Interact | 建造 · 生存 · 交互
+
+
+[comment]: <> (预览视频:)
 
 [comment]: <> (![]&#40;run/screenshots/2023-01-16_01.04.07_473.938.png&#41;)
 ![](run/screenshots/2023-01-23_16.07.58_976.654.png)
@@ -33,7 +43,7 @@ Building · Survive · Interact / 建造 · 生存 · 交互
 [comment]: <> (Minecraft<sup>Freedom</sup> + GTAV<sup>Detail</sup> + VRChat<sup>Interaction</sup>)
 
 
-Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3个月+3个月初步完成。
+[comment]: <> (Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3个月+3个月初步完成。)
 
 [comment]: <> (- 建筑)
 [comment]: <> (  - [x] 平滑体素 &#40;纯材质&#41; | Smooth Voxel Terrain &#40;Pure MTL&#41;)
@@ -61,23 +71,20 @@ Ethertia 的3个主题更新: 建筑 生存 交互，分别预计在 4个月+3�
 
 ### Developers & Credits
 
-- Program & Game Design (程序 & 游戏设计)
+- Program / 程序 (Shaders, Gameplay, ..)
     - **Eldrine Le Prismarine** (Voxel, Graphics, Gameplay)
-    - N/A (Shaders, Gameplay)
 
 
-- Creative Director (创意总监)
+- Game Design / 策划 (Gameplay, ..)
     - **Thaumstrial** 
     - N/A (游戏性, 灵感, 甚至剧情)
 
 
-- Genius Composer (音乐天才)
-    - N/A 奇幻/平静/悲怆
-    
+- Music Creator 作曲
 
-### Versions & Plan
 
-[Ethertia Dev Schedule (Github Projects)](https://github.com/users/Dreamtowards/projects/2)
+- Art Creator 艺术 (Concept Art, Modeling, Ingame Artwork..)
+
 
 Overview:
 

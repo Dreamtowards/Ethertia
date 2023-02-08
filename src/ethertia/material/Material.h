@@ -35,9 +35,10 @@ public:
     struct MtlParams {
         bool mesh = false;
         bool vege = false;
+        bool baseOnBottom = false;  // on top of the bottom cell.  align bottom. alignb
     };
 
-    Material(const std::string& name, const MtlParams& params = {false, false}) : m_Name(name) {
+    Material(const std::string& name, const MtlParams& params = {false, false, false}) : m_Name(name) {
 
         REGISTRY.regist(this);
 

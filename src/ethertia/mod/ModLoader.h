@@ -38,9 +38,6 @@ public:
 #endif
     }
 
-    static std::string mapProgramFile(std::string modname) {
-
-    }
 
     static void loadMod(const std::string& modpath)
     {
@@ -56,7 +53,7 @@ public:
 
         // bin/darwin-<x64|arm64>
         // bin/windows-<x64>
-        std::string programfile = ;
+        std::string programfile = modpath + "/bin/" + sysTargetName() + "/" + mapLibraryFile(manifest.name);
     }
 
     static bool loadProgram(const char* file)

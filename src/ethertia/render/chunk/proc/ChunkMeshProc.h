@@ -57,8 +57,7 @@ public:
         //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
         PROFILE_X(gp_MeshGen, "MeshGen");
 
-        chunk->m_Meshing = true;  // May Already Been Deleted.
-        chunk->m_MeshInvalid = false;
+        chunk->m_MeshingState = Chunk::MESHING;  // May Already Been Deleted.
 
         VertexBuffer* vbufTerrain = new VertexBuffer();
 
@@ -131,7 +130,7 @@ public:
                 chunk->m_MeshVegetable->setMesh(meshVegetable);
                 chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
 
-                chunk->m_Meshing = false;
+                chunk->m_MeshingState = Chunk::MESH_VALID;
             } else {
                 delete meshTerrain;
                 delete meshVegetable;
@@ -169,7 +168,7 @@ public:
         {
             float dist = glm::length2(rel_chunkpos);
             Chunk* chunk = world->getLoadedChunk(origin_chunkpos + rel_chunkpos);
-            if (dist < minDist && chunk && chunk->m_MeshInvalid) {
+            if (dist < minDist && chunk && chunk->m_MeshingState == Chunk::MESH_INVALID) {
                 minDist = dist;
                 nearest = chunk;
             }

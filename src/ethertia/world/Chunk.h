@@ -28,12 +28,11 @@ public:
 
     bool m_Populated = false;
 
-    bool m_MeshInvalid = false;  // invalidMesh
 
     uint64_t m_CreatedTime = 0;  // millis timestamp.
-
     float m_InhabitedTime = 0;  // seconds.
 
+    //bool m_MeshInvalid = false;  // invalidMesh
 //    bool m_NeedsSave = false;
 //    uint64_t m_LastSavedTime = 0;
 
@@ -45,11 +44,16 @@ public:
     EntityMesh* m_MeshTerrain = nullptr;
     EntityMesh* m_MeshVegetable = nullptr;
 
-    // 表示区块正在被 MeshGen线程使用中 不能删除(Unloaded后) 直到Meshing=false才能删除
-    // 否则会造成内存错误崩溃 这种底层错误由于效率原因不会被捕获
-    bool m_Meshing = false;  // MeshGen, till Uploaded.
+    enum MeshingState {
+        MESH_VALID,    // 'up to date'. no dirty/modify.
+        MESH_INVALID,  // dirty. modified.
+        MESHING,       // MeshGen, till Uploaded.
+    };
+    // 当区块正在被 MESHING 时(MeshGen线程使用中) 不能被删除(Unloaded后) 否则会造成内存错误崩溃 这种底层错误由于效率原因不会被捕获
+    // 当 INVALID 时，可能由于已被选取为 MESHING 所以此时删除也不尽安全
+    MeshingState m_MeshingState = MeshingState::MESH_VALID;
 
-    std::vector<VertexBuffer*> m_BakeMeshes;
+    // std::vector<VertexBuffer*> m_BakeMeshes;
 
     Chunk(glm::vec3 p, World* w) : position(p), m_World(w) {
 
@@ -116,10 +120,10 @@ public:
     }
 
     void requestRemodel() {
-        m_MeshInvalid = true;
+        m_MeshingState = MESH_INVALID;
     }
     void invalidateMesh() {
-        m_MeshInvalid = true;
+        requestRemodel();
     }
 
 };

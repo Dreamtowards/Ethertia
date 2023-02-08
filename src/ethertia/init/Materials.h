@@ -47,21 +47,24 @@ public:
 
 
 
-    REGISTER_MTL(WATER, "water", { .vege = true });
-    REGISTER_MTL(LEAVES, "leaves", { .mesh = true, .vege = true });
-    REGISTER_MTL(TALL_GRASS, "tall_grass", { .mesh = true, .vege = true });
-    REGISTER_MTL(SHORT_GRASS, "short_grass", { .mesh = true, .vege = true });
-    REGISTER_MTL(TALL_FERN, "tall_fern", { .mesh = true, .vege = true });
-    REGISTER_MTL(SHRUB, "shrub", { .mesh = true, .vege = true });
-    REGISTER_MTL(ROSE_BUSH, "rose_bush", { .mesh = true, .vege = true });
-    REGISTER_MTL(SPRUCE_LEAVES, "spruce_leaves", { .mesh = true, .vege = true });
+    REGISTER_MTL(WATER,         "water",        { .vege = true });
+    REGISTER_MTL(LEAVES,        "leaves",       { .mesh = true, .vege = true });
+    REGISTER_MTL(TALL_GRASS,    "tall_grass",   { .mesh = true, .vege = true });
+    REGISTER_MTL(SHORT_GRASS,   "short_grass",  { .mesh = true, .vege = true });
+    REGISTER_MTL(TALL_FERN,     "tall_fern",    { .mesh = true, .vege = true });
+    REGISTER_MTL(SHRUB,         "shrub",        { .mesh = true, .vege = true });
+    REGISTER_MTL(ROSE_BUSH,     "rose_bush",    { .mesh = true, .vege = true });
+    REGISTER_MTL(SPRUCE_LEAVES, "spruce_leaves",{ .mesh = true, .vege = true });
 
+    // Crops
+    REGISTER_MTL(CARROTS,   "carrots",      { .mesh=true, .vege=true, .baseOnBottom=true });
+    REGISTER_MTL(POTATOES,  "potatoes",     { .mesh=true, .vege=true, .baseOnBottom=true });
 
-    REGISTER_MTL(STOOL, "stool", { .mesh = true });
-    REGISTER_MTL(SHORT_STOOL, "short_stool", { .mesh = true });
-    REGISTER_MTL(CHAIR, "chair", { .mesh = true });
-    REGISTER_MTL(CASH_REGISTER, "cash_register", { .mesh = true });
-    REGISTER_MTL(LADDER, "ladder", { .mesh = true });
+    REGISTER_MTL(STOOL,         "stool",        { .mesh = true });
+    REGISTER_MTL(SHORT_STOOL,   "short_stool",  { .mesh = true });
+    REGISTER_MTL(CHAIR,         "chair",        { .mesh = true });
+    REGISTER_MTL(CASH_REGISTER, "cash_register",{ .mesh = true });
+    REGISTER_MTL(LADDER,        "ladder",       { .mesh = true });
 
 
 
@@ -76,8 +79,8 @@ public:
 //    inline static const Item* STONE = new Item("stone", {new Item::ComponentMaterial(1)});
 
     static void registerMaterialItems() {
-        for (auto& it : Material::REGISTRY) {
-
+        for (auto& it : Material::REGISTRY)
+        {
             it.second->m_MaterialItem = new Item(it.first, {new ItemComponentMaterial(it.second)});
         }
     }

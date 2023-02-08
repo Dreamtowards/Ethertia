@@ -44,6 +44,10 @@ public:
                         {
                             putCube(vbuf, rp, chunk, mtl);
                         }
+//                        else if (mtl == Materials::CARROTS)
+//                        {
+//                            putOBJ(*vbuf, rp, *chunk, 3, *(VertexBuffer*)mtl->m_VertexBuffer);
+//                        }
                         else if (mtl->m_CustomMesh)
                         {
                             putOBJ(*vbuf, rp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);

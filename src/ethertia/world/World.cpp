@@ -164,9 +164,9 @@ void World::saveUnloadedChunks() {
 
 
         // Delete chunk but after MeshGen thread finish use.
-        if (chunk->m_Meshing) {
+        if (chunk->m_MeshingState == Chunk::MESHING) {
             Ethertia::getAsyncScheduler()->addDelayTask([chunk](){
-                Timer::wait_for(&chunk->m_Meshing, false);
+                Timer::wait_for(&chunk->m_MeshingState, Chunk::MESH_VALID);
                 delete chunk;
             }, 2.0f);
         } else {
