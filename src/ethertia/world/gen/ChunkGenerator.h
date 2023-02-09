@@ -9,6 +9,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include <FastNoise/FastNoise.h>
+#include <ethertia/world/gen/Noise.h>
 
 #include <ethertia/init/Materials.h>
 #include <ethertia/world/Cell.h>
@@ -26,14 +27,17 @@ public:
 
     static void initSIMD()  // 0.05ms in debug.
     {
-        Log::info("Compiled SIMD Levels: {} : CPU {}\1",
+        Log::info("Compiled SIMD Levels: {} :: {} (CPU max: {})\1",
                   ChunkGenerator::FastSIMD_CompiledLevels("/"),
+                  ChunkGenerator::FastSIMD_LevelName(ChunkGenerator::g_SIMDLevel),
                   ChunkGenerator::FastSIMD_LevelName(FastSIMD::CPUMaxSIMDLevel()));
 
-        if (ChunkGenerator::g_SIMDLevel != FastSIMD::Level_Null) {
-            std::cout << " :: " << ChunkGenerator::FastSIMD_LevelName(ChunkGenerator::g_SIMDLevel) << ".\n";
-        } else {
-            std::cout << ".\n";
+        std::cout << " if crash then, try downgrade SIMD_Level in 'settings.json'.\n";
+
+        {
+            // Check whether current SIMD Level actually supported. it will crash if not supported.
+            float _test;
+            Noise::Perlin()->GenUniformGrid3D(&_test, 0, 0, 0, 1, 1, 1, 0.1, 123);
         }
     }
 

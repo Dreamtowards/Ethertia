@@ -101,6 +101,7 @@ include_directories(lib/entt/src)
 include_directories(lib/openal-soft/include)
 include_directories(lib/yaml-cpp/include)
 include_directories(lib/nbt/include)
+include_directories(lib/openvr/headers)
 
 
 
