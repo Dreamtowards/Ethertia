@@ -69,38 +69,15 @@ Building · Survive · Interact | 建造 · 生存 · 交互
 
 [comment]: <> (以上为*游戏性列表*，接下来为*功能性列表*:)
 
-### Developers & Credits 
-_(order by join time)_
 
-    
-
-- **Eldrine Le Prismarine** (Voxel, Graphics, Gameplay)
-- **Thaumstrial** (Creative Director 策划)
-  
----
-暂非核心成员贡献 后续将放在官网首页底部
-
-- [**Kmroiosn**](https://github.com/Kmroiosn)   
-  _230209_ ModLoader/ dll program load for Windows.
-  
-
----
-
-
-> - Program 程序
-> - Game Design 策划
-> - Music Creator 作曲
-> - Art Creator 艺术 (Concept Art, Modeling, Ingame Artwork..)
-
-
-### Versions & Plan (Deprecated on 230206):
+### Versions & Plan <small>(deprecated on 230206)</small>:
 
 - Ethertia Alpha 0.1.0 :: Building & Creative Mode (建筑系统)  
   est. -2023.02.28
 
 - Ethertia Alpha 0.2.0 Gameplay & Survival Mode (游戏性)  
   est. -2023.4.30. Framing, Mining, Melting & Crafting, Animals, Vehicle, Brewing
-  
+
 - Ethertia Alpha 0.3.0 :: Graphics (渲染)
 
 - Ethertia Alpha 0.4.0 :: WorldGen (地形生成)  
@@ -118,13 +95,31 @@ _(order by join time)_
 
 ---
 
-Comparers:
-- Minecraft
-- RisingWorld
-- Valheim
-- _etc._ [VoxelFarm, Upvoid] / GTA:V,SA / VRChat / World of Warcraft / Skyrim
 
----
+### Developers & Credits 
+_(order by join time)_
+
+    
+
+- **Eldrine Le Prismarine** (Voxel, Graphics, Gameplay)
+- **Thaumstrial** (Creative Director 策划)
+  
+<br>
+
+暂非核心成员贡献 后续将放在官网首页底部
+
+- [**Kmroiosn**](https://github.com/Kmroiosn)   
+  _230209_ ModLoader/ dll program load for Windows.
+
+
+<br>
+
+> - Program 程序
+> - Game Design 策划
+> - Music Creator 作曲
+> - Art Creator 艺术 (Concept Art, Modeling, Ingame Artwork..)
+
+
 
 ## Build:
 
@@ -234,8 +229,15 @@ Detail:
 
 ---
 
-    
 
+
+Comparers:
+- Minecraft
+- RisingWorld
+- Valheim
+- _etc._ [VoxelFarm, Upvoid] / GTA:V,SA / VRChat / World of Warcraft / Skyrim
+
+---
     
 
 开发安排:
