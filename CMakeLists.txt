@@ -21,9 +21,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(PROD_BINARY_TARGET "nil")
 if (APPLE)
-    set(PROD_BINARY_TARGET "darwin-x64")
+    set(PROD_BINARY_TARGET "darwin-x64")   # x86-64
 elseif (WIN32)
-    set(PROD_BINARY_TARGET "windows-amd64")
+    set(PROD_BINARY_TARGET "windows-x64")  # x86-64
 endif ()
 set(PROD_BINARY_DIR ${CMAKE_SOURCE_DIR}/run/bin/${PROD_BINARY_TARGET})
 

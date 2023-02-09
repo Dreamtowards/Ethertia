@@ -46,7 +46,7 @@ int main()
 void Ethertia::start()
 {
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
-    Settings::loadSettings();
+    Settings::loadSettings();  Loader::checkAssetsExists();
 
     ModLoader::loadProgram("bin/darwin-x64/libTwilightForest.dylib");
 

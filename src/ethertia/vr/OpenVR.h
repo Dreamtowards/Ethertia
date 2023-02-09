@@ -13,8 +13,10 @@ public:
 
     void init()
     {
+        vr::EVRInitError err;
+        vr::VR_Init(&err, vr::EVRApplicationType::VRApplication_Scene, "");
 
-        vr::VR_Init();
+
     }
 
 };

@@ -118,6 +118,23 @@ Comparers:
 - _etc._ [VoxelFarm, Upvoid] / GTA:V,SA / VRChat / World of Warcraft / Skyrim
 
 ---
+
+### Build / Run / Modify:
+
+#### Windows:
+1. use **gcc** compiler & **ucrt** standard library (Universal C Runtime). (Not MSVC)  
+   you could download them in https://winlibs.com, ([mingw64ucrt-10.0.0-gcc-12.2.0-x86_64(.zip)](https://github.com/brechtsanders/winlibs_mingw/releases/download/12.2.0-15.0.7-10.0.0-ucrt-r4/winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-15.0.7-mingw-w64ucrt-10.0.0-r4.zip))
+
+2. compile it use e.g. `cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles"`   
+    - if you are using IDE like CLion, setup your UCRT-MinGW, and just "Build/Run".
+
+- if crashed on SIMD Level checking, just downgrade your simd_level in settings.json.
+- make sure you have (dynamic linked) "libgcc_s_seh-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll". which is part of ucrt library.
+
+#### Darwin (OSX, Mac):
+1. use **clang** compiler.
+
+---
 Detail:
 
 - Ethertia Alpha 0.1.0 Building 建筑系统  

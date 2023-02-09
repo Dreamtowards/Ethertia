@@ -99,6 +99,12 @@ public:
         return loadFile(fileAssets(p));
     }
 
+    static void checkAssetsExists() {
+        if (!fileExists("./assets")) {
+            throw std::runtime_error("default assets directory not found. make sure you are in correct working directory. (*/run)");
+        }
+    }
+
 //    static std::string loadAssetsStr(const std::string& p) {
 //        return loadAssets(p).new_string();
 //    }
