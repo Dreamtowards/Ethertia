@@ -25,7 +25,7 @@ public:
 #if __APPLE__
         return "lib" + name + ".dylib";
 #elif __WIN32__
-        return name + ".dll";
+        return "lib" + name + ".dll";
 #endif
     }
     static std::string sysTargetName() {
@@ -38,6 +38,9 @@ public:
 #endif
     }
 
+    static std::string getModProgramPath(const std::string& name) {
+        return "bin/" + sysTargetName() + "/" + mapLibraryFile(name);
+    }
 
     static void loadMod(const std::string& modpath)
     {
@@ -53,7 +56,8 @@ public:
 
         // bin/darwin-<x64|arm64>
         // bin/windows-<x64>
-        std::string programfile = modpath + "/bin/" + sysTargetName() + "/" + mapLibraryFile(manifest.name);
+
+//        loadProgram(getModProgramPath(manifest.name).c_str());
     }
 
     static bool loadProgram(const char* file)
@@ -81,17 +85,53 @@ public:
         return true;
 
 #elif __WIN32__
-
         // https://stackoverflow.com/questions/72249298/dynamic-load-a-class-from-a-dll-in-windows
 
-//        void* handle = LoadLibrary(file.c_str());
-//        if (!handle) {
-//            // error
-//        }
-//
-//        InitFunc f = GetProcAddress((HINSTANCE)handle, "init");
-//
-//         FreeLibrary((HMODULE)handle);
+        // https://learn.microsoft.com/zh-cn/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya
+        // DLL path should use '\' instead of '/', but still works fine
+        /* Replace every '/' to '\'
+        std::string path = file;
+        for (size_t pos = 0; pos != std::string::npos; pos++) {
+            if ((pos = path.find('/', pos)) != std::string::npos)
+                path.replace(pos, 1, "\\");
+            else break;
+        }
+        */
+
+        HINSTANCE handle = LoadLibrary(file);
+
+        if (handle == nullptr) {
+            // Retrieve the system error message for the last-error code
+            LPSTR* lpMsgBuf;
+            DWORD errCode = GetLastError();
+
+            FormatMessage(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                nullptr,
+                errCode,
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPTSTR) &lpMsgBuf,
+                0, nullptr
+                );
+
+            Log::warn("Error occurred while loading mod from {}, {}", file, (const char*)lpMsgBuf);
+            LocalFree(lpMsgBuf);
+            return false;
+        }
+
+        InitFunc f = (InitFunc)GetProcAddress(handle, "init");
+
+        if (!f) {
+            Log::warn("Unable to load init func. ({})", file);
+            return false;
+        }
+
+        f();
+
+        FreeLibrary(handle);
+        return true;
 #endif
 
     }
