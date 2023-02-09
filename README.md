@@ -69,24 +69,31 @@ Building · Survive · Interact | 建造 · 生存 · 交互
 
 [comment]: <> (以上为*游戏性列表*，接下来为*功能性列表*:)
 
-### Developers & Credits
+### Developers & Credits 
+_(order by join time)_
 
-- Program / 程序 (Shaders, Gameplay, ..)
-    - **Eldrine Le Prismarine** (Voxel, Graphics, Gameplay)
+    
+
+- **Eldrine Le Prismarine** (Voxel, Graphics, Gameplay)
+- **Thaumstrial** (Creative Director 策划)
+  
+---
+暂非核心成员贡献 后续将放在官网首页底部
+
+- [**Kmroiosn**](https://github.com/Kmroiosn)   
+  _230209_ ModLoader/ dll program load for Windows.
+  
+
+---
 
 
-- Game Design / 策划 (Gameplay, ..)
-    - **Thaumstrial** 
-    - N/A (游戏性, 灵感, 甚至剧情)
+> - Program 程序
+> - Game Design 策划
+> - Music Creator 作曲
+> - Art Creator 艺术 (Concept Art, Modeling, Ingame Artwork..)
 
 
-- Music Creator 作曲
-
-
-- Art Creator 艺术 (Concept Art, Modeling, Ingame Artwork..)
-
-
-Overview:
+### Versions & Plan (Deprecated on 230206):
 
 - Ethertia Alpha 0.1.0 :: Building & Creative Mode (建筑系统)  
   est. -2023.02.28
@@ -119,7 +126,7 @@ Comparers:
 
 ---
 
-### Build / Run / Modify:
+## Build:
 
 #### Windows:
 1. use **gcc** compiler & **ucrt** standard library (Universal C Runtime). (Not MSVC)  
@@ -133,6 +140,16 @@ Comparers:
 
 #### Darwin (OSX, Mac):
 1. use **clang** compiler.
+
+
+
+
+
+<br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br>
+
 
 ---
 Detail:

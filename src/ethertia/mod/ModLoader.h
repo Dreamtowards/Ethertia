@@ -1,6 +1,8 @@
 //
 // Created by Dreamtowards on 2023/1/31.
 //
+// dll load for Windows created by Kmroiosn on 2023/02/09. (D)
+//
 
 #ifndef ETHERTIA_MODLOADER_H
 #define ETHERTIA_MODLOADER_H
@@ -21,29 +23,9 @@ class ModLoader
 public:
     using InitFunc = void(*)();
 
-    static std::string mapLibraryFile(const std::string& name) {
-#if __APPLE__
-        return "lib" + name + ".dylib";
-#elif __WIN32__
-        return "lib" + name + ".dll";
-#endif
-    }
-    static std::string sysTargetName() {
-#if defined(__APPLE__) && defined(__x86_64__)
-        return "darwin-x64";
-#elif defined(__APPLE__) && defined(__aarch64__)
-        return "darwin-arm64";
-#elif defined(__WIN32__) && defined(__x86_64__)
-        return "windows-x64";
-#endif
-    }
-
-    static std::string getModProgramPath(const std::string& name) {
-        return "bin/" + sysTargetName() + "/" + mapLibraryFile(name);
-    }
-
     static void loadMod(const std::string& modpath)
     {
+        BENCHMARK_TIMER;
         using nlohmann::json;
 
         Mod::Manifest manifest;
@@ -51,18 +33,33 @@ public:
 
         manifest.name = data["name"];
         manifest.id = data["id"];
-        manifest.version = data["version"];
-        // manifest.website = data["website"];
 
-        // bin/darwin-<x64|arm64>
-        // bin/windows-<x64>
+        if (data.contains("version")) manifest.version = data["version"];
+        if (data.contains("website")) manifest.version = data["website"];
 
-//        loadProgram(getModProgramPath(manifest.name).c_str());
+        std::string nameCompact = manifest.name; Strings::erase(nameCompact, ' ');
+        std::string pathProgram = _ModProgramPath(modpath, nameCompact);
+        {
+            bool succ = loadModProgram(pathProgram.c_str());
+
+            assert(succ && "Failed to load mod program.");
+        }
+
+        Log::info("Mod {} ({}, {}) loaded in\1", manifest.name, manifest.id, pathProgram);
     }
 
-    static bool loadProgram(const char* file)
-    {
 
+
+
+
+
+    // <ModDir>/bin/<windows|darwin>-<x64|arm64>
+    static std::string _ModProgramPath(const std::string& modpath, const std::string& name) {
+        return modpath + "/bin/" + Loader::sys_target_name() + "/" + Loader::sys_lib_name(name);
+    }
+
+    static bool loadModProgram(const char* file)
+    {
 #ifdef __APPLE__
 
         void* handle = dlopen(file, RTLD_LAZY);
@@ -121,14 +118,14 @@ public:
             return false;
         }
 
-        InitFunc f = (InitFunc)GetProcAddress(handle, "init");
+        InitFunc func = (InitFunc)GetProcAddress(handle, "init");
 
-        if (!f) {
+        if (!func) {
             Log::warn("Unable to load init func. ({})", file);
             return false;
         }
 
-        f();
+        func();
 
         FreeLibrary(handle);
         return true;

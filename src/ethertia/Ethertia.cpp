@@ -49,8 +49,7 @@ void Ethertia::start()
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::loadSettings();  Loader::checkAssetsExists();
 
-    ModLoader::loadProgram("bin/darwin-x64/libTwilightForest.dylib");
-//    ModLoader::loadProgram("bin/windows-amd64/libTwilightForest.dll");
+    ModLoader::loadMod("./mods/TwilightForest");
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());

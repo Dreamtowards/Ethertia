@@ -400,7 +400,7 @@ public:
 #elif __unix__
         cmd = "xdg-open ";  // linux
 #else
-        assert(false);  // Not supported OS yet.
+        static_assert(false);  // Not supported OS yet.
 #endif
         std::system(std::string(cmd + url).c_str());
     }
@@ -414,7 +414,30 @@ public:
 #elif __unix__
         return "LINUX";
 #else
-        return nullptr;
+        static_assert(false);
+#endif
+    }
+
+    static const std::string sys_target_name() {
+#if defined(__APPLE__) && defined(__x86_64__)
+        return "darwin-x64";
+#elif defined(__APPLE__) && defined(__aarch64__)
+        return "darwin-arm64";
+#elif defined(__WIN32__) && defined(__x86_64__)
+        return "windows-x64";
+#else
+        static_assert(false);
+#endif
+    }
+
+    // to system proper shared-library name.
+    static std::string sys_lib_name(const std::string& name) {
+#if __APPLE__
+        return "lib" + name + ".dylib";
+#elif __WIN32__
+        return name + ".dll";
+#else
+        static_assert(false);
 #endif
     }
 

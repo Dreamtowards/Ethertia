@@ -5,10 +5,5 @@
   "website": "https://example.com",
 
   "description": "",
-  "anthers": [""],
-  "program": {
-    "darwin-x64": "./bin/darwin-x64/libTwilightForest.dylib",
-    "darwin-arm64": "./bin/darwin-arm64/libTwilightForest.dylib",
-    "windows-x64": "./bin/windows-x64/"
-  }
+  "anthers": [""]
 }
