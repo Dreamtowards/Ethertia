@@ -24,6 +24,11 @@ public:
     bool isOpaqueCube() {
         return mtl && exp_meta == 1;
     }
+
+
+    bool isSmoothTerrain() {
+        return mtl && density > 0 && exp_meta == 0;  // todo: ? mtl.m_IsSmoothTerrain
+    }
 };
 
 #endif //ETHERTIA_CELL_H

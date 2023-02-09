@@ -14,7 +14,7 @@
 [bilibili](https://space.bilibili.com/19483166)
 [QQ群组](https://jq.qq.com/?_wv=1027&k=tgM29oDM)
 [开发安排](https://github.com/users/Dreamtowards/projects/2) | 
-[(C) Elytra Corporation All rights reserved](https://elytra.dev)
+[(C) Elytra Corporation most rights reserved](https://elytra.dev)
 
 [comment]: <> ([![Linux]&#40;https://github.com/raysan5/raylib/workflows/Linux/badge.svg&#41;]&#40;https://github.com/raysan5/raylib/actions?query=workflow%3ALinux&#41;)
 [comment]: <> ([![Build-Ubuntu]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml/badge.svg&#41;]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml&#41;)
@@ -70,6 +70,9 @@ Building · Survive · Interact | 建造 · 生存 · 交互
 [comment]: <> (以上为*游戏性列表*，接下来为*功能性列表*:)
 
 
+[Ethertia Dev Schedule / 开发安排](https://github.com/users/Dreamtowards/projects/2)
+
+
 ### Versions & Plan <small>(deprecated on 230206)</small>:
 
 - Ethertia Alpha 0.1.0 :: Building & Creative Mode (建筑系统)  
@@ -99,10 +102,11 @@ Building · Survive · Interact | 建造 · 生存 · 交互
 ### Developers & Credits 
 _(order by join time)_
 
-    
 
 - **Eldrine Le Prismarine** (Voxel, Graphics, Gameplay)
-- **Thaumstrial** (Creative Director 策划)
+  
+- **Thaumstrial** (Creative Director 策划)  
+  _230131_ basic vehicle relationships. _230201_ helicopter control init.
   
 <br>
 

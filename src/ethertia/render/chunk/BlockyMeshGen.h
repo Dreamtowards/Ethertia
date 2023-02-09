@@ -36,21 +36,23 @@ public:
                         if (!mtl->m_IsVegetable)
                             continue;
 
-                        if (mtl == Materials::LEAVES)
-                        {
-                            putLeaves(vbuf, rp, chunk, texId);
-                        }
+
                         else if (mtl == Materials::WATER)
                         {
                             putCube(vbuf, rp, chunk, mtl);
                         }
-//                        else if (mtl == Materials::CARROTS)
-//                        {
-//                            putOBJ(*vbuf, rp, *chunk, 3, *(VertexBuffer*)mtl->m_VertexBuffer);
-//                        }
                         else if (mtl->m_CustomMesh)
                         {
-                            putOBJ(*vbuf, rp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);
+                            // 如果本材料是 '触地' 的，那么获取底部Cell 并将本材料模型 往下移动 e.g. Tall grass. Crops.
+                            glm::vec3 gp = rp;  // gen pos.
+                            if (mtl->m_IsTouchdown) {
+                                Cell& down = World::_GetCell(chunk, rp + vec3(0, -1, 0));
+                                if (down.isSmoothTerrain()) {
+                                    gp += down.fp + vec3(0, -1, 0);
+                                }
+                            }
+
+                            putOBJ(*vbuf, gp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);
                         }
                     }
                     else
@@ -77,7 +79,7 @@ public:
     static void putOBJ(VertexBuffer& vbuf, glm::vec3 rp, Chunk& chunk, int mtlId, const VertexBuffer& obj_vbuf)
     {
 
-        vbuf.add_vbuf(obj_vbuf, rp+0.5f, mtlId,
+        vbuf.add_vbuf(obj_vbuf, rp + glm::vec3(0.5, 0.0, 0.5), mtlId,
                       MaterialTextures::uv_add(mtlId), MaterialTextures::uv_mul());
 
     }

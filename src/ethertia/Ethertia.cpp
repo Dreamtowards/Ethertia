@@ -57,7 +57,7 @@ void Ethertia::start()
     m_RenderEngine = new RenderEngine();
     m_AudioEngine = new AudioEngine();
     ChunkGenerator::initSIMD();
-    Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sysname(), std::endian::native == std::endian::big ? "big" : "little");
+    Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target_name(), std::endian::native == std::endian::big ? "big" : "little");
 
     Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::load();
@@ -468,7 +468,7 @@ void EntityMesh::onRender()
         glDisable(GL_CULL_FACE);
 
     Ethertia::getRenderEngine()->entityRenderer->renderGeometryChunk(
-            m_Model, getPosition(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
+            m_Model, getPosition(), getRotation(), m_DiffuseMap, 0);//isFoliage ? 0.1 : 0.0);
 
     if (isFoliage)
         glEnable(GL_CULL_FACE);  // set back

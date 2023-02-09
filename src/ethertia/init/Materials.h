@@ -19,6 +19,10 @@ public:
     // 用0/nullptr 表示空气/空. 因为实在是太方便了 if(c.mtl)。而且目前没什么副作用
     inline static Material* AIR = nullptr;
 
+
+
+    // Smooth Terrain Materials.
+
     REGISTER_MTL(GRASS, "grass");
     REGISTER_MTL(MOSS, "moss");
     REGISTER_MTL(DIRT, "black_dirt");
@@ -47,19 +51,21 @@ public:
 
 
 
+    // Vegetable/Foliage
     REGISTER_MTL(WATER,         "water",        { .vege = true });
     REGISTER_MTL(LEAVES,        "leaves",       { .mesh = true, .vege = true });
-    REGISTER_MTL(TALL_GRASS,    "tall_grass",   { .mesh = true, .vege = true });
-    REGISTER_MTL(SHORT_GRASS,   "short_grass",  { .mesh = true, .vege = true });
-    REGISTER_MTL(TALL_FERN,     "tall_fern",    { .mesh = true, .vege = true });
-    REGISTER_MTL(SHRUB,         "shrub",        { .mesh = true, .vege = true });
-    REGISTER_MTL(ROSE_BUSH,     "rose_bush",    { .mesh = true, .vege = true });
     REGISTER_MTL(SPRUCE_LEAVES, "spruce_leaves",{ .mesh = true, .vege = true });
+    REGISTER_MTL(TALL_GRASS,    "tall_grass",   { .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(SHORT_GRASS,   "short_grass",  { .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(TALL_FERN,     "tall_fern",    { .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(SHRUB,         "shrub",        { .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(ROSE_BUSH,     "rose_bush",    { .mesh = true, .vege = true, .touchdown=true });
 
     // Crops
-    REGISTER_MTL(CARROTS,   "carrots",      { .mesh=true, .vege=true, .baseOnBottom=true });
-    REGISTER_MTL(POTATOES,  "potatoes",     { .mesh=true, .vege=true, .baseOnBottom=true });
+    REGISTER_MTL(CARROTS,   "carrots",      { .mesh=true, .vege=true, .touchdown=true });
+    REGISTER_MTL(POTATOES,  "potatoes",     { .mesh=true, .vege=true, .touchdown=true });
 
+    // Decorations.
     REGISTER_MTL(STOOL,         "stool",        { .mesh = true });
     REGISTER_MTL(SHORT_STOOL,   "short_stool",  { .mesh = true });
     REGISTER_MTL(CHAIR,         "chair",        { .mesh = true });

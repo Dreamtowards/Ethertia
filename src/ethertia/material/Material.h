@@ -29,13 +29,16 @@ public:
     // vegetable another chunk mesh. NoCollision, Render WavingVertex, Render NoFaceCulling.
     bool m_IsVegetable = false;
 
+    // generate mesh on top of bottom-cell surface. e.g. Crops, Tallgrass.
+    bool m_IsTouchdown = false;
+
 
     Item* m_MaterialItem = nullptr;
 
     struct MtlParams {
         bool mesh = false;
         bool vege = false;
-        bool baseOnBottom = false;  // on top of the bottom cell.  align bottom. alignb
+        bool touchdown = false;  // on top of the bottom cell.  align bottom. alignb
     };
 
     Material(const std::string& name, const MtlParams& params = {false, false, false}) : m_Name(name) {
@@ -44,6 +47,7 @@ public:
 
         m_CustomMesh = params.mesh;
         m_IsVegetable = params.vege;
+        m_IsTouchdown = params.touchdown;
     }
 
     const std::string getRegistryId() const {
