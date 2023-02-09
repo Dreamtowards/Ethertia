@@ -64,7 +64,7 @@ public:
 
     static void ProcessPacket(std::uint8_t* data, std::size_t len, void* tag = nullptr)
     {
-        PacketId_t PacketId = Endian::of_bigendian(*(PacketId_t*)data);  // first 2 bytes is PacketTypeId
+        PacketId_t PacketId = *(PacketId_t*)data;  // first 2 bytes is PacketTypeId  //?Endian::of_bigendian
 
         auto& handler = Packet::FindHandler(PacketId);
 
@@ -84,7 +84,7 @@ public:
 
         data.insert(data.begin(), 2, 0);
 
-        uint16_t be = Endian::bigendian(PacketId);
+        uint16_t be = PacketId;  // ?Endian::bigendian(
         Collections::cpy(&be, data.data(), 2);
 
         return data;

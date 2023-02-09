@@ -19,29 +19,32 @@ public:
         return Colors::ofRGBA(r,g,b,255);
     }
 
+    // assert glm::to_string(Colors::ofRGBA(0x09080706)) should be vec4(0.035294, 0.031373, 0.027451, 0.023529)
     static glm::vec4 ofRGBA(uint32_t rgba) {
-        rgba = Endian::bigendian(rgba);
+        assert(std::endian::native == std::endian::little);
         return Colors::ofRGBA(
-            ((rgba >> 24) & 0xFF),
-            ((rgba >> 16) & 0xFF),
-            ((rgba >>  8) & 0xFF),
-            ( rgba        & 0xFF)
+                ((rgba >> 24) & 0xFF),
+                ((rgba >> 16) & 0xFF),
+                ((rgba >>  8) & 0xFF),
+                ( rgba        & 0xFF)
         );
     }
-    static glm::vec4 ofRGB(int rgb) {
-        return Colors::ofRGBA(rgb | Endian::bigendian((uint32_t)0xFF));  // May associated with endian ?
+    static glm::vec4 ofRGB(uint32_t rgb) {
+        assert(std::endian::native == std::endian::little);
+        return Colors::ofRGBA(rgb | 0x000000FF);  // May associated with endian ? i.e. rgb | Endian::bigendian((uint32_t)0xFF)
     }
     static glm::vec4 alpha(glm::vec4 c, float a) {
         c.a = a;
         return c;
     }
     static uint32_t intRGBA(glm::vec4 c) {
-        return Endian::bigendian(uint32_t(  // ?wth..
-               ((char(c.x * 255.0f) & 0xFF) << 24) |
-               ((char(c.y * 255.0f) & 0xFF) << 16) |
-               ((char(c.z * 255.0f) & 0xFF) << 8)  |
-                (char(c.w * 255.0f) & 0xFF)
-        ));
+        assert(std::endian::native == std::endian::little);
+        return uint32_t(  // ?wth.. Endian::bigendian(..)
+                ((char(c.x * 255.0f)) << 24) |
+                ((char(c.y * 255.0f)) << 16) |
+                ((char(c.z * 255.0f)) << 8)  |
+                (char(c.w * 255.0f))
+        );
     }
 
     static float parseHex2(const char* hex) {

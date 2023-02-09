@@ -12,8 +12,6 @@
 #include <iomanip>
 #include <cstring>
 
-#include <ethertia/util/Mth.h>
-
 class Strings
 {
 public:
@@ -217,8 +215,8 @@ public:
 
     static std::string daytime(float daytime, bool apm = false) {
         float hr = daytime * 24.0;
-        float mn = Mth::frac(hr) * 60.0;
-        float sec = Mth::frac(mn) * 60.0;
+        float mn =  (hr - std::floor(hr)) * 60.0;
+        float sec = (mn - std::floor(mn)) * 60.0;
         if (apm) {
             bool am = hr < 12;
             return Strings::fmt("{}:{} {}", iw2(int(am ? hr : hr-12)), iw2((int)mn),

@@ -4,10 +4,12 @@
 
 #include <iostream>
 
-#include <ethertia/mod/Mod.h>
+//#include <ethertia/mod/Mod.h>
+//#include <ethertia/util/Log.h>
 
 extern "C"
-void init() {
+void init()
+{
 
 
     std::cout << "Twilight Forest Initialized\n";
