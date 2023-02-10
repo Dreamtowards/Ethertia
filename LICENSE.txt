@@ -1,11 +1,11 @@
 
 // Ethertia
 // Copyright (c) Eldrine Le Prismarine (https://elytra.dev/~pris) and other core Contributors.
-// Do not distribute without permit! this is not an open source license!
+// Do not distribute without permit! this is not an open source license.
 
 // 本程序系统 版权及著作权 归首位开发者Eldrine Le Prismarine 及其他核心开发成员所有
 // 未经授权禁止发布! 这不是一个开源许可证, 使用本源码需要遵循以下条款:
-// 本源代码仅可用于个人学习用途。禁止用于商业用途或未经授权再发布。
+// 本源代码仅可用于个人学习用途。禁止用于商业用途。禁止未经授权再发布。
 
 
 Contributors:
