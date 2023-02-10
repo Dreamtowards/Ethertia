@@ -1,11 +1,11 @@
 //========= Copyright Valve Corporation ============//
 
-#include <vrcore/vrpathregistry_public.h>
+#include "vrpathregistry_public.h"
 #include <json/json.h>
-#include <vrcore/pathtools_public.h>
-#include <vrcore/envvartools_public.h>
-#include <vrcore/strtools_public.h>
-#include <vrcore/dirtools_public.h>
+#include "pathtools_public.h"
+#include "envvartools_public.h"
+#include "strtools_public.h"
+#include "dirtools_public.h"
 
 #if defined( WIN32 )
 #include <windows.h>
