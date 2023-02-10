@@ -45,12 +45,13 @@ public:
                         {
                             // 如果本材料是 '触地' 的，那么获取底部Cell 并将本材料模型 往下移动 e.g. Tall grass. Crops.
                             glm::vec3 gp = rp;  // gen pos.
-                            if (mtl->m_IsTouchdown) {
-                                Cell& down = World::_GetCell(chunk, rp + vec3(0, -1, 0));
-                                if (down.isSmoothTerrain()) {
-                                    gp += down.fp + vec3(0, -1, 0);
-                                }
-                            }
+                            // 太多bug了 先不用
+//                            if (mtl->m_IsTouchdown) {
+//                                Cell& down = World::_GetCell(chunk, rp + vec3(0, -1, 0));
+//                                if (down.isSmoothTerrain()) {
+//                                    gp += down.fp + vec3(0, -1, 0);
+//                                }
+//                            }
 
                             putOBJ(*vbuf, gp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);
                         }

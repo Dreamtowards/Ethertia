@@ -43,7 +43,9 @@ public:
         setHeight(Inf);
 
         addGui(GuiDebugV::Inst());
-        addGui(new GuiAlign(Inf, Inf, GuiMessageList::Inst(), 0, Inf, Inf, 24));
+
+        GuiMessageList::Inst()->addConstraintLTRB(0, Inf, Inf, 24);
+        addGui(GuiMessageList::Inst());
 
 
     }
@@ -85,11 +87,11 @@ public:
             if (player->getGamemode() == Gamemode::SURVIVAL)
             {
                 static Texture* TEX_XP_BAR = Loader::loadTexture("gui/bars.png");
-                static Texture* TEX_HEALTH = Loader::loadTexture("gui/health.png");
+                static Texture* TEX_HEALTH = Loader::loadTexture("gui/health2.png");
 
                 float lv = Ethertia::getPreciseTime() * 0.1;
                 // xp
-                float XP_HEIGHT = 14;
+                float XP_HEIGHT = 12;
                 float xpY = hbY - 12 - XP_HEIGHT;
                 float xpPercent = Mth::mod(lv, 1.0);
                 Gui::drawRect(hbX, xpY, HOTBAR_WIDTH, XP_HEIGHT, {
@@ -107,16 +109,25 @@ public:
 
                 float health = Ethertia::getPlayer()->m_Health;
                 // health
-                float HEALTH_SIZE = 20;
+                float HEALTH_SIZE = 16;
                 float htY = xpY - 10 - HEALTH_SIZE;
-                for (int i = 0; i < Mth::max(health/2.0, 10.0); ++i) {
-                    bool none = health < i*2;
-                    bool half = health < i*2 + 0.5;
+                for (float i = 0; i < Mth::max(health, 10.0f); ++i) {
+                    float perc = std::clamp(health - i, 0.0f, 1.0f);
 
-                    Gui::drawRect(hbX + i*(HEALTH_SIZE+2), htY, HEALTH_SIZE, HEALTH_SIZE, {
+                    float x = hbX + i*(HEALTH_SIZE+2);
+                    if (perc < 1.0) {
+                        // draw bg.
+
+                        Gui::drawRect(x, htY, HEALTH_SIZE, HEALTH_SIZE, {
+                                .tex = TEX_HEALTH,
+                                .tex_pos = {0.0, 0.0},
+                                .tex_size = {0.5, 1.0}
+                        });
+                    }
+                    Gui::drawRect(x, htY, HEALTH_SIZE * perc, HEALTH_SIZE, {
                             .tex = TEX_HEALTH,
-                            .tex_pos = {none ? 2/3.0 : half ? 1/3.0 : 0.0, 0.0},
-                            .tex_size = {1/3.0, 1.0}
+                            .tex_pos = {0.5, 0.0},
+                            .tex_size = {0.5 * perc, 1.0}
                     });
                 }
 

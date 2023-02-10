@@ -15,7 +15,7 @@ Contributors:
 
 --- Non Core:
 
-- Kmroiosn                (https://github.com/Kmroiosn, multution@outlook.com)
+- Kmroiosn                (https://github.com/Kmroiosn, multution@outlook.com, https://space.bilibili.com/67118091)
   230209 ModLoader/ dll program load for Windows.
 
 - jeff31415               (https://space.bilibili.com/272934974)

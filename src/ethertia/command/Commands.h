@@ -25,8 +25,8 @@ public:
         void onCommand(const std::vector<std::string>& args) override
         {
             float heal = 10.0;
-            if (args.size() > 2) {
-                heal = std::stof(args[2]);
+            if (args.size() > 1) {
+                heal = std::stof(args[1]);
             }
 
             Ethertia::getPlayer()->m_Health = heal;
