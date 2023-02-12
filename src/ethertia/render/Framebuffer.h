@@ -51,7 +51,7 @@ public:
     Texture* internalAttachTexture2D(int attachment, int intlfmt, int fmt, int type) {
         auto* tex = Loader::loadTexture(width, height, nullptr, intlfmt, fmt, type);
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, tex->getTextureID(), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, tex->texId, 0);
         return tex;
     }
 

@@ -219,9 +219,8 @@ void main() {
     vec4 _PosDepth = texture(gPositionDepth, TexCoord).rgba;
     vec3 FragPos = _PosDepth.xyz;
 
-    const float P_NEAR = 0.01f;
     const float P_FAR  = 1000.0f;
-    float FragDepth = _PosDepth.w * (P_FAR - P_NEAR) + P_NEAR;
+    float FragDepth = _PosDepth.w * P_FAR;
 
     vec4 _AlbRoug = texture(gAlbedoRoughness, TexCoord).rgba;
     vec3 Albedo  = _AlbRoug.rgb;

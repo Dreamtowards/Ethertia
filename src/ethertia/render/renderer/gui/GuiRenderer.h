@@ -43,8 +43,7 @@ public:
         if (border == 0)
             border = 999999;
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex->getTextureID());
+        tex->bindTexture2D(0);
 
         float ww = Gui::maxWidth();  // window width.
         float wh = Gui::maxHeight();

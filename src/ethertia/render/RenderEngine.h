@@ -15,6 +15,8 @@ class EntityRenderer;
 class SkyGradientRenderer;
 class SkyboxRenderer;
 class ParticleRenderer;
+class SSAORenderer;
+class ComposeRenderer;
 
 class World;
 
@@ -33,10 +35,14 @@ class RenderEngine {
 public:
     GuiRenderer* guiRenderer                 = nullptr;
     FontRenderer* fontRenderer               = nullptr;
-    EntityRenderer* entityRenderer           = nullptr;
+    inline static EntityRenderer* entityRenderer           = nullptr;
     SkyboxRenderer* m_SkyboxRenderer         = nullptr;
     ParticleRenderer* m_ParticleRenderer     = nullptr;
     SkyGradientRenderer* m_SkyGradientRenderer = nullptr;
+
+    inline static SSAORenderer*    _SSAORenderer    = nullptr;
+    inline static ComposeRenderer* _ComposeRenderer = nullptr;
+
 
     inline static glm::mat4 matProjection{1};
     inline static glm::mat4 matView{1};
@@ -44,8 +50,11 @@ public:
     Camera m_Camera{};
     inline static Frustum m_ViewFrustum{};
 
+    // fboGbuffer
     Framebuffer* gbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
     Framebuffer* dcompose = nullptr;  // Deferred Rendering Compose FBO
+
+    inline static Framebuffer* fboSSAO = nullptr;
 
     inline static float fov = 90;
     inline static float viewDistance = 1;
@@ -75,7 +84,13 @@ public:
     void renderWorldCompose(World* world);
 
 
-    static void checkGlError(std::string_view phase = "");
+    static void checkGlError(std::string_view phase = "") {
+        GLuint err = glGetError();
+        if (err) {
+            Log::warn("###### GL Error @{} ######", phase);
+            Log::warn("ERR: {}", err);
+        }
+    }
 
 
     void clearRenderBuffer() {
@@ -83,6 +98,12 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
+    Texture* gPositionDepth() {
+        return gbuffer->texColor[0];
+    }
+    Texture* gNormal() {
+        return gbuffer->texColor[1];
+    }
 
 
 

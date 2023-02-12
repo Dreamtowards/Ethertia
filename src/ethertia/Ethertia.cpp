@@ -197,8 +197,13 @@ void Ethertia::renderGUI()
     GuiInventory::doDrawHoveredItem();
     GuiInventory::doDrawPickingItem();
 
-    Gui::drawWorldpoint(EntityRenderer::SunPos, [](glm::vec2 p) {
-        Gui::drawRect(p.x, p.y, 3, 3, Colors::RED);
+//    Gui::drawWorldpoint(EntityRenderer::SunPos, [](glm::vec2 p) {
+//        Gui::drawRect(p.x, p.y, 3, 3, Colors::RED);
+//    });
+
+//    Gui::drawRect(100, 100, 200, 200, Colors::WHITE20);
+    Gui::drawRect(100, 100, 300, 300, {
+        .tex = RenderEngine::fboSSAO->texColor[0],
     });
 
     if (ChunkGenProc::dbg_SavingChunks) {
@@ -457,7 +462,7 @@ float Scheduler::_intl_program_time() {
 
 void Entity::onRender()
 {
-    Ethertia::getRenderEngine()->entityRenderer->renderGeometryChunk(
+    RenderEngine::entityRenderer->renderGeometryChunk(
             m_Model, getPosition(), getRotation(), m_DiffuseMap);
 }
 

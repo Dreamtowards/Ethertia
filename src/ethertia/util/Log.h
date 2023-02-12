@@ -139,7 +139,7 @@ Profile(
     template<typename... ARGS>
     static void warn(const std::string& pat, ARGS... args)
     {
-        Log::_log(std::cout, "WARN", "", pat, args...);
+        Log::_log(std::cerr, "WARN", "", pat, args...);
 //        std::stringstream ss;
 //        Log::log_head(ss);
 //        Strings::_fmt(ss, pat, args...);

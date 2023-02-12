@@ -13,6 +13,9 @@
 #include <ethertia/render/renderer/gui/GuiRenderer.h>
 #include <ethertia/render/renderer/gui/FontRenderer.h>
 #include <ethertia/render/renderer/ParticleRenderer.h>
+#include <ethertia/render/compose/ComposeRenderer.h>
+#include <ethertia/render/ssao/SSAORenderer.h>
+
 #include <ethertia/render/Window.h>
 #include <ethertia/entity/EntityDroppedItem.h>
 #include <ethertia/init/ItemTextures.h>
@@ -30,9 +33,11 @@ RenderEngine::RenderEngine()
     m_SkyboxRenderer = new SkyboxRenderer();
     m_ParticleRenderer = new ParticleRenderer();
     m_SkyGradientRenderer = new SkyGradientRenderer();
+    _ComposeRenderer = new ComposeRenderer();
+    _SSAORenderer = new SSAORenderer();
     std::cout << "]";
 
-    float qual = 0.6;
+    float qual = 0.9;
     gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));
     Framebuffer::gPushFramebuffer(gbuffer);
         gbuffer->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
@@ -46,8 +51,14 @@ RenderEngine::RenderEngine()
 
     dcompose = Framebuffer::glfGenFramebuffer(gbuffer->width, gbuffer->height);
     Framebuffer::gPushFramebuffer(dcompose);
-        dcompose->attachColorTexture(0, GL_RGBA);
+        dcompose->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
         dcompose->checkFramebufferStatus();
+    Framebuffer::gPopFramebuffer();
+
+    fboSSAO = Framebuffer::glfGenFramebuffer(gbuffer->width, gbuffer->height);
+    Framebuffer::gPushFramebuffer(fboSSAO);
+    fboSSAO->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);//, GL_RGBA32F, GL_RGB, GL_FLOAT);
+    fboSSAO->checkFramebufferStatus();
     Framebuffer::gPopFramebuffer();
 
     RenderEngine::checkGlError("End of RenderEngine Init");
@@ -163,7 +174,8 @@ void RenderEngine::renderWorldCompose(World* world)
     // Blend: addictive color when src.alpha != 1.0, for sky background add.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    entityRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2], renderLights);
+    _ComposeRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2],
+                                    renderLights);
 
     GlState::blendMode(GlState::ALPHA);
 
@@ -189,14 +201,20 @@ void RenderEngine::renderWorldCompose(World* world)
     Framebuffer::gPopFramebuffer();
 }
 
+
 void RenderEngine::renderWorld(World* world)
 {
     assert(world);
+
+    RenderEngine::checkGlError("Begin World Render");
 
     m_ParticleRenderer->updateAll(Ethertia::getDelta());
 
     // Heavy
     renderWorldGeometry(world);
+
+
+    _SSAORenderer->renderSSAO(gbuffer->texColor[0], gbuffer->texColor[1]);
 
 
     renderWorldCompose(world);
@@ -208,13 +226,6 @@ void RenderEngine::renderWorld(World* world)
     RenderEngine::checkGlError("End World Render");
 }
 
-void RenderEngine::checkGlError(std::string_view phase) {
-    GLuint err = glGetError();
-    if (err) {
-        Log::warn("###### GL Error @{} ######", phase);
-        Log::warn("ERR: {}", err);
-    }
-}
 
 
 //    Get World Ray from Screen Pixel.

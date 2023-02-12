@@ -23,9 +23,18 @@ public:
         glDeleteTextures(1, &texId);
     }
 
-    GLuint getTextureID() const {
-        return texId;
+//    GLuint getTextureID() const {
+//        return texId;
+//    }
+
+    void bindTexture2D(int i = 0) {
+        glActiveTexture(GL_TEXTURE0+i);
+        glBindTexture(GL_TEXTURE_2D, texId);
     }
+
+//    void _BindTexture(int i) {
+//        bindTexture2D(i);
+//    }
 
     static BitmapImage* glfGetTexImage(Texture* tex) {
         void* pixels = new char[tex->width * tex->height * 4];
