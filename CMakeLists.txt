@@ -89,7 +89,7 @@ link_libraries(nbt++)
 
 
 #add_subdirectory(lib/openvr)
-link_libraries(openvr_api)
+#link_libraries(openvr_api)
 
 
 include_directories(src)

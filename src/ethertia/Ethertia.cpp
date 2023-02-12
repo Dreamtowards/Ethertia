@@ -32,7 +32,7 @@
 #include <ethertia/init/Items.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
-#include <ethertia/vr/OpenVR.h>
+//#include <ethertia/vr/OpenVR.h>
 
 
 
@@ -50,7 +50,7 @@ void Ethertia::start()
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::loadSettings();  Loader::checkAssetsExists();
 
-    ModLoader::loadMod("./mods/TwilightForest"); OpenVR::init();
+    ModLoader::loadMod("./mods/TwilightForest"); //OpenVR::init();
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());

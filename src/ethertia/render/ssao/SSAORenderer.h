@@ -35,15 +35,14 @@ public:
             vec3 samp{
                     rand(gen) * 2.0f - 1.0f,
                     rand(gen) * 2.0f - 1.0f,
-                    rand(gen) * 2.0f - 1.0f,
-//                    rand(gen)
+                    rand(gen)
             };
             samp = glm::normalize(samp) * rand(gen);
 
-//            // close to core.
-//            float f = float(i) / samples;
-//            f = std::lerp(0.1f, 1.0f, f * f);
-//            samp *= f;
+            // close to core.
+            float f = float(i) / samples;
+            f = std::lerp(0.1f, 1.0f, f * f);
+            samp *= f;
 
             // ssaoKernel.push_back(samp);
 
@@ -51,6 +50,19 @@ public:
         }
 
         // Rand Noise (for TBN, de-banding)
+//        BitmapImage texNoise{4, 4};
+//        for (int i = 0; i < 4; ++i) {
+//            for (int j = 0; j < 4; ++j) {
+//                texNoise.setPixel(i, j, Colors::intRGBA(
+//                        Colors::ofRGB(
+//                                rand(gen) * 2.0f - 1.0f,
+//                                rand(gen) * 2.0f - 1.0f,
+//                                0.0f))
+//                        );
+//            }
+//        }
+//        m_TexNoise = Loader::loadTexture(texNoise);
+
         std::vector<glm::vec3> ssaoRand;
         for (int i = 0; i < 16; ++i) {
             vec3 noise{
@@ -60,7 +72,7 @@ public:
             };
             ssaoRand.push_back(noise);
         }
-        m_TexNoise = Loader::loadTexture(4, 4, &ssaoRand[0], GL_RGB16, GL_RGB, GL_FLOAT);
+        m_TexNoise = Loader::loadTexture(4, 4, &ssaoRand[0], GL_RGB16F, GL_RGB, GL_FLOAT);
 
     }
 

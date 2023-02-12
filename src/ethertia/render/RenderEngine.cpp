@@ -37,7 +37,7 @@ RenderEngine::RenderEngine()
     _SSAORenderer = new SSAORenderer();
     std::cout << "]";
 
-    float qual = 0.9;
+    float qual = 0.7;
     gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));
     Framebuffer::gPushFramebuffer(gbuffer);
         gbuffer->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
@@ -55,7 +55,8 @@ RenderEngine::RenderEngine()
         dcompose->checkFramebufferStatus();
     Framebuffer::gPopFramebuffer();
 
-    fboSSAO = Framebuffer::glfGenFramebuffer(gbuffer->width, gbuffer->height);
+    float ssaoQuality = 0.3;
+    fboSSAO = Framebuffer::glfGenFramebuffer(gbuffer->width * ssaoQuality, gbuffer->height * ssaoQuality);
     Framebuffer::gPushFramebuffer(fboSSAO);
     fboSSAO->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);//, GL_RGBA32F, GL_RGB, GL_FLOAT);
     fboSSAO->checkFramebufferStatus();

@@ -10,8 +10,8 @@ uniform sampler2D gNormal;
 uniform sampler2D texNoise;
 uniform vec2 noiseScale;  // vec2(screenSize/noiseSize)
 
+const int kernelSize = 32;
 uniform vec3 kernelSamples[64];
-const int kernelSize = 64;
 const float radius = 1;
 
 uniform mat4 matProjection;
@@ -30,38 +30,34 @@ void main()
 {
     vec3 FragPos  = texture(gPositionDepth, TexCoord).xyz;
     vec3 FragNorm = texture(gNormal,        TexCoord).xyz;
-//    vec3 RandVec  = texture(texNoise,       TexCoord * noiseScale).xyz;
+    vec3 RandVec  = texture(texNoise,       TexCoord * noiseScale).xyz;
 
-//    vec3 Tangent   = normalize(RandVec - FragNorm * dot(RandVec, FragNorm));
-//    vec3 Bitangent = cross(FragNorm, Tangent);
-//    mat3 TBN = mat3(Tangent, Bitangent, FragNorm);
+    // TBN for Random Rotate
+    vec3 Tangent   = normalize(RandVec - FragNorm * dot(RandVec, FragNorm));
+    vec3 Bitangent = cross(FragNorm, Tangent);
+    mat3 TBN = mat3(Tangent, Bitangent, FragNorm);
 
     // float Dep = texture(gPositionDepth, TexCoord).w;
 
+    vec3 ViewSpaceFragPos = vec3(matView * vec4(FragPos, 1.0));
+
     float occlusion = 0.0;
     for (int i = 0;i < kernelSize; ++i) {
-        vec3 dt = kernelSamples[i] * 0.001;
-        if (abs(texture(gPositionDepth, TexCoord + dt.xy).w - texture(gPositionDepth, TexCoord).w) > 0.001) {
-            occlusion += 1.0;
-        }
+        vec3 samp = ViewSpaceFragPos + (TBN * kernelSamples[i]) * radius;  //
 
-//        vec3 samp = TBN * kernelSamples[i];
-//        samp = FragPos + samp * radius;
-
-//        vec4 offset = matProjection * matView * vec4(samp, 1.0);  // * matView
-//        offset.xyz /= offset.w;
-//        offset.xyz  = offset.xyz * 0.5 + 0.5;  // 0-1
+        vec4 offset = matProjection * vec4(samp, 1.0);  // * matView
+        offset.xyz /= offset.w;
+        offset.xyz  = offset.xyz * 0.5 + 0.5;  // 0-1
 //
 //        float selfDepth = LinearDepth(offset.z);
-//        float sampDepth = texture(gPositionDepth, offset.xy).w;
+        float sampDepth = -texture(gPositionDepth, offset.xy).w * P_FAR;
+        occlusion += (sampDepth >= samp.z ? 1.0 : 0.0);
         // float rangeCheck = smoothstep(0.0, 1.0, radius / abs(FragPos.z - sampDepth));
 //        occlusion += (sampDepth >= selfDepth ? 1.0 : 0.0);
     }
     occlusion = 1.0 - (occlusion / kernelSize);
 
 
-//    float diff = texture(gPositionDepth, TexCoord).w - texture(gPositionDepth, TexCoord-vec2(0.001)).w;
-    // vec3(abs(diff) > 0.0001 ? 1 : 0);
     FragColor.rgb = vec3(occlusion);
     FragColor.a = 1.0;
 }
