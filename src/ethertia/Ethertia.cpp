@@ -202,7 +202,7 @@ void Ethertia::renderGUI()
 //    });
 
 //    Gui::drawRect(100, 100, 200, 200, Colors::WHITE20);
-    Gui::drawRect(100, 100, 300, 300, {
+    Gui::drawRect(0, Gui::maxHeight()-300, 300, 300, {
         .tex = RenderEngine::fboSSAO->texColor[0],
     });
 

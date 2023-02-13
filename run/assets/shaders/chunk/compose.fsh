@@ -7,6 +7,7 @@ in vec2 TexCoord;
 uniform sampler2D gPositionDepth;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoRoughness;
+uniform sampler2D gAmbientOcclusion;
 
 uniform sampler2D panoramaMap;
 
@@ -248,55 +249,39 @@ void main() {
    // vec3 SunColor = vec3(isDay ? 2.0 : 0.3);
 
     // midnight=0, noon=1.
-    float DayBrightness = 1.0 - abs(DayTime-0.5) * 2.0;
-    vec3 SunColor = vec3(1.0) * DayBrightness * 2.5;
+//    float DayBrightness = 1.0 - abs(DayTime-0.5) * 2.0;
+//    vec3 SunColor = vec3(1.0) * DayBrightness * 2.5;
 
 
-    vec3 FragToSun = normalize(SunPos - FragPos);
-    vec3 FragToCamera = normalize(CameraPos - FragPos);
-
-    float diff = max(0.2, dot(FragToSun, Norm));
-    vec3 diffColor = diff * SunColor;
-
-    float specularIntensity = (1.0 - Roughness);
-    float shininess = 48;
-    vec3 lightReflect = reflect(-FragToSun, Norm);
-    float spec = pow(max(dot(lightReflect, FragToCamera), 0.0), shininess);
-    vec3 specColor = spec * specularIntensity * SunColor;
-
-    FragColor = vec4((diffColor + specColor) * Albedo, 1.0);
-
-
-
-
-
-
-    // Brush hint.
-    FragColor.rgb += 0.03 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
-
-
-
-//    float viewLen = length(CameraPos - FragPos);
-//    float fogf = clamp(pow(viewLen * fogDensity, fogGradient), 0.0, 1.0);
-//    vec3 fogColor = vec3(0.5, 0.6, 0.8) * 0.8;
-//    fogColor = vec3(0.235, 0.557, 0.8) * 0.9;
-//    FragColor.rgb = mix(FragColor.rgb, fogColor, fogf);
-
-
-
-    vec3 RayPos = CameraPos;
-    vec3 RayDir = compute_pixel_ray();
-
+//    vec3 FragToSun = normalize(SunPos - FragPos);
+//
+//    float diff = max(0.2, dot(FragToSun, Norm));
+//    vec3 diffColor = diff * SunColor;
+//
 //    float specularIntensity = (1.0 - Roughness);
 //    float shininess = 48;
+//    vec3 lightReflect = reflect(-FragToSun, Norm);
+//    float spec = pow(max(dot(lightReflect, FragToCamera), 0.0), shininess);
+//    vec3 specColor = spec * specularIntensity * SunColor;
+//
+//    FragColor = vec4((diffColor + specColor) * Albedo, 1.0);
+
+    FragColor = vec4(0,0,0,1);
+
+    float AO = texture(gAmbientOcclusion, TexCoord).r;
+
+    vec3 Ambient = vec3(Albedo * 0.3);
+    FragColor.rgb += Ambient;
+
+    vec3 FragToCamera = normalize(CameraPos - FragPos);
+    float specularIntensity = (1.0 - Roughness) * 0.3;
+    float shininess = 128;
     for (int i = 0;i < lightsCount;i++) {
         Light light = lights[i];
 
-        vec3 Ambient = light.color * 0.2;
-
         // Diffuse
         vec3 FragToLight = normalize(light.position - FragPos);
-        vec3 Diffuse = light.color * max(0.0, dot(FragToLight, Norm));
+        vec3 Diffuse = light.color * Albedo * max(0.0, dot(FragToLight, Norm));
 
         // Specular
         // vec3 lightReflect = reflect(-FragToLight, Norm);
@@ -312,11 +297,32 @@ void main() {
         float Atten = 1.0 / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance*distance));
 
 
-        FragColor.rgb += Diffuse*Atten * Albedo + Specular*Atten;
+        FragColor.rgb += Diffuse*Atten + Specular*Atten;
     }
 
+    FragColor.rgb *= AO * debugVar1;
 
-//    vec2 hitPlanet = raySphere(RayPos, RayDir, PlanetPos, PlanetRadius);
+
+
+    // Brush hint.
+    FragColor.rgb += 0.03 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
+
+
+
+    vec3 RayPos = CameraPos;
+    vec3 RayDir = compute_pixel_ray();
+
+
+
+    //    float viewLen = length(CameraPos - FragPos);
+    //    float fogf = clamp(pow(viewLen * fogDensity, fogGradient), 0.0, 1.0);
+    //    vec3 fogColor = vec3(0.5, 0.6, 0.8) * 0.8;
+    //    fogColor = vec3(0.235, 0.557, 0.8) * 0.9;
+    //    FragColor.rgb = mix(FragColor.rgb, fogColor, fogf);
+
+
+
+    //    vec2 hitPlanet = raySphere(RayPos, RayDir, PlanetPos, PlanetRadius);
 //    if (hitPlanet.y - hitPlanet.x > 0.0) {
 //        FragColor.b = (1);
 //    }
@@ -371,7 +377,7 @@ void main() {
     } else {
         vec3 fogColor = SkyBg;//vec3(0.5, 0.6, 0.8);
 //        fogColor = vec3(0.584, 0.58, 0.702);
-        fogColor *= SunColor * 0.5f;
+        fogColor *= 0.5f;  // * SunColor
 
         FragColor.rgb = mix(FragColor.rgb, fogColor, min(1.0, FragDepth / 100.0f));
     }

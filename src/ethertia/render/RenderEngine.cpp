@@ -155,6 +155,23 @@ void RenderEngine::renderWorldCompose(World* world)
 //        l.attenuation = {0,0,0};
 //        renderLights.push_back(&l);
 //    }
+    {
+        static Light sunLight;
+
+        // CNS 这是不准确的，不能直接取反 否则月亮位置可能会错误
+        float daytime = Ethertia::getWorld()->m_DayTime;
+        bool isDay = daytime > 0.25 && daytime < 0.75;
+        sunLight.position = isDay ? ParticleRenderer::_SUN_POS : -ParticleRenderer::_SUN_POS;
+
+
+        float dayBrightness = 1.0 - abs(daytime-0.5) * 2.0;
+        glm::vec3 SunColor = glm::vec3(1.0) * dayBrightness * 2.5f;
+        sunLight.color = SunColor;
+
+        sunLight.attenuation = {1, 0, 0};
+
+        renderLights.push_back(&sunLight);
+    }
     for (Entity* e : world->m_Entities)
     {
         if (EntityLantern* lat = dynamic_cast<EntityLantern*>(e))
@@ -176,6 +193,7 @@ void RenderEngine::renderWorldCompose(World* world)
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     _ComposeRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2],
+                                    fboSSAO->texColor[0],
                                     renderLights);
 
     GlState::blendMode(GlState::ALPHA);

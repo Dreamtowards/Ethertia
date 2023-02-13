@@ -36,7 +36,6 @@ void main()
         return;
     }
 
-    vec3 FragPos  = _FragPosDepth.xyz;
     vec3 FragNorm = mat3(matView) * texture(gNormal, TexCoord).xyz;
 
     // TBN for Random Rotate
@@ -45,7 +44,7 @@ void main()
     vec3 Bitangent = cross(FragNorm, Tangent);
     mat3 TBN = mat3(Tangent, Bitangent, FragNorm);
 
-    vec3 ViewSpaceFragPos = (matView * vec4(FragPos, 1.0)).xyz;
+    vec3 ViewSpaceFragPos = (matView * vec4(_FragPosDepth.xyz, 1.0)).xyz;
 
     float occlusion = 0.0;
     for (int i = 0;i < kernelSize; ++i) {

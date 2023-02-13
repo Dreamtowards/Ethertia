@@ -132,7 +132,7 @@ public:
             opts->addGui(newLabel("World"));
 
             opts->addGui(new GuiSlider("D/var0", -2, 2, &EntityRenderer::debugVar0, 0.01f));
-            opts->addGui(new GuiSlider("D/var1", 0, 4, &EntityRenderer::debugVar1, 0.01f));
+            opts->addGui(new GuiSlider("D/var1", -1, 3, &EntityRenderer::debugVar1, 0.01f));
             opts->addGui(new GuiSlider("D/var2", 0, 256, &EntityRenderer::debugVar2, 0.1f));
 
             opts->addGui(new GuiCheckBox("Brush Tracking", &Ethertia::getBrushCursor().keepTracking));
@@ -303,28 +303,42 @@ public:
         if (dbgGBuffers) {
             auto* gbuffer = rde->gbuffer;
 
+            float x = 0, y = 16;
             float h = Gui::maxHeight() / 6;
             float w = h * 1.5f;
 
-            Gui::drawRect(0, 0, w, h, {
+            Gui::drawRect(x, y, w, h, {
                 .tex = gbuffer->texColor[0],
                 .channel_mode = Gui::DrawRectArgs::C_RGB
             });
-            Gui::drawRect(0, h, w, h, {
+            Gui::drawString(x,y, "Pos");
+
+            Gui::drawRect(x+w, y, w, h, {
                     .tex = gbuffer->texColor[0],
                     .channel_mode = Gui::DrawRectArgs::C_AAA
             });
+            Gui::drawString(x+w,y, "Dep");
 
-            Gui::drawRect(0, h*2, w, h, gbuffer->texColor[1]);
+            Gui::drawRect(x, y+h, w, h, gbuffer->texColor[1]);
+            Gui::drawString(0,h, "Norm");
 
-            Gui::drawRect(0, h*3, w, h, {
+            Gui::drawRect(x, y+h*2, w, h, {
                 .tex = gbuffer->texColor[2],
                 .channel_mode = Gui::DrawRectArgs::C_RGB
             });
-            Gui::drawRect(0, h*4, w, h, {
+            Gui::drawString(x,y+h*2, "Albedo");
+
+            Gui::drawRect(x+w, y+h*2, w, h, {
                 .tex = gbuffer->texColor[2],
                 .channel_mode = Gui::DrawRectArgs::C_AAA
             });
+            Gui::drawString(x+w,y+h*2, "Roug");
+
+            Gui::drawRect(x, y+h*3, w, h, {
+                .tex = RenderEngine::fboSSAO->texColor[0],
+                .channel_mode = Gui::DrawRectArgs::C_RGB
+            });
+            Gui::drawString(x,y+h*3, "SSAO");
         }
 
 
@@ -381,7 +395,7 @@ public:
     }
 
     GuiPopupMenu* newMenu(GuiCollection* p, const std::string& text, GuiButton** _btn = nullptr) {
-        GuiButton* btnMenu = new GuiButton(text);
+        GuiButton* btnMenu = new GuiButton(text, false);
         btnMenu->setHeight(Inf);
         p->addGui(btnMenu);
 

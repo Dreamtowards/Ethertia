@@ -27,7 +27,7 @@ public:
     inline static float fogGradient = 1.5f;
 
     inline static float debugVar0 = 0;
-    inline static float debugVar1 = 0;
+    inline static float debugVar1 = 1;
     inline static float debugVar2 = 0;
 
 //    inline static glm::vec3 SunPos;

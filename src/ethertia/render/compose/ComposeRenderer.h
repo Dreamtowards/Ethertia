@@ -21,6 +21,7 @@ public:
         shaderCompose.setInt("gPositionDepth", 0);
         shaderCompose.setInt("gNormal", 1);
         shaderCompose.setInt("gAlbedoRoughness", 2);
+        shaderCompose.setInt("gAmbientOcclusion", 3);
 
         // shaderCompose.setInt("panoramaMap", 5);
     }
@@ -32,11 +33,13 @@ public:
     const char** UNIFORM_LIGHT_CONEANGLE   = ShaderProgram::_GenArrayNames("lights[%i].coneAngle", 64);
 
 
-    void renderCompose(Texture* gPositionDepth, Texture* gNormal, Texture* gAlbedoRoughness, const std::vector<Light*>& lights)
+    void renderCompose(Texture* gPositionDepth, Texture* gNormal, Texture* gAlbedoRoughness, Texture* gAmbientOcclusion,
+                       const std::vector<Light*>& lights)
     {
-        gPositionDepth  ->bindTexture2D(0);
-        gNormal         ->bindTexture2D(1);
-        gAlbedoRoughness->bindTexture2D(2);
+        gPositionDepth   ->bindTexture2D(0);
+        gNormal          ->bindTexture2D(1);
+        gAlbedoRoughness ->bindTexture2D(2);
+        gAmbientOcclusion->bindTexture2D(3);
 
 
         // g_PanoramaTex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("misc/skybox/hdri5.png")));
@@ -53,7 +56,7 @@ public:
 //        shaderCompose.setFloat("fogDensity", fogDensity);
 //
 //        shaderCompose.setFloat("debugVar0", debugVar0);
-//        shaderCompose.setFloat("debugVar1", debugVar1);
+        shaderCompose.setFloat("debugVar1", EntityRenderer::debugVar1);
 //        shaderCompose.setFloat("debugVar2", debugVar2);
 
         shaderCompose.setFloat("Time", Ethertia::getPreciseTime());
@@ -74,11 +77,6 @@ public:
             shaderCompose.setVector2f(UNIFORM_LIGHT_CONEANGLE[i], glm::vec2(light->coneAngle, 0));
         }
 
-
-        // CNS 这是不准确的，不能直接取反 否则月亮位置可能会错误
-        float daytime = Ethertia::getWorld()->m_DayTime;
-        bool isDay = daytime > 0.25 && daytime < 0.75;
-        shaderCompose.setVector3f("SunPos", isDay ? ParticleRenderer::_SUN_POS : -ParticleRenderer::_SUN_POS);
 
 
         _DrawScreenQuad();
