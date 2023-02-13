@@ -28,36 +28,43 @@ float LinearDepth(float pprojdepth) {  // for perspective projection
 
 void main()
 {
-    vec3 FragPos  = texture(gPositionDepth, TexCoord).xyz;
-    vec3 FragNorm = texture(gNormal,        TexCoord).xyz;
-    vec3 RandVec  = texture(texNoise,       TexCoord * noiseScale).xyz;
+    vec4 _FragPosDepth = texture(gPositionDepth, TexCoord).xyzw;
+    float FragDepth = _FragPosDepth.w;
+
+    if (FragDepth == 1.0) {
+        FragColor = vec4(1.0);
+        return;
+    }
+
+    vec3 FragPos  = _FragPosDepth.xyz;
+    vec3 FragNorm = texture(gNormal, TexCoord).xyz;
 
     // TBN for Random Rotate
+    vec3 RandVec  = vec3(1,0,0);//texture(texNoise, TexCoord * noiseScale).xyz;
     vec3 Tangent   = normalize(RandVec - FragNorm * dot(RandVec, FragNorm));
     vec3 Bitangent = cross(FragNorm, Tangent);
     mat3 TBN = mat3(Tangent, Bitangent, FragNorm);
 
-    // float Dep = texture(gPositionDepth, TexCoord).w;
-
-    vec3 ViewSpaceFragPos = vec3(matView * vec4(FragPos, 1.0));
+    vec3 ViewSpaceFragPos = (matView * vec4(FragPos, 1.0)).xyz;
 
     float occlusion = 0.0;
     for (int i = 0;i < kernelSize; ++i) {
-        vec3 samp = ViewSpaceFragPos + (TBN * kernelSamples[i]) * radius;  //
+        // View Space.
+        vec3 samp = ViewSpaceFragPos + (TBN * kernelSamples[i]) * radius;
+        float sampPointDepth = -samp.z;
 
-        vec4 offset = matProjection * vec4(samp, 1.0);  // * matView
+        // Clip Space. offset to get screen position of sample point
+        vec4 offset = matProjection * vec4(samp, 1.0);
         offset.xyz /= offset.w;
         offset.xyz  = offset.xyz * 0.5 + 0.5;  // 0-1
-//
-//        float selfDepth = LinearDepth(offset.z);
-        float sampDepth = -texture(gPositionDepth, offset.xy).w * P_FAR;
-        occlusion += (sampDepth >= samp.z ? 1.0 : 0.0);
-        // float rangeCheck = smoothstep(0.0, 1.0, radius / abs(FragPos.z - sampDepth));
-//        occlusion += (sampDepth >= selfDepth ? 1.0 : 0.0);
+        float sampActualDepth = texture(gPositionDepth, offset.xy).w * P_FAR;
+
+         float range_f = smoothstep(0.0, 1.0, radius / abs(-ViewSpaceFragPos.z - sampActualDepth));
+        occlusion += (sampActualDepth <= sampPointDepth ? 1.0 : 0.0) * range_f;
     }
-    occlusion = 1.0 - (occlusion / kernelSize);
+    float aof = 1.0 - (occlusion / kernelSize);
 
 
-    FragColor.rgb = vec3(occlusion);
+    FragColor.rgb = vec3(aof);
     FragColor.a = 1.0;
 }
