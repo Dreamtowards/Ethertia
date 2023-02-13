@@ -6,7 +6,7 @@
 #define ETHERTIA_ENTITYTORCH_H
 
 #include <ethertia/entity/Entity.h>
-#include <ethertia/render/Particle.h>
+#include <ethertia/render/particle/Particle.h>
 
 class EntityTorch : public Entity
 {

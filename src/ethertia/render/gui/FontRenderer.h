@@ -7,7 +7,7 @@
 
 #include <ethertia/gui/Gui.h>
 #include <ethertia/render/shader/ShaderProgram.h>
-#include <ethertia/render/renderer/gui/GuiRenderer.h>
+#include <ethertia/render/gui/GuiRenderer.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Mth.h>
 

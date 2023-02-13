@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include <ethertia/render/Particle.h>
+#include <ethertia/render/particle/Particle.h>
 #include <ethertia/render/shader/ShaderProgram.h>
 #include <ethertia/render/GlState.h>
 

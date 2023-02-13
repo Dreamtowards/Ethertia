@@ -10,7 +10,7 @@
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/init/MaterialTextures.h>
-#include <ethertia/render/renderer/ParticleRenderer.h>
+#include <ethertia/render/particle/ParticleRenderer.h>
 
 class EntityRenderer
 {

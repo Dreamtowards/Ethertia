@@ -11,7 +11,7 @@
 #include "GuiButton.h"
 
 #include <ethertia/Ethertia.h>
-#include <ethertia/render/renderer/gui/FontRenderer.h>
+#include <ethertia/render/gui/FontRenderer.h>
 
 class GuiTextBox : public Gui
 {

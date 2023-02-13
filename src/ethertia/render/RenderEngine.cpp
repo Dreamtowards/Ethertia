@@ -8,11 +8,11 @@
 
 #include <ethertia/world/World.h>
 #include <ethertia/render/renderer/EntityRenderer.h>
-#include <ethertia/render/renderer/SkyGradientRenderer.h>
-#include <ethertia/render/renderer/SkyboxRenderer.h>
-#include <ethertia/render/renderer/gui/GuiRenderer.h>
-#include <ethertia/render/renderer/gui/FontRenderer.h>
-#include <ethertia/render/renderer/ParticleRenderer.h>
+#include <ethertia/render/sky/SkyGradientRenderer.h>
+#include <ethertia/render/sky/SkyboxRenderer.h>
+#include <ethertia/render/gui/GuiRenderer.h>
+#include <ethertia/render/gui/FontRenderer.h>
+#include <ethertia/render/particle/ParticleRenderer.h>
 #include <ethertia/render/compose/ComposeRenderer.h>
 #include <ethertia/render/ssao/SSAORenderer.h>
 #include <ethertia/render/debug/DebugRenderer.h>

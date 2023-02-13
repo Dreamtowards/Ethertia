@@ -22,6 +22,11 @@ public:
         glDeleteBuffers(vbos.size(), &vbos[0]);
         glDeleteVertexArrays(1, &vaoId);
     }
+
+    void drawArrays() {
+        glBindVertexArray(vaoId);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+    }
 };
 
 #endif //ETHERTIA_MODEL_H

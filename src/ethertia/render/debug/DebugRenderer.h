@@ -28,7 +28,7 @@ public:
             shader.setVector3f("limitPos", limitPos);
         }
 
-        RenderEngine::glwDrawArrays(model);
+        model->drawArrays();
 
         if (limitLen) {
             shader.setFloat("limitLen", 0);

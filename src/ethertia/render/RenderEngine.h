@@ -100,11 +100,6 @@ public:
 
 
 
-    static void glwDrawArrays(Model* model) {
-        glBindVertexArray(model->vaoId);
-        glDrawArrays(GL_TRIANGLES, 0, model->vertexCount);
-    }
-
 
     static void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false);
 
