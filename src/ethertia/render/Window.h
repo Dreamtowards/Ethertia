@@ -339,7 +339,8 @@ public:
     }
 
 
-    BitmapImage* screenshot() {
+    BitmapImage* screenshot()
+    {
         BitmapImage* img = new BitmapImage(framebufferWidth, framebufferHeight);
 
         glReadPixels(0, 0, img->getWidth(), img->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, img->getPixels());

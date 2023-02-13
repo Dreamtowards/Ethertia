@@ -32,16 +32,6 @@ public:
 
     inline static std::string ASSETS = "assets/";
 
-//    struct end_scope_dealloc {
-//        void* ptr;
-//
-//        end_scope_dealloc(void* _ptr) : ptr(_ptr) {}
-//
-//        ~end_scope_dealloc() {
-//            free(ptr);
-//        }
-//    };
-//#define AUTO_DELETE(ptr) end_scope_dealloc _s(ptr);
 
     struct datablock
     {

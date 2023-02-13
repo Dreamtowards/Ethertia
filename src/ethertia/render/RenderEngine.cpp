@@ -15,6 +15,7 @@
 #include <ethertia/render/renderer/ParticleRenderer.h>
 #include <ethertia/render/compose/ComposeRenderer.h>
 #include <ethertia/render/ssao/SSAORenderer.h>
+#include <ethertia/render/debug/DebugRenderer.h>
 
 #include <ethertia/render/Window.h>
 #include <ethertia/entity/EntityDroppedItem.h>
@@ -112,16 +113,20 @@ void RenderEngine::renderWorldGeometry(World* world) {
 
 
         ++dbg_NumEntityRendered;
+
+        // Debug: draw Norm/Border
         if (dbg_EntityGeo) {
-            renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
+            DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
         }
-        if (RenderEngine::dbg_HitPointEntityGeo && entity == Ethertia::getBrushCursor().hitEntity) {
-            renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation(),
-                           Ethertia::getBrushCursor().brushSize, Ethertia::getBrushCursor().position);
+        // Debug: draw Entity that Crosshair Hits.
+        if (RenderEngine::dbg_HitPointEntityGeo && entity == Ethertia::getCursor().hitEntity) {
+            DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation(),
+                           Ethertia::getCursor().brushSize, Ethertia::getCursor().position);
         }
+        // Debug: draw Every Entity AABB.
         if (dbg_RenderedEntityAABB) {
             AABB aabb = entity->getAABB();
-            renderLineBox(aabb.min, aabb.max-aabb.min, Colors::RED);
+            RenderEngine::drawLineBox(aabb.min, aabb.max-aabb.min, Colors::RED);
         }
     }
 
@@ -243,6 +248,15 @@ void RenderEngine::renderWorld(World* world)
 
 
     RenderEngine::checkGlError("End World Render");
+}
+
+
+void RenderEngine::drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat, bool boxOutline) {
+    DebugRenderer::Inst().drawLine(pos, dir, color, viewMat, boxOutline);
+}
+
+void RenderEngine::drawLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color) {
+    DebugRenderer::Inst().drawLine(min, size, color, true, true);
 }
 
 

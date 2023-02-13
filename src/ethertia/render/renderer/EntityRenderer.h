@@ -17,11 +17,7 @@ class EntityRenderer
 public:
 
     ShaderProgram shaderGeometry = Loader::loadShaderProgram("shaders/chunk/geometry.{}", true);
-//    ShaderProgram shaderCompose = Loader::loadShaderProgram("shaders/chunk/compose.{}");
-//
-//    inline static Model* M_RECT;  // RB,RT,LB,LT. TRIANGLE_STRIP.
 
-//    inline static Texture* g_PanoramaTex = nullptr;
 
     inline static float fogDensity = 0.02f;
     inline static float fogGradient = 1.5f;
@@ -30,7 +26,6 @@ public:
     inline static float debugVar1 = 1;
     inline static float debugVar2 = 0;
 
-//    inline static glm::vec3 SunPos;
 
     EntityRenderer() {
 
@@ -40,25 +35,6 @@ public:
         shaderGeometry.setInt("dramMap", 2);
 
         shaderGeometry.setFloat("MtlCap", Material::REGISTRY.size());
-
-
-//        shaderCompose.useProgram();
-//        shaderCompose.setInt("gPositionDepth", 0);
-//        shaderCompose.setInt("gNormal", 1);
-//        shaderCompose.setInt("gAlbedoRoughness", 2);
-//
-//        shaderCompose.setInt("panoramaMap", 5);
-
-
-//        // init RECT. def full viewport.
-//        float _RECT_POS[] = {1,-1, 1,1, -1,-1, -1,1};
-//        float _RECT_UV[]  = {1,0,  1,1, 0,0,  0,1};
-//        M_RECT = Loader::loadModel(4, {
-//                {2, _RECT_POS},
-//                {2, _RECT_UV}
-//        });
-//
-//        g_PanoramaTex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("misc/skybox/hdri5.png")));
 
     }
 

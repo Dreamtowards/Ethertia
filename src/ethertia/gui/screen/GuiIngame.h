@@ -89,7 +89,7 @@ public:
                 static Texture* TEX_XP_BAR = Loader::loadTexture("gui/bars.png");
                 static Texture* TEX_HEALTH = Loader::loadTexture("gui/health2.png");
 
-                float lv = Ethertia::getPreciseTime() * 0.1;
+                float lv = Ethertia::getPreciseTime() * 0.1f;
                 // xp
                 float XP_HEIGHT = 12;
                 float xpY = hbY - 12 - XP_HEIGHT;
@@ -150,7 +150,7 @@ public:
         if (cursor.hit && GuiDebugV::g_BlockMode)
         {
             glm::vec3 pl = glm::floor(cursor.position - cursor.normal*0.2f);
-            Ethertia::getRenderEngine()->renderLineBox(pl, glm::vec3(1.0), Colors::BLACK80);
+            RenderEngine::drawLineBox(pl, glm::vec3(1.0), Colors::BLACK80);
         }
     }
 

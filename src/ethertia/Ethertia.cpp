@@ -154,7 +154,8 @@ void Ethertia::runMainLoop()
     {
         PROFILE("Render");
 
-        m_RenderEngine->clearRenderBuffer();
+        RenderEngine::clearRenderBuffer();
+
         if (m_World)
         {
             PROFILE("World");
@@ -197,11 +198,6 @@ void Ethertia::renderGUI()
     GuiInventory::doDrawHoveredItem();
     GuiInventory::doDrawPickingItem();
 
-//    Gui::drawWorldpoint(EntityRenderer::SunPos, [](glm::vec2 p) {
-//        Gui::drawRect(p.x, p.y, 3, 3, Colors::RED);
-//    });
-
-//    Gui::drawRect(100, 100, 200, 200, Colors::WHITE20);
     Gui::drawRect(0, Gui::maxHeight()-300, 300, 300, {
         .tex = RenderEngine::fboSSAO->texColor[0],
     });
@@ -212,7 +208,7 @@ void Ethertia::renderGUI()
 
     if (!WorldEdit::selection.empty()) {
         AABB& s = WorldEdit::selection;
-        m_RenderEngine->renderLineBox(s.min, s.size(), Colors::GREEN);
+        RenderEngine::drawLineBox(s.min, s.size(), Colors::GREEN);
     }
 
     glEnable(GL_DEPTH_TEST);

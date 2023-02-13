@@ -10,6 +10,7 @@
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/render/renderer/EntityRenderer.h>
+#include <ethertia/render/debug/DebugRenderer.h>
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/util/MemoryTrack.h>
@@ -192,11 +193,11 @@ public:
         World* world = Ethertia::getWorld();
 
         if (dbgBasis) {
-            rde->renderDebugBasis();
+            DebugRenderer::Inst().renderDebugBasis();
         }
 
         if (dbgWorldBasis) {
-            rde->renderDebugWorldBasis();
+            DebugRenderer::Inst().renderDebugWorldBasis();
         }
 
         glPolygonMode(GL_FRONT_AND_BACK, dbgPolyLine ? GL_LINE : GL_FILL);
@@ -258,7 +259,7 @@ public:
         if (dbgAllEntityAABB) {
             for (Entity* e : Ethertia::getWorld()->getEntities()) {
                 AABB aabb = e->getAABB();
-                rde->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::RED);
+                RenderEngine::drawLineBox(aabb.min, aabb.max - aabb.min, Colors::RED);
             }
         }
 
@@ -266,7 +267,7 @@ public:
         if (dbgChunkAABB) { using glm::vec3;
             world->forLoadedChunks([&](Chunk* chunk){
                 vec3 pos = chunk->position;
-                rde->renderLineBox(pos, vec3(16), Colors::RED);
+                RenderEngine::drawLineBox(pos, vec3(16), Colors::RED);
             });
         }
 
@@ -278,7 +279,7 @@ public:
                     for (int dz = -n; dz <= n; ++dz) {
                         vec3 d(dx, dy, dz);
                         vec3 p = cpos + d * 16.0f;
-                        rde->renderLineBox(p, vec3(16), Colors::RED);
+                        RenderEngine::drawLineBox(p, vec3(16), Colors::RED);
                     }
                 }
             }
@@ -292,7 +293,7 @@ public:
             Entity* selEntity = Ethertia::getBrushCursor().hitEntity;
             if (selEntity) {
                 AABB aabb = selEntity->getAABB();
-                rde->renderLineBox(aabb.min, aabb.max - aabb.min, Colors::YELLOW);
+                RenderEngine::drawLineBox(aabb.min, aabb.max - aabb.min, Colors::YELLOW);
             }
         }
 
