@@ -37,10 +37,10 @@ void main()
     }
 
     vec3 FragPos  = _FragPosDepth.xyz;
-    vec3 FragNorm = texture(gNormal, TexCoord).xyz;
+    vec3 FragNorm = mat3(matView) * texture(gNormal, TexCoord).xyz;
 
     // TBN for Random Rotate
-    vec3 RandVec  = vec3(1,0,0);//texture(texNoise, TexCoord * noiseScale).xyz;
+    vec3 RandVec   = vec3(1,0,0);//texture(texNoise, TexCoord * noiseScale).xyz;
     vec3 Tangent   = normalize(RandVec - FragNorm * dot(RandVec, FragNorm));
     vec3 Bitangent = cross(FragNorm, Tangent);
     mat3 TBN = mat3(Tangent, Bitangent, FragNorm);

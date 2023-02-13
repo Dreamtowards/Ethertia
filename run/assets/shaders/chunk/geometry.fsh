@@ -158,7 +158,7 @@ void main()
     }
 
 
-    //todo: Do Not use LinearDepth. e.g. SSAO, ShadowMap needs compare depth with raw Perspective Depth.
+    //todo: Do Not use LinearDepth. e.g. SSAO, ShadowMap needs compare depth with raw Perspective Depth. or OK if compare in view space.
     gPositionDepth = vec4(FragPos, LinearDepth(gl_FragCoord.z));
     gNormal = FragNorm;
     gAlbedoRoughness = vec4(Albedo.rgb, Roughness);
