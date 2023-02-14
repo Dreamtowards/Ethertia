@@ -66,6 +66,11 @@ public:
 //        return Collections::find(m_RuntimeNumIdTable, entry);
 //    }
 
+
+// 很多时候是需要数字id的。比如shaders的material判断 (如果是水就摇摆 固体否之)。比如TextureAtlas离线缓存
+
+// Num Id (valid as long as String Id List doesn't change)
+// todo O(1).
     int getOrderId(const T* entry) {
         // Extreme Low Effective
         int i = 0;
@@ -95,13 +100,13 @@ public:
         return m_Map.end();
     }
 
-    class Registrable
-    {
-    public:
-
-        virtual std::string getRegistryId() = 0;
-
-    };
+//    class Registrable
+//    {
+//    public:
+//
+//        virtual std::string getRegistryId() = 0;
+//
+//    };
 
 
     void dbgPrintEntries(const std::string& name) {

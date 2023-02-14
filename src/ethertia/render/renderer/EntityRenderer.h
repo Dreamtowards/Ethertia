@@ -19,8 +19,6 @@ public:
     ShaderProgram shaderGeometry = Loader::loadShaderProgram("shaders/chunk/geometry.{}", true);
 
 
-    inline static float fogDensity = 0.02f;
-    inline static float fogGradient = 1.5f;
 
     inline static float debugVar0 = 0;
     inline static float debugVar1 = 1;

@@ -17,7 +17,15 @@ public:
     // Deferred Rendering Compose FBO
     inline static Framebuffer* fboCompose = nullptr;
 
+    inline static float fogDensity = 0.01f;
+    inline static float fogGradient = 1.5f;
+
     ComposeRenderer() = delete;
+
+    static void initShaderRes() {
+
+        shaderCompose = Loader::loadShaderProgram("shaders/compose/compose.{}");
+    }
 
     static void init()
     {
@@ -27,8 +35,7 @@ public:
         });
 
 
-
-        shaderCompose = Loader::loadShaderProgram("shaders/chunk/compose.{}");
+        initShaderRes();
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
@@ -63,8 +70,8 @@ public:
         shaderCompose.setVector3f("cursorPos", Ethertia::getBrushCursor().position);
         shaderCompose.setFloat("cursorSize", Ethertia::getBrushCursor().brushSize);
 
-//        shaderCompose.setFloat("fogGradient", fogGradient);
-//        shaderCompose.setFloat("fogDensity", fogDensity);
+        shaderCompose.setFloat("fogGradient", fogGradient);
+        shaderCompose.setFloat("fogDensity", fogDensity);
 //
 //        shaderCompose.setFloat("debugVar0", debugVar0);
         shaderCompose.setFloat("debugVar1", EntityRenderer::debugVar1);
@@ -75,6 +82,9 @@ public:
 
         shaderCompose.setMatrix4f("matInvView", glm::inverse(RenderEngine::matView));
         shaderCompose.setMatrix4f("matInvProjection", glm::inverse(RenderEngine::matProjection));
+
+        shaderCompose.setMatrix4f("matView", RenderEngine::matView);
+        shaderCompose.setMatrix4f("matProjection", RenderEngine::matProjection);
 
         shaderCompose.setMatrix4f("matShadowSpace", matShadowSpace);
 

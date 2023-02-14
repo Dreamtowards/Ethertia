@@ -20,10 +20,9 @@ uniform mat4 matView;
 
 const float P_NEAR = 0.01f;
 const float P_FAR  = 1000.0f;
-float LinearDepth(float pprojdepth) {  // for perspective projection
-    float z = pprojdepth * 2.0 - 1.0; // back to NDC
-    float pDepth = (2.0 * P_NEAR * P_FAR) / (P_FAR + P_NEAR - z * (P_FAR - P_NEAR)); // [near, far]
-    return pDepth / P_FAR; // [0,1] linear.
+float LinearDepth(float pdepth) {  // for perspective projection
+    float f = P_NEAR * P_FAR / (P_FAR + pdepth * (P_NEAR - P_FAR)); // simplified. [near, far]
+    return f / P_FAR;
 }
 
 void main()

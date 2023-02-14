@@ -85,6 +85,8 @@ public:
                 btnReloadShaders->addOnClickListener([](OnReleased* e) {
                     delete RenderEngine::entityRenderer;
                     RenderEngine::entityRenderer = new EntityRenderer();
+
+                    ComposeRenderer::initShaderRes();
                 });
             }
             {
@@ -129,8 +131,8 @@ public:
             opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
             opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
 
-            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &EntityRenderer::fogDensity, 0.001f));
-            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &EntityRenderer::fogGradient, 0.01f));
+            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &ComposeRenderer::fogDensity, 0.001f));
+            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &ComposeRenderer::fogGradient, 0.01f));
 
 
             opts->addGui(newLabel("World"));
