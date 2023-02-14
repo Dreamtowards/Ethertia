@@ -23,7 +23,7 @@
 #include <ethertia/render/VertexBuffer.h>
 #include <ethertia/render/Model.h>
 #include <ethertia/audio/AudioEngine.h>
-#include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/render/ShaderProgram.h>
 
 
 class Loader {
@@ -255,7 +255,8 @@ public:
     }
 
     /// pixels_VertInv: need y/vertical flipped pixels. cause of GL feature.
-    static Texture* loadTexture(int w, int h, void* pixels_VertFlip, int intlfmt = GL_RGBA, int fmt = GL_RGBA, int type = GL_UNSIGNED_BYTE) {
+    static Texture* loadTexture(int w, int h, void* pixels_VertFlip,
+                                int intlfmt = GL_RGBA, int fmt = GL_RGBA, int type = GL_UNSIGNED_BYTE) {
         GLuint texId;
         glGenTextures(1, &texId);
         glBindTexture(GL_TEXTURE_2D, texId);

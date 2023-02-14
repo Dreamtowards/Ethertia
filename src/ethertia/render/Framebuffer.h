@@ -36,7 +36,6 @@ public:
     static Framebuffer* GenFramebuffer(int w, int h, const std::function<void(Framebuffer*)>& initfunc)
     {
         Framebuffer* fbo = glfGenFramebuffer(w,h);
-
         Framebuffer::gPushFramebuffer(fbo);
 
         initfunc(fbo);
@@ -46,8 +45,8 @@ public:
         return fbo;
     }
 
-    ~Framebuffer() {
-
+    ~Framebuffer()
+    {
         glDeleteFramebuffers(1, &fboId);
     }
 
@@ -128,7 +127,7 @@ public:
         }
     }
 
-    // disableColorBuffers();
+    // disableColorBuffers();  use for e.g. ShadowMapping render that only need depth texture.
     void disableDrawBuffers() {
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);

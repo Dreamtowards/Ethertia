@@ -122,11 +122,13 @@ include_directories(lib/openvr/headers)
 add_executable(Ethertia
         lib/glad/glad.c
         lib/tinyfd/tinyfiledialogs.c
-
         src/ethertia/util/Loader.cpp
-        src/ethertia/gui/Gui.cpp
-        src/ethertia/render/RenderEngine.cpp
+
         src/ethertia/render/Window.cpp
+        src/ethertia/render/RenderEngine.cpp
+#        src/ethertia/render/ssao/SSAORenderer.cpp
+
+        src/ethertia/gui/Gui.cpp
         src/ethertia/world/World.cpp
         src/ethertia/Ethertia.cpp
         )

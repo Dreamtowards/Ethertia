@@ -30,7 +30,6 @@ public:
 
     ShaderProgram(const ShaderProgram& cpy) = delete;
     ShaderProgram(ShaderProgram&& mov) = delete;
-
     ShaderProgram& operator=(const ShaderProgram&) = delete;
 
     ShaderProgram& operator=(ShaderProgram&& mov) noexcept {
@@ -38,6 +37,7 @@ public:
         m_CachedUniformId = std::move(mov.m_CachedUniformId);
         m_Good = mov.m_Good;
 
+        // prevents glDeleteProgram() deleted the program when rvalue deconstruct.
         mov.m_ProgramId = 0;
         return *this;
     }
@@ -77,7 +77,6 @@ public:
 
     ~ShaderProgram() {
         glDeleteProgram(m_ProgramId);
-        Log::warn("Delete Program Called", (int)m_ProgramId);
     }
 
 

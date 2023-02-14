@@ -9,14 +9,16 @@
 #include <ethertia/gui/GuiCommon.h>
 
 #include <ethertia/render/Camera.h>
-#include <ethertia/render/renderer/EntityRenderer.h>
-#include <ethertia/render/debug/DebugRenderer.h>
 #include <ethertia/world/World.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/util/MemoryTrack.h>
 #include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
+
+#include <ethertia/render/renderer/EntityRenderer.h>
+#include <ethertia/render/debug/DebugRenderer.h>
 #include <ethertia/render/ssao/SSAORenderer.h>
+#include <ethertia/render/shadow/ShadowRenderer.h>
 
 class GuiDebugV : public GuiCollection
 {
@@ -81,8 +83,8 @@ public:
                 GuiButton* btnReloadShaders = new GuiButton("Reload Shaders");
                 opts->addGui(btnReloadShaders);
                 btnReloadShaders->addOnClickListener([](OnReleased* e) {
-                    delete Ethertia::getRenderEngine()->entityRenderer;
-                    Ethertia::getRenderEngine()->entityRenderer = new EntityRenderer();
+                    delete RenderEngine::entityRenderer;
+                    RenderEngine::entityRenderer = new EntityRenderer();
                 });
             }
             {
@@ -341,6 +343,19 @@ public:
                 .channel_mode = Gui::DrawRectArgs::C_RGB
             });
             Gui::drawString(x,y+h*3, "SSAO");
+
+
+            Gui::drawRect(x, y+h*4, w, h, {
+                    .tex = ShadowRenderer::fboDepthMap->texDepth,
+                    .channel_mode = Gui::DrawRectArgs::C_RGB
+            });
+            Gui::drawString(x,y+h*4, "Shadow");
+
+//            Gui::drawRect(x+w, y+h*4, w, h, {
+//                    .tex = ShadowRenderer::fboDepthMap->texColor[0],
+//                    .channel_mode = Gui::DrawRectArgs::C_RGB
+//            });
+//            Gui::drawString(x+w,y+h*4, "Shadow Col");
         }
 
 

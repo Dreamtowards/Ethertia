@@ -5,7 +5,7 @@
 #ifndef ETHERTIA_SKYGRADIENTRENDERER_H
 #define ETHERTIA_SKYGRADIENTRENDERER_H
 
-#include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/render/ShaderProgram.h>
 #include <ethertia/render/Model.h>
 #include <ethertia/render/Camera.h>
 #include <ethertia/render/RenderEngine.h>

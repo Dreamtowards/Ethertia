@@ -6,7 +6,7 @@
 #define ETHERTIA_SSAORENDERER_H
 
 #include <ethertia/render/compose/ComposeRenderer.h>
-#include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/render/ShaderProgram.h>
 
 class SSAORenderer
 {
@@ -28,11 +28,7 @@ public:
 
         shaderSSAO = Loader::loadShaderProgram("shaders/ssao/ssao.{}");
 
-        Log::info("IsProg", (int)glIsProgram(shaderSSAO.getProgramId()));
-
-        RenderEngine::checkGlError("Test0");
         shaderSSAO.useProgram();
-        RenderEngine::checkGlError("Test1");
         shaderSSAO.setInt("gPositionDepth", 0);
         shaderSSAO.setInt("gNormal", 1);
         shaderSSAO.setInt("texNoise", 2);
@@ -66,19 +62,6 @@ public:
         }
 
         // Rand Noise (for TBN, de-banding)
-//        BitmapImage texNoise{4, 4};
-//        for (int i = 0; i < 4; ++i) {
-//            for (int j = 0; j < 4; ++j) {
-//                texNoise.setPixel(i, j, Colors::intRGBA(
-//                        Colors::ofRGB(
-//                                rand(gen) * 2.0f - 1.0f,
-//                                rand(gen) * 2.0f - 1.0f,
-//                                0.0f))
-//                        );
-//            }
-//        }
-//        m_TexNoise = Loader::loadTexture(texNoise);
-
         std::vector<glm::vec3> ssaoRand;
         for (int i = 0; i < 16; ++i) {
             vec3 noise{

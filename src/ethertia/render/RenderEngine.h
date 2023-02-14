@@ -19,7 +19,6 @@ class ParticleRenderer;
 class World;
 
 #include <ethertia/render/Camera.h>
-#include <ethertia/render/shader/ShaderProgram.h>
 #include <ethertia/render/Model.h>
 #include <ethertia/render/Framebuffer.h>
 #include <ethertia/util/Loader.h>
@@ -31,6 +30,7 @@ class World;
 class RenderEngine {
 
 public:
+
     GuiRenderer* guiRenderer                 = nullptr;
     FontRenderer* fontRenderer               = nullptr;
     inline static EntityRenderer* entityRenderer           = nullptr;
@@ -38,12 +38,10 @@ public:
     ParticleRenderer* m_ParticleRenderer     = nullptr;
     SkyGradientRenderer* m_SkyGradientRenderer = nullptr;
 
-
-
     inline static glm::mat4 matProjection{1};
     inline static glm::mat4 matView{1};
 
-    Camera m_Camera{};
+    inline static Camera g_Camera{};
     inline static Frustum m_ViewFrustum{};
 
     inline static Framebuffer* fboGbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)

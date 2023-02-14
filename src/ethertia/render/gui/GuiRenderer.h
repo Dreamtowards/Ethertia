@@ -6,7 +6,7 @@
 #define ETHERTIA_GUIRENDERER_H
 
 #include <ethertia/gui/Gui.h>
-#include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/render/ShaderProgram.h>
 #include <ethertia/util/Loader.h>
 
 class GuiRenderer

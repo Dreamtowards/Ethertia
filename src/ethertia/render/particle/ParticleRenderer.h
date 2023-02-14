@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <ethertia/render/particle/Particle.h>
-#include <ethertia/render/shader/ShaderProgram.h>
+#include <ethertia/render/ShaderProgram.h>
 #include <ethertia/render/GlState.h>
 
 class ParticleRenderer

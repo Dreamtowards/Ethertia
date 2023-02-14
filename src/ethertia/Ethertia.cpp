@@ -54,11 +54,12 @@ void Ethertia::start()
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
     m_RootGUI = new GuiRoot();
-    m_RenderEngine = new RenderEngine();
-    m_AudioEngine = new AudioEngine();
+    m_RenderEngine = new RenderEngine();  // todo RenderEngine::init();
+    m_AudioEngine = new AudioEngine();  // todo AudioEngine::init();
     ChunkGenerator::initSIMD();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target_name(), std::endian::native == std::endian::big ? "big" : "little");
 
+    // Materials & Items
     Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::load();
     MaterialMeshes::load();
@@ -70,6 +71,7 @@ void Ethertia::start()
     m_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
     GuiIngame::initGUIs();
 
+    // Proc Threads
     ChunkMeshProc::initThread();
     ChunkGenProc::initThread();
     m_AsyncScheduler.initThread();
@@ -198,8 +200,10 @@ void Ethertia::renderGUI()
     GuiInventory::doDrawPickingItem();
 
 //    Gui::drawRect(0, Gui::maxHeight()-300, 300, 300, {
-//        .tex = RenderEngine::fboSSAO->texColor[0],
+//        .tex = ShadowRenderer::fboDepthMap->texDepth,
+//        .channel_mode = Gui::DrawRectArgs::C_RGB
 //    });
+
 
     if (ChunkGenProc::dbg_SavingChunks) {
         Gui::drawString(Gui::maxWidth() - 32, Gui::maxHeight() - 32, "Saving chunks...", Colors::YELLOW, 16, {-1, -1});
@@ -351,7 +355,7 @@ float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
 
 float Ethertia::getDelta() { return m_Timer.getDelta(); }
 
-Camera* Ethertia::getCamera() { return &m_RenderEngine->m_Camera; }
+Camera* Ethertia::getCamera() { return &RenderEngine::g_Camera; }
 
 float Ethertia::getAspectRatio() {
     Window* w = getWindow(); if (w->getHeight() == 0) return 0;

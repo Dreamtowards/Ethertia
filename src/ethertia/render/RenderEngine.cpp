@@ -22,6 +22,9 @@
 #include <ethertia/entity/EntityDroppedItem.h>
 #include <ethertia/init/ItemTextures.h>
 
+// RenderEngine is static/singleton. shouldn't instantiate.
+// Don't use OOP except it's necessary.
+
 
 RenderEngine::RenderEngine()
 {
@@ -50,8 +53,9 @@ RenderEngine::RenderEngine()
     m_SkyGradientRenderer = new SkyGradientRenderer();
 
     SSAORenderer::init();
-    RenderEngine::checkGlError("1 of RenderEngine Init");
     ComposeRenderer::init();
+
+    ShadowRenderer::init();
 
     std::cout << "]";
 
@@ -232,6 +236,8 @@ void RenderEngine::renderWorld(World* world)
     // Heavy
     renderWorldGeometry(world);
 
+
+    ShadowRenderer::renderDepthMap(world->m_Entities);
 
     SSAORenderer::renderSSAO(fboGbuffer->texColor[0], fboGbuffer->texColor[1]);
 
