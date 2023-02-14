@@ -35,7 +35,6 @@
 //#include <ethertia/vr/OpenVR.h>
 
 
-
 int main()
 {
     Ethertia::run();
@@ -198,9 +197,9 @@ void Ethertia::renderGUI()
     GuiInventory::doDrawHoveredItem();
     GuiInventory::doDrawPickingItem();
 
-    Gui::drawRect(0, Gui::maxHeight()-300, 300, 300, {
-        .tex = RenderEngine::fboSSAO->texColor[0],
-    });
+//    Gui::drawRect(0, Gui::maxHeight()-300, 300, 300, {
+//        .tex = RenderEngine::fboSSAO->texColor[0],
+//    });
 
     if (ChunkGenProc::dbg_SavingChunks) {
         Gui::drawString(Gui::maxWidth() - 32, Gui::maxHeight() - 32, "Saving chunks...", Colors::YELLOW, 16, {-1, -1});
@@ -284,7 +283,7 @@ void Ethertia::unloadWorld()
     // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
     m_Scheduler.processTasks(Mth::Inf);
     assert(m_Scheduler.numTasks() == 0);
-//    assert(m_AsyncScheduler.numTasks() == 0);
+    assert(m_AsyncScheduler.numTasks() == 0);
 
 
     delete oldWorld;

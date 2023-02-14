@@ -25,11 +25,24 @@ public:
     Texture* texDepthStencil = nullptr;  // RBO?
 
     static Framebuffer* glfGenFramebuffer(int w, int h) {
-        auto fbo = new Framebuffer();
+        Framebuffer* fbo = new Framebuffer();
         glGenFramebuffers(1, &fbo->fboId);
 
         fbo->width = w;
         fbo->height = h;
+        return fbo;
+    }
+
+    static Framebuffer* GenFramebuffer(int w, int h, const std::function<void(Framebuffer*)>& initfunc)
+    {
+        Framebuffer* fbo = glfGenFramebuffer(w,h);
+
+        Framebuffer::gPushFramebuffer(fbo);
+
+        initfunc(fbo);
+
+        fbo->checkFramebufferStatus();
+        Framebuffer::gPopFramebuffer();
         return fbo;
     }
 
@@ -79,6 +92,16 @@ public:
     }
 
     inline static std::stack<Framebuffer*> globalFboStack;
+
+    // auto pop
+    [[nodiscard]]
+    DtorCaller bindFramebuffer_ap() {
+        Framebuffer::gPushFramebuffer(this);
+
+        return DtorCaller{[](){
+            Framebuffer::gPopFramebuffer();
+        }};
+    }
 
     static void gPushFramebuffer(Framebuffer* fbo) {
         Framebuffer::doBindFramebuffer(fbo);

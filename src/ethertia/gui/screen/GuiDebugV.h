@@ -16,6 +16,7 @@
 #include <ethertia/util/MemoryTrack.h>
 #include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
+#include <ethertia/render/ssao/SSAORenderer.h>
 
 class GuiDebugV : public GuiCollection
 {
@@ -302,7 +303,7 @@ public:
         }
 
         if (dbgGBuffers) {
-            auto* gbuffer = rde->gbuffer;
+            auto* gbuffer = RenderEngine::fboGbuffer;
 
             float x = 0, y = 16;
             float h = Gui::maxHeight() / 6;
@@ -336,7 +337,7 @@ public:
             Gui::drawString(x+w,y+h*2, "Roug");
 
             Gui::drawRect(x, y+h*3, w, h, {
-                .tex = RenderEngine::fboSSAO->texColor[0],
+                .tex = SSAORenderer::fboSSAO->texColor[0],
                 .channel_mode = Gui::DrawRectArgs::C_RGB
             });
             Gui::drawString(x,y+h*3, "SSAO");

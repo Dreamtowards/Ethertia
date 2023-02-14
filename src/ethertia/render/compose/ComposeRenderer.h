@@ -12,10 +12,23 @@ class ComposeRenderer
 {
 public:
 
-    ShaderProgram shaderCompose = Loader::loadShaderProgram("shaders/chunk/compose.{}");
+    inline static ShaderProgram shaderCompose;
 
-    ComposeRenderer()
+    // Deferred Rendering Compose FBO
+    inline static Framebuffer* fboCompose = nullptr;
+
+    ComposeRenderer() = delete;
+
+    static void init()
     {
+        fboCompose = Framebuffer::GenFramebuffer(1280, 720,[](Framebuffer* fbo)
+        {
+            fbo->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+        });
+
+
+
+        shaderCompose = Loader::loadShaderProgram("shaders/chunk/compose.{}");
 
         shaderCompose.useProgram();
         shaderCompose.setInt("gPositionDepth", 0);
@@ -26,14 +39,8 @@ public:
         // shaderCompose.setInt("panoramaMap", 5);
     }
 
-    const char** UNIFORM_LIGHT_POSITION    = ShaderProgram::_GenArrayNames("lights[%i].position", 64);
-    const char** UNIFORM_LIGHT_COLOR       = ShaderProgram::_GenArrayNames("lights[%i].color", 64);
-    const char** UNIFORM_LIGHT_ATTENUATION = ShaderProgram::_GenArrayNames("lights[%i].attenuation", 64);
-    const char** UNIFORM_LIGHT_DIRECTION   = ShaderProgram::_GenArrayNames("lights[%i].direction", 64);
-    const char** UNIFORM_LIGHT_CONEANGLE   = ShaderProgram::_GenArrayNames("lights[%i].coneAngle", 64);
 
-
-    void renderCompose(Texture* gPositionDepth, Texture* gNormal, Texture* gAlbedoRoughness, Texture* gAmbientOcclusion,
+    static void renderCompose(Texture* gPositionDepth, Texture* gNormal, Texture* gAlbedoRoughness, Texture* gAmbientOcclusion,
                        const std::vector<Light*>& lights)
     {
         gPositionDepth   ->bindTexture2D(0);
@@ -70,11 +77,16 @@ public:
         for (int i = 0; i < std::min(64, (int)lights.size()); ++i)
         {
             Light* light = lights[i];
-            shaderCompose.setVector3f(UNIFORM_LIGHT_POSITION[i], light->position);
-            shaderCompose.setVector3f(UNIFORM_LIGHT_COLOR[i], light->color);
-            shaderCompose.setVector3f(UNIFORM_LIGHT_ATTENUATION[i], light->attenuation);
-            shaderCompose.setVector3f(UNIFORM_LIGHT_DIRECTION[i], light->direction);
-            shaderCompose.setVector2f(UNIFORM_LIGHT_CONEANGLE[i], glm::vec2(light->coneAngle, 0));
+            shaderCompose.setVector3f(ShaderProgram::lazyArrayNames("lights[%i].position", 64)[i],
+                                      light->position);
+            shaderCompose.setVector3f(ShaderProgram::lazyArrayNames("lights[%i].color", 64)[i],
+                                      light->color);
+            shaderCompose.setVector3f(ShaderProgram::lazyArrayNames("lights[%i].attenuation", 64)[i],
+                                      light->attenuation);
+            shaderCompose.setVector3f(ShaderProgram::lazyArrayNames("lights[%i].direction", 64)[i],
+                                      light->direction);
+            shaderCompose.setVector2f(ShaderProgram::lazyArrayNames("lights[%i].coneAngle", 64)[i],
+                                      glm::vec2(light->coneAngle, 0));
         }
 
 

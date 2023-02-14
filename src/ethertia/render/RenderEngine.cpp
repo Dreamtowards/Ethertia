@@ -16,6 +16,7 @@
 #include <ethertia/render/compose/ComposeRenderer.h>
 #include <ethertia/render/ssao/SSAORenderer.h>
 #include <ethertia/render/debug/DebugRenderer.h>
+#include <ethertia/render/shadow/ShadowRenderer.h>
 
 #include <ethertia/render/Window.h>
 #include <ethertia/entity/EntityDroppedItem.h>
@@ -27,6 +28,19 @@ RenderEngine::RenderEngine()
     BenchmarkTimer _tm;
     Log::info("RenderEngine initializing.\1");
 
+
+    float qual = 0.7;
+    fboGbuffer = Framebuffer::GenFramebuffer((int)(1280 * qual), (int)(720 * qual), [](Framebuffer* fbo)
+    {
+        fbo->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
+        fbo->attachColorTexture(1, GL_RGB32F, GL_RGB, GL_FLOAT);        // Normals,          f16 *3
+        fbo->attachColorTexture(2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE); // Albedo,           u8 *3
+        fbo->setupMRT({0, 1, 2});
+
+        fbo->attachDepthStencilRenderbuffer();
+    });
+
+
     std::cout << " renderers[";
     guiRenderer = new GuiRenderer();      std::cout << "gui, ";
     fontRenderer = new FontRenderer();    std::cout << "font, ";
@@ -34,34 +48,15 @@ RenderEngine::RenderEngine()
     m_SkyboxRenderer = new SkyboxRenderer();
     m_ParticleRenderer = new ParticleRenderer();
     m_SkyGradientRenderer = new SkyGradientRenderer();
-    _ComposeRenderer = new ComposeRenderer();
-    _SSAORenderer = new SSAORenderer();
+
+    SSAORenderer::init();
+    RenderEngine::checkGlError("1 of RenderEngine Init");
+    ComposeRenderer::init();
+
     std::cout << "]";
 
-    float qual = 0.7;
-    gbuffer = Framebuffer::glfGenFramebuffer((int)(1280 * qual), (int)(720 * qual));
-    Framebuffer::gPushFramebuffer(gbuffer);
-        gbuffer->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
-        gbuffer->attachColorTexture(1, GL_RGB32F, GL_RGB, GL_FLOAT);        // Normals,          f16 *3
-        gbuffer->attachColorTexture(2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE); // Albedo,           u8 *3
-        gbuffer->setupMRT({0, 1, 2});
 
-        gbuffer->attachDepthStencilRenderbuffer();
-        gbuffer->checkFramebufferStatus();
-    Framebuffer::gPopFramebuffer();
 
-    dcompose = Framebuffer::glfGenFramebuffer(gbuffer->width, gbuffer->height);
-    Framebuffer::gPushFramebuffer(dcompose);
-        dcompose->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
-        dcompose->checkFramebufferStatus();
-    Framebuffer::gPopFramebuffer();
-
-    float ssaoQuality = 0.3;
-    fboSSAO = Framebuffer::glfGenFramebuffer(gbuffer->width * ssaoQuality, gbuffer->height * ssaoQuality);
-    Framebuffer::gPushFramebuffer(fboSSAO);
-    fboSSAO->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);//, GL_RGBA32F, GL_RGB, GL_FLOAT);
-    fboSSAO->checkFramebufferStatus();
-    Framebuffer::gPopFramebuffer();
 
     RenderEngine::checkGlError("End of RenderEngine Init");
 
@@ -83,7 +78,7 @@ void RenderEngine::renderWorldGeometry(World* world) {
     // Geometry of Deferred Rendering
 
     PROFILE("Geo");
-    Framebuffer::gPushFramebuffer(gbuffer);
+    auto _ap = fboGbuffer->bindFramebuffer_ap();
 
     glClearColor(0, 0, 0, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -132,7 +127,6 @@ void RenderEngine::renderWorldGeometry(World* world) {
 
     glEnable(GL_BLEND);
 
-    Framebuffer::gPopFramebuffer();
 }
 
 
@@ -141,7 +135,7 @@ void RenderEngine::renderWorldCompose(World* world)
     // Compose of Deferred Rendering
 
     PROFILE("Cmp");
-    Framebuffer::gPushFramebuffer(dcompose);
+    auto _ap = ComposeRenderer::fboCompose->bindFramebuffer_ap();
 
     glClearColor(0,0,0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -197,8 +191,10 @@ void RenderEngine::renderWorldCompose(World* world)
     // Blend: addictive color when src.alpha != 1.0, for sky background add.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    _ComposeRenderer->renderCompose(gbuffer->texColor[0], gbuffer->texColor[1], gbuffer->texColor[2],
-                                    fboSSAO->texColor[0],
+    ComposeRenderer::renderCompose(fboGbuffer->texColor[0],
+                                    fboGbuffer->texColor[1],
+                                    fboGbuffer->texColor[2],
+                                    SSAORenderer::fboSSAO->texColor[0],
                                     renderLights);
 
     GlState::blendMode(GlState::ALPHA);
@@ -222,7 +218,6 @@ void RenderEngine::renderWorldCompose(World* world)
 
     m_ParticleRenderer->renderAll();
 
-    Framebuffer::gPopFramebuffer();
 }
 
 
@@ -238,13 +233,13 @@ void RenderEngine::renderWorld(World* world)
     renderWorldGeometry(world);
 
 
-    _SSAORenderer->renderSSAO(gbuffer->texColor[0], gbuffer->texColor[1]);
+    SSAORenderer::renderSSAO(fboGbuffer->texColor[0], fboGbuffer->texColor[1]);
 
 
     renderWorldCompose(world);
 
 
-    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), dcompose->texColor[0]);
+    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), ComposeRenderer::fboCompose->texColor[0]);
 
 
     RenderEngine::checkGlError("End World Render");

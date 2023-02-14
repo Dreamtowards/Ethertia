@@ -5,26 +5,41 @@
 #ifndef ETHERTIA_SSAORENDERER_H
 #define ETHERTIA_SSAORENDERER_H
 
+#include <ethertia/render/compose/ComposeRenderer.h>
 #include <ethertia/render/shader/ShaderProgram.h>
 
 class SSAORenderer
 {
 public:
 
-    ShaderProgram shaderSSAO = Loader::loadShaderProgram("shaders/ssao/ssao.{}");
+    inline static ShaderProgram shaderSSAO;
+    inline static Framebuffer* fboSSAO = nullptr;
 
-    Texture* m_TexNoise = nullptr;
+    inline static Texture* m_TexNoise = nullptr;
 
-    const char** UNIFORM_KERNEL_SAMPLES = ShaderProgram::_GenArrayNames("kernelSamples[%i]", 64);
+    SSAORenderer() = delete;
 
-    SSAORenderer()
+    static void init()
     {
-        using glm::vec3;
+        fboSSAO = Framebuffer::GenFramebuffer(720, 480, [](Framebuffer* fbo)
+        {
+            fbo->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);//, GL_RGBA32F, GL_RGB, GL_FLOAT);
+        });
 
+        shaderSSAO = Loader::loadShaderProgram("shaders/ssao/ssao.{}");
+
+        Log::info("IsProg", (int)glIsProgram(shaderSSAO.getProgramId()));
+
+        RenderEngine::checkGlError("Test0");
         shaderSSAO.useProgram();
+        RenderEngine::checkGlError("Test1");
         shaderSSAO.setInt("gPositionDepth", 0);
         shaderSSAO.setInt("gNormal", 1);
         shaderSSAO.setInt("texNoise", 2);
+
+        RenderEngine::checkGlError("Test2");
+
+        using glm::vec3;
 
         std::uniform_real_distribution<float> rand(0.0f, 1.0f);
         std::default_random_engine gen;
@@ -46,7 +61,8 @@ public:
 
             // ssaoKernel.push_back(samp);
 
-            shaderSSAO.setVector3f(UNIFORM_KERNEL_SAMPLES[i], samp);
+            shaderSSAO.setVector3f(ShaderProgram::lazyArrayNames("kernelSamples[%i]", 64)[i],
+                                   samp);
         }
 
         // Rand Noise (for TBN, de-banding)
@@ -76,9 +92,9 @@ public:
 
     }
 
-    void renderSSAO(Texture* gPositionDepth, Texture* gNormal)
+    static void renderSSAO(Texture* gPositionDepth, Texture* gNormal)
     {
-        Framebuffer::gPushFramebuffer(RenderEngine::fboSSAO);
+        auto _ap = fboSSAO->bindFramebuffer_ap();
 
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -96,7 +112,6 @@ public:
 
         ComposeRenderer::_DrawScreenQuad();
 
-        Framebuffer::gPopFramebuffer();
     }
 
 };

@@ -15,8 +15,6 @@ class EntityRenderer;
 class SkyGradientRenderer;
 class SkyboxRenderer;
 class ParticleRenderer;
-class SSAORenderer;
-class ComposeRenderer;
 
 class World;
 
@@ -40,8 +38,6 @@ public:
     ParticleRenderer* m_ParticleRenderer     = nullptr;
     SkyGradientRenderer* m_SkyGradientRenderer = nullptr;
 
-    inline static SSAORenderer*    _SSAORenderer    = nullptr;
-    inline static ComposeRenderer* _ComposeRenderer = nullptr;
 
 
     inline static glm::mat4 matProjection{1};
@@ -50,11 +46,8 @@ public:
     Camera m_Camera{};
     inline static Frustum m_ViewFrustum{};
 
-    // fboGbuffer
-    Framebuffer* gbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
-    Framebuffer* dcompose = nullptr;  // Deferred Rendering Compose FBO
+    inline static Framebuffer* fboGbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
 
-    inline static Framebuffer* fboSSAO = nullptr;
 
     inline static float fov = 90;
     inline static float viewDistance = 1;
@@ -85,8 +78,8 @@ public:
 
 
     static void checkGlError(std::string_view phase = "") {
-        GLuint err = glGetError();
-        if (err) {
+        GLuint err;
+        while ((err = glGetError()) != GL_NO_ERROR) {
             Log::warn("###### GL Error @{} ######", phase);
             Log::warn("ERR: {}", err);
         }

@@ -11,7 +11,8 @@
 #include <functional>
 
 #include <ethertia/util/Timer.h>
-#include "Log.h"
+#include <ethertia/util/Log.h>
+#include <ethertia/util/DtorCaller.h>
 
 class Profiler
 {
@@ -112,19 +113,11 @@ public:
         }
     }
 
-    class DtorIvkr
-    {
-    public:
-        std::function<void()> fn;
-
-        ~DtorIvkr() {
-            fn();
-        }
-    };
-    DtorIvkr push_ap(std::string_view name) {
+    [[nodiscard]]
+    DtorCaller push_ap(std::string_view name) {
         push(name);
 
-        return DtorIvkr{[this](){
+        return DtorCaller{[this](){
             pop();
         }};
     }

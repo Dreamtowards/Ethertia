@@ -18,14 +18,32 @@
 
 class ShaderProgram {
 
-    GLuint program;
-    std::unordered_map<const char*, GLuint> cachedUniformId;
+    GLuint m_ProgramId = 0;
+    std::unordered_map<const char*, GLuint> m_CachedUniformId;
+
+    bool m_Good = false;
 
 public:
 
-    bool m_Good = true;
+    // empty.
+    ShaderProgram() {}
+
+    ShaderProgram(const ShaderProgram& cpy) = delete;
+    ShaderProgram(ShaderProgram&& mov) = delete;
+
+    ShaderProgram& operator=(const ShaderProgram&) = delete;
+
+    ShaderProgram& operator=(ShaderProgram&& mov) noexcept {
+        m_ProgramId = mov.m_ProgramId;
+        m_CachedUniformId = std::move(mov.m_CachedUniformId);
+        m_Good = mov.m_Good;
+
+        mov.m_ProgramId = 0;
+        return *this;
+    }
 
     ShaderProgram(const std::string& vsh_src, const std::string& fsh_src, const std::string& gsh_src = "") {
+        m_Good = true;
 
         GLuint vsh = loadShader(GL_VERTEX_SHADER, vsh_src);
         GLuint fsh = loadShader(GL_FRAGMENT_SHADER, fsh_src);
@@ -34,20 +52,20 @@ public:
             gsh = loadShader(GL_GEOMETRY_SHADER, gsh_src);
         }
 
-        program = glCreateProgram();
+        m_ProgramId = glCreateProgram();
 
-        glAttachShader(program, vsh);
-        glAttachShader(program, fsh);
-        if (gsh) glAttachShader(program, gsh);
+        glAttachShader(m_ProgramId, vsh);
+        glAttachShader(m_ProgramId, fsh);
+        if (gsh) glAttachShader(m_ProgramId, gsh);
 
 
-        glLinkProgram(program);
+        glLinkProgram(m_ProgramId);
 
         int succ;
-        glGetProgramiv(program, GL_LINK_STATUS, &succ);
+        glGetProgramiv(m_ProgramId, GL_LINK_STATUS, &succ);
         if (!succ) {
             char infolog[512];
-            glGetProgramInfoLog(program, 512, nullptr, infolog);
+            glGetProgramInfoLog(m_ProgramId, 512, nullptr, infolog);
             Log::warn("Failed to link the shader program:\n", infolog);
             m_Good = false;
         }
@@ -58,18 +76,22 @@ public:
     }
 
     ~ShaderProgram() {
-        glDeleteProgram(program);
+        glDeleteProgram(m_ProgramId);
+        Log::warn("Delete Program Called", (int)m_ProgramId);
     }
 
 
+    int getProgramId() {
+        return m_ProgramId;
+    }
     void useProgram() const {
-        glUseProgram(program);
+        glUseProgram(m_ProgramId);
     }
 
     uint getUniformLocation(const char* name) {
-        uint loc = cachedUniformId[name];
+        uint loc = m_CachedUniformId[name];
         if (!loc) {
-            return cachedUniformId[name] = glGetUniformLocation(program, name);
+            return m_CachedUniformId[name] = glGetUniformLocation(m_ProgramId, name);
         }
         return loc;
     }
@@ -104,7 +126,7 @@ public:
 
 
     // GenArrayNames("chars[%i]", 128);
-    static const char** _GenArrayNames(const std::string& namep, uint n) {
+    static const char** _GenArrayNames(const std::string& namep, int n) {
         const char** arr = new const char*[n];
         u32 baselen = namep.length()+3;  // +2: brackets, +1: \0.
         for (int i = 0; i < n; ++i) {
@@ -113,6 +135,16 @@ public:
             arr[i] = ch;
         }
         return arr;
+    }
+
+    static const char** lazyArrayNames(const std::string& namep, int size) {
+        static std::unordered_map<std::string, const char**> _cache;
+
+        auto& v = _cache[namep];
+        if (v == nullptr) {
+            v = _GenArrayNames(namep, size);
+        }
+        return v;
     }
 
 
