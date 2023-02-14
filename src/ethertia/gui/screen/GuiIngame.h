@@ -44,13 +44,13 @@ public:
 
         addGui(GuiDebugV::Inst());
 
-        GuiMessageList::Inst()->addConstraintLTRB(0, Inf, Inf, 24);
+        GuiMessageList::Inst()->addConstraintLTRB(0, Inf, Inf, 72);
         addGui(GuiMessageList::Inst());
 
 
     }
 
-    void lateDraw() override
+    void implDraw() override
     {
 
         EntityPlayer* player = Ethertia::getPlayer();
@@ -146,7 +146,7 @@ public:
                       3, 3, Colors::WHITE);
 
 
-        BrushCursor& cursor = Ethertia::getBrushCursor();
+        BrushCursor& cursor = Ethertia::getCursor();
         if (cursor.hit && GuiDebugV::g_BlockMode)
         {
             glm::vec3 pl = glm::floor(cursor.position - cursor.normal*0.2f);

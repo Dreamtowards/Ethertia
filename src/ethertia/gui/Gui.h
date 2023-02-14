@@ -110,7 +110,9 @@ public:
             if (m_Bottom != Inf) {
                 float ph = g->getParent()->getHeight();
                 if (m_Top != Inf || m_Stretch) {
-                    g->setHeight( ph - g->getRelativeY() - m_Top );
+                    g->setHeight( ph - g->getRelativeY() - m_Bottom );
+                } else {
+                    g->setRelativeY(ph - g->getHeight() - m_Bottom);
                 }
             }
         }
