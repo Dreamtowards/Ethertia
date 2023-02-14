@@ -222,6 +222,11 @@ float CalcShadow(vec3 FragPos)
     vec4 FragPosShadowSpace = matShadowSpace * vec4(FragPos, 1.0);
 
     vec3 proj = FragPosShadowSpace.xyz /= FragPosShadowSpace.w;  // perspective division. not necessary for Ortho Projection
+
+    const float SHADOW_MAP_BIAS = 0.8;
+    float distort_f = (1.0 - SHADOW_MAP_BIAS) + length(proj.xy) * SHADOW_MAP_BIAS;
+    proj.xy /= distort_f;  // unwrap Dome Projection
+
     proj = proj * 0.5 + 0.5;  // to [0, 1]
 
     float lightingDepth = texture(gShadowMap, proj.xy).r;
