@@ -32,7 +32,7 @@ public:
 
     }
 
-    static void renderDepthMap(const std::vector<Entity*>& entities)
+    static void renderDepthMap(const std::vector<Entity*>& entities, glm::vec3 shadowDir)
     {
         assert(glIsEnabled(GL_DEPTH_TEST));
 
@@ -41,7 +41,6 @@ public:
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 
-        glm::vec3 shadowDir = glm::normalize(glm::vec3{-1,-1,-1});
         glm::vec3 shadowPos = RenderEngine::g_Camera.position;
         glm::mat4 matView = glm::lookAt(shadowPos, shadowPos+shadowDir, glm::vec3{0,1,0});
 

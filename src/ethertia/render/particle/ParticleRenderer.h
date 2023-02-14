@@ -102,9 +102,9 @@ public:
 
 
     // temporary.
-    inline static glm::vec3 _SUN_POS;
+//    inline static glm::vec3 _SUN_POS;
 
-    void renderSunMoonTex(float worldDayTime)
+    void renderSunMoonTex(float dayTime)
     {
         // render Sun and Moon img.
 
@@ -114,14 +114,12 @@ public:
         static Texture* TEX_MOON = Loader::loadTexture("misc/sky/moon.png");
 
         using glm::vec3;
-        // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
-        // glm::rotate(glm::mat4(1), angle, glm::vec3(0, 0, 1)) * glm::vec4(1, 0, 0, 1.0);
-        vec3 relSunPos = Mth::anglez(worldDayTime * 2*Mth::PI - 0.5f*Mth::PI) * 300.0f;
+        vec3 relSunPos = Mth::rot_dir(dayTime * 2*Mth::PI, vec3(0, 0, 1), vec3(0, -1, 0)) * 300.0f;
+        // Mth::anglez(worldDayTime * 2*Mth::PI - 0.5f*Mth::PI) * 300.0f;  // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
 
         vec3 CamPos = Ethertia::getCamera()->position;
         vec3 SunPos = CamPos + relSunPos;
         vec3 MoonPos = CamPos - relSunPos;
-        _SUN_POS = SunPos;
 
         render(TEX_SUN, SunPos, 180.0f);
         render(TEX_MOON, MoonPos, 180.0f);

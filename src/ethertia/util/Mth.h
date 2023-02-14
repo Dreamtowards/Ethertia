@@ -22,6 +22,7 @@ class Mth
 public:
     static constexpr float PI = 3.14159265359f;
     static constexpr float PI_2 = 1.57079632679f;
+    static constexpr float _2PI = 2*PI;
 
     static constexpr float NaN = NAN;
     static constexpr float Inf = INFINITY;
@@ -131,6 +132,9 @@ public:
     }
     static glm::mat4 rot(glm::vec3 axis, float angle) {
         return glm::rotate(glm::mat4(1), angle, axis);
+    }
+    static glm::vec3 rot_dir(float angle, glm::vec3 axis, glm::vec3 p) {
+        return glm::normalize(glm::vec3(glm::rotate(glm::mat4(1), angle, axis) * glm::vec4(p, 0.0f)));
     }
 
     static btTransform btTransf(const glm::vec3& p, const btQuaternion& rot = btQuaternion::getIdentity()) {

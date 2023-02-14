@@ -163,8 +163,7 @@ void RenderEngine::renderWorldCompose(World* world)
 
         // CNS 这是不准确的，不能直接取反 否则月亮位置可能会错误
         float daytime = Ethertia::getWorld()->m_DayTime;
-        bool isDay = daytime > 0.25 && daytime < 0.75;
-        sunLight.position = isDay ? ParticleRenderer::_SUN_POS : -ParticleRenderer::_SUN_POS;
+        sunLight.position = Ethertia::getCamera()->position + (-RenderEngine::SunlightDir(daytime) * 100.0f);
 
 
         float dayBrightness = 1.0 - abs(daytime-0.5) * 2.0;
@@ -195,11 +194,10 @@ void RenderEngine::renderWorldCompose(World* world)
     // Blend: addictive color when src.alpha != 1.0, for sky background add.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    ComposeRenderer::renderCompose(fboGbuffer->texColor[0],
-                                    fboGbuffer->texColor[1],
-                                    fboGbuffer->texColor[2],
-                                    SSAORenderer::fboSSAO->texColor[0],
-                                    renderLights);
+    ComposeRenderer::renderCompose(fboGbuffer->texColor[0], fboGbuffer->texColor[1], fboGbuffer->texColor[2],
+                                   SSAORenderer::fboSSAO->texColor[0],
+                                   ShadowRenderer::fboDepthMap->texDepth, ShadowRenderer::matShadowSpace,
+                                   renderLights);
 
     GlState::blendMode(GlState::ALPHA);
 
@@ -237,7 +235,7 @@ void RenderEngine::renderWorld(World* world)
     renderWorldGeometry(world);
 
 
-    ShadowRenderer::renderDepthMap(world->m_Entities);
+    ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->m_DayTime));
 
     SSAORenderer::renderSSAO(fboGbuffer->texColor[0], fboGbuffer->texColor[1]);
 

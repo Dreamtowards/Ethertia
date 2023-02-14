@@ -8,6 +8,7 @@ uniform sampler2D gPositionDepth;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoRoughness;
 uniform sampler2D gAmbientOcclusion;
+uniform sampler2D gShadowMap;
 
 uniform sampler2D panoramaMap;
 
@@ -22,6 +23,8 @@ uniform float cursorSize;
 
 uniform mat4 matInvView;
 uniform mat4 matInvProjection;
+
+uniform mat4 matShadowSpace;
 
 uniform float debugVar0 = 0;
 uniform float debugVar1 = 0;
@@ -214,6 +217,20 @@ float rayDisk( in vec3 ro, in vec3 rd, vec3 c, vec3 n, float r )
     return (dot(q,q)<r*r) ? t : -1.0;
 }
 
+float CalcShadow(vec3 FragPos)
+{
+    vec4 FragPosShadowSpace = matShadowSpace * vec4(FragPos, 1.0);
+
+    vec3 proj = FragPosShadowSpace.xyz /= FragPosShadowSpace.w;  // perspective division. not necessary for Ortho Projection
+    proj = proj * 0.5 + 0.5;  // to [0, 1]
+
+    float lightingDepth = texture(gShadowMap, proj.xy).r;
+    float fragDepth = proj.z;
+
+    const float bias = 0.0005;
+    float shadow = fragDepth - bias > lightingDepth ? 1.0 : 0.0;
+    return shadow;
+}
 
 void main() {
 
@@ -266,16 +283,14 @@ void main() {
 //
 //    FragColor = vec4((diffColor + specColor) * Albedo, 1.0);
 
-    FragColor = vec4(0,0,0,1);
 
-    float AO = texture(gAmbientOcclusion, TexCoord).r;
-
-    vec3 Ambient = vec3(Albedo * 0.3);
-    FragColor.rgb += Ambient;
 
     vec3 FragToCamera = normalize(CameraPos - FragPos);
     float specularIntensity = (1.0 - Roughness) * 0.3;
     float shininess = 128;
+
+    vec3 sumDiffuse  = vec3(0);
+    vec3 sumSpecular = vec3(0);
     for (int i = 0;i < lightsCount;i++) {
         Light light = lights[i];
 
@@ -296,12 +311,18 @@ void main() {
         float distance = length(light.position - FragPos);
         float Atten = 1.0 / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance*distance));
 
-
-        FragColor.rgb += Diffuse*Atten + Specular*Atten;
+        sumDiffuse  += Diffuse  * Atten;
+        sumSpecular += Specular * Atten;
     }
 
-    FragColor.rgb *= AO * debugVar1;
+    float AO = texture(gAmbientOcclusion, TexCoord).r;
+    float Ambient = 0.3 * AO;
 
+    float Shadow = CalcShadow(FragPos);
+
+    vec3 Lighting = (Ambient + (1.0 - Shadow) * (sumDiffuse + sumSpecular)) * Albedo;
+
+    FragColor = vec4(Lighting, 1.0);
 
 
     // Brush hint.

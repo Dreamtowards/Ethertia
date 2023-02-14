@@ -304,6 +304,40 @@ public:
             drawCursorRangeInfo();
         }
 
+
+        if (dbgDrawFrameProfiler) {
+            float w = Gui::maxWidth() * 0.65f,
+                    h = 16 * 7;
+            float x = 0,
+                    y = Gui::maxHeight() - h;
+
+            Gui::drawRect(x, y, w, h, Colors::BLACK20);
+
+            const Profiler::Section& sec = Ethertia::getProfiler().GetRootSection();
+
+            // Standard FPS Time.
+            Gui::drawRect(x, y, (1.0 / RenderEngine::fpsCap) / sec._avgTime * w, h, Colors::alpha(Colors::GREEN, 0.1f));
+
+            drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
+
+            {
+                h = 16*3;
+                y -= h + 16;
+
+                const Profiler::Section& sec = ChunkMeshProc::gp_MeshGen.GetRootSection();
+
+                drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
+            }
+            {
+                h = 16*3;
+                y -= h + 16;
+
+                const Profiler::Section& sec = ChunkGenProc::gp_ChunkGen.GetRootSection();
+
+                drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
+            }
+        }
+
         if (dbgGBuffers) {
             auto* gbuffer = RenderEngine::fboGbuffer;
 
@@ -363,38 +397,6 @@ public:
 //        Gui::drawRect(p.x, p.y, 4, 4, Colors::RED);
 //    });
 
-        if (dbgDrawFrameProfiler) {
-            float w = Gui::maxWidth() * 0.65f,
-                  h = 16 * 7;
-            float x = 0,
-                  y = Gui::maxHeight() - h;
-
-            Gui::drawRect(x, y, w, h, Colors::BLACK20);
-
-            const Profiler::Section& sec = Ethertia::getProfiler().GetRootSection();
-
-            // Standard FPS Time.
-            Gui::drawRect(x, y, (1.0 / RenderEngine::fpsCap) / sec._avgTime * w, h, Colors::alpha(Colors::GREEN, 0.1f));
-
-            drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
-
-            {
-                h = 16*3;
-                y -= h + 16;
-
-                const Profiler::Section& sec = ChunkMeshProc::gp_MeshGen.GetRootSection();
-
-                drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
-            }
-            {
-                h = 16*3;
-                y -= h + 16;
-
-                const Profiler::Section& sec = ChunkGenProc::gp_ChunkGen.GetRootSection();
-
-                drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
-            }
-        }
 
         dbgLastDrawTime = Ethertia::getPreciseTime();
     }

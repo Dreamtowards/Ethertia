@@ -90,6 +90,11 @@ public:
     }
 
 
+    // Sun (Day) or Moon (Night).  Noon -> vec3(0, -1, 0)
+    static glm::vec3 SunlightDir(float daytime) {
+        return -Mth::rot_dir(std::fmod((daytime-0.25f) * 2*Mth::PI, Mth::PI),
+                            glm::vec3(0, 0, 1), glm::vec3(1, 0, 0));
+    }
 
 
     static void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false);

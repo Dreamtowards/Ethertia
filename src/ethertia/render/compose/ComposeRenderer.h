@@ -35,18 +35,22 @@ public:
         shaderCompose.setInt("gNormal", 1);
         shaderCompose.setInt("gAlbedoRoughness", 2);
         shaderCompose.setInt("gAmbientOcclusion", 3);
+        shaderCompose.setInt("gShadowMap", 4);  // Shadow Depth Map.
 
         // shaderCompose.setInt("panoramaMap", 5);
     }
 
 
-    static void renderCompose(Texture* gPositionDepth, Texture* gNormal, Texture* gAlbedoRoughness, Texture* gAmbientOcclusion,
-                       const std::vector<Light*>& lights)
+    static void renderCompose(Texture* gPositionDepth, Texture* gNormal, Texture* gAlbedoRoughness,
+                              Texture* gAmbientOcclusion,
+                              Texture* gShadowMap, glm::mat4 matShadowSpace,
+                              const std::vector<Light*>& lights)
     {
         gPositionDepth   ->bindTexture2D(0);
         gNormal          ->bindTexture2D(1);
         gAlbedoRoughness ->bindTexture2D(2);
         gAmbientOcclusion->bindTexture2D(3);
+        gShadowMap       ->bindTexture2D(4);
 
 
         // g_PanoramaTex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("misc/skybox/hdri5.png")));
@@ -72,6 +76,7 @@ public:
         shaderCompose.setMatrix4f("matInvView", glm::inverse(RenderEngine::matView));
         shaderCompose.setMatrix4f("matInvProjection", glm::inverse(RenderEngine::matProjection));
 
+        shaderCompose.setMatrix4f("matShadowSpace", matShadowSpace);
 
         shaderCompose.setInt("lightsCount", lights.size());
         for (int i = 0; i < std::min(64, (int)lights.size()); ++i)
