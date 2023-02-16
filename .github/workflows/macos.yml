@@ -33,6 +33,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ethertia-artifacts-darwin
-        path: |
-          - ./run/bin/darwin-x64/
+        path: run/bin/darwin-x64/
 
