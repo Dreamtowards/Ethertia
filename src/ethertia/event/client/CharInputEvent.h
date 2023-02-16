@@ -7,12 +7,12 @@
 
 class CharInputEvent {
 
-    uint _char;
+    int _char;
 
 public:
-    CharInputEvent(uint _char) : _char(_char) {}
+    CharInputEvent(int _char) : _char(_char) {}
 
-    uint getChar() {
+    int getChar() {
         return _char;
     }
 

@@ -131,7 +131,7 @@ _(order by join time)_
 1. use **gcc** compiler & **ucrt** standard library (Universal C Runtime). (Not MSVC)  
    you could download them in https://winlibs.com, ([mingw64ucrt-10.0.0-gcc-12.2.0-x86_64(.zip)](https://github.com/brechtsanders/winlibs_mingw/releases/download/12.2.0-15.0.7-10.0.0-ucrt-r4/winlibs-x86_64-posix-seh-gcc-12.2.0-llvm-15.0.7-mingw-w64ucrt-10.0.0-r4.zip))
 
-2. compile it use e.g. `cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles"`   
+2. compile it use e.g. `cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - MinGW Makefiles"`   
     - if you are using IDE like CLion, setup your UCRT-MinGW, and just "Build/Run".
 
 - if crashed on SIMD Level checking, just downgrade your simd_level in settings.json.
@@ -140,6 +140,7 @@ _(order by join time)_
 #### Darwin (OSX, Mac):
 1. use **clang** compiler.
 
+`-G "CodeBlocks - Unix Makefiles"`
 
 
 

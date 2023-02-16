@@ -24,7 +24,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}} #/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: pwd & ls & ctest -C ${{env.BUILD_TYPE}}
@@ -34,5 +34,5 @@ jobs:
       with:
         name: ethertia-artifacts-darwin
         path: |
-          - run/bin/darwin-64/
+          - ./run/bin/darwin-x64/
 
