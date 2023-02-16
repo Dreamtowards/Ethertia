@@ -33,5 +33,8 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ethertia-artifacts-darwin
-        path: run/bin/darwin-x64/
+        path: |
+          run/bin/darwin-x64/Ethertia
+          run/bin/darwin-x64/DedicatedServer
+          run/bin/darwin-x64/libTwilightForest.dylib
 

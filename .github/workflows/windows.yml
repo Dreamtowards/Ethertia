@@ -37,5 +37,8 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ethertia-artifacts-win
-        path: run/bin/windows-x64/
+        path: |
+          run/bin/windows-x64/Ethertia.exe
+          run/bin/windows-x64/DedicatedServer.exe
+          run/bin/windows-x64/TwilightForest.dll
 

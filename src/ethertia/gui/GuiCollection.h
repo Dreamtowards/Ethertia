@@ -24,7 +24,7 @@ public:
         return at(count()-1);
     }
 
-    void addGui(Gui* g, uint idx) {
+    void addGui(Gui* g, int idx) {
         if (g->getParent()) throw std::logic_error("Cannot attach. it belongs to another.");
         _children.insert(_children.begin()+idx, g);
         g->setParent(this);
@@ -58,7 +58,7 @@ public:
         }
     }
 
-    void setGui(uint idx, Gui* g) {
+    void setGui(int idx, Gui* g) {
         removeGui(idx);
         addGui(g, idx);
     }
