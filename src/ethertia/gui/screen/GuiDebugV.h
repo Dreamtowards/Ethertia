@@ -243,7 +243,7 @@ public:
                         "ChunkHit: {}\n"
                         "CellHit: {}\n"
                         "World {}, {}s #{}. seed {}",
-                        glm::to_string(Ethertia::getCamera()->position).substr(3), Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
+                        Ethertia::getCamera()->position, Ethertia::getCamera()->len, meterPerSec, meterPerSec * 3.6f, player->m_OnGround, player->m_NumContactPoints,
                         world ? rde->dbg_NumEntityRendered : 0, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
 //                        ChunkProcStat::GEN.str(),
 //                        ChunkProcStat::MESH.str(),

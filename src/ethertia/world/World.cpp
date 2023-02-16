@@ -150,7 +150,7 @@ void World::saveUnloadedChunks() {
     //int i = 0;
     for (Chunk* chunk : m_UnloadedChunks)
     {
-        Log::info("Saving chunk {}", glm::to_string(chunk->position));
+        Log::info("Saving chunk {}", chunk->position);
         m_ChunkLoader->saveChunk(chunk);
 
         Entity* meshTerr = chunk->m_MeshTerrain;
@@ -188,7 +188,7 @@ void World::unloadChunk(glm::vec3 p) {
         LOCK_GUARD(m_LockChunks);
         auto it = m_Chunks.find(Chunk::chunkpos(p));
         if (it == m_Chunks.end())
-            throw std::logic_error("Failed unload chunk. Not exists. "+glm::to_string(p));
+            throw std::logic_error(Strings::fmt("Failed unload chunk. Not exists. {}", p));
         chunk = it->second;
         assert(chunk);
 

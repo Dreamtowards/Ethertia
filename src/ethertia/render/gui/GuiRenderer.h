@@ -28,7 +28,7 @@ public:
                 {2, RECT_UV}
         });
 
-        BitmapImage img(1, 1, new u32[1]{(u32)~0});
+        BitmapImage img(1, 1, new uint32_t[1]{(uint32_t)~0});
         TEX_WHITE = Loader::loadTexture(img);
 
         // todo: Align(anchor), in_pos -= anchor * 2.0;

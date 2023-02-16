@@ -127,7 +127,7 @@ public:
     // GenArrayNames("chars[%i]", 128);
     static const char** _GenArrayNames(const std::string& namep, int n) {
         const char** arr = new const char*[n];
-        u32 baselen = namep.length()+3;  // +2: brackets, +1: \0.
+        int baselen = namep.length()+3;  // +2: brackets, +1: \0.
         for (int i = 0; i < n; ++i) {
             char* ch = new char[baselen+3];  // +3 assume idx <= 999.
             sprintf(ch, namep.c_str(), i);

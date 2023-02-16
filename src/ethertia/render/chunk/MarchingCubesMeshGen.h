@@ -21,7 +21,7 @@ public:
              {1, 1, 0},
              {1, 1, 1},
              {0, 1, 1}};
-    inline static u8 tbEdge[12][2] =
+    inline static uint8_t tbEdge[12][2] =
             {{0, 1},
              {1, 2},
              {2, 3},
@@ -34,7 +34,7 @@ public:
              {1, 5},
              {2, 6},
              {3, 7}};
-    inline static i8 tbTri[256][16] =
+    inline static int8_t tbTri[256][16] =
             {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
              {0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
              {0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -311,9 +311,9 @@ public:
                         }
                     }
 
-                    i8* triEdges = tbTri[cubeidx];
+                    int8_t* triEdges = tbTri[cubeidx];
                     for (int i = 0; triEdges[i] != -1 ; ++i) {
-                        u8* edge = tbEdge[triEdges[i]];
+                        uint8_t* edge = tbEdge[triEdges[i]];
                         vec3 v0 = tbVert[edge[0]];
                         vec3 v1 = tbVert[edge[1]];
 

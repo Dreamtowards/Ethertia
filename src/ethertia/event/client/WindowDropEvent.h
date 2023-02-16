@@ -7,15 +7,15 @@
 
 class WindowDropEvent
 {
-    u32 count;
+    int count;
     const char** paths;
 
 public:
-    WindowDropEvent(const u32& count, const char** paths) : count(count), paths(paths) {}
+    WindowDropEvent(int count, const char** paths) : count(count), paths(paths) {}
 
-    u32 getCount() const { return count; }
+    int getCount() const { return count; }
 
-    const char* getPath(u32 i) const { return paths[i]; }
+    const char* getPath(int i) const { return paths[i]; }
 };
 
 #endif //ETHERTIA_WINDOWDROPEVENT_H

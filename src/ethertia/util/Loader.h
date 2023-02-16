@@ -182,7 +182,7 @@ public:
         dst.write((char*)pcm, size);
     }
 
-    static BitmapImage loadPNG(const void* data, u32 len) {
+    static BitmapImage loadPNG(const void* data, size_t len) {
         int width, height, channels;
         void* pixels = stbi_load_from_memory((unsigned char*)data, len, &width, &height, &channels, 4);
         return BitmapImage(width, height, (unsigned int*)pixels);
@@ -209,7 +209,7 @@ public:
     }
 
     static Model* loadModel(size_t vcount, const std::vector<std::pair<int, float*>>& vdats) {
-        u32 vao;
+        GLuint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
         Model* m = new Model(vao, vcount);
@@ -219,7 +219,7 @@ public:
             int vlen = vd.first;
             float* vdat = vd.second;
 
-            u32 vbo;
+            GLuint vbo;
             glGenBuffers(1, &vbo);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vlen*vcount, vdat, GL_STATIC_DRAW);

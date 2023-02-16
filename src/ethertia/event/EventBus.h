@@ -31,14 +31,14 @@ class EventBus
     class Listener
     {
     public:
-        u32 eventId;
+        int eventId;
 
         std::function<void(void*)> function;
 
         int priority = EventPriority::NORMAL;  // higher value, higher priority.
     };
 
-    std::unordered_map<u32, std::vector<Listener>> listeners;
+    std::unordered_map<int, std::vector<Listener>> listeners;
 
 public:
     class InternalUtil
@@ -54,7 +54,7 @@ public:
 
         // (Event) "TypeId". unique for each type. only runtime-valid identical
         template<typename E>
-        static u32 GetEventId() {
+        static int GetEventId() {
             static char val = 0;
             return (size_t)&val;
         }
@@ -73,7 +73,7 @@ public:
 
     template<typename E>
     bool post(E* e) const {
-        u32 eventId = InternalUtil::GetEventId<E>();
+        int eventId = InternalUtil::GetEventId<E>();
 
         auto it = listeners.find(eventId);
         if (it == listeners.end())
@@ -96,7 +96,7 @@ public:
 
     template<typename E>
     Listener* listen(FUNC_EL lsrfunc) {
-        u32 eventId = InternalUtil::GetEventId<E>();
+        int eventId = InternalUtil::GetEventId<E>();
         Listener& lsr =  listeners[eventId].emplace_back();
 
         lsr.eventId = eventId;
@@ -132,7 +132,7 @@ public:
 
     template<typename E>
     void unlistenAll() {
-        u32 eventId = InternalUtil::GetEventId<E>();
+        int eventId = InternalUtil::GetEventId<E>();
         listeners[eventId].clear();
     }
 
@@ -140,7 +140,7 @@ public:
         listeners.clear();
     }
 
-    std::unordered_map<u32, std::vector<Listener>>* getListeners() {
+    std::unordered_map<int, std::vector<Listener>>* getListeners() {
         return &listeners;
     }
 

@@ -12,6 +12,8 @@
 #include <cmath>
 #include <chrono>
 
+#include <glm/vec3.hpp>
+
 #include <ethertia/util/Strings.h>
 
 // +__FILE_NAME__+":" __LINE__ "/" __func__ "]"  Strings::fmt("[{}:{}#{}]", __FILE_NAME__, __LINE__, __func__)._cstr()

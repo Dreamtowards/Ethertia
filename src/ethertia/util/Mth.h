@@ -15,7 +15,11 @@
 #include <bullet3/src/LinearMath/btQuaternion.h>
 #include <bullet3/src/LinearMath/btTransform.h>
 
-#include <ethertia/util/UnifiedTypes.h>
+#include <ostream>
+
+namespace glm {
+    std::ostream& operator<<(std::ostream& s, const glm::vec3& v);
+}
 
 class Mth
 {
@@ -114,7 +118,7 @@ public:
         return (v - a) / (b - a);
     }
 
-    static f32 hash(u32 i) {
+    static float hash(int i) {
         i = (i << 13) ^ i;
         return (((i * i * 15731 + 789221) * i + 1376312589) & 0xffffffff) / (float)0xffffffff;
     }
