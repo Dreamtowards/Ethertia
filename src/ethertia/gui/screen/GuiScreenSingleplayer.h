@@ -70,7 +70,7 @@ public:
 
 
 
-        addPreDraw([=](Gui* g) {
+        addPreDraw([=, this](Gui* g) {
             drawOptionsBackground("Singleplayer");
 
             bool btnEnable = !m_SelectedWorldPath.empty();
@@ -120,7 +120,7 @@ public:
             GuiCollection* itemWorld = new GuiCollection(0, 0, 500, 60);
             m_WorldList->addGui(itemWorld);
 
-            itemWorld->addPreDraw([=](Gui* g) {
+            itemWorld->addPreDraw([=, this](Gui* g) {
                 if (g->isPressed() || g->isHover()) {
                     Gui::drawRect({
                                           .xywh = g->xywh(),

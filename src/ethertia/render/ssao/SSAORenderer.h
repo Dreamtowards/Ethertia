@@ -57,8 +57,8 @@ public:
 
             // ssaoKernel.push_back(samp);
 
-            shaderSSAO.setVector3f(ShaderProgram::lazyArrayNames("kernelSamples[%i]", 64)[i],
-                                   samp);
+            static auto u_KernelSamples = ShaderProgram::_GenArrayNames("kernelSamples[{}]", 64);
+            shaderSSAO.setVector3f(u_KernelSamples[i], samp);
         }
 
         // Rand Noise (for TBN, de-banding)

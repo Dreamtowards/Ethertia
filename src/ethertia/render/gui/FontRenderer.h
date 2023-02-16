@@ -23,10 +23,7 @@ class FontRenderer
     Texture* texAscii = nullptr;
 
     float glyphWidths[GLYPH_LIMIT];
-    const char** UNIFORM_GLYPH_WIDTHS = ShaderProgram::_GenArrayNames("glyphWidths[%i]", GLYPH_LIMIT);
 
-    const char** UNIFORM_CHARS  = ShaderProgram::_GenArrayNames("chars[%i]", BATCH_CHARS_LIMIT);
-    const char** UNIFORM_OFFSET = ShaderProgram::_GenArrayNames("offset[%i]", BATCH_CHARS_LIMIT);
     // const char** UNIFORM_SCALE = Renderer::_GenArrayNames("scale[%i]", 128);
 public:
     FontRenderer() {
@@ -43,7 +40,8 @@ public:
 
         shader.useProgram();
         for (int i = 0; i < GLYPH_LIMIT; ++i) {
-            shader.setFloat(UNIFORM_GLYPH_WIDTHS[i], glyphWidths[i]);
+            static const char** u_GlyphWidth = ShaderProgram::_GenArrayNames("glyphWidths[{}]", GLYPH_LIMIT);
+            shader.setFloat(u_GlyphWidth[i], glyphWidths[i]);
         }
 
     }
@@ -71,8 +69,12 @@ public:
                 chX = x + lineWidth(str, strIdx+1, textHeight) * align;
                 chY += textHeight * (1.0f+GAP_LINE_PERC);
             } else {
-                shader.setInt(UNIFORM_CHARS[chIdx], ch);
-                shader.setVector2f(UNIFORM_OFFSET[chIdx], Mth::ndc(chX,chY,ww,wh));
+                static auto u_Chars  = ShaderProgram::_GenArrayNames("chars[{}]", BATCH_CHARS_LIMIT);
+                shader.setInt(u_Chars[chIdx], ch);
+
+                static auto u_Offset = ShaderProgram::_GenArrayNames("offset[{}]", BATCH_CHARS_LIMIT);
+                shader.setVector2f(u_Offset[chIdx], Mth::ndc(chX,chY,ww,wh));
+
                 chX += charFullWidth(ch, textHeight);
                 ++chIdx;
             }

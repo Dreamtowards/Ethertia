@@ -87,8 +87,8 @@ public:
         glUseProgram(m_ProgramId);
     }
 
-    uint getUniformLocation(const char* name) {
-        uint loc = m_CachedUniformId[name];
+    GLuint getUniformLocation(const char* name) {
+        GLuint loc = m_CachedUniformId[name];
         if (!loc) {
             return m_CachedUniformId[name] = glGetUniformLocation(m_ProgramId, name);
         }
@@ -124,27 +124,29 @@ public:
 
 
 
-    // GenArrayNames("chars[%i]", 128);
+    // GenArrayNames("chars[{}]", 128);
     static const char** _GenArrayNames(const std::string& namep, int n) {
         const char** arr = new const char*[n];
-        int baselen = namep.length()+3;  // +2: brackets, +1: \0.
         for (int i = 0; i < n; ++i) {
-            char* ch = new char[baselen+3];  // +3 assume idx <= 999.
-            sprintf(ch, namep.c_str(), i);
-            arr[i] = ch;
+            std::string s = Strings::fmt(namep, i);
+
+            size_t size = s.length() + 1;  // +1 for \0
+            char* data = new char[size];
+            std::memcpy(data, s.c_str(), size);
+            arr[i] = data;
         }
         return arr;
     }
 
-    static const char** lazyArrayNames(const std::string& namep, int size) {
-        static std::unordered_map<std::string, const char**> _cache;
-
-        auto& v = _cache[namep];
-        if (v == nullptr) {
-            v = _GenArrayNames(namep, size);
-        }
-        return v;
-    }
+//    static const char** lazyArrayNames(const std::string& namep, int size) {
+//        static std::unordered_map<std::string, const char**> _cache;
+//
+//        auto& v = _cache[namep];
+//        if (v == nullptr) {
+//            v = _GenArrayNames(namep, size);
+//        }
+//        return v;
+//    }
 
 
 private:

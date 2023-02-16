@@ -93,16 +93,21 @@ public:
         for (int i = 0; i < std::min(64, (int)lights.size()); ++i)
         {
             Light* light = lights[i];
-            shaderCompose.setVector3f(ShaderProgram::lazyArrayNames("lights[%i].position", 64)[i],
-                                      light->position);
-            shaderCompose.setVector3f(ShaderProgram::lazyArrayNames("lights[%i].color", 64)[i],
-                                      light->color);
-            shaderCompose.setVector3f(ShaderProgram::lazyArrayNames("lights[%i].attenuation", 64)[i],
-                                      light->attenuation);
-            shaderCompose.setVector3f(ShaderProgram::lazyArrayNames("lights[%i].direction", 64)[i],
-                                      light->direction);
-            shaderCompose.setVector2f(ShaderProgram::lazyArrayNames("lights[%i].coneAngle", 64)[i],
-                                      glm::vec2(light->coneAngle, 0));
+
+            static auto u_LPos = ShaderProgram::_GenArrayNames("lights[{}].position", 64);
+            shaderCompose.setVector3f(u_LPos[i],light->position);
+
+            static auto u_LColor = ShaderProgram::_GenArrayNames("lights[{}].color", 64);
+            shaderCompose.setVector3f(u_LColor[i], light->color);
+
+            static auto u_LAtten = ShaderProgram::_GenArrayNames("lights[{}].attenuation", 64);
+            shaderCompose.setVector3f(u_LAtten[i], light->attenuation);
+
+            static auto u_LDir = ShaderProgram::_GenArrayNames("lights[{}].direction", 64);
+            shaderCompose.setVector3f(u_LDir[i], light->direction);
+
+            static auto u_LConeAng = ShaderProgram::_GenArrayNames("lights[{}].coneAngle", 64);
+            shaderCompose.setVector2f(u_LConeAng[i], glm::vec2(light->coneAngle, 0));
         }
 
 
