@@ -20,12 +20,16 @@
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
 
 
-World::World(const std::string& savedir, uint32_t seed)
+World::World(const std::string& savedir, const WorldInfo* worldinfo)
 {
-    m_Seed = seed;  //1423
 
     m_ChunkLoader = new ChunkLoader(savedir);  //  = "saves/dim-1"
-    m_ChunkLoader->loadWorldInfo(*this);
+
+    if (worldinfo) {
+        m_WorldInfo = *worldinfo;
+    } else {
+        m_ChunkLoader->loadWorldInfo(m_WorldInfo);
+    }
 
     m_ChunkGenerator = new ChunkGenerator();
 
@@ -43,7 +47,7 @@ World::World(const std::string& savedir, uint32_t seed)
 
 World::~World() {
 
-    m_ChunkLoader->saveWorldInfo(*this);
+    m_ChunkLoader->saveWorldInfo(m_WorldInfo);
 
     for (int i = m_DynamicsWorld->getNumCollisionObjects()-1; i >= 0; --i) {
         btCollisionObject* obj = m_DynamicsWorld->getCollisionObjectArray()[i];
@@ -146,7 +150,7 @@ void World::saveUnloadedChunks() {
     //int i = 0;
     for (Chunk* chunk : m_UnloadedChunks)
     {
-        // Log::info("Saving chunk {}/{}", i, m_UnloadedChunks.size()); ++i;
+        Log::info("Saving chunk {}", glm::to_string(chunk->position));
         m_ChunkLoader->saveChunk(chunk);
 
         Entity* meshTerr = chunk->m_MeshTerrain;
@@ -257,8 +261,8 @@ std::vector<T> World::getEntities_() {  // just temporary
 void World::tick(float dt)
 {
 
-    m_InhabitedTime += dt;
-    m_DayTime = Mth::mod(m_DayTime + dt/m_DayTimeScale, 1.0f);
+    m_WorldInfo.InhabitedTime += dt;
+    m_WorldInfo.DayTime = Mth::mod(m_WorldInfo.DayTime + dt/m_WorldInfo.DayLength, 1.0f);
 }
 
 
@@ -316,7 +320,7 @@ void World::populate(World* world, glm::vec3 chunkpos) {
     float noiseSand[16*16];
     float noiseFern[16*16];
 
-    ChunkGenerator::Perlin()->GenUniformGrid2D(noiseSand, chunkpos.x, chunkpos.z, 16, 16, 1/60.0f, world->m_Seed);
+    ChunkGenerator::Perlin()->GenUniformGrid2D(noiseSand, chunkpos.x, chunkpos.z, 16, 16, 1/60.0f, world->getSeed());
 
     for (int dx = 0; dx < 16; ++dx) {
         for (int dz = 0; dz < 16; ++dz) {

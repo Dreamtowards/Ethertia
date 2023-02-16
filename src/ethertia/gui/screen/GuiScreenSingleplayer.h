@@ -18,7 +18,9 @@ public:
         return INST;
     }
 
-    inline static Gui* SELECTED_WORLD = nullptr;
+    std::string m_SelectedWorldPath;
+
+    GuiStack* m_WorldList = nullptr;
 
     GuiScreenSingleplayer() {
         setWidthHeight(Inf, Inf);
@@ -28,9 +30,9 @@ public:
 
         GuiButton* btnOpenWorld = new GuiButton("Open World", false);
         lsBtnWorldOps->addGui(btnOpenWorld);
-        btnOpenWorld->addOnClickListener([](auto) {
+        btnOpenWorld->addOnClickListener([this](auto) {
 
-            Ethertia::loadWorld("saves/world-2");
+            Ethertia::loadWorld(m_SelectedWorldPath);
         });
 
         GuiButton* btnNewWorld = new GuiButton("New World", false);
@@ -52,16 +54,18 @@ public:
 
         GuiButton* btnRefresh = new GuiButton("Refresh", false);
         lsBtnWorldOps->addGui(btnRefresh);
-        btnRefresh->addOnClickListener([](auto){
-            SELECTED_WORLD = nullptr;
+        btnRefresh->addOnClickListener([this](auto){
+            m_SelectedWorldPath = "";
+
+            refreshWorldList();
         });
 
 
-        GuiStack* lsWorlds = new GuiStack(GuiStack::D_VERTICAL, 8);
-        addGui(lsWorlds);
-        lsWorlds->addConstraintAlign(0.5, 0.25);
+        m_WorldList = new GuiStack(GuiStack::D_VERTICAL, 8);
+        addGui(m_WorldList);
+        m_WorldList->addConstraintAlign(0.5, 0.25);
 
-        refreshWorldList(lsWorlds);
+        refreshWorldList();
 
 
 
@@ -69,14 +73,14 @@ public:
         addPreDraw([=](Gui* g) {
             drawOptionsBackground();
 
-            bool btnEnable = SELECTED_WORLD != nullptr;
+            bool btnEnable = !m_SelectedWorldPath.empty();
             btnOpenWorld->m_Enable = btnEnable;
             btnModifyWorld->m_Enable = btnEnable;
             btnDeleteWorld->m_Enable = btnEnable;
 
             // Layout bind
-            lsBtnWorldOps->setX(lsWorlds->getX()-200);
-            lsBtnWorldOps->setY(lsWorlds->getY());
+            lsBtnWorldOps->setX(m_WorldList->getX()-200);
+            lsBtnWorldOps->setY(m_WorldList->getY());
 
 //            if (g->isPressed()) {  // click otherwise to cancel select. this should execute before select.
 //                SELECTED_WORLD = nullptr;
@@ -85,7 +89,8 @@ public:
     }
 
 
-    void refreshWorldList(GuiStack* lsWorlds) {
+    void refreshWorldList() {
+        m_WorldList->removeAllGuis();  // delete/clean?
 
         if (!Loader::fileExists("saves/")) {
 
@@ -96,8 +101,9 @@ public:
         {
             if (!savedir.is_directory())
                 continue;
+            const std::string& dir = savedir.path().string();
 
-            std::string fileWorldInfo = Strings::fmt("{}/{}", savedir.path().string(), "world.dat");
+            std::string fileWorldInfo = Strings::fmt("{}/{}", dir, "world.dat");
             std::ifstream file(fileWorldInfo, std::ios::in);
             if (!file)
                 continue;
@@ -105,14 +111,14 @@ public:
             file.close();
 
             long dirsize = Loader::calcDirectorySize(savedir.path().string());
-            std::string desc = Strings::fmt("{} | {}", savedir.path(), Strings::size_str(dirsize));
+            std::string desc = Strings::fmt("{} | {}", Strings::size_str(dirsize), savedir.path());
 
             std::string worldName = (std::string)tagWorld->at("Name");
             //int64_t savedTime = (int64_t)tagWorld->at("SavedTime");
 
 
             GuiCollection* itemWorld = new GuiCollection(0, 0, 500, 60);
-            lsWorlds->addGui(itemWorld);
+            m_WorldList->addGui(itemWorld);
 
             itemWorld->addPreDraw([=](Gui* g) {
                 if (g->isPressed() || g->isHover()) {
@@ -121,13 +127,13 @@ public:
                                           .color = g->isPressed() ? Colors::BLACK40 : Colors::BLACK10
                                   });
                     if (g->isPressed()) {
-                        SELECTED_WORLD = itemWorld;
+                        m_SelectedWorldPath = dir;
                     }
                 }
                 // Item Border.
                 Gui::drawRect({
                                       .xywh = g->xywh(),
-                                      .color = SELECTED_WORLD == itemWorld ? Colors::WHITE80 : Colors::WHITE20,
+                                      .color = m_SelectedWorldPath == dir ? Colors::WHITE80 : Colors::WHITE20,
                                       .border = 2
                               });
                 float x = g->getX() + 12, y = g->getY() + 12;

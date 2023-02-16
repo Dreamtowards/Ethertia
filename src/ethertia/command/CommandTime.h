@@ -20,14 +20,14 @@ public:
             // midnight=0, sunrise=5, day=7, noon=12, sunset=18, night=19
             float daytime = Strings::daytime(args[2]);
 
-            Ethertia::getWorld()->m_DayTime = daytime;
+            Ethertia::getWorld()->m_WorldInfo.DayTime = daytime;
 
             _SendMessage("Time set to {}.", Strings::daytime(daytime, true));
         }
         else if (args[1] == "spd")
         {
             float f = std::stof(args[2]);
-            Ethertia::getWorld()->m_DayTimeScale = f;
+            Ethertia::getWorld()->m_WorldInfo.DayLength = f;
 
             _SendMessage("DayTime already set to {} seconds per day", f);
         }

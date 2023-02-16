@@ -255,7 +255,7 @@ public:
                         Strings::size_str(MemoryTrack::g_MemoryPresent()), Strings::size_str(MemoryTrack::g_MemoryAllocated), Strings::size_str(MemoryTrack::g_MemoryFreed),
                         chunkInfo,
                         cellInfo,
-                        world->m_Name, world->m_InhabitedTime, Strings::daytime(world->m_DayTime), world->m_Seed
+                        world->m_WorldInfo.Name, world->m_WorldInfo.InhabitedTime, Strings::daytime(world->getDayTime()), world->getSeed()
                 );
             }
             Gui::drawString(0, 32, dbg_s, Colors::WHITE, 16, {0,0}, false);

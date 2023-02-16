@@ -30,13 +30,13 @@ struct WorldInfo
 {
 
     uint64_t Seed = 0;
-    float DayTime = 0;        // 0-1. 0: midnight, = t*24h.
+    std::string Name;
+
+    float DayTime = 0.25;        // 0-1. 0: midnight, = t*24h.; 0->0AM, 0.25->6AM, 0.5->0PM, 0.75->6PM
     float DayLength = 12*60;  // seconds per day.
     float InhabitedTime = 0;  // seconds world running.
 
-    std::string Name;
     int ProtocolVersion = 0;
-
     uint64_t SavedTime = 0;
 
     inline static const float WORLD_SAVE_INTERVAL = 2*60;
@@ -68,25 +68,11 @@ public:
     btDynamicsWorld* m_DynamicsWorld = nullptr;
 
 
-    WorldInfo worldinfo;
-
-    uint64_t m_Seed = 0;
-
-    std::string m_Name;
-
-    // Seconds Per Day
-    float m_DayTimeScale = 12*60;
-
-    // [0, 1] t*24; 0: 0AM, 0.25: 6AM, 0.5: 0PM, 0.75: 6PM
-    float m_DayTime = 0;
-
-    // World total living seconds.
-    float m_InhabitedTime = 0;
-
-    entt::registry m_EnttRegistry;
+    WorldInfo m_WorldInfo;
 
 
-    World(const std::string& savedir, uint32_t seed);
+    // worldinfo always nullptr (auto read.) except the first Create World.
+    World(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
     ~World();
 
     Cell& getCell(glm::vec3 p);
@@ -146,6 +132,13 @@ public:
     void tick(float dt);
 
 
+    float getDayTime() {
+        return m_WorldInfo.DayTime;
+    }
+
+    uint64_t getSeed() {
+        return m_WorldInfo.Seed;
+    }
 
 
 

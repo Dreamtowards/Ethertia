@@ -79,7 +79,7 @@ public:
 //        shaderCompose.setFloat("debugVar2", debugVar2);
 
         shaderCompose.setFloat("Time", Ethertia::getPreciseTime());
-        shaderCompose.setFloat("DayTime", Ethertia::getWorld()->m_DayTime);
+        shaderCompose.setFloat("DayTime", Ethertia::getWorld()->getDayTime());
 
         shaderCompose.setMatrix4f("matInvView", glm::inverse(RenderEngine::matView));
         shaderCompose.setMatrix4f("matInvProjection", glm::inverse(RenderEngine::matProjection));

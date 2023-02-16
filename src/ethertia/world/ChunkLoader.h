@@ -56,7 +56,7 @@ public:
     };
     std::unordered_map<glm::vec3, VolumeStore*> m_LoadedChunkFiles;
 
-    bool m_DisableSave = true;
+    bool m_DisableSave = false;
     bool m_DisableLoad = false;
 
     ChunkLoader(const std::string& savedir) : m_ChunkDir(savedir) {
@@ -69,28 +69,29 @@ public:
         return Strings::fmt("{}/world.dat", m_ChunkDir);
     }
 
-    void loadWorldInfo(World& world) {
+    bool loadWorldInfo(WorldInfo& worldinfo) {
         std::ifstream file(_FileWorldInfo(), std::ios::in | std::ios::binary);
-        if (!file) return;
+        if (!file) return false;
 
         auto tagWorld = nbt::io::read_compound(file).second;
 
-        world.m_Name = (std::string)tagWorld->at("Name");
-        world.m_Seed = (int64_t)tagWorld->at("Seed");
-        world.m_DayTime = (float)tagWorld->at("DayTime");
-        world.m_InhabitedTime = (float)tagWorld->at("InhabitedTime");
+        worldinfo.Name = (std::string)tagWorld->at("Name");
+        worldinfo.Seed = (int64_t)tagWorld->at("Seed");
+        worldinfo.DayTime = (float)tagWorld->at("DayTime");
+        worldinfo.InhabitedTime = (float)tagWorld->at("InhabitedTime");
 
         file.close();
+        return true;
     }
 
-    void saveWorldInfo(const World& world) const {
+    void saveWorldInfo(const WorldInfo& worldinfo) const {
         std::ofstream file(Loader::ensureFileParentDirsReady(_FileWorldInfo()), std::ios::out | std::ios::binary);
 
         nbt::tag_compound tagWorld;
-        tagWorld.put("Name", world.m_Name);
-        tagWorld.put("Seed", (int64_t)world.m_Seed);
-        tagWorld.put("DayTime", world.m_DayTime);
-        tagWorld.put("InhabitedTime", world.m_InhabitedTime);
+        tagWorld.put("Name", worldinfo.Name);
+        tagWorld.put("Seed", (int64_t)worldinfo.Seed);
+        tagWorld.put("DayTime", worldinfo.DayTime);
+        tagWorld.put("InhabitedTime", worldinfo.InhabitedTime);
         tagWorld.put("SavedTime", (int64_t)Timer::timestampMillis());
 
         nbt::io::write_tag("WorldInfo", tagWorld, file);

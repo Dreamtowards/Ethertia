@@ -123,7 +123,7 @@ vec3 ReflectRayTracing(vec3 begin, vec3 dir, vec3 color) {
     {
         p += dir * pow(i+1, 2.86);
         vec2 uv = ScreenPosOfWorldPos(p);
-        if (uv.x < 0 || uv.y < 0 || uv.x > 1 || uv.y > 1) break;
+        // if (uv.x < 0 || uv.y < 0 || uv.x > 1 || uv.y > 1) break;
 
         float sampleDepth = texture(gPositionDepth, uv).w;
         float testDepth = LinearDepthOfWorldPos(p);

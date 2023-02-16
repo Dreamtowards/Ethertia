@@ -41,6 +41,7 @@ public:
 //            }
 
             Ethertia::getRootGUI()->addGui(GuiScreenSingleplayer::Inst());
+            GuiScreenSingleplayer::Inst()->refreshWorldList();
         });
 
         GuiButton* btnSettings = new GuiButton("Settings", false);

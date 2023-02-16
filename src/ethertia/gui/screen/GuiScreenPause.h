@@ -50,7 +50,7 @@ public:
                 btnClock->addPreDraw([btnClock](auto) {
                     if (!Ethertia::getWorld())
                         return;
-                    btnClock->m_Text = Strings::daytime(Ethertia::getWorld()->m_DayTime, true);
+                    btnClock->m_Text = Strings::daytime(Ethertia::getWorld()->getDayTime(), true);
                 });
 
 //                GuiButton* btnSignal = new GuiButton("  ");

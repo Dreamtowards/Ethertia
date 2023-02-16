@@ -33,6 +33,9 @@ public:
     float m_TextX = 0;
     float m_TextY = 0;
 
+    std::string m_Caption = "";
+    std::string m_Hint = "";
+
     GuiTextBox(std::string text) : m_Text(std::move(text)), Gui(0, 0, 200, 24) {
         m_TextX = 4;
         m_TextY = 4;
@@ -70,6 +73,10 @@ public:
 
         Gui::drawString(x+m_TextX, y+m_TextY, m_Text, Colors::WHITE, textHeight);
 
+        if (m_Text.empty() && !m_Hint.empty()) {
+            Gui::drawString(x+m_TextX, y+m_TextY, m_Hint, Colors::GRAY, textHeight);
+        }
+
         // Cursor
         if (isFocused() && (Mth::mod(Ethertia::getPreciseTime(), 1.0f) < 0.5f || Ethertia::getPreciseTime() - _timeLastCursorModify < 0.5f)) {
             glm::vec2 p = calcTextPos(getCursorPosition());
@@ -77,6 +84,9 @@ public:
             Gui::drawRect(p.x, p.y, 2, textHeight, Colors::WHITE);
         }
 
+        if (!m_Caption.empty()) {
+            drawString(x, y-14, m_Caption, Colors::GRAY, 12);
+        }
     }
 
     void onKeyboard(int key, bool pressed) override {

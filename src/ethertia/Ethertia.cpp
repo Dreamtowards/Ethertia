@@ -245,31 +245,32 @@ void Ethertia::destroy()
     glfwTerminate();
 }
 
-void Ethertia::loadWorld(const std::string& savedir)
+void Ethertia::loadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 {
     assert(m_World == nullptr);
     assert(Ethertia::getScheduler()->numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
 
-    m_World = new World(savedir, 1342);
+    m_World = new World(savedir, worldinfo);
     m_World->addEntity(m_Player);
 
     ChunkMeshProc::g_Running = 1;
     ChunkGenProc::g_Running = 1;
 
-    Log::info("Loading world @\"{}\" *{}", m_World->m_ChunkLoader->m_ChunkDir, m_World->m_Seed);
+    Log::info("Loading world @\"{}\" *{}", m_World->m_ChunkLoader->m_ChunkDir, m_World->m_WorldInfo.Seed);
 
 
-    Ethertia::getRootGUI()->removeAllGuis();
-    Ethertia::getRootGUI()->addGui(GuiIngame::Inst());
+    getScheduler()->addTask([](){
+        // not now. while handling GUI press/click. shouldn't remove gui.
+        Ethertia::getRootGUI()->removeAllGuis();
+        Ethertia::getRootGUI()->addGui(GuiIngame::Inst());
+    });
 
-
-    // debug:
-    m_World->m_DayTime = 0.25;
 }
 
 void Ethertia::unloadWorld()
 {
     assert(m_World);
+    Log::info("Unloading World...");
 
     Ethertia::getBrushCursor().reset();
 
@@ -281,16 +282,23 @@ void Ethertia::unloadWorld()
     ChunkMeshProc::g_Running = -1;
     ChunkGenProc::g_Running = -1;
 
+    Log::info("Cleaning MeshGen");
     Timer::wait_for(&ChunkMeshProc::g_Running, 0);
+    Log::info("Cleaning ChunkGen");
     Timer::wait_for(&ChunkGenProc::g_Running, 0);
 
+    Log::info("Sync Tasks");
     // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
     m_Scheduler.processTasks(Mth::Inf);
     assert(m_Scheduler.numTasks() == 0);
+
+    Log::info("Async Tasks");
+    m_AsyncScheduler.processTasks(Mth::Inf);  // why? for what?
     assert(m_AsyncScheduler.numTasks() == 0);
 
 
     delete oldWorld;
+
 
     Log::info("World unloaded.");
 

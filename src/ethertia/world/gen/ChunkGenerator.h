@@ -79,7 +79,7 @@ public:
 
     Chunk* generateChunk(glm::vec3 chunkpos, World* world) {
         Chunk* chunk = new Chunk(chunkpos, world);
-        uint32_t seed = world->m_Seed;
+        uint64_t seed = world->getSeed();
 
 //        GenChunk_Flat(chunk);
 //        return chunk;

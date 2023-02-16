@@ -31,6 +31,7 @@ class GuiRoot;           // #include <ethertia/gui/GuiRoot.h>
 class Window;            // #include <ethertia/render/Window.h>
 class AudioEngine;       // #include <ethertia/audio/AudioEngine.h>
 
+class WorldInfo;  // ethertia/world/World.h
 
 class Ethertia
 {
@@ -72,7 +73,7 @@ public:
 
     static void destroy();
 
-    static void loadWorld(const std::string& savedir);
+    static void loadWorld(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
     static void unloadWorld();
 
     static void dispatchCommand(const std::string& cmd);

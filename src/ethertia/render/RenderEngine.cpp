@@ -144,10 +144,11 @@ void RenderEngine::renderWorldCompose(World* world)
     glClearColor(0,0,0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    float daytime = Ethertia::getWorld()->getDayTime();
 
-    m_SkyboxRenderer->renderWorldSkybox(world->m_DayTime);
+    m_SkyboxRenderer->renderWorldSkybox(daytime);
 
-    m_ParticleRenderer->renderSunMoonTex(world->m_DayTime);
+    m_ParticleRenderer->renderSunMoonTex(daytime);
 
     std::vector<Light*> renderLights;  // lights to be render.
 //    {
@@ -162,7 +163,6 @@ void RenderEngine::renderWorldCompose(World* world)
         static Light sunLight;
 
         // CNS 这是不准确的，不能直接取反 否则月亮位置可能会错误
-        float daytime = Ethertia::getWorld()->m_DayTime;
         sunLight.position = Ethertia::getCamera()->position + (-RenderEngine::SunlightDir(daytime) * 100.0f);
 
 
@@ -235,7 +235,7 @@ void RenderEngine::renderWorld(World* world)
     renderWorldGeometry(world);
 
 
-    ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->m_DayTime));
+    ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()));
 
     SSAORenderer::renderSSAO(fboGbuffer->texColor[0], fboGbuffer->texColor[1]);
 

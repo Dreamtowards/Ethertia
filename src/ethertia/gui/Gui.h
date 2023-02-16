@@ -38,7 +38,7 @@ class Gui
     bool visible = true;
     bool clipping = false;
 
-    void* tag = nullptr;
+    void* m_Tag = nullptr;
 
 
 public:
@@ -539,7 +539,7 @@ public:
     static void drawOptionsBackground() {
 
         drawRect(0,0,Gui::maxWidth(), Gui::maxHeight(),
-                 Ethertia::getWorld() ? Colors::alpha(Colors::brightness(0.34), 0.96) : Colors::brightness(0.42));
+                 Ethertia::getWorld() ? Colors::alpha(Colors::brightness(0.34), 0.96) : Colors::brightness(0.36));
     }
 
 
