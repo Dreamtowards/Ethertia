@@ -15,8 +15,8 @@ class FontRenderer
 {
     static constexpr float GAP_CHAR_PERC = 0.02;
     static constexpr float GAP_LINE_PERC = 0.02;
-    static constexpr uint BATCH_CHARS_LIMIT = 128;  // actually is size. ie. max+1
-    static constexpr uint GLYPH_LIMIT = 256;
+    static constexpr int BATCH_CHARS_LIMIT = 128;  // actually is size. ie. max+1
+    static constexpr int GLYPH_LIMIT = 256;
 
     ShaderProgram shader = Loader::loadShaderProgram("shaders/gui/font.{}");
 
@@ -62,9 +62,9 @@ public:
 
         float chX = x + lineWidth(str, 0, textHeight) * align;
         float chY = y;
-        uint chIdx = 0;
+        int chIdx = 0;
         for (int strIdx = 0; strIdx < str.length(); ++strIdx) {  // index-access is not necessary. str.index != rendering-char-idx. we skip "\n" chars.
-            uint ch = str.at(strIdx);
+            int ch = str.at(strIdx);
             if (ch == '\n') {
                 chX = x + lineWidth(str, strIdx+1, textHeight) * align;
                 chY += textHeight * (1.0f+GAP_LINE_PERC);
@@ -87,14 +87,14 @@ public:
         }
     }
 
-    float charFullWidth(uint ch, float textHeight) {
+    float charFullWidth(int ch, float textHeight) {
         return glyphWidths[ch]*textHeight * (1.0f+GAP_CHAR_PERC);
     }
 
-    float lineWidth(const std::string& str, uint from, float textHeight) {
+    float lineWidth(const std::string& str, int from, float textHeight) {
         float w = 0;
         for (int i = from; i < str.length(); ++i) {
-            uint ch = str.at(i);
+            int ch = str.at(i);
             if (ch == '\n')
                 break;
             w += charFullWidth(ch, textHeight);

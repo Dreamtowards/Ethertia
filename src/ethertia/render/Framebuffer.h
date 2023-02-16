@@ -15,7 +15,7 @@ private:
     Framebuffer() {}  // should explicitly create FBO. use Framebuffer::glfGenFramebuffer();
 public:
 
-    uint fboId  = 0;
+    GLuint fboId  = 0;
     int width  = 0;
     int height = 0;
 
@@ -69,7 +69,7 @@ public:
 
 
     void attachDepthStencilRenderbuffer() {
-        uint rbo;
+        GLuint rbo;
         glGenRenderbuffers(1, &rbo);
         glBindRenderbuffer(GL_RENDERBUFFER, rbo);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
@@ -135,9 +135,9 @@ public:
 
     // tell GL render to which Color Attachments/Textures
     void setupMRT(std::initializer_list<int> l) {
-        int n = l.size();
-        unsigned int arr[n];
-        Collections::range(arr, (uint)n, (uint)GL_COLOR_ATTACHMENT0);
+        size_t n = l.size();
+        GLuint arr[n];
+        Collections::range(arr, n, (GLuint)GL_COLOR_ATTACHMENT0);
         glDrawBuffers(n, arr);
     }
 
