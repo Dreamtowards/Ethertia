@@ -9,7 +9,6 @@
 #include <mutex>
 #include <glm/vec3.hpp>
 #include <glm/gtx/hash.hpp>
-#include <glm/gtx/string_cast.hpp>
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
