@@ -5,6 +5,7 @@
 #ifndef ETHERTIA_COLORS_H
 #define ETHERTIA_COLORS_H
 
+#include <bit>          // std::endian for some mac platform.
 #include <type_traits>  // std::endian
 
 #include <glm/vec4.hpp>

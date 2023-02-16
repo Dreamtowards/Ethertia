@@ -71,7 +71,7 @@ public:
 
 
         addPreDraw([=](Gui* g) {
-            drawOptionsBackground();
+            drawOptionsBackground("Singleplayer");
 
             bool btnEnable = !m_SelectedWorldPath.empty();
             btnOpenWorld->m_Enable = btnEnable;

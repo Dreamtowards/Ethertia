@@ -63,7 +63,7 @@ public:
 //        vStack->addGui(new GuiButton("Advanced options..."));
 
         addPreDraw([](Gui* g) {
-            drawOptionsBackground();
+            drawOptionsBackground("New World");
 
         });
     }
@@ -88,7 +88,6 @@ public:
 
     void implDraw() override
     {
-        Gui::drawString(Gui::maxWidth()/2, 48, "New World");
 
         Gui::drawString(m_txWorldName->getX(),
                         m_txWorldName->getY() + m_txWorldName->getHeight() + 2,

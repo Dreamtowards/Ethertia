@@ -21,7 +21,6 @@ public:
     DECL_Inst_(GuiScreenMainMenu);
 
     GuiScreenMainMenu() {
-        addDrawBackground(Colors::WHITE80);
         setWidthHeight(Inf, Inf);
 
         GuiStack* vstack = new GuiStack(GuiStack::D_VERTICAL, 16);
@@ -62,6 +61,11 @@ public:
 
     void implDraw() override {
 
+        Gui::drawRect({
+            .xywh = xywh(),
+            .color = Colors::WHITE80
+        });
+
         drawAudioFreq();
 
         Gui::drawString(0, Gui::maxHeight(), "0 mods loaded.\n" + Ethertia::Version::name(), Colors::WHITE60, 16,
@@ -70,7 +74,7 @@ public:
 
         Gui::drawString(Gui::maxWidth(), Gui::maxHeight(),
                         "Seasonally Excellent Dev: Eldrine Le Prismarine.\n"
-                        "Copyright Elytra Corporation. Do not distribute!",
+                        "Copyright (c) Elytra Corporation. Do not distribute!",
                         Colors::WHITE60, 16, {-1.0, -1.0f});
 
 

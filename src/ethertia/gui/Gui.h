@@ -536,10 +536,15 @@ public:
     static void drawStretchCorners(glm::vec4 xywh, Texture* tex, float thickness = 16, bool onlyLTCornerTex = false);
 
 
-    static void drawOptionsBackground() {
+    static void drawOptionsBackground(const std::string& title = "") {
 
         drawRect(0,0,Gui::maxWidth(), Gui::maxHeight(),
                  Ethertia::getWorld() ? Colors::alpha(Colors::brightness(0.34), 0.96) : Colors::brightness(0.36));
+
+        if (!title.empty()) {
+
+            Gui::drawString(Gui::maxWidth()/2, 42, title, Colors::WHITE, 16, {-0.5, 0});
+        }
     }
 
 
