@@ -83,10 +83,10 @@ public:
                 GuiButton* btnReloadShaders = new GuiButton("Reload Shaders");
                 opts->addGui(btnReloadShaders);
                 btnReloadShaders->addOnClickListener([](OnReleased* e) {
-                    delete RenderEngine::entityRenderer;
-                    RenderEngine::entityRenderer = new EntityRenderer();
+//                    delete RenderEngine::entityRenderer;
+//                    RenderEngine::entityRenderer = new EntityRenderer();
 
-                    ComposeRenderer::initShaderRes();
+                    ComposeRenderer::initShader();
                 });
             }
             {

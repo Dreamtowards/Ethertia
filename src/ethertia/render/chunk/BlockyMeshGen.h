@@ -36,7 +36,6 @@ public:
                         if (!mtl->m_IsVegetable)
                             continue;
 
-
                         else if (mtl == Materials::WATER)
                         {
                             putCube(vbuf, rp, chunk, mtl);

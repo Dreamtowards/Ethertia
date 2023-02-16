@@ -22,9 +22,18 @@ public:
 
     ComposeRenderer() = delete;
 
-    static void initShaderRes() {
+    static void initShader() {
 
         shaderCompose = Loader::loadShaderProgram("shaders/compose/compose.{}");
+
+        shaderCompose.useProgram();
+        shaderCompose.setInt("gPositionDepth", 0);
+        shaderCompose.setInt("gNormal", 1);
+        shaderCompose.setInt("gAlbedoRoughness", 2);
+        shaderCompose.setInt("gAmbientOcclusion", 3);
+        shaderCompose.setInt("gShadowMap", 4);  // Shadow Depth Map.
+
+        // shaderCompose.setInt("panoramaMap", 5);
     }
 
     static void init()
@@ -35,16 +44,8 @@ public:
         });
 
 
-        initShaderRes();
+        initShader();
 
-        shaderCompose.useProgram();
-        shaderCompose.setInt("gPositionDepth", 0);
-        shaderCompose.setInt("gNormal", 1);
-        shaderCompose.setInt("gAlbedoRoughness", 2);
-        shaderCompose.setInt("gAmbientOcclusion", 3);
-        shaderCompose.setInt("gShadowMap", 4);  // Shadow Depth Map.
-
-        // shaderCompose.setInt("panoramaMap", 5);
     }
 
 

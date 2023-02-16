@@ -109,26 +109,32 @@ vec2 ScreenPosOfWorldPos(vec3 worldp) {
     p = p * 0.5f + 0.5f;
     return p.st;
 }
-//vec2 LinearDepthOfWorldPos(vec3 worldp) {
-//    vec4 p = matProjection * matView * vec4(worldp, 1.0);
-//    p /= p.w;
-//    p = p * 0.5f + 0.5f;
-//}
-//vec3 WaterRayTracing(vec3 begin, vec3 dir, vec3 color) {
-//    const float stepLen = 0.05;
-//    vec3 p = begin;
-//
-//    for (int i = 0; i < 32; ++i)
-//    {
-//        p += dir * stepLen;
-//        vec2 uv = World2ScreenSpace(p);
-//
-//        float sampleDepth = texture(gPositionDepth, uv).w;
-//
-//        vec4 _p = vec4(p, 1.0);
-//        float testDepth = ;
-//    }
-//}
+float LinearDepthOfWorldPos(vec3 worldp) {
+    vec4 p = matProjection * matView * vec4(worldp, 1.0);
+    p /= p.w;
+    p = p * 0.5f + 0.5f;
+    return LinearDepth(p.z);
+}
+vec3 ReflectRayTracing(vec3 begin, vec3 dir, vec3 color) {
+    const float stepLen = 0.025;
+    vec3 p = begin;
+
+    for (int i = 0; i < 24; ++i)
+    {
+        p += dir * pow(i+1, 2.86);
+        vec2 uv = ScreenPosOfWorldPos(p);
+        if (uv.x < 0 || uv.y < 0 || uv.x > 1 || uv.y > 1) break;
+
+        float sampleDepth = texture(gPositionDepth, uv).w;
+        float testDepth = LinearDepthOfWorldPos(p);
+
+        // && testDepth - sampleDepth < (testDepth * 200.0 + 1+i) / 2048.0
+        if (sampleDepth < testDepth || i == 23) {
+            return texture(gAlbedoRoughness, uv).rgb;
+        }
+    }
+    return vec3(0);
+}
 
 void main() {
 
@@ -200,6 +206,12 @@ void main() {
     vec3 Lighting = (Ambient + (1.0 - Shadow) * (sumDiffuse + sumSpecular)) * Albedo;
 
     FragColor = vec4(Lighting, 1.0);
+
+    if (Roughness < 0.35) {
+        vec3 FragReflect = reflect(-FragToCamera, Norm);
+        vec3 ReflectColor = ReflectRayTracing(FragPos, FragReflect, vec3(1));
+        FragColor.rgb = ReflectColor;
+    }
 
 
     // Brush hint.

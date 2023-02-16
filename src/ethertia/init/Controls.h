@@ -210,7 +210,7 @@ public:
 
             camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
 
-            if (window.isKeyDown(GLFW_KEY_F9))
+            if (window.isKeyDown(GLFW_KEY_L))
                 camera.len += window.getDScroll();
             camera.len = Mth::max(camera.len, 0.0f);
 
