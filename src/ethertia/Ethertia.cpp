@@ -27,7 +27,6 @@
 #include <ethertia/command/Commands.h>
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/audio/AudioEngine.h>
-#include <ethertia/init/ReloadControl.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/Items.h>
 #include <ethertia/init/MaterialMeshes.h>
@@ -47,9 +46,13 @@ int main()
 void Ethertia::start()
 {
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
-    Settings::loadSettings();  Loader::checkAssetsExists();
+    Settings::loadSettings();
+    Loader::checkAssetsExists();  // check working directory.
 
-    ModLoader::loadMod("./mods/TwilightForest"); //OpenVR::init();
+    for (const std::string& modpath : Settings::MODS) {
+        ModLoader::loadMod(modpath);
+    }
+    //OpenVR::init();
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
@@ -65,7 +68,10 @@ void Ethertia::start()
     MaterialMeshes::load();
     ItemTextures::load();
 
+    // Network
     ClientConnectionProc::initPackets();
+
+    // Client Controls.
     Controls::initControls();
 
     m_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
@@ -82,12 +88,10 @@ void Ethertia::start()
     m_Player->switchGamemode(Gamemode::SPECTATOR);
     m_Player->setFlying(true);
 
-    ReloadControl::init();
-    ReloadControl::reload("");
+//    ReloadControl::init();
+//    ReloadControl::reload("");
 
     // NetworkSystem::connect("127.0.0.1", 8081);
-
-
 
 
 //    auto data = Loader::loadFile("cat.ogg");

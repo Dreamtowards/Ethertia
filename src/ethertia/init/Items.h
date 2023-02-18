@@ -16,8 +16,6 @@ class Items
 {
 public:
 
-
-
 #define REGISTER_ITEM(VAR, id, comps) inline static const Item* VAR = new Item(id, comps);
 
     // Food

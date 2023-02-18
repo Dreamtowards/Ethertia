@@ -21,7 +21,7 @@ public:
     inline static int displayWidth  = 1280,
                       displayHeight = 720;
 
-    inline static std::string simdLevel = "";
+    inline static std::vector<std::string> MODS;
 
     template<typename T>
     static void set_ifexists(json& j, const std::string& name, T* p) {
@@ -47,10 +47,12 @@ public:
         set_ifexists(settings, "display_height", &displayHeight);
 
         set_ifexists(settings, "mtl_resolution", &MaterialTextures::TEX_RESOLUTION);
+
+        std::string simdLevel;
         set_ifexists(settings, "simd_level", &simdLevel);
-
-
         ChunkGenerator::g_SIMDLevel = ChunkGenerator::FastSIMD_ofLevelName(simdLevel);
+
+        set_ifexists(settings, "mods", &MODS);
 
     }
 
@@ -71,7 +73,8 @@ public:
              {"vsync",          false},
              {"fullscreen",     false},
              {"mtl_resolution", MaterialTextures::TEX_RESOLUTION},
-             {"simd_level",     ChunkGenerator::FastSIMD_LevelName(ChunkGenerator::g_SIMDLevel)}
+             {"simd_level",     ChunkGenerator::FastSIMD_LevelName(ChunkGenerator::g_SIMDLevel)},
+             {"mods",           MODS}
         });
 
         std::ofstream f(SETTINGS_FILE);

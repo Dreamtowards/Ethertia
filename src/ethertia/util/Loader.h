@@ -426,7 +426,7 @@ public:
 #if __APPLE__
         return "lib" + name + ".dylib";
 #elif __WIN32__
-        return name + ".dll";
+        return "lib" + name + ".dll";
 #else
         static_assert(false);
 #endif
