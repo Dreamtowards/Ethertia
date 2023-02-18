@@ -6,35 +6,7 @@
 #define ETHERTIA_ITEMS_H
 
 
-class ItemComponentMaterial : public Item::Component {
-public:
-
-    Material* m_Material;
-
-    ItemComponentMaterial(Material* mtl) : m_Material(mtl) {}
-
-    void onUse() override;
-
-};
-
-class ItemComponentGrapple : public Item::ComponentTool {
-public:
-
-    void onUse() override;
-
-};
-
-class ItemComponentEntity : public Item::Component
-{
-public:
-
-    std::function<Entity*()> m_New;
-
-    ItemComponentEntity(const std::function<Entity*()>& mNew) : m_New(mNew) {}
-
-    void onUse() override;
-
-};
+#include <ethertia/item/ItemComponents.h>
 
 #include <ethertia/entity/EntityLantern.h>
 #include <ethertia/entity/vehicle/EntityHelicopter.h>
@@ -48,19 +20,24 @@ public:
 
 #define REGISTER_ITEM(VAR, id, comps) inline static const Item* VAR = new Item(id, comps);
 
-    REGISTER_ITEM(APPLE, "apple", {new Item::ComponentFood(1.5)});
-    REGISTER_ITEM(LIME, "lime", {new Item::ComponentFood(0.5)});
+    // Food
+    REGISTER_ITEM(APPLE, "apple", {new ItemComponentFood(1.5)});
+    REGISTER_ITEM(LIME, "lime", {new ItemComponentFood(0.5)});
 
-    REGISTER_ITEM(PICKAXE, "pickaxe", {new Item::ComponentTool()});
+
+    // Tool
+    REGISTER_ITEM(PICKAXE, "pickaxe", {new ItemComponentTool()});
     REGISTER_ITEM(GRAPPLE, "grapple", {new ItemComponentGrapple()});
+    REGISTER_ITEM(HOE, "hoe", {new ItemComponentTool()});
 
-    REGISTER_ITEM(LANTERN, "lantern", {new ItemComponentEntity([](){ return new EntityLantern(); })});
+    // Lights
+    REGISTER_ITEM(LANTERN, "lantern", {new ItemComponentEntity{[](){ return new EntityLantern(); }}});
     REGISTER_ITEM(TORCH, "torch", {new ItemComponentEntity([](){ return new EntityTorch(); })});
 
 
+    // ? Vehicle ?
     REGISTER_ITEM(HELICOPTER, "helicopter", {new ItemComponentEntity([](){ return new EntityHelicopter(); })});
 
-//    inline static const Item* MELON = new Item("melon", {new Item::ComponentFood(1.0)});
 
 };
 

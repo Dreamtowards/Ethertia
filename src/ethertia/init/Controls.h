@@ -50,7 +50,7 @@ public:
 
                 if (!stack.empty())
                 {
-                    for (Item::Component* comp : stack.item()->m_Components)
+                    for (ItemComponent* comp : stack.item()->m_Components)
                     {
                         comp->onUse();
                     }

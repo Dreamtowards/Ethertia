@@ -52,21 +52,21 @@ public:
 
 
 
-#include <ethertia/render/Model.h>
-
-class EntityComponentRenderDefault : public EntityComponent
-{
-public:
-
-    Model*   m_Model   = nullptr;
-    Texture* m_Texture = nullptr;
-
-    void onRender()
-    {
-
-    }
-
-};
+//#include <ethertia/render/Model.h>
+//
+//class EntityComponentRenderDefault : public EntityComponent
+//{
+//public:
+//
+//    Model*   m_Model   = nullptr;
+//    Texture* m_Texture = nullptr;
+//
+//    void onRender()
+//    {
+//
+//    }
+//
+//};
 
 
 

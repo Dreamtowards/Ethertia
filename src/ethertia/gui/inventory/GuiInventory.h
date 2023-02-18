@@ -98,10 +98,10 @@ public:
         if (item.hasComponent<ItemComponentMaterial>()) {
             info << "material\n";
         }
-        if (item.hasComponent<Item::ComponentFood>()) {
+        if (item.hasComponent<ItemComponentFood>()) {
             info << "food\n";
         }
-        if (item.hasComponent<Item::ComponentTool>()) {
+        if (item.hasComponent<ItemComponentTool>()) {
             info << "tool\n";
         }
         drawString(x,y+w+4+20, info.str(), Colors::GRAY, 15);

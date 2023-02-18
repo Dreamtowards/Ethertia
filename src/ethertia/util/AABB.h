@@ -6,6 +6,7 @@
 #define ETHERTIA_AABB_H
 
 #include <glm/vec3.hpp>
+#include <glm/common.hpp>  // glm::min/max
 
 class AABB
 {
