@@ -40,5 +40,5 @@ jobs:
         path: |
           run/bin/windows-x64/Ethertia.exe
           run/bin/windows-x64/DedicatedServer.exe
-          run/bin/windows-x64/TwilightForest.dll
+          run/bin/windows-x64/libTwilightForest.dll
 

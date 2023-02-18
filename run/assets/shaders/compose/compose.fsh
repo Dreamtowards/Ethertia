@@ -215,8 +215,14 @@ void main() {
 
 
     // Brush hint.
-    FragColor.rgb += 0.03 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
+    FragColor.r += 0.2 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
 
+    {
+        vec3 dif = abs(cursorPos-FragPos);
+//        float cross_f = min(dif.x, min(dif.y, dif.z)) < 0.01 ? 1 : 0;
+//        float cross_f = abs(cursorPos.x - FragPos.x);
+        FragColor.r += min(dif.x, dif.z) < 0.005 ? 0.5 : 0;
+    }
 
     // Fog
     float viewLen = length(CameraPos - FragPos);
