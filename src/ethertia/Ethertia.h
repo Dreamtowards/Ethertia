@@ -114,7 +114,7 @@ public:
         inline static const int major = 0;
         inline static const int minor = 0;
         inline static const int revision = 1;
-        inline static const char* snapshot = "23u04";  // release: nullptr.
+        inline static const char* snapshot = "23u07";  // release: nullptr.
 
         static const std::string& name() {
             static std::string _CACHE = snapshot ? Strings::fmt("Ethertia Alpha {} *{}.{}.{}", snapshot, major, minor, revision)
