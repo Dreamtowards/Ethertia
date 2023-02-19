@@ -137,12 +137,10 @@ add_executable(Ethertia
         src/ethertia/Ethertia.cpp
         )
 
-add_executable(DedicatedServer
-        src/ethertia/network/DedicatedServer.cpp
-        )
-
-
-
-add_library(TwilightForest SHARED
-        run/mods/TwilightForest/src/TwilightForest.cpp
-        )
+#add_executable(DedicatedServer
+#        src/ethertia/network/DedicatedServer.cpp
+#        )
+#
+#add_library(TwilightForest SHARED
+#        run/mods/TwilightForest/src/TwilightForest.cpp
+#        )
