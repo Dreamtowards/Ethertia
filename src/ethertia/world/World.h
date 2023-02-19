@@ -16,7 +16,7 @@
 #include <entt/entt.hpp>
 
 #include <ethertia/world/Cell.h>
-#include <ethertia/util/concurrent/Scheduler.h>
+#include <ethertia/util/Scheduler.h>
 
 class Entity;
 class Chunk;

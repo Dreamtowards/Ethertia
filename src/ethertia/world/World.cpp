@@ -10,7 +10,7 @@
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Mth.h>
-#include <ethertia/util/concurrent/Scheduler.h>
+#include <ethertia/util/Scheduler.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/world/ChunkLoader.h>

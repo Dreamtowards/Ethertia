@@ -13,8 +13,8 @@
 #include <ethertia/init/BrushCursor.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Profiler.h>
-#include <ethertia/util/concurrent/Scheduler.h>
-#include <ethertia/init/Registry.h>
+#include <ethertia/util/Scheduler.h>
+#include <ethertia/util/Registry.h>
 
 // scope profiling
 #define PROFILE_VN_CONCAT_INNR(a, b) a ## b

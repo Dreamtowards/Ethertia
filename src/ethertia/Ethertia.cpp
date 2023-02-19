@@ -13,7 +13,7 @@
 #include <ethertia/world/World.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Timer.h>
-#include <ethertia/util/concurrent/Scheduler.h>
+#include <ethertia/util/Scheduler.h>
 #include <ethertia/util/Strings.h>
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/player/EntityPlayer.h>

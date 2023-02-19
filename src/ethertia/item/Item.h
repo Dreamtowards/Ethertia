@@ -5,7 +5,7 @@
 #ifndef ETHERTIA_ITEM_H
 #define ETHERTIA_ITEM_H
 
-#include <ethertia/init/Registry.h>
+#include <ethertia/util/Registry.h>
 
 class ItemComponent
 {
@@ -34,9 +34,7 @@ public:
 
     }
 
-    [[nodiscard]] const std::string& getRegistryId() const {
-        return m_Name;
-    }
+    DECL_RegistryId(m_Name);
 
     template<typename T>
     bool hasComponent() const {

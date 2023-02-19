@@ -5,7 +5,7 @@
 #ifndef ETHERTIA_MATERIAL_H
 #define ETHERTIA_MATERIAL_H
 
-#include <ethertia/init/Registry.h>
+#include <ethertia/util/Registry.h>
 #include <ethertia/item/Item.h>
 
 class Material
@@ -50,9 +50,7 @@ public:
         m_IsTouchdown = params.touchdown;
     }
 
-    const std::string getRegistryId() const {
-        return m_Name;
-    }
+    DECL_RegistryId(m_Name);
 
 };
 

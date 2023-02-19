@@ -39,7 +39,9 @@ message("Binary Dir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 if(WIN32)
     link_libraries(winmm gdi32 wsock32 ws2_32)  # for enet lib
 
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")  # disable warning for ENET
+    if (NOT MSVC)
+        set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")  # disable warning for ENET
+    endif ()
 endif()
 
 
