@@ -7,7 +7,7 @@
 
 #include <ethertia/item/Item.h>
 #include <ethertia/render/Texture.h>
-#include <ethertia/init/Items.h>
+#include <ethertia/item/Items.h>
 
 class ItemTextures
 {

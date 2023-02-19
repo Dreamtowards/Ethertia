@@ -9,7 +9,7 @@
 
 #include <ethertia/item/Inventory.h>
 #include <ethertia/init/ItemTextures.h>
-#include <ethertia/init/Items.h>
+#include <ethertia/item/Items.h>
 
 class GuiInventory : public Gui
 {

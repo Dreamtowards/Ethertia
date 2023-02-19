@@ -8,7 +8,7 @@
 #include <ethertia/world/Cell.h>
 
 #include <ethertia/material/Material.h>
-#include <ethertia/init/Items.h>
+#include <ethertia/item/Items.h>
 
 class Materials
 {

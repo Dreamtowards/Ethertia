@@ -28,7 +28,7 @@
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/init/ItemTextures.h>
-#include <ethertia/init/Items.h>
+#include <ethertia/item/Items.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
 //#include <ethertia/vr/OpenVR.h>
