@@ -122,6 +122,7 @@ public:
             return _CACHE;
         }
     };
+
 };
 
 #endif //ETHERTIA_ETHERTIA_H

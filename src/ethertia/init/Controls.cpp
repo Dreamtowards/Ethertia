@@ -34,9 +34,13 @@ static void initConsoleThread()
 
 void handleMouseButton(MouseButtonEvent* e)
 {
+    World* world = Ethertia::getWorld();
+    EntityPlayer* player = Ethertia::getPlayer();
+
+
     if (e->isPressed() && e->getButton() == GLFW_MOUSE_BUTTON_RIGHT)
     {
-        ItemStack& stack = Ethertia::getPlayer()->getHoldingItem();
+        ItemStack& stack = player->getHoldingItem();
 
         if (!stack.empty())
         {
@@ -47,8 +51,6 @@ void handleMouseButton(MouseButtonEvent* e)
         }
     }
 
-    World* world = Ethertia::getWorld();
-    EntityPlayer* player = Ethertia::getPlayer();
 
     if (e->isPressed() && world && Ethertia::isIngame()) {
         int btn = e->getButton();
