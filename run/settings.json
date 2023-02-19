@@ -2,7 +2,7 @@
   "assets": "./assets/",
   "display_height": 671,
   "display_width": 1175,
-  "fov": 95.00000762939453,
+  "fov": 110.0,
   "fullscreen": false,
   "mods": [
     "./mods/TwilightForest"

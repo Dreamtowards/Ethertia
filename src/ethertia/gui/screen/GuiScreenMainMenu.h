@@ -162,7 +162,11 @@ public:
         int nFFT = 1024;
         int nFFT_2 = nFFT / 2;
 
-        Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
+        int numSampled = Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
+        if (!numSampled) {
+            Log::warn("No audio sampled.");
+            return;
+        }
 
         // FFT Spectrum Frequency
 

@@ -29,6 +29,13 @@ public:
     bool isSmoothTerrain() {
         return mtl && density > 0 && exp_meta == 0;  // todo: ? mtl.m_IsSmoothTerrain
     }
+
+    void set_nil() {
+        mtl = nullptr;
+        density = 0;
+        exp_meta = 0;
+        fp = glm::vec3{FP_INFINITE};
+    }
 };
 
 #endif //ETHERTIA_CELL_H

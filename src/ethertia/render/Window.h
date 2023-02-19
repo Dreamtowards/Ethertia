@@ -129,6 +129,15 @@ public:
     bool isMouseDown(int button) {
         return glfwGetMouseButton(m_WindowHandle, button) == GLFW_PRESS;
     }
+    bool isMouseLeftDown() {
+        return isMouseDown(GLFW_MOUSE_BUTTON_LEFT);
+    }
+    bool isMouseRightDown() {
+        return isMouseDown(GLFW_MOUSE_BUTTON_RIGHT);
+    }
+    bool isMouseMiddleDown() {
+        return isMouseDown(GLFW_MOUSE_BUTTON_MIDDLE);
+    }
 
     const char* getClipboard() {
         return glfwGetClipboardString(m_WindowHandle);
@@ -256,7 +265,12 @@ public:
     static void onMouseButton(GLFWwindow* _win, int button, int action, int mods) {
         Window* win = (Window*)glfwGetWindowUserPointer(_win);
 
-        MouseButtonEvent e(button, action==GLFW_PRESS);
+        if (action != GLFW_PRESS && action != GLFW_RELEASE) {
+            Log::warn("Unknown mouse button action ", action);  // REPEAT?
+            return;
+        }
+
+        MouseButtonEvent e(button, action);
         win->eventbus().post(&e);
     }
 

@@ -60,12 +60,10 @@ public:
     RenderEngine();
     ~RenderEngine();
 
-    void updateProjectionMatrix(float ratio_wdh) {
-        matProjection = glm::perspective(Mth::radians(fov), ratio_wdh, 0.01f, 1000.0f);
-    }
+    static void framePrepare();
 
-    void updateViewFrustum() {
-        m_ViewFrustum.set(matProjection * matView);
+    static void updateProjectionMatrix(float ratio_wdh) {
+        matProjection = glm::perspective(Mth::radians(fov), ratio_wdh, 0.01f, 1000.0f);
     }
 
     void renderWorld(World* world);
@@ -82,7 +80,6 @@ public:
             Log::warn("ERR: {}", err);
         }
     }
-
 
     static void clearRenderBuffer() {
         glClearColor(0, 0, 0, 1);

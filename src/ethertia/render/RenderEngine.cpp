@@ -21,6 +21,7 @@
 #include <ethertia/render/Window.h>
 #include <ethertia/entity/EntityDroppedItem.h>
 #include <ethertia/init/ItemTextures.h>
+#include <ethertia/entity/player/EntityPlayer.h>
 
 // RenderEngine is static/singleton. shouldn't instantiate.
 // Don't use OOP except it's necessary.
@@ -74,6 +75,20 @@ RenderEngine::~RenderEngine() {
     delete m_SkyboxRenderer;
     delete m_ParticleRenderer;
     delete m_SkyGradientRenderer;
+}
+
+
+void RenderEngine::framePrepare()
+{
+    // Camera matView.
+    RenderEngine::matView = g_Camera.computeViewMatrix();
+
+    RenderEngine::updateProjectionMatrix(Ethertia::getAspectRatio());
+
+    // updateViewFrustum()
+    m_ViewFrustum.set(matProjection * matView);
+
+    RenderEngine::clearRenderBuffer();
 }
 
 

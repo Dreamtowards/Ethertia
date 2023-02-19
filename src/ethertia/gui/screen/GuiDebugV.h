@@ -35,17 +35,14 @@ public:
     inline static bool dbgChunkBoundAABB = false;
 
     inline static bool dbgCursorRangeInfo = false;
-
     inline static bool dbgGBuffers = false;
-
     inline static float dbgLastDrawTime = 0;
-
     inline static bool dbgDrawFrameProfiler = true;
+    inline static bool dbg_CursorPt = false;
 
 
     inline static bool g_BlockMode = false;
 
-    inline static bool dbg_CursorPt = false;
 
     Gui* optsGui = nullptr;
 
@@ -217,8 +214,13 @@ public:
                 BrushCursor& cur = Ethertia::getBrushCursor();
                 if (world && cur.hit) {
                     pointingChunk = world->getLoadedChunk(cur.position);
-                    Cell& c = world->getCell(cur.position - cur.normal*0.1f);
-                    cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {}", c.mtl ? c.mtl->getRegistryId() : "nil", c.density, c.exp_meta);
+//                    Cell& c = world->getCell(cur.position - cur.normal*0.1f);
+                    Cell* c = cur.cell;
+                    cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
+                                            c ? c->mtl->getRegistryId() : "nil",
+                                            c ? c->density : NaN,
+                                            c ? c->exp_meta : NaN,
+                                            cur.cell_breaking_time);
                 }
                 if (pointingChunk) {
                     chunkInfo = Strings::fmt("GenPop: {}, Inhabited: {}s",

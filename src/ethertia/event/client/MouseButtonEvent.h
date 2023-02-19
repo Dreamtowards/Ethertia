@@ -8,14 +8,16 @@
 class MouseButtonEvent
 {
     int button;
-    bool pressed;
+    int action;
 
 public:
-    MouseButtonEvent(int button, bool pressed) : button(button), pressed(pressed) {}
+    MouseButtonEvent(int button, int action) : button(button), action(action) {}
 
     int getButton() const { return button; }
 
-    bool isPressed() const { return pressed; }
+    bool isPressed() const { return action == GLFW_PRESS; }
+
+    bool isRelease() const { return action == GLFW_RELEASE; }
 };
 
 #endif //ETHERTIA_MOUSEBUTTONEVENT_H

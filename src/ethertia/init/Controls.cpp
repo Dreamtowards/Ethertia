@@ -32,13 +32,24 @@ static void initConsoleThread()
 }
 
 
+
 void handleMouseButton(MouseButtonEvent* e)
 {
     World* world = Ethertia::getWorld();
     EntityPlayer* player = Ethertia::getPlayer();
+    BrushCursor& cur = Ethertia::getBrushCursor();
+
+    if (!(world && Ethertia::isIngame()))
+        return;
 
 
-    if (e->isPressed() && e->getButton() == GLFW_MOUSE_BUTTON_RIGHT)
+    if (!e->isPressed()) {
+        cur.cell_breaking_time = 0;
+        return;
+    }
+
+    // Use Item
+    if (e->getButton() == GLFW_MOUSE_BUTTON_RIGHT)
     {
         ItemStack& stack = player->getHoldingItem();
 
@@ -51,59 +62,60 @@ void handleMouseButton(MouseButtonEvent* e)
         }
     }
 
+        // MouseButton Middle, Picking.
+//        if (e->getButton() == GLFW_MOUSE_BUTTON_3)
+//        {
+//            const Material* mtl = world->getCell(p - cur.normal*0.1f).mtl;
+//            if (mtl && player->getGamemode() != Gamemode::SURVIVAL)
+//            {
+//                ItemStack stack(mtl->m_MaterialItem, 1);
+//
+//                player->getHoldingItem().clear();
+//                stack.moveTo(player->getHoldingItem());
+//            }
+//        }
 
-    if (e->isPressed() && world && Ethertia::isIngame()) {
-        int btn = e->getButton();
 
-        BrushCursor& cur = Ethertia::getBrushCursor();
-        if (cur.hit) {
-            glm::vec3 p = cur.position;
-            float n = cur.brushSize;
 
-            if (btn == GLFW_MOUSE_BUTTON_1) {
+    if (!cur.hit)
+        return;
 
-                if (GuiDebugV::g_BlockMode) {
+//    glm::vec3 p = cur.position;
+//    float n = cur.brushSize;
+//    if (e->getButton() == GLFW_MOUSE_BUTTON_LEFT) {
+//
+//        if (GuiDebugV::g_BlockMode) {
+//
+//            Cell& c = world->getCell( p + -cur.normal*0.1f );
+//
+//            c.mtl = 0;
+//            c.density = 0;
+//
+//            world->requestRemodel(p);
+//            return;
+//        }
+//
+//        for (int dx = floor(-n); dx <= ceil(n); ++dx) {
+//            for (int dz = floor(-n); dz <= ceil(n); ++dz) {
+//                for (int dy = floor(-n); dy <= ceil(n); ++dy) {
+//                    glm::vec3 d(dx, dy, dz);
+//
+//                    Cell& b = world->getCell(p + d);
+//                    float f = n - glm::length(d);
+//
+//                    // b.id = placingBlock;
+//                    b.density = b.density - Mth::max(0.0f, f);
+//                    if (f > 0 && b.density < 0 //&& b.id == Materials::LEAVES
+//                            ) {
+//                        b.mtl = 0;
+//                    }
+//                    world->requestRemodel(p+d);
+//                }
+//            }
+//        }
+//    }
 
-                    Cell& c = world->getCell( p + -cur.normal*0.1f );
 
-                    c.mtl = 0;
-                    c.density = 0;
-
-                    world->requestRemodel(p);
-                    return;
-                }
-
-                for (int dx = floor(-n); dx <= ceil(n); ++dx) {
-                    for (int dz = floor(-n); dz <= ceil(n); ++dz) {
-                        for (int dy = floor(-n); dy <= ceil(n); ++dy) {
-                            glm::vec3 d(dx, dy, dz);
-
-                            Cell& b = world->getCell(p + d);
-                            float f = n - glm::length(d);
-
-                            // b.id = placingBlock;
-                            b.density = b.density - Mth::max(0.0f, f);
-                            if (f > 0 && b.density < 0 //&& b.id == Materials::LEAVES
-                                    ) {
-                                b.mtl = 0;
-                            }
-                            world->requestRemodel(p+d);
-                        }
-                    }
-                }
-            } else if (btn == GLFW_MOUSE_BUTTON_3) {
-                const Material* mtl = world->getCell(p - cur.normal*0.1f).mtl;
-                if (mtl && player->getGamemode() != Gamemode::SURVIVAL)
-                {
-                    ItemStack stack(mtl->m_MaterialItem, 1);
-
-                    player->getHoldingItem().clear();
-                    stack.moveTo(player->getHoldingItem());
-                }
-            }
-        }
-
-    }
 }
 
 
@@ -228,105 +240,135 @@ void Controls::initControls()
     Ethertia::getWindow()->eventbus().listen(handleKeyDown);
 }
 
+void handleHitCursor()
+{
+    World* world = Ethertia::getWorld();
+    Camera& camera = *Ethertia::getCamera();
 
+    // Cursor
+    BrushCursor& cur = Ethertia::getBrushCursor();
+    if (cur.keepTracking && world) {
+        glm::vec3 p, n;
+        glm::vec3 _p_beg = camera.position;
+
+        btCollisionObject* obj = nullptr;
+        cur.hit = Ethertia::getWorld()->raycast(_p_beg, _p_beg + camera.direction * 100.0f, p, n, &obj);
+
+        if (cur.hit)
+        {
+            cur.position = p;
+            cur.normal = n;
+            cur.hitEntity = (Entity*)obj->getUserPointer();
+            cur.length = glm::length(p - _p_beg);
+
+            // Hit Terrain Cell.
+            cur.hitTerrain = dynamic_cast<EntityMesh*>(cur.hitEntity);
+            if (cur.hitTerrain) {
+                Cell* newCell = nullptr;
+                Cell& hitCell = world->getCell(p);  // - n * 0.1f
+                if (hitCell.mtl) {
+                    newCell = &hitCell;
+                    cur.cell_position = glm::floor(p);
+                }
+
+                if (newCell != cur.cell || newCell == nullptr) {
+                    cur.cell_breaking_time = 0;  // reset breaking_time. hitting target changed.
+                    cur.cell_position = {0,0,0};
+                }
+                cur.cell = newCell;
+            }
+        }
+        else
+        {
+            cur.reset();
+        }
+
+        if (Ethertia::getWindow()->isMouseLeftDown() && cur.cell) {
+            cur.cell_breaking_time += Ethertia::getDelta();
+
+            float fullDigTime = cur.cell->mtl->m_Hardness;
+            if (cur.cell_breaking_time >= fullDigTime)
+            {
+                // Do Dig
+                cur.cell->set_nil();
+
+                cur.cell_breaking_time = 0;
+                cur.cell = nullptr;
+                world->requestRemodel(cur.cell_position);
+            }
+        } else {
+            cur.cell_breaking_time = 0;
+        }
+
+    }
+}
 
 void Controls::handleContinuousInput()
 {
     Camera& camera = *Ethertia::getCamera();
     Window& window = *Ethertia::getWindow();
     EntityPlayer* player = Ethertia::getPlayer();
-    RenderEngine* renderEngine = Ethertia::getRenderEngine();
 
     float dt = Ethertia::getDelta();
 
     window.setMouseGrabbed(Ethertia::isIngame());
     window.setStickyKeys(!Ethertia::isIngame());
-    // window.setTitle(("desp. "+std::to_string(1.0/dt)).c_str());
 
-    if (Ethertia::isIngame())
-    {
+    // Hit Cursor.
+    handleHitCursor();
 
-        // Player Movement.
-
-        if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
-            player->setSprint(true);
-        } else if (!window.isKeyDown(GLFW_KEY_W)) {
-            player->setSprint(false);
-        }
-
-        if (player->m_RidingOn == nullptr) {
-            player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
-                         window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
-                         window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
-        }
-        else
-        {
-            // Vehicle Control.
-            player->m_RidingOn->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
-                                     window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
-                                     window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
-                                     window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
-            //window.isCtrlKeyDown() && window.isKeyDown(GLFW_KEY_A),window.isCtrlKeyDown() && window.isKeyDown(GLFW_KEY_D));
-        }
-
-        // Camera
-        static SmoothValue smFov;
-        smFov.update(dt);
-        if (window.isKeyDown(GLFW_KEY_X)) {
-            smFov.target += window.getMouseY() / 800.0f;
-        }
-        RenderEngine::fov += smFov.delta;
-
-        camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
-
-        if (window.isKeyDown(GLFW_KEY_L))
-            camera.len += window.getDScroll();
-        camera.len = Mth::max(camera.len, 0.0f);
+    if (!Ethertia::isIngame())
+        return;
 
 
+    // Player Move.
 
-        // Hotbar
-        player->m_HotbarSlot += Mth::signal(-window.getDScroll());
-        player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, GuiIngame::HOTBAR_SLOT_MAX);
+    if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+        player->setSprint(true);
+    } else if (!window.isKeyDown(GLFW_KEY_W)) {
+        player->setSprint(false);
+    }
 
-        for (int i = 0; i <= GuiIngame::HOTBAR_SLOT_MAX; ++i) {
-            if (window.isKeyDown(GLFW_KEY_1+i))
-                player->m_HotbarSlot = i;
-        }
-
-
-
-        // Cursor
-        BrushCursor& cursor = Ethertia::getBrushCursor();
-        if (cursor.keepTracking && Ethertia::getWorld()) {
-            glm::vec3 p, n;
-            glm::vec3 pos_begin = camera.position;
-
-            btCollisionObject* obj = nullptr;
-            cursor.hit = Ethertia::getWorld()->raycast(pos_begin, pos_begin + camera.direction * 100.0f, p, n, &obj);
-
-            if (cursor.hit) {
-                cursor.position = p;
-                cursor.normal = n;
-                cursor.hitEntity = (Entity*)obj->getUserPointer();
-                cursor.length = glm::length(p - pos_begin);
-            } else {
-                cursor.reset();
-            }
-        }
+    if (player->m_RidingOn == nullptr) {
+        player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+                     window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
+                     window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
+    }
+    else
+    {   // Vehicle Control.
+        player->m_RidingOn->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
+                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
+                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
     }
 
 
-//    player->intpposition = /*Mth::lerp(Ethertia::getTimer()->getPartialTick(), player->prevposition, */player->getPosition();//);
+    // Camera Move
+    static SmoothValue smFov;
+    smFov.update(dt);
+    if (window.isKeyDown(GLFW_KEY_X)) {
+        smFov.target += window.getMouseY() / 800.0f;
+    }
+    RenderEngine::fov += smFov.delta;
 
+    camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
 
-    // RenderEngine updates.
+    if (window.isKeyDown(GLFW_KEY_L))
+        camera.len += window.getDScroll();
+    camera.len = Mth::max(camera.len, 0.0f);
+
     camera.position = player->getPosition();
-    RenderEngine::matView = camera.computeViewMatrix();
 
-    renderEngine->updateViewFrustum();
-    renderEngine->updateProjectionMatrix(Ethertia::getAspectRatio());
 
+
+    // Hotbar Scrolling / Key Switch.
+    player->m_HotbarSlot += Mth::signal(-window.getDScroll());
+    player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, GuiIngame::HOTBAR_SLOT_MAX);
+
+    for (int i = 0; i <= GuiIngame::HOTBAR_SLOT_MAX; ++i) {
+        if (window.isKeyDown(GLFW_KEY_1+i))
+            player->m_HotbarSlot = i;
+    }
 
 
 }

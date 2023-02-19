@@ -158,8 +158,7 @@ void Ethertia::runMainLoop()
 
     {
         PROFILE("Render");
-
-        RenderEngine::clearRenderBuffer();
+        RenderEngine::framePrepare();
 
         if (m_World)
         {
@@ -207,6 +206,16 @@ void Ethertia::renderGUI()
 //        .tex = ShadowRenderer::fboDepthMap->texDepth,
 //        .channel_mode = Gui::DrawRectArgs::C_RGB
 //    });
+
+    BrushCursor& cur = Ethertia::getCursor();
+    if (cur.cell_breaking_time)
+    {
+        float fullBreakingTime = cur.cell->mtl->m_Hardness;
+        float t = cur.cell_breaking_time / fullBreakingTime;
+        Gui::drawString(64, 256, Strings::fmt("{}/{}s", Mth::floor_dn(cur.cell_breaking_time, 1), fullBreakingTime));
+        Gui::drawRect(64, 256+16, 120,   4, Colors::BLACK80);
+        Gui::drawRect(64, 256+16, 120*t, 4, Colors::GREEN_DARK);
+    }
 
 
     if (ChunkGenProc::dbg_SavingChunks) {
