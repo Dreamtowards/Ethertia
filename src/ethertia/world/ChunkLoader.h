@@ -85,7 +85,7 @@ public:
     }
 
     void saveWorldInfo(const WorldInfo& worldinfo) const {
-        std::ofstream file(Loader::ensureFileParentDirsReady(_FileWorldInfo()), std::ios::out | std::ios::binary);
+        std::ofstream file(Loader::fileMkdirs(_FileWorldInfo()), std::ios::out | std::ios::binary);
 
         nbt::tag_compound tagWorld;
         tagWorld.put("Name", worldinfo.Name);
@@ -147,7 +147,7 @@ public:
             return nullptr;  // file not exists.
         }
 
-        Loader::ensureFileParentDirsReady(filename);
+        Loader::fileMkdirs(filename);
         std::fstream* file = new std::fstream(filename, std::ios::binary);
 
         VolumeStore* vst = new VolumeStore();
@@ -223,7 +223,7 @@ public:
 //
 //        // move buf to file[info.pos];
 
-        std::ofstream file(Loader::ensureFileParentDirsReady(_OldChunkFileName(chunkpos)), std::ios::out | std::ios::binary);
+        std::ofstream file(Loader::fileMkdirs(_OldChunkFileName(chunkpos)), std::ios::out | std::ios::binary);
 
         nbt::io::write_tag("ChunkData", chunkdata, file);
 

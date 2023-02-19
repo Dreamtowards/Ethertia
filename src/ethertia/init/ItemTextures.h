@@ -17,9 +17,10 @@ public:
     inline static Texture* ITEM_ATLAS = nullptr;
 
     static Texture* makeAtlas(const std::string& cache_file) {
+
         if (Loader::fileExists(cache_file)) {
             std::cout << "loading from cache '" << cache_file << "'";
-            return Loader::loadTexture(cache_file, false);
+            return Loader::loadTexture(cache_file);
         } else {
             std::cout << "cache not found. start baking.";
 

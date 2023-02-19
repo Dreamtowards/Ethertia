@@ -16,7 +16,7 @@ public:
     {
         // 很快就会取消这种 Entity,
 
-        static VertexBuffer* M_Lantern = Loader::loadOBJ("@material/torch/mesh.obj");
+        static VertexBuffer* M_Lantern = Loader::loadOBJ("material/torch/mesh.obj");
         static Model* M_Lan = Loader::loadModel(M_Lantern);
         static Texture* Tex = Loader::loadTexture("material/torch/diff.png");
 

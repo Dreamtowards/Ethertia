@@ -13,8 +13,6 @@
 #include <ethertia/world/Biome.h>
 
 
-#include "dj-fft/dj_fft.h"
-
 class GuiScreenMainMenu : public GuiCollection
 {
 public:
@@ -176,7 +174,7 @@ public:
             tFreq[i].real(f);
             tFreq[i].imag(0);
         }
-        auto fft = dj::fft1d(tFreq, dj::fft_dir::DIR_BWD);
+        std::vector<std::complex<float>> fft = Loader::fft_1d(tFreq);
 
 
         float sampFreq = Ethertia::getAudioEngine()->m_CaptureSampleRate;

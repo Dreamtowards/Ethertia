@@ -95,33 +95,33 @@ public:
 //        Tex_NightStar = Loader::loadCubeMap1("misc/sky/starfield1.png");
 
             GlState::blendMode(GlState::ADD);
-            static Texture* TEX_CLOUDS = Loader::loadCubeMap1("misc/sky/cloud1.png");
+            static Texture* TEX_CLOUDS = Loader::loadCubeMap_3x2("misc/sky/cloud1.png");
             render(TEX_CLOUDS, {0,1,0}, -time / 60, glm::vec4{0.15});
 
 //                GlState::blendMode(GlState::ALPHA);
 //                m_SkyboxRenderer->render(SkyboxRenderer::Tex_Cloud, {0,1,0}, -time / 60, glm::vec4{1});
 
             GlState::blendMode(GlState::ADD);
-            static Texture *Atmos = Loader::loadCubeMap1("misc/sky/cloudbox/atmosphere.png");
+            static Texture *Atmos = Loader::loadCubeMap_3x2("misc/sky/cloudbox/atmosphere.png");
             render(Atmos, {0,1,0}, time / 60);
 
-            static Texture* Horizon = Loader::loadCubeMap1("misc/sky/cloudbox/horizon.png");
+            static Texture* Horizon = Loader::loadCubeMap_3x2("misc/sky/cloudbox/horizon.png");
             render(Horizon, {0,1,0}, -time/40);
         }
         else
         {
             GlState::blendMode(GlState::ADD);
 
-            static Texture* Stars = Loader::loadCubeMap1("misc/sky/nightbox/stars.png");
+            static Texture* Stars = Loader::loadCubeMap_3x2("misc/sky/nightbox/stars.png");
             render(Stars, {0,0,1}, time/60);
 
-            static Texture *Aurora = Loader::loadCubeMap1("misc/sky/nightbox/aurora.png");
+            static Texture *Aurora = Loader::loadCubeMap_3x2("misc/sky/nightbox/aurora.png");
             render(Aurora, {-0.3,1,0}, -time / 70);
 
-            static Texture *Galaxies = Loader::loadCubeMap1("misc/sky/nightbox/galaxies.png");
+            static Texture *Galaxies = Loader::loadCubeMap_3x2("misc/sky/nightbox/galaxies.png");
             render(Galaxies, {0.4,0.4,0}, -time / 70);
 
-            static Texture *Depth = Loader::loadCubeMap1("misc/sky/nightbox/depth.png");
+            static Texture *Depth = Loader::loadCubeMap_3x2("misc/sky/nightbox/depth.png");
             render(Depth, {1,0,0}, -time / 50);
         }
 

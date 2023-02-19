@@ -11,11 +11,9 @@
 #include <array>
 #include <filesystem>
 #include <span>
+#include <complex>
 
 #include <glad/glad.h>
-#include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
-#include <tinyfd/tinyfiledialogs.h>
 #include <nbt/nbt_tags.h>
 
 #include <ethertia/render/Texture.h>
@@ -54,53 +52,65 @@ public:
     };
 
 
-    static datablock loadFile(const std::string& __path, bool isAssets = false)
-    {
-        const std::string& path = isAssets ? fileAssets(__path) : __path;
 
-        std::ifstream file(std::string(path), std::ios_base::binary);
-        if (!file.is_open()) {
-            throw std::runtime_error(Strings::fmt("Failed open file. ", path));
-            //Log::warn("Failed open file: ", path);
-            //return std::make_pair(nullptr, -1);
-        }
-        file.seekg(0, std::ios_base::end);
-        size_t len = file.tellg();
-        file.seekg(0, std::ios_base::beg);
+    ////////////////// FILE & ASSETS //////////////////
 
-        char* buf = new char[len];
-        file.read(buf, len);
-        file.close();
+    static datablock loadFile(const std::string& path);
 
-        return datablock(buf, len);
+    inline static std::string fileAssets(const std::string& p) {
+        return ASSETS + p;
     }
-    static bool fileExists(std::string_view path) {
-        return std::filesystem::exists(path);
-    }
-    inline static std::string fileAssets(std::string_view p) {
-        return ASSETS + std::string(p);
-    }
-    inline static std::string fileResolve(std::string_view p) {
-        if (p.starts_with('@')) return fileAssets(p.substr(1));
-        else return std::string(p);
+
+    // lead with "./" or "/": normal relative/absolute path
+    // otherwise: assets file.
+    inline static std::string fileResolve(const std::string& p) {
+        if (p.starts_with('.') || p.starts_with('/'))
+            return p;
+        else
+            return fileAssets(p);
     }
 
     static datablock loadAssets(const std::string& p) {
         return loadFile(fileAssets(p));
     }
 
-    static void checkAssetsExists() {
+    static bool fileExists(std::string_view path);
+
+    // mkdirs for the file's parent dir
+    static const std::string& fileMkdirs(const std::string& filename);
+
+    // Recursive check all file size.
+    static size_t calcDirectorySize(const std::string& dir);
+
+    static void checkWorkingDirectory() {
         if (!fileExists("./assets")) {
-            throw std::runtime_error("default assets directory not found. make sure you are in correct working directory. (*/run)");
+            throw std::runtime_error("default assets directory not found. make sure you are in valid working directory.");
         }
     }
 
-//    static std::string loadAssetsStr(const std::string& p) {
-//        return loadAssets(p).new_string();
-//    }
-//    static std::string loadFileStr(const std::string& p) {
-//        return loadFile(p).new_string();
-//    }
+
+
+    ///////////////// OBJ /////////////////
+
+    // arg: filepath
+    static VertexBuffer* loadOBJ(const std::string& filename);
+
+    static void saveOBJ(const std::string& filename, size_t verts, const float* pos, const float* uv =nullptr, const float* norm =nullptr);
+
+
+
+    ////////////////// SOUNDS: OGG, WAV //////////////////
+
+    // return: PCM data, 16 bit.
+    static int16_t* loadOGG(datablock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
+
+    // load to OpenAL buffer.
+    static AudioBuffer* loadOGG(datablock& data);
+
+    // PCM, 16-bit sample, 1-channel
+    static void saveWAV(const void* pcm, size_t size, std::ostream& dst, int samplePerSec = 44100);
+
+
 
 
     static ShaderProgram loadShaderProgram(const std::string& assets_p, bool geo = false)
@@ -111,326 +121,100 @@ public:
     }
 
 
-    static VertexBuffer* loadOBJ(const char* p) {
-        VertexBuffer* vbuf = new VertexBuffer();
-        loadOBJ_Tiny(Loader::fileResolve(p).c_str(), *vbuf);
-        return vbuf;
-//        return Loader::loadOBJ(Loader::loadFile(p, isAssets).new_string());
-    }
+    //////////// PNG ////////////
 
-//    static VertexBuffer* loadOBJ(const std::string& objstr) {
-//        VertexBuffer* vbuf = new VertexBuffer();
-//        std::stringstream ss(objstr);
-//        OBJLoader::loadOBJ(ss, vbuf);
-//        return vbuf;
-//    }
+    static BitmapImage loadPNG(const void* data, size_t len);
 
-    // tiny_obj_loader: 2-5 times faster than util::OBJLoader. especially in little. 6.6MB obj 2times faster: 1.9s/0.9s, 632KB obj 4.3 times faster.
-    static void loadOBJ_Tiny(const char* filename, VertexBuffer& vbuf);
+    static BitmapImage loadPNG(const datablock& m) { return loadPNG(m.data, m.length); }
 
-    static void saveOBJ(const std::string& filename, size_t verts, const float* pos, const float* uv =nullptr, const float* norm =nullptr);
+    static BitmapImage loadPNG(const std::string filepath) { return loadPNG(Loader::loadFile(Loader::fileResolve(filepath))); }
 
-    static int16_t* loadOGG(std::pair<char*, size_t> data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
+    static void savePNG(const BitmapImage& img, const std::string& filename);
 
 
-    static AudioBuffer* loadOGG(std::pair<char*, size_t> data) {
-        size_t len;
-        int channels;
-        int sampleRate = 0;
 
-        int16_t* pcm = Loader::loadOGG(data, &len, &channels, &sampleRate);
-        ALuint format = channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+    /////////////// OpenGL VAO, VBO ///////////////
 
-        AudioBuffer* buf = new AudioBuffer();
-        buf->buffer_data(format, pcm, len, sampleRate);
-        return buf;
-    }
+    // VertexCount, {{VertLen, VertData}}
+    static Model* loadModel(size_t vcount, const std::vector<std::pair<int, float*>>& vdats);
 
-    // PCM, 16-bit sample, 1-channel
-    static void saveWAV(const void* pcm, size_t size, std::ostream& dst, int samplePerSec = 44100) {
-        // endianness problem. may cause wrong on big-endian system.
-        struct WAV_HEADER {
-            /* RIFF Chunk Descriptor */
-            uint8_t RIFF[4] = {'R', 'I', 'F', 'F'}; // RIFF Header Magic header
-            uint32_t ChunkSize;                     // RIFF Chunk Size
-            uint8_t WAVE[4] = {'W', 'A', 'V', 'E'}; // WAVE Header
-            /* "fmt" sub-chunk */
-            uint8_t fmt[4] = {'f', 'm', 't', ' '}; // FMT header
-            uint32_t Subchunk1Size = 16;           // Size of the fmt chunk
-            uint16_t AudioFormat = 1; // Audio format 1=PCM,6=mulaw,7=alaw,     257=IBM
-            // Mu-Law, 258=IBM A-Law, 259=ADPCM
-            uint16_t NumOfChan = 1;   // Number of channels 1=Mono 2=Sterio
-            uint32_t SamplesPerSec = 16000;   // Sampling Frequency in Hz
-            uint32_t bytesPerSec = 16000 * 2; // bytes per second
-            uint16_t blockAlign = 2;          // 2=16-bit mono, 4=16-bit stereo
-            uint16_t bitsPerSample = 16;      // Number of bits per sample
-            /* "data" sub-chunk */
-            uint8_t Subchunk2ID[4] = {'d', 'a', 't', 'a'}; // "data"  string
-            uint32_t Subchunk2Size;                        // Sampled data length
-        };
-        static_assert(sizeof(WAV_HEADER) == 44);
+    static Model* loadModel(const VertexBuffer* vbuf);
 
-        WAV_HEADER hdr;
-        hdr.ChunkSize = size + sizeof(WAV_HEADER) - 8;
-        hdr.Subchunk2Size = size;
-
-        hdr.SamplesPerSec = samplePerSec;
-        hdr.bytesPerSec = samplePerSec * 2;  // 16bit sample.
-
-        dst.write(reinterpret_cast<const char*>(&hdr), sizeof(WAV_HEADER));
-
-        dst.write((char*)pcm, size);
-    }
-
-    static BitmapImage loadPNG(const void* data, size_t len) {
-        int width, height, channels;
-        void* pixels = stbi_load_from_memory((unsigned char*)data, len, &width, &height, &channels, 4);
-        return BitmapImage(width, height, (unsigned int*)pixels);
-    }
-    static BitmapImage loadPNG(const datablock& m) {
-        return loadPNG(m.data, m.length);
-    }
-
-
-    static void savePNG(const BitmapImage& img, const std::string& filename) {
-        ensureFileParentDirsReady(filename);
-        if (!stbi_write_png(filename.c_str(), img.getWidth(), img.getHeight(), 4, img.getPixels(), 0)) {
-            throw std::runtime_error("Failed to write PNG. "+filename);
-        }
-    }
-
-    static const std::string& ensureFileParentDirsReady(const std::string& filename) {
-        // mkdirs for parents of the file.
-        int _dir = filename.rfind('/');
-        if (_dir != std::string::npos) {
-            std::filesystem::create_directories(filename.substr(0, _dir));
-        }
-        return filename;
-    }
-
-    static Model* loadModel(size_t vcount, const std::vector<std::pair<int, float*>>& vdats) {
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-        Model* m = new Model(vao, vcount);
-
-        int i = 0;
-        for (auto vd : vdats) {
-            int vlen = vd.first;
-            float* vdat = vd.second;
-
-            GLuint vbo;
-            glGenBuffers(1, &vbo);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vlen*vcount, vdat, GL_STATIC_DRAW);
-
-            glVertexAttribPointer(i, vlen, GL_FLOAT, false, 0, nullptr);
-            glEnableVertexAttribArray(i);
-            m->vbos.push_back(vbo);
-            i++;
-        }
-        return m;
-    }
-    static Model* loadModel(const VertexBuffer* vbuf) {
-        std::vector<std::pair<int, float*>> ls;
-        ls.emplace_back(3, (float*)vbuf->positions.data());
-        ls.emplace_back(2, (float*)vbuf->textureCoords.data());
-        ls.emplace_back(3, (float*)vbuf->normals.data());
-
-        return loadModel(vbuf->vertexCount(), ls);
-    }
     static Model* loadModel(size_t vcount, std::initializer_list<std::pair<int, float*>> vdats) {
         return loadModel(vcount, std::vector(vdats));
     }
 
-    static Texture* loadTexture(const std::string& p, bool isAssets = true) {
-        assert(isAssets || p.starts_with("./"));
-        return Loader::loadTexture(Loader::loadPNG(isAssets ? Loader::loadAssets(p) : Loader::loadFile(p)));
-    }
-    static Texture* loadTexture(const BitmapImage& img) {
-        std::unique_ptr<std::uint32_t> pixels(new std::uint32_t[img.getWidth() * img.getHeight()]);
-        img.getVerticalFlippedPixels(pixels.get());
 
-        return Loader::loadTexture(img.getWidth(), img.getHeight(), pixels.get());
-    }
 
-    /// pixels_VertInv: need y/vertical flipped pixels. cause of GL feature.
+
+
+    ////////////////// OpenGL Texture: 2D, CubeMap //////////////////
+
+    /// pixels_VertFlip: need y/vertical flipped pixels. cause of GL feature.
     static Texture* loadTexture(int w, int h, void* pixels_VertFlip,
-                                int intlfmt = GL_RGBA, int fmt = GL_RGBA, int type = GL_UNSIGNED_BYTE) {
-        GLuint texId;
-        glGenTextures(1, &texId);
-        glBindTexture(GL_TEXTURE_2D, texId);
-        auto* tex = new Texture(texId, w, h);
+                                int intlfmt = GL_RGBA, int fmt = GL_RGBA, int type = GL_UNSIGNED_BYTE);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, intlfmt, w, h, 0, fmt, type, pixels_VertFlip);
-        // glTexSubImage2D();
+    static Texture* loadTexture(const BitmapImage& img);
 
-
-        // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
-//        if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
-//            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 if use TextureFilterAnisotropic
-//            float amount = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
-//            glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
-//            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
-//         }
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
-
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        return tex;
+    static Texture* loadTexture(const std::string& filepath) {
+        return Loader::loadTexture(Loader::loadPNG(filepath));
     }
+
+
+    // imgs order: Right, Left, Top, Bottom, Front, Back.
+    static Texture* loadCubeMap(const BitmapImage imgs[]);
 
     // a 3x2 grid png. first row: bottom, top, back, second row: left front, right
-    static Texture* loadCubeMap1(const std::string& p, bool isAssets = true) {
-        assert(isAssets);
-        BitmapImage comp = Loader::loadPNG(Loader::loadFile(p, isAssets));
-        int size = comp.getHeight() / 2;
-        assert(std::abs(comp.getWidth() - size*3) < 3 && "Expect 3x2 grid image.");
+    static Texture* loadCubeMap_3x2(const std::string& filepath);
 
-        BitmapImage imgs[] = {{size,size},{size,size},{size,size},
-                              {size,size},{size,size},{size,size}};
-
-        comp.get_pixels_to(2*size, size, imgs[0]);  // +X Right
-        comp.get_pixels_to(0, size, imgs[1]);  // -X Left
-        comp.get_pixels_to(size, 0, imgs[2]);  // +Y Top
-        comp.get_pixels_to(0, 0, imgs[3]);  // -Y Bottom
-        comp.get_pixels_to(size, size, imgs[4]);  // +Z Front (GL)
-        comp.get_pixels_to(2*size, 0, imgs[5]);  // -Z Back (GL)
-
-        return loadCubeMap(imgs);
-    }
-    static Texture* loadCubeMap6(const std::string& p, bool isAssets = true) {
-        assert(isAssets);
-
+    // filepath: a pattern e.g. "skybox-{}.png", the {} would be replaced with "right/left/top/bottom/front/back".
+    static Texture* loadCubeMap_6(const std::string& filepath) {
         BitmapImage imgs[] = {
-                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "right"))),
-                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "left"))),
-                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "top"))),
-                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "bottom"))),
-                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "front"))),
-                Loader::loadPNG(Loader::loadAssets(Strings::fmt(p, "back"))),
+                Loader::loadPNG(Strings::fmt(filepath, "right")),
+                Loader::loadPNG(Strings::fmt(filepath, "left")),
+                Loader::loadPNG(Strings::fmt(filepath, "top")),
+                Loader::loadPNG(Strings::fmt(filepath, "bottom")),
+                Loader::loadPNG(Strings::fmt(filepath, "front")),
+                Loader::loadPNG(Strings::fmt(filepath, "back")),
         };
         return loadCubeMap(imgs);
     }
 
-    // imgs order: Right, Left, Top, Bottom, Front, Back.
-    static Texture* loadCubeMap(const BitmapImage imgs[]) {
-        int w = imgs[0].getWidth();
-        int h = imgs[0].getHeight();
-
-        GLuint texId;
-        glGenTextures(1, &texId);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, texId);
-        Texture* tex = new Texture(texId, w, h);
-
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-        for (int i = 0; i < 6; ++i) {
-            const BitmapImage& img = imgs[i];
-            assert(img.getWidth() == w && img.getHeight() == h);
-
-            // flipped y.
-            void* pixels = img.getPixels();
-
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                         0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-        }
-
-        return tex;
-    }
 
 
 
 
 
-
-    static size_t calcDirectorySize(const std::string& dir)
-    {
-        size_t sumSize = 0;
-        for (const auto& entry : std::filesystem::recursive_directory_iterator(dir))
-        {
-            if (!entry.is_directory()) {
-                sumSize += entry.file_size();
-            }
-        }
-        return sumSize;
-    }
+    ////////// SYSTEM //////////
 
 
-    static void showMessageBox(const char* title, const char* message) {
-        tinyfd_messageBox(title, message, "ok", "question", 1);
-    }
-    static const char* showInputBox(const char* title, const char* message, const char* def) {
-        return tinyfd_inputBox(title, message, def);  // free()?
-    }
-    static glm::vec3 openColorPick() {
-        uint8_t rgb[3] = {};
-        tinyfd_colorChooser("Color Choose", nullptr, rgb, rgb);
-        Log::info("Pick Color");
+    static void showMessageBox(const char* title, const char* message);
 
-        return {rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f};
-    }
+    static const char* showInputBox(const char* title, const char* message, const char* def);
+
+    static glm::vec3 openColorPick();
 
 
 
     // File, Folder, URL
-    static void openURL(const std::string& url) {
-        const char* cmd = nullptr;
-#if __WIN32__
-        cmd = "start ";  // windows
-#elif __APPLE__
-        cmd = "open ";  // macos
-#elif __unix__
-        cmd = "xdg-open ";  // linux
-#else
-        static_assert(false);  // Not supported OS yet.
-#endif
-        std::system(std::string(cmd + url).c_str());
-    }
+    static void openURL(const std::string& url);
 
     // WINDOWS / DARWIN / LINUX / nullptr
-    static const char* sysname() {
-#if __WIN32__
-        return "WINDOWS";
-#elif __APPLE__
-        return "DARWIN";
-#elif __unix__
-        return "LINUX";
-#else
-        static_assert(false);
-#endif
-    }
+    static const char* sysname();
 
-    static const std::string sys_target_name() {
-#if defined(__APPLE__) && defined(__x86_64__)
-        return "darwin-x64";
-#elif defined(__APPLE__) && defined(__aarch64__)
-        return "darwin-arm64";
-#elif defined(__WIN32__) && defined(__x86_64__)
-        return "windows-x64";
-#else
-        static_assert(false);
-#endif
-    }
+    // macOS:   darwin-x64  | darwin-arm64
+    // Windows: windows-x64 | windows-arm64
+    static std::string sys_target_name();
 
-    // to system proper shared-library name.
-    static std::string sys_lib_name(const std::string& name) {
-#if __APPLE__
-        return "lib" + name + ".dylib";
-#elif __WIN32__
-        return "lib" + name + ".dll";
-#else
-        static_assert(false);
-#endif
-    }
+    // macOS:   lib<Name>.dylib
+    // Windows: lib<Name>.dll
+    static std::string sys_lib_name(const std::string& name);
+
+
+
+
+
+    static std::vector<std::complex<float>> fft_1d(const std::vector<std::complex<float>>& data);
 
 };
 

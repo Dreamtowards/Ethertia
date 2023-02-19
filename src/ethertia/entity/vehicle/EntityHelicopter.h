@@ -23,7 +23,7 @@ class EntityHelicopter : public EntityVehicle
 public:
     EntityHelicopter() {
 
-        static VertexBuffer* M_Helicopter = Loader::loadOBJ("@material/helicopter/oka.obj");
+        static VertexBuffer* M_Helicopter = Loader::loadOBJ("material/helicopter/oka.obj");
         static Model* M_Hel = Loader::loadModel(M_Helicopter);
 
         m_Model = M_Hel;

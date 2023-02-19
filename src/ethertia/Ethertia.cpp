@@ -47,7 +47,7 @@ void Ethertia::start()
 {
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::loadSettings();
-    Loader::checkAssetsExists();  // check working directory.
+    Loader::checkWorkingDirectory();
 
     for (const std::string& modpath : Settings::MODS) {
         ModLoader::loadMod(modpath);
@@ -153,7 +153,7 @@ void Ethertia::runMainLoop()
 
         m_Window->resetDeltas();
         glfwPollEvents();
-        Controls::handleInput();
+        Controls::handleContinuousInput();
     }
 
     {

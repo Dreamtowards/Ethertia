@@ -11,12 +11,13 @@
 class Material
 {
 public:
-
     inline static Registry<Material> REGISTRY;
 
 
     std::string m_Name;
 
+    // Dirt: 0.8, Stone: 8, Ore: 16, Furnace: 18, Anvil: 25, Obsidian: 250
+    float m_Hardness = 1;  // seconds to dig via hand.
 
 //    // client可能需要一个数字 MtlId, 用于shaders判断vert.MtlId, 用于Atlas缓存mtl_tex索引(离线持久的数字id 直到atlas失效)
 //    // 其实前者还好 可以运行时宏替换shaders取得id. 然而后者 让atlas根据其有效周期自己维护一个离线id吧

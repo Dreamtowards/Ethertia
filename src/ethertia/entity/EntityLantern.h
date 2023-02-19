@@ -13,7 +13,7 @@ public:
 
     EntityLantern() {
 
-        static VertexBuffer* M_Lantern = Loader::loadOBJ("@material/lantern/mesh.obj");
+        static VertexBuffer* M_Lantern = Loader::loadOBJ("material/lantern/mesh.obj");
         static Model* M_Lan = Loader::loadModel(M_Lantern);
         static Texture* Tex = Loader::loadTexture("material/lantern/diff.png");
 

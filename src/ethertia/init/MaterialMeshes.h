@@ -24,7 +24,7 @@ public:
         BENCHMARK_TIMER;
         Log::info("Loading material meshes...\1");
 
-        CAPSULE = Loader::loadOBJ("@entity/capsule-1-2.obj");
+        CAPSULE = Loader::loadOBJ("entity/capsule-1-2.obj");
 
         for (auto& it : Material::REGISTRY)
         {
@@ -33,7 +33,7 @@ public:
 
             if (mtl->m_CustomMesh)
             {
-                mtl->m_VertexBuffer = Loader::loadOBJ(Strings::fmt("@material/{}/mesh.obj", id).c_str());
+                mtl->m_VertexBuffer = Loader::loadOBJ(Strings::fmt("material/{}/mesh.obj", id).c_str());
             }
         }
     }

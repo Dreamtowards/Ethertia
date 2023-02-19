@@ -82,7 +82,7 @@ public:
 
         if (Loader::fileExists(cache_file))
         {
-            Texture* t = Loader::loadTexture(cache_file, false);
+            Texture* t = Loader::loadTexture(cache_file);
             Log::info(" *{} loaded cached atlas from '{}'. (x{})\1", textype, cache_file, t->height);
             return t;
         }
