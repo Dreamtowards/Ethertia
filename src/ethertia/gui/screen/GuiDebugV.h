@@ -217,7 +217,7 @@ public:
 //                    Cell& c = world->getCell(cur.position - cur.normal*0.1f);
                     Cell* c = cur.cell;
                     cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
-                                            c ? c->mtl->getRegistryId() : "nil",
+                                            (c&&c->mtl) ? c->mtl->getRegistryId() : "nil",
                                             c ? c->density : NaN,
                                             c ? c->exp_meta : NaN,
                                             cur.cell_breaking_time);

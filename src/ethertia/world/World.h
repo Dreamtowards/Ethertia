@@ -17,6 +17,7 @@
 
 #include <ethertia/world/Cell.h>
 #include <ethertia/util/Scheduler.h>
+#include <ethertia/item/ItemStack.h>
 
 class Entity;
 class Chunk;
@@ -44,7 +45,6 @@ struct WorldInfo
 
 class World
 {
-
 public:
 
     ChunkGenerator* m_ChunkGenerator = nullptr;
@@ -128,7 +128,16 @@ public:
     template<typename T>
     std::vector<T> getEntities_();
 
-    void tick(float dt);
+
+
+    void dropItem(glm::vec3 pos, const ItemStack& stack, glm::vec3 vel = {0,0,0});
+
+
+    // void addParticle();
+
+    // void createExplosion();
+
+    void onTick(float dt);
 
 
     float getDayTime() {

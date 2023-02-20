@@ -147,12 +147,17 @@ public:
 
 
         // Hit Block Outline
-        HitCursor& cursor = Ethertia::getHitCursor();
-        if (cursor.hit && GuiDebugV::g_BlockMode)
+        HitCursor& cur = Ethertia::getHitCursor();
+        if (cur.cell)
         {
-            glm::vec3 pl = glm::floor(cursor.position - cursor.normal*0.2f);
-            RenderEngine::drawLineBox(pl, glm::vec3(1.0), Colors::BLACK80);
+            RenderEngine::drawLineBox(cur.cell_position, glm::vec3(1.0),
+                                      cur.cell->mtl ? Colors::WHITE : Colors::BLACK);
+            Gui::drawWorldpoint(cur.cell_position, [](glm::vec2 p) {
+                Gui::drawRect(p.x, p.y, 2, 2, Colors::RED);
+            });
         }
+
+
     }
 
 

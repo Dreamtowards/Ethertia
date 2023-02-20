@@ -80,6 +80,8 @@ RenderEngine::~RenderEngine() {
 
 void RenderEngine::framePrepare()
 {
+    g_Camera.position = Ethertia::getPlayer()->getPosition();
+
     // Camera matView.
     RenderEngine::matView = g_Camera.computeViewMatrix();
 
@@ -218,6 +220,7 @@ void RenderEngine::renderWorldCompose(World* world)
 
     for (Entity* e : world->getEntities())
     {
+        // todo: EntityDroppedItem :: onRenderCompose();
         if (EntityDroppedItem* eDroppedItem = dynamic_cast<EntityDroppedItem*>(e))
         {
             const ItemStack& stack = eDroppedItem->m_DroppedItem;

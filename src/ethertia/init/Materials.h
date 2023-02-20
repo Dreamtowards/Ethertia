@@ -23,54 +23,56 @@ public:
 
     // Smooth Terrain Materials.
 
-    REGISTER_MTL(GRASS, "grass");
-    REGISTER_MTL(MOSS, "moss");
-    REGISTER_MTL(DIRT, "black_dirt");
-    REGISTER_MTL(DIRT_, "dirt");
-    REGISTER_MTL(SAND, "sand");
-    REGISTER_MTL(LOG, "oak_log");
-    REGISTER_MTL(PLANKS, "plank");
-    REGISTER_MTL(FARMLAND, "farmland");
+    REGISTER_MTL(GRASS,         "grass",        { .hardness = 0.8 });
+    REGISTER_MTL(MOSS,          "moss",         { .hardness = 0.8 });
+    REGISTER_MTL(DIRT,          "black_dirt",   { .hardness = 0.8 });
+    REGISTER_MTL(DIRT_,         "dirt",         { .hardness = 0.8 });
+    REGISTER_MTL(SAND,          "sand",         { .hardness = 0.8 });
+    REGISTER_MTL(FARMLAND,      "farmland",     { .hardness = 0.8 });
+    REGISTER_MTL(MEADOW,        "meadow",       { .hardness = 0.8 });
 
-    REGISTER_MTL(STONE, "stone");
-    REGISTER_MTL(TUFF, "tuff");
-    REGISTER_MTL(CONCRETE, "concrete");
-    REGISTER_MTL(ROCK, "rock");
-    REGISTER_MTL(ROCK_MOSSY, "rock_mossy");
-    REGISTER_MTL(ROCK_SMOOTH, "rock_smooth");
-    REGISTER_MTL(CLIFF_ROCK, "cliff_rock");
-    REGISTER_MTL(VOLCANIC, "volcanic_rock");
-    REGISTER_MTL(JUNGLE_ROCK, "jungle_rock");
-    REGISTER_MTL(DEEPSLATE, "deepslate");
-    REGISTER_MTL(STONE_BRICK, "stone_brick");
-    REGISTER_MTL(BRICK_ROOF, "brick_roof");
-    REGISTER_MTL(MEADOW, "meadow");
+    REGISTER_MTL(LOG,           "oak_log",      { .hardness = 2.2 });
+    REGISTER_MTL(PLANKS,        "plank",        { .hardness = 1.4 });
 
-    REGISTER_MTL(IRON, "iron");
-    REGISTER_MTL(IRON_TREADPLATE, "iron_treadplate");
+    REGISTER_MTL(STONE,         "stone",        { .hardness = 8.0 });
+    REGISTER_MTL(TUFF,          "tuff",         { .hardness = 8.0 });
+    REGISTER_MTL(CONCRETE,      "concrete",     { .hardness = 8.0 });
+    REGISTER_MTL(ROCK,          "rock",         { .hardness = 8.0 });
+    REGISTER_MTL(ROCK_MOSSY,    "rock_mossy",   { .hardness = 8.0 });
+    REGISTER_MTL(ROCK_SMOOTH,   "rock_smooth",  { .hardness = 8.0 });
+    REGISTER_MTL(CLIFF_ROCK,    "cliff_rock",   { .hardness = 8.0 });
+    REGISTER_MTL(VOLCANIC_ROCK, "volcanic_rock",{ .hardness = 8.0 });
+    REGISTER_MTL(JUNGLE_ROCK,   "jungle_rock",  { .hardness = 8.0 });
+    REGISTER_MTL(DEEPSLATE,     "deepslate",    { .hardness = 14.0 });
+    REGISTER_MTL(STONE_BRICK,   "stone_brick",  { .hardness = 8.0 });
+    REGISTER_MTL(BRICK_ROOF,    "brick_roof",   { .hardness = 8.0 });
+
+    REGISTER_MTL(IRON,          "iron",         { .hardness = 28.0 });
+    REGISTER_MTL(IRON_TREADPLATE, "iron_treadplate", { .hardness = 28.0 });
+
 
 
 
     // Vegetable/Foliage
-    REGISTER_MTL(WATER,         "water",        { .vege = true });
-    REGISTER_MTL(LEAVES,        "leaves",       { .mesh = true, .vege = true });
-    REGISTER_MTL(SPRUCE_LEAVES, "spruce_leaves",{ .mesh = true, .vege = true });
-    REGISTER_MTL(TALL_GRASS,    "tall_grass",   { .mesh = true, .vege = true, .touchdown=true });
-    REGISTER_MTL(SHORT_GRASS,   "short_grass",  { .mesh = true, .vege = true, .touchdown=true });
-    REGISTER_MTL(TALL_FERN,     "tall_fern",    { .mesh = true, .vege = true, .touchdown=true });
-    REGISTER_MTL(SHRUB,         "shrub",        { .mesh = true, .vege = true, .touchdown=true });
-    REGISTER_MTL(ROSE_BUSH,     "rose_bush",    { .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(WATER,         "water",        { .hardness = Mth::Inf, .vege = true });
+    REGISTER_MTL(LEAVES,        "leaves",       { .hardness = 0, .mesh = true, .vege = true });
+    REGISTER_MTL(SPRUCE_LEAVES, "spruce_leaves",{ .hardness = 0, .mesh = true, .vege = true });
+    REGISTER_MTL(TALL_GRASS,    "tall_grass",   { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(SHORT_GRASS,   "short_grass",  { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(TALL_FERN,     "tall_fern",    { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(SHRUB,         "shrub",        { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    REGISTER_MTL(ROSE_BUSH,     "rose_bush",    { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
 
     // Crops
-    REGISTER_MTL(CARROTS,   "carrots",      { .mesh=true, .vege=true, .touchdown=true });
-    REGISTER_MTL(POTATOES,  "potatoes",     { .mesh=true, .vege=true, .touchdown=true });
+    REGISTER_MTL(CARROTS,       "carrots",      { .hardness = 0, .mesh=true, .vege=true, .touchdown=true });
+    REGISTER_MTL(POTATOES,      "potatoes",     { .hardness = 0, .mesh=true, .vege=true, .touchdown=true });
 
     // Decorations.
-    REGISTER_MTL(STOOL,         "stool",        { .mesh = true });
-    REGISTER_MTL(SHORT_STOOL,   "short_stool",  { .mesh = true });
-    REGISTER_MTL(CHAIR,         "chair",        { .mesh = true });
-    REGISTER_MTL(CASH_REGISTER, "cash_register",{ .mesh = true });
-    REGISTER_MTL(LADDER,        "ladder",       { .mesh = true });
+    REGISTER_MTL(STOOL,         "stool",        { .hardness = 1.4, .mesh = true });
+    REGISTER_MTL(SHORT_STOOL,   "short_stool",  { .hardness = 1.4, .mesh = true });
+    REGISTER_MTL(CHAIR,         "chair",        { .hardness = 1.4, .mesh = true });
+    REGISTER_MTL(CASH_REGISTER, "cash_register",{ .hardness = 1.4, .mesh = true });
+    REGISTER_MTL(LADDER,        "ladder",       { .hardness = 1.4, .mesh = true });
 
 
 
@@ -84,7 +86,8 @@ public:
     // 所以目前用前者 毕竟mtl是核心内容。而且还没发现坏处。
 //    inline static const Item* STONE = new Item("stone", {new Item::ComponentMaterial(1)});
 
-    static void registerMaterialItems() {
+    static void registerMaterialItems()
+    {
         for (auto& it : Material::REGISTRY)
         {
             it.second->m_MaterialItem = new Item(it.first, {new ItemComponentMaterial(it.second)});

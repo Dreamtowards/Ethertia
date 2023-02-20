@@ -34,7 +34,7 @@ public:
         mtl = nullptr;
         density = 0;
         exp_meta = 0;
-        fp = glm::vec3{FP_INFINITE};
+        fp = glm::vec3{INFINITY};
     }
 };
 

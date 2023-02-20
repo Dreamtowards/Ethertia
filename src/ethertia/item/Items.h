@@ -27,6 +27,11 @@ public:
     REGISTER_ITEM(PICKAXE, "pickaxe", {new ItemComponentTool()});
     REGISTER_ITEM(GRAPPLE, "grapple", {new ItemComponentGrapple()});
     REGISTER_ITEM(HOE,     "hoe",     {new ItemComponentTool()});
+    REGISTER_ITEM(SHEARS,  "shears",  {new ItemComponentTool()});
+
+    // Craft Material
+    REGISTER_ITEM(STICK,   "stick",   {});
+
 
     // Lights
     REGISTER_ITEM(LANTERN, "lantern", {new ItemComponentEntity{[](){ return new EntityLantern(); }}});

@@ -7,6 +7,8 @@
 #include <ethertia/world/Chunk.h>
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/EntityMesh.h>
+#include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/entity/EntityDroppedItem.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Mth.h>
@@ -15,7 +17,6 @@
 #include <ethertia/render/Window.h>
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
-#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/RenderEngine.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
 
@@ -258,7 +259,18 @@ std::vector<T> World::getEntities_() {  // just temporary
     return filtered;
 }
 
-void World::tick(float dt)
+
+void World::dropItem(glm::vec3 p, const ItemStack& stack, glm::vec3 vel)
+{
+    EntityDroppedItem* eDroppedItem = new EntityDroppedItem();
+    eDroppedItem->m_DroppedItem = stack;
+    eDroppedItem->setPosition(p);
+    eDroppedItem->applyLinearVelocity(vel);
+
+    addEntity(eDroppedItem);
+}
+
+void World::onTick(float dt)
 {
 
     m_WorldInfo.InhabitedTime += dt;

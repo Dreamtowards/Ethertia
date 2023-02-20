@@ -144,7 +144,7 @@ void Ethertia::runMainLoop()
                 chunk->m_InhabitedTime += getDelta();
             });
 
-            m_World->tick(getDelta());
+            m_World->onTick(getDelta());
         }
     }
 

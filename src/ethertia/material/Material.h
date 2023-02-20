@@ -7,6 +7,7 @@
 
 #include <ethertia/util/Registry.h>
 #include <ethertia/item/Item.h>
+#include <ethertia/item/ItemStack.h>
 
 class Material
 {
@@ -37,22 +38,30 @@ public:
     Item* m_MaterialItem = nullptr;
 
     struct MtlParams {
+        float hardness = 1;
         bool mesh = false;
         bool vege = false;
         bool touchdown = false;  // on top of the bottom cell.  align bottom. alignb
     };
 
-    Material(const std::string& name, const MtlParams& params = {false, false, false}) : m_Name(name) {
+    Material(const std::string& name,
+             const MtlParams& params = {1.0f, false, false, false}
+             ) : m_Name(name) {
 
         REGISTRY.regist(this);
 
         m_CustomMesh = params.mesh;
         m_IsVegetable = params.vege;
         m_IsTouchdown = params.touchdown;
+        m_Hardness = params.hardness;
     }
 
     DECL_RegistryId(m_Name);
 
+    void getDrops(std::vector<ItemStack>& drops)
+    {
+        drops.push_back(ItemStack(m_MaterialItem, 1));
+    }
 };
 
 #endif //ETHERTIA_MATERIAL_H

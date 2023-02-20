@@ -57,6 +57,8 @@ public:
         //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
         PROFILE_X(gp_MeshGen, "MeshGen");
 
+        BENCHMARK_TIMER_MSG("Chunk MeshGen {}");
+
         chunk->m_MeshingState = Chunk::MESHING;  // May Already Been Deleted.
 
         VertexBuffer* vbufTerrain = new VertexBuffer();
