@@ -529,6 +529,7 @@ public:
                            glm::vec2 align  ={0,0},
                            bool drawShadow  =true);
 
+    // fn() may not be call if out/backend of view.
     static void drawWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
 
 

@@ -30,7 +30,7 @@ public:
     static Entity* resolveEntityExpr(const std::string& expr) {
         Entity* result = nullptr;
         if (expr == "@t") {
-            result = Ethertia::getCursor().hitEntity;
+            result = Ethertia::getHitCursor().hitEntity;
             if (!result) Log::warn("Failed, invalid target entity");
         } else if (expr == "@s") {
             result = Ethertia::getPlayer();

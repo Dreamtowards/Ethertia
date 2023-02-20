@@ -20,7 +20,7 @@ void ItemComponentFood::onUse()
 void ItemComponentMaterial::onUse()
 {
 
-    BrushCursor& cur = Ethertia::getBrushCursor();
+    HitCursor& cur = Ethertia::getHitCursor();
     if (!cur.hit)
         return;
 
@@ -67,7 +67,7 @@ void ItemComponentEntity::onUse()  {
 
     Entity* e = m_NewEntity();
 
-    BrushCursor& cur = Ethertia::getBrushCursor();
+    HitCursor& cur = Ethertia::getHitCursor();
 
     e->setPosition(cur.position + cur.normal * 1.0f);
     Ethertia::getWorld()->addEntity(e);

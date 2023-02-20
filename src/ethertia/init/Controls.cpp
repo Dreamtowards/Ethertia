@@ -37,7 +37,7 @@ void handleMouseButton(MouseButtonEvent* e)
 {
     World* world = Ethertia::getWorld();
     EntityPlayer* player = Ethertia::getPlayer();
-    BrushCursor& cur = Ethertia::getBrushCursor();
+    HitCursor& cur = Ethertia::getHitCursor();
 
     if (!(world && Ethertia::isIngame()))
         return;
@@ -193,7 +193,8 @@ static void handleKeyDown(KeyboardEvent* e) {
                 {
                     EntityDroppedItem* eDroppedItem = new EntityDroppedItem();
 
-                    stack.moveTo(eDroppedItem->m_DroppedItem, 1);
+                    bool dropAll = Ethertia::getWindow()->isCtrlKeyDown();
+                    stack.moveTo(eDroppedItem->m_DroppedItem, dropAll ? stack.amount() : 1);
 
                     eDroppedItem->setPosition(player.getPosition());
                     eDroppedItem->applyLinearVelocity(player.getViewDirection() * 3.0f);
@@ -213,7 +214,7 @@ static void handleKeyDown(KeyboardEvent* e) {
                 return;
             }
 
-            BrushCursor& cur = Ethertia::getBrushCursor();
+            HitCursor& cur = Ethertia::getHitCursor();
             if (EntityVehicle* car = dynamic_cast<EntityVehicle*>(cur.hitEntity)) {
                 // if (cur.length > 10)  return;
 
@@ -246,7 +247,7 @@ void handleHitCursor()
     Camera& camera = *Ethertia::getCamera();
 
     // Cursor
-    BrushCursor& cur = Ethertia::getBrushCursor();
+    HitCursor& cur = Ethertia::getHitCursor();
     if (cur.keepTracking && world) {
         glm::vec3 p, n;
         glm::vec3 _p_beg = camera.position;
@@ -283,7 +284,8 @@ void handleHitCursor()
             cur.reset();
         }
 
-        if (Ethertia::getWindow()->isMouseLeftDown() && cur.cell) {
+        if (Ethertia::isIngame() && Ethertia::getWindow()->isMouseLeftDown() && cur.cell)
+        {
             cur.cell_breaking_time += Ethertia::getDelta();
 
             float fullDigTime = cur.cell->mtl->m_Hardness;

@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 #include <ethertia/render/Camera.h>
-#include <ethertia/init/BrushCursor.h>
+#include <ethertia/init/HitCursor.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Profiler.h>
 #include <ethertia/util/Scheduler.h>
@@ -45,7 +45,7 @@ class Ethertia
     inline static Timer         m_Timer{};
     inline static Scheduler     m_Scheduler{};
     inline static Scheduler     m_AsyncScheduler{};
-    inline static BrushCursor   m_Cursor{};
+    inline static HitCursor     m_HitCursor{};
     inline static Profiler      m_Profiler{};
 
 
@@ -91,8 +91,7 @@ public:
     static Timer* getTimer() { return &m_Timer; }
     static Scheduler* getScheduler() { return &m_Scheduler; }
     static Scheduler* getAsyncScheduler() { return &m_AsyncScheduler; }
-    static BrushCursor& getBrushCursor() { return m_Cursor; }
-    static BrushCursor& getCursor() { return m_Cursor; }
+    static HitCursor& getHitCursor() { return m_HitCursor; }
     static Profiler& getProfiler() { return m_Profiler; }
     static AudioEngine* getAudioEngine() { return m_AudioEngine; }
 

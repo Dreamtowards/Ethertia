@@ -68,7 +68,7 @@ public:
         shaderCompose.setVector3f("CameraPos", Ethertia::getCamera()->actual_pos);
         shaderCompose.setVector3f("CameraDir", Ethertia::getCamera()->direction);
 
-        BrushCursor& cur = Ethertia::getCursor();
+        HitCursor& cur = Ethertia::getHitCursor();
         shaderCompose.setVector3f("cursorPos", cur.cell ? cur.cell_position + cur.cell->fp : glm::vec3{0,0,0});
         shaderCompose.setFloat("cursorSize", cur.brushSize);
 

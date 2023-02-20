@@ -2,14 +2,15 @@
 // Created by Dreamtowards on 2022/12/19.
 //
 
-#ifndef ETHERTIA_BRUSHCURSOR_H
-#define ETHERTIA_BRUSHCURSOR_H
+#ifndef ETHERTIA_HITCURSOR_H
+#define ETHERTIA_HITCURSOR_H
 
 #include <ethertia/world/Cell.h>
 
 class Entity;
 
-class BrushCursor {
+class HitCursor
+{
 public:
     bool keepTracking = true;
 
@@ -44,4 +45,4 @@ public:
 #define BRUSH_CUBE   2
 };
 
-#endif //ETHERTIA_BRUSHCURSOR_H
+#endif //ETHERTIA_HITCURSOR_H

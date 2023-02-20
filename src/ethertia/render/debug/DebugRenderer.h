@@ -15,6 +15,7 @@ public:
 
     ShaderProgram shaderDebugGeo = Loader::loadShaderProgram("shaders/debug/norm.{}", true);
 
+    // limitLen+Pos: Only show partial (sphere) at pos with radius len
     void renderDebugGeo(Model* model, glm::vec3 pos, glm::mat3 rot, float limitLen = 0, glm::vec3 limitPos = {}) {
         ShaderProgram& shader = shaderDebugGeo;
 

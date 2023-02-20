@@ -133,9 +133,9 @@ void RenderEngine::renderWorldGeometry(World* world) {
             DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
         }
         // Debug: draw Entity that Crosshair Hits.
-        if (RenderEngine::dbg_HitPointEntityGeo && entity == Ethertia::getCursor().hitEntity) {
+        if (RenderEngine::dbg_HitPointEntityGeo && entity == Ethertia::getHitCursor().hitEntity) {
             DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation(),
-                           Ethertia::getCursor().brushSize, Ethertia::getCursor().position);
+                           Ethertia::getHitCursor().brushSize, Ethertia::getHitCursor().position);
         }
         // Debug: draw Every Entity AABB.
         if (dbg_RenderedEntityAABB) {
@@ -218,16 +218,24 @@ void RenderEngine::renderWorldCompose(World* world)
 
     for (Entity* e : world->getEntities())
     {
-        if (EntityDroppedItem* droppedItem = dynamic_cast<EntityDroppedItem*>(e))
+        if (EntityDroppedItem* eDroppedItem = dynamic_cast<EntityDroppedItem*>(e))
         {
-            const Item& item = *droppedItem->m_DroppedItem.item();
+            const ItemStack& stack = eDroppedItem->m_DroppedItem;
 
-            float i = Item::REGISTRY.getOrderId((Item*)&item);
+            float i = Item::REGISTRY.getOrderId(stack.item());
             float n = Item::REGISTRY.size();
 
-            m_ParticleRenderer->render(ItemTextures::ITEM_ATLAS, droppedItem->getPosition(), 0.3f,
+            m_ParticleRenderer->render(ItemTextures::ITEM_ATLAS, eDroppedItem->getPosition(), 0.3f,
                                        {i/n, 0},
                                        {1/n, 1});
+
+            if (stack.amount() > 1)
+            {
+                // tmp draw count.
+                Gui::drawWorldpoint(eDroppedItem->getPosition(), [&](glm::vec2 p) {
+                    Gui::drawString(p.x, p.y, std::to_string(stack.amount()));
+                });
+            }
         }
     }
 

@@ -28,7 +28,7 @@ public:
         }
         else
         {
-            Entity* target = Ethertia::getBrushCursor().hitEntity;
+            Entity* target = Ethertia::getHitCursor().hitEntity;
             if (!target) {
                 _SendMessage("failed, no target entity.");
                 return;
@@ -58,7 +58,7 @@ public:
                     return;
                 }
 
-                EntityMesh* entity = (EntityMesh*)Ethertia::getBrushCursor().hitEntity;
+                EntityMesh* entity = (EntityMesh*)Ethertia::getHitCursor().hitEntity;
                 entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(Loader::loadFile(path)));
 
                 _SendMessage("Texture updated.");

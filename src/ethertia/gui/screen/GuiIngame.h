@@ -146,7 +146,8 @@ public:
                       3, 3, Colors::WHITE);
 
 
-        BrushCursor& cursor = Ethertia::getCursor();
+        // Hit Block Outline
+        HitCursor& cursor = Ethertia::getHitCursor();
         if (cursor.hit && GuiDebugV::g_BlockMode)
         {
             glm::vec3 pl = glm::floor(cursor.position - cursor.normal*0.2f);

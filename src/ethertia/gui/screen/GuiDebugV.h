@@ -71,7 +71,7 @@ public:
 
             opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
 
-            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getBrushCursor().brushSize, 0.2f));
+            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getHitCursor().brushSize, 0.2f));
 
 
             opts->addGui(newLabel("Debug Geo."));
@@ -138,7 +138,7 @@ public:
             opts->addGui(new GuiSlider("D/var1", -1, 3, &EntityRenderer::debugVar1, 0.01f));
             opts->addGui(new GuiSlider("D/var2", 0, 256, &EntityRenderer::debugVar2, 0.1f));
 
-            opts->addGui(new GuiCheckBox("Brush Tracking", &Ethertia::getBrushCursor().keepTracking));
+            opts->addGui(new GuiCheckBox("Brush Tracking", &Ethertia::getHitCursor().keepTracking));
             opts->addGui(new GuiCheckBox("Brush pInfo", &dbgCursorRangeInfo));
 
 
@@ -211,7 +211,7 @@ public:
                 std::string chunkInfo = "nil";
                 Chunk* pointingChunk = nullptr;
                 std::string cellInfo = "nil";
-                BrushCursor& cur = Ethertia::getBrushCursor();
+                HitCursor& cur = Ethertia::getHitCursor();
                 if (world && cur.hit) {
                     pointingChunk = world->getLoadedChunk(cur.position);
 //                    Cell& c = world->getCell(cur.position - cur.normal*0.1f);
@@ -293,11 +293,11 @@ public:
         }
 
         if (dbg_CursorPt) {
-            BrushCursor& cur = Ethertia::getBrushCursor();
+            HitCursor& cur = Ethertia::getHitCursor();
 
-            Ethertia::getRenderEngine()->drawLine(cur.position, cur.normal, Colors::GREEN);
+            RenderEngine::drawLine(cur.position, cur.normal, Colors::GREEN);
 
-            Entity* selEntity = Ethertia::getBrushCursor().hitEntity;
+            Entity* selEntity = Ethertia::getHitCursor().hitEntity;
             if (selEntity) {
                 AABB aabb = selEntity->getAABB();
                 RenderEngine::drawLineBox(aabb.min, aabb.max - aabb.min, Colors::YELLOW);
@@ -320,7 +320,7 @@ public:
             const Profiler::Section& sec = Ethertia::getProfiler().GetRootSection();
 
             // Standard FPS Time.
-            Gui::drawRect(x, y, (1.0 / RenderEngine::fpsCap) / sec._avgTime * w, h, Colors::alpha(Colors::GREEN, 0.1f));
+            Gui::drawRect(x, y, (1.0f / RenderEngine::fpsCap) / sec._avgTime * w, h, Colors::alpha(Colors::GREEN, 0.1f));
 
             drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
 
@@ -439,7 +439,7 @@ public:
 
     static void drawCursorRangeInfo() {
 
-        glm::vec3 center(glm::floor(Ethertia::getBrushCursor().position));
+        glm::vec3 center(glm::floor(Ethertia::getHitCursor().position));
 
         int n = 2;
         for (int rx = -n; rx <= n; ++rx) {

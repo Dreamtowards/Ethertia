@@ -18,6 +18,7 @@ public:
 
     const Item* m_ItemType = nullptr;
 
+    // Amount or Count ?
     int m_Amount = 0;
 
     // nbt::tag_compound* m_Data = nullptr;
@@ -33,7 +34,7 @@ public:
         return m_ItemType;
     }
 
-    int amount() {
+    int amount() const {
         return m_Amount;
     }
 

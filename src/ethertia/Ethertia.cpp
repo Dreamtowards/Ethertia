@@ -207,7 +207,7 @@ void Ethertia::renderGUI()
 //        .channel_mode = Gui::DrawRectArgs::C_RGB
 //    });
 
-    BrushCursor& cur = Ethertia::getCursor();
+    HitCursor& cur = Ethertia::getHitCursor();
     if (cur.cell_breaking_time)
     {
         float fullBreakingTime = cur.cell->mtl->m_Hardness;
@@ -285,7 +285,7 @@ void Ethertia::unloadWorld()
     assert(m_World);
     Log::info("Unloading World...");
 
-    Ethertia::getBrushCursor().reset();
+    Ethertia::getHitCursor().reset();
 
     m_World->unloadAllChunks();
 

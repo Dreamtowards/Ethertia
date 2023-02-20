@@ -14,12 +14,14 @@ public:
 
     ItemStack m_DroppedItem;
 
-    EntityDroppedItem() {
+    EntityDroppedItem()
+    {
 
         initRigidbody(1.0f, new btSphereShape(0.2f));
     }
 
-    void onRender() {
+    void onRender()
+    {
 
     }
 

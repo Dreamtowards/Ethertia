@@ -22,7 +22,7 @@ public:
     static glm::vec3 pos(Args args) {
         glm::vec3 p = Ethertia::getCamera()->position;
         if (args.size() == 2 && args[1] == "-l") {
-            p = Ethertia::getCursor().position;
+            p = Ethertia::getHitCursor().position;
         }
         return p;
     }
