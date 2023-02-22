@@ -55,6 +55,7 @@ public:
     std::mutex m_LockChunks;
 
     // Unlaoded Chunks waiting to be batch-save.
+    std::mutex m_LockUnloadedChunks;
     std::vector<Chunk*> m_UnloadedChunks;
 
 
@@ -81,6 +82,8 @@ public:
     void setCell(int x, int y, int z, const Cell& c) { setCell({x,y,z}, c); }
 
     void requestRemodel(glm::vec3 p, bool detectNeighbour = true);
+
+    void invalidateCellFp(glm::vec3 center, int r);
 
     void processEntityCollision();
 

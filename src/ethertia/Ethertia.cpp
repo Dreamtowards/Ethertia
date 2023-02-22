@@ -219,7 +219,7 @@ void Ethertia::renderGUI()
     }
 
 
-    if (ChunkGenProc::dbg_SavingChunks) {
+    if (ChunkGenProc::dbg_IsSavingChunks) {
         Gui::drawString(Gui::maxWidth() - 32, Gui::maxHeight() - 32, "Saving chunks...", Colors::YELLOW, 16, {-1, -1});
     }
 
@@ -286,27 +286,29 @@ void Ethertia::unloadWorld()
     assert(m_World);
     Log::info("Unloading World...");
 
+
+    Log::info("Cleaning MeshGen");
+    ChunkMeshProc::g_Running = -1;
+    Timer::wait_for(&ChunkMeshProc::g_Running, 0);  // before delete chunks
+
     Ethertia::getHitCursor().reset();
 
     m_World->unloadAllChunks();
 
+    Log::info("Cleaning ChunkGen");
+    ChunkGenProc::g_Running = -1;
+    Timer::wait_for(&ChunkGenProc::g_Running, 0);
+
     World* oldWorld = m_World;
     m_World = nullptr;
 
-    ChunkMeshProc::g_Running = -1;
-    ChunkGenProc::g_Running = -1;
 
-    Log::info("Cleaning MeshGen");
-    Timer::wait_for(&ChunkMeshProc::g_Running, 0);
-    Log::info("Cleaning ChunkGen");
-    Timer::wait_for(&ChunkGenProc::g_Running, 0);
-
-    Log::info("Sync Tasks");
+    Log::info("Sync Tasks {}", m_Scheduler.numTasks());
     // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
     m_Scheduler.processTasks(Mth::Inf);
     assert(m_Scheduler.numTasks() == 0);
 
-    Log::info("Async Tasks");
+    Log::info("Async Tasks {}", m_AsyncScheduler.numTasks());
     m_AsyncScheduler.processTasks(Mth::Inf);  // why? for what?
     assert(m_AsyncScheduler.numTasks() == 0);
 

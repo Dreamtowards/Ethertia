@@ -26,8 +26,8 @@ public:
     }
 
 
-    bool isSmoothTerrain() {
-        return mtl && density > 0 && exp_meta == 0;  // todo: ? mtl.m_IsSmoothTerrain
+    bool isSmoothMtl() {
+        return mtl && exp_meta == 0;  // todo: ? mtl.m_IsSmoothTerrain
     }
 
     void set_nil() {

@@ -68,9 +68,9 @@ public:
             sleep_for(1);
         }
     }
-    template<typename T>
-    static void wait_for(T* state, const std::function<bool(T*)>& until) {
-        while (*state != until) {
+
+    static void wait_for(const std::function<bool()>& until) {
+        while (!until()) {
             sleep_for(1);
         }
     }

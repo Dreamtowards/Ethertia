@@ -221,7 +221,7 @@ void main() {
         vec3 dif = abs(cursorPos-FragPos);
 //        float cross_f = min(dif.x, min(dif.y, dif.z)) < 0.01 ? 1 : 0;
 //        float cross_f = abs(cursorPos.x - FragPos.x);
-        FragColor.r += min(dif.x, dif.z) < 0.005 ? 0.5 : 0;
+        FragColor.r += min(dif.x, min(dif.z, dif.y)) < 0.005 ? 0.5 * (1-length(cursorPos-FragPos)/5) : 0;
     }
 
     // Fog

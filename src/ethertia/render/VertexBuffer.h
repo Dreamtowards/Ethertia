@@ -28,41 +28,41 @@ public:
     std::vector<float> normals;
 //    std::vector<float> materialIds;
 
-    void addpos(float x, float y, float z) {
+    inline void addpos(float x, float y, float z) {
         positions.push_back(x);
         positions.push_back(y);
         positions.push_back(z);
     }
-    void addpos(const vec3& p) {
+    inline void addpos(const vec3& p) {
         addpos(p.x, p.y, p.z);
     }
-    vec3 atpos(int vi) const {
+    inline vec3 atpos(int vi) const {
         int i = vi*3;
         return {positions[i], positions[i+1], positions[i+2]};
     }
 
-    void adduv(float x, float y) {
+    inline void adduv(float x, float y) {
         textureCoords.push_back(x);
         textureCoords.push_back(y);
     }
-    void adduv(const glm::vec2& uv) {
+    inline void adduv(const glm::vec2& uv) {
         adduv(uv.x, uv.y);
     }
-    glm::vec2 atuv(int vi) const {
+    inline glm::vec2 atuv(int vi) const {
         int i = vi*2;
         return {textureCoords[i], textureCoords[i+1]};
     }
 
 
-    void addnorm(float x, float y, float z) {
+    inline void addnorm(float x, float y, float z) {
         normals.push_back(x);
         normals.push_back(y);
         normals.push_back(z);
     }
-    void addnorm(const vec3& n) {
+    inline void addnorm(const vec3& n) {
         addnorm(n.x, n.y, n.z);
     }
-    vec3 atnorm(int vi) const {
+    inline vec3 atnorm(int vi) const {
         int i = vi*3;
         return {normals[i], normals[i+1], normals[i+2]};
     }
@@ -71,7 +71,7 @@ public:
     // CNS 只是额外地添加了MtlId到uv中，为了shaders去判断 可以做特殊处理
     // just set additional MtlId info into UV.x (uv=(u+MtlId, v)), for shaders spec process.
     // please Dont lookup MtlId in these high-density-call place.
-    void set_uv_mtl(int MtlId) {
+    inline void set_uv_mtl(int MtlId) {
         assert(textureCoords.size()/2 == positions.size()/3);
         textureCoords[textureCoords.size()-2] += MtlId;
     }
@@ -90,6 +90,12 @@ public:
         positions.reserve(verts*3);
         textureCoords.reserve(verts*2);
         normals.reserve(verts*3);
+    }
+
+    void clear() {
+        positions.clear();
+        textureCoords.clear();
+        normals.clear();
     }
 
 

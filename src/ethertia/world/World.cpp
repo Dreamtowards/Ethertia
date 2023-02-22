@@ -147,11 +147,12 @@ Chunk* World::provideChunk(glm::vec3 p)  {
 
 void World::saveUnloadedChunks() {
     // chunks will be force save when: 1. 太多区块在卸载列表 2. 太久没保存
+    LOCK_GUARD(m_LockUnloadedChunks);
 
-    //int i = 0;
+    int i = 0;
     for (Chunk* chunk : m_UnloadedChunks)
     {
-        Log::info("Saving chunk {}", chunk->position);
+        Log::info("Saving chunk {} ({}/{})", chunk->position, i+1, m_UnloadedChunks.size()); ++i;
         m_ChunkLoader->saveChunk(chunk);
 
         Entity* meshTerr = chunk->m_MeshTerrain;
@@ -169,14 +170,14 @@ void World::saveUnloadedChunks() {
 
 
         // Delete chunk but after MeshGen thread finish use.
-        if (chunk->m_MeshingState == Chunk::MESHING) {
-            Ethertia::getAsyncScheduler()->addDelayTask([chunk](){
-                Timer::wait_for(&chunk->m_MeshingState, Chunk::MESH_VALID);
-                delete chunk;
-            }, 2.0f);
-        } else {
+//        if (chunk->m_MeshingState == Chunk::MESHING) {
+//            Ethertia::getAsyncScheduler()->addDelayTask([chunk](){
+//                Timer::wait_for(&chunk->m_MeshingState, Chunk::MESH_VALID);
+//                delete chunk;
+//            }, 2.0f);
+//        } else {
             delete chunk;
-        }
+//        }
     }
 
     m_UnloadedChunks.clear();
@@ -194,7 +195,10 @@ void World::unloadChunk(glm::vec3 p) {
         assert(chunk);
 
         // later save.
-        m_UnloadedChunks.push_back(chunk);
+        {
+            LOCK_GUARD(m_LockUnloadedChunks);
+            m_UnloadedChunks.push_back(chunk);
+        }
 
         m_Chunks.erase(it);
     }
@@ -317,6 +321,17 @@ void World::requestRemodel(glm::vec3 p, bool detectNeighbour) {
     }
 }
 
+void World::invalidateCellFp(glm::vec3 center, int n)
+{
+    for (int rx = -n; rx <= n; ++rx) {
+        for (int ry = -n; ry <= n; ++ry) {
+            for (int rz = -n; rz <= n; ++rz) {
+
+                getCell(center+glm::vec3(rx,ry,rz)).fp.x = INFINITY;
+            }
+        }
+    }
+}
 
 
 Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {

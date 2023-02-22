@@ -1,7 +1,7 @@
 {
   "assets": "./assets/",
-  "display_height": 584,
-  "display_width": 966,
+  "display_height": 734,
+  "display_width": 1334,
   "fov": 110.0,
   "fullscreen": false,
   "mods": [
@@ -9,6 +9,6 @@
   ],
   "mtl_resolution": 256,
   "simd_level": "SSE42",
-  "view_distance": 2.0,
+  "view_distance": 4.0,
   "vsync": false
 }

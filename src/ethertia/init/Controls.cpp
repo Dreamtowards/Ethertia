@@ -264,33 +264,34 @@ void handleHitCursor()
         cur.hitTerrain = dynamic_cast<EntityMesh*>(cur.hitEntity);
         if (cur.hitTerrain)
         {
-            glm::vec3 cp_base = glm::floor(p);  // cell_pos
+            glm::vec3 cp_base = glm::floor(p - n*0.01f);  // cell_pos
             Cell* hitCell = &world->getCell(cp_base);
             cur.cell_position = cp_base;
 
-            // check full block, shrink: p-n*Epsilon
-            if (!hitCell->mtl) {
-                Cell& c = world->getCell(p - n*0.1f);
-                if (c.mtl && c.exp_meta == 1) {  // is cube
-                    hitCell = &c;
-                }
-            }
+//            // check full block, shrink: p-n*Epsilon
+//            if (!hitCell->mtl) {
+//                Cell& c = world->getCell(p - n*0.1f);
+//                if (c.mtl && c.exp_meta == 1) {  // is cube
+//                    hitCell = &c;
+//                }
+//            }
 
-            // check smooth terrain. 8 corners, sel max density.
-            if (!hitCell->mtl && hitCell->exp_meta == 0) {  // nil or smooth-mtl.
-                glm::vec3 max_p{INFINITY};
-                float max_f = 0;
+            // check smooth terrain. for 8 corners, sel a valid cell that closest to the hit point.
+            if (!hitCell->mtl || hitCell->isSmoothMtl()) {  // nil or smooth-mtl.
+                glm::vec3 sel_p{INFINITY};
+                float min_dist = INFINITY;
                 for (int i = 0; i < 8; ++i) {
                     glm::vec3 cp = cp_base + SurfaceNetsMeshGen::VERT[i];  // corners. cell_pos.
                     const Cell& c = world->getCell(cp);
-                    if (c.mtl && c.density > max_f) {
-                        max_f = c.density;
-                        max_p = cp;
+                    float dist = glm::length2(cp-p);
+                    if (c.mtl && dist < min_dist) {
+                        min_dist = dist;
+                        sel_p = cp;
                     }
                 }
-                if (max_p.x != INFINITY) {
-                    cur.cell_position = max_p;
-                    hitCell = &world->getCell(max_p);
+                if (sel_p.x != INFINITY) {
+                    cur.cell_position = sel_p;
+                    hitCell = &world->getCell(sel_p);
                 }
             }
 
@@ -317,6 +318,7 @@ void handleHitCursor()
             world->dropItem(cur.position + cur.normal * 0.2f, // +norm prevents fall down
                             ItemStack(cur.cell->mtl->m_MaterialItem, 1));
             cur.cell->set_nil();
+            world->invalidateCellFp(cur.cell_position, 3);
             world->requestRemodel(cur.cell_position);
 
             // clear hit-cell state.

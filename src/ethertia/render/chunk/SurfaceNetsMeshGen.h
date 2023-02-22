@@ -91,13 +91,10 @@ public:
 
                                 vec3 quadp = rp + ADJACENT[axis_i][wind_vi];
 
-                                // todo: Fp Cache?
                                 vec3& fp = World::_GetCell(chunk, quadp).fp;
-//                                if (fp.x == Mth::Inf) {
-                                    // Compute and !Assign to World
+                                if (fp.x == Mth::Inf) {  // only eval invalid cell.
                                     fp = featurepoint(quadp, chunk);
-//                                }
-                                // vec3 fp = featurepoint(quadp, chunk);
+                                }
 
                                 assert(!_hasnan(fp));
                                 vec3 p = quadp + fp;

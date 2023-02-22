@@ -18,7 +18,8 @@ public:
 
     inline static Profiler gp_ChunkGen;
 
-    static void initThread() {
+    static void initThread()
+    {
         new std::thread([]()
         {
             Log::info("ChunkGen&Load&Store thread is ready.");
@@ -93,7 +94,7 @@ public:
         return nil_chunkpos;
     }
 
-    inline static bool dbg_SavingChunks = false;
+    inline static bool dbg_IsSavingChunks = false;
 
     static int _UnloadChunks(World* world, vec3 center, int viewDistance) {
         vec3 cpos = Chunk::chunkpos(center);
@@ -113,9 +114,9 @@ public:
             world->unloadChunk(cp);
         }
 
-        dbg_SavingChunks = true;
+        dbg_IsSavingChunks = true;
         world->saveUnloadedChunks();
-        dbg_SavingChunks = false;
+        dbg_IsSavingChunks = false;
 
         return unloads.size();
     }

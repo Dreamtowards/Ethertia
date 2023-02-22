@@ -8,6 +8,8 @@
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include <ethertia/render/chunk/BlockyMeshGen.h>
 
+#include <ethertia/util/ObjectPool.h>
+
 class ChunkMeshProc
 {
 public:
@@ -15,7 +17,10 @@ public:
 
     inline static bool dbg_ChunkUnload = true;
 
-    inline static int g_Running = 0;  // -1: To Stop Run (not stopped), 0: Stopped. 1: Running.
+
+    // -1: To Stop Run (not stopped), 0: Stopped. 1: Running.
+    // why not direct set 0 when want-stop? because sometimes we need wait-stopped.
+    inline static int g_Running = 0;
 
     static void initThread()
     {
@@ -53,25 +58,28 @@ public:
 
     inline static Profiler gp_MeshGen;
 
+    inline static ObjectPool<VertexBuffer> g_VertBufPool;
+
     static void meshChunk_Upload(Chunk* chunk) {
         //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
         PROFILE_X(gp_MeshGen, "MeshGen");
 
-        BENCHMARK_TIMER_MSG("Chunk MeshGen {}");
+        //BENCHMARK_TIMER_MSG("Chunk MeshGen {}\n");
 
         chunk->m_MeshingState = Chunk::MESHING;  // May Already Been Deleted.
 
-        VertexBuffer* vbufTerrain = new VertexBuffer();
+        // todo: ObjectPool Priority(reserved size, hot-ness) Stack
+        g_VertBufPool.m_Cap = 10;  // keep memory hot.
 
-        VertexBuffer* vbufVegetable = new VertexBuffer();
+        VertexBuffer* vbufTerrain = g_VertBufPool.acquire();
+
+        VertexBuffer* vbufVegetable = g_VertBufPool.acquire();
 
 
         {
             PROFILE_X(gp_MeshGen, "Mesh");
 
 //        vbuf = MarchingCubesMeshGen::genMesh(chunk);
-
-            //std::vector<glm::vec3> grass_fp;
 
             {
                 PROFILE_X(gp_MeshGen, "Iso");
@@ -138,8 +146,10 @@ public:
                 delete meshVegetable;
             }
 
-            delete vbufTerrain;
-            delete vbufVegetable;
+            vbufTerrain->clear();
+            vbufVegetable->clear();
+            g_VertBufPool.restore(vbufTerrain);
+            g_VertBufPool.restore(vbufVegetable);
         }, -1 - (int)dist2ChunkCam(chunk));
         // priority <= -1: after addEntity() to the world.
     }
@@ -160,20 +170,30 @@ public:
         }
     }
 
+    inline static int dbg_NumChunksMeshInvalid = 0;
+
     static Chunk* findNearestMeshInvalidChunk(World* world, vec3 center, int viewDistance) {
         vec3 origin_chunkpos = Chunk::chunkpos(center);
 
         Chunk* nearest = nullptr;
-        float  minDist = FLT_MAX;
+        float  min_dist = FLT_MAX;
 
+        dbg_NumChunksMeshInvalid = 0;
+
+        // for ChunkList or getChunkAt
+        LOCK_GUARD(world->m_LockChunks);
         walkViewDistanceChunks(viewDistance, [&](vec3 rel_chunkpos)
         {
             float dist = glm::length2(rel_chunkpos);
-            Chunk* chunk = world->getLoadedChunk(origin_chunkpos + rel_chunkpos);
-            if (dist < minDist && chunk && chunk->m_MeshingState == Chunk::MESH_INVALID) {
-                minDist = dist;
-                nearest = chunk;
+            Chunk* chunk = world->getLoadedChunk(origin_chunkpos + rel_chunkpos, true);
+            if (chunk && chunk->m_MeshingState == Chunk::MESH_INVALID) {
+                ++dbg_NumChunksMeshInvalid;
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    nearest = chunk;
+                }
             }
+
         });
 
         return nearest;
