@@ -11,7 +11,7 @@
 #include <FastNoise/FastNoise.h>
 #include <ethertia/world/gen/Noise.h>
 
-#include <ethertia/init/Materials.h>
+#include <ethertia/material/Materials.h>
 #include <ethertia/world/Cell.h>
 #include <ethertia/world/Chunk.h>
 #include <ethertia/util/Log.h>

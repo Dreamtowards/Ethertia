@@ -15,7 +15,7 @@
 #include <stb/stb_image_resize.h>
 
 #include <ethertia/render/TextureAtlas.h>
-#include <ethertia/init/Materials.h>
+#include <ethertia/material/Materials.h>
 
 
 class MaterialTextures

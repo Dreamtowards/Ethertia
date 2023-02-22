@@ -106,6 +106,7 @@ void Ethertia::start()
     Ethertia::getRegistry<Item>()->dbgPrintEntries("Items");
     Ethertia::getRegistry<Biome>()->dbgPrintEntries("Biomes");
     Ethertia::getRegistry<Command>()->dbgPrintEntries("Commands");
+    // Ethertia::getRegistry<Recipe>().d
 
 
 

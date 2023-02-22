@@ -16,7 +16,8 @@ public:
 
 };
 
-class Item {
+class Item
+{
 public:
     inline static Registry<Item> REGISTRY;
 

@@ -24,6 +24,8 @@ public:
 
     inline static const int HOTBAR_SLOT_MAX = 8;
 
+    inline static bool g_ShowHitInfo = true;
+
     static void initGUIs()
     {
         GuiRoot* rt = Ethertia::getRootGUI();
@@ -53,12 +55,69 @@ public:
     void implDraw() override
     {
 
+        drawHotbar();
+
+
+
+        // Center HitCursor.
+        Gui::drawRect(Gui::maxWidth()/2 -1, Gui::maxHeight()/2 -1,
+                      3, 3, Colors::WHITE);
+
+        // HitCursor Crosshair like MCVR
+//        {
+//            HitCursor& cur = Ethertia::getHitCursor();
+//            glm::vec3 p = cur.position;
+//            glm::vec3 n = cur.normal;
+//            glm::mat3 rot = glm::lookAt(p, p+n, {0,1,0});
+//            RenderEngine::renderModel(p, rot, plane);
+//        }
+
+
+        HitCursor& cur = Ethertia::getHitCursor();
+
+        if (g_ShowHitInfo && cur.hit)
+        {
+            float w = 200, h = 100;
+            float x = (Gui::maxWidth()-w) / 2, y = 24;
+
+            GuiInventory::drawSlotBorder({x,y,w,h});
+
+            if (cur.cell && cur.cell->mtl)
+            {
+                const Material* mtl = cur.cell->mtl;
+                Gui::drawString(x,y, Strings::fmt("Mtl: {} \nHardness: {}", mtl->getRegistryId(), mtl->m_Hardness));
+            }
+            else
+            {
+                Entity* e = cur.hitEntity;
+                Gui::drawString(x,y, Strings::fmt("Entity", typeid(e).name()));
+            }
+        }
+
+
+        // Hit Block Outline
+        if (cur.cell)
+        {
+            RenderEngine::drawLineBox(cur.cell_position, glm::vec3(1.0),
+                                      cur.cell->mtl ? Colors::WHITE : Colors::BLACK);
+            Gui::drawWorldpoint(cur.cell_position, [](glm::vec2 p) {
+                Gui::drawRect(p.x, p.y, 2, 2, Colors::RED);
+            });
+        }
+
+
+    }
+
+
+    void drawHotbar()
+    {
+
         EntityPlayer* player = Ethertia::getPlayer();
 
         {
             // hotbar
             const float HOTBAR_WIDTH = 720 * 0.8,
-                        HOTBAR_HEIGHT = 80 * 0.8;
+                    HOTBAR_HEIGHT = 80 * 0.8;
 
             float hbX = (Gui::maxWidth() - HOTBAR_WIDTH) / 2;
             float hbY = Gui::maxHeight() - HOTBAR_HEIGHT - 24 - 8;
@@ -69,8 +128,8 @@ public:
             int hotbarIdx = Ethertia::getPlayer()->m_HotbarSlot;
             Gui::drawRect(hbX, hbY, HOTBAR_WIDTH, HOTBAR_HEIGHT, TEX_HOTBAR_SLOTS);
             Gui::drawRect(hbX + hotbarIdx * HOTBAR_HEIGHT, hbY, HOTBAR_HEIGHT, HOTBAR_HEIGHT, {
-                .color = {1,1,1,0.35},
-                .tex = TEX_HOTBAR_SLOT_ACTIVE
+                    .color = {1,1,1,0.35},
+                    .tex = TEX_HOTBAR_SLOT_ACTIVE
             });
 
             //float hbItemWG = HOTBAR_WIDTH / HOTBAR_SLOT_MAX;
@@ -136,27 +195,6 @@ public:
 
             }
         }
-
-
-
-
-
-        // Center Cursor.
-        Gui::drawRect(Gui::maxWidth()/2 -1, Gui::maxHeight()/2 -1,
-                      3, 3, Colors::WHITE);
-
-
-        // Hit Block Outline
-        HitCursor& cur = Ethertia::getHitCursor();
-        if (cur.cell)
-        {
-            RenderEngine::drawLineBox(cur.cell_position, glm::vec3(1.0),
-                                      cur.cell->mtl ? Colors::WHITE : Colors::BLACK);
-            Gui::drawWorldpoint(cur.cell_position, [](glm::vec2 p) {
-                Gui::drawRect(p.x, p.y, 2, 2, Colors::RED);
-            });
-        }
-
 
     }
 
