@@ -296,10 +296,10 @@ void handleHitCursor()
                 }
             }
 
-            cur.cell = hitCell;
             if (hitCell->mtl == nullptr || hitCell != cur.cell) {
                 cur.cell_breaking_time = 0;  // reset breaking_time. hitting target changed.
             }
+            cur.cell = hitCell;
         }
     }
     else
