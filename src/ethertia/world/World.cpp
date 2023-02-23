@@ -555,7 +555,7 @@ void World::processEntityCollision() {
 //            player = dynamic_cast<EntityPlayer*>(ptrB);
 //            playerIsA = false;
 //        }
-        assert(dynamic_cast<EntityPlayer*>(ptrA));
+        assert(!player || dynamic_cast<EntityPlayer*>(player));
 
         // player pick item
         if (player && Ethertia::getWindow()->isKeyDown(GLFW_KEY_P)) {
@@ -566,17 +566,20 @@ void World::processEntityCollision() {
                 player->m_Inventory.putItemStack(stack);
                 delete eDroppedItem;  // there?
             }
+        } else {
+            // item auto merge
+            EntityDroppedItem* itemA = dynamic_cast<EntityDroppedItem*>(ptrA);
+            EntityDroppedItem* itemB = dynamic_cast<EntityDroppedItem*>(ptrB);
+            if (itemA && itemB)
+            {
+                if (itemA->m_DroppedItem.stackableWith(itemB->m_DroppedItem)) {
+                    removeEntity(itemA);
+                    itemA->m_DroppedItem.moveTo(itemB->m_DroppedItem);
+                    delete itemA;
+                }
+            }
         }
 
-        // item auto merge
-        EntityDroppedItem* itemA = dynamic_cast<EntityDroppedItem*>(ptrA);
-        EntityDroppedItem* itemB = dynamic_cast<EntityDroppedItem*>(ptrB);
-        if (itemA && itemB)
-        {
-            removeEntity(itemA);
-            itemA->m_DroppedItem.moveTo(itemB->m_DroppedItem);
-            delete itemA;
-        }
 
         // player collision impact.
         if (player) {

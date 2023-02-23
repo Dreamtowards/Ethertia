@@ -10,9 +10,6 @@ class Controls
 {
 public:
 
-    // MBR held time of Current Item.
-    inline static float g_CurrentItemUsedTime = 0;
-
     static void initControls();
 
     static void handleContinuousInput();

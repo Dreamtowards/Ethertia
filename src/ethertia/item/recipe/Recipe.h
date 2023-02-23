@@ -5,7 +5,7 @@
 #ifndef ETHERTIA_RECIPE_H
 #define ETHERTIA_RECIPE_H
 
-#include <ethertia/init/Registry.h>
+#include <ethertia/util/Registry.h>
 #include <ethertia/item/Item.h>
 
 class Recipe
@@ -23,7 +23,7 @@ public:
 
     }
 
-    DECL_RegistryId(m_Result->getRegistryId());
+    DECL_RegistryId(m_Produce->getRegistryId());
 
 
 };

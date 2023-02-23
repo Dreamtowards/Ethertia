@@ -14,15 +14,15 @@
 #include <ethertia/event/EventBus.h>
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/BitmapImage.h>
-#include <ethertia/event/client/KeyboardEvent.h>
-#include <ethertia/event/client/CharInputEvent.h>
-#include <ethertia/event/client/MouseButtonEvent.h>
-#include <ethertia/event/client/MouseMoveEvent.h>
-#include <ethertia/event/client/MouseScrollEvent.h>
-#include <ethertia/event/client/WindowResizedEvent.h>
-#include <ethertia/event/client/WindowDropEvent.h>
-#include <ethertia/event/client/WindowFocusEvent.h>
-#include <ethertia/event/client/WindowCloseEvent.h>
+#include <ethertia/event/window/KeyboardEvent.h>
+#include <ethertia/event/window/CharInputEvent.h>
+#include <ethertia/event/window/MouseButtonEvent.h>
+#include <ethertia/event/window/MouseMoveEvent.h>
+#include <ethertia/event/window/MouseScrollEvent.h>
+#include <ethertia/event/window/WindowResizedEvent.h>
+#include <ethertia/event/window/WindowDropEvent.h>
+#include <ethertia/event/window/WindowFocusEvent.h>
+#include <ethertia/event/window/WindowCloseEvent.h>
 
 
 class Window

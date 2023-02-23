@@ -8,8 +8,8 @@
 #include "Gui.h"
 #include "GuiCollection.h"
 
-#include <ethertia/event/client/MouseButtonEvent.h>
-#include <ethertia/event/client/WindowCloseEvent.h>
+#include <ethertia/event/window/MouseButtonEvent.h>
+#include <ethertia/event/window/WindowCloseEvent.h>
 
 class GuiRoot : public GuiCollection
 {
