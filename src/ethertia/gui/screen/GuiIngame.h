@@ -75,12 +75,13 @@ public:
 
         HitCursor& cur = Ethertia::getHitCursor();
 
+        // Hit Info
         if (g_ShowHitInfo && cur.hit)
         {
             float w = 200, h = 100;
-            float x = (Gui::maxWidth()-w) / 2, y = 24;
+            float x = 64, y = Gui::maxHeight() - 32 - 64;
 
-            GuiInventory::drawSlotBorder({x,y,w,h});
+            //GuiInventory::drawSlotBorder({x,y,w,h});
 
             if (cur.cell && cur.cell->mtl)
             {

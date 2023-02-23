@@ -26,7 +26,10 @@ public:
         GuiButton* btnSingleplayer = new GuiButton("Singleplayer", false);
         vstack->addGui(btnSingleplayer);
         btnSingleplayer->addOnClickListener([](auto) {
-            Ethertia::loadWorld("saves/world1");
+            WorldInfo worldinfo;
+            worldinfo.Name = "Internal Test";
+            worldinfo.Seed = 1234;
+            Ethertia::loadWorld("saves/world1", &worldinfo);
         });
 
         GuiButton* btnMultiplayer = new GuiButton("Multiplayer", false);

@@ -180,7 +180,6 @@ public:
             GuiPopupMenu* mOpts = newMenu(menubar, "Opts", &btnOpts);
 
             btnOpts->addOnClickListener([&](OnReleased* e) {
-                Log::info("opt");
                 optsGui->setVisible(!optsGui->isVisible());
             });
         }
@@ -317,6 +316,15 @@ public:
             float x = 0,
                     y = Gui::maxHeight() - h;
 
+            {
+                const Profiler::Section& sec = ChunkMeshProc::gp_MeshGen.GetRootSection();
+                drawProfilerSection(sec, x, y-9*16, w, sec.sumTime);
+            }
+            {
+                const Profiler::Section& sec = ChunkGenProc::gp_ChunkGen.GetRootSection();
+                drawProfilerSection(sec, x, y-5*16, w, sec.sumTime);
+            }
+
             Gui::drawRect(x, y, w, h, Colors::BLACK20);
 
             const Profiler::Section& sec = Ethertia::getProfiler().GetRootSection();
@@ -326,22 +334,6 @@ public:
 
             drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
 
-            {
-                h = 16*3;
-                y -= h + 16;
-
-                const Profiler::Section& sec = ChunkMeshProc::gp_MeshGen.GetRootSection();
-
-                drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
-            }
-            {
-                h = 16*3;
-                y -= h + 16;
-
-                const Profiler::Section& sec = ChunkGenProc::gp_ChunkGen.GetRootSection();
-
-                drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
-            }
         }
 
         if (dbgGBuffers) {

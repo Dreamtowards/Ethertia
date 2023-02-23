@@ -37,8 +37,13 @@ public:
                     continue;
                 }
                 World* world = Ethertia::getWorld();
+                PROFILE_X(gp_MeshGen, "MeshGen");
 
-                Chunk* chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+                Chunk* chunk = nullptr;
+                {
+                    PROFILE_X(gp_MeshGen, "Seek");
+                    chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+                }
 
                 if (chunk)
                 {
@@ -62,7 +67,6 @@ public:
 
     static void meshChunk_Upload(Chunk* chunk) {
         //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
-        PROFILE_X(gp_MeshGen, "MeshGen");
 
         //BENCHMARK_TIMER_MSG("Chunk MeshGen {}\n");
 
@@ -140,12 +144,12 @@ public:
                 chunk->m_MeshVegetable->setMesh(meshVegetable);
                 chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
 
-                chunk->m_MeshingState = Chunk::MESH_VALID;
             } else {
                 delete meshTerrain;
                 delete meshVegetable;
             }
 
+            chunk->m_MeshingState = Chunk::MESH_VALID;  // must clear MESHING state for delete chunk (unloadChunk)
             vbufTerrain->clear();
             vbufVegetable->clear();
             g_VertBufPool.restore(vbufTerrain);

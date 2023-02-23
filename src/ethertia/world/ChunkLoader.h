@@ -208,7 +208,11 @@ public:
         std::ifstream file(_OldChunkFileName(chunkpos), std::ios::in | std::ios::binary);
         if (!file)
             return nullptr;
-        return nbt::io::read_compound(file).second;
+        try {
+            return nbt::io::read_compound(file).second;
+        } catch (...) {
+            throw std::runtime_error(Strings::fmt("Error occurred when read chunk data at {}", chunkpos));
+        }
     }
 
     void setChunkData(vec3 chunkpos, const nbt::tag_compound& chunkdata)

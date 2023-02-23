@@ -8,6 +8,7 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/Window.h>
+#include <ethertia/gui/screen/GuiDebugV.h>
 
 
 void ItemComponentFood::onUse()
@@ -28,7 +29,7 @@ void ItemComponentMaterial::onUse()
 
     Material* mtl = m_Material;
 
-    if (mtl->m_IsVegetable || mtl->m_CustomMesh)// || GuiDebugV::g_BlockMode)
+    if (mtl->m_IsVegetable || mtl->m_CustomMesh || GuiDebugV::g_BlockMode || Ethertia::getWindow()->isKeyDown(GLFW_KEY_B))
     {
         Cell& c = Ethertia::getWorld()->getCell(p + cur.normal*0.1f);
 

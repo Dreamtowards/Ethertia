@@ -108,14 +108,18 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     {
         PROFILE_X(ChunkGenProc::gp_ChunkGen, "Load");  // not accurate. many times wouldn't load
 
+        dbg_ChunkProvideState = 2;
         chunk = m_ChunkLoader->loadChunk(chunkpos, this);
+        dbg_ChunkProvideState = 0;
     }
 
     if (!chunk)
     {
         PROFILE_X(ChunkGenProc::gp_ChunkGen, "Gen");
 
+        dbg_ChunkProvideState = 1;
         chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
+        dbg_ChunkProvideState = 0;
     }
 
     {
@@ -145,6 +149,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     return chunk;
 }
 
+
 void World::saveUnloadedChunks() {
     // chunks will be force save when: 1. 太多区块在卸载列表 2. 太久没保存
     LOCK_GUARD(m_LockUnloadedChunks);
@@ -152,7 +157,11 @@ void World::saveUnloadedChunks() {
     int i = 0;
     for (Chunk* chunk : m_UnloadedChunks)
     {
-        Log::info("Saving chunk {} ({}/{})", chunk->position, i+1, m_UnloadedChunks.size()); ++i;
+        dbg_SavingChunks = m_UnloadedChunks.size() - i;
+        if (ChunkGenProc::g_Running == -1) {  // when unloadWorld().
+            Log::info("Saving chunk {} ({}/{})", chunk->position, i+1, m_UnloadedChunks.size()); ++i;
+        }
+
         m_ChunkLoader->saveChunk(chunk);
 
         Entity* meshTerr = chunk->m_MeshTerrain;
@@ -170,15 +179,17 @@ void World::saveUnloadedChunks() {
 
 
         // Delete chunk but after MeshGen thread finish use.
-//        if (chunk->m_MeshingState == Chunk::MESHING) {
+        if (chunk->m_MeshingState == Chunk::MESHING) {
 //            Ethertia::getAsyncScheduler()->addDelayTask([chunk](){
-//                Timer::wait_for(&chunk->m_MeshingState, Chunk::MESH_VALID);
-//                delete chunk;
+            Log::info("UnloadChunk waiting for MeshDone.");
+            Timer::wait_for([&](){return chunk->m_MeshingState == Chunk::MESH_VALID || chunk->m_MeshingState == Chunk::MESH_INVALID;});
+                delete chunk;
 //            }, 2.0f);
-//        } else {
+        } else {
             delete chunk;
-//        }
+        }
     }
+    dbg_SavingChunks = 0;
 
     m_UnloadedChunks.clear();
 
@@ -270,6 +281,7 @@ void World::dropItem(glm::vec3 p, const ItemStack& stack, glm::vec3 vel)
     eDroppedItem->m_DroppedItem = stack;
     eDroppedItem->setPosition(p);
     eDroppedItem->applyLinearVelocity(vel);
+    assert(!stack.empty());
 
     addEntity(eDroppedItem);
 }
@@ -530,30 +542,45 @@ void World::processEntityCollision() {
     for (int i = 0; i < numManifolds; ++i)
     {
         btPersistentManifold* manifold = disp->getManifoldByIndexInternal(i);
-        const btCollisionObject* objA = static_cast<const btCollisionObject*>(manifold->getBody0());
-        const btCollisionObject* objB = static_cast<const btCollisionObject*>(manifold->getBody1());
+        const btCollisionObject* colA = static_cast<const btCollisionObject*>(manifold->getBody0());
+        const btCollisionObject* colB = static_cast<const btCollisionObject*>(manifold->getBody1());
 
-        Entity* ptrA = static_cast<Entity*>(objA->getUserPointer());
-        Entity* ptrB = static_cast<Entity*>(objB->getUserPointer());
+        Entity* ptrA = static_cast<Entity*>(colA->getUserPointer());
+        Entity* ptrB = static_cast<Entity*>(colB->getUserPointer());
 
-        int numContacts = manifold->getNumContacts();
-        for (int j = 0; j < numContacts; ++j)
-        {
-            btManifoldPoint& pt = manifold->getContactPoint(j);
+        EntityPlayer* player = Collections::ptr_or(dynamic_cast<EntityPlayer*>(ptrA), dynamic_cast<EntityPlayer*>(ptrB));
+        bool playerIsA = player == ptrA;
 
-            // if (pt.getDistance() <= 0)  ~< 0.03
-
-            // const btVector3& ptA = pt.m_positionWorldOnA;
-            // const btVector3& ptB = pt.m_positionWorldOnB;
-            // const btVector3& normB = pt.m_normalWorldOnB;
-
-            if (EntityPlayer* player = dynamic_cast<EntityPlayer*>(ptrA)) {
-                processPlayerCollide(player, pt.getAppliedImpulse(), -pt.m_normalWorldOnB, pt.m_localPointA, pt.m_positionWorldOnA);
+        // player pick item
+        if (player && Ethertia::getWindow()->isKeyDown(GLFW_KEY_P)) {
+            EntityDroppedItem* eDroppedItem = dynamic_cast<EntityDroppedItem*>(playerIsA ? ptrB : ptrA);
+            if (eDroppedItem) {
+                ItemStack& stack = eDroppedItem->m_DroppedItem;
+                player->m_Inventory.putItemStack(stack);
+                removeEntity(eDroppedItem);
             }
-            if (EntityPlayer* player = dynamic_cast<EntityPlayer*>(ptrB)) {
-                processPlayerCollide(player, pt.getAppliedImpulse(), pt.m_normalWorldOnB, pt.m_localPointB, pt.m_positionWorldOnB);
-            }
+        }
 
+        // item auto merge
+
+
+        // player collision impact.
+        if (player) {
+            int numContacts = manifold->getNumContacts();
+            for (int j = 0; j < numContacts; ++j)
+            {
+                btManifoldPoint& pt = manifold->getContactPoint(j);
+                // if (pt.getDistance() <= 0)  ~< 0.03
+                // const btVector3& ptA = pt.m_positionWorldOnA;
+                // const btVector3& ptB = pt.m_positionWorldOnB;
+                // const btVector3& normB = pt.m_normalWorldOnB;
+
+                if (playerIsA) {
+                    processPlayerCollide(player, pt.getAppliedImpulse(), -pt.m_normalWorldOnB, pt.m_localPointA, pt.m_positionWorldOnA);
+                } else {
+                    processPlayerCollide(player, pt.getAppliedImpulse(), pt.m_normalWorldOnB, pt.m_localPointB, pt.m_positionWorldOnB);
+                }
+            }
         }
     }
 

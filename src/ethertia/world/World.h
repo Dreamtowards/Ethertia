@@ -85,7 +85,7 @@ public:
 
     void invalidateCellFp(glm::vec3 center, int r);
 
-    void processEntityCollision();
+    void processEntityCollision();  // main thread.
 
 
 
@@ -151,6 +151,9 @@ public:
         return m_WorldInfo.Seed;
     }
 
+
+    inline static int dbg_SavingChunks = 0;
+    inline static int dbg_ChunkProvideState = 0;  // 1: gen, 2: load
 
 
 

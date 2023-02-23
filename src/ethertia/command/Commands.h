@@ -50,9 +50,23 @@ public:
         void onCommand(const std::vector<std::string>& args) override
         {
             EntityPlayer* player = Ethertia::getPlayer();
-            player->setFlying(!player->isFlying());
+            bool fly = !player->isFlying();
 
-            _SendMessage("Flymode tuned to {}", player->isFlying());
+            if (args.size() > 1) {
+                if (args[1] == "on") fly = true;
+                else if (args[1] == "off") fly = false;
+                else if (args[1] == "spd") {
+                    float spd = std::stof(args[2]);
+
+                    EntityPlayer::dbgFlySpeedMul = spd;
+                    _SendMessage("Fly speed set to {}", spd);
+                    return;
+                }
+            }
+
+            player->setFlying(fly);
+
+            _SendMessage("Flymode tuned to {}", fly ? "on" : "off");
         }
     };
     class CommandGive : public Command

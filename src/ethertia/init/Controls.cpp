@@ -59,6 +59,7 @@ void handleMouseButton(MouseButtonEvent* e)
             {
                 comp->onUse();
             }
+            --stack.m_Amount;
         }
     }
 

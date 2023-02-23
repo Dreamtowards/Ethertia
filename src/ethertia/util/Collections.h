@@ -72,6 +72,11 @@ public:
         }
     }
 
+    template<typename T>
+    static T* ptr_or(T* a, T* b) {
+        return a ? a : b;
+    }
+
 private:
     template<typename Itr, typename T>
     static Itr find_ptr(Itr first, Itr last, T* p) {

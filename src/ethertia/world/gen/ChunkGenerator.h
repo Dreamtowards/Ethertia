@@ -108,7 +108,7 @@ public:
 
                     float f = terr - y/64.0f;//
 
-                    if (f > -0.5) {
+                    if (f > -0.2) {
                         float add = Mth::max(0.0f, noise3d * 8);
                         if (f < -0.4) {
                             f = Mth::lerp(0.5f, f, add);

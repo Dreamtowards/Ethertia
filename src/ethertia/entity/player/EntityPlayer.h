@@ -92,6 +92,8 @@ public:
         m_Sprint = s;
     }
 
+    inline static float dbgFlySpeedMul = 1;
+
     void move(bool up, bool down, bool front, bool back, bool left, bool right)
     {
         ASSERT_WARN(m_RidingOn == nullptr, "Shouldn't 'move' while riding.");
@@ -103,7 +105,7 @@ public:
         glm::vec3 v(0);
 
         if (m_Flying) {
-            speed *= 4;
+            speed *= 4 * dbgFlySpeedMul;
         } else if (!m_OnGround) {  //falling
             speed *= 0.1f;
         }

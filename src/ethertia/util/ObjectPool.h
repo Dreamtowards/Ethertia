@@ -12,6 +12,8 @@ class ObjectPool
 {
 public:
 
+    std::mutex m_LockPool;
+
     std::stack<T*> m_IdlePool;
 
     int m_NumUsing = 0;
@@ -26,6 +28,7 @@ public:
             }
             return new T();
         }
+        LOCK_GUARD(m_LockPool);
         T* p = m_IdlePool.top();
         m_IdlePool.pop();
         return p;
@@ -33,6 +36,7 @@ public:
 
     void restore(T* obj) {
         --m_NumUsing;
+        LOCK_GUARD(m_LockPool);
         m_IdlePool.push(obj);
     }
 

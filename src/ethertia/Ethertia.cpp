@@ -218,9 +218,22 @@ void Ethertia::renderGUI()
         Gui::drawRect(64, 256+16, 120*t, 4, Colors::GREEN_DARK);
     }
 
+    {
+        float x = Gui::maxWidth() - 64;
+        float y = Gui::maxHeight() - 64 - 40;
 
-    if (ChunkGenProc::dbg_IsSavingChunks) {
-        Gui::drawString(Gui::maxWidth() - 32, Gui::maxHeight() - 32, "Saving chunks...", Colors::YELLOW, 16, {-1, -1});
+        if (World::dbg_ChunkProvideState) {
+            Gui::drawString(x, y, World::dbg_ChunkProvideState == 1 ? "Generating Chunk.." : "Loading Chunk..",
+                            Colors::GRAY, 16, {-1, -1});
+        }
+        if (World::dbg_SavingChunks) {
+            Gui::drawString(x, y+16, Strings::fmt("Saving chunks... ({})", World::dbg_SavingChunks),
+                            Colors::GREEN_DARK, 16, {-1, -1});
+        }
+        if (ChunkMeshProc::dbg_NumChunksMeshInvalid > 0) {
+            Gui::drawString(x, y+32, Strings::fmt("Meshing chunks... ({})", ChunkMeshProc::dbg_NumChunksMeshInvalid),
+                            Colors::GRAY_DARK, 16, {-1, -1});
+        }
     }
 
     if (!WorldEdit::selection.empty()) {
@@ -285,13 +298,13 @@ void Ethertia::unloadWorld()
 {
     assert(m_World);
     Log::info("Unloading World...");
+    Ethertia::getHitCursor().reset();
 
 
     Log::info("Cleaning MeshGen");
     ChunkMeshProc::g_Running = -1;
     Timer::wait_for(&ChunkMeshProc::g_Running, 0);  // before delete chunks
 
-    Ethertia::getHitCursor().reset();
 
     m_World->unloadAllChunks();
 
@@ -420,7 +433,7 @@ void EntityMesh::onRender()
         glDisable(GL_CULL_FACE);
 
     Ethertia::getRenderEngine()->entityRenderer->renderGeometryChunk(
-            m_Model, getPosition(), getRotation(), m_DiffuseMap, 0);//isFoliage ? 0.1 : 0.0);
+            m_Model, getPosition(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
 
     if (isFoliage)
         glEnable(GL_CULL_FACE);  // set back
