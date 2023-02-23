@@ -76,7 +76,7 @@ void ItemComponentEntity::onUse()  {
 
 
 
-void ItemComponentGrapple::onUse()
+void ItemComponentToolGrapple::onUse()
 {
     glm::vec3 dir = Ethertia::getCamera()->direction;
 

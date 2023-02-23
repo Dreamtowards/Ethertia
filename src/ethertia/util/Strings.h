@@ -22,11 +22,14 @@ public:
     }
 
     static std::string join(const std::string& delimiter, const std::vector<std::string>& ls) {
+        return Strings::join(delimiter, [&](int i){ return ls[i]; }, ls.size());
+    }
+    static std::string join(const std::string& delimiter, const std::function<const std::string(int)>& fn, int n) {
         std::stringstream ss;
-        for (const std::string& s : ls) {
+        for (int i = 0;i < n; ++i) {
             if (ss.tellp() > 0)
                 ss << delimiter;
-            ss << s;
+            ss << fn(i);
         }
         return ss.str();
     }

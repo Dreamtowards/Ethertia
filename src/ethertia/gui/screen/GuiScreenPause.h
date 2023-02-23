@@ -10,6 +10,7 @@
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/gui/inventory/GuiInventory.h>
 #include <ethertia/world/World.h>
+#include <ethertia/item/recipe/Recipe.h>
 
 class GuiScreenPause : public GuiCollection
 {
@@ -175,6 +176,26 @@ public:
         //Gui::drawString(Gui::maxWidth()/2, 0, "Inventory", Colors::WHITE, 18, {-0.5, 0});
 
 
+        {
+            float x = 100, y = 100, w = 300;
+
+            // Craft Recipes
+            int i = 0;
+            for (auto& it : Recipe::REGISTRY) {
+                Recipe* r = it.second;
+                float iy = y + (i*40);
+                
+                Gui::drawString(x,  iy+ 12, r->m_Produce->getRegistryId());
+
+                Gui::drawString(x+w, iy+40,
+                                Strings::join(", ", [&](int i){ return r->m_Source[i]->getRegistryId(); }, r->m_Source.size()),
+                                Colors::WHITE,
+                                13,
+                                {-1, -1});
+
+                ++i;
+            }
+        }
 
 
     }

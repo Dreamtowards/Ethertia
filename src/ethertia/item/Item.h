@@ -12,7 +12,7 @@ class ItemComponent
 public:
 
     // EntityPlayer* player, float hold_time, bool release
-    virtual void onUse() = 0;
+    virtual void onUse() {};
 
 };
 

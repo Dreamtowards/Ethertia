@@ -52,11 +52,23 @@ public:
 
 };
 
-class ItemComponentGrapple : public ItemComponentTool
+class ItemComponentToolGrapple : public ItemComponentTool
 {
 public:
 
     void onUse() override;
+
+};
+
+class ItemComponentFuel : public ItemComponent
+{
+public:
+
+    // Seconds can burn.
+    float m_BurnTime = 1.0;
+
+    ItemComponentFuel(float burn_time) : m_BurnTime(burn_time)
+    {}
 
 };
 

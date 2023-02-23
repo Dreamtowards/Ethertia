@@ -18,28 +18,31 @@ public:
 
 #define REGISTER_ITEM(VAR, id, comps) inline static const Item* VAR = new Item(id, comps);
 
+
     // Food
-    REGISTER_ITEM(APPLE, "apple", {new ItemComponentFood(1.5)});
-    REGISTER_ITEM(LIME,  "lime",  {new ItemComponentFood(0.5)});
+    REGISTER_ITEM(APPLE,        "apple",        {new ItemComponentFood(1.5)});
+    REGISTER_ITEM(LIME,         "lime",         {new ItemComponentFood(0.5)});
 
 
     // Tool
-    REGISTER_ITEM(PICKAXE, "pickaxe", {new ItemComponentTool()});
-    REGISTER_ITEM(GRAPPLE, "grapple", {new ItemComponentGrapple()});
-    REGISTER_ITEM(HOE,     "hoe",     {new ItemComponentTool()});
-    REGISTER_ITEM(SHEARS,  "shears",  {new ItemComponentTool()});
+    REGISTER_ITEM(PICKAXE,      "pickaxe",      {new ItemComponentTool()});
+    REGISTER_ITEM(GRAPPLE,      "grapple",      {new ItemComponentToolGrapple()});
+    REGISTER_ITEM(HOE,          "hoe",          {new ItemComponentTool()});
+    REGISTER_ITEM(SHEARS,       "shears",       {new ItemComponentTool()});
 
     // Craft Material
-    REGISTER_ITEM(STICK,   "stick",   {});
+    REGISTER_ITEM(STICK,        "stick",        {new ItemComponentFuel(3.0)});
+    REGISTER_ITEM(COAL,         "coal",         {new ItemComponentFuel(16.0)});
+    REGISTER_ITEM(IRON_INGOT,   "iron_ingot",   {});
 
 
     // Lights
-    REGISTER_ITEM(LANTERN, "lantern", {new ItemComponentEntity{[](){ return new EntityLantern(); }}});
-    REGISTER_ITEM(TORCH,   "torch",   {new ItemComponentEntity([](){ return new EntityTorch(); })});
+    REGISTER_ITEM(LANTERN,      "lantern",      {new ItemComponentEntity{[](){ return new EntityLantern(); }}});
+    REGISTER_ITEM(TORCH,        "torch",        {new ItemComponentEntity([](){ return new EntityTorch(); })});
 
 
     // ? Vehicle ?
-    REGISTER_ITEM(HELICOPTER, "helicopter", {new ItemComponentEntity([](){ return new EntityHelicopter(); })});
+    REGISTER_ITEM(HELICOPTER,   "helicopter",   {new ItemComponentEntity([](){ return new EntityHelicopter(); })});
 
 
 };
