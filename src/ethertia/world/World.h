@@ -174,13 +174,13 @@ public:
     static Cell& _GetCell(Chunk* chunk, glm::vec3 rp);
 
 
-    struct DayTime
-    {
-        // 6AM - 6PM.
-        static bool isDay(float daytime) {
-            return daytime > 0.25 && daytime < 0.75;
-        }
-    };
+//    struct DayTime
+//    {
+//        // 6AM - 6PM.
+//        static bool isDay(float daytime) {
+//            return daytime > 0.25 && daytime < 0.75;
+//        }
+//    };
 };
 
 #endif //ETHERTIA_WORLD_H

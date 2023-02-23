@@ -217,7 +217,7 @@ void World::unloadChunk(glm::vec3 p) {
 
 }
 
-Chunk* World::getLoadedChunk(glm::vec3 p, bool quick)  {
+Chunk* World::getLoadedChunk(glm::vec3 p, bool quick) {
     if (!quick)
         LOCK_GUARD(m_LockChunks);
 
@@ -229,7 +229,8 @@ Chunk* World::getLoadedChunk(glm::vec3 p, bool quick)  {
 
 
 
-void World::addEntity(Entity* e)  {
+void World::addEntity(Entity* e)
+{
     assert(Ethertia::inMainThread());  // Ensure main thread.
     assert(e != nullptr);
     assert(Collections::find(m_Entities, e) == -1);  // make sure the entity is not in this world.
@@ -245,7 +246,8 @@ void World::addEntity(Entity* e)  {
     e->m_Rigidbody->setGravity(old_grav);
 }
 
-void World::removeEntity(Entity* e)  {
+void World::removeEntity(Entity* e)
+{
     assert(Ethertia::inMainThread());
     assert(e);
     assert(Collections::find(m_Entities, e) != -1);
@@ -277,12 +279,11 @@ std::vector<T> World::getEntities_() {  // just temporary
 
 void World::dropItem(glm::vec3 p, const ItemStack& stack, glm::vec3 vel)
 {
+    assert(!stack.empty());
     EntityDroppedItem* eDroppedItem = new EntityDroppedItem();
     eDroppedItem->m_DroppedItem = stack;
     eDroppedItem->setPosition(p);
     eDroppedItem->applyLinearVelocity(vel);
-    assert(!stack.empty());
-
     addEntity(eDroppedItem);
 }
 
@@ -550,19 +551,32 @@ void World::processEntityCollision() {
 
         EntityPlayer* player = Collections::ptr_or(dynamic_cast<EntityPlayer*>(ptrA), dynamic_cast<EntityPlayer*>(ptrB));
         bool playerIsA = player == ptrA;
+//        if (!player) {
+//            player = dynamic_cast<EntityPlayer*>(ptrB);
+//            playerIsA = false;
+//        }
+        assert(dynamic_cast<EntityPlayer*>(ptrA));
 
         // player pick item
         if (player && Ethertia::getWindow()->isKeyDown(GLFW_KEY_P)) {
             EntityDroppedItem* eDroppedItem = dynamic_cast<EntityDroppedItem*>(playerIsA ? ptrB : ptrA);
             if (eDroppedItem) {
+                removeEntity(eDroppedItem);
                 ItemStack& stack = eDroppedItem->m_DroppedItem;
                 player->m_Inventory.putItemStack(stack);
-                removeEntity(eDroppedItem);
+                delete eDroppedItem;  // there?
             }
         }
 
         // item auto merge
-
+        EntityDroppedItem* itemA = dynamic_cast<EntityDroppedItem*>(ptrA);
+        EntityDroppedItem* itemB = dynamic_cast<EntityDroppedItem*>(ptrB);
+        if (itemA && itemB)
+        {
+            removeEntity(itemA);
+            itemA->m_DroppedItem.moveTo(itemB->m_DroppedItem);
+            delete itemA;
+        }
 
         // player collision impact.
         if (player) {
