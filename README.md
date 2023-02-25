@@ -1,6 +1,6 @@
 [comment]: <> (# Ethertia <small style="opacity: 80%">以太效應 <sup><a href="https://elytra.dev/ethertia">[Site]</a><a href="https://github.com/Dreamtowards/Ethertia">[Src]</a><a href="https://elytra.dev/~pris">[Dev]</a></sup></small>)
 
-![](run/screenshots/eth-proj-postr.png)
+![](run/screenshots/_figures/ethertia-poster0225d4-lres.jpg)
 
 [![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml)
 [![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml)
@@ -34,7 +34,7 @@ Building · Survive · Interact | 建造 · 生存 · 交互
 [comment]: <> (预览视频:)
 
 [comment]: <> (![]&#40;run/screenshots/2023-01-16_01.04.07_473.938.png&#41;)
-![](run/screenshots/2023-01-23_16.07.58_976.654.png)
+![](https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/_figures/23u07.png)
 
 [comment]: <> (![]&#40;run/screenshots/2023-01-17_17.24.46_751.785.png&#41;)
 

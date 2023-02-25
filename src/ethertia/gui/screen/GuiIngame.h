@@ -99,8 +99,10 @@ public:
         // Hit Block Outline
         if (cur.cell)
         {
-            RenderEngine::drawLineBox(cur.cell_position, glm::vec3(1.0),
-                                      cur.cell->mtl ? Colors::WHITE : Colors::BLACK);
+            if (cur.cell->isOpaqueCube()) {
+                RenderEngine::drawLineBox(cur.cell_position, glm::vec3(1.0),
+                                          cur.cell->mtl ? Colors::WHITE : Colors::BLACK);
+            }
             Gui::drawWorldpoint(cur.cell_position, [](glm::vec2 p) {
                 Gui::drawRect(p.x, p.y, 2, 2, Colors::RED);
             });
