@@ -2,19 +2,18 @@
 
 ![](run/screenshots/_figures/ethertia-poster0225d4-lres.jpg)
 
+**Building · Survive · Interact**
+
+[ETHERTIA.com](https://ethertia.com)
+[Roadmap](https://github.com/users/Dreamtowards/projects/2)
+[Wikipedia](https://zh.wikipedia.org/wiki/Ethertia)
+[@Bilibili](https://space.bilibili.com/19483166)
+[@QQ](https://jq.qq.com/?_wv=1027&k=tgM29oDM)
+| 
+[© Elytra Corporation](https://elytra.dev)
+
 [![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml)
 [![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml)
-
-[comment]: <> (<a href="https://ethertia.com" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">官方站点</a>)
-[comment]: <> (<a href="https://space.bilibili.com/19483166" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">bilibili</a>)
-[comment]: <> (<a href="https://jq.qq.com/?_wv=1027&k=tgM29oDM" style="background: #444; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">QQ群组</a>)
-[comment]: <> (<a style="background: #f44; color: #fff; padding: 4px 6px; border-radius: 3px; font-size: 11px; vertical-align: top;">&#40;C&#41; Ethertia, Elytra Corporation All rights reserved</a>)
-
-[官网](https://ethertia.com)
-[bilibili](https://space.bilibili.com/19483166)
-[QQ群组](https://jq.qq.com/?_wv=1027&k=tgM29oDM)
-[开发安排](https://github.com/users/Dreamtowards/projects/2) | 
-[(C) Elytra Corporation most rights reserved](https://elytra.dev)
 
 [comment]: <> ([![Linux]&#40;https://github.com/raysan5/raylib/workflows/Linux/badge.svg&#41;]&#40;https://github.com/raysan5/raylib/actions?query=workflow%3ALinux&#41;)
 [comment]: <> ([![Build-Ubuntu]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml/badge.svg&#41;]&#40;https://github.com/Dreamtowards/Ethertia/actions/workflows/linux.yml&#41;)
@@ -28,10 +27,8 @@
 
 ---
 
-Building · Survive · Interact | 建造 · 生存 · 交互
 
-
-[comment]: <> (预览视频:)
+Previews:
 
 [comment]: <> (![]&#40;run/screenshots/2023-01-16_01.04.07_473.938.png&#41;)
 ![](https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/_figures/23u07.png)
@@ -70,9 +67,13 @@ Building · Survive · Interact | 建造 · 生存 · 交互
 [comment]: <> (以上为*游戏性列表*，接下来为*功能性列表*:)
 
 
-[Ethertia Dev Schedule / 开发安排](https://github.com/users/Dreamtowards/projects/2)
+[comment]: <> ([Ethertia Dev Schedule / 开发安排]&#40;https://github.com/users/Dreamtowards/projects/2&#41;)
 
+### Versions
 
+.. See Roadmap
+
+<!--
 ### Versions & Plan <small>(deprecated on 230206)</small>:
 
 - Ethertia Alpha 0.1.0 :: Building & Creative Mode (建筑系统)  
@@ -98,6 +99,7 @@ Building · Survive · Interact | 建造 · 生存 · 交互
 
 ---
 
+-->
 
 ### Developers & Credits 
 _(order by join time)_
@@ -110,19 +112,17 @@ _(order by join time)_
   
 <br>
 
-暂非核心成员贡献 后续将放在官网首页底部
-
 - [**Kmroiosn**](https://github.com/Kmroiosn)   
   _230209_ ModLoader/ dll program load for Windows.
 
-
+<!--
 <br>
 
 > - Program 程序
 > - Game Design 策划
 > - Music Creator 作曲
 > - Art Creator 艺术 (Concept Art, Modeling, Ingame Artwork..)
-
+-->
 
 
 ## Build:
@@ -135,12 +135,10 @@ _(order by join time)_
     - if you are using IDE like CLion, setup your UCRT-MinGW, and just "Build/Run".
 
 - if crashed on SIMD Level checking, just downgrade your simd_level in settings.json.
-- make sure you have (dynamic linked) "libgcc_s_seh-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll". which is part of ucrt library.
+- (ignorable) make sure you have (dynamic linked) "libgcc_s_seh-1.dll", "libstdc++-6.dll", "libwinpthread-1.dll". which is part of ucrt library.
 
-#### Darwin (OSX, Mac):
-1. use **clang** compiler.
-
-`-G "CodeBlocks - Unix Makefiles"`
+#### Darwin (Mac OS X):
+1. use **gcc/clang** compiler. `-G "CodeBlocks - Unix Makefiles"`)
 
 
 
