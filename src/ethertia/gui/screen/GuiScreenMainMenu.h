@@ -26,22 +26,28 @@ public:
         GuiButton* btnSingleplayer = new GuiButton("Singleplayer", false);
         vstack->addGui(btnSingleplayer);
         btnSingleplayer->addOnClickListener([](auto) {
-            WorldInfo worldinfo;
-            worldinfo.Name = "Internal Test";
-            worldinfo.Seed = 1234;
-            Ethertia::loadWorld("saves/world1", &worldinfo);
+            if (Ethertia::getWindow()->isAltKeyDown())
+            {
+                WorldInfo worldinfo;
+                worldinfo.Name = "Internal Test";
+                worldinfo.Seed = 1234;
+                Ethertia::loadWorld("saves/world1", &worldinfo);
+            }
+            else
+            {
+                Ethertia::getRootGUI()->addGui(GuiScreenSingleplayer::Inst());
+                GuiScreenSingleplayer::Inst()->refreshWorldList();
+            }
         });
 
         GuiButton* btnMultiplayer = new GuiButton("Multiplayer", false);
         vstack->addGui(btnMultiplayer);
         btnMultiplayer->addOnClickListener([](auto) {
-//            const char* r = Loader::showInputBox("URL", "File, Folder, or URL", "");
-//            if (r) {
-//                Loader::openURL(r);
-//            }
+            const char* r = Loader::showInputBox("URL", "File, Folder, or URL", "");
+            if (r) {
+                Loader::openURL(r);
+            }
 
-            Ethertia::getRootGUI()->addGui(GuiScreenSingleplayer::Inst());
-            GuiScreenSingleplayer::Inst()->refreshWorldList();
         });
 
         GuiButton* btnSettings = new GuiButton("Settings", false);
