@@ -2,7 +2,7 @@
 // Created by Dreamtowards on 2023/1/13.
 //
 
-#include <ethertia/world/gen/Noise.h>
+#include <ethertia/world/gen/NoiseGen.h>
 #include <ethertia/world/Biome.h>
 
 #include <ethertia/util/BitmapImage.h>
@@ -20,7 +20,7 @@ int main() {
     static float temp[SIZE*SIZE];
     static float rain[SIZE*SIZE];
 
-    Noise::Perlin()->GenUniformGrid2D(temp, 0, 0, SIZE, SIZE, 0.1, seed);
+    NoiseGen::Perlin()->GenUniformGrid2D(temp, 0, 0, SIZE, SIZE, 0.1, seed);
 
     BitmapImage* img = new BitmapImage(SIZE, SIZE);
 

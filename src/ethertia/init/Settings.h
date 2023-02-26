@@ -6,7 +6,7 @@
 #define ETHERTIA_SETTINGS_H
 
 #include <ethertia/util/Loader.h>
-#include <ethertia/world/gen/ChunkGenerator.h>
+#include <ethertia/world/gen/NoiseGen.h>
 
 #include <nlohmann/json.hpp>
 
@@ -50,7 +50,7 @@ public:
 
         std::string simdLevel;
         set_ifexists(settings, "simd_level", &simdLevel);
-        ChunkGenerator::g_SIMDLevel = ChunkGenerator::FastSIMD_ofLevelName(simdLevel);
+        NoiseGen::g_SIMDLevel = NoiseGen::FastSIMD_ofLevelName(simdLevel);
 
         set_ifexists(settings, "mods", &MODS);
 
@@ -73,7 +73,7 @@ public:
              {"vsync",          false},
              {"fullscreen",     false},
              {"mtl_resolution", MaterialTextures::TEX_RESOLUTION},
-             {"simd_level",     ChunkGenerator::FastSIMD_LevelName(ChunkGenerator::g_SIMDLevel)},
+             {"simd_level",     NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel)},
              {"mods",           MODS}
         });
 

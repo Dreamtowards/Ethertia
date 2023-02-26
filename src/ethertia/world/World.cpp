@@ -360,14 +360,14 @@ void World::populate(World* world, glm::vec3 chunkpos) {
     float noiseSand[16*16];
     float noiseFern[16*16];
 
-    ChunkGenerator::Perlin()->GenUniformGrid2D(noiseSand, chunkpos.x, chunkpos.z, 16, 16, 1/60.0f, world->getSeed());
+    NoiseGen::Perlin()->GenUniformGrid2D(noiseSand, chunkpos.x, chunkpos.z, 16, 16, 1/60.0f, world->getSeed());
 
     for (int dx = 0; dx < 16; ++dx) {
         for (int dz = 0; dz < 16; ++dz) {
             int x = chunkpos.x + dx;
             int z = chunkpos.z + dz;
             int nextAir = -1;
-            const int idxXZ = ChunkGenerator::IdxXZ(dx, dz);
+            const int idxXZ = NoiseGen::IdxXZ(dx, dz);
 
             for (int dy = 0; dy < 16; ++dy) {
                 int y = chunkpos.y + dy;

@@ -162,10 +162,10 @@ public:
         Gui::drawRect(x,y,w, 1, Colors::WHITE);
 
         int16_t* buf;
-        int nFFT = 1024;
+        int nFFT = 512;
         int nFFT_2 = nFFT / 2;
 
-        int numSampled = Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
+        size_t numSampled = Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
         if (!numSampled) {
             Log::info("No audio sampled.");
             return;
@@ -184,7 +184,7 @@ public:
         std::vector<std::complex<float>> fft = Loader::fft_1d(tFreq);
 
 
-        float sampFreq = Ethertia::getAudioEngine()->m_CaptureSampleRate;
+        float sampFreq = (float)Ethertia::getAudioEngine()->m_CaptureSampleRate;
 
         for (int i = 0; i < nFFT_2; ++i)
         {

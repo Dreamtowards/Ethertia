@@ -52,14 +52,14 @@ void Ethertia::start()
     for (const std::string& modpath : Settings::MODS) {
         ModLoader::loadMod(modpath);
     }
-    OpenVR::init();
+    //OpenVR::init();
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
     m_RootGUI = new GuiRoot();
     m_RenderEngine = new RenderEngine();  // todo RenderEngine::init();
     m_AudioEngine = new AudioEngine();  // todo AudioEngine::init();
-    ChunkGenerator::initSIMD();
+    NoiseGen::initSIMD();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target_name(), std::endian::native == std::endian::big ? "big" : "little");
 
     // Materials & Items

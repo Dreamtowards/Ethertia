@@ -6,7 +6,7 @@
   "fullscreen": false,
   "mods": [],
   "mtl_resolution": 256,
-  "simd_level": "",
+  "simd_level": "SSE3",
   "view_distance": 4.0,
   "vsync": false
 }
