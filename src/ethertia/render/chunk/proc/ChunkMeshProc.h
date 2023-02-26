@@ -42,6 +42,7 @@ public:
                 Chunk* chunk = nullptr;
                 {
                     PROFILE_X(gp_MeshGen, "Seek");
+                    Timer::sleep_for(1);
                     chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
                 }
 

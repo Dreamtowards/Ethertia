@@ -38,6 +38,7 @@ public:
                 vec3 chunkpos;
                 {
                     PROFILE_X(gp_ChunkGen, "Find");
+                    Timer::sleep_for(1);
                     chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
                 }
 

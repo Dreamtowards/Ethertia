@@ -1,2 +1,2 @@
-bin\windows-amd64\Ethertia.exe
+bin\windows-x64\Ethertia.exe
 pause

@@ -167,7 +167,7 @@ public:
 
         int numSampled = Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
         if (!numSampled) {
-            Log::warn("No audio sampled.");
+            Log::info("No audio sampled.");
             return;
         }
 

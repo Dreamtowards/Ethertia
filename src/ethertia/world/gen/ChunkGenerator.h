@@ -33,11 +33,14 @@ public:
                   ChunkGenerator::FastSIMD_LevelName(FastSIMD::CPUMaxSIMDLevel()));
 
         std::cout << " if crash then, try downgrade SIMD_Level in 'settings.json'.\n";
+        std::cout.flush();
 
-        {
+        try {
             // Check whether current SIMD Level actually supported. it will crash if not supported.
             float _test;
             Noise::Perlin()->GenUniformGrid3D(&_test, 0, 0, 0, 1, 1, 1, 0.1, 123);
+        } catch (...) {
+            Log::warn("FastNoise2 Failed. SIMD Error");
         }
     }
 
