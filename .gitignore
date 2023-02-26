@@ -4,6 +4,10 @@
 cmake-build-debug/*
 cmake-build-release/*
 
+# MSVC
+out/
+.vs/
+
 run/bin/macos-x86-64/*
 run/bin/darwin-x64/*
 run/bin/windows-amd64/*

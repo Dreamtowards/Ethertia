@@ -9,6 +9,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
+#include <string>
 
 #include <bullet3/src/LinearMath/btVector3.h>
 #include <bullet3/src/LinearMath/btQuaternion.h>
@@ -27,8 +28,8 @@ public:
     static constexpr float PI_2 = 1.57079632679f;
     static constexpr float _2PI = 2*PI;
 
-    static constexpr float NaN = NAN;
-    static constexpr float Inf = INFINITY;
+    static constexpr float NaN = std::numeric_limits<float>::quiet_NaN();
+    static constexpr float Inf = std::numeric_limits<float>::infinity();
 
     static inline bool isnan(float f) {
         return std::isnan(f);

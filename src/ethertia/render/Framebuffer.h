@@ -136,9 +136,9 @@ public:
     // tell GL render to which Color Attachments/Textures
     void setupMRT(std::initializer_list<int> l) {
         size_t n = l.size();
-        GLuint arr[n];
-        Collections::range(arr, n, (GLuint)GL_COLOR_ATTACHMENT0);
-        glDrawBuffers(n, arr);
+        std::vector<GLuint> arr(n);
+        Collections::range(arr.data(), n, (GLuint)GL_COLOR_ATTACHMENT0);
+        glDrawBuffers(n, arr.data());
     }
 
     // initMRT() ?

@@ -345,7 +345,7 @@ glm::vec3 Loader::openColorPick()  {
 void Loader::openURL(const std::string &url)
 {
     const char* cmd = nullptr;
-#if __WIN32__
+#if _WIN32
     cmd = "start ";  // windows
 #elif __APPLE__
     cmd = "open ";  // macos
@@ -361,7 +361,7 @@ void Loader::openURL(const std::string &url)
 
 const char* Loader::sysname()
 {
-#if __WIN32__
+#if _WIN32
     return "WINDOWS";
 #elif __APPLE__
     return "DARWIN";
@@ -372,14 +372,17 @@ const char* Loader::sysname()
 #endif
 }
 
+// https://stackoverflow.com/questions/152016/detecting-cpu-architecture-compile-time
 std::string Loader::sys_target_name()
 {
 #if defined(__APPLE__) && defined(__x86_64__)
     return "darwin-x64";
 #elif defined(__APPLE__) && defined(__aarch64__)
     return "darwin-arm64";
-#elif defined(__WIN32__) && defined(__x86_64__)
-        return "windows-x64";
+#elif defined(_WIN32) && (defined(__x86_64__) || defined(_M_X64))
+    return "windows-x64";
+#elif defined(_WIN32) && (defined(__aarch64__) || defined(_M_ARM64))
+    return "windows-arm64";
 #else
         static_assert(false);
 #endif
@@ -388,7 +391,7 @@ std::string Loader::sys_target_name()
 std::string Loader::sys_lib_name(const std::string& name)  {
 #if __APPLE__
     return "lib" + name + ".dylib";
-#elif __WIN32__
+#elif _WIN32
     return "lib" + name + ".dll";
 #else
         static_assert(false);

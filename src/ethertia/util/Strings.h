@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstring>
+#include <functional>
 
 class Strings
 {

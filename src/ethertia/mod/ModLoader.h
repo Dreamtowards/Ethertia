@@ -81,7 +81,7 @@ public:
 
         return true;
 
-#elif __WIN32__
+#elif _WIN32
         // https://stackoverflow.com/questions/72249298/dynamic-load-a-class-from-a-dll-in-windows
 
         // https://learn.microsoft.com/zh-cn/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibrarya
@@ -129,6 +129,8 @@ public:
 
         FreeLibrary(handle);
         return true;
+#else
+        static_assert(false);
 #endif
 
     }

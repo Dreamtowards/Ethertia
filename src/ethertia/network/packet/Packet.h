@@ -7,8 +7,11 @@
 
 #include <string>
 #include <unordered_map>
-
 #include <system_error>
+
+
+#undef max    // for msgpack compile in MSVC Windows, undef min/max macro of minwindef.h
+#undef min
 #include <msgpack/msgpack.hpp>
 
 #include <ethertia/util/Endian.h>
