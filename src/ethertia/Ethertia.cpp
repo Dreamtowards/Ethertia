@@ -31,7 +31,7 @@
 #include <ethertia/item/Items.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
-//#include <ethertia/vr/OpenVR.h>
+#include <ethertia/vr/OpenVR.h>
 
 
 int main()
@@ -52,7 +52,7 @@ void Ethertia::start()
     for (const std::string& modpath : Settings::MODS) {
         ModLoader::loadMod(modpath);
     }
-    //OpenVR::init();
+    OpenVR::init();
 
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
