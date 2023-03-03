@@ -7,7 +7,7 @@
 
 #include "../GuiCommon.h"
 #include "GuiScreenSingleplayer.h"
-#include "GuiScreenSettings.h"
+#include <ethertia/gui/settings/GuiScreenSettings.h>
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/world/Biome.h>

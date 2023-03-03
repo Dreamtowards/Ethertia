@@ -33,10 +33,10 @@ public:
     {
         float x = getX(), y = getY(), w = getWidth(), h = getHeight();
 
-        Gui::drawString(x + 22, y + 2, text,
+        Gui::drawString(x + 20, y + 2, text,
                         isPressed() ? Colors::GOLD : isHover() ? Colors::YELLOW : Colors::WHITE);
 
-        Gui::drawRect(x+2, y+2, 16, 16, Colors::BLACK30);
+        Gui::drawRect(x, y+2, 16, 16, Colors::BLACK30);
 
 
         if (traceValue && *traceValue != checked) {
@@ -44,7 +44,7 @@ public:
         }
 
         if (checked || isHover()) {
-            Gui::drawRect(x+4, y+4, 12, 12, checked ? Colors::WHITE40 : Colors::WHITE10);
+            Gui::drawRect(x+2, y+4, 12, 12, checked ? Colors::WHITE40 : Colors::WHITE10);
         }
     }
 

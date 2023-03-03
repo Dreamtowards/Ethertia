@@ -44,6 +44,9 @@ public:
     void implDraw() override
     {
         float x = getX(), y = getY(), w = getWidth(), h = getHeight();
+        if (!m_Caption.empty()) {
+            drawString(x, y-14, m_Caption, Colors::GRAY, 12);
+        }
 
         GuiButton::drawButtonBackground(this);
 
@@ -84,9 +87,6 @@ public:
             Gui::drawRect(p.x, p.y, 2, textHeight, Colors::WHITE);
         }
 
-        if (!m_Caption.empty()) {
-            drawString(x, y-14, m_Caption, Colors::GRAY, 12);
-        }
     }
 
     void onKeyboard(int key, bool pressed) override {

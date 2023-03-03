@@ -11,7 +11,13 @@ class EntitySpline : public Entity
 {
 public:
 
-    std::vector<glm::vec4> points;
+    struct SplinePoint
+    {
+        glm::vec3 p;
+        float angle = 0;
+    };
+
+    std::vector<SplinePoint> points;
 
 
 

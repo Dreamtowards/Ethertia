@@ -33,6 +33,12 @@
 #include <ethertia/mod/ModLoader.h>
 #include <ethertia/vr/OpenVR.h>
 
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
+#include <ethertia/init/ImGuis.h>
+
 
 int main()
 {
@@ -88,6 +94,9 @@ void Ethertia::start()
     m_Player->switchGamemode(Gamemode::SPECTATOR);
     m_Player->setFlying(true);
 
+    ImGuis::Init();
+
+
 //    ReloadControl::init();
 //    ReloadControl::reload("");
 
@@ -132,6 +141,7 @@ void Ethertia::runMainLoop()
         {
             // runTick();
         }
+        // these are Temporary. should be put in World::onTick().
         if (m_World)
         {
             PROFILE("Phys");
@@ -169,6 +179,15 @@ void Ethertia::runMainLoop()
         {
             PROFILE("GUI");
             renderGUI();
+
+            ImGui_ImplGlfw_NewFrame();
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui::NewFrame();
+
+            ImGuis::ShowMainMenuBar();
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
     }
 
@@ -268,6 +287,10 @@ void Ethertia::destroy()
     delete m_RootGUI;
     delete m_RenderEngine;
     delete m_AudioEngine;
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
 }
