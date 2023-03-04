@@ -1,8 +1,8 @@
 {
   "assets": "./assets/",
-  "display_height": 1005,
-  "display_width": 1653,
-  "fov": 120.0,
+  "display_height": 761,
+  "display_width": 1552,
+  "fov": 109.18800354003906,
   "fullscreen": false,
   "mods": [],
   "mtl_resolution": 256,

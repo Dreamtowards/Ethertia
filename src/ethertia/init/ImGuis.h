@@ -9,6 +9,8 @@ class ImGuis
 {
 public:
 
+    inline static bool g_ShowImGuiDemoWindow = false;
+
     static void Init()
     {
         BENCHMARK_TIMER;
@@ -38,6 +40,8 @@ public:
         style.FrameBorderSize = 1;
         style.WindowMenuButtonPosition = ImGuiDir_Right;
         style.SeparatorTextBorderSize = 2;
+        style.DisplaySafeAreaPadding = {0, 0};
+        style.FramePadding = {8, 2};
 
         style.ScrollbarSize = 10;
         style.ScrollbarRounding = 2;
@@ -77,24 +81,80 @@ public:
 //                {0.170f, 0.170f, 0.170f, 1.000f};
     }
 
+    static void MainMenu_Debug()
+    {
+        ImGui::SliderFloat("FOV", &RenderEngine::fov, 0, 180);
+        ImGui::SliderFloat("ViewDistance", &RenderEngine::viewDistance, 0, 16);
+        ImGui::SliderFloat("BrushSize", &Ethertia::getHitCursor().brushSize, 0, 16);
+        ImGui::Checkbox("BrushTracking", &Ethertia::getHitCursor().keepTracking);
+        ImGui::Checkbox("BlockMode", &GuiDebugV::dbgPolyLine);
+
+        if (ImGui::Button("Reload Shader")) {
+            ComposeRenderer::initShader();
+        }
+        if (ImGui::Button("Remesh Chunks")) {
+            for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
+                it.second->requestRemodel();
+            }
+        }
+        if (ImGui::Button("Reset Profilers")) {
+            Ethertia::getProfiler().laterClearRootSection();
+
+            ChunkMeshProc::gp_MeshGen.laterClearRootSection();
+            ChunkGenProc::gp_ChunkGen.laterClearRootSection();
+        }
+
+        ImGui::Checkbox("Text Info", &GuiDebugV::dbgText);
+        ImGui::Checkbox("ViewBasis", &GuiDebugV::dbgBasis);
+        ImGui::Checkbox("WorldBasis", &GuiDebugV::dbgWorldBasis);
+        ImGui::Checkbox("CursorRangeInfo", &GuiDebugV::dbgCursorRangeInfo);
+        ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
+
+        ImGui::SeparatorText("Bounding Box");
+        ImGui::Checkbox("LoadedEntityAABB", &GuiDebugV::dbgAllEntityAABB);
+        ImGui::Checkbox("LoadedChunkAABB", &GuiDebugV::dbgChunkAABB);
+        ImGui::Checkbox("NearChunkBound", &GuiDebugV::dbgChunkBoundAABB);
+        ImGui::Checkbox("HitEntityAABB", &GuiDebugV::dbg_CursorPt);
+
+
+        ImGui::SeparatorText("Rendering");
+        if (ImGui::MenuItem("GBuffers", nullptr, &GuiDebugV::dbgGBuffers)) {}
+        if (ImGui::MenuItem("Border/Norm", nullptr, &RenderEngine::dbg_EntityGeo)) {}
+        if (ImGui::MenuItem("HitEntityGeo", nullptr, &RenderEngine::dbg_HitPointEntityGeo)) {}
+        if (ImGui::MenuItem("PolyLine", nullptr, &GuiDebugV::dbgPolyLine)) {}
+
+        ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
+
+        Camera& cam = *Ethertia::getCamera();
+        ImGui::SliderFloat("Cam Smooth", &cam.smoothness, 0, 5);
+        ImGui::SliderFloat("Cam Roll", &cam.eulerAngles.z, -3.14, 3.14);
+
+        ImGui::SliderFloat("FogDensity", &ComposeRenderer::fogDensity, 0, 0.2f);
+        ImGui::SliderFloat("FogGradient",&ComposeRenderer::fogGradient, 0, 5);
+
+
+        ImGui::SeparatorText("etc");
+
+        if (ImGui::MenuItem("ImGui Demo Window", nullptr, &g_ShowImGuiDemoWindow)) {}
+
+    }
+
     static void ShowMainMenuBar()
     {
-        static bool g_ShowImGuiDemoWindow = false;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
 //            ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0);
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0.5));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0.6));
 //            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
         if (ImGui::BeginMainMenuBar())
         {
             if (ImGui::BeginMenu("Ethertia")) {
-                if (ImGui::MenuItem("About...", nullptr)) {}
-                if (ImGui::MenuItem("Shortcuts...", nullptr)) {}
+                if (ImGui::MenuItem("About", nullptr)) {}
                 ImGui::Separator();
                 if (ImGui::MenuItem("Settings...", nullptr)) {}
                 ImGui::Separator();
-                if (ImGui::MenuItem("New World...", nullptr)) {}
-                if (ImGui::MenuItem("Open World...", nullptr)) {}
+                if (ImGui::MenuItem("New World", nullptr)) {}
+                if (ImGui::MenuItem("Open World", nullptr)) {}
                 if (ImGui::MenuItem("Save World", nullptr)) {}
                 if (ImGui::MenuItem("Exit World", nullptr)) {}
 
@@ -112,24 +172,21 @@ public:
                 if (ImGui::MenuItem("Paste", "CTRL+V")) {}
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("View"))
+            if (ImGui::BeginMenu("Debug"))
+            {
+                MainMenu_Debug();
+                ImGui::EndMenu();
+            }
+//            if (ImGui::BeginMenu("World"))
+//            {
+//                if (ImGui::MenuItem("Entities")) {}
+//                if (ImGui::MenuItem("Chunks")) {}
+//                ImGui::EndMenu();
+//            }
+            if (ImGui::BeginMenu("Window"))
             {
                 if (ImGui::MenuItem("Inspection")) {}
                 if (ImGui::MenuItem("Loaded Entities")) {}
-                ImGui::Separator();
-                if (ImGui::MenuItem("Debug Panel")) {}
-                if (ImGui::MenuItem("Profiler")) {}
-                if (ImGui::MenuItem("ImGui Demo Window", nullptr, &g_ShowImGuiDemoWindow)) {}
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("World"))
-            {
-                if (ImGui::MenuItem("Entities")) {}
-                if (ImGui::MenuItem("Chunks")) {}
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("Help"))
-            {
                 ImGui::EndMenu();
             }
 
@@ -142,8 +199,6 @@ public:
 
 
 
-        if (g_ShowImGuiDemoWindow)
-            ImGui::ShowDemoWindow(&g_ShowImGuiDemoWindow);
 
 //            ImGui::Begin("My First Tool", &act, ImGuiWindowFlags_MenuBar);
 //            ImGui::Text("Hello, world %d", 123);
@@ -154,6 +209,8 @@ public:
 //            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 //            ImGui::End();
 
+        if (g_ShowImGuiDemoWindow)
+            ImGui::ShowDemoWindow(&g_ShowImGuiDemoWindow);
     }
 
 };

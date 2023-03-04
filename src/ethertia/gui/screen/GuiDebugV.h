@@ -32,13 +32,13 @@ public:
     inline static bool dbgWorldBasis = true;
     inline static bool dbgAllEntityAABB = false;
     inline static bool dbgChunkAABB = false;
-    inline static bool dbgChunkBoundAABB = false;
+    inline static bool dbgChunkBoundAABB = false;  // near 3*3 chunk bound
 
     inline static bool dbgCursorRangeInfo = false;
     inline static bool dbgGBuffers = false;
     inline static float dbgLastDrawTime = 0;
     inline static bool dbgDrawFrameProfiler = true;
-    inline static bool dbg_CursorPt = false;
+    inline static bool dbg_CursorPt = false;  // cursor hit entity aabb
 
 
     inline static bool g_BlockMode = false;
@@ -51,10 +51,10 @@ public:
         setWidth(Inf);
         setHeight(Inf);
 
-        GuiStack* menubar = new GuiStack(GuiStack::D_HORIZONTAL);
-        menubar->setWidth(Inf);
-        menubar->setHeight(16);
-        menubar->addDrawBackground(Colors::WHITE20);
+//        GuiStack* menubar = new GuiStack(GuiStack::D_HORIZONTAL);
+//        menubar->setWidth(Inf);
+//        menubar->setHeight(16);
+//        menubar->addDrawBackground(Colors::WHITE20);
 
         RenderEngine* rde = Ethertia::getRenderEngine();
         Camera* cam = Ethertia::getCamera();
@@ -153,38 +153,38 @@ public:
         }
 
 
-        {
-            GuiPopupMenu* mProfiler = newMenu(menubar, "Profiler");
-        }
-
-        {
-            GuiPopupMenu* mRendering = newMenu(menubar, "Rendering");
-
-        }
-
-        {
-            GuiPopupMenu* mEntity = newMenu(menubar, "Entity");
-            mEntity->addMenu(new GuiButton("New"));
-            mEntity->addMenu(new GuiButton("Modify"));
-        }
-
-        {
-            GuiPopupMenu* mWorld = newMenu(menubar, "World");
-
-            mWorld->addMenu(new GuiButton("Load"));
-            mWorld->addMenu(new GuiButton("Unload"));
-        }
-
-        {
-            GuiButton* btnOpts;
-            GuiPopupMenu* mOpts = newMenu(menubar, "Opts", &btnOpts);
-
-            btnOpts->addOnClickListener([&](OnReleased* e) {
-                optsGui->setVisible(!optsGui->isVisible());
-            });
-        }
-
-        addGui(menubar);
+//        {
+//            GuiPopupMenu* mProfiler = newMenu(menubar, "Profiler");
+//        }
+//
+//        {
+//            GuiPopupMenu* mRendering = newMenu(menubar, "Rendering");
+//
+//        }
+//
+//        {
+//            GuiPopupMenu* mEntity = newMenu(menubar, "Entity");
+//            mEntity->addMenu(new GuiButton("New"));
+//            mEntity->addMenu(new GuiButton("Modify"));
+//        }
+//
+//        {
+//            GuiPopupMenu* mWorld = newMenu(menubar, "World");
+//
+//            mWorld->addMenu(new GuiButton("Load"));
+//            mWorld->addMenu(new GuiButton("Unload"));
+//        }
+//
+//        {
+//            GuiButton* btnOpts;
+//            GuiPopupMenu* mOpts = newMenu(menubar, "Opts", &btnOpts);
+//
+//            btnOpts->addOnClickListener([&](OnReleased* e) {
+//                optsGui->setVisible(!optsGui->isVisible());
+//            });
+//        }
+//
+//        addGui(menubar);
     }
 
     void implDraw() override {
