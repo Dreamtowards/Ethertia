@@ -1,4 +1,4 @@
-name: Mac OS X
+name: Darwin
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  #OSX_ARCH: "arm64;x86_64"
+  OSX_ARCH: "arm64;x86_64"
 
 jobs:
   build:
@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "CodeBlocks - Unix Makefiles" #-DCMAKE_OSX_ARCHITECTURES=${{env.OSX_ARCH}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "CodeBlocks - Unix Makefiles" -DCMAKE_OSX_ARCHITECTURES=${{env.OSX_ARCH}}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
@@ -34,7 +34,5 @@ jobs:
       with:
         name: ethertia-artifacts-darwin
         path: |
-          run/bin/darwin-x64/Ethertia
-          run/bin/darwin-x64/DedicatedServer
-          run/bin/darwin-x64/libTwilightForest.dylib
+          run/bin/darwin-x64/
 
