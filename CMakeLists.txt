@@ -20,7 +20,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(BIN_TARG "nil")
 if (APPLE)
-    if (CMAKE_APPLE_SILICON_PROCESSOR)
+    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
         set(BIN_TARG "darwin-arm64")   # apple silicon, arm64
     else()
         set(BIN_TARG "darwin-x64")   # x86-64
