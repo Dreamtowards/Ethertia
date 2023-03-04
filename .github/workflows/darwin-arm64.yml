@@ -1,4 +1,4 @@
-name: Darwin
+name: Darwin arm64
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 
 env:
   BUILD_TYPE: Release
-  OSX_ARCH: "arm64;x86_64"
 
 jobs:
   build:
@@ -18,7 +17,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "CodeBlocks - Unix Makefiles" -DCMAKE_OSX_ARCHITECTURES=${{env.OSX_ARCH}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "CodeBlocks - Unix Makefiles" -DCMAKE_OSX_ARCHITECTURES="arm64"
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}

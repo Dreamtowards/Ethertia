@@ -20,11 +20,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(BIN_TARG "nil")
 if (APPLE)
-#    if (CMAKE_APPLE_SILICON_PROCESSOR)
-#        set(BIN_TARG "darwin-arm64")   # apple silicon, arm64
-#    else()
-    set(BIN_TARG "darwin-x64")   # x86-64
-#    endif ()
+    if (CMAKE_APPLE_SILICON_PROCESSOR)
+        set(BIN_TARG "darwin-arm64")   # apple silicon, arm64
+    else()
+        set(BIN_TARG "darwin-x64")   # x86-64
+    endif ()
 elseif (WIN32)
     set(BIN_TARG "windows-x64")  # x86-64
 endif ()
@@ -141,7 +141,7 @@ add_subdirectory(lib/nbt)
 target_link_libraries(Ethertia nbt++)
 
 
-target_link_libraries(Ethertia openvr_api)
+#target_link_libraries(Ethertia openvr_api)
 
 
 
