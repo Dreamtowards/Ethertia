@@ -37,10 +37,10 @@ public:
         glm::quat rot;
 
 
-        static glm::mat4 lerp_transf(float t, KeyFrame begin, KeyFrame end)
-        {
-
-        }
+//        static glm::mat4 lerp_transf(float t, KeyFrame begin, KeyFrame end)
+//        {
+//
+//        }
     };
 
     // KeyFrames for Joints
@@ -74,8 +74,7 @@ public:
             float t = Mth::rlerp(time, curr->time, next->time);
             assert(t >= 0.0f && t < 1.0f);
 
-            glm::mat4 rel_trans = KeyFrame::lerp_transf(t, *curr, *next);
-
+//            glm::mat4 rel_trans = KeyFrame::lerp_transf(t, *curr, *next);
 
 //            Joint& joint = it.first;
 //            if (joint.parent_idx != -1)
@@ -93,15 +92,15 @@ public:
 
 
 
-    static Animation loadAnim()
-    {
-
-    }
-
-    static std::vector<Animation::Joint> loadSkeleton()
-    {
-
-    }
+//    static Animation loadAnim()
+//    {
+//
+//    }
+//
+//    static std::vector<Animation::Joint> loadSkeleton()
+//    {
+//
+//    }
 
 };
 

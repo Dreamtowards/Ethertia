@@ -105,10 +105,10 @@ public:
     ////////////////// SOUNDS: OGG, WAV //////////////////
 
     // return: PCM data, 16 bit.
-    static int16_t* loadOGG(datablock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
+    static int16_t* loadOGG(const datablock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
 
     // load to OpenAL buffer.
-    static AudioBuffer* loadOGG(datablock& data);
+    static AudioBuffer* loadOGG(const datablock& data);
 
     // PCM, 16-bit sample, 1-channel
     static void saveWAV(const void* pcm, size_t size, std::ostream& dst, int samplePerSec = 44100);

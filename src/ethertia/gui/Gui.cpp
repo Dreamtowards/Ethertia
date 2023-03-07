@@ -113,3 +113,11 @@ float Gui::toFramebufferCoords(float f) {
     // assert(w->getFramebufferWidth()/Gui::maxWidth() == w->getFramebufferHeight()/Gui::maxHeight());
     return f * (w->getFramebufferWidth() / Gui::maxWidth());
 }
+
+
+//
+//#include <ethertia/init/Sounds.h>
+//
+//void Gui::_Intl_PlaySoundClick() {
+//    Sounds::AS_GUI->QueueBuffer(Sounds::GUI_CLICK->m_BufferId)->play();
+//}

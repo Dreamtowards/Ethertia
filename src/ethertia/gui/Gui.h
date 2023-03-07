@@ -286,7 +286,6 @@ public:
 
 
 
-
     bool isHover() const { return hovered; }
     void setHover(bool h) {
         if (h == hovered) return;
@@ -300,8 +299,11 @@ public:
         if (p == pressed) return;
         pressed = p;
 
-        if (p) fireEvent(OnPressed());
-        else   fireEvent(OnReleased());
+        if (p) {
+            fireEvent(OnPressed());
+        } else {
+            fireEvent(OnReleased());
+        }
     }
 
     bool isFocused() const { return focused; }

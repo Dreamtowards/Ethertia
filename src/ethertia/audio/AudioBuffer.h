@@ -12,8 +12,9 @@ public:
     ALuint m_BufferId = 0;
     int m_Frequence = 0;  // samples per sec.
 
-    AudioBuffer() {
-        alGenBuffers(1, &m_BufferId);
+    AudioBuffer(bool alGen = true) {
+        if (alGen)
+            alGenBuffers(1, &m_BufferId);
     }
     ~AudioBuffer() {
         alDeleteBuffers(1, &m_BufferId);

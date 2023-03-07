@@ -143,6 +143,13 @@ public:
 
         if (ImGui::MenuItem("ImGui Demo Window", nullptr, &g_ShowImGuiDemoWindow)) {}
 
+        if (ImGui::Button("Click Sound")) {
+            Log::info("PlaySoundClick");
+            Sounds::AS_GUI->UnqueueAllBuffers();
+            Sounds::AS_GUI->QueueBuffer(Sounds::GUI_CLICK->m_BufferId);
+            Sounds::AS_GUI->play();
+        }
+
     }
 
     static void ShowMainMenuBar()
@@ -199,21 +206,10 @@ public:
             ImGui::EndMainMenuBar();
         }
         ImGui::PopStyleVar();
-//            ImGui::PopStyleVar();
         ImGui::PopStyleColor();
-//            ImGui::PopStyleColor();
 
 
 
-
-//            ImGui::Begin("My First Tool", &act, ImGuiWindowFlags_MenuBar);
-//            ImGui::Text("Hello, world %d", 123);
-//            if (ImGui::Button("Save"))
-//                Log::info("Saved");
-////            ImGui::InputText("string", buf, IM_ARRAYSIZE(buf));
-//            static float f = 0;
-//            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-//            ImGui::End();
 
         if (g_ShowImGuiDemoWindow)
             ImGui::ShowDemoWindow(&g_ShowImGuiDemoWindow);

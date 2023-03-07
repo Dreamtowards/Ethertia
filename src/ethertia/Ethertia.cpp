@@ -32,6 +32,7 @@
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
 #include <ethertia/vr/OpenVR.h>
+#include <ethertia/init/Sounds.h>
 
 #include <ethertia/init/ImGuis.h>
 
@@ -70,6 +71,8 @@ void Ethertia::start()
     MaterialMeshes::load();
     ItemTextures::load();
 
+    Sounds::load();
+
     // Network
     ClientConnectionProc::initPackets();
 
@@ -93,25 +96,16 @@ void Ethertia::start()
     ImGuis::Init();
 
 
-//    ReloadControl::init();
-//    ReloadControl::reload("");
 
-    // NetworkSystem::connect("127.0.0.1", 8081);
-
-
-//    auto data = Loader::loadFile("cat.ogg");
-//    AudioBuffer* buf = Loader::loadOGG(data);
-//
-//    AudioSource* src = new AudioSource();
-//
-//    src->QueueBuffer(buf->m_BufferId);
-//    src->play();
 
     Ethertia::getRegistry<Material>()->dbgPrintEntries("Materials");
     Ethertia::getRegistry<Item>()->dbgPrintEntries("Items");
     Ethertia::getRegistry<Biome>()->dbgPrintEntries("Biomes");
     Ethertia::getRegistry<Command>()->dbgPrintEntries("Commands");
 
+//    Ethertia::getRootGUI()->addOnClickListener([](auto) {
+//
+//    });
 
 
     if (m_AudioEngine->m_CaptureDevice)

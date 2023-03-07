@@ -81,10 +81,13 @@ public:
         alSourceQueueBuffers(m_SourceId, 1, &bufId);
     }
     void UnqueueBuffer() {
-        alSourceUnqueueBuffers(m_SourceId, 1, nullptr); // todo: nullptr?
+        ALuint unqueuedBuffer;
+        alSourceUnqueueBuffers(m_SourceId, 1, &unqueuedBuffer);
     }
     void UnqueueAllBuffers() {
-
+        while (BuffersQueued() > 0) {
+            UnqueueBuffer();
+        }
     }
 
     int BuffersQueued() {

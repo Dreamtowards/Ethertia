@@ -278,7 +278,7 @@ VertexBuffer* Loader::loadOBJ(const std::string& filepath)  {
 #include <stb/stb_vorbis.c>
 
 
-int16_t* Loader::loadOGG(datablock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate) {
+int16_t* Loader::loadOGG(const datablock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate) {
     int channels = 0;
     int sample_rate = 0;
     int16_t* pcm = nullptr;
@@ -297,7 +297,7 @@ int16_t* Loader::loadOGG(datablock& data, size_t* dst_len, int* dst_channels, in
     return pcm;
 }
 
-AudioBuffer* Loader::loadOGG(datablock& data) {
+AudioBuffer* Loader::loadOGG(const datablock& data) {
     size_t len;
     int channels;
     int sampleRate = 0;
