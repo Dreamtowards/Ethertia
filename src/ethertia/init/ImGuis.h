@@ -5,6 +5,12 @@
 #ifndef ETHERTIA_IMGUIS_H
 #define ETHERTIA_IMGUIS_H
 
+
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
+
 class ImGuis
 {
 public:

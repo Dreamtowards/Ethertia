@@ -275,6 +275,15 @@ void RenderEngine::renderWorld(World* world)
     Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), ComposeRenderer::fboCompose->texColor[0]);
 
 
+//    static Model* model = Loader::loadModel(100, {
+//        {3, pos},
+//        {2, uv},
+//        {3, norm},
+//        {3, joint_ids},
+//        {3, joint_weights}});
+//    AnimRenderer::Inst()->render();
+
+
     RenderEngine::checkGlError("End World Render");
 }
 

@@ -15,7 +15,7 @@
 class GuiScreenChat : public GuiCollection
 {
 public:
-    DECL_Inst_(GuiScreenChat);
+    DECL_Inst(GuiScreenChat);
 
     GuiTextBox* m_Input = nullptr;
 

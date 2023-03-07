@@ -15,7 +15,7 @@
 class GuiScreenPause : public GuiCollection
 {
 public:
-    DECL_Inst_(GuiScreenPause);
+    DECL_Inst(GuiScreenPause);
 
     inline static const float TOP_WIDTH = 820;
 

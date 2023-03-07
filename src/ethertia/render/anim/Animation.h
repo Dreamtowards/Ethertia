@@ -18,7 +18,7 @@ public:
 
     struct Joint
     {
-        int parent_idx;    // root: -1
+        //int parent_idx;    // root: -1
         // Joint* parent = nullptr;
         std::string name;
 

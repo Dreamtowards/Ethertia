@@ -20,7 +20,7 @@
 class GuiIngame : public GuiCollection
 {
 public:
-    DECL_Inst_(GuiIngame);
+    DECL_Inst(GuiIngame);
 
     inline static const int HOTBAR_SLOT_MAX = 8;
 

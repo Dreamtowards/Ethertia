@@ -33,10 +33,6 @@
 #include <ethertia/mod/ModLoader.h>
 #include <ethertia/vr/OpenVR.h>
 
-#include <imgui.h>
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
-
 #include <ethertia/init/ImGuis.h>
 
 
@@ -115,7 +111,6 @@ void Ethertia::start()
     Ethertia::getRegistry<Item>()->dbgPrintEntries("Items");
     Ethertia::getRegistry<Biome>()->dbgPrintEntries("Biomes");
     Ethertia::getRegistry<Command>()->dbgPrintEntries("Commands");
-    // Ethertia::getRegistry<Recipe>().d
 
 
 

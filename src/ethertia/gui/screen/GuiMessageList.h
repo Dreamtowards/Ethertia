@@ -12,7 +12,7 @@
 class GuiMessageList : public GuiCollection
 {
 public:
-    DECL_Inst_(GuiMessageList);
+    DECL_Inst(GuiMessageList);
 
     GuiStack* m_MsgList = nullptr;
 
