@@ -16,7 +16,7 @@
 class GuiScreenMainMenu : public GuiCollection
 {
 public:
-    DECL_Inst_(GuiScreenMainMenu);
+    DECL_Inst(GuiScreenMainMenu);
 
     GuiScreenMainMenu() {
         setWidthHeight(Inf, Inf);

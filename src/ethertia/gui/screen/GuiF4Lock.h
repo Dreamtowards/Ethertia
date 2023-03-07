@@ -10,7 +10,7 @@
 class GuiF4Lock : public Gui
 {
 public:
-    DECL_Inst_(GuiF4Lock);
+    DECL_Inst(GuiF4Lock);
 
     void implDraw() override
     {

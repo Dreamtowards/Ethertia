@@ -42,24 +42,18 @@ void ItemComponentMaterial::onUse()
     }
 
     int n = cur.brushSize;
-    for (int dx = -n; dx <= n; ++dx) {
-        for (int dz = -n; dz <= n; ++dz) {
-            for (int dy = -n; dy <= n; ++dy) {
-                glm::vec3 d(dx, dy, dz);
+    AABB::forCube(n, [n, p, mtl](glm::vec3 rp) {
+        Cell& b = Ethertia::getWorld()->getCell(p + rp);
+        float f = n - glm::length(rp + glm::vec3(0.5));
 
-                Cell& b = Ethertia::getWorld()->getCell(p + d);
-                float f = n - glm::length(d);
-
-                if (!Ethertia::getWindow()->isAltKeyDown())  {
-                    b.density = Mth::max(b.density, f);
-                }
-                if (b.density >= 0.0f)
-                    b.mtl = mtl;
-
-                Ethertia::getWorld()->requestRemodel(p+d);
-            }
+        if (!Ethertia::getWindow()->isAltKeyDown())  {
+            b.density = Mth::max(b.density, f);
         }
-    }
+        if (b.density >= 0.0f)
+            b.mtl = mtl;
+
+        Ethertia::getWorld()->requestRemodel(p+rp);
+    });
 }
 
 

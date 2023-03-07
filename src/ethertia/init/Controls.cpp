@@ -81,40 +81,50 @@ void handleMouseButton(MouseButtonEvent* e)
     if (!cur.hit)
         return;
 
-//    glm::vec3 p = cur.position;
-//    float n = cur.brushSize;
-//    if (e->getButton() == GLFW_MOUSE_BUTTON_LEFT) {
+    glm::vec3 p = cur.position;
+    float n = cur.brushSize;
+    if (e->getButton() == GLFW_MOUSE_BUTTON_LEFT) {
+
+        if (GuiDebugV::g_BlockMode) {
+
+            Cell& c = world->getCell( p + -cur.normal*0.1f );
+
+            c.mtl = 0;
+            c.density = 0;
+
+            world->requestRemodel(p);
+            return;
+        }
+//        AABB::forCube(dig_size, [world, cp, dig_size](glm::vec3 rp)
+//        {
+//            Cell& c = world->getCell(cp+rp);
 //
-//        if (GuiDebugV::g_BlockMode) {
+//            float f = std::max(0.0f, dig_size - glm::length(rp + glm::vec3(0.5f)));
 //
-//            Cell& c = world->getCell( p + -cur.normal*0.1f );
+//            c.density -= f;
+////                    if (c.density < 0) { c.mtl = 0; }
 //
-//            c.mtl = 0;
-//            c.density = 0;
-//
-//            world->requestRemodel(p);
-//            return;
-//        }
-//
-//        for (int dx = floor(-n); dx <= ceil(n); ++dx) {
-//            for (int dz = floor(-n); dz <= ceil(n); ++dz) {
-//                for (int dy = floor(-n); dy <= ceil(n); ++dy) {
-//                    glm::vec3 d(dx, dy, dz);
-//
-//                    Cell& b = world->getCell(p + d);
-//                    float f = n - glm::length(d);
-//
-//                    // b.id = placingBlock;
-//                    b.density = b.density - Mth::max(0.0f, f);
-//                    if (f > 0 && b.density < 0 //&& b.id == Materials::LEAVES
-//                            ) {
-//                        b.mtl = 0;
-//                    }
-//                    world->requestRemodel(p+d);
-//                }
-//            }
-//        }
-//    }
+//            world->requestRemodel(cp+rp);
+//        });
+        for (int dx = floor(-n); dx <= ceil(n); ++dx) {
+            for (int dz = floor(-n); dz <= ceil(n); ++dz) {
+                for (int dy = floor(-n); dy <= ceil(n); ++dy) {
+                    glm::vec3 d(dx, dy, dz);
+
+                    Cell& b = world->getCell(p + d);
+                    float f = n - glm::length(d);
+
+                    // b.id = placingBlock;
+                    b.density = b.density - Mth::max(0.0f, f);
+                    if (f > 0 && b.density < 0 //&& b.id == Materials::LEAVES
+                            ) {
+                        b.mtl = 0;
+                    }
+                    world->requestRemodel(p+d);
+                }
+            }
+        }
+    }
 
 
 }
@@ -310,17 +320,40 @@ void handleHitCursor()
 
     if (Ethertia::isIngame() && Ethertia::getWindow()->isMouseLeftDown() && cur.cell && cur.cell->mtl)
     {
-        cur.cell_breaking_time += Ethertia::getDelta();
+        cur.cell_breaking_time += Ethertia::getDelta() * Controls::gDigSpeedMultiplier;
 
         float fullDigTime = cur.cell->mtl->m_Hardness;
         if (cur.cell_breaking_time >= fullDigTime)
         {
             // Do Dig
-            world->dropItem(cur.position + cur.normal * 0.2f, // +norm prevents fall down
-                            ItemStack(cur.cell->mtl->m_MaterialItem, 1));
-            cur.cell->set_nil();
-            world->invalidateCellFp(cur.cell_position, 3);
-            world->requestRemodel(cur.cell_position);
+//            world->dropItem(cur.position + cur.normal * 0.2f, // +norm prevents fall down
+//                            ItemStack(cur.cell->mtl->m_MaterialItem, 1));
+//            cur.cell->set_nil();
+//            world->invalidateCellFp(cur.cell_position, 3);
+//            world->requestRemodel(cur.cell_position);
+
+
+//            if (!Ethertia::getPlayer()->getHoldingItem().empty())
+//            {
+//                glm::vec3 cp = cur.cell_position;
+//                float dig_size = cur.brushSize;
+//                AABB::forCube(dig_size, [world, cp, dig_size](glm::vec3 rp)
+//                {
+//                    Cell& c = world->getCell(cp+rp);
+//
+//                    float f = std::max(0.0f, dig_size - glm::length(rp + glm::vec3(0.5f)));
+//
+//                    c.density -= f;
+////                    if (c.density < 0) { c.mtl = 0; }
+//
+//                    world->requestRemodel(cp+rp);
+//                });
+//            }
+//            else
+//            {
+//                world->digCell(cur.cell_position);
+//            }
+
 
             // clear hit-cell state.
             cur.cell = nullptr;

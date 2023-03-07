@@ -23,7 +23,7 @@ public:
         glDeleteVertexArrays(1, &vaoId);
     }
 
-    void drawArrays() {
+    void _glDrawArrays() {
         glBindVertexArray(vaoId);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }

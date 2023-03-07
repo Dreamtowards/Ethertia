@@ -29,7 +29,7 @@ public:
             shader.setVector3f("limitPos", limitPos);
         }
 
-        model->drawArrays();
+        model->_glDrawArrays();
 
         if (limitLen) {
             shader.setFloat("limitLen", 0);

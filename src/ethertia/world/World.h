@@ -135,6 +135,8 @@ public:
 
     void dropItem(glm::vec3 pos, const ItemStack& stack, glm::vec3 vel = {0,0,0});
 
+    // include drop item
+    void digCell(glm::vec3 p);
 
     // void addParticle();
 

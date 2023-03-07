@@ -10,6 +10,8 @@ class Controls
 {
 public:
 
+    inline static float gDigSpeedMultiplier = 8.0f;
+
     static void initControls();
 
     static void handleContinuousInput();

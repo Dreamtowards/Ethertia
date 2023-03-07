@@ -58,7 +58,7 @@ public:
 
             shaderShadow.setMatrix4f("matModel", Mth::matModel(e->getPosition(), e->getRotation(), glm::vec3(1)));
 
-            e->m_Model->drawArrays();
+            e->m_Model->_glDrawArrays();
         }
 
     }

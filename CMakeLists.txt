@@ -3,7 +3,7 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(BUILD_SHARED_LIBS ON)
+set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC OFF)
 option(CMAKE_BUILD_TYPE Release)
 

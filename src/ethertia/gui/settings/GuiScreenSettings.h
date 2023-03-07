@@ -10,7 +10,7 @@
 class GuiScreenSettings : public GuiCollection
 {
 public:
-    DECL_Inst_(GuiScreenSettings);
+    DECL_Inst(GuiScreenSettings);
 
     GuiCollection* m_SettingsBox;
 

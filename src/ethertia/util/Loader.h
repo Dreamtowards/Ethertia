@@ -23,6 +23,9 @@
 #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/render/ShaderProgram.h>
 
+// Dup with GuiCommon.h
+#define DECL_Inst(T) static T* Inst() { static T* INST = new T(); return INST; }
+
 
 class Loader {
 

@@ -287,6 +287,17 @@ void World::dropItem(glm::vec3 p, const ItemStack& stack, glm::vec3 vel)
     addEntity(eDroppedItem);
 }
 
+void World::digCell(glm::vec3 p)
+{
+    Cell& c = getCell(p);
+
+    dropItem(p + glm::vec3(0.5f), ItemStack(c.mtl->m_MaterialItem, 1));
+
+    c.set_nil();
+    invalidateCellFp(p, 3);
+    requestRemodel(p);
+}
+
 void World::onTick(float dt)
 {
 

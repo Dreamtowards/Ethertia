@@ -5,11 +5,7 @@
 #ifndef ETHERTIA_GUICOMMON_H
 #define ETHERTIA_GUICOMMON_H
 
-
-#define DECL_Inst_(T) static T* Inst() { \
-                              static T* INST = new T(); \
-                              return INST;  }
-
+#define DECL_Inst(T) static T* Inst() { static T* INST = new T(); return INST; }
 
 #include <ethertia/gui/GuiStack.h>
 #include <ethertia/gui/GuiButton.h>

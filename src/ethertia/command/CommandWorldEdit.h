@@ -86,7 +86,7 @@ public:
 
             Ethertia::getWorld()->requestRemodel(p, false);
 
-        }, 1.0f);
+        });
 
         _SendMessage("Filled.");
 

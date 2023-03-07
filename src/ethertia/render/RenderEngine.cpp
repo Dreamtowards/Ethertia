@@ -17,6 +17,7 @@
 #include <ethertia/render/ssao/SSAORenderer.h>
 #include <ethertia/render/debug/DebugRenderer.h>
 #include <ethertia/render/shadow/ShadowRenderer.h>
+#include <ethertia/render/anim/AnimRenderer.h>
 
 #include <ethertia/render/Window.h>
 #include <ethertia/entity/EntityDroppedItem.h>
@@ -52,6 +53,8 @@ RenderEngine::RenderEngine()
     m_SkyboxRenderer = new SkyboxRenderer();
     m_ParticleRenderer = new ParticleRenderer();
     m_SkyGradientRenderer = new SkyGradientRenderer();
+
+    AnimRenderer::Inst();
 
     SSAORenderer::init();
     ComposeRenderer::init();
