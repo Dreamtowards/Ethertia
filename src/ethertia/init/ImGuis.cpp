@@ -192,7 +192,7 @@ static void _MenuSystem()
 //        ImGui::EndMenu();
 //    ImGui::Separator();
 
-    if (ImGui::BeginMenu("Multiplayer"))
+    if (ImGui::BeginMenu("Servers"))
     {
         if (ImGui::MenuItem("Connect to server..")) {
         }
@@ -201,7 +201,8 @@ static void _MenuSystem()
 
         if (ImGui::SmallButton("+")) {
         }
-        ImGui::SetTooltip("Add server");
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("Add server");
 
         ImGui::EndMenu();
     }
@@ -254,9 +255,9 @@ static void _MenuSystem()
         }
         ImGui::EndMenu();
     }
-    if (ImGui::BeginMenu("Shaders")) {
-        ImGui::EndMenu();
-    }
+//    if (ImGui::BeginMenu("Shaders")) {
+//        ImGui::EndMenu();
+//    }
     if (ImGui::BeginMenu("ResourcePacks")) {
         ImGui::EndMenu();
     }
