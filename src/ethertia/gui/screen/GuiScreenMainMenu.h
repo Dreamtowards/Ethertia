@@ -73,8 +73,6 @@ public:
             .color = Colors::WHITE80
         });
 
-        drawAudioFreq();
-
         Gui::drawString(0, Gui::maxHeight(), "0 mods loaded.\n" + Ethertia::Version::name(), Colors::WHITE60, 16,
                         {0.0f, -1.0f});
 
@@ -86,7 +84,8 @@ public:
 
 
 
-        drawBiomeDistribution();
+//        drawAudioFreq();
+//        drawBiomeDistribution();
 
     }
 

@@ -77,8 +77,11 @@ add_executable(Ethertia
         lib/imgui/backends/imgui_impl_glfw.cpp
         lib/imgui/backends/imgui_impl_opengl3.cpp
 
+        src/ethertia/init/ImGuis.cpp
+
         src/ethertia/util/Loader.cpp
         src/ethertia/init/Controls.cpp
+        src/ethertia/init/Settings.cpp
 
         src/ethertia/render/Window.cpp
         src/ethertia/render/RenderEngine.cpp

@@ -168,15 +168,7 @@ void Ethertia::runMainLoop()
         {
             PROFILE("GUI");
             renderGUI();
-
-            ImGui_ImplGlfw_NewFrame();
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui::NewFrame();
-
-            ImGuis::ShowMainMenuBar();
-
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            ImGuis::Render();
         }
     }
 
@@ -193,7 +185,6 @@ void Ethertia::runMainLoop()
 void Ethertia::renderGUI()
 {
     GuiRoot* rootGUI = Ethertia::getRootGUI();
-
 
     rootGUI->onLayout();
 
@@ -277,9 +268,7 @@ void Ethertia::destroy()
     delete m_RenderEngine;
     delete m_AudioEngine;
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    ImGuis::Destroy();
 
     glfwTerminate();
 }

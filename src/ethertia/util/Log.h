@@ -93,7 +93,7 @@ Profile(
         double sec_milli = sec_micro * 0.001;_loc="";
 
         Strings::_fmt(out, "[{}.{7}][{}/{}]{}: ",
-                      Strings::time_fmt("%Y-%m-%d.%H:%M:%S"),
+                      Strings::time_fmt(-1, "%Y-%m-%d.%H:%M:%S"),
                       std::fmod(sec_milli, 1000.0f),
                       std::this_thread::get_id(), _lv,
                       _loc
@@ -112,9 +112,13 @@ Profile(
 //            << "["<<std::this_thread::get_id()<<"/INFO]: ";
     }
 
+    inline static std::mutex g_LockLog;
+
     template<typename... ARGS>
     static void _log(std::ostream& s, const char* _lv, const char* _loc, const std::string& pat, ARGS... args)
     {
+        std::lock_guard<std::mutex> _guard(g_LockLog);  // prevents multiple logging in same time. have performance issue.
+
         bool keepline = pat[pat.length() - 1] == '\1';
         std::stringstream ss;
 

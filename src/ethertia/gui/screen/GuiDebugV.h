@@ -26,7 +26,7 @@ public:
     DECL_Inst(GuiDebugV);
 
     inline static bool dbgText = true;
-    inline static bool dbgPolyLine = false;
+//    inline static bool dbgPolyLine = false;
 
     inline static bool dbgBasis = true;
     inline static bool dbgWorldBasis = true;
@@ -56,101 +56,101 @@ public:
 //        menubar->setHeight(16);
 //        menubar->addDrawBackground(Colors::WHITE20);
 
-        RenderEngine* rde = Ethertia::getRenderEngine();
-        Camera* cam = Ethertia::getCamera();
-
-
-
-        {
-            GuiStack* opts = new GuiStack(GuiStack::D_VERTICAL, 4);
-            opts->addDrawBackground(Colors::BLACK40);
-            opts->setWidth(140);
-
-            opts->addGui(newLabel("Rendering"));
-            opts->addGui(new GuiSlider("FOV", 15, 165, &rde->fov, 5.0f));
-
-            opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
-
-            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getHitCursor().brushSize, 0.2f));
-
-
-            opts->addGui(newLabel("Debug Geo."));
-
-            {
-                GuiButton* btnReloadShaders = new GuiButton("Reload Shaders");
-                opts->addGui(btnReloadShaders);
-                btnReloadShaders->addOnClickListener([](OnReleased* e) {
-//                    delete RenderEngine::entityRenderer;
-//                    RenderEngine::entityRenderer = new EntityRenderer();
-
-                    ComposeRenderer::initShader();
-                });
-            }
-            {
-                GuiButton* btnRemeshAllChunks = new GuiButton("Remesh Chunks");
-                opts->addGui(btnRemeshAllChunks);
-                btnRemeshAllChunks->addOnClickListener([](OnReleased* e) {
-                    for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
-                        it.second->requestRemodel();
-                    }
-                });
-            }
-            {
-                GuiButton* btnClearProfilerData = new GuiButton("Reset Prof");
-                opts->addGui(btnClearProfilerData);
-                btnClearProfilerData->addOnClickListener([](OnReleased* e) {
-                    Ethertia::getProfiler().laterClearRootSection();
-
-                    ChunkMeshProc::gp_MeshGen.laterClearRootSection();
-                    ChunkGenProc::gp_ChunkGen.laterClearRootSection();
-                });
-            }
-
-            opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
-            opts->addGui(new GuiCheckBox("Basis", &dbgBasis));
-            opts->addGui(new GuiCheckBox("World Basis", &dbgWorldBasis));
-            opts->addGui(new GuiCheckBox("Rendered Entity AABB", &RenderEngine::dbg_RenderedEntityAABB));
-            opts->addGui(new GuiCheckBox("All Entity AABB", &dbgAllEntityAABB));
-            opts->addGui(new GuiCheckBox("Loaded Chunk AABB", &dbgChunkAABB));
-            opts->addGui(new GuiCheckBox("Chunk Bound AABB", &dbgChunkBoundAABB));
-            opts->addGui(new GuiCheckBox("BlockMode", &g_BlockMode));
-            opts->addGui(new GuiCheckBox("CursorPoint", &dbg_CursorPt));
-            opts->addGui(new GuiCheckBox("HitPtGeo", &RenderEngine::dbg_HitPointEntityGeo));
-
-            opts->addGui(new GuiCheckBox("GBuffers", &dbgGBuffers));
-            opts->addGui(new GuiCheckBox("Norm & Border", &RenderEngine::dbg_EntityGeo));
-            opts->addGui(new GuiCheckBox("glPoly Line", &dbgPolyLine));
-
-            opts->addGui(new GuiCheckBox("R/No Vegetable", &RenderEngine::dbg_NoVegetable));
-            opts->addGui(new GuiCheckBox("D/Frame Profiler", &dbgDrawFrameProfiler));
-            opts->addGui(new GuiCheckBox("D/Chunk Unload", &ChunkMeshProc::dbg_ChunkUnload));
-
-            opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
-            opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
-
-            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &ComposeRenderer::fogDensity, 0.001f));
-            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &ComposeRenderer::fogGradient, 0.01f));
-
-
-            opts->addGui(newLabel("World"));
-
-            opts->addGui(new GuiSlider("D/var0", -2, 2, &EntityRenderer::debugVar0, 0.01f));
-            opts->addGui(new GuiSlider("D/var1", -1, 3, &EntityRenderer::debugVar1, 0.01f));
-            opts->addGui(new GuiSlider("D/var2", 0, 256, &EntityRenderer::debugVar2, 0.1f));
-
-            opts->addGui(new GuiCheckBox("Brush Tracking", &Ethertia::getHitCursor().keepTracking));
-            opts->addGui(new GuiCheckBox("Brush pInfo", &dbgCursorRangeInfo));
-
-
-            GuiScrollBox* scrollbox = new GuiScrollBox();
-            scrollbox->setContent(opts);
-            scrollbox->setWidth(150);
-            scrollbox->setHeight(400);
-
-            addGui(optsGui=new GuiAlign(Inf, Inf,
-                                        scrollbox,
-                                        Inf, 16+8, 8, 8));
-        }
+//        RenderEngine* rde = Ethertia::getRenderEngine();
+//        Camera* cam = Ethertia::getCamera();
+//
+//
+//
+//        {
+//            GuiStack* opts = new GuiStack(GuiStack::D_VERTICAL, 4);
+//            opts->addDrawBackground(Colors::BLACK40);
+//            opts->setWidth(140);
+//
+//            opts->addGui(newLabel("Rendering"));
+//            opts->addGui(new GuiSlider("FOV", 15, 165, &rde->fov, 5.0f));
+//
+//            opts->addGui(new GuiSlider("View Distance", 0, 16, &rde->viewDistance, 1.0f));
+//
+//            opts->addGui(new GuiSlider("Brush Size", 0, 16, &Ethertia::getHitCursor().brushSize, 0.2f));
+//
+//
+//            opts->addGui(newLabel("Debug Geo."));
+//
+//            {
+//                GuiButton* btnReloadShaders = new GuiButton("Reload Shaders");
+//                opts->addGui(btnReloadShaders);
+//                btnReloadShaders->addOnClickListener([](OnReleased* e) {
+////                    delete RenderEngine::entityRenderer;
+////                    RenderEngine::entityRenderer = new EntityRenderer();
+//
+//                    ComposeRenderer::initShader();
+//                });
+//            }
+//            {
+//                GuiButton* btnRemeshAllChunks = new GuiButton("Remesh Chunks");
+//                opts->addGui(btnRemeshAllChunks);
+//                btnRemeshAllChunks->addOnClickListener([](OnReleased* e) {
+//                    for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
+//                        it.second->requestRemodel();
+//                    }
+//                });
+//            }
+//            {
+//                GuiButton* btnClearProfilerData = new GuiButton("Reset Prof");
+//                opts->addGui(btnClearProfilerData);
+//                btnClearProfilerData->addOnClickListener([](OnReleased* e) {
+//                    Ethertia::getProfiler().laterClearRootSection();
+//
+//                    ChunkMeshProc::gp_MeshGen.laterClearRootSection();
+//                    ChunkGenProc::gp_ChunkGen.laterClearRootSection();
+//                });
+//            }
+//
+//            opts->addGui(new GuiCheckBox("Debug TextInf", &dbgText));
+//            opts->addGui(new GuiCheckBox("Basis", &dbgBasis));
+//            opts->addGui(new GuiCheckBox("World Basis", &dbgWorldBasis));
+//            opts->addGui(new GuiCheckBox("Rendered Entity AABB", &RenderEngine::dbg_RenderedEntityAABB));
+//            opts->addGui(new GuiCheckBox("All Entity AABB", &dbgAllEntityAABB));
+//            opts->addGui(new GuiCheckBox("Loaded Chunk AABB", &dbgChunkAABB));
+//            opts->addGui(new GuiCheckBox("Chunk Bound AABB", &dbgChunkBoundAABB));
+//            opts->addGui(new GuiCheckBox("BlockMode", &g_BlockMode));
+//            opts->addGui(new GuiCheckBox("CursorPoint", &dbg_CursorPt));
+//            opts->addGui(new GuiCheckBox("HitPtGeo", &RenderEngine::dbg_HitPointEntityGeo));
+//
+//            opts->addGui(new GuiCheckBox("GBuffers", &dbgGBuffers));
+//            opts->addGui(new GuiCheckBox("Norm & Border", &RenderEngine::dbg_EntityGeo));
+//            opts->addGui(new GuiCheckBox("glPoly Line", &dbgPolyLine));
+//
+//            opts->addGui(new GuiCheckBox("R/No Vegetable", &RenderEngine::dbg_NoVegetable));
+//            opts->addGui(new GuiCheckBox("D/Frame Profiler", &dbgDrawFrameProfiler));
+//            opts->addGui(new GuiCheckBox("D/Chunk Unload", &ChunkMeshProc::dbg_ChunkUnload));
+//
+//            opts->addGui(new GuiSlider("Cam Smth", 0, 5, &cam->smoothness, 0.5f));
+//            opts->addGui(new GuiSlider("Cam Roll", -Mth::PI, Mth::PI, &cam->eulerAngles.z));
+//
+//            opts->addGui(new GuiSlider("Fog Density", 0, 0.2f, &ComposeRenderer::fogDensity, 0.001f));
+//            opts->addGui(new GuiSlider("Fog Gradient", 0, 5, &ComposeRenderer::fogGradient, 0.01f));
+//
+//
+//            opts->addGui(newLabel("World"));
+//
+//            opts->addGui(new GuiSlider("D/var0", -2, 2, &EntityRenderer::debugVar0, 0.01f));
+//            opts->addGui(new GuiSlider("D/var1", -1, 3, &EntityRenderer::debugVar1, 0.01f));
+//            opts->addGui(new GuiSlider("D/var2", 0, 256, &EntityRenderer::debugVar2, 0.1f));
+//
+//            opts->addGui(new GuiCheckBox("Brush Tracking", &Ethertia::getHitCursor().keepTracking));
+//            opts->addGui(new GuiCheckBox("Brush pInfo", &dbgCursorRangeInfo));
+//
+//
+//            GuiScrollBox* scrollbox = new GuiScrollBox();
+//            scrollbox->setContent(opts);
+//            scrollbox->setWidth(150);
+//            scrollbox->setHeight(400);
+//
+//            addGui(optsGui=new GuiAlign(Inf, Inf,
+//                                        scrollbox,
+//                                        Inf, 16+8, 8, 8));
+//        }
 
 
 //        {
@@ -201,7 +201,7 @@ public:
             DebugRenderer::Inst().renderDebugWorldBasis();
         }
 
-        glPolygonMode(GL_FRONT_AND_BACK, dbgPolyLine ? GL_LINE : GL_FILL);
+//        glPolygonMode(GL_FRONT_AND_BACK, dbgPolyLine ? GL_LINE : GL_FILL);
 
         if (dbgText && world) {
             float dt = Ethertia::getDelta();

@@ -197,6 +197,14 @@ public:
 
     static glm::vec3 openColorPick();
 
+    static const char* openFileDialog(const char* title = nullptr,
+                               const char* defpath = nullptr,
+                               std::initializer_list<const char*> filepatterns = {},
+                               const char* desc = nullptr,
+                               bool allowMultipleFiles = false);
+
+    static const char* openFolderDialog(const char* title = "", const char* defpath = "");
+
 
 
     // File, Folder, URL

@@ -35,9 +35,13 @@ public:
         return ss.str();
     }
 
-    static std::string time_fmt(const char* _fmt = "%Y-%m-%d.%H:%M:%S", std::time_t _t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())) {
-        // std::time_t _t = std::time(nullptr);
-        struct tm* tm_info = std::localtime(&_t);
+    // epoch: -0 -> Now
+    static std::string time_fmt(std::time_t epoch_sec = -1, const char* _fmt = "%Y-%m-%d.%H:%M:%S") {
+        if (epoch_sec == -1) {
+            epoch_sec = std::time(nullptr);
+        }
+        struct tm* tm_info = std::localtime(&epoch_sec);
+        assert(tm_info);
 
         return Strings::str(std::put_time(tm_info, _fmt));
     }

@@ -437,7 +437,7 @@ void Controls::saveScreenshot()
 {
     BitmapImage* img = Ethertia::getWindow()->screenshot();
 
-    std::string path = Strings::fmt("./screenshots/{}_{}.png", Strings::time_fmt("%Y-%m-%d_%H.%M.%S"), (Mth::frac(Ethertia::getPreciseTime())*1000.0f));
+    std::string path = Strings::fmt("./screenshots/{}_{}.png", Strings::time_fmt(-1, "%Y-%m-%d_%H.%M.%S"), (Mth::frac(Ethertia::getPreciseTime())*1000.0f));
     if (Loader::fileExists(path))
         throw std::logic_error("File already existed.");
 

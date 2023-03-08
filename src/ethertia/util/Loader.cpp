@@ -338,7 +338,18 @@ glm::vec3 Loader::openColorPick()  {
 }
 
 
+const char* Loader::openFileDialog(const char* title,
+                            const char* defpath,
+                            std::initializer_list<const char*> filepatterns,
+                            const char* desc,
+                            bool allowMultipleFiles)
+{
+    return tinyfd_openFileDialog(title, defpath, filepatterns.size(), filepatterns.begin(), desc, allowMultipleFiles);
+}
 
+const char* Loader::openFolderDialog(const char* title, const char* defpath) {
+    return tinyfd_selectFolderDialog(title, defpath);
+}
 
 
 
