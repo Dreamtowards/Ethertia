@@ -62,6 +62,7 @@ include_directories(lib/yaml-cpp/include)
 include_directories(lib/nbt/include)
 include_directories(lib/openvr/headers)
 include_directories(lib/imgui)
+include_directories(lib/imguizmo)
 
 
 
@@ -69,6 +70,7 @@ include_directories(lib/imgui)
 add_executable(Ethertia
         lib/glad/glad.c
         lib/tinyfd/tinyfiledialogs.c
+
         lib/imgui/imgui.cpp
         lib/imgui/imgui_draw.cpp
         lib/imgui/imgui_widgets.cpp
@@ -76,6 +78,8 @@ add_executable(Ethertia
         lib/imgui/imgui_demo.cpp
         lib/imgui/backends/imgui_impl_glfw.cpp
         lib/imgui/backends/imgui_impl_opengl3.cpp
+
+        lib/imguizmo/ImGuizmo.cpp
 
         src/ethertia/init/ImGuis.cpp
 

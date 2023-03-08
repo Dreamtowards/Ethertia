@@ -8,9 +8,12 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <ImGuizmo.h>
+
 #include <ethertia/init/Settings.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
+#include <ethertia/render/RenderEngine.h>
 
 
 void ImGuis::Init()
@@ -388,6 +391,75 @@ void ImGuis::ShowMainMenuBar()
         ShowEntitiesWindow();
     if (g_ShowInspectorWindow)
         ShowInspector(g_InspectorEntity);
+
+
+
+    {
+        ImGuizmo::BeginFrame();
+        ImGuizmo::SetOrthographic(false);
+
+
+        ImGui::Begin("Gizmo");
+        static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
+        static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+        if (ImGui::IsKeyPressed(ImGuiKey_G)) mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_R)) mCurrentGizmoOperation = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_S)) mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+        if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+            mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+            mCurrentGizmoOperation = ImGuizmo::ROTATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+            mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
+        ImGui::InputFloat3("Tr", matrixTranslation);
+        ImGui::InputFloat3("Rt", matrixRotation);
+        ImGui::InputFloat3("Sc", matrixScale);
+        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
+
+        if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+        {
+            if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+                mCurrentGizmoMode = ImGuizmo::LOCAL;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+                mCurrentGizmoMode = ImGuizmo::WORLD;
+        }
+
+//        static bool useSnap(false);
+//        if (ImGui::IsKeyPressed(ImGuiKey_M))
+//            useSnap = !useSnap;
+//        ImGui::Checkbox("Snap", &useSnap);
+//        ImGui::SameLine();
+//        float snap_f = 1;
+//        switch (mCurrentGizmoOperation)
+//        {
+//            case ImGuizmo::TRANSLATE:
+////                snap = config.mSnapTranslation;
+//                ImGui::InputFloat3("Snap", &snap.x);
+//                break;
+//            case ImGuizmo::ROTATE:
+////                snap = config.mSnapRotation;
+//                ImGui::InputFloat("Angle Snap", &snap.x);
+//                break;
+//            case ImGuizmo::SCALE:
+////                snap = config.mSnapScale;
+//                ImGui::InputFloat("Scale Snap", &snap.x);
+//                break;
+//        }
+        static glm::mat4 matModel{1};
+        ImGuiIO& io = ImGui::GetIO();
+        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+        ImGuizmo::Manipulate(&RenderEngine::matView[0][0], &RenderEngine::matProjection[0][0],
+                             mCurrentGizmoOperation, mCurrentGizmoMode,
+                             &matModel[0][0], nullptr, nullptr);
+        ImGui::End();
+    }
 }
 
 
