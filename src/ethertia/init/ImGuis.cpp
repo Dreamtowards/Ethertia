@@ -8,6 +8,8 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <ImGuizmo.h>
 
 #include <ethertia/init/Settings.h>
@@ -155,7 +157,7 @@ static void _MenuDebug()
 //    if (ImGui::MenuItem("GBuffers", nullptr, &GuiDebugV::dbgGBuffers)) {}
 //    if (ImGui::MenuItem("Border/Norm", nullptr, &RenderEngine::dbg_EntityGeo)) {}
 //    if (ImGui::MenuItem("HitEntityGeo", nullptr, &RenderEngine::dbg_HitPointEntityGeo)) {}
-    if (ImGui::MenuItem("Polygon Line", nullptr, &Settings::dbgPolyLine)) {}
+    ImGui::Checkbox("Polygon Line", &Settings::dbgPolyLine);
 //
 //    ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
 //
@@ -169,7 +171,7 @@ static void _MenuDebug()
 //
 //    ImGui::SeparatorText("etc");
 //
-//    if (ImGui::MenuItem("ImGui Demo Window", nullptr, &g_ShowImGuiDemoWindow)) {}
+    if (ImGui::MenuItem("ImGui Demo Window", nullptr, &ImGuis::g_ShowImGuiDemoWindow)) {}
 //
 //    if (ImGui::Button("Click Sound")) {
 //        Log::info("PlaySoundClick");
@@ -217,25 +219,32 @@ static void _MenuSystem()
             ImGuis::g_ShowNewWorldWindow = true;
         }
         if (ImGui::MenuItem("Open World..")) {
-            const char* filename = Loader::openFolderDialog("Open World..", "./saves/");
-            Log::info("Open world: ", filename);
-
-            Ethertia::loadWorld(filename);
+            const char* filename = Loader::openFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
+            if (filename) {
+                Log::info("Open world: ", filename);
+                Ethertia::loadWorld(filename);
+            }
         }
 
         //ImGui::SeparatorText("Saves");
         ImGui::Separator();
         ImGui::TextDisabled("Saves:");
 
-        for (const auto& savedir : std::filesystem::directory_iterator("saves/"))
+        if (Loader::fileExists("saves/"))
         {
-            std::string time_str = Strings::time_fmt(std::chrono::duration_cast<std::chrono::seconds>(
-                    savedir.last_write_time().time_since_epoch()).count());
-
-//            std::string size_str = Strings::size_str(Loader::calcDirectorySize(savedir.path()));
-            if (ImGui::MenuItem(savedir.path().filename().c_str(), time_str.c_str()))
+            for (const auto& savedir : std::filesystem::directory_iterator("saves/"))
             {
-                Ethertia::loadWorld(savedir.path());
+//            std::string size_str = Strings::size_str(Loader::calcDirectorySize(savedir.path()));
+
+                float epoch = std::chrono::duration_cast<std::chrono::seconds>(savedir.last_write_time().time_since_epoch()).count();
+                if (epoch < 0)  epoch = 0;  // Error on Windows.
+                std::string time_str = Strings::time_fmt(epoch);
+
+                auto filename = savedir.path().filename();
+                if (ImGui::MenuItem((const char*)filename.c_str(), time_str.c_str()))
+                {
+                    Ethertia::loadWorld(savedir.path().string());
+                }
             }
         }
 
@@ -261,7 +270,7 @@ static void _MenuSystem()
 //    if (ImGui::BeginMenu("Shaders")) {
 //        ImGui::EndMenu();
 //    }
-    if (ImGui::BeginMenu("ResourcePacks")) {
+    if (ImGui::BeginMenu("Resource Packs")) {
         ImGui::EndMenu();
     }
     ImGui::Separator();
@@ -415,12 +424,12 @@ void ImGuis::ShowMainMenuBar()
         if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
             mCurrentGizmoOperation = ImGuizmo::SCALE;
 
-        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
-        ImGui::InputFloat3("Tr", matrixTranslation);
-        ImGui::InputFloat3("Rt", matrixRotation);
-        ImGui::InputFloat3("Sc", matrixScale);
-        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
+//        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+//        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
+//        ImGui::InputFloat3("Tr", matrixTranslation);
+//        ImGui::InputFloat3("Rt", matrixRotation);
+//        ImGui::InputFloat3("Sc", matrixScale);
+//        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
 
         if (mCurrentGizmoOperation != ImGuizmo::SCALE)
         {
@@ -452,12 +461,32 @@ void ImGuis::ShowMainMenuBar()
 //                ImGui::InputFloat("Scale Snap", &snap.x);
 //                break;
 //        }
-        static glm::mat4 matModel{1};
+
         ImGuiIO& io = ImGui::GetIO();
         ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-        ImGuizmo::Manipulate(&RenderEngine::matView[0][0], &RenderEngine::matProjection[0][0],
-                             mCurrentGizmoOperation, mCurrentGizmoMode,
-                             &matModel[0][0], nullptr, nullptr);
+
+        {
+            float* pmView = glm::value_ptr(RenderEngine::matView);
+            float* pmProj = glm::value_ptr(RenderEngine::matProjection);
+
+            glm::mat4 iden(1.0f);
+            float* pmIden = glm::value_ptr(iden);
+
+            static glm::mat4 matCube(1.0f);
+
+
+            ImGuizmo::DrawGrid(pmView, pmProj, pmIden, 100);
+
+            ImGuizmo::DrawCubes(pmView, pmProj, &matCube[0][0], 1);
+
+            ImGuizmo::ViewManipulate(pmView, 100.0f, ImVec2(24, 24+24), ImVec2(128, 128), 0x10101010);
+
+            static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+            static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+            ImGuizmo::Manipulate(pmView, pmProj,
+                                 mCurrentGizmoOperation, mCurrentGizmoMode,
+                                 &matCube[0][0], nullptr, nullptr, bounds, boundsSnap);
+        }
         ImGui::End();
     }
 }

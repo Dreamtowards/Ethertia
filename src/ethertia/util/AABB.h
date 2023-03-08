@@ -8,6 +8,8 @@
 #include <glm/vec3.hpp>
 #include <glm/common.hpp>  // glm::min/max
 
+#include <functional>
+
 class AABB
 {
 public:
