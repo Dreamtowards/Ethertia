@@ -34,11 +34,13 @@ void ImGuis::Init()
 
 
     ImFontConfig fontConf;
-    fontConf.OversampleH = 2;
+    fontConf.OversampleH = 3;
     fontConf.OversampleV = 2;
-    fontConf.GlyphExtraSpacing.x = 1.0f;
+    fontConf.RasterizerMultiply = 3;
+    // fontConf.GlyphExtraSpacing.x = 1.0f;
 //        fontConf.RasterizerMultiply = 2;
-    io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
+    io.Fonts->AddFontFromFileTTF("./assets/font/menlo-r.ttf", 14.0f, &fontConf);
+
 
 //        imgui_io.DisplaySize = ImVec2(1920, 1080);
 //        imgui_io.DeltaTime = 1.0f / 60.0f;
@@ -163,9 +165,9 @@ static void _MenuDebug()
 
 
     ImGui::SeparatorText("Rendering");
-    if (ImGui::MenuItem("GBuffers", nullptr, &GuiDebugV::dbgGBuffers)) {}
-    if (ImGui::MenuItem("Border/Norm", nullptr, &RenderEngine::dbg_EntityGeo)) {}
-    if (ImGui::MenuItem("HitEntityGeo", nullptr, &RenderEngine::dbg_HitPointEntityGeo)) {}
+    ImGui::Checkbox("GBuffers", &GuiDebugV::dbgGBuffers);
+    ImGui::Checkbox("Border/Norm", &RenderEngine::dbg_EntityGeo);
+    ImGui::Checkbox("HitEntityGeo", &RenderEngine::dbg_HitPointEntityGeo);
     ImGui::Checkbox("Polygon Line", &Settings::dbgPolyLine);
 //
 //    ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
@@ -180,7 +182,7 @@ static void _MenuDebug()
 //
 //    ImGui::SeparatorText("etc");
 //
-    if (ImGui::MenuItem("ImGui Demo Window", nullptr, &ImGuis::g_ShowImGuiDemoWindow)) {}
+    ImGui::Checkbox("ImGui Demo Window", &ImGuis::g_ShowImGuiDemoWindow);
 //
 //    if (ImGui::Button("Click Sound")) {
 //        Log::info("PlaySoundClick");
@@ -479,9 +481,9 @@ void ImGuis::ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("View"))
         {
-            if (ImGui::MenuItem("Game", nullptr, &g_Game)) {}
-            if (ImGui::MenuItem("Entities", nullptr, &g_ShowLoadedEntitiesWindow)) {}
-            if (ImGui::MenuItem("Inspector", nullptr, &g_ShowInspectorWindow)) {}
+            ImGui::Checkbox("Game", &g_Game);
+            ImGui::Checkbox("Entities", &g_ShowLoadedEntitiesWindow);
+            ImGui::Checkbox("Inspector", &g_ShowInspectorWindow);
 
             ImGui::Separator();
 
@@ -490,6 +492,9 @@ void ImGuis::ShowMainMenuBar()
 
             ImGui::EndMenu();
         }
+
+        ImGui::SameLine(ImGui::GetWindowWidth() - 120);
+        ImGui::SmallButton("Profile");
 
         ImGui::EndMenuBar();
     }
