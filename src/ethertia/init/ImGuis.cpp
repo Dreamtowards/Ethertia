@@ -16,6 +16,7 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/render/RenderEngine.h>
+#include <ethertia/gui/screen/GuiDebugV.h>
 
 
 void ImGuis::Init()
@@ -71,6 +72,7 @@ void ImGuis::Init()
 
     style.Colors[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
     style.Colors[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
+    style.Colors[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
 
 //        style.Colors[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
 //        style.Colors[ImGuiCol_Button] =
@@ -141,22 +143,22 @@ static void _MenuDebug()
 //    }
 
     ImGui::Checkbox("Text Info", &Settings::dbgTextInf);
-//    ImGui::Checkbox("ViewBasis", &GuiDebugV::dbgBasis);
-//    ImGui::Checkbox("WorldBasis", &GuiDebugV::dbgWorldBasis);
-//    ImGui::Checkbox("CursorRangeInfo", &GuiDebugV::dbgCursorRangeInfo);
-//    ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
-//
-//    ImGui::SeparatorText("Bounding Box");
-//    ImGui::Checkbox("LoadedEntityAABB", &GuiDebugV::dbgAllEntityAABB);
-//    ImGui::Checkbox("LoadedChunkAABB", &GuiDebugV::dbgChunkAABB);
-//    ImGui::Checkbox("NearChunkBound", &GuiDebugV::dbgChunkBoundAABB);
-//    ImGui::Checkbox("HitEntityAABB", &GuiDebugV::dbg_CursorPt);
+    ImGui::Checkbox("ViewBasis", &GuiDebugV::dbgBasis);
+    ImGui::Checkbox("WorldBasis", &GuiDebugV::dbgWorldBasis);
+    ImGui::Checkbox("CursorRangeInfo", &GuiDebugV::dbgCursorRangeInfo);
+    ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
+
+    ImGui::SeparatorText("Bounding Box");
+    ImGui::Checkbox("LoadedEntityAABB", &GuiDebugV::dbgAllEntityAABB);
+    ImGui::Checkbox("LoadedChunkAABB", &GuiDebugV::dbgChunkAABB);
+    ImGui::Checkbox("NearChunkBound", &GuiDebugV::dbgChunkBoundAABB);
+    ImGui::Checkbox("HitEntityAABB", &GuiDebugV::dbg_CursorPt);
 
 
-//    ImGui::SeparatorText("Rendering");
-//    if (ImGui::MenuItem("GBuffers", nullptr, &GuiDebugV::dbgGBuffers)) {}
-//    if (ImGui::MenuItem("Border/Norm", nullptr, &RenderEngine::dbg_EntityGeo)) {}
-//    if (ImGui::MenuItem("HitEntityGeo", nullptr, &RenderEngine::dbg_HitPointEntityGeo)) {}
+    ImGui::SeparatorText("Rendering");
+    if (ImGui::MenuItem("GBuffers", nullptr, &GuiDebugV::dbgGBuffers)) {}
+    if (ImGui::MenuItem("Border/Norm", nullptr, &RenderEngine::dbg_EntityGeo)) {}
+    if (ImGui::MenuItem("HitEntityGeo", nullptr, &RenderEngine::dbg_HitPointEntityGeo)) {}
     ImGui::Checkbox("Polygon Line", &Settings::dbgPolyLine);
 //
 //    ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
@@ -270,7 +272,7 @@ static void _MenuSystem()
 //    if (ImGui::BeginMenu("Shaders")) {
 //        ImGui::EndMenu();
 //    }
-    if (ImGui::BeginMenu("Resource Packs")) {
+    if (ImGui::BeginMenu("ResourcePacks")) {
         ImGui::EndMenu();
     }
     ImGui::Separator();
@@ -316,19 +318,39 @@ void ShowNewWorldWindow()
 
 
 
-static void ShowInspector(Entity* entity)
+static void ShowInspector()
 {
     ImGui::Begin("Inspector", &ImGuis::g_ShowInspectorWindow);
 
+    Entity* entity = ImGuis::g_InspectorEntity;
+    if (!entity) {
+        ImGui::TextDisabled("No entity selected.");
+        ImGui::End();
+        return;
+    }
 //    ImGui::BeginChild();
+
+    ImGui::TextDisabled("%i components", (int)entity->m_Components.size());
+
+    if (ImGui::CollapsingHeader("Transform")) {
+        ImGui::DragFloat3("Position", entity->pos());
+    }
+
+    if (ImGui::CollapsingHeader("Diffuse Map")) {
+        if (entity->m_DiffuseMap)
+        {
+            ImGui::Image((void*)(intptr_t)entity->m_DiffuseMap->texId, {64, 64});
+        }
+    }
+
 
 
     ImGui::End();
 }
 
-static void ShowEntitiesWindow()
+static void ShowEntities()
 {
-    ImGui::Begin("Loaded Entities", &ImGuis::g_ShowLoadedEntitiesWindow);
+    ImGui::Begin("Entities", &ImGuis::g_ShowLoadedEntitiesWindow);
 
     World* world = Ethertia::getWorld();
     if (!world) {
@@ -336,7 +358,83 @@ static void ShowEntitiesWindow()
         ImGui::End();
         return;
     }
-    ImGui::TextDisabled("%i entities loaded.", (int)world->m_Entities.size());
+    auto& entities = world->m_Entities;
+
+    if (ImGui::Button(" + ")) {
+
+    }
+
+    ImGui::SameLine();
+
+    static bool _ShowOnlyInFrustum = true;
+    static bool _SortByDistance = false;
+    static int _ListLimit = 100;
+    static bool _KeepSelectHitEntity = false;
+    static bool _IgnoreChunkProxyEntities = true;
+    if (ImGui::Button("..."))
+    {
+        ImGui::OpenPopup("entities_ops");
+    }
+    if (ImGui::BeginPopup("entities_ops"))
+    {
+        ImGui::Checkbox("List only In-Frustum", &_ShowOnlyInFrustum);
+        ImGui::Checkbox("Sort by Distance", &_SortByDistance);
+        ImGui::Checkbox("Keep Select HitEntity", &_KeepSelectHitEntity);
+        ImGui::Checkbox("Ignore chunk proxy entities", &_IgnoreChunkProxyEntities);
+        ImGui::SliderInt("List Limit", &_ListLimit, 0, 5000);
+
+
+        ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
+
+        if (ImGui::Button("Unselect")) {
+            ImGuis::g_InspectorEntity = nullptr;
+        }
+
+        ImGui::EndPopup();
+    }
+
+    if (_KeepSelectHitEntity) {
+        auto& cur = Ethertia::getHitCursor();
+        if (cur.hitEntity) {
+            ImGuis::g_InspectorEntity = cur.hitEntity;
+        }
+    }
+
+//    ImGui::SameLine();
+//    if (ImGui::TreeNode(".."))
+//    {
+//        ImGui::Checkbox("Show only In Frustum", &_ShowOnlyInFrustum);
+//        ImGui::Checkbox("Sort by Distance", &_SortByDistance);
+//        ImGui::SliderInt("List Limit", &_ListLimit, 0, 5000);
+//
+//        ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
+//
+//        ImGui::TreePop();
+//    }
+
+
+    ImGui::Separator();
+
+    {
+        int i = 0;
+        for (Entity* e : entities)
+        {
+            if (_ListLimit != 0 && i > _ListLimit)
+                break;
+            if (_ShowOnlyInFrustum && !RenderEngine::testFrustum(e->getAABB()))
+                continue;
+            if (_IgnoreChunkProxyEntities && dynamic_cast<EntityMesh*>(e))
+                continue;
+
+            char buf[32];
+
+            sprintf(buf, "#%.3i | %s", i, typeid(*e).name());
+            if (ImGui::Selectable(buf, ImGuis::g_InspectorEntity == e)) {
+                ImGuis::g_InspectorEntity = e;
+            }
+            ++i;
+        }
+    }
 
 
     ImGui::End();
@@ -374,10 +472,16 @@ void ImGuis::ShowMainMenuBar()
         {
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Window"))
+        if (ImGui::BeginMenu("View"))
         {
+            if (ImGui::MenuItem("Entities", nullptr, &g_ShowLoadedEntitiesWindow)) {}
             if (ImGui::MenuItem("Inspector", nullptr, &g_ShowInspectorWindow)) {}
-            if (ImGui::MenuItem("Entity", nullptr, &g_ShowLoadedEntitiesWindow)) {}
+
+            ImGui::Separator();
+
+            ImGui::SliderInt("World GridSize", &g_WorldGrids, 0, 500);
+            ImGui::Checkbox("Gizmo ViewManipulation", &g_GizmoViewManipulation);
+
             ImGui::EndMenu();
         }
 
@@ -396,10 +500,20 @@ void ImGuis::ShowMainMenuBar()
 
     if (g_ShowNewWorldWindow)
         ShowNewWorldWindow();
-    if (g_ShowLoadedEntitiesWindow)
-        ShowEntitiesWindow();
-    if (g_ShowInspectorWindow)
-        ShowInspector(g_InspectorEntity);
+    if (g_ShowLoadedEntitiesWindow) {
+        ImGui::SetNextWindowPos({0, 18});
+        ImGui::SetNextWindowSize({320, 330});
+        ShowEntities();
+    }
+    if (g_ShowInspectorWindow) {
+        ImGui::SetNextWindowPos({0, 18+330});
+        ImGui::SetNextWindowSize({320, 400});
+
+        ShowInspector();
+    }
+    if (ImGuis::g_InspectorEntity) {
+        RenderEngine::drawLineBox(g_InspectorEntity->getAABB(), Colors::YELLOW);
+    }
 
 
 
@@ -407,22 +521,33 @@ void ImGuis::ShowMainMenuBar()
         ImGuizmo::BeginFrame();
         ImGuizmo::SetOrthographic(false);
 
+        ImGuiIO& io = ImGui::GetIO();
+        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
-        ImGui::Begin("Gizmo");
-        static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
-        static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
-        if (ImGui::IsKeyPressed(ImGuiKey_G)) mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R)) mCurrentGizmoOperation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_S)) mCurrentGizmoOperation = ImGuizmo::SCALE;
 
-        if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
-            mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
-            mCurrentGizmoOperation = ImGuizmo::ROTATE;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
-            mCurrentGizmoOperation = ImGuizmo::SCALE;
+        float* pmView = glm::value_ptr(RenderEngine::matView);
+        float* pmProj = glm::value_ptr(RenderEngine::matProjection);
+
+        glm::mat4 iden(1.0f);
+        float* pmIden = glm::value_ptr(iden);
+
+        if (g_GizmoViewManipulation)
+        {
+            ImGui::Begin("Gizmo");
+            static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
+            static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+            if (ImGui::IsKeyPressed(ImGuiKey_G)) mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+            if (ImGui::IsKeyPressed(ImGuiKey_R)) mCurrentGizmoOperation = ImGuizmo::ROTATE;
+            if (ImGui::IsKeyPressed(ImGuiKey_S)) mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+            if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+                mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+                mCurrentGizmoOperation = ImGuizmo::ROTATE;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+                mCurrentGizmoOperation = ImGuizmo::SCALE;
 
 //        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 //        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
@@ -431,66 +556,42 @@ void ImGuis::ShowMainMenuBar()
 //        ImGui::InputFloat3("Sc", matrixScale);
 //        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
 
-        if (mCurrentGizmoOperation != ImGuizmo::SCALE)
-        {
-            if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
-                mCurrentGizmoMode = ImGuizmo::LOCAL;
-            ImGui::SameLine();
-            if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
-                mCurrentGizmoMode = ImGuizmo::WORLD;
+            if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+            {
+                if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+                    mCurrentGizmoMode = ImGuizmo::LOCAL;
+                ImGui::SameLine();
+                if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+                    mCurrentGizmoMode = ImGuizmo::WORLD;
+            }
+
+            {
+                static glm::mat4 matCube(1.0f);
+
+                ImGuizmo::DrawCubes(pmView, pmProj, &matCube[0][0], 1);
+
+
+                static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+                static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+                ImGuizmo::Manipulate(pmView, pmProj,
+                                     mCurrentGizmoOperation, mCurrentGizmoMode,
+                                     &matCube[0][0], nullptr, nullptr, bounds, boundsSnap);
+            }
+            ImGui::End();
         }
 
-//        static bool useSnap(false);
-//        if (ImGui::IsKeyPressed(ImGuiKey_M))
-//            useSnap = !useSnap;
-//        ImGui::Checkbox("Snap", &useSnap);
-//        ImGui::SameLine();
-//        float snap_f = 1;
-//        switch (mCurrentGizmoOperation)
-//        {
-//            case ImGuizmo::TRANSLATE:
-////                snap = config.mSnapTranslation;
-//                ImGui::InputFloat3("Snap", &snap.x);
-//                break;
-//            case ImGuizmo::ROTATE:
-////                snap = config.mSnapRotation;
-//                ImGui::InputFloat("Angle Snap", &snap.x);
-//                break;
-//            case ImGuizmo::SCALE:
-////                snap = config.mSnapScale;
-//                ImGui::InputFloat("Scale Snap", &snap.x);
-//                break;
-//        }
-
-        ImGuiIO& io = ImGui::GetIO();
-        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
+        if (g_WorldGrids > 0)
         {
-            float* pmView = glm::value_ptr(RenderEngine::matView);
-            float* pmProj = glm::value_ptr(RenderEngine::matProjection);
+            ImGuizmo::DrawGrid(pmView, pmProj, pmIden, g_WorldGrids);
+        }
 
-            glm::mat4 iden(1.0f);
-            float* pmIden = glm::value_ptr(iden);
-
-            static glm::mat4 matCube(1.0f);
-
-
-            ImGuizmo::DrawGrid(pmView, pmProj, pmIden, 100);
-
-            ImGuizmo::DrawCubes(pmView, pmProj, &matCube[0][0], 1);
-
+        if (g_GizmoViewManipulation)
+        {
             static float camLen = 10.0f;
             ImGuizmo::ViewManipulate(pmView, camLen,
-                                     ImVec2(24, 20+24), ImVec2(128, 128),
+                                     ImVec2(io.DisplaySize.x-24-128, 20+24), ImVec2(128, 128),
                                      0x10101010);
-
-            static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
-            static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
-            ImGuizmo::Manipulate(pmView, pmProj,
-                                 mCurrentGizmoOperation, mCurrentGizmoMode,
-                                 &matCube[0][0], nullptr, nullptr, bounds, boundsSnap);
         }
-        ImGui::End();
     }
 }
 
@@ -502,7 +603,10 @@ void ImGuis::Render()
     ImGui::NewFrame();
 
     // ImGui::SetCursorScreenPos();
+
+    glDisable(GL_DEPTH_TEST);
     ImGuis::ShowMainMenuBar();
+    glEnable(GL_DEPTH_TEST);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

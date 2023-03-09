@@ -102,6 +102,10 @@ public:
 //        m_Rigidbody->setCollisionShape(s);
 //    }
 
+    float* pos() {
+        return (float*)&m_Rigidbody->getWorldTransform().getOrigin().x();
+    }
+
     void setPosition(glm::vec3 p) {
         m_Rigidbody->getWorldTransform().setOrigin(btVector3(p.x, p.y, p.z));
     }

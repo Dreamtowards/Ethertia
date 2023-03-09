@@ -21,7 +21,7 @@ class Frustum
 public:
 
     // RH -> LH.
-    void set(glm::mat4 m) {
+    void set(const glm::mat4& m) {
         ps[0] = glm::vec4(m[0][3] + m[0][0], m[1][3] + m[1][0], m[2][3] + m[2][0], m[3][3] + m[3][0]);
         ps[1] = glm::vec4(m[0][3] - m[0][0], m[1][3] - m[1][0], m[2][3] - m[2][0], m[3][3] - m[3][0]);
         ps[2] = glm::vec4(m[0][3] + m[0][1], m[1][3] + m[1][1], m[2][3] + m[2][1], m[3][3] + m[3][1]);
@@ -40,7 +40,7 @@ public:
                ps[5].x * x + ps[5].y * y + ps[5].z * z + ps[5].w >= 0;
     }
 
-    bool intersects(AABB aabb) {
+    bool intersects(const AABB& aabb) {
         float minX=aabb.min.x, minY=aabb.min.y, minZ=aabb.min.z, maxX=aabb.max.x, maxY=aabb.max.y, maxZ=aabb.max.z;
         return ps[0].x * (ps[0].x < 0 ? minX : maxX) + ps[0].y * (ps[0].y < 0 ? minY : maxY) + ps[0].z * (ps[0].z < 0 ? minZ : maxZ) >= -ps[0].w &&
                ps[1].x * (ps[1].x < 0 ? minX : maxX) + ps[1].y * (ps[1].y < 0 ? minY : maxY) + ps[1].z * (ps[1].z < 0 ? minZ : maxZ) >= -ps[1].w &&

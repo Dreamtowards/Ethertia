@@ -23,6 +23,7 @@
 #include <ethertia/entity/EntityDroppedItem.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/init/Settings.h>
 
 // RenderEngine is static/singleton. shouldn't instantiate.
 // Don't use OOP except it's necessary.
@@ -116,14 +117,14 @@ void RenderEngine::renderWorldGeometry(World* world) {
     glDisable(GL_BLEND);  // Blending is inhabited in Deferred Rendering.
 
 
-    dbg_NumEntityRendered = 0;
+    Settings::dbgEntitiesRendered = 0;
     for (Entity* entity : world->getEntities()) {
         if (!entity || !entity->m_Model) continue;
         if (entity->m_Model->vertexCount == 0) // most are Empty Chunks.
             continue;
 
         // Frustum Culling
-        if (!m_ViewFrustum.intersects(entity->getAABB())) {
+        if (!RenderEngine::testFrustum(entity->getAABB())) {
             continue;
         }
 
@@ -134,7 +135,7 @@ void RenderEngine::renderWorldGeometry(World* world) {
         entity->onRender();
 
 
-        ++dbg_NumEntityRendered;
+        ++Settings::dbgEntitiesRendered;
 
         // Debug: draw Norm/Border
         if (dbg_EntityGeo) {
@@ -295,8 +296,12 @@ void RenderEngine::drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool 
     DebugRenderer::Inst().drawLine(pos, dir, color, viewMat, boxOutline);
 }
 
-void RenderEngine::drawLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color) {
+void RenderEngine:: drawLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color) {
     DebugRenderer::Inst().drawLine(min, size, color, true, true);
+}
+
+void RenderEngine::drawLineBox(const AABB& aabb, glm::vec4 color) {
+    RenderEngine::drawLineBox(aabb.min, aabb.max-aabb.min, color);
 }
 
 

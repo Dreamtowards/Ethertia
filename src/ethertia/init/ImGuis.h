@@ -20,6 +20,10 @@ public:
                         g_ShowInspectorWindow = false,
                         g_ShowLoadedEntitiesWindow = false;
 
+    inline static bool g_GizmoViewManipulation = true;
+
+    inline static int g_WorldGrids = 24;
+
     inline static Entity* g_InspectorEntity = nullptr;
 
     static void Init();

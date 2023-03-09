@@ -53,7 +53,6 @@ public:
 
     inline static bool dbg_EntityGeo = false;
     inline static bool dbg_RenderedEntityAABB = false;
-    inline static int dbg_NumEntityRendered = 0;
     inline static bool dbg_NoVegetable = false;
     inline static bool dbg_HitPointEntityGeo = false;
 
@@ -72,6 +71,9 @@ public:
 
     void renderWorldCompose(World* world);
 
+    static bool testFrustum(const AABB& aabb) {
+        return m_ViewFrustum.intersects(aabb);
+    }
 
     static void checkGlError(std::string_view phase = "") {
         GLuint err;
@@ -97,6 +99,8 @@ public:
     static void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false);
 
     static void drawLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color);
+
+    static void drawLineBox(const AABB& aabb, glm::vec4 color);
 
 };
 

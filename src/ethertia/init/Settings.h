@@ -32,6 +32,7 @@ public:
 
     inline static bool dbgPolyLine = false;
     inline static bool dbgTextInf = false;
+    inline static int dbgEntitiesRendered = 0;
 
 
 
