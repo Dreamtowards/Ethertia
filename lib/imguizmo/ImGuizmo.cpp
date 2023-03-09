@@ -2509,7 +2509,7 @@ namespace ImGuizmo
       }
    }
 
-   void ViewManipulate(float* view, float length, ImVec2 position, ImVec2 size, ImU32 backgroundColor)
+   void ViewManipulate(float* view, float& length, ImVec2 position, ImVec2 size, ImU32 backgroundColor)
    {
       static bool isDraging = false;
       static bool isClicking = false;
@@ -2528,7 +2528,7 @@ namespace ImGuizmo
       matrix_t viewInverse;
       viewInverse.Inverse(*(matrix_t*)view);
 
-      const vec_t camTarget = viewInverse.v.position - viewInverse.v.dir * length;
+      vec_t camTarget = viewInverse.v.position - viewInverse.v.dir * length;
 
       // view/projection matrices
       const float distance = 3.f;
@@ -2696,31 +2696,61 @@ namespace ImGuizmo
          isDraging = false;
       }
 
-      if (isDraging)
+      // Edition by Eldrine Le Prismarine. +Move, Zoom.
+      float dx = -io.MouseWheelH;
+      float dy = -io.MouseWheel;
+      if (io.MouseDown[0]) {
+          dx += -io.MouseDelta.x;
+          dy += -io.MouseDelta.y;
+      }
+      if (isDraging || ((dx != 0.0f || dy != 0.0f) && isInside))
       {
-         matrix_t rx, ry, roll;
-
-         rx.RotationAxis(referenceUp, -io.MouseDelta.x * 0.01f);
-         ry.RotationAxis(viewInverse.v.right, -io.MouseDelta.y * 0.01f);
-
-         roll = rx * ry;
-
          vec_t newDir = viewInverse.v.dir;
-         newDir.TransformVector(roll);
-         newDir.Normalize();
 
-         // clamp
-         vec_t planDir = Cross(viewInverse.v.right, referenceUp);
-         planDir.y = 0.f;
-         planDir.Normalize();
-         float dt = Dot(planDir, newDir);
-         if (dt < 0.0f)
+         vec_t moveOffset = {0,0,0};
+
+         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_LeftSuper))  // Zoom: Ctrl + Delta
          {
-            newDir += planDir * dt;
-            newDir.Normalize();
+             length += dy;
+             if (length < 0.1f) length = 0.1f;
          }
+         else if (ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsMouseDown(ImGuiMouseButton_Middle))  // Move: Shift + Delta (Around Target: +Alt)
+         {
+             moveOffset = {dx, -dy, 0};
+             if (ImGui::IsKeyDown(ImGuiKey_LeftAlt)) {
+                 moveOffset = {0, 0, dy};
+             }
 
+             moveOffset.TransformVector(viewInverse);
+         }
+         else  // Rotate: Delta
+         {
+             matrix_t rx, ry;
+             rx.RotationAxis(referenceUp, dx * 0.01f);
+             ry.RotationAxis(viewInverse.v.right, dy * 0.01f);
+             matrix_t roll = rx * ry;
+             newDir.TransformVector(roll);
+             newDir.Normalize();
+
+//             if (ImGui::IsKeyDown(ImGuiKey_LeftAlt)) {
+//                 camTarget = viewInverse.v.position;  // length: 0
+//                 _local_len = 0;
+//             }
+
+                 // clamp
+//             vec_t planDir = Cross(viewInverse.v.right, referenceUp);
+//             planDir.y = 0.f;
+//             planDir.Normalize();
+//             float dt = Dot(planDir, newDir);
+//             if (dt < 0.0f)
+//             {
+//                 newDir += planDir * dt;
+//                 newDir.Normalize();
+//             }
+         }
          vec_t newEye = camTarget + newDir * length;
+         newEye += moveOffset;
+         camTarget += moveOffset;
          LookAt(&newEye.x, &camTarget.x, &referenceUp.x, view);
       }
 

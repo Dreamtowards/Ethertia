@@ -479,7 +479,10 @@ void ImGuis::ShowMainMenuBar()
 
             ImGuizmo::DrawCubes(pmView, pmProj, &matCube[0][0], 1);
 
-            ImGuizmo::ViewManipulate(pmView, 100.0f, ImVec2(24, 24+24), ImVec2(128, 128), 0x10101010);
+            static float camLen = 10.0f;
+            ImGuizmo::ViewManipulate(pmView, camLen,
+                                     ImVec2(24, 20+24), ImVec2(128, 128),
+                                     0x10101010);
 
             static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
             static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
