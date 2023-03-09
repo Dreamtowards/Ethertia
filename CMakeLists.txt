@@ -61,7 +61,7 @@ include_directories(lib/openal-soft/include)
 include_directories(lib/yaml-cpp/include)
 include_directories(lib/nbt/include)
 include_directories(lib/openvr/headers)
-include_directories(lib/imgui)
+include_directories(lib/imgui-docking)
 include_directories(lib/imguizmo)
 
 
@@ -71,13 +71,13 @@ add_executable(Ethertia
         lib/glad/glad.c
         lib/tinyfd/tinyfiledialogs.c
 
-        lib/imgui/imgui.cpp
-        lib/imgui/imgui_draw.cpp
-        lib/imgui/imgui_widgets.cpp
-        lib/imgui/imgui_tables.cpp
-        lib/imgui/imgui_demo.cpp
-        lib/imgui/backends/imgui_impl_glfw.cpp
-        lib/imgui/backends/imgui_impl_opengl3.cpp
+        lib/imgui-docking/imgui.cpp
+        lib/imgui-docking/imgui_draw.cpp
+        lib/imgui-docking/imgui_widgets.cpp
+        lib/imgui-docking/imgui_tables.cpp
+        lib/imgui-docking/imgui_demo.cpp
+        lib/imgui-docking/backends/imgui_impl_glfw.cpp
+        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
 
         lib/imguizmo/ImGuizmo.cpp
 

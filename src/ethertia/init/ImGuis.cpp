@@ -26,7 +26,7 @@ void ImGuis::Init()
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& imgui_io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
 
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow()->m_WindowHandle, true);
@@ -38,10 +38,13 @@ void ImGuis::Init()
     fontConf.OversampleV = 2;
     fontConf.GlyphExtraSpacing.x = 1.0f;
 //        fontConf.RasterizerMultiply = 2;
-    imgui_io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
+    io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
 //        imgui_io.DisplaySize = ImVec2(1920, 1080);
 //        imgui_io.DeltaTime = 1.0f / 60.0f;
+
+    // Enable Docking.
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     ImGuiStyle& style = ImGui::GetStyle();
     style.GrabMinSize = 7;
@@ -68,11 +71,15 @@ void ImGuis::Init()
     style.Colors[ImGuiCol_SliderGrab] =
             {1.000f, 1.000f, 1.000f, 1.000f};
 
-    style.Colors[ImGuiCol_MenuBarBg] = {0,0,0,0};
+//    style.Colors[ImGuiCol_MenuBarBg] = {0,0,0,0};
 
     style.Colors[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
     style.Colors[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
     style.Colors[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
+
+    style.Colors[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
+    style.Colors[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
+
 
 //        style.Colors[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
 //        style.Colors[ImGuiCol_Button] =
@@ -339,9 +346,10 @@ static void ShowInspector()
     if (ImGui::CollapsingHeader("Diffuse Map")) {
         if (entity->m_DiffuseMap)
         {
-            ImGui::Image((void*)(intptr_t)entity->m_DiffuseMap->texId, {64, 64});
+            ImGui::Image(entity->m_DiffuseMap->texId_ptr(), {64, 64});
         }
     }
+
 
 
 
@@ -443,10 +451,7 @@ static void ShowEntities()
 
 void ImGuis::ShowMainMenuBar()
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0.6));
-
-    if (ImGui::BeginMainMenuBar())
+    if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("System"))
         {
@@ -474,6 +479,7 @@ void ImGuis::ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("View"))
         {
+            if (ImGui::MenuItem("Game", nullptr, &g_Game)) {}
             if (ImGui::MenuItem("Entities", nullptr, &g_ShowLoadedEntitiesWindow)) {}
             if (ImGui::MenuItem("Inspector", nullptr, &g_ShowInspectorWindow)) {}
 
@@ -485,34 +491,35 @@ void ImGuis::ShowMainMenuBar()
             ImGui::EndMenu();
         }
 
-        ImGui::EndMainMenuBar();
+        ImGui::EndMenuBar();
     }
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor();
 
+}
 
-
+void Rdr()
+{
 
     glPolygonMode(GL_FRONT_AND_BACK, Settings::dbgPolyLine ? GL_LINE : GL_FILL);
 
-    if (g_ShowImGuiDemoWindow)
-        ImGui::ShowDemoWindow(&g_ShowImGuiDemoWindow);
+    if (ImGuis::g_ShowImGuiDemoWindow) {
+        ImGui::ShowDemoWindow(&ImGuis::g_ShowImGuiDemoWindow);
+    }
 
-    if (g_ShowNewWorldWindow)
+    if (ImGuis::g_ShowNewWorldWindow) {
         ShowNewWorldWindow();
-    if (g_ShowLoadedEntitiesWindow) {
-        ImGui::SetNextWindowPos({0, 18});
-        ImGui::SetNextWindowSize({320, 330});
+    }
+    if (ImGuis::g_ShowLoadedEntitiesWindow) {
+//        ImGui::SetNextWindowPos({0, 18});
+//        ImGui::SetNextWindowSize({320, 330});
         ShowEntities();
     }
-    if (g_ShowInspectorWindow) {
-        ImGui::SetNextWindowPos({0, 18+330});
-        ImGui::SetNextWindowSize({320, 400});
-
+    if (ImGuis::g_ShowInspectorWindow) {
+//        ImGui::SetNextWindowPos({0, 18+330});
+//        ImGui::SetNextWindowSize({320, 400});
         ShowInspector();
     }
     if (ImGuis::g_InspectorEntity) {
-        RenderEngine::drawLineBox(g_InspectorEntity->getAABB(), Colors::YELLOW);
+        RenderEngine::drawLineBox(ImGuis::g_InspectorEntity->getAABB(), Colors::YELLOW);
     }
 
 
@@ -531,7 +538,7 @@ void ImGuis::ShowMainMenuBar()
         glm::mat4 iden(1.0f);
         float* pmIden = glm::value_ptr(iden);
 
-        if (g_GizmoViewManipulation)
+        if (ImGuis::g_GizmoViewManipulation)
         {
             ImGui::Begin("Gizmo");
             static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
@@ -580,17 +587,26 @@ void ImGuis::ShowMainMenuBar()
             ImGui::End();
         }
 
-        if (g_WorldGrids > 0)
+        if (ImGuis::g_WorldGrids > 0)
         {
-            ImGuizmo::DrawGrid(pmView, pmProj, pmIden, g_WorldGrids);
+            ImGuizmo::DrawGrid(pmView, pmProj, pmIden, ImGuis::g_WorldGrids);
         }
 
-        if (g_GizmoViewManipulation)
+        if (ImGuis::g_GizmoViewManipulation)
         {
             static float camLen = 10.0f;
             ImGuizmo::ViewManipulate(pmView, camLen,
                                      ImVec2(io.DisplaySize.x-24-128, 20+24), ImVec2(128, 128),
                                      0x10101010);
+        }
+
+        if (ImGuis::g_Game)
+        {
+            ImGui::Begin("Game");
+
+            ImGui::Image(ComposeRenderer::fboCompose->texColor[0]->texId_ptr(), ImGui::GetWindowSize());
+
+            ImGui::End();
         }
     }
 }
@@ -605,7 +621,32 @@ void ImGuis::Render()
     // ImGui::SetCursorScreenPos();
 
     glDisable(GL_DEPTH_TEST);
+
+
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
+    ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(0, 0, 0, 0.6));
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
+            | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+            | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+    ImGui::Begin("MainDockSpaceWindow", nullptr, window_flags);
+    ImGui::PopStyleColor();
+    ImGui::PopStyleVar();
+    ImGui::PopStyleVar();
+
+    ImGui::DockSpace(ImGui::GetID("MainDockSpace"), {0, 0}, ImGuiDockNodeFlags_PassthruCentralNode);
+
     ImGuis::ShowMainMenuBar();
+
+    ImGui::End();
+
+    Rdr();
+
+
     glEnable(GL_DEPTH_TEST);
 
     ImGui::Render();

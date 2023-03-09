@@ -20,7 +20,9 @@ public:
                         g_ShowInspectorWindow = false,
                         g_ShowLoadedEntitiesWindow = false;
 
-    inline static bool g_GizmoViewManipulation = true;
+
+    inline static bool g_GizmoViewManipulation = true,
+                       g_Game = true;
 
     inline static int g_WorldGrids = 24;
 

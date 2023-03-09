@@ -27,6 +27,10 @@ public:
 //        return texId;
 //    }
 
+    void* texId_ptr() {
+        return (void*)(intptr_t)texId;
+    }
+
     void bindTexture2D(int i = 0) {
         glActiveTexture(GL_TEXTURE0+i);
         glBindTexture(GL_TEXTURE_2D, texId);
