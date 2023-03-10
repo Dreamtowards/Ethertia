@@ -15,7 +15,7 @@ class AnimRenderer
 public:
     DECL_Inst(AnimRenderer);
 
-    ShaderProgram shader = Loader::loadShaderProgram("shaders/anim/anim.{}");
+    DECL_SHADER(SHADER, "shaders/anim/anim.{}");
 
 
     // Model VertexData Attribs
@@ -24,7 +24,7 @@ public:
     // vec3  jointWeights
     void render(Model* model, const std::vector<Animation::Joint>& joints)
     {
-        shader.useProgram();
+        SHADER->useProgram();
 
 //        glm::mat4 joint_tranfs[50] = Animation::getJointTransfroms();
 //
@@ -33,7 +33,7 @@ public:
 //            shader.setMatrix4f(uJointTrans[i], joints[i].curr_trans);
 //        }
 
-        shader.setViewProjection();
+        SHADER->setViewProjection();
 
         model->_glDrawArrays();
 

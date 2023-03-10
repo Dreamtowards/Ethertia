@@ -11,8 +11,8 @@
 class SSAORenderer
 {
 public:
+    DECL_SHADER(SHADER, "shaders/ssao/ssao.{}");
 
-    inline static ShaderProgram shaderSSAO;
     inline static Framebuffer* fboSSAO = nullptr;
 
     inline static Texture* m_TexNoise = nullptr;
@@ -26,12 +26,10 @@ public:
             fbo->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);//, GL_RGBA32F, GL_RGB, GL_FLOAT);
         });
 
-        shaderSSAO = Loader::loadShaderProgram("shaders/ssao/ssao.{}");
-
-        shaderSSAO.useProgram();
-        shaderSSAO.setInt("gPositionDepth", 0);
-        shaderSSAO.setInt("gNormal", 1);
-        shaderSSAO.setInt("texNoise", 2);
+        SHADER->useProgram();
+        SHADER->setInt("gPositionDepth", 0);
+        SHADER->setInt("gNormal", 1);
+        SHADER->setInt("texNoise", 2);
 
         RenderEngine::checkGlError("Test2");
 
@@ -58,7 +56,7 @@ public:
             // ssaoKernel.push_back(samp);
 
             static auto u_KernelSamples = ShaderProgram::_GenArrayNames("kernelSamples[{}]", 64);
-            shaderSSAO.setVector3f(u_KernelSamples[i], samp);
+            SHADER->setVector3f(u_KernelSamples[i], samp);
         }
 
         // Rand Noise (for TBN, de-banding)
@@ -86,12 +84,12 @@ public:
         m_TexNoise    ->bindTexture2D(2);
 
 
-        shaderSSAO.useProgram();
+        SHADER->useProgram();
 
         float fbWidth = Gui::maxWidth(), fbHeight = Gui::maxHeight();  // ! is not framebuffer size.
-        shaderSSAO.setVector2f("noiseScale", glm::vec2(fbWidth / 4.0f, fbHeight / 4.0f));
+        SHADER->setVector2f("noiseScale", glm::vec2(fbWidth / 4.0f, fbHeight / 4.0f));
 
-        shaderSSAO.setViewProjection();
+        SHADER->setViewProjection();
 
         ComposeRenderer::_DrawScreenQuad();
 

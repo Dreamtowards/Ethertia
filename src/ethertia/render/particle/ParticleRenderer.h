@@ -14,9 +14,7 @@
 class ParticleRenderer
 {
 public:
-
-    ShaderProgram m_ParticleShader =
-            Loader::loadShaderProgram("shaders/particle/particle.{}", false);
+    DECL_SHADER(SHADER, "shaders/particle/particle.{}");
 
     inline static std::vector<Particle*> m_Particles;
 
@@ -66,8 +64,8 @@ public:
 
     void renderAll()
     {
-        m_ParticleShader.useProgram();
-        m_ParticleShader.setViewProjection();
+        SHADER->useProgram();
+        SHADER->setViewProjection();
 
         for (Particle* p : m_Particles)
         {
@@ -86,13 +84,13 @@ public:
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex->texId);
 
-        m_ParticleShader.useProgram();
+        SHADER->useProgram();
 
-        m_ParticleShader.setVector3f("position", position);
-        m_ParticleShader.setFloat("size", size);
+        SHADER->setVector3f("position", position);
+        SHADER->setFloat("size", size);
 
-        m_ParticleShader.setVector2f("uv_pos", uvPos);
-        m_ParticleShader.setVector2f("uv_size", uvSize);
+        SHADER->setVector2f("uv_pos", uvPos);
+        SHADER->setVector2f("uv_size", uvSize);
 
         glBindVertexArray(M_PLANE_C_STRIP->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, M_PLANE_C_STRIP->vertexCount);

@@ -36,10 +36,9 @@ void ImGuis::Init()
     ImFontConfig fontConf;
     fontConf.OversampleH = 3;
     fontConf.OversampleV = 2;
-    fontConf.RasterizerMultiply = 3;
+    fontConf.RasterizerMultiply = 2;
     // fontConf.GlyphExtraSpacing.x = 1.0f;
-//        fontConf.RasterizerMultiply = 2;
-    io.Fonts->AddFontFromFileTTF("./assets/font/menlo-r.ttf", 14.0f, &fontConf);
+    io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
 
 //        imgui_io.DisplaySize = ImVec2(1920, 1080);
@@ -123,7 +122,77 @@ void ImGuis::Destroy()
 
 
 
+static void ShowShaderProgramInsp()
+{
+    ImGui::Begin("ShaderProgram");
 
+
+    ShaderProgram* shader = ImGuis::g_InspShaderProgram;
+    if (ImGui::BeginCombo("###Shaders", shader ? shader->m_SourceLocation.c_str() : nullptr))
+    {
+        for (auto& it : ShaderProgram::REGISTRY)
+        {
+            if (ImGui::Selectable(it.first.c_str(), ImGuis::g_InspShaderProgram == it.second)) {
+                ImGuis::g_InspShaderProgram = it.second;
+            }
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::SameLine();
+    ImGui::Button("+");
+
+    ImGui::Separator();
+
+    if (!shader) {
+        ImGui::TextDisabled("No ShaderProgram selected.");
+        ImGui::End();
+        return;
+    }
+
+    if (ImGui::Button("Reload Shader")) {
+        shader->reloadSources_();
+        Log::info("Shader {} reloaded.", shader->m_SourceLocation);
+    }
+    ImGui::SameLine();
+    ImGui::Text("#%i",(int)shader->m_ProgramId);
+
+    ImGui::TextDisabled("%i Uniforms:", (int)shader->m_Uniforms.size());
+    for (auto& it : shader->m_Uniforms)
+    {
+        auto& unif = it.second;
+        const char* name = it.first;
+        if (!unif.value_ptr) {
+            ImGui::TextDisabled("uniform %s has no lvalue", name);
+            continue;
+        }
+        switch (unif.type)
+        {
+            case ShaderProgram::Uniform::INT:
+                ImGui::SliderInt(name, (int*)unif.value_ptr, -100, 100);
+                break;
+            case ShaderProgram::Uniform::FLOAT:
+                ImGui::SliderFloat(name, (float*)unif.value_ptr, -100, 100);
+                break;
+            case ShaderProgram::Uniform::VEC3:
+                ImGui::SliderFloat3(name, (float*)unif.value_ptr, -100, 100);
+                break;
+            case ShaderProgram::Uniform::VEC4:
+                ImGui::SliderFloat4(name, (float*)unif.value_ptr, -100, 100);
+                break;
+            case ShaderProgram::Uniform::MAT3:
+                ImGui::Text("Mat3");
+                break;
+            case ShaderProgram::Uniform::MAT4:
+                ImGui::Text("Mat4");
+                break;
+            default:
+                ImGui::Text("Unknown Uniform Type");
+                break;
+        }
+    }
+
+    ImGui::End();
+}
 
 
 
@@ -182,7 +251,7 @@ static void _MenuDebug()
 //
 //    ImGui::SeparatorText("etc");
 //
-    ImGui::Checkbox("ImGui Demo Window", &ImGuis::g_ShowImGuiDemoWindow);
+    ImGui::Checkbox("ImGui Demo Window", &ImGuis::g_ShowImGuiDemo);
 //
 //    if (ImGui::Button("Click Sound")) {
 //        Log::info("PlaySoundClick");
@@ -227,7 +296,7 @@ static void _MenuSystem()
     if (ImGui::BeginMenu("Open World"))
     {
         if (ImGui::MenuItem("New World..")) {
-            ImGuis::g_ShowNewWorldWindow = true;
+            ImGuis::g_ShowNewWorld = true;
         }
         if (ImGui::MenuItem("Open World..")) {
             const char* filename = Loader::openFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
@@ -309,7 +378,7 @@ static void _MenuSystem()
 
 void ShowNewWorldWindow()
 {
-    ImGui::Begin("New World", &ImGuis::g_ShowNewWorldWindow);
+    ImGui::Begin("New World", &ImGuis::g_ShowNewWorld);
 
     static char _WorldName[128];
     ImGui::InputText("World Name", _WorldName, 128);
@@ -327,9 +396,9 @@ void ShowNewWorldWindow()
 
 
 
-static void ShowInspector()
+static void ShowEntityInsp()
 {
-    ImGui::Begin("Inspector", &ImGuis::g_ShowInspectorWindow);
+    ImGui::Begin("Inspector", &ImGuis::g_ShowEntityInsp);
 
     Entity* entity = ImGuis::g_InspectorEntity;
     if (!entity) {
@@ -360,7 +429,7 @@ static void ShowInspector()
 
 static void ShowEntities()
 {
-    ImGui::Begin("Entities", &ImGuis::g_ShowLoadedEntitiesWindow);
+    ImGui::Begin("Entities", &ImGuis::g_ShowLoadedEntities);
 
     World* world = Ethertia::getWorld();
     if (!world) {
@@ -482,8 +551,9 @@ void ImGuis::ShowMainMenuBar()
         if (ImGui::BeginMenu("View"))
         {
             ImGui::Checkbox("Game", &g_Game);
-            ImGui::Checkbox("Entities", &g_ShowLoadedEntitiesWindow);
-            ImGui::Checkbox("Inspector", &g_ShowInspectorWindow);
+            ImGui::Checkbox("Entities", &g_ShowLoadedEntities);
+            ImGui::Checkbox("Entity Inspector", &g_ShowEntityInsp);
+            ImGui::Checkbox("ShaderProgram Inspector", &g_ShowShaderProgramInsp);
 
             ImGui::Separator();
 
@@ -506,25 +576,28 @@ void Rdr()
 
     glPolygonMode(GL_FRONT_AND_BACK, Settings::dbgPolyLine ? GL_LINE : GL_FILL);
 
-    if (ImGuis::g_ShowImGuiDemoWindow) {
-        ImGui::ShowDemoWindow(&ImGuis::g_ShowImGuiDemoWindow);
+    if (ImGuis::g_ShowImGuiDemo) {
+        ImGui::ShowDemoWindow(&ImGuis::g_ShowImGuiDemo);
     }
 
-    if (ImGuis::g_ShowNewWorldWindow) {
+    if (ImGuis::g_ShowNewWorld) {
         ShowNewWorldWindow();
     }
-    if (ImGuis::g_ShowLoadedEntitiesWindow) {
+    if (ImGuis::g_ShowLoadedEntities) {
 //        ImGui::SetNextWindowPos({0, 18});
 //        ImGui::SetNextWindowSize({320, 330});
         ShowEntities();
     }
-    if (ImGuis::g_ShowInspectorWindow) {
+    if (ImGuis::g_ShowEntityInsp) {
 //        ImGui::SetNextWindowPos({0, 18+330});
 //        ImGui::SetNextWindowSize({320, 400});
-        ShowInspector();
+        ShowEntityInsp();
     }
     if (ImGuis::g_InspectorEntity) {
         RenderEngine::drawLineBox(ImGuis::g_InspectorEntity->getAABB(), Colors::YELLOW);
+    }
+    if (ImGuis::g_ShowShaderProgramInsp) {
+        ShowShaderProgramInsp();
     }
 
 

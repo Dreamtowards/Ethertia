@@ -15,10 +15,11 @@ class ImGuis
 {
 public:
 
-    inline static bool  g_ShowImGuiDemoWindow = false,
-                        g_ShowNewWorldWindow = false,
-                        g_ShowInspectorWindow = false,
-                        g_ShowLoadedEntitiesWindow = false;
+    inline static bool  g_ShowImGuiDemo = false,
+                        g_ShowNewWorld = false,
+                        g_ShowEntityInsp = false,
+                        g_ShowLoadedEntities = false,
+                        g_ShowShaderProgramInsp;
 
 
     inline static bool g_GizmoViewManipulation = true,
@@ -27,6 +28,8 @@ public:
     inline static int g_WorldGrids = 24;
 
     inline static Entity* g_InspectorEntity = nullptr;
+
+    inline static ShaderProgram* g_InspShaderProgram = nullptr;
 
     static void Init();
 

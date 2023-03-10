@@ -11,7 +11,7 @@
 
 class GuiRenderer
 {
-    ShaderProgram shader = Loader::loadShaderProgram("shaders/gui/gui.{}");
+    DECL_SHADER(SHADER, "shaders/gui/gui.{}");
 
 public:
     inline static Model* M_RECT_RB;  // RB,RT,LB,LT. TRIANGLE_STRIP.
@@ -48,21 +48,21 @@ public:
         float ww = Gui::maxWidth();  // window width.
         float wh = Gui::maxHeight();
 
-        shader.useProgram();
+        SHADER->useProgram();
 
-        shader.setVector4f("vertPosSize",
+        SHADER->setVector4f("vertPosSize",
                            glm::vec4(Mth::ndc(x, y, ww, wh),
                            glm::vec2(w/ww, h/wh)));
 
-        shader.setVector2f("sizePixel", glm::vec2(w, h));
-        shader.setFloat("border", border);
-        shader.setFloat("round", round);
+        SHADER->setVector2f("sizePixel", glm::vec2(w, h));
+        SHADER->setFloat("border", border);
+        SHADER->setFloat("round", round);
 
-        shader.setVector4f("color", color);
+        SHADER->setVector4f("color", color);
 
-        shader.setInt("channelMode", chnMode);
+        SHADER->setInt("channelMode", chnMode);
 
-        shader.setVector4f("texPosSize", texPosSize);
+        SHADER->setVector4f("texPosSize", texPosSize);
 
         glBindVertexArray(M_RECT_RB->vaoId);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

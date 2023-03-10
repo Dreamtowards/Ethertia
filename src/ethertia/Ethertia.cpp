@@ -60,6 +60,7 @@ void Ethertia::start()
     m_Running = true;
     m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
     m_RootGUI = new GuiRoot();
+    ShaderProgram::loadAll();
     m_RenderEngine = new RenderEngine();  // todo RenderEngine::init();
     m_AudioEngine = new AudioEngine();  // todo AudioEngine::init();
     NoiseGen::initSIMD();
@@ -72,6 +73,7 @@ void Ethertia::start()
     ItemTextures::load();
 
     Sounds::load();
+
 
     // Network
     ClientConnectionProc::initPackets();
@@ -412,6 +414,11 @@ void ShaderProgram::setViewProjection(bool view)
 
     setMatrix4f("matView", view ? RenderEngine::matView : glm::mat4(1.0));
 }
+
+void ShaderProgram::reloadSources_() {
+    Loader::loadShaderProgram(this, m_SourceLocation);
+}
+
 
 float Scheduler::_intl_program_time() {
     return Ethertia::getPreciseTime();

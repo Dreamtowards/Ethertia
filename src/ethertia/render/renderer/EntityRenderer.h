@@ -15,10 +15,7 @@
 class EntityRenderer
 {
 public:
-
-    ShaderProgram shaderGeometry = Loader::loadShaderProgram("shaders/chunk/geometry.{}", true);
-
-
+    DECL_SHADER(SHADER, "shaders/chunk/geometry.{}");
 
     inline static float debugVar0 = 0;
     inline static float debugVar1 = 1;
@@ -27,12 +24,12 @@ public:
 
     EntityRenderer() {
 
-        shaderGeometry.useProgram();
-        shaderGeometry.setInt("diffuseMap", 0);
-        shaderGeometry.setInt("normalMap", 1);
-        shaderGeometry.setInt("dramMap", 2);
+        SHADER->useProgram();
+        SHADER->setInt("diffuseMap", 0);
+        SHADER->setInt("normalMap", 1);
+        SHADER->setInt("dramMap", 2);
 
-        shaderGeometry.setFloat("MtlCap", Material::REGISTRY.size());
+        SHADER->setFloat("MtlCap", Material::REGISTRY.size());
 
     }
 
@@ -56,17 +53,18 @@ public:
         }
 
 
-        shaderGeometry.useProgram();
+        SHADER->useProgram();
 
-        shaderGeometry.setViewProjection();
-        shaderGeometry.setMatrix4f("matModel", Mth::matModel(pos, rot, glm::vec3(1.0f)));
+        // todo: Duplicated VP Set
+        SHADER->setViewProjection();
+        SHADER->setMatrix4f("matModel", Mth::matModel(pos, rot, glm::vec3(1.0f)));
 
-        shaderGeometry.setFloat("debugVar1", debugVar1);
-        shaderGeometry.setFloat("debugVar2", debugVar2);
+        SHADER->setFloat("debugVar1", debugVar1);
+        SHADER->setFloat("debugVar2", debugVar2);
 
-        shaderGeometry.setFloat("Time", Ethertia::getPreciseTime());
+        SHADER->setFloat("Time", Ethertia::getPreciseTime());
 
-        shaderGeometry.setFloat("WaveFactor", vertexWaving);
+        SHADER->setFloat("WaveFactor", vertexWaving);
 
 
         glBindVertexArray(model->vaoId);

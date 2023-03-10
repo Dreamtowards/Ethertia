@@ -7,7 +7,7 @@
 
 class SkyboxRenderer
 {
-    ShaderProgram m_Shader = Loader::loadShaderProgram("shaders/sky/skybox.{}");
+    DECL_SHADER(SHADER, "shaders/sky/skybox.{}");
 
     inline static Model* m_SkyboxModel = nullptr;
 
@@ -70,14 +70,14 @@ public:
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 
-        m_Shader.useProgram();
+        SHADER->useProgram();
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->texId);
 
-        m_Shader.setMVP(Mth::rot(glm::normalize(rotAxis), angle));
+        SHADER->setMVP(Mth::rot(glm::normalize(rotAxis), angle));
 
-        m_Shader.setVector4f("ColorMul", colMul);
+        SHADER->setVector4f("ColorMul", colMul);
 
         glBindVertexArray(m_SkyboxModel->vaoId);
         glDrawArrays(GL_TRIANGLES, 0, m_SkyboxModel->vertexCount);

@@ -13,7 +13,7 @@
 
 class SkyGradientRenderer
 {
-    ShaderProgram shader = Loader::loadShaderProgram("shaders/sky/gradient.{}");
+    DECL_SHADER(SHADER, "shaders/sky/gradient.{}");
 
     inline static Model* M_PLANE;
 
@@ -29,13 +29,13 @@ public:
 
     void render() {
 
-        shader.useProgram();
+        SHADER->useProgram();
 
-        shader.setVector3f("CameraPos", Ethertia::getCamera()->position);
+        SHADER->setVector3f("CameraPos", Ethertia::getCamera()->position);
         // CamPos+
 
 
-        shader.setMVP(
+        SHADER->setMVP(
                 Mth::matModel(/*Ethertia::getCamera()->position + */glm::vec3{0, 80, 0},glm::vec3 {500})
         );
 

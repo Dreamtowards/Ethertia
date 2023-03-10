@@ -13,11 +13,11 @@ public:
         return _INST;
     }
 
-    ShaderProgram shaderDebugGeo = Loader::loadShaderProgram("shaders/debug/norm.{}", true);
+    DECL_SHADER(SHADER_DEBUG_NORM, "shaders/debug/norm.{}");
 
     // limitLen+Pos: Only show partial (sphere) at pos with radius len
     void renderDebugGeo(Model* model, glm::vec3 pos, glm::mat3 rot, float limitLen = 0, glm::vec3 limitPos = {}) {
-        ShaderProgram& shader = shaderDebugGeo;
+        ShaderProgram& shader = *SHADER_DEBUG_NORM;
 
         shader.useProgram();
 
@@ -37,7 +37,7 @@ public:
     }
 
 
-    ShaderProgram shaderDebugBasis = Loader::loadShaderProgram("shaders/debug/model.{}");
+    DECL_SHADER(SHADER_DEBUG_MODEL, "shaders/debug/model.{}");
 
 
     void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false) {
@@ -49,13 +49,14 @@ public:
         static Model* mBox = Loader::loadModel(24, {{3, M_BOX}});
         Model* model = boxOutline ? mBox : mLine;
 
-        shaderDebugBasis.useProgram();
+        auto& shader = *SHADER_DEBUG_MODEL;
+        shader.useProgram();
 
-        shaderDebugBasis.setViewProjection(viewMat);
+        shader.setViewProjection(viewMat);
 
-        shaderDebugBasis.setVector4f("color", color);
-        shaderDebugBasis.setVector3f("direction", dir);
-        shaderDebugBasis.setVector3f("position", pos);
+        shader.setVector4f("color", color);
+        shader.setVector3f("direction", dir);
+        shader.setVector3f("position", pos);
 
         glBindVertexArray(model->vaoId);
         glDrawArrays(GL_LINES, 0, model->vertexCount);

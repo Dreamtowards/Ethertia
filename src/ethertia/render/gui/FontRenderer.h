@@ -18,7 +18,7 @@ class FontRenderer
     static constexpr int BATCH_CHARS_LIMIT = 128;  // actually is size. ie. max+1
     static constexpr int GLYPH_LIMIT = 256;
 
-    ShaderProgram shader = Loader::loadShaderProgram("shaders/gui/font.{}");
+    DECL_SHADER(SHADER, "shaders/gui/font.{}");
 
     Texture* texAscii = nullptr;
 
@@ -38,10 +38,10 @@ public:
             }
         }
 
-        shader.useProgram();
+        SHADER->useProgram();
         for (int i = 0; i < GLYPH_LIMIT; ++i) {
             static const char** u_GlyphWidth = ShaderProgram::_GenArrayNames("glyphWidths[{}]", GLYPH_LIMIT);
-            shader.setFloat(u_GlyphWidth[i], glyphWidths[i]);
+            SHADER->setFloat(u_GlyphWidth[i], glyphWidths[i]);
         }
 
     }
@@ -55,6 +55,7 @@ public:
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texAscii->texId);
 
+        auto& shader = *SHADER;
         shader.useProgram();
 
         shader.setVector2f("scale", glm::vec2(textHeight / ww, textHeight / wh));

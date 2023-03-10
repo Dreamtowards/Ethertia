@@ -116,11 +116,14 @@ public:
 
 
 
-    static ShaderProgram loadShaderProgram(const std::string& assets_p, bool geo = false)
+    static void loadShaderProgram(ShaderProgram* p, const std::string& assets_p)
     {
-        return ShaderProgram(Loader::loadAssets(Strings::fmt(assets_p, "vsh")).new_string(),
-                             Loader::loadAssets(Strings::fmt(assets_p, "fsh")).new_string(),
-                             geo ? Loader::loadAssets(Strings::fmt(assets_p, "gsh")).new_string() : "");
+        std::string path = Loader::fileResolve(Strings::fmt(assets_p, "gsh"));
+        bool geo = Loader::fileExists(path);
+
+        p->reloadSources(Loader::loadAssets(Strings::fmt(assets_p, "vsh")).new_string(),
+                          Loader::loadAssets(Strings::fmt(assets_p, "fsh")).new_string(),
+                          geo ? Loader::loadFile(path).new_string() : "");
     }
 
 

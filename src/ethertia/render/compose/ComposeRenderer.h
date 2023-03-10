@@ -12,7 +12,7 @@ class ComposeRenderer
 {
 public:
 
-    inline static ShaderProgram shaderCompose;
+    inline static ShaderProgram* shaderCompose = ShaderProgram::decl("shaders/compose/compose.{}");
 
     // Deferred Rendering Compose FBO
     inline static Framebuffer* fboCompose = nullptr;
@@ -24,14 +24,12 @@ public:
 
     static void initShader() {
 
-        shaderCompose = Loader::loadShaderProgram("shaders/compose/compose.{}");
-
-        shaderCompose.useProgram();
-        shaderCompose.setInt("gPositionDepth", 0);
-        shaderCompose.setInt("gNormal", 1);
-        shaderCompose.setInt("gAlbedoRoughness", 2);
-        shaderCompose.setInt("gAmbientOcclusion", 3);
-        shaderCompose.setInt("gShadowMap", 4);  // Shadow Depth Map.
+        shaderCompose->useProgram();
+        shaderCompose->setInt("gPositionDepth", 0);
+        shaderCompose->setInt("gNormal", 1);
+        shaderCompose->setInt("gAlbedoRoughness", 2);
+        shaderCompose->setInt("gAmbientOcclusion", 3);
+        shaderCompose->setInt("gShadowMap", 4);  // Shadow Depth Map.
 
         // shaderCompose.setInt("panoramaMap", 5);
     }
@@ -63,52 +61,52 @@ public:
 
         // g_PanoramaTex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("misc/skybox/hdri5.png")));
 
-        shaderCompose.useProgram();
+        shaderCompose->useProgram();
 
-        shaderCompose.setVector3f("CameraPos", Ethertia::getCamera()->actual_pos);
-        shaderCompose.setVector3f("CameraDir", Ethertia::getCamera()->direction);
+        shaderCompose->setVector3f("CameraPos", Ethertia::getCamera()->actual_pos);
+        shaderCompose->setVector3f("CameraDir", Ethertia::getCamera()->direction);
 
         HitCursor& cur = Ethertia::getHitCursor();
-        shaderCompose.setVector3f("cursorPos", cur.cell ? cur.cell_position : glm::vec3{0,0,0});
-        shaderCompose.setFloat("cursorSize", cur.brushSize);
+        shaderCompose->setVector3f("cursorPos", cur.cell ? cur.cell_position : glm::vec3{0,0,0});
+        shaderCompose->setFloat("cursorSize", cur.brushSize);
 
-        shaderCompose.setFloat("fogGradient", fogGradient);
-        shaderCompose.setFloat("fogDensity", fogDensity);
+        shaderCompose->setFloat("fogGradient", fogGradient);
+        shaderCompose->setFloat("fogDensity", fogDensity);
 //
 //        shaderCompose.setFloat("debugVar0", debugVar0);
-        shaderCompose.setFloat("debugVar1", EntityRenderer::debugVar1);
+        shaderCompose->setFloat("debugVar1", EntityRenderer::debugVar1);
 //        shaderCompose.setFloat("debugVar2", debugVar2);
 
-        shaderCompose.setFloat("Time", Ethertia::getPreciseTime());
-        shaderCompose.setFloat("DayTime", Ethertia::getWorld()->getDayTime());
+        shaderCompose->setFloat("Time", Ethertia::getPreciseTime());
+        shaderCompose->setFloat("DayTime", Ethertia::getWorld()->getDayTime());
 
-        shaderCompose.setMatrix4f("matInvView", glm::inverse(RenderEngine::matView));
-        shaderCompose.setMatrix4f("matInvProjection", glm::inverse(RenderEngine::matProjection));
+        shaderCompose->setMatrix4f("matInvView", glm::inverse(RenderEngine::matView));
+        shaderCompose->setMatrix4f("matInvProjection", glm::inverse(RenderEngine::matProjection));
 
-        shaderCompose.setMatrix4f("matView", RenderEngine::matView);
-        shaderCompose.setMatrix4f("matProjection", RenderEngine::matProjection);
+        shaderCompose->setMatrix4f("matView", RenderEngine::matView);
+        shaderCompose->setMatrix4f("matProjection", RenderEngine::matProjection);
 
-        shaderCompose.setMatrix4f("matShadowSpace", matShadowSpace);
+        shaderCompose->setMatrix4f("matShadowSpace", matShadowSpace);
 
-        shaderCompose.setInt("lightsCount", lights.size());
+        shaderCompose->setInt("lightsCount", lights.size());
         for (int i = 0; i < std::min(64, (int)lights.size()); ++i)
         {
             Light* light = lights[i];
 
             static auto u_LPos = ShaderProgram::_GenArrayNames("lights[{}].position", 64);
-            shaderCompose.setVector3f(u_LPos[i],light->position);
+            shaderCompose->setVector3f(u_LPos[i],light->position);
 
             static auto u_LColor = ShaderProgram::_GenArrayNames("lights[{}].color", 64);
-            shaderCompose.setVector3f(u_LColor[i], light->color);
+            shaderCompose->setVector3f(u_LColor[i], light->color);
 
             static auto u_LAtten = ShaderProgram::_GenArrayNames("lights[{}].attenuation", 64);
-            shaderCompose.setVector3f(u_LAtten[i], light->attenuation);
+            shaderCompose->setVector3f(u_LAtten[i], light->attenuation);
 
             static auto u_LDir = ShaderProgram::_GenArrayNames("lights[{}].direction", 64);
-            shaderCompose.setVector3f(u_LDir[i], light->direction);
+            shaderCompose->setVector3f(u_LDir[i], light->direction);
 
             static auto u_LConeAng = ShaderProgram::_GenArrayNames("lights[{}].coneAngle", 64);
-            shaderCompose.setVector2f(u_LConeAng[i], glm::vec2(light->coneAngle, 0));
+            shaderCompose->setVector2f(u_LConeAng[i], glm::vec2(light->coneAngle, 0));
         }
 
 

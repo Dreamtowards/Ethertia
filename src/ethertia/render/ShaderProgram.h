@@ -16,14 +16,56 @@
 #include <ethertia/util/Log.h>
 #include <ethertia/util/Strings.h>
 
-class ShaderProgram {
+#define DECL_SHADER(varname, srcpath) inline static ShaderProgram* varname = ShaderProgram::decl(srcpath);
+
+class ShaderProgram
+{
+public:
 
     GLuint m_ProgramId = 0;
-    std::unordered_map<const char*, GLuint> m_CachedUniformId;
 
-    bool m_Good = false;
+    bool m_Good = false;  // Loaded.
 
-public:
+    struct Uniform
+    {
+        enum Type {
+            INT,
+            FLOAT,
+            VEC3,
+            VEC4,
+            MAT3,
+            MAT4
+        };
+
+        GLuint uniformId = 0;
+        ShaderProgram::Uniform::Type type;
+
+        void* value_ptr = nullptr;
+
+        // Range? Bind?
+    };
+    std::map<const char*, ShaderProgram::Uniform> m_Uniforms;
+
+
+    // tmeporary. shader source file location. use as shader id.
+    std::string m_SourceLocation;
+
+
+
+    inline static std::map<std::string, ShaderProgram*> REGISTRY;
+    static ShaderProgram* decl(const std::string& pat)
+    {
+        ShaderProgram* p = new ShaderProgram();
+        p->m_SourceLocation = pat;
+        REGISTRY[pat] = p;
+        return p;
+    }
+    static void loadAll()
+    {
+        for (auto& it : ShaderProgram::REGISTRY) {
+            it.second->reloadSources_();
+        }
+    }
 
     // empty.
     ShaderProgram() {}
@@ -31,18 +73,30 @@ public:
     ShaderProgram(const ShaderProgram& cpy) = delete;
     ShaderProgram(ShaderProgram&& mov) = delete;
     ShaderProgram& operator=(const ShaderProgram&) = delete;
+    ShaderProgram& operator=(ShaderProgram&& mov) = delete;
+//  noexcept {
+//        m_ProgramId = mov.m_ProgramId;
+//        m_CachedUniformId = std::move(mov.m_CachedUniformId);
+//        m_Good = mov.m_Good;
+//
+//        // prevents glDeleteProgram() deleted the program when rvalue deconstruct.
+//        mov.m_ProgramId = 0;
+//        return *this;
+//    }
 
-    ShaderProgram& operator=(ShaderProgram&& mov) noexcept {
-        m_ProgramId = mov.m_ProgramId;
-        m_CachedUniformId = std::move(mov.m_CachedUniformId);
-        m_Good = mov.m_Good;
-
-        // prevents glDeleteProgram() deleted the program when rvalue deconstruct.
-        mov.m_ProgramId = 0;
-        return *this;
+    ~ShaderProgram() {
+        glDeleteProgram(m_ProgramId);
     }
 
-    ShaderProgram(const std::string& vsh_src, const std::string& fsh_src, const std::string& gsh_src = "") {
+    // a high level func.
+    void reloadSources_();
+
+    void reloadSources(const std::string& vsh_src, const std::string& fsh_src, const std::string& gsh_src = "")
+    {
+        if (!m_ProgramId) {
+            m_ProgramId = glCreateProgram();
+        }
+
         m_Good = true;
 
         GLuint vsh = loadShader(GL_VERTEX_SHADER, vsh_src);
@@ -51,8 +105,6 @@ public:
         if (!gsh_src.empty()) {
             gsh = loadShader(GL_GEOMETRY_SHADER, gsh_src);
         }
-
-        m_ProgramId = glCreateProgram();
 
         glAttachShader(m_ProgramId, vsh);
         glAttachShader(m_ProgramId, fsh);
@@ -66,17 +118,13 @@ public:
         if (!succ) {
             char infolog[512];
             glGetProgramInfoLog(m_ProgramId, 512, nullptr, infolog);
-            Log::warn("Failed to link the shader program:\n", infolog);
+            Log::warn("Failed to link the shader program [{}]:\n", m_SourceLocation, infolog);
             m_Good = false;
         }
 
         glDeleteShader(vsh);
         glDeleteShader(fsh);
         if (gsh) glDeleteShader(gsh);
-    }
-
-    ~ShaderProgram() {
-        glDeleteProgram(m_ProgramId);
     }
 
 
@@ -88,9 +136,10 @@ public:
     }
 
     GLuint getUniformLocation(const char* name) {
-        GLuint loc = m_CachedUniformId[name];
+        auto& unif = m_Uniforms[name];
+        GLuint loc = unif.uniformId;
         if (!loc) {
-            return m_CachedUniformId[name] = glGetUniformLocation(m_ProgramId, name);
+            return unif.uniformId = glGetUniformLocation(m_ProgramId, name);
         }
         return loc;
     }
