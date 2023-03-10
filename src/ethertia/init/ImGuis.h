@@ -19,7 +19,12 @@ public:
                         g_ShowNewWorld = false,
                         g_ShowEntityInsp = false,
                         g_ShowLoadedEntities = false,
-                        g_ShowShaderProgramInsp;
+                        g_ShowShaderProgramInsp = false,
+                        g_DbgText = false,
+                        g_DbgViewBasis = false,
+                        g_DbgWorldBasis = false,
+                        g_DbgAllEntityAABB = false,
+                        g_DbgAllChunkAABB = false;
 
 
     inline static bool g_GizmoViewManipulation = true,
@@ -38,6 +43,8 @@ public:
     static void ShowMainMenuBar();
 
     static void Render();
+
+    static void InnerRender();
 
 };
 

@@ -41,6 +41,17 @@ struct WorldInfo
 
     inline static const float WORLD_SAVE_INTERVAL = 2*60;
 
+    static uint64_t ofSeed(const char* str) {
+        if (!str[0])  // empty
+            return Timer::timestampMillis();
+        try {
+            return std::stoll(str);
+        } catch (std::invalid_argument err) {
+            // Log::info("Not a number seed, use string hash instead.");
+            return std::hash<std::string>()(str);
+        }
+    }
+
 };
 
 class World

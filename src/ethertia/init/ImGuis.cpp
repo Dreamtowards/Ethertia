@@ -119,7 +119,73 @@ void ImGuis::Destroy()
 
 
 
+static void ShowDebugTextOverlay()
+{
+    World* world = Ethertia::getWorld();
+    float dt = Ethertia::getDelta();
+    EntityPlayer* player = Ethertia::getPlayer();
+    btRigidBody* playerRb = player->m_Rigidbody;
+    float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
 
+    std::string cellInfo = "nil";
+    std::string chunkInfo = "nil";
+    std::string worldInfo = "nil";
+    HitCursor& cur = Ethertia::getHitCursor();
+
+
+    if (world)
+    {
+        worldInfo = Strings::fmt("{}. inhabited {}s, daytime {}. seed {}",
+                                 world->m_WorldInfo.Name,
+                                 world->m_WorldInfo.InhabitedTime,
+                                 Strings::daytime(world->getDayTime()),
+                                 world->getSeed());
+        Chunk* hitChunk = world->getLoadedChunk(cur.position);
+        if (hitChunk) {
+            chunkInfo = Strings::fmt("GenPop: {}, Inhabited: {}s",
+                                     hitChunk->m_Populated,
+                                     hitChunk->m_InhabitedTime);
+        }
+        if (cur.cell) {
+            Cell* c = cur.cell;
+            cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
+                                    c->mtl ? c->mtl->getRegistryId() : "nil",
+                                    c->density,
+                                    c->exp_meta,
+                                    cur.cell_breaking_time);
+        }
+    }
+
+    std::string str = Strings::fmt(
+            "cam p: {}, len: {}, spd {}mps {}kph. ground: {}, CPs {}.\n"
+            "Entity: {}/{}, LoadedChunks: {}\n"
+            "MeshInvalid Chunks: {}\n"
+            "task {}, async {}\n"
+            "dt: {}, {}fps\n"
+            "World: {}\n",
+            "HitChunk: {}\n"
+            "HitCell: {}\n",
+            Ethertia::getCamera()->position, Ethertia::getCamera()->len,
+            meterPerSec, meterPerSec * 3.6f,
+            player->m_OnGround, player->m_NumContactPoints,
+
+            Settings::dbgEntitiesRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
+
+            ChunkMeshProc::dbg_NumChunksMeshInvalid,
+            Ethertia::getScheduler()->numTasks(), Ethertia::getAsyncScheduler()->numTasks(),
+            dt, Mth::floor(1.0f/dt),
+            worldInfo,
+            chunkInfo,
+            cellInfo);
+
+    ImGui::SetNextWindowPos({0, 32});
+    ImGui::SetNextWindowBgAlpha(0.0f);
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    if (ImGui::Begin("DebugTextOverlay", &ImGuis::g_DbgText, window_flags)) {
+        ImGui::Text("%s", str.c_str());
+    }
+    ImGui::End();
+}
 
 
 
@@ -128,12 +194,8 @@ static void _MenuDebug()
     ImGui::SliderFloat("FOV", &RenderEngine::fov, 0, 180);
     ImGui::SliderFloat("ViewDistance", &RenderEngine::viewDistance, 0, 16);
     ImGui::SliderFloat("BrushSize", &Ethertia::getHitCursor().brushSize, 0, 16);
-    ImGui::Checkbox("BrushTracking", &Ethertia::getHitCursor().keepTracking);
 //    ImGui::Checkbox("BlockMode", &Settings::dbgPolyLine);
 
-//    if (ImGui::Button("Reload Shader")) {
-//        ComposeRenderer::initShader();
-//    }
 //    if (ImGui::Button("Remesh Chunks")) {
 //        for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
 //            it.second->requestRemodel();
@@ -146,15 +208,9 @@ static void _MenuDebug()
 //        ChunkGenProc::gp_ChunkGen.laterClearRootSection();
 //    }
 
-    ImGui::Checkbox("Text Info", &Settings::dbgTextInf);
-    ImGui::Checkbox("ViewBasis", &GuiDebugV::dbgBasis);
-    ImGui::Checkbox("WorldBasis", &GuiDebugV::dbgWorldBasis);
     ImGui::Checkbox("CursorRangeInfo", &GuiDebugV::dbgCursorRangeInfo);
     ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
 
-    ImGui::SeparatorText("Bounding Box");
-    ImGui::Checkbox("LoadedEntityAABB", &GuiDebugV::dbgAllEntityAABB);
-    ImGui::Checkbox("LoadedChunkAABB", &GuiDebugV::dbgChunkAABB);
     ImGui::Checkbox("NearChunkBound", &GuiDebugV::dbgChunkBoundAABB);
     ImGui::Checkbox("HitEntityAABB", &GuiDebugV::dbg_CursorPt);
 
@@ -164,21 +220,15 @@ static void _MenuDebug()
     ImGui::Checkbox("Border/Norm", &RenderEngine::dbg_EntityGeo);
     ImGui::Checkbox("HitEntityGeo", &RenderEngine::dbg_HitPointEntityGeo);
     ImGui::Checkbox("Polygon Line", &Settings::dbgPolyLine);
-//
-//    ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
-//
-//    Camera& cam = *Ethertia::getCamera();
-//    ImGui::SliderFloat("Cam Smooth", &cam.smoothness, 0, 5);
-//    ImGui::SliderFloat("Cam Roll", &cam.eulerAngles.z, -3.14, 3.14);
-//
-//    ImGui::SliderFloat("FogDensity", &ComposeRenderer::fogDensity, 0, 0.2f);
-//    ImGui::SliderFloat("FogGradient",&ComposeRenderer::fogGradient, 0, 5);
-//
-//
-//    ImGui::SeparatorText("etc");
-//
+
+    ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
+
+    Camera& cam = *Ethertia::getCamera();
+    ImGui::SliderFloat("Cam Smooth", &cam.smoothness, 0, 5);
+    ImGui::SliderFloat("Cam Roll", &cam.eulerAngles.z, -3.14, 3.14);
+
     ImGui::Checkbox("ImGui Demo Window", &ImGuis::g_ShowImGuiDemo);
-//
+
 //    if (ImGui::Button("Click Sound")) {
 //        Log::info("PlaySoundClick");
 //        Sounds::AS_GUI->UnqueueAllBuffers();
@@ -301,6 +351,76 @@ static void _MenuSystem()
     }
 }
 
+void ImGuis::ShowMainMenuBar()
+{
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("System"))
+        {
+            _MenuSystem();
+            ImGui::EndMenu();
+        }
+//        if (ImGui::BeginMenu("Edit"))
+//        {
+//            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+//            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+//            ImGui::Separator();
+//            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+//            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+//            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+//            ImGui::EndMenu();
+//        }
+        if (ImGui::BeginMenu("Debug"))
+        {
+            _MenuDebug();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Rendering"))
+        {
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::Checkbox("Game", &g_Game);
+            ImGui::Checkbox("Entities", &g_ShowLoadedEntities);
+            ImGui::Checkbox("Entity Inspector", &g_ShowEntityInsp);
+            ImGui::Checkbox("ShaderProgram Inspector", &g_ShowShaderProgramInsp);
+
+            ImGui::Separator();
+
+            ImGui::SliderInt("World GridSize", &g_WorldGrids, 0, 500);
+            ImGui::Checkbox("Gizmo ViewManipulation", &g_GizmoViewManipulation);
+
+            ImGui::SeparatorText("Debug");
+
+            ImGui::Checkbox("DbgText", &ImGuis::g_DbgText);
+            ImGui::Checkbox("DbgWorldBasis", &g_DbgWorldBasis);
+            ImGui::Checkbox("DbgViewBasis", &g_DbgViewBasis);
+
+            ImGui::Checkbox("Hit Tracking", &Ethertia::getHitCursor().keepTracking);
+            // ImGui::Checkbox("Hit Entity AABB", &gAllChunkAABB);
+
+            ImGui::Separator();
+            {
+
+                ImGui::Checkbox("All Entity AABB", &g_DbgAllEntityAABB);
+
+                ImGui::Checkbox("All Chunk AABB", &g_DbgAllChunkAABB);
+            }
+
+
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::SameLine(ImGui::GetWindowWidth() - 90);
+        ImGui::SmallButton("Profile");
+
+        ImGui::EndMenuBar();
+    }
+
+}
+
 
 void ShowNewWorldWindow()
 {
@@ -308,19 +428,28 @@ void ShowNewWorldWindow()
 
     static char _WorldName[128];
     ImGui::InputText("World Name", _WorldName, 128);
+    std::string save_path = Strings::fmt("./saves/{}", _WorldName);
+    ImGui::TextDisabled("Will save as: %s", save_path.c_str());
 
     static char _WorldSeed[128];
     ImGui::InputText("Seed", _WorldSeed, 128);
+    uint64_t seed = WorldInfo::ofSeed(_WorldSeed);
+    ImGui::TextDisabled("Actual u64 seed: %llu", seed);
+
 
     if (ImGui::Button("Create"))
     {
-
+        WorldInfo worldinfo{
+                .Seed = seed,
+                .Name = _WorldName
+        };
+        Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
+        Ethertia::loadWorld(save_path, &worldinfo);
+        ImGuis::g_ShowNewWorld = false;
     }
 
     ImGui::End();
 }
-
-
 
 static void ShowShaderProgramInsp()
 {
@@ -394,8 +523,6 @@ static void ShowShaderProgramInsp()
     ImGui::End();
 }
 
-
-
 static void ShowEntityInsp()
 {
     ImGui::Begin("Entity", &ImGuis::g_ShowEntityInsp);
@@ -411,6 +538,59 @@ static void ShowEntityInsp()
     ImGui::TextDisabled("%i components", (int)entity->m_Components.size());
 
     if (ImGui::CollapsingHeader("Transform")) {
+
+//            ImGui::Begin("Gizmo");
+        static ImGuizmo::OPERATION gizmoOp   = ImGuizmo::ROTATE;
+        static ImGuizmo::MODE      gizmoMode = ImGuizmo::WORLD;
+//            if (ImGui::IsKeyPressed(ImGuiKey_G)) mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+//            if (ImGui::IsKeyPressed(ImGuiKey_R)) mCurrentGizmoOperation = ImGuizmo::ROTATE;
+//            if (ImGui::IsKeyPressed(ImGuiKey_S)) mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+        if (ImGui::RadioButton("Translate", gizmoOp == ImGuizmo::TRANSLATE))
+            gizmoOp = ImGuizmo::TRANSLATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Rotate", gizmoOp == ImGuizmo::ROTATE))
+            gizmoOp = ImGuizmo::ROTATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Scale", gizmoOp == ImGuizmo::SCALE))
+            gizmoOp = ImGuizmo::SCALE;
+
+//        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+//        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
+//        ImGui::InputFloat3("Tr", matrixTranslation);
+//        ImGui::InputFloat3("Rt", matrixRotation);
+//        ImGui::InputFloat3("Sc", matrixScale);
+//        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
+
+        if (gizmoOp != ImGuizmo::SCALE)
+        {
+            if (ImGui::RadioButton("Local", gizmoMode == ImGuizmo::LOCAL))
+                gizmoMode = ImGuizmo::LOCAL;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("World", gizmoMode == ImGuizmo::WORLD))
+                gizmoMode = ImGuizmo::WORLD;
+        }
+
+        {
+//            static glm::mat4 matCube(1.0f);
+            // ImGuizmo::DrawCubes(pmView, pmProj, &matCube[0][0], 1);
+
+            glm::mat4 matModel = Mth::matModel(entity->getPosition(),
+                                               entity->getRotation(),
+                                               {1, 1, 1});
+
+            static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+            static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+            ImGuizmo::Manipulate(glm::value_ptr(RenderEngine::matView),
+                                 glm::value_ptr(RenderEngine::matProjection),
+                                 gizmoOp, gizmoMode,
+                                 glm::value_ptr(matModel),
+                                 nullptr, nullptr,
+                                 bounds, boundsSnap);
+        }
+
+        ImGui::Separator();
+
         ImGui::DragFloat3("Position", entity->pos());
     }
 
@@ -520,187 +700,11 @@ static void ShowEntities()
 }
 
 
-void ImGuis::ShowMainMenuBar()
+
+
+
+void ImGuis::InnerRender()
 {
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::BeginMenu("System"))
-        {
-            _MenuSystem();
-            ImGui::EndMenu();
-        }
-//        if (ImGui::BeginMenu("Edit"))
-//        {
-//            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-//            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-//            ImGui::Separator();
-//            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-//            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-//            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-//            ImGui::EndMenu();
-//        }
-        if (ImGui::BeginMenu("Debug"))
-        {
-            _MenuDebug();
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Rendering"))
-        {
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("View"))
-        {
-            ImGui::Checkbox("Game", &g_Game);
-            ImGui::Checkbox("Entities", &g_ShowLoadedEntities);
-            ImGui::Checkbox("Entity Inspector", &g_ShowEntityInsp);
-            ImGui::Checkbox("ShaderProgram Inspector", &g_ShowShaderProgramInsp);
-
-            ImGui::Separator();
-
-            ImGui::SliderInt("World GridSize", &g_WorldGrids, 0, 500);
-            ImGui::Checkbox("Gizmo ViewManipulation", &g_GizmoViewManipulation);
-
-            ImGui::EndMenu();
-        }
-
-        ImGui::SameLine(ImGui::GetWindowWidth() - 90);
-        ImGui::SmallButton("Profile");
-
-        ImGui::EndMenuBar();
-    }
-
-}
-
-void Rdr()
-{
-
-    glPolygonMode(GL_FRONT_AND_BACK, Settings::dbgPolyLine ? GL_LINE : GL_FILL);
-
-    if (ImGuis::g_ShowImGuiDemo) {
-        ImGui::ShowDemoWindow(&ImGuis::g_ShowImGuiDemo);
-    }
-
-    if (ImGuis::g_ShowNewWorld) {
-        ShowNewWorldWindow();
-    }
-    if (ImGuis::g_ShowLoadedEntities) {
-//        ImGui::SetNextWindowPos({0, 18});
-//        ImGui::SetNextWindowSize({320, 330});
-        ShowEntities();
-    }
-    if (ImGuis::g_ShowEntityInsp) {
-//        ImGui::SetNextWindowPos({0, 18+330});
-//        ImGui::SetNextWindowSize({320, 400});
-        ShowEntityInsp();
-    }
-    if (ImGuis::g_InspectorEntity) {
-        RenderEngine::drawLineBox(ImGuis::g_InspectorEntity->getAABB(), Colors::YELLOW);
-    }
-    if (ImGuis::g_ShowShaderProgramInsp) {
-        ShowShaderProgramInsp();
-    }
-
-
-
-    {
-        ImGuizmo::BeginFrame();
-        ImGuizmo::SetOrthographic(false);
-
-        ImGuiIO& io = ImGui::GetIO();
-        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
-
-        float* pmView = glm::value_ptr(RenderEngine::matView);
-        float* pmProj = glm::value_ptr(RenderEngine::matProjection);
-
-        glm::mat4 iden(1.0f);
-        float* pmIden = glm::value_ptr(iden);
-
-        if (ImGuis::g_GizmoViewManipulation)
-        {
-            ImGui::Begin("Gizmo");
-            static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
-            static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
-            if (ImGui::IsKeyPressed(ImGuiKey_G)) mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-            if (ImGui::IsKeyPressed(ImGuiKey_R)) mCurrentGizmoOperation = ImGuizmo::ROTATE;
-            if (ImGui::IsKeyPressed(ImGuiKey_S)) mCurrentGizmoOperation = ImGuizmo::SCALE;
-
-            if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
-                mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-            ImGui::SameLine();
-            if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
-                mCurrentGizmoOperation = ImGuizmo::ROTATE;
-            ImGui::SameLine();
-            if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
-                mCurrentGizmoOperation = ImGuizmo::SCALE;
-
-//        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-//        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
-//        ImGui::InputFloat3("Tr", matrixTranslation);
-//        ImGui::InputFloat3("Rt", matrixRotation);
-//        ImGui::InputFloat3("Sc", matrixScale);
-//        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
-
-            if (mCurrentGizmoOperation != ImGuizmo::SCALE)
-            {
-                if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
-                    mCurrentGizmoMode = ImGuizmo::LOCAL;
-                ImGui::SameLine();
-                if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
-                    mCurrentGizmoMode = ImGuizmo::WORLD;
-            }
-
-            {
-                static glm::mat4 matCube(1.0f);
-
-                ImGuizmo::DrawCubes(pmView, pmProj, &matCube[0][0], 1);
-
-
-                static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
-                static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
-                ImGuizmo::Manipulate(pmView, pmProj,
-                                     mCurrentGizmoOperation, mCurrentGizmoMode,
-                                     &matCube[0][0], nullptr, nullptr, bounds, boundsSnap);
-            }
-            ImGui::End();
-        }
-
-        if (ImGuis::g_WorldGrids > 0)
-        {
-            ImGuizmo::DrawGrid(pmView, pmProj, pmIden, ImGuis::g_WorldGrids);
-        }
-
-        if (ImGuis::g_GizmoViewManipulation)
-        {
-            static float camLen = 10.0f;
-            ImGuizmo::ViewManipulate(pmView, camLen,
-                                     ImVec2(io.DisplaySize.x-24-128, 20+24), ImVec2(128, 128),
-                                     0x10101010);
-        }
-
-        if (ImGuis::g_Game)
-        {
-            ImGui::Begin("Game", &ImGuis::g_Game);
-
-            ImGui::Image(ComposeRenderer::fboCompose->texColor[0]->texId_ptr(), ImGui::GetWindowSize());
-
-            ImGui::End();
-        }
-    }
-}
-
-
-void ImGuis::Render()
-{
-    ImGui_ImplGlfw_NewFrame();
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui::NewFrame();
-
-    // ImGui::SetCursorScreenPos();
-
-    glDisable(GL_DEPTH_TEST);
-
-
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
@@ -709,8 +713,8 @@ void ImGuis::Render()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(0, 0, 0, 0.6));
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
-            | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
-            | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+                                    | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+                                    | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
     ImGui::Begin("MainDockSpaceWindow", nullptr, window_flags);
     ImGui::PopStyleColor();
     ImGui::PopStyleVar();
@@ -722,8 +726,100 @@ void ImGuis::Render()
 
     ImGui::End();
 
-    Rdr();
 
+    {
+        if (g_WorldGrids > 0)
+        {
+            glm::mat4 iden(1.0f);
+            ImGuizmo::DrawGrid(glm::value_ptr(RenderEngine::matView), glm::value_ptr(RenderEngine::matProjection),
+                               glm::value_ptr(iden), ImGuis::g_WorldGrids);
+        }
+
+        if (g_GizmoViewManipulation)
+        {
+            static float camLen = 10.0f;
+            ImGuizmo::ViewManipulate(glm::value_ptr(RenderEngine::matView), camLen,
+                                     ImVec2(24, 20+24), ImVec2(128, 128),
+                                     0x10101010);
+        }
+
+        if (g_Game)
+        {
+            ImGui::Begin("Game", &ImGuis::g_Game);
+
+            ImGui::Image(ComposeRenderer::fboCompose->texColor[0]->texId_ptr(), ImGui::GetWindowSize());
+
+            ImGui::End();
+        }
+    }
+
+
+
+    glPolygonMode(GL_FRONT_AND_BACK, Settings::dbgPolyLine ? GL_LINE : GL_FILL);
+
+    if (g_ShowImGuiDemo) {
+        ImGui::ShowDemoWindow(&g_ShowImGuiDemo);
+    }
+
+    if (g_ShowNewWorld) {
+        ShowNewWorldWindow();
+    }
+    if (g_ShowLoadedEntities) {
+        ShowEntities();
+    }
+    if (g_ShowEntityInsp) {
+        ShowEntityInsp();
+        if (g_InspectorEntity) {
+            RenderEngine::drawLineBox(ImGuis::g_InspectorEntity->getAABB(), Colors::YELLOW);
+        }
+    }
+    if (g_ShowShaderProgramInsp) {
+        ShowShaderProgramInsp();
+    }
+    if (g_DbgText) {
+        ShowDebugTextOverlay();
+    }
+    if (g_DbgViewBasis) {
+        DebugRenderer::Inst().renderDebugBasis();
+    }
+    if (g_DbgWorldBasis) {
+        DebugRenderer::Inst().renderDebugWorldBasis();
+    }
+
+    World* world = Ethertia::getWorld();
+    if (world) {
+        if (g_DbgAllEntityAABB) {
+            for (Entity* e : world->m_Entities) {
+                if (RenderEngine::testFrustum(e->getAABB()))
+                    RenderEngine::drawLineBox(e->getAABB(), Colors::RED);
+            }
+        }
+        if (g_DbgAllChunkAABB) {
+            world->forLoadedChunks([&](Chunk* chunk){
+                RenderEngine::drawLineBox(chunk->position, glm::vec3{16.0f}, Colors::RED);
+            });
+        }
+    }
+
+
+
+
+}
+
+void ImGuis::Render()
+{
+    ImGui_ImplGlfw_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui::NewFrame();
+
+    ImGuizmo::BeginFrame();
+    ImGuizmo::SetOrthographic(false);
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
+    glDisable(GL_DEPTH_TEST);
+
+    ImGuis::InnerRender();
 
     glEnable(GL_DEPTH_TEST);
 
