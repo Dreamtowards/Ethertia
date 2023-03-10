@@ -112,7 +112,7 @@ public:
     {
         inline static const int major = 0;
         inline static const int minor = 0;
-        inline static const int revision = 2;
+        inline static const int revision = 3;
         inline static const char* snapshot = "23w10";  // release: nullptr.
 
         static const std::string& version_name() {

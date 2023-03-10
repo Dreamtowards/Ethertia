@@ -28,9 +28,9 @@ public:
 
 
     inline static bool g_GizmoViewManipulation = true,
-                       g_Game = true;
+                       g_Game = false;
 
-    inline static int g_WorldGrids = 24;
+    inline static int g_WorldGrids = 100;
 
     inline static Entity* g_InspectorEntity = nullptr;
 

@@ -769,7 +769,7 @@ void ImGuis::InnerRender()
         {
             static float camLen = 10.0f;
             ImGuizmo::ViewManipulate(glm::value_ptr(RenderEngine::matView), camLen,
-                                     ImVec2(24, 20+24), ImVec2(128, 128),
+                                     ImVec2(ImGui::GetIO().DisplaySize.x-128-24, 20+24), ImVec2(128, 128),
                                      0x10101010);
         }
 
