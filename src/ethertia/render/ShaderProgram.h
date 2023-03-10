@@ -42,6 +42,20 @@ public:
 
         void* value_ptr = nullptr;
 
+        void bind(Uniform::Type t, void* p) {
+            value_ptr = p;
+            type = t;
+        }
+        void bind(float* f32) {
+            bind(FLOAT, f32);
+        }
+        void bind(glm::vec3* v3) {
+            bind(VEC3, v3);
+        }
+        void bind(glm::vec4* v4) {
+            bind(VEC4, v4);
+        }
+
         // Range? Bind?
     };
     std::map<const char*, ShaderProgram::Uniform> m_Uniforms;
@@ -127,12 +141,40 @@ public:
         if (gsh) glDeleteShader(gsh);
     }
 
+    void updateBindUniform()
+    {
+        for (auto& it : m_Uniforms) {
+            const char* name = it.first;
+            auto& unif = it.second;
+            float* valptr = (float*)unif.value_ptr;
+            if (valptr) {
+                switch (unif.type) {
+                    case Uniform::INT:
+                        setInt(name, *(int*)valptr);
+                        break;
+                    case Uniform::FLOAT:
+                        setFloat(name, *valptr);
+                        break;
+                    case Uniform::VEC3:
+                        setVector3f(name, {valptr[0], valptr[1], valptr[2]});
+                        break;
+                    case Uniform::VEC4:
+                        setVector4f(name, {valptr[0], valptr[1], valptr[2], valptr[3]});
+                        break;
+                    default:
+                        throw std::runtime_error("Unsupported uniform bind type");
+                }
+            }
+        }
+    }
 
     int getProgramId() {
         return m_ProgramId;
     }
-    void useProgram() const {
+    void useProgram() {
         glUseProgram(m_ProgramId);
+
+        updateBindUniform();
     }
 
     GLuint getUniformLocation(const char* name) {

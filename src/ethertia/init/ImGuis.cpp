@@ -122,80 +122,6 @@ void ImGuis::Destroy()
 
 
 
-static void ShowShaderProgramInsp()
-{
-    ImGui::Begin("ShaderProgram");
-
-
-    ShaderProgram* shader = ImGuis::g_InspShaderProgram;
-    if (ImGui::BeginCombo("###Shaders", shader ? shader->m_SourceLocation.c_str() : nullptr))
-    {
-        for (auto& it : ShaderProgram::REGISTRY)
-        {
-            if (ImGui::Selectable(it.first.c_str(), ImGuis::g_InspShaderProgram == it.second)) {
-                ImGuis::g_InspShaderProgram = it.second;
-            }
-        }
-        ImGui::EndCombo();
-    }
-    ImGui::SameLine();
-    ImGui::Button("+");
-
-    ImGui::Separator();
-
-    if (!shader) {
-        ImGui::TextDisabled("No ShaderProgram selected.");
-        ImGui::End();
-        return;
-    }
-
-    if (ImGui::Button("Reload Shader")) {
-        shader->reloadSources_();
-        Log::info("Shader {} reloaded.", shader->m_SourceLocation);
-    }
-    ImGui::SameLine();
-    ImGui::Text("#%i",(int)shader->m_ProgramId);
-
-    ImGui::TextDisabled("%i Uniforms:", (int)shader->m_Uniforms.size());
-    for (auto& it : shader->m_Uniforms)
-    {
-        auto& unif = it.second;
-        const char* name = it.first;
-        if (!unif.value_ptr) {
-            ImGui::TextDisabled("uniform %s has no lvalue", name);
-            continue;
-        }
-        switch (unif.type)
-        {
-            case ShaderProgram::Uniform::INT:
-                ImGui::SliderInt(name, (int*)unif.value_ptr, -100, 100);
-                break;
-            case ShaderProgram::Uniform::FLOAT:
-                ImGui::SliderFloat(name, (float*)unif.value_ptr, -100, 100);
-                break;
-            case ShaderProgram::Uniform::VEC3:
-                ImGui::SliderFloat3(name, (float*)unif.value_ptr, -100, 100);
-                break;
-            case ShaderProgram::Uniform::VEC4:
-                ImGui::SliderFloat4(name, (float*)unif.value_ptr, -100, 100);
-                break;
-            case ShaderProgram::Uniform::MAT3:
-                ImGui::Text("Mat3");
-                break;
-            case ShaderProgram::Uniform::MAT4:
-                ImGui::Text("Mat4");
-                break;
-            default:
-                ImGui::Text("Unknown Uniform Type");
-                break;
-        }
-    }
-
-    ImGui::End();
-}
-
-
-
 
 static void _MenuDebug()
 {
@@ -396,9 +322,83 @@ void ShowNewWorldWindow()
 
 
 
+static void ShowShaderProgramInsp()
+{
+    ImGui::Begin("ShaderProgram", &ImGuis::g_ShowShaderProgramInsp);
+
+
+    ShaderProgram* shader = ImGuis::g_InspShaderProgram;
+    if (ImGui::BeginCombo("###Shaders", shader ? shader->m_SourceLocation.c_str() : nullptr))
+    {
+        for (auto& it : ShaderProgram::REGISTRY)
+        {
+            if (ImGui::Selectable(it.first.c_str(), ImGuis::g_InspShaderProgram == it.second)) {
+                ImGuis::g_InspShaderProgram = it.second;
+            }
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::SameLine();
+    ImGui::Button("+");
+
+    ImGui::Separator();
+
+    if (!shader) {
+        ImGui::TextDisabled("No ShaderProgram selected.");
+        ImGui::End();
+        return;
+    }
+
+    if (ImGui::Button("Reload Shader")) {
+        shader->reloadSources_();
+        Log::info("Shader {} reloaded.", shader->m_SourceLocation);
+    }
+    ImGui::SameLine();
+    ImGui::Text("#%i",(int)shader->m_ProgramId);
+
+    ImGui::TextDisabled("%i Uniforms:", (int)shader->m_Uniforms.size());
+    for (auto& it : shader->m_Uniforms)
+    {
+        auto& unif = it.second;
+        const char* name = it.first;
+        if (!unif.value_ptr) {
+            ImGui::TextDisabled("uniform %s has no lvalue", name);
+            continue;
+        }
+        switch (unif.type)
+        {
+            case ShaderProgram::Uniform::INT:
+                ImGui::DragInt(name, (int*)unif.value_ptr, -100, 100);
+                break;
+            case ShaderProgram::Uniform::FLOAT:
+                ImGui::DragFloat(name, (float*)unif.value_ptr, -100, 100);
+                break;
+            case ShaderProgram::Uniform::VEC3:
+                ImGui::DragFloat3(name, (float*)unif.value_ptr, -100, 100);
+                break;
+            case ShaderProgram::Uniform::VEC4:
+                ImGui::DragFloat4(name, (float*)unif.value_ptr, -100, 100);
+                break;
+            case ShaderProgram::Uniform::MAT3:
+                ImGui::Text("Mat3");
+                break;
+            case ShaderProgram::Uniform::MAT4:
+                ImGui::Text("Mat4");
+                break;
+            default:
+                ImGui::Text("Unknown Uniform Type");
+                break;
+        }
+    }
+
+    ImGui::End();
+}
+
+
+
 static void ShowEntityInsp()
 {
-    ImGui::Begin("Inspector", &ImGuis::g_ShowEntityInsp);
+    ImGui::Begin("Entity", &ImGuis::g_ShowEntityInsp);
 
     Entity* entity = ImGuis::g_InspectorEntity;
     if (!entity) {
@@ -563,7 +563,7 @@ void ImGuis::ShowMainMenuBar()
             ImGui::EndMenu();
         }
 
-        ImGui::SameLine(ImGui::GetWindowWidth() - 120);
+        ImGui::SameLine(ImGui::GetWindowWidth() - 90);
         ImGui::SmallButton("Profile");
 
         ImGui::EndMenuBar();
@@ -680,7 +680,7 @@ void Rdr()
 
         if (ImGuis::g_Game)
         {
-            ImGui::Begin("Game");
+            ImGui::Begin("Game", &ImGuis::g_Game);
 
             ImGui::Image(ComposeRenderer::fboCompose->texColor[0]->texId_ptr(), ImGui::GetWindowSize());
 

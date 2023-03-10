@@ -22,7 +22,13 @@ public:
 
     ComposeRenderer() = delete;
 
-    static void initShader() {
+
+    static void init()
+    {
+        fboCompose = Framebuffer::GenFramebuffer(1280, 720,[](Framebuffer* fbo)
+        {
+            fbo->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+        });
 
         shaderCompose->useProgram();
         shaderCompose->setInt("gPositionDepth", 0);
@@ -32,17 +38,9 @@ public:
         shaderCompose->setInt("gShadowMap", 4);  // Shadow Depth Map.
 
         // shaderCompose.setInt("panoramaMap", 5);
-    }
 
-    static void init()
-    {
-        fboCompose = Framebuffer::GenFramebuffer(1280, 720,[](Framebuffer* fbo)
-        {
-            fbo->attachColorTexture(0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
-        });
-
-
-        initShader();
+        shaderCompose->m_Uniforms["fogGradient"].bind(&fogGradient);
+        shaderCompose->m_Uniforms["fogDensity"].bind(&fogDensity);
 
     }
 
@@ -70,8 +68,6 @@ public:
         shaderCompose->setVector3f("cursorPos", cur.cell ? cur.cell_position : glm::vec3{0,0,0});
         shaderCompose->setFloat("cursorSize", cur.brushSize);
 
-        shaderCompose->setFloat("fogGradient", fogGradient);
-        shaderCompose->setFloat("fogDensity", fogDensity);
 //
 //        shaderCompose.setFloat("debugVar0", debugVar0);
         shaderCompose->setFloat("debugVar1", EntityRenderer::debugVar1);
