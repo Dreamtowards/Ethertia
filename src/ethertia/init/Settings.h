@@ -34,6 +34,8 @@ public:
     inline static bool dbgTextInf = false;
     inline static int dbgEntitiesRendered = 0;
 
+    inline static bool g_SSAO = true;
+
 
 
 

@@ -113,12 +113,16 @@ public:
         inline static const int major = 0;
         inline static const int minor = 0;
         inline static const int revision = 2;
-        inline static const char* snapshot = "23u08";  // release: nullptr.
+        inline static const char* snapshot = "23w10";  // release: nullptr.
 
+        static const std::string& version_name() {
+            static std::string _Inst = snapshot ? Strings::fmt("{} *{}.{}.{}", snapshot, major, minor, revision)
+                                                : Strings::fmt("{}.{}.{}", major, minor, revision);
+            return _Inst;
+        }
         static const std::string& name() {
-            static std::string _CACHE = snapshot ? Strings::fmt("Ethertia Alpha {} *{}.{}.{}", snapshot, major, minor, revision)
-                                                 : Strings::fmt("Ethertia Alpha {}.{}.{}", major, minor, revision);
-            return _CACHE;
+            static std::string _Inst = Strings::fmt("Ethertia Alpha {}", version_name());
+            return _Inst;
         }
     };
 
