@@ -84,18 +84,12 @@ RenderEngine::~RenderEngine() {
 
 void RenderEngine::framePrepare()
 {
-    if (Ethertia::getWorld())
+    if (Ethertia::isIngame())
     {
+        g_Camera.update();
+
         g_Camera.position = Ethertia::getPlayer()->getPosition();
-
-        // Camera matView.
-        RenderEngine::matView = g_Camera.computeViewMatrix();
     }
-
-    RenderEngine::updateProjectionMatrix(Ethertia::getAspectRatio());
-
-    // updateViewFrustum()
-    m_ViewFrustum.set(matProjection * matView);
 
     RenderEngine::clearRenderBuffer();
 }

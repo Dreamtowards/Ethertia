@@ -415,9 +415,9 @@ float Ethertia::getAspectRatio() {
 
 void ShaderProgram::setViewProjection(bool view)
 {
-    setMatrix4f("matProjection", RenderEngine::matProjection);
+    setMatrix4f("matProjection", Ethertia::getCamera()->matProjection);
 
-    setMatrix4f("matView", view ? RenderEngine::matView : glm::mat4(1.0));
+    setMatrix4f("matView", view ? Ethertia::getCamera()->matView : glm::mat4(1.0));
 }
 
 void ShaderProgram::reloadSources_() {
@@ -459,4 +459,24 @@ namespace glm {
         s << "(" << v.x << ", " << v.y << ", " << v.z << ")";
         return s;
     }
+}
+
+
+void Camera::update()
+{
+
+    direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
+    direction = glm::normalize(direction);
+
+    actual_pos = position + -direction * len;
+
+    // ViewMatrix
+    matView = Mth::viewMatrix(actual_pos, eulerAngles);
+
+    // ProjectionMatrix
+    matProjection = glm::perspective(Mth::radians(fov), Ethertia::getAspectRatio(), 0.01f, 1000.0f);
+
+    // ViewFrustum
+    m_Frustum.set(matProjection * matView);
+
 }

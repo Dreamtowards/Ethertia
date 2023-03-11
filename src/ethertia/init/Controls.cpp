@@ -134,15 +134,15 @@ void handleMouseButton(MouseButtonEvent* e)
 static void handleKeyDown(KeyboardEvent* e) {
     int key = e->getKey();
 
-    if (key == GLFW_KEY_C) {
-        static float fov;
-        if (e->isPressed()) {
-            fov = RenderEngine::fov;
-            RenderEngine::fov = 20;
-        } else if (e->isReleased()) {
-            RenderEngine::fov = fov;
-        }
-    }
+//    if (key == GLFW_KEY_C) {
+//        static float fov;
+//        if (e->isPressed()) {
+//            fov = RenderEngine::fov;
+//            RenderEngine::fov = 20;
+//        } else if (e->isReleased()) {
+//            RenderEngine::fov = fov;
+//        }
+//    }
 
     if (!e->isPressed())
         return;
@@ -409,12 +409,12 @@ void Controls::handleContinuousInput()
 
 
     // Camera Move
-    static SmoothValue smFov;
-    smFov.update(dt);
-    if (window.isKeyDown(GLFW_KEY_X)) {
-        smFov.target += window.getMouseY() / 800.0f;
-    }
-    RenderEngine::fov += smFov.delta;
+//    static SmoothValue smFov;
+//    smFov.update(dt);
+//    if (window.isKeyDown(GLFW_KEY_X)) {
+//        smFov.target += window.getMouseY() / 800.0f;
+//    }
+//    RenderEngine::fov += smFov.delta;
 
     camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
 

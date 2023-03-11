@@ -61,8 +61,9 @@ public:
 
         shaderCompose->useProgram();
 
-        shaderCompose->setVector3f("CameraPos", Ethertia::getCamera()->actual_pos);
-        shaderCompose->setVector3f("CameraDir", Ethertia::getCamera()->direction);
+        Camera& cam = *Ethertia::getCamera();
+        shaderCompose->setVector3f("CameraPos", cam.actual_pos);
+        shaderCompose->setVector3f("CameraDir", cam.direction);
 
         HitCursor& cur = Ethertia::getHitCursor();
         shaderCompose->setVector3f("cursorPos", cur.cell ? cur.cell_position : glm::vec3{0,0,0});
@@ -76,11 +77,10 @@ public:
         shaderCompose->setFloat("Time", Ethertia::getPreciseTime());
         shaderCompose->setFloat("DayTime", Ethertia::getWorld()->getDayTime());
 
-        shaderCompose->setMatrix4f("matInvView", glm::inverse(RenderEngine::matView));
-        shaderCompose->setMatrix4f("matInvProjection", glm::inverse(RenderEngine::matProjection));
+        shaderCompose->setMatrix4f("matInvView", glm::inverse(cam.matView));
+        shaderCompose->setMatrix4f("matInvProjection", glm::inverse(cam.matProjection));
 
-        shaderCompose->setMatrix4f("matView", RenderEngine::matView);
-        shaderCompose->setMatrix4f("matProjection", RenderEngine::matProjection);
+        shaderCompose->setViewProjection();
 
         shaderCompose->setMatrix4f("matShadowSpace", matShadowSpace);
 

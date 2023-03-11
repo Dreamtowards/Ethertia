@@ -107,6 +107,7 @@ public:
         return &T::REGISTRY;
     }
 
+    //static void getGameViewport();
 
     struct Version
     {

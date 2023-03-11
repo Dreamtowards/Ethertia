@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <ethertia/util/Mth.h>
+#include <ethertia/util/Frustum.h>
 #include <ethertia/util/SmoothValue.h>
 #include <ethertia/util/Log.h>
 
@@ -17,16 +18,23 @@ class Camera
 {
 public:
     glm::vec3 position;
+    float fov = 90;
     glm::vec3 eulerAngles;  // ORDER: YXZ
 
     glm::vec3 actual_pos;
 
-    glm::vec3 direction;  // produced by EulerAngles.
+    glm::vec3 direction;  // readonly. produced by EulerAngles.
     float len;
+
+    // readonly.
+    glm::mat4 matView{1.0f};
+    glm::mat4 matProjection{1.0f};
+
+    Frustum m_Frustum;
 
     /// Smoothness of Camera's Pitch and Yaw.
     /// value is Seconds to the actual Destination Rotation., 0 accidentally means non-smooth.
-    float smoothness = 0.0f;
+    float m_Smoothness = 0.0f;
 
     void updateMovement(float dt, float mDX, float mDY, bool rotZ, float dScroll) {
         float mx = mDX / 200;
@@ -36,7 +44,7 @@ public:
 
         static SmoothValue sX, sY, sZ;
 
-        float t = smoothness == 0.0f ? 1.0f : dt / smoothness;
+        float t = m_Smoothness == 0.0f ? 1.0f : dt / m_Smoothness;
 
         sY.target += -mx;
         sY.update(t);
@@ -53,16 +61,8 @@ public:
 
     }
 
-    glm::mat4 computeViewMatrix() {
-
-        direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
-        // assert(glm::length(direction) == 1.0f);
-
-        glm::vec3 p = position + -direction * len;
-        actual_pos = p;
-
-        return Mth::viewMatrix(p, eulerAngles);
-    }
+    // update ViewMatrix, ProjectionMatrix, and Frustum, etc.
+    void update();
 
 };
 

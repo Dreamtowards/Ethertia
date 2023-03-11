@@ -379,7 +379,7 @@ void ImGuis::ShowMainMenuBar()
 //    ImGui::Checkbox("BlockMode", &Settings::dbgPolyLine);
 
             Camera& cam = *Ethertia::getCamera();
-            ImGui::SliderFloat("Cam Smooth", &cam.smoothness, 0, 5);
+            ImGui::SliderFloat("Cam Smooth", &cam.m_Smoothness, 0, 5);
             ImGui::SliderFloat("Cam Roll", &cam.eulerAngles.z, -3.14, 3.14);
 
             ImGui::SeparatorText("Rendering");
@@ -405,7 +405,7 @@ void ImGuis::ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("Rendering"))
         {
-            ImGui::SliderFloat("FOV", &RenderEngine::fov, 0, 180);
+            ImGui::SliderFloat("FOV", &Ethertia::getCamera()->fov, 0, 180);
             ImGui::SliderFloat("ViewDistance", &RenderEngine::viewDistance, 0, 16);
 
             ImGui::Checkbox("SSAO", &Settings::g_SSAO);
@@ -614,8 +614,8 @@ static void ShowEntityInsp()
             static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
             static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
 
-            ImGuizmo::Manipulate(glm::value_ptr(RenderEngine::matView),
-                                 glm::value_ptr(RenderEngine::matProjection),
+            ImGuizmo::Manipulate(glm::value_ptr(Ethertia::getCamera()->matView),
+                                 glm::value_ptr(Ethertia::getCamera()->matProjection),
                                  gizmoOp, gizmoMode,
                                  glm::value_ptr(matModel),
                                  nullptr,
@@ -794,7 +794,6 @@ void ShowNodeEditor()
     ImGui::End();
 }
 
-
 void ImGuis::InnerRender()
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -858,14 +857,14 @@ void ImGuis::InnerRender()
         if (g_WorldGrids > 0)
         {
             glm::mat4 iden(1.0f);
-            ImGuizmo::DrawGrid(glm::value_ptr(RenderEngine::matView), glm::value_ptr(RenderEngine::matProjection),
+            ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera()->matView), glm::value_ptr(Ethertia::getCamera()->matProjection),
                                glm::value_ptr(iden), (float)ImGuis::g_WorldGrids);
         }
 
         if (g_GizmoViewManipulation)
         {
             static float camLen = 10.0f;
-            ImGuizmo::ViewManipulate(glm::value_ptr(RenderEngine::matView), camLen,
+            ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera()->matView), camLen,
                                      ImVec2(ImGui::GetIO().DisplaySize.x-128-24, 20+24), ImVec2(128, 128),
                                      0x10101010);
         }
@@ -925,7 +924,18 @@ void ImGuis::InnerRender()
         ImGui::EndChild();
         static char InputBuf[128];
 
-        ImGui::InputText("###MsgBoxInput", InputBuf, 128);
+        if (ImGui::InputText("###MsgBoxInput", InputBuf, 128,
+                             ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine))
+        {
+            if (InputBuf[0]) {
+                Ethertia::dispatchCommand(InputBuf);
+                InputBuf[0] = 0;  // clear.
+            }
+        }
+        // Demonstrate keeping auto focus on the input box
+        if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+            ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+
         ImGui::End();
     }
 

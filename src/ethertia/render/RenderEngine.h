@@ -38,16 +38,10 @@ public:
     ParticleRenderer* m_ParticleRenderer     = nullptr;
     SkyGradientRenderer* m_SkyGradientRenderer = nullptr;
 
-    inline static glm::mat4 matProjection{1};
-    inline static glm::mat4 matView{1};
-
     inline static Camera g_Camera{};
-    inline static Frustum m_ViewFrustum{};
 
     inline static Framebuffer* fboGbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
 
-
-    inline static float fov = 90;
     inline static float viewDistance = 1;
     inline static int fpsCap = 60;
 
@@ -61,10 +55,6 @@ public:
 
     static void framePrepare();
 
-    static void updateProjectionMatrix(float ratio_wdh) {
-        matProjection = glm::perspective(Mth::radians(fov), ratio_wdh, 0.01f, 1000.0f);
-    }
-
     void renderWorld(World* world);
 
     void renderWorldGeometry(World* world);
@@ -72,7 +62,7 @@ public:
     void renderWorldCompose(World* world);
 
     static bool testFrustum(const AABB& aabb) {
-        return m_ViewFrustum.intersects(aabb);
+        return g_Camera.m_Frustum.intersects(aabb);
     }
 
     static void checkGlError(std::string_view phase = "") {
