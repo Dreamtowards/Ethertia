@@ -12,6 +12,8 @@
 
 #include <imguizmo/ImGuizmo.h>
 #include <imgui-knobs/imgui-knobs.h>
+#include <imgui-imnodes/imnodes.h>
+
 
 #include <ethertia/init/Settings.h>
 #include <ethertia/Ethertia.h>
@@ -33,54 +35,55 @@ void ImGuis::Init()
     ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow()->m_WindowHandle, true);
     ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
+    {
 
-    ImFontConfig fontConf;
-    fontConf.OversampleH = 3;
-    fontConf.OversampleV = 2;
-    fontConf.RasterizerMultiply = 2;
-    // fontConf.GlyphExtraSpacing.x = 1.0f;
-    io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
+        ImFontConfig fontConf;
+        fontConf.OversampleH = 3;
+        fontConf.OversampleV = 2;
+        fontConf.RasterizerMultiply = 2;
+        // fontConf.GlyphExtraSpacing.x = 1.0f;
+        io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
 
 //        imgui_io.DisplaySize = ImVec2(1920, 1080);
 //        imgui_io.DeltaTime = 1.0f / 60.0f;
 
-    // Enable Docking.
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        // Enable Docking.
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.GrabMinSize = 7;
-    style.FrameBorderSize = 1;
-    style.WindowMenuButtonPosition = ImGuiDir_Right;
-    style.SeparatorTextBorderSize = 2;
-    style.DisplaySafeAreaPadding = {0, 0};
-    style.FramePadding = {8, 2};
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.GrabMinSize = 7;
+        style.FrameBorderSize = 1;
+        style.WindowMenuButtonPosition = ImGuiDir_Right;
+        style.SeparatorTextBorderSize = 2;
+        style.DisplaySafeAreaPadding = {0, 0};
+        style.FramePadding = {8, 2};
 
-    style.ScrollbarSize = 10;
-    style.ScrollbarRounding = 2;
-    style.TabRounding = 2;
+        style.ScrollbarSize = 10;
+        style.ScrollbarRounding = 2;
+        style.TabRounding = 2;
 
-    for (int i = 0; i < ImGuiCol_COUNT; ++i)
-    {
-        ImVec4& col = style.Colors[i];
-        float f = Colors::luminance({col.x, col.y, col.z});
-        //(col.x + col.y + col.z) / 3.0f;
-        col = ImVec4(f,f,f,col.w);
-    }
+        for (int i = 0; i < ImGuiCol_COUNT; ++i)
+        {
+            ImVec4& col = style.Colors[i];
+            float f = Colors::luminance({col.x, col.y, col.z});
+            //(col.x + col.y + col.z) / 3.0f;
+            col = ImVec4(f,f,f,col.w);
+        }
 
 
-    style.Colors[ImGuiCol_CheckMark] =
-    style.Colors[ImGuiCol_SliderGrab] =
-            {1.000f, 1.000f, 1.000f, 1.000f};
+        style.Colors[ImGuiCol_CheckMark] =
+        style.Colors[ImGuiCol_SliderGrab] =
+                {1.000f, 1.000f, 1.000f, 1.000f};
 
 //    style.Colors[ImGuiCol_MenuBarBg] = {0,0,0,0};
 
-    style.Colors[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
-    style.Colors[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
-    style.Colors[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
+        style.Colors[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
+        style.Colors[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
+        style.Colors[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
 
-    style.Colors[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
-    style.Colors[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
+        style.Colors[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
+        style.Colors[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
 
 
 //        style.Colors[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
@@ -97,10 +100,15 @@ void ImGuis::Init()
 //        style.Colors[ImGuiCol_ButtonActive] =
 //        style.Colors[ImGuiCol_HeaderActive] =
 //                {0.170f, 0.170f, 0.170f, 1.000f};
+
+    }
+
+    ImNodes::CreateContext();
 }
 
 void ImGuis::Destroy()
 {
+    ImNodes::DestroyContext();
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -726,48 +734,59 @@ static void ShowEntities()
 }
 
 
-#include <imgui-imnodes/imnodes.h>
-
 void ShowNodeEditor()
 {
 
     ImGui::Begin("NodeEdit");
 
+    // id of Attrib/Pin
+    static std::vector<std::pair<int, int>> g_Links;
+
+    ImNodes::BeginNodeEditor();
+
+    for (int i = 0; i < 4; ++i) {
+        ImNodes::BeginNode(i);
+
+        ImNodes::BeginNodeTitleBar();
+        ImGui::Text("Title");
+        ImNodes::EndNodeTitleBar();
+
+        ImNodes::BeginInputAttribute(i*5+1);
+
+        ImGui::Text("Input3");
+
+        ImNodes::EndInputAttribute();
+
+        ImNodes::BeginOutputAttribute(i*5+2, ImNodesPinShape_Triangle);
+        static bool bl;
+        ImGui::Checkbox("SthCheck", &bl);
+        ImNodes::EndOutputAttribute();
+
+        ImNodes::BeginStaticAttribute(i*5+3);
+        ImGui::Text("Static");
+        ImNodes::EndStaticAttribute();
+
+        ImNodes::EndNode();
+    }
+
+    {
+        int i = 0;
+        for (auto& lk : g_Links) {
+            ImNodes::Link(++i, lk.first, lk.second);
+        }
+    }
+    ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_BottomLeft);  // call before ImNodes::EndNodeEditor();
+    ImNodes::EndNodeEditor();
+
+    {
+        int attr_beg, attr_end;
+        if (ImNodes::IsLinkCreated(&attr_beg, &attr_end)) {  // call after ImNodes::EndNodeEditor();
+            g_Links.emplace_back(attr_beg, attr_end);
+        }
+    }
 
 
     ImGui::End();
-
-//    namespace ImNode = ax::NodeEditor;
-//    static ImNode::EditorContext* context = nullptr;
-//    if (!context) {
-//        ImNode::Config conf;
-//        conf.SettingsFile = "node-editor.json";
-//        context = ImNode::CreateEditor(&conf);
-//    }
-//
-//    ImNode::SetCurrentEditor(context);
-//    ImNode::Begin("NodeEdit-");
-//
-//    {
-//        ImNode::BeginNode(1);
-//        ImGui::Text("Node Header");
-//
-//        ImNode::BeginPin(2, ImNode::PinKind::Input);
-//        ImGui::Text("In");
-//        ImNode::EndPin();
-//
-//        ImNode::BeginPin(3, ImNode::PinKind::Output);
-//        ImGui::Text("Out");
-//        ImNode::EndPin();
-//
-//        ImNode::EndNode();
-//    }
-//
-//    ImNode::End();
-//    ImNode::SetCurrentEditor(nullptr);
-//
-//    // ImNode::DestroyEditor(context);
-
 }
 
 
