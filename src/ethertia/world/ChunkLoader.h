@@ -56,9 +56,6 @@ public:
     };
     std::unordered_map<glm::vec3, VolumeStore*> m_LoadedChunkFiles;
 
-    bool m_DisableSave = false;
-    bool m_DisableLoad = false;
-
     ChunkLoader(const std::string& savedir) : m_ChunkDir(savedir) {
 
     }
@@ -235,7 +232,7 @@ public:
     }
     static const size_t CELL_SIZE = 1+4, CELLS_ALL_SIZE = 4096 * CELL_SIZE;
 
-    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {  if (m_DisableLoad) return nullptr;
+    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {  if (Settings::dbg_NoChunkLoad) return nullptr;
         auto tagChunk = getChunkData(chunkpos);
         if (!tagChunk) return nullptr;
 
@@ -285,7 +282,7 @@ public:
         return chunk;
     }
 
-    void saveChunk(Chunk* chunk) {  if (m_DisableSave) return;
+    void saveChunk(Chunk* chunk) {  if (Settings::dbg_NoChunkSave) return;
         nbt::tag_compound tagChunk;
         tagChunk.put("ChunkPos", NBT::vec3(chunk->position));
         tagChunk.put("CreatedTime", (int64_t)chunk->m_CreatedTime);

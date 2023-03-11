@@ -265,7 +265,7 @@ void RenderEngine::renderWorld(World* world)
     if (Settings::g_ShadowMapping)
     ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()));
 
-    if (Settings::dbg_PauseWorldRender)
+    if (Settings::g_SSAO)
     SSAORenderer::renderSSAO(fboGbuffer->texColor[0], fboGbuffer->texColor[1]);
 
 

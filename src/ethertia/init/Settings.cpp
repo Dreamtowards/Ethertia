@@ -47,6 +47,9 @@ void Settings::loadSettings() {  using nlohmann::json;
 
     set_ifexists(settings, "mods", &MODS);
 
+    set_ifexists(settings, "graphics.ssao", &g_SSAO);
+    set_ifexists(settings, "graphics.shadow", &g_ShadowMapping);
+
 }
 
 
@@ -64,7 +67,9 @@ void Settings::saveSettings()  {  using nlohmann::json;
         {"fullscreen",     false},
         {"mtl_resolution", MaterialTextures::TEX_RESOLUTION},
         {"simd_level",     NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel)},
-        {"mods",           MODS}
+        {"mods",           MODS},
+        {"graphics.ssao",  Settings::g_SSAO},
+        {"graphics.shadow",Settings::g_ShadowMapping}
     });
 
     std::ofstream f(SETTINGS_FILE);

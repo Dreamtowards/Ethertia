@@ -24,11 +24,12 @@ public:
                         g_ShowShaderProgramInsp = false,
                         g_ShowMessageBox = false,
                         g_ShowNodeEditor = false,
-                        g_DbgText = false,
-                        g_DbgViewBasis = false,
-                        g_DbgWorldBasis = false,
-                        g_DbgAllEntityAABB = false,
-                        g_DbgAllChunkAABB = false;
+                        dbg_Text = false,
+                        dbg_ViewBasis = false,
+                        dbg_WorldBasis = false,
+                        dbg_AllEntityAABB = false,
+                        dbg_AllChunkAABB = false,
+                        dbg_Gbuffer = false;
 
     inline static std::vector<std::string> g_MessageBox;
 

@@ -37,7 +37,7 @@ public:
     inline static bool dbgChunkBoundAABB = false;  // near 3*3 chunk bound
 
     inline static bool dbgCursorRangeInfo = false;
-    inline static bool dbgGBuffers = false;
+//    inline static bool dbgGBuffers = false;
     inline static float dbgLastDrawTime = 0;
     inline static bool dbgDrawFrameProfiler = true;
     inline static bool dbg_CursorPt = false;  // cursor hit entity aabb
@@ -335,60 +335,6 @@ public:
 
             drawProfilerSection(sec, x, y+h-16, w, sec.sumTime);
 
-        }
-
-        if (dbgGBuffers) {
-            auto* gbuffer = RenderEngine::fboGbuffer;
-
-            float x = 0, y = 16;
-            float h = Gui::maxHeight() / 6;
-            float w = h * 1.5f;
-
-            Gui::drawRect(x, y, w, h, {
-                .tex = gbuffer->texColor[0],
-                .channel_mode = Gui::DrawRectArgs::C_RGB
-            });
-            Gui::drawString(x,y, "Pos");
-
-            Gui::drawRect(x+w, y, w, h, {
-                    .tex = gbuffer->texColor[0],
-                    .channel_mode = Gui::DrawRectArgs::C_AAA
-            });
-            Gui::drawString(x+w,y, "Dep");
-
-            Gui::drawRect(x, y+h, w, h, gbuffer->texColor[1]);
-            Gui::drawString(0,h, "Norm");
-
-            Gui::drawRect(x, y+h*2, w, h, {
-                .tex = gbuffer->texColor[2],
-                .channel_mode = Gui::DrawRectArgs::C_RGB
-            });
-            Gui::drawString(x,y+h*2, "Albedo");
-
-            Gui::drawRect(x+w, y+h*2, w, h, {
-                .tex = gbuffer->texColor[2],
-                .channel_mode = Gui::DrawRectArgs::C_AAA
-            });
-            Gui::drawString(x+w,y+h*2, "Roug");
-
-            Gui::drawRect(x, y+h*3, w, h, {
-                .tex = SSAORenderer::fboSSAO->texColor[0],
-                .channel_mode = Gui::DrawRectArgs::C_RGB
-            });
-            Gui::drawString(x,y+h*3, "SSAO");
-
-
-            Gui::drawRect(x, y+h*4, w, h, {
-                    .tex = ShadowRenderer::fboDepthMap->texDepth,
-                    .channel_mode = Gui::DrawRectArgs::C_RGB
-            });
-            Gui::drawString(x,y+h*4, "Shadow");
-
-//            Gui::drawRect(x+w, y+h*4, w, h, {
-//                    .tex = ShadowRenderer::fboDepthMap->texColor[0],
-//                    .channel_mode = Gui::DrawRectArgs::C_RGB
-//            });
-//            Gui::drawString(x+w,y+h*4, "Shadow Col");
         }
 
 

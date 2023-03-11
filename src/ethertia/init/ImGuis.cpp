@@ -193,7 +193,7 @@ static void ShowDebugTextOverlay()
     ImGui::SetNextWindowBgAlpha(0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-    if (ImGui::Begin("DebugTextOverlay", &ImGuis::g_DbgText, window_flags)) {
+    if (ImGui::Begin("DebugTextOverlay", &ImGuis::dbg_Text, window_flags)) {
         ImGui::Text("%s", str.c_str());
     }
     ImGui::End();
@@ -350,18 +350,19 @@ void ImGuis::ShowMainMenuBar()
 //        ChunkGenProc::gp_ChunkGen.laterClearRootSection();
 //    }
 
-            ImGui::Checkbox("DbgText", &g_DbgText);
-            ImGui::Checkbox("DbgWorldBasis", &g_DbgWorldBasis);
-            ImGui::Checkbox("DbgViewBasis", &g_DbgViewBasis);
+            ImGui::Checkbox("DbgText", &dbg_Text);
+            ImGui::Checkbox("DbgWorldBasis", &dbg_WorldBasis);
+            ImGui::Checkbox("DbgViewBasis", &dbg_ViewBasis);
 
-            ImGui::Checkbox("DbgAllEntityAABB", &g_DbgAllEntityAABB);
-            ImGui::Checkbox("DbgAllChunkAABB", &g_DbgAllChunkAABB);
+            ImGui::Checkbox("DbgAllEntityAABB", &dbg_AllEntityAABB);
+            ImGui::Checkbox("DbgAllChunkAABB", &dbg_AllChunkAABB);
             ImGui::Checkbox("DbgHitEntityAABB", &GuiDebugV::dbg_CursorPt);
             ImGui::Checkbox("DbgNearChunkBoundAABB", &GuiDebugV::dbgChunkBoundAABB);
 
             ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
 
-            ImGui::Checkbox("DbgPauseWorldRender", &Settings::dbg_PauseWorldRender);
+            ImGui::Checkbox("NoChunkSave", &Settings::dbg_NoChunkSave);
+            ImGui::Checkbox("NoChunkLoad", &Settings::dbg_NoChunkLoad);
 
             ImGui::Separator();
 
@@ -383,7 +384,8 @@ void ImGuis::ShowMainMenuBar()
             ImGui::SliderFloat("Cam Roll", &cam.eulerAngles.z, -3.14, 3.14);
 
             ImGui::SeparatorText("Rendering");
-            ImGui::Checkbox("GBuffers", &GuiDebugV::dbgGBuffers);
+            ImGui::Checkbox("PauseWorldRender", &Settings::dbg_PauseWorldRender);
+            ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
             ImGui::Checkbox("Border/Norm", &RenderEngine::dbg_EntityGeo);
             ImGui::Checkbox("HitEntityGeo", &RenderEngine::dbg_HitPointEntityGeo);
             ImGui::Checkbox("Polygon Line", &Settings::dbg_PolyLine);
@@ -794,6 +796,59 @@ void ShowNodeEditor()
     ImGui::End();
 }
 
+void Dbg_DrawGbuffers(float x, float y) {
+    auto* gbuffer = RenderEngine::fboGbuffer;
+
+    float h = Gui::maxHeight() / 6;
+    float w = h * 1.5f;
+
+    Gui::drawRect(x, y, w, h, {
+            .tex = gbuffer->texColor[0],
+            .channel_mode = Gui::DrawRectArgs::C_RGB
+    });
+    Gui::drawString(x,y, "Pos");
+
+    Gui::drawRect(x+w, y, w, h, {
+            .tex = gbuffer->texColor[0],
+            .channel_mode = Gui::DrawRectArgs::C_AAA
+    });
+    Gui::drawString(x+w,y, "Dep");
+
+    Gui::drawRect(x, y+h, w, h, gbuffer->texColor[1]);
+    Gui::drawString(0,h, "Norm");
+
+    Gui::drawRect(x, y+h*2, w, h, {
+            .tex = gbuffer->texColor[2],
+            .channel_mode = Gui::DrawRectArgs::C_RGB
+    });
+    Gui::drawString(x,y+h*2, "Albedo");
+
+    Gui::drawRect(x+w, y+h*2, w, h, {
+            .tex = gbuffer->texColor[2],
+            .channel_mode = Gui::DrawRectArgs::C_AAA
+    });
+    Gui::drawString(x+w,y+h*2, "Roug");
+
+    Gui::drawRect(x, y+h*3, w, h, {
+            .tex = SSAORenderer::fboSSAO->texColor[0],
+            .channel_mode = Gui::DrawRectArgs::C_RGB
+    });
+    Gui::drawString(x,y+h*3, "SSAO");
+
+
+    Gui::drawRect(x, y+h*4, w, h, {
+            .tex = ShadowRenderer::fboDepthMap->texDepth,
+            .channel_mode = Gui::DrawRectArgs::C_RGB
+    });
+    Gui::drawString(x,y+h*4, "Shadow");
+
+//            Gui::drawRect(x+w, y+h*4, w, h, {
+//                    .tex = ShadowRenderer::fboDepthMap->texColor[0],
+//                    .channel_mode = Gui::DrawRectArgs::C_RGB
+//            });
+//            Gui::drawString(x+w,y+h*4, "Shadow Col");
+}
+
 void ImGuis::InnerRender()
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -885,25 +940,28 @@ void ImGuis::InnerRender()
         }
     }
 
-    if (g_DbgText) {
+    if (dbg_Text) {
         ShowDebugTextOverlay();
     }
-    if (g_DbgViewBasis) {
+    if (dbg_ViewBasis) {
         DebugRenderer::Inst().renderDebugBasis();
     }
-    if (g_DbgWorldBasis) {
+    if (dbg_WorldBasis) {
         DebugRenderer::Inst().renderDebugWorldBasis();
+    }
+    if (dbg_Gbuffer) {
+        Dbg_DrawGbuffers(0, 32);
     }
 
     World* world = Ethertia::getWorld();
     if (world) {
-        if (g_DbgAllEntityAABB) {
+        if (dbg_AllEntityAABB) {
             for (Entity* e : world->m_Entities) {
                 if (RenderEngine::testFrustum(e->getAABB()))
                     RenderEngine::drawLineBox(e->getAABB(), Colors::RED);
             }
         }
-        if (g_DbgAllChunkAABB) {
+        if (dbg_AllChunkAABB) {
             world->forLoadedChunks([&](Chunk* chunk){
                 RenderEngine::drawLineBox(chunk->position, glm::vec3{16.0f}, Colors::RED);
             });

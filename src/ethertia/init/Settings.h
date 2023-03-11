@@ -31,7 +31,9 @@ public:
     // DEBUG States
 
     inline static bool  dbg_PolyLine = false,
-                        dbg_PauseWorldRender = false;
+                        dbg_PauseWorldRender = false,
+                        dbg_NoChunkSave = false,
+                        dbg_NoChunkLoad = false;
 
     inline static int dbgEntitiesRendered = 0;
 
