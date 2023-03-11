@@ -66,7 +66,7 @@ void ImGuis::Init()
         for (int i = 0; i < ImGuiCol_COUNT; ++i)
         {
             ImVec4& col = style.Colors[i];
-            float f = Colors::luminance({col.x, col.y, col.z});
+            float f = std::max(Colors::luminance({col.x, col.y, col.z}), 0.06f);
             //(col.x + col.y + col.z) / 3.0f;
             col = ImVec4(f,f,f,col.w);
         }
@@ -878,7 +878,8 @@ void ImGuis::InnerRender()
             ImVec2 wmx = ImGui::GetWindowContentRegionMax();
             ImVec2 wmn = ImGui::GetWindowContentRegionMin();
             ImGui::Image(ComposeRenderer::fboCompose->texColor[0]->texId_ptr(),
-                         {wmx.x - wmn.x, wmx.y - wmn.y});
+                         {wmx.x - wmn.x, wmx.y - wmn.y},
+                         {0,1}, {1,0});
 
             ImGui::End();
         }
@@ -932,7 +933,7 @@ void ImGuis::InnerRender()
                 InputBuf[0] = 0;  // clear.
             }
         }
-        // Demonstrate keeping auto focus on the input box
+        // keeping auto focus on the input box
         if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
             ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
 

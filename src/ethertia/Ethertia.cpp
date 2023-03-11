@@ -434,7 +434,7 @@ float Scheduler::_intl_program_time() {
 
 void Entity::onRender()
 {
-    RenderEngine::entityRenderer->renderGeometryChunk(
+    EntityRenderer::renderGeometryChunk(
             m_Model, getPosition(), getRotation(), m_DiffuseMap);
 }
 
@@ -445,7 +445,7 @@ void EntityMesh::onRender()
     if (isFoliage)
         glDisable(GL_CULL_FACE);
 
-    Ethertia::getRenderEngine()->entityRenderer->renderGeometryChunk(
+    EntityRenderer::renderGeometryChunk(
             m_Model, getPosition(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
 
     if (isFoliage)

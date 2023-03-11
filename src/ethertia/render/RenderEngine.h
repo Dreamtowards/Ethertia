@@ -33,7 +33,6 @@ public:
 
     GuiRenderer* guiRenderer                 = nullptr;
     FontRenderer* fontRenderer               = nullptr;
-    inline static EntityRenderer* entityRenderer           = nullptr;
     SkyboxRenderer* m_SkyboxRenderer         = nullptr;
     ParticleRenderer* m_ParticleRenderer     = nullptr;
     SkyGradientRenderer* m_SkyGradientRenderer = nullptr;

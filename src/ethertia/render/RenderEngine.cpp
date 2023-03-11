@@ -48,9 +48,9 @@ RenderEngine::RenderEngine()
 
 
     std::cout << " renderers[";
-    guiRenderer = new GuiRenderer();      std::cout << "gui, ";
-    fontRenderer = new FontRenderer();    std::cout << "font, ";
-    entityRenderer = new EntityRenderer();std::cout << "entity";
+    guiRenderer = new GuiRenderer();        std::cout << "gui, ";
+    fontRenderer = new FontRenderer();      std::cout << "font, ";
+    EntityRenderer::init();                 std::cout << "entity";
     m_SkyboxRenderer = new SkyboxRenderer();
     m_ParticleRenderer = new ParticleRenderer();
     m_SkyGradientRenderer = new SkyGradientRenderer();
@@ -75,7 +75,6 @@ RenderEngine::~RenderEngine() {
 
     delete guiRenderer;
     delete fontRenderer;
-    delete entityRenderer;
     delete m_SkyboxRenderer;
     delete m_ParticleRenderer;
     delete m_SkyGradientRenderer;
