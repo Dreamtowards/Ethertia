@@ -39,8 +39,8 @@ void ImGuis::Init()
 
         ImFontConfig fontConf;
         fontConf.OversampleH = 3;
-        fontConf.OversampleV = 2;
-        fontConf.RasterizerMultiply = 2;
+        fontConf.OversampleV = 3;
+        fontConf.RasterizerMultiply = 1.6f;
         // fontConf.GlyphExtraSpacing.x = 1.0f;
         io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
@@ -104,6 +104,8 @@ void ImGuis::Init()
     }
 
     ImNodes::CreateContext();
+    ImNodes::GetIO().EmulateThreeButtonMouse.Modifier = &io.KeyShift;
+
 }
 
 void ImGuis::Destroy()
@@ -417,6 +419,8 @@ void ImGuis::ShowMainMenuBar()
             ImGui::Checkbox("ShaderProgram Inspector", &g_ShowShaderProgramInsp);
 
             ImGui::Separator();
+            ImGui::Checkbox("NodeEditor", &g_ShowNodeEditor);
+            ImGui::Checkbox("MessageList", &g_ShowMessageBox);
 
             ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
 
@@ -736,8 +740,7 @@ static void ShowEntities()
 
 void ShowNodeEditor()
 {
-
-    ImGui::Begin("NodeEdit");
+    ImGui::Begin("NodeEdit", &ImGuis::g_ShowNodeEditor);
 
     // id of Attrib/Pin
     static std::vector<std::pair<int, int>> g_Links;
@@ -906,8 +909,22 @@ void ImGuis::InnerRender()
     }
 
 
-    {
+    if (g_ShowNodeEditor) {
         ShowNodeEditor();
+    }
+
+    if (g_ShowMessageBox)
+    {
+        ImGui::Begin("MessageBox", &g_ShowMessageBox);
+        ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
+        for (auto& str : g_MessageBox) {
+            ImGui::Text("%s", str.c_str());
+        }
+        ImGui::EndChild();
+        static char InputBuf[128];
+
+        ImGui::InputText("###MsgBoxInput", InputBuf, 128);
+        ImGui::End();
     }
 
 

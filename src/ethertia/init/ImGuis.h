@@ -23,6 +23,7 @@ public:
                         g_ShowLoadedEntities = false,
                         g_ShowShaderProgramInsp = false,
                         g_ShowMessageBox = false,
+                        g_ShowNodeEditor = false,
                         g_DbgText = false,
                         g_DbgViewBasis = false,
                         g_DbgWorldBasis = false,

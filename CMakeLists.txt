@@ -82,6 +82,8 @@ add_executable(Ethertia
         lib/imgui-knobs/imgui-knobs.cpp
 
         lib/imgui-imnodes/imnodes.cpp
+
+#        lib/imgui-imnodes/example/color_node_editor.cpp
 #        lib/imgui-node-editor/imgui_node_editor.cpp
 #        lib/imgui-node-editor/imgui_canvas.cpp
 #        lib/imgui-node-editor/crude_json.cpp

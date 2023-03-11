@@ -387,6 +387,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 void Ethertia::notifyMessage(const std::string& msg) {
     Log::info("[MSG/C] ", msg);
     GuiMessageList::Inst()->addMessage(msg);
+    ImGuis::g_MessageBox.push_back(msg);
 }
 
 bool Ethertia::isIngame() {
