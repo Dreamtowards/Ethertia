@@ -231,6 +231,10 @@ static void handleKeyDown(KeyboardEvent* e) {
             }
             break;
         }
+        case GLFW_KEY_PERIOD: {
+            Settings::ForceNotIngame = !Settings::ForceNotIngame;
+            break;
+        }
     }
 }
 

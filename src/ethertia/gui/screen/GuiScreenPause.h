@@ -32,77 +32,77 @@ public:
         setWidth(Inf);
         setHeight(Inf);
 
-        GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 64);
-        addGui(topbar);
-        topbar->addConstraintAlign(0.5, 0);
-        {
-            {
-                GuiStack* rightbox = new GuiStack(GuiStack::D_HORIZONTAL, 8);
-                topbar->addGui(rightbox);
-                rightbox->addConstraintAlign(1.0, 0.0);
-
-                float topbarTextHeight = 13;
-
-//                rightbox->addGui(new GuiButton("@Player483", false));
-//                rightbox->addGui(new GuiButton("$100.00", false));
-
-                GuiButton* btnClock = new GuiButton("        ", false, topbarTextHeight, 4);
-                rightbox->addGui(btnClock);
-                btnClock->addPreDraw([btnClock](auto) {
-                    if (!Ethertia::getWorld())
-                        return;
-                    btnClock->m_Text = Strings::daytime(Ethertia::getWorld()->getDayTime(), true);
-                });
-
-//                GuiButton* btnSignal = new GuiButton("  ");
-//                rightbox->addGui(btnSignal);
-//                btnSignal->addPreDraw([](Gui* g) {
-//                    // 40:30
-//                    static Texture* TEX_SIGNAL = Loader::loadTexture("gui/signals.png");
+//        GuiCollection* topbar = new GuiCollection(0, 0, TOP_WIDTH, 64);
+//        addGui(topbar);
+//        topbar->addConstraintAlign(0.5, 0);
+//        {
+//            {
+//                GuiStack* rightbox = new GuiStack(GuiStack::D_HORIZONTAL, 8);
+//                topbar->addGui(rightbox);
+//                rightbox->addConstraintAlign(1.0, 0.0);
 //
-//                    float w = 24, h = 18;
-//                    Gui::drawRect(g->getX() + (g->getWidth() - w) * 0.5, g->getY(), w, h, {
-//                        .tex = TEX_SIGNAL,
-//                        .tex_pos = {0, 0},
-//                        .tex_size = {1/2.0f, 1/6.0f}
-//                    });
+//                float topbarTextHeight = 13;
+//
+////                rightbox->addGui(new GuiButton("@Player483", false));
+////                rightbox->addGui(new GuiButton("$100.00", false));
+//
+//                GuiButton* btnClock = new GuiButton("        ", false, topbarTextHeight, 4);
+//                rightbox->addGui(btnClock);
+//                btnClock->addPreDraw([btnClock](auto) {
+//                    if (!Ethertia::getWorld())
+//                        return;
+//                    btnClock->m_Text = Strings::daytime(Ethertia::getWorld()->getDayTime(), true);
 //                });
-//                rightbox->addGui(new GuiButton("offline"));
-
-                GuiButton* btnSettings = new GuiButton("Settings", false, topbarTextHeight, 4);
-                rightbox->addGui(btnSettings);
-                btnSettings->addOnClickListener([](auto)
-                {
-                    Ethertia::getRootGUI()->addGui(GuiScreenSettings::Inst());
-                });
-
-                GuiButton* btnExitWorld = new GuiButton("Quit", false, topbarTextHeight, 4);
-                rightbox->addGui(btnExitWorld);
-                btnExitWorld->addOnClickListener([](auto)
-                {
-                    Ethertia::unloadWorld();
-                });
-            }
-            {
-                GuiStack* leftbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
-                topbar->addGui(leftbox);
-                leftbox->addConstraintAlign(0, 0.5);
-
-                leftbox->addGui(new GuiButton("Map", false));
-                leftbox->addGui(new GuiButton("Inventory", false));
-                leftbox->addGui(new GuiButton("Mail", false));
-                leftbox->addGui(new GuiButton("Calendar", false));
-            }
-
-            {
-                GuiStack* leftbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
-                topbar->addGui(leftbox);
-                leftbox->addConstraintAlign(1.0, 0.5);
-
-                leftbox->addGui(new GuiButton("$100.00", false));
-                leftbox->addGui(new GuiButton("@Dreamtowards", false));
-            }
-        }
+//
+////                GuiButton* btnSignal = new GuiButton("  ");
+////                rightbox->addGui(btnSignal);
+////                btnSignal->addPreDraw([](Gui* g) {
+////                    // 40:30
+////                    static Texture* TEX_SIGNAL = Loader::loadTexture("gui/signals.png");
+////
+////                    float w = 24, h = 18;
+////                    Gui::drawRect(g->getX() + (g->getWidth() - w) * 0.5, g->getY(), w, h, {
+////                        .tex = TEX_SIGNAL,
+////                        .tex_pos = {0, 0},
+////                        .tex_size = {1/2.0f, 1/6.0f}
+////                    });
+////                });
+////                rightbox->addGui(new GuiButton("offline"));
+//
+//                GuiButton* btnSettings = new GuiButton("Settings", false, topbarTextHeight, 4);
+//                rightbox->addGui(btnSettings);
+//                btnSettings->addOnClickListener([](auto)
+//                {
+//                    Ethertia::getRootGUI()->addGui(GuiScreenSettings::Inst());
+//                });
+//
+//                GuiButton* btnExitWorld = new GuiButton("Quit", false, topbarTextHeight, 4);
+//                rightbox->addGui(btnExitWorld);
+//                btnExitWorld->addOnClickListener([](auto)
+//                {
+//                    Ethertia::unloadWorld();
+//                });
+//            }
+//            {
+//                GuiStack* leftbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
+//                topbar->addGui(leftbox);
+//                leftbox->addConstraintAlign(0, 0.5);
+//
+//                leftbox->addGui(new GuiButton("Map", false));
+//                leftbox->addGui(new GuiButton("Inventory", false));
+//                leftbox->addGui(new GuiButton("Mail", false));
+//                leftbox->addGui(new GuiButton("Calendar", false));
+//            }
+//
+//            {
+//                GuiStack* leftbox = new GuiStack(GuiStack::D_HORIZONTAL, 2);
+//                topbar->addGui(leftbox);
+//                leftbox->addConstraintAlign(1.0, 0.5);
+//
+//                leftbox->addGui(new GuiButton("$100.00", false));
+//                leftbox->addGui(new GuiButton("@Dreamtowards", false));
+//            }
+//        }
 
 //        {
 //            GuiStack* toolbar = new GuiStack(GuiStack::D_HORIZONTAL, 8);
@@ -151,7 +151,7 @@ public:
         }
 
 
-        addPreDraw([topbar](auto)
+        addPreDraw([](auto)
         {
             // background dark
             Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), Colors::BLACK50);

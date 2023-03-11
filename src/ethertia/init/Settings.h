@@ -36,6 +36,7 @@ public:
 
     inline static bool g_SSAO = true;
 
+    inline static bool ForceNotIngame = false;
 
 
 

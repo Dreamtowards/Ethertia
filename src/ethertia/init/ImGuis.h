@@ -20,11 +20,14 @@ public:
                         g_ShowEntityInsp = false,
                         g_ShowLoadedEntities = false,
                         g_ShowShaderProgramInsp = false,
+                        g_ShowMessageBox = false,
                         g_DbgText = false,
                         g_DbgViewBasis = false,
                         g_DbgWorldBasis = false,
                         g_DbgAllEntityAABB = false,
                         g_DbgAllChunkAABB = false;
+
+    inline static std::vector<std::string> g_MessageBox;
 
 
     inline static bool g_GizmoViewManipulation = true,

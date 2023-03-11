@@ -389,7 +389,11 @@ void Ethertia::notifyMessage(const std::string& msg) {
     GuiMessageList::Inst()->addMessage(msg);
 }
 
-bool Ethertia::isIngame() { return getRootGUI()->last() == GuiIngame::Inst() && !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT); }
+bool Ethertia::isIngame() {
+    return getRootGUI()->last() == GuiIngame::Inst() &&
+           !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT) &&
+           !Settings::ForceNotIngame;
+}
 
 float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
 
