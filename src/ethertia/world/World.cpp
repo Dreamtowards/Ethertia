@@ -20,6 +20,8 @@
 #include <ethertia/render/RenderEngine.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
 
+#include <ethertia/init/DebugStat.h>
+
 
 World::World(const std::string& savedir, const WorldInfo* worldinfo)
 {
@@ -108,18 +110,18 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     {
         PROFILE_X(ChunkGenProc::gp_ChunkGen, "Load");  // not accurate. many times wouldn't load
 
-        dbg_ChunkProvideState = 2;
+        DebugStat::dbg_ChunkProvideState = "load";
         chunk = m_ChunkLoader->loadChunk(chunkpos, this);
-        dbg_ChunkProvideState = 0;
+        DebugStat::dbg_ChunkProvideState = nullptr;
     }
 
     if (!chunk)
     {
         PROFILE_X(ChunkGenProc::gp_ChunkGen, "Gen");
 
-        dbg_ChunkProvideState = 1;
+        DebugStat::dbg_ChunkProvideState = "gen";
         chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
-        dbg_ChunkProvideState = 0;
+        DebugStat::dbg_ChunkProvideState = nullptr;
     }
 
     {
@@ -157,7 +159,7 @@ void World::saveUnloadedChunks() {
     int i = 0;
     for (Chunk* chunk : m_UnloadedChunks)
     {
-        dbg_SavingChunks = m_UnloadedChunks.size() - i;
+        DebugStat::dbg_ChunksSaving = m_UnloadedChunks.size() - i;
         if (ChunkGenProc::g_Running == -1) {  // when unloadWorld().
             Log::info("Saving chunk {} ({}/{})", chunk->position, i+1, m_UnloadedChunks.size()); ++i;
         }
@@ -189,7 +191,7 @@ void World::saveUnloadedChunks() {
             delete chunk;
         }
     }
-    dbg_SavingChunks = 0;
+    DebugStat::dbg_ChunksSaving = 0;
 
     m_UnloadedChunks.clear();
 

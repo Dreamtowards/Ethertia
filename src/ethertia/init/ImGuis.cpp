@@ -21,6 +21,8 @@
 #include <ethertia/render/RenderEngine.h>
 #include <ethertia/gui/screen/GuiDebugV.h>
 
+#include <ethertia/init/DebugStat.h>
+
 
 void ImGuis::Init()
 {
@@ -162,42 +164,54 @@ static void ShowDebugTextOverlay()
             cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
                                     c->mtl ? c->mtl->getRegistryId() : "nil",
                                     c->density,
-                                    c->exp_meta,
+                                    (int)c->exp_meta,
                                     cur.cell_breaking_time);
         }
     }
 
     std::string str = Strings::fmt(
-            "cam p: {}, len: {}, spd {}mps {}kph. ground: {}, CPs {}.\n"
-            "Entity: {}/{}, LoadedChunks: {}\n"
-            "MeshInvalid Chunks: {}\n"
-            "task {}, async {}\n"
+            "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
+            "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
             "dt: {}, {}fps\n"
+            "\n"
             "World: {}\n"
             "HitChunk: {}\n"
-            "HitCell: {}\n",
+            "HitCell: {}\n"
+            "\n"
+            "task {}, async {}\n"
+            "ChunkProvide: {}\n"
+            "ChunkMeshing: {}\n"
+            "ChunkSaving:  {}\n"
+            ,
             Ethertia::getCamera()->position, Ethertia::getCamera()->len,
             meterPerSec, meterPerSec * 3.6f,
             player->m_OnGround, player->m_NumContactPoints,
 
             Settings::dbgEntitiesRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
 
-            ChunkMeshProc::dbg_NumChunksMeshInvalid,
-            Ethertia::getScheduler()->numTasks(), Ethertia::getAsyncScheduler()->numTasks(),
             dt, Mth::floor(1.0f/dt),
             worldInfo,
             chunkInfo,
-            cellInfo);
+            cellInfo,
+
+            Ethertia::getScheduler()->numTasks(), Ethertia::getAsyncScheduler()->numTasks(),
+            DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
+            DebugStat::dbg_NumChunksMeshInvalid,
+            DebugStat::dbg_ChunksSaving
+
+            );
 
     ImGui::SetNextWindowPos({0, 32});
     ImGui::SetNextWindowBgAlpha(0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0,0});
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking |
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     if (ImGui::Begin("DebugTextOverlay", &ImGuis::dbg_Text, window_flags)) {
         ImGui::Text("%s", str.c_str());
     }
     ImGui::End();
-    ImGui::PopStyleVar();
+    ImGui::PopStyleVar(2);
 }
 
 
@@ -431,7 +445,19 @@ void ImGuis::ShowMainMenuBar()
             ImGui::EndMenu();
         }
 
-        ImGui::SameLine(ImGui::GetWindowWidth() - 90);
+
+//        using Dbg = DebugStat;
+//        if (Dbg::dbg_ChunkProvideState) {
+//            ImGui::Text("ChunkProviding[%s]", Dbg::dbg_ChunkProvideState);
+//        }
+//        if (Dbg::dbg_ChunksSaving) {
+//            ImGui::Text("ChunkSaving... (%i)", Dbg::dbg_ChunksSaving);
+//        }
+//        if (Dbg::dbg_NumChunksMeshInvalid) {
+//            ImGui::Text("ChunkMeshing... (%i)", Dbg::dbg_NumChunksMeshInvalid);
+//        }
+
+        ImGui::SameLine(ImGui::GetWindowWidth()-90);
         ImGui::SmallButton("Profile");
 
         ImGui::EndMenuBar();

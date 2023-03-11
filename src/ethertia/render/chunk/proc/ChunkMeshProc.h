@@ -9,6 +9,7 @@
 #include <ethertia/render/chunk/BlockyMeshGen.h>
 
 #include <ethertia/util/ObjectPool.h>
+#include <ethertia/init/DebugStat.h>
 
 class ChunkMeshProc
 {
@@ -175,7 +176,6 @@ public:
         }
     }
 
-    inline static int dbg_NumChunksMeshInvalid = 0;
 
     static Chunk* findNearestMeshInvalidChunk(World* world, vec3 center, int viewDistance) {
         vec3 origin_chunkpos = Chunk::chunkpos(center);
@@ -183,7 +183,7 @@ public:
         Chunk* nearest = nullptr;
         float  min_dist = FLT_MAX;
 
-        dbg_NumChunksMeshInvalid = 0;
+        DebugStat::dbg_NumChunksMeshInvalid = 0;
 
         // for ChunkList or getChunkAt
         LOCK_GUARD(world->m_LockChunks);
@@ -192,7 +192,7 @@ public:
             float dist = glm::length2(rel_chunkpos);
             Chunk* chunk = world->getLoadedChunk(origin_chunkpos + rel_chunkpos, true);
             if (chunk && chunk->m_MeshingState == Chunk::MESH_INVALID) {
-                ++dbg_NumChunksMeshInvalid;
+                ++DebugStat::dbg_NumChunksMeshInvalid;
                 if (dist < min_dist) {
                     min_dist = dist;
                     nearest = chunk;

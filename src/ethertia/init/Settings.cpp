@@ -33,19 +33,18 @@ void Settings::loadSettings() {  using nlohmann::json;
 
     set_ifexists(settings, "view_distance",  &RenderEngine::viewDistance);
     set_ifexists(settings, "fov",            &Ethertia::getCamera()->fov);
-
-    set_ifexists(settings, "assets",         &Loader::ASSETS);
-
     set_ifexists(settings, "display_width",  &displayWidth);
     set_ifexists(settings, "display_height", &displayHeight);
 
-    set_ifexists(settings, "mtl_resolution", &MaterialTextures::TEX_RESOLUTION);
+    set_ifexists(settings, "assets",         &Loader::ASSETS);
+    set_ifexists(settings, "mods", &MODS);
+
 
     std::string simdLevel;
     set_ifexists(settings, "simd_level", &simdLevel);
     NoiseGen::g_SIMDLevel = NoiseGen::FastSIMD_ofLevelName(simdLevel);
 
-    set_ifexists(settings, "mods", &MODS);
+    set_ifexists(settings, "mtl_resolution", &MaterialTextures::TEX_RESOLUTION);
 
     set_ifexists(settings, "graphics.ssao", &g_SSAO);
     set_ifexists(settings, "graphics.shadow", &g_ShadowMapping);

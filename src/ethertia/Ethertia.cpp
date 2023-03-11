@@ -220,21 +220,20 @@ void Ethertia::renderGUI()
     }
 
     {
-        float x = Gui::maxWidth() - 64;
-        float y = Gui::maxHeight() - 64 - 40;
-
-        if (World::dbg_ChunkProvideState) {
-            Gui::drawString(x, y, World::dbg_ChunkProvideState == 1 ? "Generating Chunk.." : "Loading Chunk..",
-                            Colors::GRAY, 16, {-1, -1});
-        }
-        if (World::dbg_SavingChunks) {
-            Gui::drawString(x, y+16, Strings::fmt("Saving chunks... ({})", World::dbg_SavingChunks),
-                            Colors::GREEN_DARK, 16, {-1, -1});
-        }
-        if (ChunkMeshProc::dbg_NumChunksMeshInvalid > 0) {
-            Gui::drawString(x, y+32, Strings::fmt("Meshing chunks... ({})", ChunkMeshProc::dbg_NumChunksMeshInvalid),
-                            Colors::GRAY_DARK, 16, {-1, -1});
-        }
+//        float x = Gui::maxWidth() - 64;
+//        float y = Gui::maxHeight() - 64 - 40;
+//        if (World::dbg_ChunkProvideState) {
+//            Gui::drawString(x, y, World::dbg_ChunkProvideState == 1 ? "Generating Chunk.." : "Loading Chunk..",
+//                            Colors::GRAY, 16, {-1, -1});
+//        }
+//        if (World::dbg_SavingChunks) {
+//            Gui::drawString(x, y+16, Strings::fmt("Saving chunks... ({})", World::dbg_SavingChunks),
+//                            Colors::GREEN_DARK, 16, {-1, -1});
+//        }
+//        if (ChunkMeshProc::dbg_NumChunksMeshInvalid > 0) {
+//            Gui::drawString(x, y+32, Strings::fmt("Meshing chunks... ({})", ChunkMeshProc::dbg_NumChunksMeshInvalid),
+//                            Colors::GRAY_DARK, 16, {-1, -1});
+//        }
     }
 
     if (!WorldEdit::selection.empty()) {

@@ -13,6 +13,7 @@
 #include <nbt/nbt_tags.h>
 
 #include <ethertia/util/Strings.h>
+#include <ethertia/init/Settings.h>
 
 
 

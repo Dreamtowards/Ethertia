@@ -38,12 +38,15 @@ public:
                 vec3 chunkpos;
                 {
                     PROFILE_X(gp_ChunkGen, "Find");
-                    Timer::sleep_for(1);
                     chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
                 }
 
 
-                if (chunkpos.x != Mth::Inf)  // found not-loaded chunk.
+                if (chunkpos.x == Mth::Inf)
+                {
+                    Timer::sleep_for(1);  // not found need-load chunk. just sleep a while. prevents CPU overload.
+                }
+                else  // found not-loaded chunk.
                 {
                     PROFILE_X(gp_ChunkGen, "Gen/Load");
 
@@ -58,12 +61,12 @@ public:
 //                    }
 
 
-                    Ethertia::getAsyncScheduler()->addDelayTask([=]()
-                    {
-                        for (int i = 0; i < 6; ++i) {
-                            world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
-                        }
-                    }, 0.5f + Mth::min(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 4.0f));
+//                    Ethertia::getAsyncScheduler()->addDelayTask([=]()
+//                    {
+//                        for (int i = 0; i < 6; ++i) {
+//                            world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
+//                        }
+//                    }, 0.5f + Mth::min(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 4.0f));
                 }
 
 

@@ -165,10 +165,6 @@ public:
     }
 
 
-    inline static int dbg_SavingChunks = 0;
-    inline static int dbg_ChunkProvideState = 0;  // 1: gen, 2: load
-
-
 
 
 

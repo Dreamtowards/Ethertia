@@ -32,8 +32,10 @@ public:
 
     inline static bool  dbg_PolyLine = false,
                         dbg_PauseWorldRender = false,
-                        dbg_NoChunkSave = false,
-                        dbg_NoChunkLoad = false;
+                        dbg_NoChunkSave = true,
+                        dbg_NoChunkLoad = true;
+
+
 
     inline static int dbgEntitiesRendered = 0;
 
