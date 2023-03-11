@@ -9,6 +9,16 @@ class EntityComponent
 {
 public:
 
+    virtual void _v() {};
+
+};
+
+class EntityComponentTransform : public EntityComponent
+{
+public:
+    glm::vec3 origin;
+    glm::mat3 basis;
+    glm::vec3 scale;
 
 };
 

@@ -105,6 +105,9 @@ public:
     float* pos() {
         return (float*)&m_Rigidbody->getWorldTransform().getOrigin().x();
     }
+    float* rot() {
+        return (float*)&m_Rigidbody->getWorldTransform().getBasis()[0].x();
+    }
 
     void setPosition(glm::vec3 p) {
         m_Rigidbody->getWorldTransform().setOrigin(btVector3(p.x, p.y, p.z));

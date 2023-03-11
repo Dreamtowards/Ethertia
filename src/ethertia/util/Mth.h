@@ -298,6 +298,19 @@ public:
         return glm::vec2(x/w, 1.0f - y/h) * 2.0f - 1.0f;
     }
 
+    static void decomposeTransform(const glm::mat4& transf, glm::vec3& outTranslation, glm::mat3& outRotation, glm::vec3& outScale)
+    {
+        // https://stackoverflow.com/a/68323550
+        outTranslation = transf[3];
+        for(int i = 0; i < 3; i++)
+            outScale[i] = glm::length(glm::vec3(transf[i]));
+        const glm::mat3 rotMtx(
+                glm::vec3(transf[0]) / outScale[0],
+                glm::vec3(transf[1]) / outScale[1],
+                glm::vec3(transf[2]) / outScale[2]);
+        //rot = glm::quat_cast(rotMtx);
+        outRotation = rotMtx;
+    }
 
 
 

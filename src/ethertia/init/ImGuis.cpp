@@ -538,21 +538,24 @@ static void ShowEntityInsp()
 
     if (ImGui::CollapsingHeader("Transform")) {
 
-//            ImGui::Begin("Gizmo");
+        ImGui::DragFloat3("Position", entity->pos());
+        ImGui::DragFloat3("Rotation", entity->pos());
+        ImGui::DragFloat3("Scale", entity->pos());
+
+        ImGui::Separator();
+        ImGui::TextDisabled("Gizmo:");
+
         static ImGuizmo::OPERATION gizmoOp   = ImGuizmo::ROTATE;
         static ImGuizmo::MODE      gizmoMode = ImGuizmo::WORLD;
-//            if (ImGui::IsKeyPressed(ImGuiKey_G)) mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-//            if (ImGui::IsKeyPressed(ImGuiKey_R)) mCurrentGizmoOperation = ImGuizmo::ROTATE;
-//            if (ImGui::IsKeyPressed(ImGuiKey_S)) mCurrentGizmoOperation = ImGuizmo::SCALE;
+        if (ImGui::IsKeyPressed(ImGuiKey_T)) gizmoOp = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_R)) gizmoOp = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_S)) gizmoOp = ImGuizmo::SCALE;
 
-        if (ImGui::RadioButton("Translate", gizmoOp == ImGuizmo::TRANSLATE))
-            gizmoOp = ImGuizmo::TRANSLATE;
+        if (ImGui::RadioButton("Translate", gizmoOp == ImGuizmo::TRANSLATE)) gizmoOp = ImGuizmo::TRANSLATE;
         ImGui::SameLine();
-        if (ImGui::RadioButton("Rotate", gizmoOp == ImGuizmo::ROTATE))
-            gizmoOp = ImGuizmo::ROTATE;
+        if (ImGui::RadioButton("Rotate", gizmoOp == ImGuizmo::ROTATE)) gizmoOp = ImGuizmo::ROTATE;
         ImGui::SameLine();
-        if (ImGui::RadioButton("Scale", gizmoOp == ImGuizmo::SCALE))
-            gizmoOp = ImGuizmo::SCALE;
+        if (ImGui::RadioButton("Scale", gizmoOp == ImGuizmo::SCALE)) gizmoOp = ImGuizmo::SCALE;
 
 //        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 //        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
@@ -563,16 +566,29 @@ static void ShowEntityInsp()
 
         if (gizmoOp != ImGuizmo::SCALE)
         {
-            if (ImGui::RadioButton("Local", gizmoMode == ImGuizmo::LOCAL))
-                gizmoMode = ImGuizmo::LOCAL;
+            if (ImGui::RadioButton("Local", gizmoMode == ImGuizmo::LOCAL)) gizmoMode = ImGuizmo::LOCAL;
             ImGui::SameLine();
-            if (ImGui::RadioButton("World", gizmoMode == ImGuizmo::WORLD))
-                gizmoMode = ImGuizmo::WORLD;
+            if (ImGui::RadioButton("World", gizmoMode == ImGuizmo::WORLD)) gizmoMode = ImGuizmo::WORLD;
         }
 
+        static bool _Snap = false;
+        bool snap = _Snap || ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_LeftSuper);
+        if (ImGui::Checkbox("Snap", &snap)) {
+            _Snap = snap;
+        }
+
+        glm::vec3 snapValue{0.5};
+        ImGui::DragFloat3("Snap value", &snapValue[0], 0.5f);
+
+        static bool _Bound = false;
+        ImGui::Checkbox("Bound", &_Bound);
+
+        glm::vec3 boundSnapValue{0.5f};
+        ImGui::DragFloat3("Bound Snap value", &snapValue[0], 0.5f);
+
+
         {
-//            static glm::mat4 matCube(1.0f);
-            // ImGuizmo::DrawCubes(pmView, pmProj, &matCube[0][0], 1);
+            EntityComponentTransform* ct = entity->getComponent<EntityComponentTransform>();
 
             glm::mat4 matModel = Mth::matModel(entity->getPosition(),
                                                entity->getRotation(),
@@ -580,17 +596,25 @@ static void ShowEntityInsp()
 
             static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
             static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+
             ImGuizmo::Manipulate(glm::value_ptr(RenderEngine::matView),
                                  glm::value_ptr(RenderEngine::matProjection),
                                  gizmoOp, gizmoMode,
                                  glm::value_ptr(matModel),
-                                 nullptr, nullptr,
-                                 bounds, boundsSnap);
+                                 nullptr,
+                                 snap ? &snapValue[0] : nullptr,
+                                 _Bound ? bounds : nullptr, _Bound ? boundsSnap : nullptr);
+            if (ImGuizmo::IsUsing()) {
+                // Decompose Transformation
+
+                glm::vec3 pos, scl;
+                glm::mat3 rot;
+                Mth::decomposeTransform(matModel, pos, rot, scl);
+
+                entity->setPosition(pos);
+                *(glm::mat3*)entity->rot() = rot;
+            }
         }
-
-        ImGui::Separator();
-
-        ImGui::DragFloat3("Position", entity->pos());
     }
 
     if (ImGui::CollapsingHeader("Diffuse Map")) {
@@ -762,7 +786,7 @@ void ImGuis::InnerRender()
         {
             glm::mat4 iden(1.0f);
             ImGuizmo::DrawGrid(glm::value_ptr(RenderEngine::matView), glm::value_ptr(RenderEngine::matProjection),
-                               glm::value_ptr(iden), ImGuis::g_WorldGrids);
+                               glm::value_ptr(iden), (float)ImGuis::g_WorldGrids);
         }
 
         if (g_GizmoViewManipulation)
@@ -775,9 +799,14 @@ void ImGuis::InnerRender()
 
         if (g_Game)
         {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
             ImGui::Begin("Game", &ImGuis::g_Game);
+            ImGui::PopStyleVar();
 
-            ImGui::Image(ComposeRenderer::fboCompose->texColor[0]->texId_ptr(), ImGui::GetWindowSize());
+            ImVec2 wmx = ImGui::GetWindowContentRegionMax();
+            ImVec2 wmn = ImGui::GetWindowContentRegionMin();
+            ImGui::Image(ComposeRenderer::fboCompose->texColor[0]->texId_ptr(),
+                         {wmx.x - wmn.x, wmx.y - wmn.y});
 
             ImGui::End();
         }

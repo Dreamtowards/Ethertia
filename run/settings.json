@@ -2,11 +2,11 @@
   "assets": "./assets/",
   "display_height": 796,
   "display_width": 1454,
-  "fov": 109.18800354003906,
+  "fov": 124.64800262451172,
   "fullscreen": false,
   "mods": [],
   "mtl_resolution": 256,
   "simd_level": "SSE3",
-  "view_distance": 5.896999835968018,
+  "view_distance": 1.2389999628067017,
   "vsync": false
 }
