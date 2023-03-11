@@ -361,6 +361,8 @@ void ImGuis::ShowMainMenuBar()
 
             ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
 
+            ImGui::Checkbox("DbgPauseWorldRender", &Settings::dbg_PauseWorldRender);
+
             ImGui::Separator();
 
             ImGui::SliderInt("World GridSize", &g_WorldGrids, 0, 500);
@@ -384,7 +386,7 @@ void ImGuis::ShowMainMenuBar()
             ImGui::Checkbox("GBuffers", &GuiDebugV::dbgGBuffers);
             ImGui::Checkbox("Border/Norm", &RenderEngine::dbg_EntityGeo);
             ImGui::Checkbox("HitEntityGeo", &RenderEngine::dbg_HitPointEntityGeo);
-            ImGui::Checkbox("Polygon Line", &Settings::dbgPolyLine);
+            ImGui::Checkbox("Polygon Line", &Settings::dbg_PolyLine);
 
             ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
 
@@ -407,7 +409,7 @@ void ImGuis::ShowMainMenuBar()
             ImGui::SliderFloat("ViewDistance", &RenderEngine::viewDistance, 0, 16);
 
             ImGui::Checkbox("SSAO", &Settings::g_SSAO);
-            ImGui::Checkbox("Shadow Mapping", &Settings::g_SSAO);
+            ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
 
             ImGui::EndMenu();
         }
@@ -828,7 +830,7 @@ void ImGuis::InnerRender()
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
 
-    glPolygonMode(GL_FRONT_AND_BACK, Settings::dbgPolyLine ? GL_LINE : GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, Settings::dbg_PolyLine ? GL_LINE : GL_FILL);
 
     if (g_ShowImGuiDemo) {
         ImGui::ShowDemoWindow(&g_ShowImGuiDemo);

@@ -259,6 +259,7 @@ void RenderEngine::renderWorldCompose(World* world)
 void RenderEngine::renderWorld(World* world)
 {
     assert(world);
+    if (Settings::dbg_PauseWorldRender) return;
 
     RenderEngine::checkGlError("Begin World Render");
 
@@ -268,8 +269,10 @@ void RenderEngine::renderWorld(World* world)
     renderWorldGeometry(world);
 
 
+    if (Settings::g_ShadowMapping)
     ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()));
 
+    if (Settings::dbg_PauseWorldRender)
     SSAORenderer::renderSSAO(fboGbuffer->texColor[0], fboGbuffer->texColor[1]);
 
 

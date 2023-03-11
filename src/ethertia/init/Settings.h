@@ -30,13 +30,17 @@ public:
 
     // DEBUG States
 
-    inline static bool dbgPolyLine = false;
-    inline static bool dbgTextInf = false;
+    inline static bool  dbg_PolyLine = false,
+                        dbg_PauseWorldRender = false;
+
     inline static int dbgEntitiesRendered = 0;
 
-    inline static bool g_SSAO = true;
+    inline static bool g_SSAO = true,
+                       g_ShadowMapping = true;
 
     inline static bool ForceNotIngame = false;
+
+
 
 
 
