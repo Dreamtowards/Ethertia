@@ -62,7 +62,6 @@ include_directories(lib/yaml-cpp/include)
 include_directories(lib/nbt/include)
 include_directories(lib/openvr/headers)
 include_directories(lib/imgui-docking)
-include_directories(lib/imguizmo)
 
 
 
@@ -80,6 +79,13 @@ add_executable(Ethertia
         lib/imgui-docking/backends/imgui_impl_opengl3.cpp
 
         lib/imguizmo/ImGuizmo.cpp
+        lib/imgui-knobs/imgui-knobs.cpp
+
+        lib/imgui-imnodes/imnodes.cpp
+#        lib/imgui-node-editor/imgui_node_editor.cpp
+#        lib/imgui-node-editor/imgui_canvas.cpp
+#        lib/imgui-node-editor/crude_json.cpp
+#        lib/imgui-node-editor/imgui_node_editor_api.cpp
 
         src/ethertia/init/ImGuis.cpp
 

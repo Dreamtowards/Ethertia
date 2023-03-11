@@ -5,12 +5,13 @@
 
 #include <ethertia/init/ImGuis.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include <glm/gtc/type_ptr.hpp>
-
-#include <ImGuizmo.h>
+#include <imguizmo/ImGuizmo.h>
+#include <imgui-knobs/imgui-knobs.h>
 
 #include <ethertia/init/Settings.h>
 #include <ethertia/Ethertia.h>
@@ -378,6 +379,8 @@ void ImGuis::ShowMainMenuBar()
             ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
 
 
+            static float knobVal = 10;
+            ImGuiKnobs::Knob("Test2", &knobVal, -100, 100, 0.1f, "%.1fdB", ImGuiKnobVariant_Tick);
 
 //    if (ImGui::Button("Click Sound")) {
 //        Log::info("PlaySoundClick");
@@ -723,7 +726,49 @@ static void ShowEntities()
 }
 
 
+#include <imgui-imnodes/imnodes.h>
 
+void ShowNodeEditor()
+{
+
+    ImGui::Begin("NodeEdit");
+
+
+
+    ImGui::End();
+
+//    namespace ImNode = ax::NodeEditor;
+//    static ImNode::EditorContext* context = nullptr;
+//    if (!context) {
+//        ImNode::Config conf;
+//        conf.SettingsFile = "node-editor.json";
+//        context = ImNode::CreateEditor(&conf);
+//    }
+//
+//    ImNode::SetCurrentEditor(context);
+//    ImNode::Begin("NodeEdit-");
+//
+//    {
+//        ImNode::BeginNode(1);
+//        ImGui::Text("Node Header");
+//
+//        ImNode::BeginPin(2, ImNode::PinKind::Input);
+//        ImGui::Text("In");
+//        ImNode::EndPin();
+//
+//        ImNode::BeginPin(3, ImNode::PinKind::Output);
+//        ImGui::Text("Out");
+//        ImNode::EndPin();
+//
+//        ImNode::EndNode();
+//    }
+//
+//    ImNode::End();
+//    ImNode::SetCurrentEditor(nullptr);
+//
+//    // ImNode::DestroyEditor(context);
+
+}
 
 
 void ImGuis::InnerRender()
@@ -842,6 +887,9 @@ void ImGuis::InnerRender()
     }
 
 
+    {
+        ShowNodeEditor();
+    }
 
 
 }

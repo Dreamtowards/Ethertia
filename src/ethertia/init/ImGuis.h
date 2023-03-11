@@ -6,6 +6,8 @@
 #define ETHERTIA_IMGUIS_H
 
 
+
+# define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
 #include <ethertia/entity/Entity.h>
