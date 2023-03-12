@@ -30,7 +30,7 @@
 #include <ethertia/vr/OpenVR.h>
 #include <ethertia/init/Sounds.h>
 
-#include <ethertia/init/ImGuis.h>
+#include <ethertia/imgui/ImGuis.h>
 #include <ethertia/world/Biome.h>
 #include <ethertia/render/deferred/GeometryRenderer.h>
 
@@ -204,7 +204,7 @@ static void RunMainLoop()
         {
             PROFILE("GUI");
             //renderGUI();
-            ImGuis::Render();
+            ImGuis::RenderGUI();
         }
     }
 
@@ -484,7 +484,8 @@ void EntityMesh::onRender()
 
 
 // Mth.h
-namespace glm {
+namespace glm
+{
     std::ostream& operator<<(std::ostream& s, const glm::vec3& v) {
         s << "(" << v.x << ", " << v.y << ", " << v.z << ")";
         return s;

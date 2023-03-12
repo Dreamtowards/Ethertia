@@ -89,7 +89,7 @@ add_executable(Ethertia
 #        lib/imgui-node-editor/crude_json.cpp
 #        lib/imgui-node-editor/imgui_node_editor_api.cpp
 
-        src/ethertia/init/ImGuis.cpp
+        src/ethertia/imgui/ImGuis.cpp
 
         src/ethertia/util/Loader.cpp
         src/ethertia/init/Controls.cpp

@@ -16,8 +16,6 @@ class GuiRenderer
 public:
     inline static Model* M_RECT_RB;  // RB,RT,LB,LT. TRIANGLE_STRIP.
 
-    inline static Texture* TEX_WHITE;  // 1x1 pixel, RGBA=1 white tex.
-
     static void init()
     {
         // init M_RECT.
@@ -28,8 +26,6 @@ public:
                 {2, RECT_UV}
         });
 
-        BitmapImage img(1, 1, new uint32_t[1]{(uint32_t)~0});
-        TEX_WHITE = Loader::loadTexture(img);
 
         // todo: Align(anchor), in_pos -= anchor * 2.0;
         //
@@ -41,7 +37,7 @@ public:
                        float round =0, float border =0, int chnMode =0)
     {
         if (!tex)
-            tex = TEX_WHITE;
+            tex = Texture::WHITE;
         if (border == 0)
             border = 999999;
 

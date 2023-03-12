@@ -2,8 +2,8 @@
 // Created by Dreamtowards on 2023/3/8.
 //
 
-
-#include <ethertia/init/ImGuis.h>
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include <ethertia/imgui/ImGuis.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -44,7 +44,6 @@ void ImGuis::Init()
     ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
     {
-
         ImFontConfig fontConf;
         fontConf.OversampleH = 3;
         fontConf.OversampleV = 3;
@@ -52,8 +51,6 @@ void ImGuis::Init()
         // fontConf.GlyphExtraSpacing.x = 1.0f;
         io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
-
-//        imgui_io.DisplaySize = ImVec2(1920, 1080);
 //        imgui_io.DeltaTime = 1.0f / 60.0f;
 
         // Enable Docking.
@@ -134,110 +131,37 @@ void ImGuis::Destroy()
 
 
 
+static bool
+        g_ShowImGuiDemo = false,
+        g_ShowNewWorld = false,
+        g_ShowLoadedEntities = false,
+        g_ShowEntityInsp = false,
+        g_ShowShaderProgramInsp = false,
+        g_ShowMessageBox = false,
+        g_ShowNodeEditor = false,
+        dbg_Text = false,
+        dbg_ViewBasis = false,
+        dbg_WorldBasis = false,
+        dbg_AllEntityAABB = false,
+        dbg_AllChunkAABB = false,
+        dbg_Gbuffer = false;
 
 
+static bool g_GizmoViewManipulation = true,
+        g_Game = false;
+
+static int g_WorldGrids = 10;
+
+static Entity* g_InspEntity = nullptr;
+static ShaderProgram* g_InspShaderProgram = nullptr;
 
 
-static void ShowDebugTextOverlay()
-{
-    World* world = Ethertia::getWorld();
-    float dt = Ethertia::getDelta();
-    EntityPlayer* player = Ethertia::getPlayer();
-    btRigidBody* playerRb = player->m_Rigidbody;
-    float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
-
-    std::string cellInfo = "nil";
-    std::string chunkInfo = "nil";
-    std::string worldInfo = "nil";
-    HitCursor& cur = Ethertia::getHitCursor();
-
-
-    if (world)
-    {
-        worldInfo = Strings::fmt("{}. inhabited {}s, daytime {}. seed {}",
-                                 world->m_WorldInfo.Name,
-                                 world->m_WorldInfo.InhabitedTime,
-                                 Strings::daytime(world->getDayTime()),
-                                 world->getSeed());
-        Chunk* hitChunk = world->getLoadedChunk(cur.position);
-        if (hitChunk) {
-            chunkInfo = Strings::fmt("GenPop: {}, Inhabited: {}s",
-                                     hitChunk->m_Populated,
-                                     hitChunk->m_InhabitedTime);
-        }
-        if (cur.cell) {
-            Cell* c = cur.cell;
-            cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
-                                    c->mtl ? c->mtl->getRegistryId() : "nil",
-                                    c->density,
-                                    (int)c->exp_meta,
-                                    cur.cell_breaking_time);
-        }
-    }
-
-    std::string str = Strings::fmt(
-            "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
-            "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
-            "dt: {}, {}fps\n"
-            "\n"
-            "World: {}\n"
-            "HitChunk: {}\n"
-            "HitCell: {}\n"
-            "\n"
-            "task {}, async {}\n"
-            "ChunkProvide: {}\n"
-            "ChunkMeshing: {}\n"
-            "ChunkSaving:  {}\n"
-            ,
-            Ethertia::getCamera().position, Ethertia::getCamera().len,
-            meterPerSec, meterPerSec * 3.6f,
-            player->m_OnGround, player->m_NumContactPoints,
-
-            Settings::dbgEntitiesRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
-
-            dt, Mth::floor(1.0f/dt),
-            worldInfo,
-            chunkInfo,
-            cellInfo,
-
-            Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
-            DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
-            DebugStat::dbg_NumChunksMeshInvalid,
-            DebugStat::dbg_ChunksSaving
-
-            );
-
-    ImGui::SetNextWindowPos({0, 32});
-    ImGui::SetNextWindowBgAlpha(0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0,0});
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking |
-            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-    if (ImGui::Begin("DebugTextOverlay", &ImGuis::dbg_Text, window_flags)) {
-        ImGui::Text("%s", str.c_str());
-    }
-    ImGui::End();
-    ImGui::PopStyleVar(2);
-}
-
+#include "ImDebugs.cpp"
 
 
 
 static void _MenuSystem()
 {
-//        if (ImGui::MenuItem(Ethertia::Version::name().c_str())) {}
-//        if (ImGui::MenuItem("ethertia.com")) {
-//            Loader::openURL("https://ethertia.com");
-//        }
-//        ImGui::Separator();
-//        ImGui::MenuItem("Developer / Contributors:", nullptr, nullptr, false);
-//        if (ImGui::MenuItem("Eldrine Le Prismarine")) {}
-//        if (ImGui::MenuItem("Elytra Corporation")) {}
-//        if (ImGui::MenuItem("Thaumstrail")) {}
-//
-//        ImGui::EndMenu();
-//    ImGui::Separator();
-
     if (ImGui::BeginMenu("Servers"))
     {
         if (ImGui::MenuItem("Connect to server..")) {
@@ -257,7 +181,7 @@ static void _MenuSystem()
     if (ImGui::BeginMenu("Open World"))
     {
         if (ImGui::MenuItem("New World..")) {
-            ImGuis::g_ShowNewWorld = true;
+            g_ShowNewWorld = true;
         }
         if (ImGui::MenuItem("Open World..")) {
             const char* filename = Loader::openFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
@@ -336,7 +260,7 @@ static void _MenuSystem()
     }
 }
 
-void ImGuis::ShowMainMenuBar()
+static void ShowMainMenuBar()
 {
     if (ImGui::BeginMenuBar())
     {
@@ -390,7 +314,7 @@ void ImGuis::ShowMainMenuBar()
 
             // ImGui::Checkbox("Hit Entity AABB", &gAllChunkAABB);
 
-            ImGui::Checkbox("ImGui Demo Window", &ImGuis::g_ShowImGuiDemo);
+            ImGui::Checkbox("ImGui Demo Window", &g_ShowImGuiDemo);
 
             ImGui::SeparatorText("Controlling");
 
@@ -473,7 +397,7 @@ void ImGuis::ShowMainMenuBar()
 
 void ShowNewWorldWindow()
 {
-    ImGui::Begin("New World", &ImGuis::g_ShowNewWorld);
+    ImGui::Begin("New World", &g_ShowNewWorld);
 
     static char _WorldName[128];
     ImGui::InputText("World Name", _WorldName, 128);
@@ -494,7 +418,7 @@ void ShowNewWorldWindow()
         };
         Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
         Ethertia::loadWorld(save_path, &worldinfo);
-        ImGuis::g_ShowNewWorld = false;
+        g_ShowNewWorld = false;
     }
 
     ImGui::End();
@@ -502,16 +426,16 @@ void ShowNewWorldWindow()
 
 static void ShowShaderProgramInsp()
 {
-    ImGui::Begin("ShaderProgram", &ImGuis::g_ShowShaderProgramInsp);
+    ImGui::Begin("ShaderProgram", &g_ShowShaderProgramInsp);
 
 
-    ShaderProgram* shader = ImGuis::g_InspShaderProgram;
+    ShaderProgram* shader = g_InspShaderProgram;
     if (ImGui::BeginCombo("###Shaders", shader ? shader->m_SourceLocation.c_str() : nullptr))
     {
         for (auto& it : ShaderProgram::REGISTRY)
         {
-            if (ImGui::Selectable(it.first.c_str(), ImGuis::g_InspShaderProgram == it.second)) {
-                ImGuis::g_InspShaderProgram = it.second;
+            if (ImGui::Selectable(it.first.c_str(), g_InspShaderProgram == it.second)) {
+                g_InspShaderProgram = it.second;
             }
         }
         ImGui::EndCombo();
@@ -574,9 +498,9 @@ static void ShowShaderProgramInsp()
 
 static void ShowEntityInsp()
 {
-    ImGui::Begin("Entity", &ImGuis::g_ShowEntityInsp);
+    ImGui::Begin("Entity", &g_ShowEntityInsp);
 
-    Entity* entity = ImGuis::g_InspectorEntity;
+    Entity* entity = g_InspEntity;
     if (!entity) {
         ImGui::TextDisabled("No entity selected.");
         ImGui::End();
@@ -682,7 +606,7 @@ static void ShowEntityInsp()
 
 static void ShowEntities()
 {
-    ImGui::Begin("Entities", &ImGuis::g_ShowLoadedEntities);
+    ImGui::Begin("Entities", &g_ShowLoadedEntities);
 
     World* world = Ethertia::getWorld();
     if (!world) {
@@ -719,7 +643,7 @@ static void ShowEntities()
         ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
 
         if (ImGui::Button("Unselect")) {
-            ImGuis::g_InspectorEntity = nullptr;
+            g_InspEntity = nullptr;
         }
 
         ImGui::EndPopup();
@@ -728,7 +652,7 @@ static void ShowEntities()
     if (_KeepSelectHitEntity) {
         auto& cur = Ethertia::getHitCursor();
         if (cur.hitEntity) {
-            ImGuis::g_InspectorEntity = cur.hitEntity;
+            g_InspEntity = cur.hitEntity;
         }
     }
 
@@ -761,8 +685,8 @@ static void ShowEntities()
             char buf[32];
 
             sprintf(buf, "#%.3i | %s", i, typeid(*e).name());
-            if (ImGui::Selectable(buf, ImGuis::g_InspectorEntity == e)) {
-                ImGuis::g_InspectorEntity = e;
+            if (ImGui::Selectable(buf, g_InspEntity == e)) {
+                g_InspEntity = e;
             }
             ++i;
         }
@@ -775,7 +699,7 @@ static void ShowEntities()
 
 void ShowNodeEditor()
 {
-    ImGui::Begin("NodeEdit", &ImGuis::g_ShowNodeEditor);
+    ImGui::Begin("NodeEdit", &g_ShowNodeEditor);
 
     // id of Attrib/Pin
     static std::vector<std::pair<int, int>> g_Links;
@@ -827,60 +751,60 @@ void ShowNodeEditor()
     ImGui::End();
 }
 
-void Dbg_DrawGbuffers(float x, float y) {
-    auto* gbuffer = GeometryRenderer::fboGbuffer;
+//ImVec2 operator+(ImVec2 lhs, ImVec2 rhs) {
+//    return {lhs.x + rhs.x, lhs.y+rhs.y}
+//}
 
-    float h = Gui::maxHeight() / 6;
-    float w = h * 1.5f;
+static void ShowTitleScreenWindow()
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
+    ImGui::Begin("TitleScreen");
+    ImGui::PopStyleVar(2);
 
-    Gui::drawRect(x, y, w, h, {
-            .tex = gbuffer->texColor[0],
-            .channel_mode = Gui::DrawRectArgs::C_RGB
-    });
-    Gui::drawString(x,y, "Pos");
+    // Background
+    ImGui::Image(Texture::DEBUG->texId_ptr(),
+                 ImGuis::GetWindowContentSize(),
+                 {0,1}, {1,0});
 
-    Gui::drawRect(x+w, y, w, h, {
-            .tex = gbuffer->texColor[0],
-            .channel_mode = Gui::DrawRectArgs::C_AAA
-    });
-    Gui::drawString(x+w,y, "Dep");
+    // LeftBottom Version/Stats
+    ImGui::SetCursorPosY(ImGui::GetWindowHeight());
+    ImGuis::TextAlign(Strings::fmt("0 mods loaded.\n{}", Ethertia::Version::name()).c_str(),
+                      {0.0f, 1.0f});
 
-    Gui::drawRect(x, y+h, w, h, gbuffer->texColor[1]);
-    Gui::drawString(0,h, "Norm");
+    // RightBottom Copyright
+    ImGui::SetCursorPosY(ImGui::GetWindowHeight());
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth());
+    ImGuis::TextAlign("Copyright (c) Eldrine Le Prismarine, Do not distribute!",
+                      {1,1});
 
-    Gui::drawRect(x, y+h*2, w, h, {
-            .tex = gbuffer->texColor[2],
-            .channel_mode = Gui::DrawRectArgs::C_RGB
-    });
-    Gui::drawString(x,y+h*2, "Albedo");
+    ImVec2 btnSize = {200, 32};
+    float btnX = ImGui::GetWindowWidth() / 2 - btnSize.x /2;
+    ImGui::SetCursorPosY(ImGui::GetWindowHeight() * 0.4f);
 
-    Gui::drawRect(x+w, y+h*2, w, h, {
-            .tex = gbuffer->texColor[2],
-            .channel_mode = Gui::DrawRectArgs::C_AAA
-    });
-    Gui::drawString(x+w,y+h*2, "Roug");
+    ImGui::SetCursorPosX(btnX);
+    if (ImGui::Button("Singleplayer", btnSize)) {
 
-    Gui::drawRect(x, y+h*3, w, h, {
-            .tex = SSAORenderer::fboSSAO->texColor[0],
-            .channel_mode = Gui::DrawRectArgs::C_RGB
-    });
-    Gui::drawString(x,y+h*3, "SSAO");
+    }
+    ImGui::SetCursorPosX(btnX);
+    if (ImGui::Button("Multiplayer", btnSize)) {
+
+    }
+    ImGui::SetCursorPosX(btnX);
+    if (ImGui::Button("Settings", btnSize)) {
+
+    }
+    ImGui::SetCursorPosX(btnX);
+    if (ImGui::Button("Terminate", btnSize)) {
+
+    }
 
 
-    Gui::drawRect(x, y+h*4, w, h, {
-            .tex = ShadowRenderer::fboDepthMap->texDepth,
-            .channel_mode = Gui::DrawRectArgs::C_RGB
-    });
-    Gui::drawString(x,y+h*4, "Shadow");
-
-//            Gui::drawRect(x+w, y+h*4, w, h, {
-//                    .tex = ShadowRenderer::fboDepthMap->texColor[0],
-//                    .channel_mode = Gui::DrawRectArgs::C_RGB
-//            });
-//            Gui::drawString(x+w,y+h*4, "Shadow Col");
+    ImGui::End();
 }
 
-void ImGuis::InnerRender()
+
+static void ShowDockspaceAndMainMenubar()
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
@@ -890,7 +814,7 @@ void ImGuis::InnerRender()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
 
     // Purple 0.373, 0.157, 0.467, Origen0.741, 0.345, 0.133
-    glm::vec4 _col = Ethertia::isIngame() ? glm::vec4{0.373, 0.157, 0.467, 1.0} : glm::vec4{0,0,0,0.6};
+    glm::vec4 _col = Ethertia::isIngame() ? glm::vec4{0,0,0,0.6} : glm::vec4{0.373, 0.157, 0.467, 1.0};
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(_col.x, _col.y, _col.z, _col.w));
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
@@ -903,10 +827,14 @@ void ImGuis::InnerRender()
 
     ImGui::DockSpace(ImGui::GetID("MainDockSpace"), {0, 0}, ImGuiDockNodeFlags_PassthruCentralNode);
 
-    ImGuis::ShowMainMenuBar();
+    ShowMainMenuBar();
 
     ImGui::End();
+}
 
+static void RenderWindows()
+{
+    ShowDockspaceAndMainMenubar();
 
 
     ImGuizmo::BeginFrame();
@@ -929,8 +857,8 @@ void ImGuis::InnerRender()
     }
     if (g_ShowEntityInsp) {
         ShowEntityInsp();
-        if (g_InspectorEntity) {
-            RenderEngine::drawLineBox(ImGuis::g_InspectorEntity->getAABB(), Colors::YELLOW);
+        if (g_InspEntity) {
+            RenderEngine::drawLineBox(g_InspEntity->getAABB(), Colors::YELLOW);
         }
     }
     if (g_ShowShaderProgramInsp) {
@@ -944,7 +872,7 @@ void ImGuis::InnerRender()
         {
             glm::mat4 iden(1.0f);
             ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
-                               glm::value_ptr(iden), (float)ImGuis::g_WorldGrids);
+                               glm::value_ptr(iden), (float)g_WorldGrids);
         }
 
         if (g_GizmoViewManipulation)
@@ -958,14 +886,11 @@ void ImGuis::InnerRender()
         if (g_Game)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-            ImGui::Begin("Game", &ImGuis::g_Game);
+            ImGui::Begin("Game", &g_Game);
             ImGui::PopStyleVar();
 
-            ImVec2 wmx = ImGui::GetWindowContentRegionMax();
-            ImVec2 wmn = ImGui::GetWindowContentRegionMin();
-            ImGui::Image(ComposeRenderer::fboCompose->texColor[0]->texId_ptr(),
-                         {wmx.x - wmn.x, wmx.y - wmn.y},
-                         {0,1}, {1,0});
+
+            ImGuis::Image(ComposeRenderer::fboCompose->texColor[0]->texId, ImGuis::GetWindowContentSize());
 
             ImGui::End();
         }
@@ -1008,7 +933,7 @@ void ImGuis::InnerRender()
     {
         ImGui::Begin("MessageBox", &g_ShowMessageBox);
         ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
-        for (auto& str : g_MessageBox) {
+        for (auto& str : ImGuis::g_MessageBox) {
             ImGui::Text("%s", str.c_str());
         }
         ImGui::EndChild();
@@ -1029,10 +954,35 @@ void ImGuis::InnerRender()
         ImGui::End();
     }
 
+    ShowTitleScreenWindow();
 
 }
 
-void ImGuis::Render()
+#include <ethertia/render/gui/GuiRenderer.h>
+
+// 0: white
+void ImGuis::Image(GLuint texId, ImVec2 size, glm::vec4 color) {
+    assert(false);
+//    if (texId == 0)
+//        texId = GuiRenderer::TEX_WHITE->texId;
+//    ImGui::Image((void*)(intptr_t)texId,
+//                 {size.x, size.y},
+//                 {0, 1}, {1, 0},
+//                 {color.x, color.y, color.z, color.w});
+}
+
+ImVec2 ImGuis::GetWindowContentSize() {
+    return ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin();
+}
+
+void ImGuis::TextAlign(const char* text, ImVec2 align) {
+    ImVec2 size = ImGui::CalcTextSize(text);
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() - align.x * size.x);
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - align.y * size.y);
+    ImGui::Text("%s", text);
+}
+
+void ImGuis::RenderGUI()
 {
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplOpenGL3_NewFrame();
@@ -1040,7 +990,7 @@ void ImGuis::Render()
 
     glDisable(GL_DEPTH_TEST);
 
-    ImGuis::InnerRender();
+    RenderWindows();
 
     glEnable(GL_DEPTH_TEST);
 

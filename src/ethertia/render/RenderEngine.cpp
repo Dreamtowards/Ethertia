@@ -51,7 +51,12 @@ void RenderEngine::init()
 
     std::cout << "]";
 
+    {
+        BitmapImage img(1, 1, new uint32_t[1]{(uint32_t)~0});
+        Texture::WHITE = Loader::loadTexture(img);
 
+        Texture::DEBUG = Loader::loadTexture("misc/uvmap.png");
+    }
 
 
     RenderEngine::checkGlError("End of RenderEngine Init");

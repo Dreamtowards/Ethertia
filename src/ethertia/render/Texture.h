@@ -17,6 +17,10 @@ public:
     int width;
     int height;
 
+    // load by RenderEngine::init();
+    inline static Texture* WHITE = nullptr;  // 1x1 pixel, RGBA=1 white tex.
+    inline static Texture* DEBUG = nullptr;  // uvmap.png
+
     Texture(GLuint texId, int w, int h) : texId(texId), width(w), height(h) {}
 
     ~Texture() {
