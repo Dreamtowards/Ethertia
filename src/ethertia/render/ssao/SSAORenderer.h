@@ -5,7 +5,9 @@
 #ifndef ETHERTIA_SSAORENDERER_H
 #define ETHERTIA_SSAORENDERER_H
 
-#include <ethertia/render/compose/ComposeRenderer.h>
+#include <random>
+
+#include <ethertia/render/deferred/ComposeRenderer.h>
 #include <ethertia/render/ShaderProgram.h>
 
 class SSAORenderer

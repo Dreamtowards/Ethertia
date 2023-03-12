@@ -8,11 +8,14 @@
 #include <ethertia/render/Window.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/entity/EntityDroppedItem.h>
+#include <ethertia/entity/EntityMesh.h>
+#include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
+#include "Settings.h"
 
-#include <ethertia/gui/screen/GuiF4Lock.h>
-#include <ethertia/gui/screen/GuiDebugV.h>
-#include <ethertia/gui/screen/GuiIngame.h>
-#include <ethertia/gui/screen/GuiScreenPause.h>
+//#include <ethertia/gui/screen/GuiF4Lock.h>
+//#include <ethertia/gui/screen/GuiDebugV.h>
+//#include <ethertia/gui/screen/GuiIngame.h>
+//#include <ethertia/gui/screen/GuiScreenPause.h>
 
 
 static void initConsoleThread()
@@ -85,16 +88,16 @@ void handleMouseButton(MouseButtonEvent* e)
     float n = cur.brushSize;
     if (e->getButton() == GLFW_MOUSE_BUTTON_LEFT) {
 
-        if (GuiDebugV::g_BlockMode) {
-
-            Cell& c = world->getCell( p + -cur.normal*0.1f );
-
-            c.mtl = 0;
-            c.density = 0;
-
-            world->requestRemodel(p);
-            return;
-        }
+//        if (GuiDebugV::g_BlockMode) {
+//
+//            Cell& c = world->getCell( p + -cur.normal*0.1f );
+//
+//            c.mtl = 0;
+//            c.density = 0;
+//
+//            world->requestRemodel(p);
+//            return;
+//        }
 //        AABB::forCube(dig_size, [world, cp, dig_size](glm::vec3 rp)
 //        {
 //            Cell& c = world->getCell(cp+rp);
@@ -150,52 +153,52 @@ static void handleKeyDown(KeyboardEvent* e) {
 
     switch (key)
     {
-        case GLFW_KEY_F1: {
-            GuiIngame::Inst()->toggleVisible();
-            break;
-        }
+//        case GLFW_KEY_F1: {
+//            GuiIngame::Inst()->toggleVisible();
+//            break;
+//        }
         case GLFW_KEY_F2: {
             Controls::saveScreenshot();
             break;
         }
-        case GLFW_KEY_F3: {
-            GuiDebugV::Inst()->toggleVisible();
-            break;
-        }
-        case GLFW_KEY_F4: {
-            if (Ethertia::isIngame())
-                Ethertia::getRootGUI()->addGui(GuiF4Lock::Inst());
-            else if (Ethertia::getRootGUI()->last() == GuiF4Lock::Inst())
-                Ethertia::getRootGUI()->removeLastGui();
-            break;
-        }
+//        case GLFW_KEY_F3: {
+//            GuiDebugV::Inst()->toggleVisible();
+//            break;
+//        }
+//        case GLFW_KEY_F4: {
+//            if (Ethertia::isIngame())
+//                Ethertia::getRootGUI()->addGui(GuiF4Lock::Inst());
+//            else if (Ethertia::getRootGUI()->last() == GuiF4Lock::Inst())
+//                Ethertia::getRootGUI()->removeLastGui();
+//            break;
+//        }
         case GLFW_KEY_F11: {
-            Ethertia::getWindow()->toggleFullscreen();
+            Ethertia::getWindow().toggleFullscreen();
             break;
         }
-        case GLFW_KEY_ESCAPE: {
-            if (Ethertia::getWorld()) {
-                if (Ethertia::getRootGUI()->last() != GuiIngame::Inst()) {
-                    Ethertia::getRootGUI()->removeLastGui();
-                } else {
-                    Ethertia::getRootGUI()->addGui(GuiScreenPause::Inst());  // Pause
-                }
-            } else {
-                if (Ethertia::getRootGUI()->last() != GuiScreenMainMenu::Inst()) {
-                    Ethertia::getRootGUI()->removeLastGui();
-                }
-            }
-            break;
-        }
-        case GLFW_KEY_SLASH: {
-            if (Ethertia::isIngame()) {
-                GuiMessageList::Inst()->setVisible(true);
-
-                Ethertia::getRootGUI()->addGui(GuiScreenChat::Inst());
-                GuiScreenChat::Inst()->openCommandInput();
-            }
-            break;
-        }
+//        case GLFW_KEY_ESCAPE: {
+//            if (Ethertia::getWorld()) {
+//                if (Ethertia::getRootGUI()->last() != GuiIngame::Inst()) {
+//                    Ethertia::getRootGUI()->removeLastGui();
+//                } else {
+//                    Ethertia::getRootGUI()->addGui(GuiScreenPause::Inst());  // Pause
+//                }
+//            } else {
+//                if (Ethertia::getRootGUI()->last() != GuiScreenMainMenu::Inst()) {
+//                    Ethertia::getRootGUI()->removeLastGui();
+//                }
+//            }
+//            break;
+//        }
+//        case GLFW_KEY_SLASH: {
+//            if (Ethertia::isIngame()) {
+//                GuiMessageList::Inst()->setVisible(true);
+//
+//                Ethertia::getRootGUI()->addGui(GuiScreenChat::Inst());
+//                GuiScreenChat::Inst()->openCommandInput();
+//            }
+//            break;
+//        }
         case GLFW_KEY_Q: {
             if (Ethertia::isIngame()) {
                 EntityPlayer& player = *Ethertia::getPlayer();
@@ -204,7 +207,7 @@ static void handleKeyDown(KeyboardEvent* e) {
                 {
                     ItemStack drop;
 
-                    bool dropAll = Ethertia::getWindow()->isCtrlKeyDown();
+                    bool dropAll = Ethertia::getWindow().isCtrlKeyDown();
                     stack.moveTo(drop, dropAll ? stack.amount() : 1);
 
                     Ethertia::getWorld()->dropItem(player.getPosition(), drop,player.getViewDirection() * 3.0f);
@@ -212,27 +215,27 @@ static void handleKeyDown(KeyboardEvent* e) {
             }
             break;
         }
-        case GLFW_KEY_F: {
-
-            EntityPlayer* player = Ethertia::getPlayer();
-
-            if (player->m_RidingOn) {
-                player->m_RidingOn->removeDriver();
-                player->m_RidingOn = nullptr;
-                return;
-            }
-
-            HitCursor& cur = Ethertia::getHitCursor();
-            if (EntityVehicle* car = dynamic_cast<EntityVehicle*>(cur.hitEntity)) {
-                // if (cur.length > 10)  return;
-
-                player->m_RidingOn = car;
-                car->addDriver(player);
-            }
-            break;
-        }
+//        case GLFW_KEY_F: {
+//
+//            EntityPlayer* player = Ethertia::getPlayer();
+//
+//            if (player->m_RidingOn) {
+//                player->m_RidingOn->removeDriver();
+//                player->m_RidingOn = nullptr;
+//                return;
+//            }
+//
+//            HitCursor& cur = Ethertia::getHitCursor();
+//            if (EntityVehicle* car = dynamic_cast<EntityVehicle*>(cur.hitEntity)) {
+//                // if (cur.length > 10)  return;
+//
+//                player->m_RidingOn = car;
+//                car->addDriver(player);
+//            }
+//            break;
+//        }
         case GLFW_KEY_PERIOD: {
-            Settings::ForceNotIngame = !Settings::ForceNotIngame;
+            Ethertia::isIngame() = !Ethertia::isIngame();
             break;
         }
     }
@@ -243,20 +246,20 @@ void Controls::initControls()
 {
     initConsoleThread();
 
-    Ethertia::getWindow()->eventbus().listen([](WindowCloseEvent* e)
+    Ethertia::getWindow().eventbus().listen([](WindowCloseEvent* e)
     {
         Ethertia::shutdown();
     });
 
-    Ethertia::getWindow()->eventbus().listen(handleMouseButton);
+    Ethertia::getWindow().eventbus().listen(handleMouseButton);
 
-    Ethertia::getWindow()->eventbus().listen(handleKeyDown);
+    Ethertia::getWindow().eventbus().listen(handleKeyDown);
 }
 
 void handleHitCursor()
 {
     World* world = Ethertia::getWorld();
-    Camera& camera = *Ethertia::getCamera();
+    Camera& camera = Ethertia::getCamera();
 
     HitCursor& cur = Ethertia::getHitCursor();
     if (!(cur.keepTracking && world))
@@ -322,7 +325,7 @@ void handleHitCursor()
     }
 
 
-    if (Ethertia::isIngame() && Ethertia::getWindow()->isMouseLeftDown() && cur.cell && cur.cell->mtl)
+    if (Ethertia::isIngame() && Ethertia::getWindow().isMouseLeftDown() && cur.cell && cur.cell->mtl)
     {
         cur.cell_breaking_time += Ethertia::getDelta() * Controls::gDigSpeedMultiplier;
 
@@ -370,8 +373,8 @@ void handleHitCursor()
 
 void Controls::handleContinuousInput()
 {
-    Camera& camera = *Ethertia::getCamera();
-    Window& window = *Ethertia::getWindow();
+    Camera& camera = Ethertia::getCamera();
+    Window& window = Ethertia::getWindow();
     EntityPlayer* player = Ethertia::getPlayer();
 
     float dt = Ethertia::getDelta();
@@ -394,18 +397,18 @@ void Controls::handleContinuousInput()
         player->setSprint(false);
     }
 
-    if (player->m_RidingOn == nullptr) {
+//    if (player->m_RidingOn == nullptr) {
         player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
                      window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
                      window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
-    }
-    else
-    {   // Vehicle Control.
-        player->m_RidingOn->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
-                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
-                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
-                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
-    }
+//    }
+//    else
+//    {   // Vehicle Control.
+//        player->m_RidingOn->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+//                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
+//                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
+//                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
+//    }
 
 
     // Camera Move
@@ -424,11 +427,12 @@ void Controls::handleContinuousInput()
 
 
 
+    int HOTBAR_SLOT_MAX = 9;
     // Hotbar Scrolling / Key Switch.
     player->m_HotbarSlot += Mth::signal(-window.getDScroll());
-    player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, GuiIngame::HOTBAR_SLOT_MAX);
+    player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, HOTBAR_SLOT_MAX);
 
-    for (int i = 0; i <= GuiIngame::HOTBAR_SLOT_MAX; ++i) {
+    for (int i = 0; i <= HOTBAR_SLOT_MAX; ++i) {
         if (window.isKeyDown(GLFW_KEY_1+i))
             player->m_HotbarSlot = i;
     }
@@ -439,7 +443,7 @@ void Controls::handleContinuousInput()
 
 void Controls::saveScreenshot()
 {
-    BitmapImage* img = Ethertia::getWindow()->screenshot();
+    BitmapImage* img = Ethertia::getWindow().screenshot();
 
     std::string path = Strings::fmt("./screenshots/{}_{}.png", Strings::time_fmt(-1, "%Y-%m-%d_%H.%M.%S"), (Mth::frac(Ethertia::getPreciseTime())*1000.0f));
     if (Loader::fileExists(path))
@@ -448,7 +452,7 @@ void Controls::saveScreenshot()
     Log::info("Screenshot saving to '{}'.\1", path);
     Ethertia::notifyMessage(Strings::fmt("Saved screenshot to '{}'.", path));
 
-    Ethertia::getAsyncScheduler()->addTask([img, path]() {
+    Ethertia::getAsyncScheduler().addTask([img, path]() {
         BENCHMARK_TIMER;
 
         // vertical-flip image back to normal. due to GL feature.

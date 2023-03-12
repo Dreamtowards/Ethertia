@@ -37,7 +37,7 @@ public:
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 
-        glm::vec3 shadowPos = RenderEngine::g_Camera.position;
+        glm::vec3 shadowPos = Ethertia::getCamera().position;
         glm::mat4 matView = glm::lookAt(shadowPos, shadowPos+shadowDir, glm::vec3{0,1,0});
 
         glm::mat4 matProj = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f,

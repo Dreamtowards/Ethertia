@@ -61,7 +61,7 @@ public:
 
         shaderCompose->useProgram();
 
-        Camera& cam = *Ethertia::getCamera();
+        Camera& cam = Ethertia::getCamera();
         shaderCompose->setVector3f("CameraPos", cam.actual_pos);
         shaderCompose->setVector3f("CameraDir", cam.direction);
 
@@ -71,7 +71,7 @@ public:
 
 //
 //        shaderCompose.setFloat("debugVar0", debugVar0);
-        shaderCompose->setFloat("debugVar1", EntityRenderer::debugVar1);
+//        shaderCompose->setFloat("debugVar1", EntityRenderer::debugVar1);
 //        shaderCompose.setFloat("debugVar2", debugVar2);
 
         shaderCompose->setFloat("Time", Ethertia::getPreciseTime());

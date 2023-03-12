@@ -76,6 +76,8 @@ public:
     }
     static void loadAll()
     {
+        BENCHMARK_TIMER;
+        Log::info("Loading shader programs... ({})\1", ShaderProgram::REGISTRY.size());
         for (auto& it : ShaderProgram::REGISTRY) {
             it.second->reloadSources_();
         }

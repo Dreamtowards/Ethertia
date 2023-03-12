@@ -9,15 +9,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-class GuiRenderer;
-class FontRenderer;
-class EntityRenderer;
-class SkyGradientRenderer;
-class SkyboxRenderer;
-class ParticleRenderer;
-
-class World;
-
 #include <ethertia/render/Camera.h>
 #include <ethertia/render/Model.h>
 #include <ethertia/render/Framebuffer.h>
@@ -27,42 +18,29 @@ class World;
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/Log.h>
 
-class RenderEngine {
-
+class RenderEngine
+{
 public:
-
-    GuiRenderer* guiRenderer                 = nullptr;
-    FontRenderer* fontRenderer               = nullptr;
-    SkyboxRenderer* m_SkyboxRenderer         = nullptr;
-    ParticleRenderer* m_ParticleRenderer     = nullptr;
-    SkyGradientRenderer* m_SkyGradientRenderer = nullptr;
-
-    inline static Camera g_Camera{};
-
-    inline static Framebuffer* fboGbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
+    RenderEngine() = delete;
 
     inline static float viewDistance = 1;
     inline static int fpsCap = 60;
 
     inline static bool dbg_EntityGeo = false;
+    inline static bool dbg_HitPointEntityGeo = false;
     inline static bool dbg_RenderedEntityAABB = false;
     inline static bool dbg_NoVegetable = false;
-    inline static bool dbg_HitPointEntityGeo = false;
 
-    RenderEngine();
-    ~RenderEngine();
+    static void init();
+    static void deinit();
 
     static void framePrepare();
 
-    void renderWorld(World* world);
+    static void renderWorld(World* world);
 
-    void renderWorldGeometry(World* world);
+    static void renderWorldGeometry(World* world);
 
-    void renderWorldCompose(World* world);
-
-    static bool testFrustum(const AABB& aabb) {
-        return g_Camera.m_Frustum.intersects(aabb);
-    }
+    static void renderWorldCompose(World* world);
 
     static void checkGlError(std::string_view phase = "") {
         GLuint err;

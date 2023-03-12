@@ -8,7 +8,7 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/gui/screen/GuiDebugV.h>
+//#include <ethertia/gui/screen/GuiDebugV.h>
 
 
 void ItemComponentFood::onUse()
@@ -29,7 +29,7 @@ void ItemComponentMaterial::onUse()
 
     Material* mtl = m_Material;
 
-    if (mtl->m_IsVegetable || mtl->m_CustomMesh || GuiDebugV::g_BlockMode || Ethertia::getWindow()->isKeyDown(GLFW_KEY_B))
+    if (mtl->m_IsVegetable || mtl->m_CustomMesh || Ethertia::getWindow().isKeyDown(GLFW_KEY_B))  // || GuiDebugV::g_BlockMode
     {
         Cell& c = Ethertia::getWorld()->getCell(p + cur.normal*0.1f);
 
@@ -46,7 +46,7 @@ void ItemComponentMaterial::onUse()
         Cell& b = Ethertia::getWorld()->getCell(p + rp);
         float f = n - glm::length(rp + glm::vec3(0.5));
 
-        if (!Ethertia::getWindow()->isAltKeyDown())  {
+        if (!Ethertia::getWindow().isAltKeyDown())  {
             b.density = Mth::max(b.density, f);
         }
         if (b.density >= 0.0f)
@@ -72,7 +72,7 @@ void ItemComponentEntity::onUse()  {
 
 void ItemComponentToolGrapple::onUse()
 {
-    glm::vec3 dir = Ethertia::getCamera()->direction;
+    glm::vec3 dir = Ethertia::getCamera().direction;
 
     Ethertia::getPlayer()->applyLinearVelocity(dir * 24.3f);
 }

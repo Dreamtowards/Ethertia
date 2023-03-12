@@ -16,98 +16,71 @@
 #include <ethertia/util/Scheduler.h>
 #include <ethertia/util/Registry.h>
 
-// scope profiling
-#define PROFILE_VN_CONCAT_INNR(a, b) a ## b
-#define PROFILE_VN_CONCAT(a, b) PROFILE_VN_CONCAT_INNR(a, b)
-#define PROFILE(x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = Ethertia::getProfiler().push_ap(x)
-#define PROFILE_X(p, x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
 
-// __forward_declarations
-
-class RenderEngine;      // #include <ethertia/render/RenderEngine.h>
-class World;             // #include <ethertia/world/World.h>
-class EntityPlayer;      // #include <ethertia/entity/player/EntityPlayer.h>
-class GuiRoot;           // #include <ethertia/gui/GuiRoot.h>
-class Window;            // #include <ethertia/render/Window.h>
-class AudioEngine;       // #include <ethertia/audio/AudioEngine.h>
-
-class WorldInfo;  // ethertia/world/World.h
+class World;
+class WorldInfo;
+class EntityPlayer;
+class GuiRoot;
+class Window;
 
 class Ethertia
 {
-    inline static bool          m_Running      = false;
-    inline static RenderEngine* m_RenderEngine = nullptr;
-    inline static World*        m_World        = nullptr;
-    inline static EntityPlayer* m_Player       = nullptr;
-    inline static GuiRoot*      m_RootGUI      = nullptr;
-    inline static Window*       m_Window       = nullptr;
-    inline static AudioEngine*  m_AudioEngine  = nullptr;
-    inline static Timer         m_Timer{};
-    inline static Scheduler     m_Scheduler{};
-    inline static Scheduler     m_AsyncScheduler{};
-    inline static HitCursor     m_HitCursor{};
-    inline static Profiler      m_Profiler{};
-
-
 public:
     Ethertia() = delete;
 
-
-    static void run()
-    {
-        start();
-
-        while (m_Running)
-        {
-            runMainLoop();
-        }
-
-        destroy();
-    }
-
-    static void start();
-
-    static void runMainLoop();
-    static void runTick();
-    static void renderGUI();
-
-    static void destroy();
-
+    // @worldinfo is only required when creating a new world, at the same time @savedir should also be an empty or non-existing folder.
     static void loadWorld(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
     static void unloadWorld();
 
+    // send chat message (@cmd not '/' leading) or dispatch command ('/' leading).
     static void dispatchCommand(const std::string& cmd);
-    static void notifyMessage(const std::string& msg);
 
-    static void shutdown() { m_Running = false; }
-    static const bool& isRunning() { return m_Running; }
-    static bool inMainThread() { return m_Scheduler.inThread(); }
+    static void notifyMessage(const std::string& msg);  // print @msg on Message Box.
 
-    static RenderEngine* getRenderEngine() { return m_RenderEngine; }
-    static Window* getWindow() { return m_Window; }
-    static World* getWorld() { return m_World; }
-    static GuiRoot* getRootGUI() { return m_RootGUI; }
-    static EntityPlayer* getPlayer() { return m_Player; }
-    static Timer* getTimer() { return &m_Timer; }
-    static Scheduler* getScheduler() { return &m_Scheduler; }
-    static Scheduler* getAsyncScheduler() { return &m_AsyncScheduler; }
-    static HitCursor& getHitCursor() { return m_HitCursor; }
-    static Profiler& getProfiler() { return m_Profiler; }
-    static AudioEngine* getAudioEngine() { return m_AudioEngine; }
 
-    static bool isIngame();  // controlling game.
-    static float getPreciseTime();
-    static float getAspectRatio();
-    static float getDelta();
-    static Camera* getCamera();
+    static bool& isRunning();
+    static void shutdown() { isRunning() = false; }     // not immediately shutdown, but after this frame.
 
-    template<typename T>
-    static Registry<T>* getRegistry() {
-        // static_assert(std::is_same<T, Item>());
-        return &T::REGISTRY;
-    }
 
-    //static void getGameViewport();
+    static bool inMainThread() { return getScheduler().inThread(); }  // is call from main thread.
+
+
+
+    static World* getWorld();
+    static EntityPlayer* getPlayer();
+    static Window& getWindow();
+    static Timer& getTimer();
+    static Scheduler& getScheduler();
+    static Scheduler& getAsyncScheduler();
+    static HitCursor& getHitCursor();
+    static Profiler& getProfiler();
+    static Camera& getCamera();
+
+    static float getDelta();        // (previous) frame delta time in seconds.
+    static float getPreciseTime();  // precise program-running-time in seconds. !not epoch timestamp.
+
+    // is controlling the game. (mouse grabbed, wsad etc.)
+    static bool& isIngame();
+
+
+
+
+
+
+
+    struct Viewport
+    {
+        float x, y, width, height;
+
+        // width/height. return 0 if height==0.
+        float getAspectRatio() const {
+            if (height==0) return 0;
+            return width/height;
+        }
+    };
+
+    // game viewport. useful when game required to be rendered in a specific area.
+    static const Ethertia::Viewport& getViewport();
 
     struct Version
     {
@@ -127,6 +100,18 @@ public:
         }
     };
 
+
+
+
+
 };
+
+
+
+#define PROFILE_VN_CONCAT_INNR(a, b) a ## b
+#define PROFILE_VN_CONCAT(a, b) PROFILE_VN_CONCAT_INNR(a, b)
+#define PROFILE(x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = Ethertia::getProfiler().push_ap(x)
+#define PROFILE_X(p, x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
+
 
 #endif //ETHERTIA_ETHERTIA_H

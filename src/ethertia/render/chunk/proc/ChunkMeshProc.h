@@ -44,7 +44,7 @@ public:
                 {
                     PROFILE_X(gp_MeshGen, "Seek");
                     Timer::sleep_for(1);
-                    chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+                    chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera().position, RenderEngine::viewDistance);
                 }
 
                 if (chunk)
@@ -137,7 +137,7 @@ public:
         }
 
         // Dont upload/to be render if Current and Previous Mesh is Empty.
-        Ethertia::getScheduler()->addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
+        Ethertia::getScheduler().addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
 
             if (Ethertia::getWorld() && chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);
@@ -161,7 +161,7 @@ public:
     }
 
     inline static float dist2ChunkCam(Chunk* c) {
-        return glm::length2(Ethertia::getCamera()->position - c->position);
+        return glm::length2(Ethertia::getCamera().position - c->position);
     }
 
     static void walkViewDistanceChunks(int viewDistance, const std::function<void(vec3 rcp)>& fn) {

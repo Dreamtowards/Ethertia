@@ -129,7 +129,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
         m_Chunks[chunkpos] = chunk;
     }
 
-    Ethertia::getScheduler()->addTask([this, chunk, chunkpos]()
+    Ethertia::getScheduler().addTask([this, chunk, chunkpos]()
     {
         // bug: CNS 这个延时操作，可能刚添加进来的区块 立刻被卸载了，
         if (!getLoadedChunk(chunkpos))
@@ -169,7 +169,7 @@ void World::saveUnloadedChunks() {
         Entity* meshTerr = chunk->m_MeshTerrain;
         Entity* meshVege = chunk->m_MeshVegetable;
 
-        Ethertia::getScheduler()->addTask([this, meshTerr, meshVege]()
+        Ethertia::getScheduler().addTask([this, meshTerr, meshVege]()
         {
             // CNS 有时Entity根本不会被加入世界 (当加入世界时发现区块已被卸载 将取消加入世界
             // ps 真的假的 为什么我现在不明白了
@@ -571,7 +571,7 @@ void World::processEntityCollision() {
         assert(!player || dynamic_cast<EntityPlayer*>(player));
 
         // player pick item
-        if (player && Ethertia::getWindow()->isKeyDown(GLFW_KEY_P)) {
+        if (player && Ethertia::getWindow().isKeyDown(GLFW_KEY_P)) {
             EntityDroppedItem* eDroppedItem = dynamic_cast<EntityDroppedItem*>(playerIsA ? ptrB : ptrA);
             if (eDroppedItem) {
                 removeEntity(eDroppedItem);

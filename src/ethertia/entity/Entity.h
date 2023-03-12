@@ -22,47 +22,23 @@
 
 #include <ethertia/render/RenderEngine.h>
 
-
 class Entity
 {
 public:
     btRigidBody* m_Rigidbody = nullptr;
 
     World* m_World = nullptr;
+    entt::entity m_EnttEntityHandle = entt::null;
 
     Model* m_Model = nullptr;
     Texture* m_DiffuseMap = nullptr;
 
     std::vector<EntityComponent*> m_Components;
 
+
     Entity() {
     }
 
-
-//    glm::vec3 position;
-//    glm::vec3 velocity;
-//    glm::vec3 prevposition{0};
-//    glm::vec3 intpposition{0};
-
-//    static void loadModelAndShape(const std::string& path, Model** md, btCollisionShape** sp = nullptr) {
-//        VertexBuffer* vbuf = Loader::loadOBJ(Loader::loadAssetsStr(path));
-//        *md = Loader::loadModel(vbuf);
-//        if (sp) {
-//            *sp = createHullShape(vbuf->vertexCount(), vbuf->positions.data());
-//        }
-//    }
-//    // temp test.
-//    Entity(float mass, std::string mpath) {
-//
-//        btCollisionShape* sp;
-//        loadModelAndShape(mpath, &m_Model, &sp);
-//        rigidbody = newRigidbody(mass, sp);
-//    }
-//    // entity types which doesn't need be store. e.g. Chunk Model Proxy, Players
-//    static bool isSynthesis(Entity* e) {
-//
-//        return false;
-//    }
     ~Entity() {
 
         delete m_Rigidbody->getCollisionShape();
@@ -71,14 +47,29 @@ public:
         delete m_Rigidbody;
     }
 
+    template<typename T, typename... Args>
+    T& addComponent(Args&&... args) {
+        assert(!hasComponent<T>() && "Entity already have the component.");
+        T& component = m_World->m_EnttRegistry.emplace<T>(m_EnttEntityHandle, std::forward<T>(args)...);
+        return component;
+    }
 
     template<typename T>
-    T* getComponent() {
-        for (EntityComponent* c : m_Components) {
-            T* t = dynamic_cast<T*>(c);
-            if (t) return t;
-        }
-        return nullptr;
+    T& getComponent() {
+        assert(hasComponent<T>() && "Entity doesn't have such Component.");
+        return m_World->m_EnttRegistry.get<T>(m_EnttEntityHandle);
+    }
+
+    // hasAny, hasAll
+    template<typename T>
+    bool hasComponent() {
+        return m_World->m_EnttRegistry.any_of<T>(m_EnttEntityHandle);
+    }
+
+    template<typename T>
+    void removeComponent() {
+        assert(hasComponent<T>() && "Entity doesn't have such Component.");
+        m_World->m_EnttRegistry.remove<T>(m_EnttEntityHandle);
     }
 
     virtual void onRender();

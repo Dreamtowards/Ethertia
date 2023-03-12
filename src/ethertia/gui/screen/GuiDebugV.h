@@ -191,7 +191,6 @@ public:
 
     void implDraw() override {
 
-        RenderEngine* rde = Ethertia::getRenderEngine();
         EntityPlayer* player = Ethertia::getPlayer();
         World* world = Ethertia::getWorld();
 
@@ -399,15 +398,15 @@ public:
 
         for (int ry = -n; ry <= n; ++ry) {
             for (int rz = -n; rz <= n; ++rz) {
-                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(-n, ry, rz), glm::vec3(2*n, 0, 0), Colors::GRAY);
+                RenderEngine::drawLine(center + glm::vec3(-n, ry, rz), glm::vec3(2*n, 0, 0), Colors::GRAY);
             }
             for (int rx = -n; rx <= n; ++rx) {
-                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, ry, -n), glm::vec3(0, 0, 2*n), Colors::GRAY);
+                RenderEngine::drawLine(center + glm::vec3(rx, ry, -n), glm::vec3(0, 0, 2*n), Colors::GRAY);
             }
         }
         for (int rx = -n; rx <= n; ++rx) {
             for (int rz = -n; rz <= n; ++rz) {
-                Ethertia::getRenderEngine()->drawLine(center + glm::vec3(rx, -n, rz), glm::vec3(0, 2*n, 0), Colors::GRAY);
+                RenderEngine::drawLine(center + glm::vec3(rx, -n, rz), glm::vec3(0, 2*n, 0), Colors::GRAY);
             }
         }
     }

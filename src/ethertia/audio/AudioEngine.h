@@ -18,17 +18,17 @@ class AudioEngine
 {
 public:
 
-    ALCdevice*  m_Device = nullptr;
-    ALCcontext* m_Context = nullptr;
+    inline static ALCdevice*  m_Device = nullptr;
+    inline static ALCcontext* m_Context = nullptr;
 
-    ALCdevice* m_CaptureDevice = nullptr;
+    inline static ALCdevice* m_CaptureDevice = nullptr;
 
     inline static const int CAPTURE_BUF_SIZE = 32768;
     inline static char CAPTURE_BUF[CAPTURE_BUF_SIZE];
-    bool m_CaptureStarted = false;
-    int m_CaptureSampleRate = 44100;  // 8000-96000
+    inline static bool m_CaptureStarted = false;
+    inline static int m_CaptureSampleRate = 44100;  // 8000-96000
 
-    AudioEngine()
+    static void init()
     {
         BENCHMARK_TIMER;
 
@@ -60,7 +60,7 @@ public:
         checkAlError("Init AL");
     }
 
-    ~AudioEngine()
+    static void deinit()
     {
         if (m_CaptureStarted)
             stopCapture();
@@ -77,7 +77,7 @@ public:
         alcCaptureStart(m_CaptureDevice);
     }
 
-    void stopCapture() {
+    static void stopCapture() {
         m_CaptureStarted = false;
         alcCaptureStop(m_CaptureDevice);
     }
@@ -133,23 +133,23 @@ public:
 
     // Listener
 
-    void setPosition(float x, float y, float z) {
+    static void setListenerPosition(float x, float y, float z) {
         alListener3f(AL_POSITION, x,y,z);
     }
-    void setPosition(glm::vec3 p) {
-        setPosition(p.x, p.y, p.z);
+    static void setListenerPosition(glm::vec3 p) {
+        setListenerPosition(p.x, p.y, p.z);
     }
 
     void setVelocity() {
 
     }
 
-    void setOrientation(float x, float y, float z) {
+    static void setListenerOrientation(float x, float y, float z) {
         float orie[6] = {x, y, z, 0, 1, 0};  // FaceDir, UpDir(Y-Up)
         alListenerfv(AL_ORIENTATION, orie);
     }
-    void setOrientation(glm::vec3 d) {
-        setOrientation(d.x, d.y, d.z);
+    static void setListenerOrientation(glm::vec3 d) {
+        setListenerOrientation(d.x, d.y, d.z);
     }
 
 

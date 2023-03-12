@@ -20,13 +20,13 @@ class FontRenderer
 
     DECL_SHADER(SHADER, "shaders/gui/font.{}");
 
-    Texture* texAscii = nullptr;
+    inline static Texture* texAscii = nullptr;
 
-    float glyphWidths[GLYPH_LIMIT];
+    inline static float glyphWidths[GLYPH_LIMIT];
 
     // const char** UNIFORM_SCALE = Renderer::_GenArrayNames("scale[%i]", 128);
 public:
-    FontRenderer() {
+    static void init() {
 
         texAscii = Loader::loadTexture("font/unicode_page_0.png");
 
@@ -47,7 +47,7 @@ public:
     }
 
 
-    void renderString(float x, float y, const std::string& str, glm::vec4 color, float textHeight, float align)
+    static void renderString(float x, float y, const std::string& str, glm::vec4 color, float textHeight, float align)
     {
         float ww = Gui::maxWidth();
         float wh = Gui::maxHeight();
@@ -88,11 +88,11 @@ public:
         }
     }
 
-    float charFullWidth(int ch, float textHeight) {
+    static float charFullWidth(int ch, float textHeight) {
         return glyphWidths[ch]*textHeight * (1.0f+GAP_CHAR_PERC);
     }
 
-    float lineWidth(const std::string& str, int from, float textHeight) {
+    static float lineWidth(const std::string& str, int from, float textHeight) {
         float w = 0;
         for (int i = from; i < str.length(); ++i) {
             int ch = str.at(i);
@@ -103,7 +103,7 @@ public:
         return w;
     }
 
-    int textIdx(const std::string& str, float textHeight, float pX, float pY) {
+    static int textIdx(const std::string& str, float textHeight, float pX, float pY) {
         if (pX < 0 || pY < 0) return 0;
 
         float lineHeight = textHeight * (1.0f+GAP_LINE_PERC);
@@ -133,7 +133,7 @@ public:
     }
 
     // if use as Bound, please +lineHeight to y.
-    glm::vec2 textPos(const std::string& str, float textHeight, int until = -1) {
+    static glm::vec2 textPos(const std::string& str, float textHeight, int until = -1) {
         float lineHeight = textHeight * (1.0f+GAP_LINE_PERC);
         float x = 0;
         float y = 0;
@@ -153,7 +153,7 @@ public:
     }
 
     // there 3 same traversal proc, need an common abstraction, but not now
-    glm::vec2 textBound(const std::string& str, float textHeight) {
+    static glm::vec2 textBound(const std::string& str, float textHeight) {
         float lineHeight = textHeight * (1.0f+GAP_LINE_PERC);
         float maxX = 0;
         float x = 0;

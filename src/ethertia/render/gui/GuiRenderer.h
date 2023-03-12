@@ -18,7 +18,7 @@ public:
 
     inline static Texture* TEX_WHITE;  // 1x1 pixel, RGBA=1 white tex.
 
-    GuiRenderer()
+    static void init()
     {
         // init M_RECT.
         float RECT_POS[] = {2,-2, 2, 0, 0,-2, 0, 0};
@@ -36,7 +36,9 @@ public:
         //  Rotation angle, -w -h flip draw.
     }
 
-    void render(float x, float y, float w, float h, glm::vec4 color, Texture* tex =nullptr, glm::vec4 texPosSize = {0,0,1,1}, float round =0, float border =0, int chnMode =0)
+    static void render(float x, float y, float w, float h,
+                       glm::vec4 color, Texture* tex =nullptr, glm::vec4 texPosSize = {0,0,1,1},
+                       float round =0, float border =0, int chnMode =0)
     {
         if (!tex)
             tex = TEX_WHITE;

@@ -31,7 +31,7 @@ public:
 
     Inventory m_Inventory{8};
 
-    EntityVehicle* m_RidingOn = nullptr;
+//    Entity* m_RidingOn = nullptr;
 
 
     EntityPlayer() {
@@ -96,12 +96,12 @@ public:
 
     void move(bool up, bool down, bool front, bool back, bool left, bool right)
     {
-        ASSERT_WARN(m_RidingOn == nullptr, "Shouldn't 'move' while riding.");
+//        ASSERT_WARN(m_RidingOn == nullptr, "Shouldn't 'move' while riding.");
 
         float speed = m_Sprint ? 30 : 15;
         speed *= Ethertia::getDelta();
 
-        float yaw = Ethertia::getCamera()->eulerAngles.y;
+        float yaw = Ethertia::getCamera().eulerAngles.y;
         glm::vec3 v(0);
 
         if (m_Flying) {
@@ -142,7 +142,7 @@ public:
     }
 
     glm::vec3 getViewDirection() {
-        return Ethertia::getCamera()->direction;
+        return Ethertia::getCamera().direction;
     }
 
 //    class OnGroundCheck : public btCollisionWorld::ContactResultCallback

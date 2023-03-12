@@ -24,7 +24,7 @@ public:
 
     GuiButton(std::string text, bool bg = true, float hei = 16, float xPadding=8) : m_Text(std::move(text)), m_TextHeight(hei), enableBackground(bg),
                                                                                     Gui(0, 0, 100, hei+4) {
-        glm::vec2 n = Ethertia::getRenderEngine()->fontRenderer->textBound(m_Text, m_TextHeight);
+        glm::vec2 n = FontRenderer::textBound(m_Text, m_TextHeight);
         setWidth(n.x + xPadding*2);
     }
 

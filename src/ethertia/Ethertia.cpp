@@ -4,10 +4,6 @@
 
 #include <ethertia/render/RenderEngine.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/gui/GuiRoot.h>
-#include <ethertia/gui/screen/GuiIngame.h>
-#include <ethertia/gui/screen/GuiScreenMainMenu.h>
-#include <ethertia/gui/screen/GuiScreenPause.h>
 #include <ethertia/render/chunk/MarchingCubesMeshGen.h>
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include <ethertia/world/World.h>
@@ -35,21 +31,45 @@
 #include <ethertia/init/Sounds.h>
 
 #include <ethertia/init/ImGuis.h>
+#include <ethertia/world/Biome.h>
+#include <ethertia/render/deferred/GeometryRenderer.h>
 
 
+static void Init();
+static void Destroy();
+static void RunMainLoop();
+
+// The main entrance & entire lifetime.
 int main()
 {
-    Ethertia::run();
+    Init();
 
+    while (Ethertia::isRunning())
+    {
+        RunMainLoop();
+    }
+
+    Destroy();
 
     return 0;
 }
 
+static Window*      g_Window = nullptr;
+static World*       g_World = nullptr;
+static EntityPlayer*g_Player = nullptr;
+static Scheduler    g_Scheduler;        // main thread tasks executor.
+static Scheduler    g_AsyncScheduler;
+static Timer        g_Timer;
+static HitCursor    g_HitCursor;
+static Profiler     g_Profiler;
+static Camera       g_Camera;
 
-void Ethertia::start()
+// System Initialization.
+static void Init()
 {
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::loadSettings();
+    NoiseGen::initSIMD();
     Loader::checkWorkingDirectory();
 
     for (const std::string& modpath : Settings::MODS) {
@@ -57,13 +77,11 @@ void Ethertia::start()
     }
     //OpenVR::init();
 
-    m_Running = true;
-    m_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
-    m_RootGUI = new GuiRoot();
+    Ethertia::isRunning() = true;
+    g_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
     ShaderProgram::loadAll();
-    m_RenderEngine = new RenderEngine();  // todo RenderEngine::init();
-    m_AudioEngine = new AudioEngine();  // todo AudioEngine::init();
-    NoiseGen::initSIMD();
+    RenderEngine::init();
+    AudioEngine::init();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target_name(), std::endian::native == std::endian::big ? "big" : "little");
 
     // Materials & Items
@@ -81,181 +99,34 @@ void Ethertia::start()
     // Client Controls.
     Controls::initControls();
 
-    m_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
-    GuiIngame::initGUIs();
+    g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
+    g_Player->setPosition({10, 10, 10});
+    g_Player->switchGamemode(Gamemode::SPECTATOR);
+    g_Player->setFlying(true);
+
+//    GuiIngame::initGUIs();
 
     // Proc Threads
     ChunkMeshProc::initThread();
     ChunkGenProc::initThread();
-    m_AsyncScheduler.initThread();
-    m_Scheduler.m_ThreadId = std::this_thread::get_id();
+    Ethertia::getAsyncScheduler().initThread();
+    Ethertia::getScheduler().m_ThreadId = std::this_thread::get_id();
 
 
-    m_Player->setPosition({10, 10, 10});
-    m_Player->switchGamemode(Gamemode::SPECTATOR);
-    m_Player->setFlying(true);
 
     ImGuis::Init();
 
 
 
 
-    Ethertia::getRegistry<Material>()->dbgPrintEntries("Materials");
-    Ethertia::getRegistry<Item>()->dbgPrintEntries("Items");
-    Ethertia::getRegistry<Biome>()->dbgPrintEntries("Biomes");
-    Ethertia::getRegistry<Command>()->dbgPrintEntries("Commands");
-
-//    Ethertia::getRootGUI()->addOnClickListener([](auto) {
-//
-//    });
-
-
-    if (m_AudioEngine->m_CaptureDevice)
-        m_AudioEngine->startCapture();
+    Material::REGISTRY.dbgPrintEntries("Materials");
+    Item::REGISTRY.dbgPrintEntries("Items");
+    Biome::REGISTRY.dbgPrintEntries("Biomes");
+    Command::REGISTRY.dbgPrintEntries("Commands");
 
 }
 
-void Ethertia::runMainLoop()
-{
-    PROFILE("Frame");
-    m_Timer.update(getPreciseTime());
-
-    {
-        PROFILE("SyncTask");
-        m_Scheduler.processTasks(0.01);
-    }
-
-    {
-        PROFILE("Tick");
-
-        while (m_Timer.polltick())
-        {
-            // runTick();
-        }
-        // these are Temporary. should be put in World::onTick().
-        if (m_World)
-        {
-            PROFILE("Phys");
-            m_Player->m_PrevVelocity = m_Player->m_Rigidbody->getLinearVelocity();
-            m_World->m_DynamicsWorld->stepSimulation(getDelta());
-
-            m_World->processEntityCollision();
-
-            m_World->forLoadedChunks([](Chunk* chunk)
-            {
-                chunk->m_InhabitedTime += getDelta();
-            });
-
-            m_World->onTick(getDelta());
-        }
-    }
-
-    {
-        PROFILE("Input");
-
-        m_Window->resetDeltas();
-        glfwPollEvents();
-        Controls::handleContinuousInput();
-    }
-
-    {
-        PROFILE("Render");
-        RenderEngine::framePrepare();
-
-        if (m_World)
-        {
-            PROFILE("World");
-            m_RenderEngine->renderWorld(m_World);
-        }
-        {
-            PROFILE("GUI");
-            renderGUI();
-            ImGuis::Render();
-        }
-    }
-
-    {
-        PROFILE("SwapBuffer");
-        m_Window->swapBuffers();
-        AudioEngine::checkAlError("Frame");
-
-        m_AudioEngine->setPosition(Ethertia::getCamera()->position);
-        m_AudioEngine->setOrientation(Ethertia::getCamera()->direction);
-    }
-}
-
-void Ethertia::renderGUI()
-{
-    GuiRoot* rootGUI = Ethertia::getRootGUI();
-
-    rootGUI->onLayout();
-
-    rootGUI->updateHovers(Ethertia::getWindow()->getMousePos());
-
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-
-    GuiInventory::HOVER_ITEM = nullptr;
-
-    rootGUI->onDraw();
-
-    GuiInventory::doDrawHoveredItem();
-    GuiInventory::doDrawPickingItem();
-
-//    Gui::drawRect(0, Gui::maxHeight()-300, 300, 300, {
-//        .tex = ShadowRenderer::fboDepthMap->texDepth,
-//        .channel_mode = Gui::DrawRectArgs::C_RGB
-//    });
-
-    HitCursor& cur = Ethertia::getHitCursor();
-    if (cur.cell_breaking_time)
-    {
-        float fullBreakingTime = cur.cell->mtl->m_Hardness;
-        float t = cur.cell_breaking_time / fullBreakingTime;
-        Gui::drawString(64, 256, Strings::fmt("{}/{}s", Mth::floor_dn(cur.cell_breaking_time, 1), fullBreakingTime));
-        Gui::drawRect(64, 256+16, 120,   4, Colors::BLACK80);
-        Gui::drawRect(64, 256+16, 120*t, 4, Colors::GREEN_DARK);
-    }
-
-    {
-//        float x = Gui::maxWidth() - 64;
-//        float y = Gui::maxHeight() - 64 - 40;
-//        if (World::dbg_ChunkProvideState) {
-//            Gui::drawString(x, y, World::dbg_ChunkProvideState == 1 ? "Generating Chunk.." : "Loading Chunk..",
-//                            Colors::GRAY, 16, {-1, -1});
-//        }
-//        if (World::dbg_SavingChunks) {
-//            Gui::drawString(x, y+16, Strings::fmt("Saving chunks... ({})", World::dbg_SavingChunks),
-//                            Colors::GREEN_DARK, 16, {-1, -1});
-//        }
-//        if (ChunkMeshProc::dbg_NumChunksMeshInvalid > 0) {
-//            Gui::drawString(x, y+32, Strings::fmt("Meshing chunks... ({})", ChunkMeshProc::dbg_NumChunksMeshInvalid),
-//                            Colors::GRAY_DARK, 16, {-1, -1});
-//        }
-    }
-
-    if (!WorldEdit::selection.empty()) {
-        AABB& s = WorldEdit::selection;
-        RenderEngine::drawLineBox(s.min, s.size(), Colors::GREEN);
-    }
-
-    glEnable(GL_DEPTH_TEST);
-
-}
-
-
-void Ethertia::runTick()
-{
-
-//    if (m_World) {
-//
-//        m_World->tick();
-//    }
-}
-
-void Ethertia::destroy()
+static void Destroy()
 {
     Settings::saveSettings();
 
@@ -265,40 +136,185 @@ void Ethertia::destroy()
 
     NetworkSystem::deinit();
 
-    delete m_RootGUI;
-    delete m_RenderEngine;
-    delete m_AudioEngine;
+    RenderEngine::deinit();
+    AudioEngine::deinit();
 
     ImGuis::Destroy();
 
     glfwTerminate();
 }
 
+
+static void RunMainLoop()
+{
+    PROFILE("Frame");
+    Ethertia::getTimer().update(Ethertia::getPreciseTime());
+    float dt = Ethertia::getDelta();
+    World* world = Ethertia::getWorld();
+    Window& window = Ethertia::getWindow();
+
+    {
+        PROFILE("SyncTask");
+        Ethertia::getScheduler().processTasks(0.01);
+    }
+
+    {
+        PROFILE("Tick");
+
+        while (Ethertia::getTimer().polltick())
+        {
+            // runTick();
+        }
+        // these are Temporary. should be put in World::onTick().
+
+        if (world)
+        {
+            PROFILE("Phys");
+            g_Player->m_PrevVelocity = g_Player->m_Rigidbody->getLinearVelocity();
+            world->m_DynamicsWorld->stepSimulation(dt);
+
+            world->processEntityCollision();
+
+            world->forLoadedChunks([](Chunk* chunk)
+            {
+                chunk->m_InhabitedTime += Ethertia::getDelta();
+            });
+
+            world->onTick(dt);
+        }
+    }
+
+    {
+        PROFILE("Input");
+
+        window.resetDeltas();
+        glfwPollEvents();
+        Controls::handleContinuousInput();
+    }
+
+    {
+        PROFILE("Render");
+        RenderEngine::framePrepare();
+
+        if (world)
+        {
+            PROFILE("World");
+            RenderEngine::renderWorld(world);
+        }
+        {
+            PROFILE("GUI");
+            //renderGUI();
+            ImGuis::Render();
+        }
+    }
+
+    {
+        PROFILE("SwapBuffer");
+        window.swapBuffers();
+
+        AudioEngine::checkAlError("Frame");
+        AudioEngine::setListenerPosition(Ethertia::getCamera().position);
+        AudioEngine::setListenerOrientation(Ethertia::getCamera().direction);
+    }
+}
+
+//void Ethertia::renderGUI()
+//{
+//    GuiRoot* rootGUI = Ethertia::getRootGUI();
+//
+//    rootGUI->onLayout();
+//
+//    rootGUI->updateHovers(Ethertia::getWindow()->getMousePos());
+//
+//    glDisable(GL_DEPTH_TEST);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glDisable(GL_CULL_FACE);
+//
+//    GuiInventory::HOVER_ITEM = nullptr;
+//
+//    rootGUI->onDraw();
+//
+//    GuiInventory::doDrawHoveredItem();
+//    GuiInventory::doDrawPickingItem();
+//
+////    Gui::drawRect(0, Gui::maxHeight()-300, 300, 300, {
+////        .tex = ShadowRenderer::fboDepthMap->texDepth,
+////        .channel_mode = Gui::DrawRectArgs::C_RGB
+////    });
+//
+//    HitCursor& cur = Ethertia::getHitCursor();
+//    if (cur.cell_breaking_time)
+//    {
+//        float fullBreakingTime = cur.cell->mtl->m_Hardness;
+//        float t = cur.cell_breaking_time / fullBreakingTime;
+//        Gui::drawString(64, 256, Strings::fmt("{}/{}s", Mth::floor_dn(cur.cell_breaking_time, 1), fullBreakingTime));
+//        Gui::drawRect(64, 256+16, 120,   4, Colors::BLACK80);
+//        Gui::drawRect(64, 256+16, 120*t, 4, Colors::GREEN_DARK);
+//    }
+//
+//    {
+////        float x = Gui::maxWidth() - 64;
+////        float y = Gui::maxHeight() - 64 - 40;
+////        if (World::dbg_ChunkProvideState) {
+////            Gui::drawString(x, y, World::dbg_ChunkProvideState == 1 ? "Generating Chunk.." : "Loading Chunk..",
+////                            Colors::GRAY, 16, {-1, -1});
+////        }
+////        if (World::dbg_SavingChunks) {
+////            Gui::drawString(x, y+16, Strings::fmt("Saving chunks... ({})", World::dbg_SavingChunks),
+////                            Colors::GREEN_DARK, 16, {-1, -1});
+////        }
+////        if (ChunkMeshProc::dbg_NumChunksMeshInvalid > 0) {
+////            Gui::drawString(x, y+32, Strings::fmt("Meshing chunks... ({})", ChunkMeshProc::dbg_NumChunksMeshInvalid),
+////                            Colors::GRAY_DARK, 16, {-1, -1});
+////        }
+//    }
+//
+//    if (!WorldEdit::selection.empty()) {
+//        AABB& s = WorldEdit::selection;
+//        RenderEngine::drawLineBox(s.min, s.size(), Colors::GREEN);
+//    }
+//
+//    glEnable(GL_DEPTH_TEST);
+//
+//}
+
+
+//void Ethertia::runTick()
+//{
+//    if (m_World) {
+//
+//        m_World->tick();
+//    }
+//}
+
 void Ethertia::loadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 {
-    assert(m_World == nullptr);
-    assert(Ethertia::getScheduler()->numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
+    assert(getWorld() == nullptr);
+    assert(Ethertia::getScheduler().numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
 
-    m_World = new World(savedir, worldinfo);
-    m_World->addEntity(m_Player);
+    g_World = new World(savedir, worldinfo);
+    World* world = g_World;
+
+    world->addEntity(getPlayer());
 
     ChunkMeshProc::g_Running = 1;
     ChunkGenProc::g_Running = 1;
 
-    Log::info("Loading world @\"{}\" *{}", m_World->m_ChunkLoader->m_ChunkDir, m_World->m_WorldInfo.Seed);
+    Log::info("Loading world @\"{}\" *{}", world->m_ChunkLoader->m_ChunkDir, world->m_WorldInfo.Seed);
 
 
-    getScheduler()->addTask([](){
-        // not now. while handling GUI press/click. shouldn't remove gui.
-        Ethertia::getRootGUI()->removeAllGuis();
-        Ethertia::getRootGUI()->addGui(GuiIngame::Inst());
-    });
+//    getScheduler()->addTask([](){
+//        // not now. while handling GUI press/click. shouldn't remove gui.
+//        Ethertia::getRootGUI()->removeAllGuis();
+//        Ethertia::getRootGUI()->addGui(GuiIngame::Inst());
+//    });
 
 }
 
 void Ethertia::unloadWorld()
 {
-    assert(m_World);
+    assert(getWorld());
     Log::info("Unloading World...");
     Ethertia::getHitCursor().reset();
 
@@ -308,24 +324,24 @@ void Ethertia::unloadWorld()
     Timer::wait_for(&ChunkMeshProc::g_Running, 0);  // before delete chunks
 
 
-    m_World->unloadAllChunks();
+    getWorld()->unloadAllChunks();
 
     Log::info("Cleaning ChunkGen");
     ChunkGenProc::g_Running = -1;
     Timer::wait_for(&ChunkGenProc::g_Running, 0);
 
-    World* oldWorld = m_World;
-    m_World = nullptr;
+    World* oldWorld = getWorld();
+    g_World = nullptr;
 
 
-    Log::info("Sync Tasks {}", m_Scheduler.numTasks());
+    Log::info("Sync Tasks {}", getScheduler().numTasks());
     // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
-    m_Scheduler.processTasks(Mth::Inf);
-    assert(m_Scheduler.numTasks() == 0);
+    getScheduler().processTasks(Mth::Inf);
+    assert(getScheduler().numTasks() == 0);
 
-    Log::info("Async Tasks {}", m_AsyncScheduler.numTasks());
-    m_AsyncScheduler.processTasks(Mth::Inf);  // why? for what?
-    assert(m_AsyncScheduler.numTasks() == 0);
+    Log::info("Async Tasks {}", getAsyncScheduler().numTasks());
+    getAsyncScheduler().processTasks(Mth::Inf);  // why? for what?
+    assert(getAsyncScheduler().numTasks() == 0);
 
 
     delete oldWorld;
@@ -334,10 +350,10 @@ void Ethertia::unloadWorld()
     Log::info("World unloaded.");
 
     // remove gui after GuiEventPolling
-    getScheduler()->addTask([](){
-        Ethertia::getRootGUI()->removeAllGuis();
-        Ethertia::getRootGUI()->addGui(GuiScreenMainMenu::Inst());
-    });
+    // getScheduler()->addTask([](){
+    //     Ethertia::getRootGUI()->removeAllGuis();
+    //     Ethertia::getRootGUI()->addGui(GuiScreenMainMenu::Inst());
+    // });
 }
 
 
@@ -385,26 +401,41 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 
 void Ethertia::notifyMessage(const std::string& msg) {
     Log::info("[MSG/C] ", msg);
-    GuiMessageList::Inst()->addMessage(msg);
+//    GuiMessageList::Inst()->addMessage(msg);
     ImGuis::g_MessageBox.push_back(msg);
 }
 
-bool Ethertia::isIngame() {
-    return getRootGUI()->last() == GuiIngame::Inst() &&
-           !m_Window->isKeyDown(GLFW_KEY_GRAVE_ACCENT) &&
-           !Settings::ForceNotIngame;
+bool& Ethertia::isIngame() {
+    static bool g_IsControllingGame = false;
+    return g_IsControllingGame;
 }
+bool& Ethertia::isRunning() {
+    static bool g_Running = false;
+    return g_Running;
+}
+
+World* Ethertia::getWorld() { return g_World; }
+EntityPlayer* Ethertia::getPlayer() { return g_Player; }
 
 float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
+float Ethertia::getDelta() { return getTimer().getDelta(); }
+Camera& Ethertia::getCamera() { return g_Camera; }
+HitCursor& Ethertia::getHitCursor() { return g_HitCursor; }
+Profiler& Ethertia::getProfiler() { return g_Profiler; }
+Scheduler& Ethertia::getAsyncScheduler() { return g_AsyncScheduler; }
+Scheduler& Ethertia::getScheduler() { return g_Scheduler; }
+Timer& Ethertia::getTimer() { return g_Timer; }
+Window& Ethertia::getWindow() { return *g_Window; }
 
-float Ethertia::getDelta() { return m_Timer.getDelta(); }
 
-Camera* Ethertia::getCamera() { return &RenderEngine::g_Camera; }
-
-float Ethertia::getAspectRatio() {
-    Window* w = getWindow(); if (w->getHeight() == 0) return 0;
-    return (float)w->getWidth() / (float)w->getHeight();
+const Ethertia::Viewport& Ethertia::getViewport() {
+    static Ethertia::Viewport g_Viewport;
+    g_Viewport = {
+            0, 0, (float)getWindow().getWidth(), (float)getWindow().getHeight()
+    };
+    return g_Viewport;
 }
+
 
 
 
@@ -414,9 +445,9 @@ float Ethertia::getAspectRatio() {
 
 void ShaderProgram::setViewProjection(bool view)
 {
-    setMatrix4f("matProjection", Ethertia::getCamera()->matProjection);
+    setMatrix4f("matProjection", Ethertia::getCamera().matProjection);
 
-    setMatrix4f("matView", view ? Ethertia::getCamera()->matView : glm::mat4(1.0));
+    setMatrix4f("matView", view ? Ethertia::getCamera().matView : glm::mat4(1.0));
 }
 
 void ShaderProgram::reloadSources_() {
@@ -433,7 +464,7 @@ float Scheduler::_intl_program_time() {
 
 void Entity::onRender()
 {
-    EntityRenderer::renderGeometryChunk(
+    GeometryRenderer::renderGeometryChunk(
             m_Model, getPosition(), getRotation(), m_DiffuseMap);
 }
 
@@ -444,7 +475,7 @@ void EntityMesh::onRender()
     if (isFoliage)
         glDisable(GL_CULL_FACE);
 
-    EntityRenderer::renderGeometryChunk(
+    GeometryRenderer::renderGeometryChunk(
             m_Model, getPosition(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
 
     if (isFoliage)
@@ -461,7 +492,7 @@ namespace glm {
 }
 
 
-void Camera::update()
+void Camera::update(bool updateMatView)
 {
 
     direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
@@ -470,10 +501,11 @@ void Camera::update()
     actual_pos = position + -direction * len;
 
     // ViewMatrix
+    if (updateMatView)
     matView = Mth::viewMatrix(actual_pos, eulerAngles);
 
     // ProjectionMatrix
-    matProjection = glm::perspective(Mth::radians(fov), Ethertia::getAspectRatio(), 0.01f, 1000.0f);
+    matProjection = glm::perspective(Mth::radians(fov), Ethertia::getViewport().getAspectRatio(), 0.01f, 1000.0f);
 
     // ViewFrustum
     m_Frustum.set(matProjection * matView);

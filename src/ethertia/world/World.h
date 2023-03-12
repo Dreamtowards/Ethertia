@@ -9,11 +9,10 @@
 #include <mutex>
 #include <glm/vec3.hpp>
 #include <glm/gtx/hash.hpp>
+#include <entt/entt.hpp>
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
-
-#include <entt/entt.hpp>
 
 #include <ethertia/world/Cell.h>
 #include <ethertia/util/Scheduler.h>
@@ -23,8 +22,6 @@ class Entity;
 class Chunk;
 class ChunkGenerator;
 class ChunkLoader;
-
-class EntityVehicle;
 
 struct WorldInfo
 {
@@ -66,8 +63,8 @@ public:
     std::mutex m_LockChunks;
 
     // Unlaoded Chunks waiting to be batch-save.
-    std::mutex m_LockUnloadedChunks;
     std::vector<Chunk*> m_UnloadedChunks;
+    std::mutex m_LockUnloadedChunks;
 
 
     // Loaded Entities
@@ -80,6 +77,8 @@ public:
 
 
     WorldInfo m_WorldInfo;
+
+    entt::registry m_EnttRegistry;
 
 
     // worldinfo always nullptr (auto read.) except the first Create World.

@@ -60,18 +60,17 @@ public:
             .border = 2
         });
 
-        FontRenderer* fr = Ethertia::getRenderEngine()->fontRenderer;
 
         // Selection
         if (isPressed()) {
-            int idx = fr->textIdx(m_Text, textHeight, Gui::cursorX() - m_TextX - x, Gui::cursorY() - m_TextY - y);
+            int idx = FontRenderer::textIdx(m_Text, textHeight, Gui::cursorX() - m_TextX - x, Gui::cursorY() - m_TextY - y);
             setCursorPosition(idx);
 
             selectionEnd = idx;
         }
         for (int i = getSelectionMin(); i < getSelectionMax(); ++i) {
-            glm::vec2 p = fr->textPos(m_Text, textHeight, i);
-            Gui::drawRect(x + m_TextX + p.x, y + m_TextY + p.y, fr->charFullWidth(m_Text[i], textHeight), textHeight, Colors::WHITE30);
+            glm::vec2 p = FontRenderer::textPos(m_Text, textHeight, i);
+            Gui::drawRect(x + m_TextX + p.x, y + m_TextY + p.y, FontRenderer::charFullWidth(m_Text[i], textHeight), textHeight, Colors::WHITE30);
         }
 
         Gui::drawString(x+m_TextX, y+m_TextY, m_Text, Colors::WHITE, textHeight);
@@ -141,7 +140,7 @@ public:
         Log::info("MB");
 
         if (pressed) {
-            int idx = Ethertia::getRenderEngine()->fontRenderer->textIdx(m_Text, textHeight, Gui::cursorX() - m_TextX - getX(), Gui::cursorY() - m_TextY - getY());
+            int idx = FontRenderer::textIdx(m_Text, textHeight, Gui::cursorX() - m_TextX - getX(), Gui::cursorY() - m_TextY - getY());
 //            selectionBegin = idx;
 //            selectionEnd = idx;
             setCursorPosition(idx);
@@ -194,7 +193,7 @@ public:
     }
 
     glm::vec2 calcTextPos(int i) {
-        glm::vec2 p = Ethertia::getRenderEngine()->fontRenderer->textPos(m_Text, textHeight, i);
+        glm::vec2 p = FontRenderer::textPos(m_Text, textHeight, i);
         return {
                 getX() + m_TextX + p.x,
                 getY() + m_TextY + p.y

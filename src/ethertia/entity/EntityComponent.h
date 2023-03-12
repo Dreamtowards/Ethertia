@@ -35,6 +35,10 @@ public:
 //};
 
 
+class EntityComponentChunkMesh
+{
+
+};
 
 
 class Light

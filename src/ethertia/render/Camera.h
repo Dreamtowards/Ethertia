@@ -62,7 +62,11 @@ public:
     }
 
     // update ViewMatrix, ProjectionMatrix, and Frustum, etc.
-    void update();
+    void update(bool updateMatView = true);
+
+    bool testFrustum(const AABB& aabb) {
+        return m_Frustum.intersects(aabb);
+    }
 
 };
 

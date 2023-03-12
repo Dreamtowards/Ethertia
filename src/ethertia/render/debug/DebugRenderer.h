@@ -82,7 +82,7 @@ public:
         glm::vec3 p = glm::vec3(0.0f, 0.0f, -1.0f);
         float len = 0.2f;
 
-        glm::mat3 matViewBasis = glm::mat3(Ethertia::getCamera()->matView);
+        glm::mat3 matViewBasis = glm::mat3(Ethertia::getCamera().matView);
         drawLine(p, matViewBasis* glm::vec3(len, 0, 0), Colors::R, false);
         drawLine(p, matViewBasis * glm::vec3(0, len, 0), Colors::G, false);
         drawLine(p, matViewBasis * glm::vec3(0, 0, len), Colors::B, false);

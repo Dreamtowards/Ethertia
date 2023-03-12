@@ -19,10 +19,16 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/render/RenderEngine.h>
-#include <ethertia/gui/screen/GuiDebugV.h>
+//#include <ethertia/gui/screen/GuiDebugV.h>
 
 #include <ethertia/init/DebugStat.h>
 
+#include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/world/Chunk.h>
+#include <ethertia/render/ssao/SSAORenderer.h>
+#include <ethertia/render/shadow/ShadowRenderer.h>
+#include <ethertia/render/debug/DebugRenderer.h>
+#include <ethertia/render/deferred/GeometryRenderer.h>
 
 void ImGuis::Init()
 {
@@ -34,7 +40,7 @@ void ImGuis::Init()
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow()->m_WindowHandle, true);
+    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
     ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
     {
@@ -183,7 +189,7 @@ static void ShowDebugTextOverlay()
             "ChunkMeshing: {}\n"
             "ChunkSaving:  {}\n"
             ,
-            Ethertia::getCamera()->position, Ethertia::getCamera()->len,
+            Ethertia::getCamera().position, Ethertia::getCamera().len,
             meterPerSec, meterPerSec * 3.6f,
             player->m_OnGround, player->m_NumContactPoints,
 
@@ -194,7 +200,7 @@ static void ShowDebugTextOverlay()
             chunkInfo,
             cellInfo,
 
-            Ethertia::getScheduler()->numTasks(), Ethertia::getAsyncScheduler()->numTasks(),
+            Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
             DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
             DebugStat::dbg_NumChunksMeshInvalid,
             DebugStat::dbg_ChunksSaving
@@ -370,10 +376,9 @@ void ImGuis::ShowMainMenuBar()
 
             ImGui::Checkbox("DbgAllEntityAABB", &dbg_AllEntityAABB);
             ImGui::Checkbox("DbgAllChunkAABB", &dbg_AllChunkAABB);
-            ImGui::Checkbox("DbgHitEntityAABB", &GuiDebugV::dbg_CursorPt);
-            ImGui::Checkbox("DbgNearChunkBoundAABB", &GuiDebugV::dbgChunkBoundAABB);
-
-            ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
+//            ImGui::Checkbox("DbgHitEntityAABB", &GuiDebugV::dbg_CursorPt);
+//            ImGui::Checkbox("DbgNearChunkBoundAABB", &GuiDebugV::dbgChunkBoundAABB);
+//            ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
 
             ImGui::Checkbox("NoChunkSave", &Settings::dbg_NoChunkSave);
             ImGui::Checkbox("NoChunkLoad", &Settings::dbg_NoChunkLoad);
@@ -393,7 +398,7 @@ void ImGuis::ShowMainMenuBar()
             ImGui::SliderFloat("BrushSize", &Ethertia::getHitCursor().brushSize, 0, 16);
 //    ImGui::Checkbox("BlockMode", &Settings::dbgPolyLine);
 
-            Camera& cam = *Ethertia::getCamera();
+            Camera& cam = Ethertia::getCamera();
             ImGui::SliderFloat("Cam Smooth", &cam.m_Smoothness, 0, 5);
             ImGui::SliderFloat("Cam Roll", &cam.eulerAngles.z, -3.14, 3.14);
 
@@ -421,7 +426,7 @@ void ImGuis::ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("Rendering"))
         {
-            ImGui::SliderFloat("FOV", &Ethertia::getCamera()->fov, 0, 180);
+            ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
             ImGui::SliderFloat("ViewDistance", &RenderEngine::viewDistance, 0, 16);
 
             ImGui::Checkbox("SSAO", &Settings::g_SSAO);
@@ -440,7 +445,7 @@ void ImGuis::ShowMainMenuBar()
             ImGui::Checkbox("NodeEditor", &g_ShowNodeEditor);
             ImGui::Checkbox("MessageList", &g_ShowMessageBox);
 
-            ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
+//            ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
 
             ImGui::EndMenu();
         }
@@ -633,7 +638,7 @@ static void ShowEntityInsp()
 
 
         {
-            EntityComponentTransform* ct = entity->getComponent<EntityComponentTransform>();
+            EntityComponentTransform& ct = entity->getComponent<EntityComponentTransform>();
 
             glm::mat4 matModel = Mth::matModel(entity->getPosition(),
                                                entity->getRotation(),
@@ -642,8 +647,8 @@ static void ShowEntityInsp()
             static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
             static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
 
-            ImGuizmo::Manipulate(glm::value_ptr(Ethertia::getCamera()->matView),
-                                 glm::value_ptr(Ethertia::getCamera()->matProjection),
+            ImGuizmo::Manipulate(glm::value_ptr(Ethertia::getCamera().matView),
+                                 glm::value_ptr(Ethertia::getCamera().matProjection),
                                  gizmoOp, gizmoMode,
                                  glm::value_ptr(matModel),
                                  nullptr,
@@ -748,7 +753,7 @@ static void ShowEntities()
         {
             if (_ListLimit != 0 && i > _ListLimit)
                 break;
-            if (_ShowOnlyInFrustum && !RenderEngine::testFrustum(e->getAABB()))
+            if (_ShowOnlyInFrustum && !Ethertia::getCamera().testFrustum(e->getAABB()))
                 continue;
             if (_IgnoreChunkProxyEntities && dynamic_cast<EntityMesh*>(e))
                 continue;
@@ -823,7 +828,7 @@ void ShowNodeEditor()
 }
 
 void Dbg_DrawGbuffers(float x, float y) {
-    auto* gbuffer = RenderEngine::fboGbuffer;
+    auto* gbuffer = GeometryRenderer::fboGbuffer;
 
     float h = Gui::maxHeight() / 6;
     float w = h * 1.5f;
@@ -885,7 +890,7 @@ void ImGuis::InnerRender()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
 
     // Purple 0.373, 0.157, 0.467, Origen0.741, 0.345, 0.133
-    glm::vec4 _col = Settings::ForceNotIngame ? glm::vec4{0.373, 0.157, 0.467, 1.0} : glm::vec4{0,0,0,0.6};
+    glm::vec4 _col = Ethertia::isIngame() ? glm::vec4{0.373, 0.157, 0.467, 1.0} : glm::vec4{0,0,0,0.6};
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(_col.x, _col.y, _col.z, _col.w));
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
@@ -938,14 +943,14 @@ void ImGuis::InnerRender()
         if (g_WorldGrids > 0)
         {
             glm::mat4 iden(1.0f);
-            ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera()->matView), glm::value_ptr(Ethertia::getCamera()->matProjection),
+            ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
                                glm::value_ptr(iden), (float)ImGuis::g_WorldGrids);
         }
 
         if (g_GizmoViewManipulation)
         {
             static float camLen = 10.0f;
-            ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera()->matView), camLen,
+            ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
                                      ImVec2(ImGui::GetIO().DisplaySize.x-128-24, 20+24), ImVec2(128, 128),
                                      0x10101010);
         }
@@ -983,7 +988,7 @@ void ImGuis::InnerRender()
     if (world) {
         if (dbg_AllEntityAABB) {
             for (Entity* e : world->m_Entities) {
-                if (RenderEngine::testFrustum(e->getAABB()))
+                if (Ethertia::getCamera().testFrustum(e->getAABB()))
                     RenderEngine::drawLineBox(e->getAABB(), Colors::RED);
             }
         }

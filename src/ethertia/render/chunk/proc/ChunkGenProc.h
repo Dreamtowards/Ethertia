@@ -38,7 +38,7 @@ public:
                 vec3 chunkpos;
                 {
                     PROFILE_X(gp_ChunkGen, "Find");
-                    chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+                    chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera().position, RenderEngine::viewDistance);
                 }
 
 
@@ -72,7 +72,7 @@ public:
 
                 PROFILE_X(gp_ChunkGen, "Save");
                 // Unload Chunks
-                _UnloadChunks(world, Ethertia::getCamera()->position, RenderEngine::viewDistance);
+                _UnloadChunks(world, Ethertia::getCamera().position, RenderEngine::viewDistance);
 
             }
         });

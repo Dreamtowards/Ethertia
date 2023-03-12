@@ -2,8 +2,8 @@
 // Created by Dreamtowards on 2022/8/20.
 //
 
-#ifndef ETHERTIA_ENTITYRENDERER_H
-#define ETHERTIA_ENTITYRENDERER_H
+#ifndef ETHERTIA_GEOMETRYRENDERER_H
+#define ETHERTIA_GEOMETRYRENDERER_H
 
 #include <random>
 
@@ -12,14 +12,12 @@
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/render/particle/ParticleRenderer.h>
 
-class EntityRenderer
+class GeometryRenderer
 {
 public:
     DECL_SHADER(SHADER, "shaders/chunk/geometry.{}");
 
-    inline static float debugVar0 = 0;
-    inline static float debugVar1 = 1;
-    inline static float debugVar2 = 0;
+    inline static Framebuffer* fboGbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
 
 
 
@@ -32,6 +30,17 @@ public:
 
         SHADER->setFloat("MtlCap", Material::REGISTRY.size());
 
+
+        float qual = 0.7;
+        fboGbuffer = Framebuffer::GenFramebuffer((int)(1280 * qual), (int)(720 * qual), [](Framebuffer* fbo)
+        {
+            fbo->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
+            fbo->attachColorTexture(1, GL_RGB32F, GL_RGB, GL_FLOAT);        // Normals,          f16 *3
+            fbo->attachColorTexture(2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE); // Albedo,           u8 *3
+            fbo->setupMRT({0, 1, 2});
+
+            fbo->attachDepthStencilRenderbuffer();
+        });
     }
 
 
@@ -59,9 +68,9 @@ public:
         // todo: Duplicated VP Set
         SHADER->setViewProjection();
         SHADER->setMatrix4f("matModel", Mth::matModel(pos, rot, glm::vec3(1.0f)));
-
-        SHADER->setFloat("debugVar1", debugVar1);
-        SHADER->setFloat("debugVar2", debugVar2);
+//
+//        SHADER->setFloat("debugVar1", debugVar1);
+//        SHADER->setFloat("debugVar2", debugVar2);
 
         SHADER->setFloat("Time", Ethertia::getPreciseTime());
 
@@ -77,4 +86,4 @@ public:
 
 };
 
-#endif //ETHERTIA_ENTITYRENDERER_H
+#endif //ETHERTIA_GEOMETRYRENDERER_H

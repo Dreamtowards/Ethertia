@@ -20,7 +20,7 @@ public:
 class CommandWEPos1 : public Command {
 public:
     static glm::vec3 pos(Args args) {
-        glm::vec3 p = Ethertia::getCamera()->position;
+        glm::vec3 p = Ethertia::getCamera().position;
         if (args.size() == 2 && args[1] == "-l") {
             p = Ethertia::getHitCursor().position;
         }

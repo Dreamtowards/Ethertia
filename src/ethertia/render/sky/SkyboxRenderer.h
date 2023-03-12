@@ -9,12 +9,11 @@ class SkyboxRenderer
 {
     DECL_SHADER(SHADER, "shaders/sky/skybox.{}");
 
-    inline static Model* m_SkyboxModel = nullptr;
+    inline static Model* g_SkyboxModel = nullptr;
 
 public:
 
-    SkyboxRenderer() {
-
+    static void init() {
 
         float skyboxVertices[] = {
                 // positions
@@ -60,12 +59,12 @@ public:
                 -1.0f, -1.0f,  1.0f,
                 1.0f, -1.0f,  1.0f
         };
-        m_SkyboxModel = Loader::loadModel(36, {
+        g_SkyboxModel = Loader::loadModel(36, {
                 {3, skyboxVertices}
         });
     }
 
-    void render(Texture* cubemap, glm::vec3 rotAxis, float angle, glm::vec4 colMul = {1,1,1,1}) {
+    static void render(Texture* cubemap, glm::vec3 rotAxis, float angle, glm::vec4 colMul = {1,1,1,1}) {
 
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -79,15 +78,14 @@ public:
 
         SHADER->setVector4f("ColorMul", colMul);
 
-        glBindVertexArray(m_SkyboxModel->vaoId);
-        glDrawArrays(GL_TRIANGLES, 0, m_SkyboxModel->vertexCount);
+        g_SkyboxModel->_glDrawArrays();
 
         glDepthFunc(GL_LESS); // set depth function back to default
         glDepthMask(GL_TRUE);
     }
 
 
-    void renderWorldSkybox(float daytime) {
+    static void renderWorldSkybox(float daytime) {
         float time = Ethertia::getPreciseTime();
 
         if (daytime >= 0.25 && daytime < 0.75)  // 6AM-6PM

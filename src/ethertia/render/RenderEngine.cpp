@@ -7,13 +7,13 @@
 
 
 #include <ethertia/world/World.h>
-#include <ethertia/render/renderer/EntityRenderer.h>
+#include <ethertia/render/deferred/GeometryRenderer.h>
+#include <ethertia/render/deferred/ComposeRenderer.h>
 #include <ethertia/render/sky/SkyGradientRenderer.h>
 #include <ethertia/render/sky/SkyboxRenderer.h>
 #include <ethertia/render/gui/GuiRenderer.h>
 #include <ethertia/render/gui/FontRenderer.h>
 #include <ethertia/render/particle/ParticleRenderer.h>
-#include <ethertia/render/compose/ComposeRenderer.h>
 #include <ethertia/render/ssao/SSAORenderer.h>
 #include <ethertia/render/debug/DebugRenderer.h>
 #include <ethertia/render/shadow/ShadowRenderer.h>
@@ -29,37 +29,24 @@
 // Don't use OOP except it's necessary.
 
 
-RenderEngine::RenderEngine()
+void RenderEngine::init()
 {
     BenchmarkTimer _tm;
     Log::info("RenderEngine initializing.\1");
 
 
-    float qual = 0.7;
-    fboGbuffer = Framebuffer::GenFramebuffer((int)(1280 * qual), (int)(720 * qual), [](Framebuffer* fbo)
-    {
-        fbo->attachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
-        fbo->attachColorTexture(1, GL_RGB32F, GL_RGB, GL_FLOAT);        // Normals,          f16 *3
-        fbo->attachColorTexture(2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE); // Albedo,           u8 *3
-        fbo->setupMRT({0, 1, 2});
-
-        fbo->attachDepthStencilRenderbuffer();
-    });
 
 
     std::cout << " renderers[";
-    guiRenderer = new GuiRenderer();        std::cout << "gui, ";
-    fontRenderer = new FontRenderer();      std::cout << "font, ";
-    EntityRenderer::init();                 std::cout << "entity";
-    m_SkyboxRenderer = new SkyboxRenderer();
-    m_ParticleRenderer = new ParticleRenderer();
-    m_SkyGradientRenderer = new SkyGradientRenderer();
-
-    AnimRenderer::Inst();
+    GuiRenderer::init();        std::cout << "gui, ";
+    FontRenderer::init();       std::cout << "font, ";
+    GeometryRenderer::init();     std::cout << "geometry";
+    ComposeRenderer::init();
+    SkyboxRenderer::init();
+    ParticleRenderer::init();
+    //SkyGradientRenderer::init();
 
     SSAORenderer::init();
-    ComposeRenderer::init();
-
     ShadowRenderer::init();
 
     std::cout << "]";
@@ -71,23 +58,21 @@ RenderEngine::RenderEngine()
 
 }
 
-RenderEngine::~RenderEngine() {
-
-    delete guiRenderer;
-    delete fontRenderer;
-    delete m_SkyboxRenderer;
-    delete m_ParticleRenderer;
-    delete m_SkyGradientRenderer;
+void RenderEngine::deinit()
+{
+    // todo: deinit renderers.
 }
 
 
 void RenderEngine::framePrepare()
 {
+    Camera& cam = Ethertia::getCamera();
+
+    cam.update(Ethertia::isIngame());
+
     if (Ethertia::isIngame())
     {
-        g_Camera.update();
-
-        g_Camera.position = Ethertia::getPlayer()->getPosition();
+        cam.position = Ethertia::getPlayer()->getPosition();
     }
 
     RenderEngine::clearRenderBuffer();
@@ -99,7 +84,7 @@ void RenderEngine::renderWorldGeometry(World* world) {
     // Geometry of Deferred Rendering
 
     PROFILE("Geo");
-    auto _ap = fboGbuffer->bindFramebuffer_ap();
+    auto _ap = GeometryRenderer::fboGbuffer->bindFramebuffer_ap();
 
     glClearColor(0, 0, 0, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -117,11 +102,11 @@ void RenderEngine::renderWorldGeometry(World* world) {
             continue;
 
         // Frustum Culling
-        if (!RenderEngine::testFrustum(entity->getAABB())) {
+        if (!Ethertia::getCamera().testFrustum(entity->getAABB())) {
             continue;
         }
 
-        if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera()->len == 0)
+        if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera().len == 0)
             continue;
 
 
@@ -163,9 +148,9 @@ void RenderEngine::renderWorldCompose(World* world)
 
     float daytime = Ethertia::getWorld()->getDayTime();
 
-    m_SkyboxRenderer->renderWorldSkybox(daytime);
+    SkyboxRenderer::renderWorldSkybox(daytime);
 
-    m_ParticleRenderer->renderSunMoonTex(daytime);
+    ParticleRenderer::renderSunMoonTex(daytime);
 
     std::vector<Light*> renderLights;  // lights to be render.
 //    {
@@ -180,7 +165,7 @@ void RenderEngine::renderWorldCompose(World* world)
         static Light sunLight;
 
         // CNS 这是不准确的，不能直接取反 否则月亮位置可能会错误
-        sunLight.position = Ethertia::getCamera()->position + (-RenderEngine::SunlightDir(daytime) * 100.0f);
+        sunLight.position = Ethertia::getCamera().position + (-RenderEngine::SunlightDir(daytime) * 100.0f);
 
 
         float dayBrightness = 1.0 - abs(daytime-0.5) * 2.0;
@@ -211,7 +196,8 @@ void RenderEngine::renderWorldCompose(World* world)
     // Blend: addictive color when src.alpha != 1.0, for sky background add.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    ComposeRenderer::renderCompose(fboGbuffer->texColor[0], fboGbuffer->texColor[1], fboGbuffer->texColor[2],
+    Texture** gbufferTexs = GeometryRenderer::fboGbuffer->texColor;
+    ComposeRenderer::renderCompose(gbufferTexs[0], gbufferTexs[1], gbufferTexs[2],
                                    SSAORenderer::fboSSAO->texColor[0],
                                    ShadowRenderer::fboDepthMap->texDepth, ShadowRenderer::matShadowSpace,
                                    renderLights);
@@ -228,7 +214,7 @@ void RenderEngine::renderWorldCompose(World* world)
             float i = Item::REGISTRY.getOrderId(stack.item());
             float n = Item::REGISTRY.size();
 
-            m_ParticleRenderer->render(ItemTextures::ITEM_ATLAS, eDroppedItem->getPosition(), 0.3f,
+            ParticleRenderer::render(ItemTextures::ITEM_ATLAS, eDroppedItem->getPosition(), 0.3f,
                                        {i/n, 0},
                                        {1/n, 1});
 
@@ -244,7 +230,7 @@ void RenderEngine::renderWorldCompose(World* world)
 
     glEnable(GL_DEPTH_TEST);
 
-    m_ParticleRenderer->renderAll();
+    ParticleRenderer::renderAll();
 
 }
 
@@ -256,7 +242,7 @@ void RenderEngine::renderWorld(World* world)
 
     RenderEngine::checkGlError("Begin World Render");
 
-    m_ParticleRenderer->updateAll(Ethertia::getDelta());
+    ParticleRenderer::updateAll(Ethertia::getDelta());
 
     // Heavy
     renderWorldGeometry(world);
@@ -266,7 +252,7 @@ void RenderEngine::renderWorld(World* world)
     ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()));
 
     if (Settings::g_SSAO)
-    SSAORenderer::renderSSAO(fboGbuffer->texColor[0], fboGbuffer->texColor[1]);
+    SSAORenderer::renderSSAO(GeometryRenderer::fboGbuffer->texColor[0], GeometryRenderer::fboGbuffer->texColor[1]);
 
 
     renderWorldCompose(world);

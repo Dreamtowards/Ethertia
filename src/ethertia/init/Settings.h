@@ -42,7 +42,7 @@ public:
     inline static bool g_SSAO = true,
                        g_ShadowMapping = true;
 
-    inline static bool ForceNotIngame = false;
+    inline static bool isControllingGame = false;
 
 
 

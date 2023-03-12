@@ -32,7 +32,7 @@ void Settings::loadSettings() {  using nlohmann::json;
     json settings = json::parse(Loader::loadFile(SETTINGS_FILE).new_string());
 
     set_ifexists(settings, "view_distance",  &RenderEngine::viewDistance);
-    set_ifexists(settings, "fov",            &Ethertia::getCamera()->fov);
+    set_ifexists(settings, "fov",            &Ethertia::getCamera().fov);
     set_ifexists(settings, "display_width",  &displayWidth);
     set_ifexists(settings, "display_height", &displayHeight);
 
@@ -58,10 +58,10 @@ void Settings::saveSettings()  {  using nlohmann::json;
 
     json settings = json::object({
         {"view_distance",  RenderEngine::viewDistance},
-        {"fov",            Ethertia::getCamera()->fov},
+        {"fov",            Ethertia::getCamera().fov},
         {"assets",         Loader::ASSETS},
-        {"display_width",  Ethertia::getWindow()->getWidth()},
-        {"display_height", Ethertia::getWindow()->getHeight()},
+        {"display_width",  Ethertia::getWindow().getWidth()},
+        {"display_height", Ethertia::getWindow().getHeight()},
         {"vsync",          false},
         {"fullscreen",     false},
         {"mtl_resolution", MaterialTextures::TEX_RESOLUTION},

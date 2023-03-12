@@ -13,7 +13,6 @@
 class AnimRenderer
 {
 public:
-    DECL_Inst(AnimRenderer);
 
     DECL_SHADER(SHADER, "shaders/anim/anim.{}");
 
@@ -22,7 +21,7 @@ public:
     // ...
     // vec3i jointIdxs;
     // vec3  jointWeights
-    void render(Model* model, const std::vector<Animation::Joint>& joints)
+    static void render(Model* model, const std::vector<Animation::Joint>& joints)
     {
         SHADER->useProgram();
 

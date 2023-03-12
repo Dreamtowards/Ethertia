@@ -170,7 +170,7 @@ public:
         int nFFT = 512;
         int nFFT_2 = nFFT / 2;
 
-        size_t numSampled = Ethertia::getAudioEngine()->sampleCapture(&buf, nFFT);
+        size_t numSampled = AudioEngine::sampleCapture(&buf, nFFT);
         if (!numSampled) {
             Log::info("No audio sampled.");
             return;

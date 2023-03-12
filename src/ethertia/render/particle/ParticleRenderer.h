@@ -20,7 +20,7 @@ public:
 
     inline static Model* M_PLANE_C_STRIP = nullptr;
 
-    ParticleRenderer()
+    static void init()
     {
         {
             float pos[] = {
@@ -42,7 +42,7 @@ public:
         }
     }
 
-    void updateAll(float dt)
+    static void updateAll(float dt)
     {
         std::vector<Particle*> tobeDelete;
 
@@ -62,7 +62,7 @@ public:
         }
     }
 
-    void renderAll()
+    static void renderAll()
     {
         SHADER->useProgram();
         SHADER->setViewProjection();
@@ -73,12 +73,12 @@ public:
         }
     }
 
-    void render(const Particle& p)
+    static void render(const Particle& p)
     {
         render(p.texture, p.position, p.size, p.uv_pos(), glm::vec2(1.0f / p.tex_grids));
     }
 
-    void render(Texture* tex, glm::vec3 position, float size, glm::vec2 uvPos = {0,0}, glm::vec2 uvSize = {1,1})
+    static void render(Texture* tex, glm::vec3 position, float size, glm::vec2 uvPos = {0,0}, glm::vec2 uvSize = {1,1})
     {
 
         glActiveTexture(GL_TEXTURE0);
@@ -102,7 +102,7 @@ public:
     // temporary.
 //    inline static glm::vec3 _SUN_POS;
 
-    void renderSunMoonTex(float dayTime)
+    static void renderSunMoonTex(float dayTime)
     {
         // render Sun and Moon img.
 
@@ -115,7 +115,7 @@ public:
         vec3 relSunPos = Mth::rot_dir(dayTime * 2*Mth::PI, vec3(0, 0, 1), vec3(0, -1, 0)) * 300.0f;
         // Mth::anglez(worldDayTime * 2*Mth::PI - 0.5f*Mth::PI) * 300.0f;  // -PI/2: DayTime:0 as midnight SunPos instead of Morning.
 
-        vec3 CamPos = Ethertia::getCamera()->position;
+        vec3 CamPos = Ethertia::getCamera().position;
         vec3 SunPos = CamPos + relSunPos;
         vec3 MoonPos = CamPos - relSunPos;
 
