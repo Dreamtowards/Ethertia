@@ -84,6 +84,10 @@ public:
         centralize();
     }
 
+    bool isFullscreen() {
+        return m_Fullscreen;
+    }
+
     void toggleFullscreen() {
         if (m_Fullscreen) {
             restoreFullscreen();

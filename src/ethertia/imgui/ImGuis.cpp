@@ -22,6 +22,7 @@
 //#include <ethertia/gui/screen/GuiDebugV.h>
 
 #include <ethertia/init/DebugStat.h>
+#include <ethertia/init/Controls.h>
 
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/world/Chunk.h>
@@ -379,6 +380,22 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("Settings", &w_Settings);
 
 //            ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
+
+            ImGui::Separator();
+
+            static bool ShowHUD = true;
+            if (ImGui::MenuItem("HUD", "F1", &ShowHUD)) {
+
+            }
+            if (ImGui::MenuItem("Save Screenshot", "F2")) {
+                Controls::saveScreenshot();
+            }
+            if (ImGui::MenuItem("Fullscreen", "F11", Ethertia::getWindow().isFullscreen())) {
+                Ethertia::getWindow().toggleFullscreen();
+            }
+            if (ImGui::MenuItem("Force Pause Game", ".", Ethertia::isIngame())) {
+                Ethertia::isIngame() = !Ethertia::isIngame();
+            }
 
             ImGui::EndMenu();
         }
