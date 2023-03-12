@@ -132,13 +132,19 @@ void ImGuis::Destroy()
 
 
 static bool
-        g_ShowImGuiDemo = false,
-        g_ShowNewWorld = false,
-        g_ShowLoadedEntities = false,
-        g_ShowEntityInsp = false,
-        g_ShowShaderProgramInsp = false,
-        g_ShowMessageBox = false,
-        g_ShowNodeEditor = false,
+        w_ImGuiDemo = false,
+        w_NewWorld = false,
+        w_Entities = false,
+        w_EntityInsp = false,
+        w_ShaderProgramInsp = false,
+        w_MessageBox = false,
+        w_NodeEditor = false,
+        w_TitleScreen = false,
+        w_Singleplayer = false,
+        w_Settings = false,
+        w_Game = false;
+
+static bool
         dbg_Text = false,
         dbg_ViewBasis = false,
         dbg_WorldBasis = false,
@@ -147,8 +153,7 @@ static bool
         dbg_Gbuffer = false;
 
 
-static bool g_GizmoViewManipulation = true,
-        g_Game = false;
+static bool g_GizmoViewManipulation = true;
 
 static int g_WorldGrids = 10;
 
@@ -181,7 +186,7 @@ static void _MenuSystem()
     if (ImGui::BeginMenu("Open World"))
     {
         if (ImGui::MenuItem("New World..")) {
-            g_ShowNewWorld = true;
+            w_NewWorld = true;
         }
         if (ImGui::MenuItem("Open World..")) {
             const char* filename = Loader::openFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
@@ -314,7 +319,7 @@ static void ShowMainMenuBar()
 
             // ImGui::Checkbox("Hit Entity AABB", &gAllChunkAABB);
 
-            ImGui::Checkbox("ImGui Demo Window", &g_ShowImGuiDemo);
+            ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
 
             ImGui::SeparatorText("Controlling");
 
@@ -360,14 +365,18 @@ static void ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Game", &g_Game);
-            ImGui::Checkbox("Entities", &g_ShowLoadedEntities);
-            ImGui::Checkbox("Entity Inspector", &g_ShowEntityInsp);
-            ImGui::Checkbox("ShaderProgram Inspector", &g_ShowShaderProgramInsp);
+            ImGui::Checkbox("Game", &w_Game);
+            ImGui::Checkbox("Entities", &w_Entities);
+            ImGui::Checkbox("Entity Inspector", &w_EntityInsp);
+            ImGui::Checkbox("ShaderProgram Inspector", &w_ShaderProgramInsp);
 
             ImGui::Separator();
-            ImGui::Checkbox("NodeEditor", &g_ShowNodeEditor);
-            ImGui::Checkbox("MessageList", &g_ShowMessageBox);
+            ImGui::Checkbox("NodeEditor", &w_NodeEditor);
+            ImGui::Checkbox("MessageList", &w_MessageBox);
+
+            ImGui::Checkbox("TitleScreen", &w_TitleScreen);
+            ImGui::Checkbox("Singleplayer", &w_Singleplayer);
+            ImGui::Checkbox("Settings", &w_Settings);
 
 //            ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
 
@@ -397,7 +406,7 @@ static void ShowMainMenuBar()
 
 void ShowNewWorldWindow()
 {
-    ImGui::Begin("New World", &g_ShowNewWorld);
+    ImGui::Begin("New World", &w_NewWorld);
 
     static char _WorldName[128];
     ImGui::InputText("World Name", _WorldName, 128);
@@ -418,7 +427,7 @@ void ShowNewWorldWindow()
         };
         Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
         Ethertia::loadWorld(save_path, &worldinfo);
-        g_ShowNewWorld = false;
+        w_NewWorld = false;
     }
 
     ImGui::End();
@@ -426,7 +435,7 @@ void ShowNewWorldWindow()
 
 static void ShowShaderProgramInsp()
 {
-    ImGui::Begin("ShaderProgram", &g_ShowShaderProgramInsp);
+    ImGui::Begin("ShaderProgram", &w_ShaderProgramInsp);
 
 
     ShaderProgram* shader = g_InspShaderProgram;
@@ -498,7 +507,7 @@ static void ShowShaderProgramInsp()
 
 static void ShowEntityInsp()
 {
-    ImGui::Begin("Entity", &g_ShowEntityInsp);
+    ImGui::Begin("Entity", &w_EntityInsp);
 
     Entity* entity = g_InspEntity;
     if (!entity) {
@@ -606,7 +615,7 @@ static void ShowEntityInsp()
 
 static void ShowEntities()
 {
-    ImGui::Begin("Entities", &g_ShowLoadedEntities);
+    ImGui::Begin("Entities", &w_Entities);
 
     World* world = Ethertia::getWorld();
     if (!world) {
@@ -699,7 +708,7 @@ static void ShowEntities()
 
 void ShowNodeEditor()
 {
-    ImGui::Begin("NodeEdit", &g_ShowNodeEditor);
+    ImGui::Begin("NodeEdit", &w_NodeEditor);
 
     // id of Attrib/Pin
     static std::vector<std::pair<int, int>> g_Links;
@@ -755,11 +764,76 @@ void ShowNodeEditor()
 //    return {lhs.x + rhs.x, lhs.y+rhs.y}
 //}
 
+static void ShowSettingsWindow()
+{
+    ImGui::Begin("Settings", &w_Settings);
+
+    if (ImGui::RadioButton("Profile", true)) {
+
+    }
+    if (ImGui::RadioButton("Current World", false)) {
+
+    }
+    ImGui::Separator();
+
+    if (ImGui::RadioButton("Graphics", false)) {
+
+    }
+    if (ImGui::RadioButton("Music & Sounds", false)) {
+
+    }
+    if (ImGui::RadioButton("Controls", false)) {
+
+    }
+    if (ImGui::RadioButton("Language", false)) {
+
+    }
+    ImGui::Separator();
+    if (ImGui::RadioButton("Mods", false)) {
+
+    }
+    if (ImGui::RadioButton("Shaders", false)) {
+
+    }
+    if (ImGui::RadioButton("Resource Packs", false)) {
+
+    }
+    ImGui::Separator();
+    if (ImGui::RadioButton("...", false)) {
+
+    }
+
+    ImGui::End();
+}
+
+static void ShowSingleplayerWindow()
+{
+    ImGui::Begin("Singleplayer", &w_Singleplayer);
+
+    if (ImGui::Button("New World")) {
+
+    }
+    if (ImGui::Button("Open World")) {
+
+    }
+    if (ImGui::Button("Edit World")) {
+
+    }
+    if (ImGui::Button("Delete World")) {
+
+    }
+    if (ImGui::Button("Refresh")) {
+
+    }
+
+    ImGui::End();
+}
+
 static void ShowTitleScreenWindow()
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-    ImGui::Begin("TitleScreen");
+    ImGui::Begin("TitleScreen", &w_TitleScreen);
     ImGui::PopStyleVar(2);
 
     // Background
@@ -784,19 +858,19 @@ static void ShowTitleScreenWindow()
 
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Singleplayer", btnSize)) {
-
+        w_Singleplayer = true;
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Multiplayer", btnSize)) {
-
+        Loader::showMessageBox("INFO", "Not available");
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Settings", btnSize)) {
-
+        w_Settings = true;
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Terminate", btnSize)) {
-
+        Ethertia::shutdown();
     }
 
 
@@ -845,23 +919,23 @@ static void RenderWindows()
 
     glPolygonMode(GL_FRONT_AND_BACK, Settings::dbg_PolyLine ? GL_LINE : GL_FILL);
 
-    if (g_ShowImGuiDemo) {
-        ImGui::ShowDemoWindow(&g_ShowImGuiDemo);
+    if (w_ImGuiDemo) {
+        ImGui::ShowDemoWindow(&w_ImGuiDemo);
     }
 
-    if (g_ShowNewWorld) {
+    if (w_NewWorld) {
         ShowNewWorldWindow();
     }
-    if (g_ShowLoadedEntities) {
+    if (w_Entities) {
         ShowEntities();
     }
-    if (g_ShowEntityInsp) {
+    if (w_EntityInsp) {
         ShowEntityInsp();
         if (g_InspEntity) {
             RenderEngine::drawLineBox(g_InspEntity->getAABB(), Colors::YELLOW);
         }
     }
-    if (g_ShowShaderProgramInsp) {
+    if (w_ShaderProgramInsp) {
         ShowShaderProgramInsp();
     }
 
@@ -883,10 +957,10 @@ static void RenderWindows()
                                      0x10101010);
         }
 
-        if (g_Game)
+        if (w_Game)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-            ImGui::Begin("Game", &g_Game);
+            ImGui::Begin("Game", &w_Game);
             ImGui::PopStyleVar();
 
 
@@ -925,13 +999,13 @@ static void RenderWindows()
     }
 
 
-    if (g_ShowNodeEditor) {
+    if (w_NodeEditor) {
         ShowNodeEditor();
     }
 
-    if (g_ShowMessageBox)
+    if (w_MessageBox)
     {
-        ImGui::Begin("MessageBox", &g_ShowMessageBox);
+        ImGui::Begin("MessageBox", &w_MessageBox);
         ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
         for (auto& str : ImGuis::g_MessageBox) {
             ImGui::Text("%s", str.c_str());
@@ -954,13 +1028,20 @@ static void RenderWindows()
         ImGui::End();
     }
 
-    ShowTitleScreenWindow();
+    if (w_TitleScreen) {
+        ShowTitleScreenWindow();
+    }
+    if (w_Singleplayer) {
+        ShowSingleplayerWindow();
+    }
+    if (w_Settings) {
+        ShowSettingsWindow();
+    }
 
 }
 
-#include <ethertia/render/gui/GuiRenderer.h>
 
-// 0: white
+// texId: 0=white
 void ImGuis::Image(GLuint texId, ImVec2 size, glm::vec4 color) {
     assert(false);
 //    if (texId == 0)
