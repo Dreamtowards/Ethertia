@@ -768,40 +768,132 @@ static void ShowSettingsWindow()
 {
     ImGui::Begin("Settings", &w_Settings);
 
-    if (ImGui::RadioButton("Profile", true)) {
+    static enum SettingsPanel {
+        Profile,
+        CurrentWorld,
+        Graphics,
+        Audio,
+        Controls,
+        Language,
+        Mods,
+        Shaders,
+        ResourcePacks,
+        Credits,
+        Misc
+    } g_CurrPanel;
 
+    ImGui::BeginChild("SettingNav", {150, 0}, true);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8, 8});
+    if (ImGui::RadioButton("Profile", g_CurrPanel==Profile)) {
+        g_CurrPanel=Profile;
     }
-    if (ImGui::RadioButton("Current World", false)) {
-
-    }
-    ImGui::Separator();
-
-    if (ImGui::RadioButton("Graphics", false)) {
-
-    }
-    if (ImGui::RadioButton("Music & Sounds", false)) {
-
-    }
-    if (ImGui::RadioButton("Controls", false)) {
-
-    }
-    if (ImGui::RadioButton("Language", false)) {
-
-    }
-    ImGui::Separator();
-    if (ImGui::RadioButton("Mods", false)) {
-
-    }
-    if (ImGui::RadioButton("Shaders", false)) {
-
-    }
-    if (ImGui::RadioButton("Resource Packs", false)) {
-
+    if (ImGui::RadioButton("Current World", g_CurrPanel==CurrentWorld)) {
+        g_CurrPanel=CurrentWorld;
     }
     ImGui::Separator();
-    if (ImGui::RadioButton("...", false)) {
-
+    if (ImGui::RadioButton("Graphics", g_CurrPanel==Graphics)) {
+        g_CurrPanel=Graphics;
     }
+    if (ImGui::RadioButton("Music & Sounds", g_CurrPanel==Audio)) {
+        g_CurrPanel=Audio;
+    }
+    if (ImGui::RadioButton("Controls", g_CurrPanel==Controls)) {
+        g_CurrPanel=Controls;
+    }
+    if (ImGui::RadioButton("Language", g_CurrPanel==Language)) {
+        g_CurrPanel=Language;
+    }
+    ImGui::Separator();
+    if (ImGui::RadioButton("Mods", g_CurrPanel==Mods)) {
+        g_CurrPanel=Mods;
+    }
+    if (ImGui::RadioButton("Shaders", g_CurrPanel==Shaders)) {
+        g_CurrPanel=Shaders;
+    }
+    if (ImGui::RadioButton("Resource Packs", g_CurrPanel==ResourcePacks)) {
+        g_CurrPanel=ResourcePacks;
+    }
+    ImGui::Separator();
+    if (ImGui::RadioButton("Credits", g_CurrPanel==Credits)) {
+        g_CurrPanel=Credits;
+    }
+    if (ImGui::RadioButton("Misc", g_CurrPanel==Misc)) {
+        g_CurrPanel=Misc;
+    }
+    ImGui::PopStyleVar();
+    ImGui::EndChild();
+
+    ImGui::SameLine();
+
+    ImGui::BeginChild("SettingPanel", {0,0}, true);
+    {
+        if (g_CurrPanel==Profile)
+        {
+            ImGui::Dummy({0, 14});
+            ImGui::SetWindowFontScale(1.5f);
+            ImGui::Text("Dreamtowards");
+            ImGui::SetWindowFontScale(0.9f);
+            ImGui::TextDisabled("ref.dreamtowards@gmail.com");
+            ImGui::SetWindowFontScale(1.0f);
+            ImGui::Dummy({0, 8});
+            ImGui::Button("Profile*");
+
+            ImGui::Dummy({0, 64});
+
+            ImGui::SeparatorText("Customize Character");
+        }
+        else if (g_CurrPanel==CurrentWorld)
+        {
+            static char WorldName[128];
+            ImGui::InputText("World Name", WorldName, 128);
+        }
+        else if (g_CurrPanel==Graphics)
+        {
+            ImGui::SeparatorText("SSAO");
+            ImGui::Checkbox("SSAO", &Settings::g_SSAO);
+
+            ImGui::SeparatorText("Shadow Mapping");
+            ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
+            static int g_ShadowResolution = 1024;
+            ImGui::SliderInt("Shadow Depth Map Resolution", &g_ShadowResolution, 128, 2048);
+        }
+        else if (g_CurrPanel==Audio)
+        {
+            static int g_MasterVolume = 0;
+            ImGui::SliderInt("Master Volume", &g_MasterVolume, 0, 100, "%d%%");
+            ImGui::Dummy({0, 8});
+            ImGui::SliderInt("Music", &g_MasterVolume, 0, 100, "%d%%");
+        }
+        else if (g_CurrPanel==Controls)
+        {
+
+        }
+        else if (g_CurrPanel==Language)
+        {
+
+        }
+        else if (g_CurrPanel==Mods)
+        {
+
+        }
+        else if (g_CurrPanel==Shaders)
+        {
+
+        }
+        else if (g_CurrPanel==ResourcePacks)
+        {
+
+        }
+        else if (g_CurrPanel==Credits)
+        {
+            ImGui::SetWindowFontScale(1.4f);
+            ImGui::Text("%s", Ethertia::Version::name().c_str());
+            ImGui::SetWindowFontScale(1.0f);
+
+            ImGui::Text("Dev: Eldrine Le Prismarine");
+        }
+    }
+    ImGui::EndChild();
 
     ImGui::End();
 }
@@ -837,9 +929,9 @@ static void ShowTitleScreenWindow()
     ImGui::PopStyleVar(2);
 
     // Background
-    ImGui::Image(Texture::DEBUG->texId_ptr(),
-                 ImGuis::GetWindowContentSize(),
-                 {0,1}, {1,0});
+//    ImGui::Image(Texture::DEBUG->texId_ptr(),
+//                 ImGuis::GetWindowContentSize(),
+//                 {0,1}, {1,0});
 
     // LeftBottom Version/Stats
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
@@ -852,7 +944,7 @@ static void ShowTitleScreenWindow()
     ImGuis::TextAlign("Copyright (c) Eldrine Le Prismarine, Do not distribute!",
                       {1,1});
 
-    ImVec2 btnSize = {200, 32};
+    ImVec2 btnSize = {300, 20};
     float btnX = ImGui::GetWindowWidth() / 2 - btnSize.x /2;
     ImGui::SetCursorPosY(ImGui::GetWindowHeight() * 0.4f);
 
