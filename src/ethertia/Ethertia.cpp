@@ -470,7 +470,7 @@ void Entity::onRender()
 
 void EntityMesh::onRender()
 {
-    bool isFoliage = !m_FaceCulling;  if (isFoliage && RenderEngine::dbg_NoVegetable) return;
+    bool isFoliage = !m_FaceCulling;  if (isFoliage && Dbg::dbg_NoVegetable) return;
 
     if (isFoliage)
         glDisable(GL_CULL_FACE);

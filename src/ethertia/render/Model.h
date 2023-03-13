@@ -8,7 +8,7 @@
 #include <glad/glad.h>
 #include <vector>
 
-// Represents an OpenGL VAO. vertex data has already been transmitted to GPU.
+// A Model / OpenGL VAO. vertex data has already been transmitted to GPU.
 class Model
 {
 public:
@@ -28,5 +28,9 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 };
+
+// More specific. VertexData, VertexArrays, VertexData-AttributeList
+//using VertexArrays = Model;
+
 
 #endif //ETHERTIA_MODEL_H

@@ -10,14 +10,12 @@
 
 #include <ethertia/util/ObjectPool.h>
 #include <ethertia/init/DebugStat.h>
+#include <ethertia/init/Settings.h>
 
 class ChunkMeshProc
 {
 public:
     using vec3 = glm::vec3;
-
-    inline static bool dbg_ChunkUnload = true;
-
 
     // -1: To Stop Run (not stopped), 0: Stopped. 1: Running.
     // why not direct set 0 when want-stop? because sometimes we need wait-stopped.
@@ -37,17 +35,22 @@ public:
                     Timer::sleep_for(1);
                     continue;
                 }
+                if (Dbg::dbg_PauseThread_ChunkMeshing) {
+                    Timer::sleep_for(1);
+                    continue;
+                }
                 World* world = Ethertia::getWorld();
                 PROFILE_X(gp_MeshGen, "MeshGen");
 
                 Chunk* chunk = nullptr;
                 {
                     PROFILE_X(gp_MeshGen, "Seek");
-                    Timer::sleep_for(1);
-                    chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera().position, RenderEngine::viewDistance);
+                    chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera().position, Settings::s_ViewDistance);
                 }
 
-                if (chunk)
+                if (!chunk) {
+                    Timer::sleep_for(1);
+                } else
                 {
                     meshChunk_Upload(chunk);
                 }

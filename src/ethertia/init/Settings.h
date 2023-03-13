@@ -27,7 +27,6 @@ public:
     //static void loadProgramArguments(int argc, const char* argv[]) {}
 
 
-
     // DEBUG States
 
     inline static bool  dbg_PolyLine = false,
@@ -35,17 +34,14 @@ public:
                         dbg_NoChunkSave = true,
                         dbg_NoChunkLoad = true;
 
-
-
     inline static int dbgEntitiesRendered = 0;
 
     inline static bool g_SSAO = true,
                        g_ShadowMapping = true;
 
-    inline static bool isControllingGame = false;
 
-
-
+    inline static float s_ViewDistance = 4;
+    inline static int   s_FpsCap = 60;
 
 
 };

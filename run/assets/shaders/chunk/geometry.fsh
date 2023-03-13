@@ -22,7 +22,7 @@ uniform float MtlCap;
 uniform float debugVar1 = 0;
 uniform float debugVar2 = 0;
 
-const float MtlTexScale = 2.4;
+uniform float MtlTexScale = 2.4;
 
 int max_i(float a, float b, float c) {
     return a > b ? (a > c ? 0 : 2) : (b > c ? 1 : 2);

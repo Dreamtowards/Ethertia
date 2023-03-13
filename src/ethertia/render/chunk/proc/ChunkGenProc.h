@@ -32,13 +32,17 @@ public:
                     Timer::sleep_for(1);
                     continue;
                 }
+                if(Dbg::dbg_PauseThread_ChunkLoadGenSave) {
+                    Timer::sleep_for(1);
+                    continue;
+                }
                 World* world = Ethertia::getWorld();
                 PROFILE_X(gp_ChunkGen, "ChunkProc");
 
                 vec3 chunkpos;
                 {
                     PROFILE_X(gp_ChunkGen, "Find");
-                    chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera().position, RenderEngine::viewDistance);
+                    chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera().position, Settings::s_ViewDistance);
                 }
 
 
@@ -72,7 +76,7 @@ public:
 
                 PROFILE_X(gp_ChunkGen, "Save");
                 // Unload Chunks
-                _UnloadChunks(world, Ethertia::getCamera().position, RenderEngine::viewDistance);
+                _UnloadChunks(world, Ethertia::getCamera().position, Settings::s_ViewDistance);
 
             }
         });

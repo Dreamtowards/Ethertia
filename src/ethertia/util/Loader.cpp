@@ -119,10 +119,8 @@ Texture* Loader::loadTexture(const BitmapImage& img)
 
 Texture* Loader::loadTexture(int w, int h, void* pixels_VertFlip, int intlfmt, int fmt, int type)
 {
-    GLuint texId;
-    glGenTextures(1, &texId);
-    glBindTexture(GL_TEXTURE_2D, texId);
-    auto* tex = new Texture(texId, w, h);
+    auto* tex = Texture::GenTexture(w,h, GL_TEXTURE_2D);
+    tex->BindTexture();
 
     glTexImage2D(GL_TEXTURE_2D, 0, intlfmt, w, h, 0, fmt, type, pixels_VertFlip);
     // glTexSubImage2D();
@@ -169,10 +167,8 @@ Texture* Loader::loadCubeMap(const BitmapImage* imgs)  {
     int w = imgs[0].getWidth();
     int h = imgs[0].getHeight();
 
-    GLuint texId;
-    glGenTextures(1, &texId);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texId);
-    Texture* tex = new Texture(texId, w, h);
+    Texture* tex = Texture::GenTexture(w,h,GL_TEXTURE_CUBE_MAP);
+    tex->BindTexture();
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

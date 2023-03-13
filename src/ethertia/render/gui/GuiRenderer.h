@@ -41,7 +41,7 @@ public:
         if (border == 0)
             border = 999999;
 
-        tex->bindTexture2D(0);
+        tex->BindTexture(0);
 
         float ww = Gui::maxWidth();  // window width.
         float wh = Gui::maxHeight();

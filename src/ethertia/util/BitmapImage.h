@@ -8,6 +8,7 @@
 #include <ethertia/util/Colors.h>
 
 #include <stb/stb_image_resize.h>
+#include <algorithm>
 
 class BitmapImage
 {

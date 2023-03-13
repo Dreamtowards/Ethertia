@@ -97,6 +97,7 @@ add_executable(Ethertia
 
         src/ethertia/render/Window.cpp
         src/ethertia/render/RenderEngine.cpp
+        src/ethertia/render/RenderCommand_ImplGL.cpp
 #        src/ethertia/render/ssao/SSAORenderer.cpp
 
         src/ethertia/item/ItemComponents.cpp

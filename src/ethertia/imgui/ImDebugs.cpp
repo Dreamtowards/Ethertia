@@ -86,12 +86,13 @@ static void ShowDebugTextOverlay()
     ImGui::PopStyleVar(2);
 }
 
+#include <ethertia/gui/Gui.h>
 
-
-void Dbg_DrawGbuffers(float x, float y) {
+void Dbg_DrawGbuffers(float x, float y)
+{
     auto* gbuffer = GeometryRenderer::fboGbuffer;
 
-    float h = Gui::maxHeight() / 6;
+    float h = 120;
     float w = h * 1.5f;
 
     Gui::drawRect(x, y, w, h, {
@@ -134,9 +135,4 @@ void Dbg_DrawGbuffers(float x, float y) {
     });
     Gui::drawString(x,y+h*4, "Shadow");
 
-//            Gui::drawRect(x+w, y+h*4, w, h, {
-//                    .tex = ShadowRenderer::fboDepthMap->texColor[0],
-//                    .channel_mode = Gui::DrawRectArgs::C_RGB
-//            });
-//            Gui::drawString(x+w,y+h*4, "Shadow Col");
 }

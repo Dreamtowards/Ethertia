@@ -77,19 +77,19 @@ public:
 
     static void renderSSAO(Texture* gPositionDepth, Texture* gNormal)
     {
-        auto _ap = fboSSAO->bindFramebuffer_ap();
+        auto _ap = fboSSAO->BeginFramebuffer_Scoped();
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        gPositionDepth->bindTexture2D(0);
-        gNormal       ->bindTexture2D(1);
-        m_TexNoise    ->bindTexture2D(2);
+        gPositionDepth->BindTexture(0);
+        gNormal       ->BindTexture(1);
+        m_TexNoise    ->BindTexture(2);
 
 
         SHADER->useProgram();
 
-        float fbWidth = Gui::maxWidth(), fbHeight = Gui::maxHeight();  // ! is not framebuffer size.
-        SHADER->setVector2f("noiseScale", glm::vec2(fbWidth / 4.0f, fbHeight / 4.0f));
+        auto& vp = Ethertia::getViewport();  // ! is not framebuffer size.
+        SHADER->setVector2f("noiseScale", glm::vec2(vp.width / 4.0f, vp.height / 4.0f));
 
         SHADER->setViewProjection();
 

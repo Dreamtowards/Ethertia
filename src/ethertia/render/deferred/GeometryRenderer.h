@@ -11,6 +11,7 @@
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/render/particle/ParticleRenderer.h>
+#include <ethertia/render/RenderCommand.h>
 
 class GeometryRenderer
 {
@@ -19,7 +20,7 @@ public:
 
     inline static Framebuffer* fboGbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
 
-
+    inline static float u_MaterialTextureScale = 3.5;
 
     static void init() {
 
@@ -29,6 +30,8 @@ public:
         SHADER->setInt("dramMap", 2);
 
         SHADER->setFloat("MtlCap", Material::REGISTRY.size());
+
+        SHADER->m_Uniforms["MtlTexScale"].bind(&u_MaterialTextureScale);
 
 
         float qual = 0.7;
@@ -45,17 +48,17 @@ public:
 
 
 
-    static void renderGeometryChunk(Model* model, glm::vec3 pos, glm::mat3 rot, Texture* diff, float vertexWaving = 0)
+    static void renderGeometryChunk(Model* vao, glm::vec3 pos, glm::mat3 rot, Texture* diff, float vertexWaving = 0)
     {
         if (diff)
         {
-            diff->bindTexture2D(0);
+            diff->BindTexture(0);
         }
         else
         {
-            MaterialTextures::ATLAS_DIFFUSE->bindTexture2D(0);
-            MaterialTextures::ATLAS_NORM->bindTexture2D(1);
-            MaterialTextures::ATLAS_DRAM->bindTexture2D(2);
+            MaterialTextures::ATLAS_DIFFUSE->BindTexture(0);
+            MaterialTextures::ATLAS_NORM->BindTexture(1);
+            MaterialTextures::ATLAS_DRAM->BindTexture(2);
 
 //                // Experimental
 //                glActiveTexture(GL_TEXTURE5);
@@ -76,9 +79,8 @@ public:
 
         SHADER->setFloat("WaveFactor", vertexWaving);
 
-
-        glBindVertexArray(model->vaoId);
-        glDrawArrays(GL_TRIANGLES, 0, model->vertexCount);
+        vao->_glDrawArrays();
+//        RenderCommand::DrawArrays(vao);
     }
 
 

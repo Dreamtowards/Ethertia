@@ -6,16 +6,17 @@
 #define ETHERTIA_FRAMEBUFFER_H
 
 #include <ethertia/render/Texture.h>
-#include <ethertia/gui/Gui.h>
 #include <ethertia/util/Loader.h>
+
+#include <ethertia/Ethertia.h>
+#include <ethertia/render/Window.h>
 
 class Framebuffer
 {
 private:
-    Framebuffer() {}  // should explicitly create FBO. use Framebuffer::glfGenFramebuffer();
+    Framebuffer() = default;  // should explicitly create FBO. use Framebuffer::glfGenFramebuffer();
 public:
-
-    GLuint fboId  = 0;
+    int fboId  = 0;
     int width  = 0;
     int height = 0;
 
@@ -24,31 +25,8 @@ public:
     Texture* texDepth        = nullptr;
     Texture* texDepthStencil = nullptr;  // RBO?
 
-    static Framebuffer* glfGenFramebuffer(int w, int h) {
-        Framebuffer* fbo = new Framebuffer();
-        glGenFramebuffers(1, &fbo->fboId);
-
-        fbo->width = w;
-        fbo->height = h;
-        return fbo;
-    }
-
-    static Framebuffer* GenFramebuffer(int w, int h, const std::function<void(Framebuffer*)>& initfunc)
-    {
-        Framebuffer* fbo = glfGenFramebuffer(w,h);
-        Framebuffer::gPushFramebuffer(fbo);
-
-        initfunc(fbo);
-
-        fbo->checkFramebufferStatus();
-        Framebuffer::gPopFramebuffer();
-        return fbo;
-    }
-
-    ~Framebuffer()
-    {
-        glDeleteFramebuffers(1, &fboId);
-    }
+    static Framebuffer* GenFramebuffer(int w, int h, const std::function<void(Framebuffer*)>& initfunc);
+    ~Framebuffer();
 
 
     void attachColorTexture(int i, int intlfmt = GL_RGB, int fmt = GL_RGB, int type = GL_UNSIGNED_BYTE) {
@@ -78,44 +56,17 @@ public:
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 
-
-
-
-
-    static void doBindFramebuffer(int fboId, int w, int h) {
-        glBindFramebuffer(GL_FRAMEBUFFER, fboId);
-        glViewport(0, 0, w, h);
-    }
-    static void doBindFramebuffer(Framebuffer* fbo) {
-        Framebuffer::doBindFramebuffer(fbo->fboId, fbo->width, fbo->height);
-    }
-
-    inline static std::stack<Framebuffer*> globalFboStack;
+    static void BeginFramebuffer(Framebuffer* fbo);
+    static void EndFramebuffer();
 
     // auto pop
     [[nodiscard]]
-    DtorCaller bindFramebuffer_ap() {
-        Framebuffer::gPushFramebuffer(this);
+    DtorCaller BeginFramebuffer_Scoped() {
+        Framebuffer::BeginFramebuffer(this);
 
         return DtorCaller{[](){
-            Framebuffer::gPopFramebuffer();
+            Framebuffer::EndFramebuffer();
         }};
-    }
-
-    static void gPushFramebuffer(Framebuffer* fbo) {
-        Framebuffer::doBindFramebuffer(fbo);
-
-        globalFboStack.push(fbo);
-    }
-
-    static void gPopFramebuffer() {
-        globalFboStack.pop();
-
-        if (globalFboStack.empty()) {  // bind Main Framebuffer
-            Framebuffer::doBindFramebuffer(0, (int)Gui::mfbWidth(), (int)Gui::mfbHeight());
-        } else {
-            Framebuffer::doBindFramebuffer(globalFboStack.top());
-        }
     }
 
 
@@ -140,8 +91,6 @@ public:
         Collections::range(arr.data(), n, (GLuint)GL_COLOR_ATTACHMENT0);
         glDrawBuffers(n, arr.data());
     }
-
-    // initMRT() ?
 
     // resize() ?
 

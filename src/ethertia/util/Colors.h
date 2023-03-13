@@ -7,6 +7,7 @@
 
 #include <bit>          // std::endian for some mac platform.
 #include <type_traits>  // std::endian
+#include <string>       // parse hex.
 
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>

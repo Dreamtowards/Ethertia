@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <ethertia/render/ShaderProgram.h>
+#include <ethertia/render/RenderCommand.h>
 
 class ShadowRenderer
 {
@@ -32,9 +33,9 @@ public:
     {
         assert(glIsEnabled(GL_DEPTH_TEST));
 
-        auto _ap = fboDepthMap->bindFramebuffer_ap();
+        auto _ap = fboDepthMap->BeginFramebuffer_Scoped();
 
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        RenderCommand::Clear();
 
 
         glm::vec3 shadowPos = Ethertia::getCamera().position;

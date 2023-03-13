@@ -11,6 +11,7 @@
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/render/Model.h>
+#include <ethertia/util/DtorCaller.h>
 #include <ethertia/render/Framebuffer.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Colors.h>
@@ -22,14 +23,6 @@ class RenderEngine
 {
 public:
     RenderEngine() = delete;
-
-    inline static float viewDistance = 1;
-    inline static int fpsCap = 60;
-
-    inline static bool dbg_EntityGeo = false;
-    inline static bool dbg_HitPointEntityGeo = false;
-    inline static bool dbg_RenderedEntityAABB = false;
-    inline static bool dbg_NoVegetable = false;
 
     static void init();
     static void deinit();
@@ -43,18 +36,8 @@ public:
     static void renderWorldCompose(World* world);
 
     static void checkGlError(std::string_view phase = "") {
-        GLuint err;
-        while ((err = glGetError()) != GL_NO_ERROR) {
-            Log::warn("###### GL Error @{} ######", phase);
-            Log::warn("ERR: {}", err);
-        }
-    }
 
-    static void clearRenderBuffer() {
-        glClearColor(0, 0, 0, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
-
 
     // Sun (Day) or Moon (Night).  Noon -> vec3(0, -1, 0)
     static glm::vec3 SunlightDir(float daytime) {

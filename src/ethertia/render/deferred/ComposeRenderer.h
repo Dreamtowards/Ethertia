@@ -50,11 +50,11 @@ public:
                               Texture* gShadowMap, glm::mat4 matShadowSpace,
                               const std::vector<Light*>& lights)
     {
-        gPositionDepth   ->bindTexture2D(0);
-        gNormal          ->bindTexture2D(1);
-        gAlbedoRoughness ->bindTexture2D(2);
-        gAmbientOcclusion->bindTexture2D(3);
-        gShadowMap       ->bindTexture2D(4);
+        gPositionDepth   ->BindTexture(0);
+        gNormal          ->BindTexture(1);
+        gAlbedoRoughness ->BindTexture(2);
+        gAmbientOcclusion->BindTexture(3);
+        gShadowMap       ->BindTexture(4);
 
 
         // g_PanoramaTex = Loader::loadTexture(Loader::loadPNG(Loader::loadAssets("misc/skybox/hdri5.png")));

@@ -24,6 +24,9 @@
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/init/Settings.h>
+#include <ethertia/init/DebugStat.h>
+
+#include <ethertia/render/RenderCommand.h>
 
 // RenderEngine is static/singleton. shouldn't instantiate.
 // Don't use OOP except it's necessary.
@@ -31,7 +34,7 @@
 
 void RenderEngine::init()
 {
-    BenchmarkTimer _tm;
+    BENCHMARK_TIMER;
     Log::info("RenderEngine initializing.\1");
 
 
@@ -80,7 +83,7 @@ void RenderEngine::framePrepare()
         cam.position = Ethertia::getPlayer()->getPosition();
     }
 
-    RenderEngine::clearRenderBuffer();
+    RenderCommand::Clear();
 }
 
 
@@ -89,10 +92,9 @@ void RenderEngine::renderWorldGeometry(World* world) {
     // Geometry of Deferred Rendering
 
     PROFILE("Geo");
-    auto _ap = GeometryRenderer::fboGbuffer->bindFramebuffer_ap();
+    auto _ap = GeometryRenderer::fboGbuffer->BeginFramebuffer_Scoped();
 
-    glClearColor(0, 0, 0, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    RenderCommand::Clear();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -121,16 +123,16 @@ void RenderEngine::renderWorldGeometry(World* world) {
         ++Settings::dbgEntitiesRendered;
 
         // Debug: draw Norm/Border
-        if (dbg_EntityGeo) {
+        if (Dbg::dbg_EntityGeo) {
             DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
         }
         // Debug: draw Entity that Crosshair Hits.
-        if (RenderEngine::dbg_HitPointEntityGeo && entity == Ethertia::getHitCursor().hitEntity) {
+        if (Dbg::dbg_HitPointEntityGeo && entity == Ethertia::getHitCursor().hitEntity) {
             DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation(),
                            Ethertia::getHitCursor().brushSize, Ethertia::getHitCursor().position);
         }
         // Debug: draw Every Entity AABB.
-        if (dbg_RenderedEntityAABB) {
+        if (Dbg::dbg_RenderedEntityAABB) {
             AABB aabb = entity->getAABB();
             RenderEngine::drawLineBox(aabb.min, aabb.max-aabb.min, Colors::RED);
         }
@@ -146,7 +148,7 @@ void RenderEngine::renderWorldCompose(World* world)
     // Compose of Deferred Rendering
 
     PROFILE("Cmp");
-    auto _ap = ComposeRenderer::fboCompose->bindFramebuffer_ap();
+    auto _ap = ComposeRenderer::fboCompose->BeginFramebuffer_Scoped();
 
     glClearColor(0,0,0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

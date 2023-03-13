@@ -335,11 +335,11 @@ static void ShowMainMenuBar()
             ImGui::SeparatorText("Rendering");
             ImGui::Checkbox("PauseWorldRender", &Settings::dbg_PauseWorldRender);
             ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
-            ImGui::Checkbox("Border/Norm", &RenderEngine::dbg_EntityGeo);
-            ImGui::Checkbox("HitEntityGeo", &RenderEngine::dbg_HitPointEntityGeo);
+            ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
+            ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
             ImGui::Checkbox("Polygon Line", &Settings::dbg_PolyLine);
 
-            ImGui::Checkbox("NoVegetable", &RenderEngine::dbg_NoVegetable);
+            ImGui::Checkbox("NoVegetable", &Dbg::dbg_NoVegetable);
 
 
             static float knobVal = 10;
@@ -357,7 +357,7 @@ static void ShowMainMenuBar()
         if (ImGui::BeginMenu("Rendering"))
         {
             ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
-            ImGui::SliderFloat("ViewDistance", &RenderEngine::viewDistance, 0, 16);
+            ImGui::SliderFloat("ViewDistance", &Settings::s_ViewDistance, 0, 16);
 
             ImGui::Checkbox("SSAO", &Settings::g_SSAO);
             ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
@@ -393,7 +393,7 @@ static void ShowMainMenuBar()
             if (ImGui::MenuItem("Fullscreen", "F11", Ethertia::getWindow().isFullscreen())) {
                 Ethertia::getWindow().toggleFullscreen();
             }
-            if (ImGui::MenuItem("Force Pause Game", ".", Ethertia::isIngame())) {
+            if (ImGui::MenuItem("Controlling Game", ".", Ethertia::isIngame())) {
                 Ethertia::isIngame() = !Ethertia::isIngame();
             }
 
@@ -620,7 +620,7 @@ static void ShowEntityInsp()
     if (ImGui::CollapsingHeader("Diffuse Map")) {
         if (entity->m_DiffuseMap)
         {
-            ImGui::Image(entity->m_DiffuseMap->texId_ptr(), {64, 64});
+            ImGui::Image((void*)(intptr_t)entity->m_DiffuseMap->texId, {64, 64});
         }
     }
 
@@ -801,42 +801,22 @@ static void ShowSettingsWindow()
 
     ImGui::BeginChild("SettingNav", {150, 0}, true);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8, 8});
-    if (ImGui::RadioButton("Profile", g_CurrPanel==Profile)) {
-        g_CurrPanel=Profile;
-    }
-    if (ImGui::RadioButton("Current World", g_CurrPanel==CurrentWorld)) {
-        g_CurrPanel=CurrentWorld;
-    }
+
+    if (ImGui::RadioButton("Profile", g_CurrPanel==Profile)) { g_CurrPanel=Profile; }
+    if (ImGui::RadioButton("Current World", g_CurrPanel==CurrentWorld)) { g_CurrPanel=CurrentWorld; }
     ImGui::Separator();
-    if (ImGui::RadioButton("Graphics", g_CurrPanel==Graphics)) {
-        g_CurrPanel=Graphics;
-    }
-    if (ImGui::RadioButton("Music & Sounds", g_CurrPanel==Audio)) {
-        g_CurrPanel=Audio;
-    }
-    if (ImGui::RadioButton("Controls", g_CurrPanel==Controls)) {
-        g_CurrPanel=Controls;
-    }
-    if (ImGui::RadioButton("Language", g_CurrPanel==Language)) {
-        g_CurrPanel=Language;
-    }
+    if (ImGui::RadioButton("Graphics", g_CurrPanel==Graphics)) { g_CurrPanel=Graphics; }
+    if (ImGui::RadioButton("Music & Sounds", g_CurrPanel==Audio)) { g_CurrPanel=Audio; }
+    if (ImGui::RadioButton("Controls", g_CurrPanel==Controls)) { g_CurrPanel=Controls; }
+    if (ImGui::RadioButton("Language", g_CurrPanel==Language)) { g_CurrPanel=Language; }
     ImGui::Separator();
-    if (ImGui::RadioButton("Mods", g_CurrPanel==Mods)) {
-        g_CurrPanel=Mods;
-    }
-    if (ImGui::RadioButton("Shaders", g_CurrPanel==Shaders)) {
-        g_CurrPanel=Shaders;
-    }
-    if (ImGui::RadioButton("Resource Packs", g_CurrPanel==ResourcePacks)) {
-        g_CurrPanel=ResourcePacks;
-    }
+    if (ImGui::RadioButton("Mods", g_CurrPanel==Mods)) { g_CurrPanel=Mods; }
+    if (ImGui::RadioButton("Shaders", g_CurrPanel==Shaders)) { g_CurrPanel=Shaders; }
+    if (ImGui::RadioButton("Resource Packs", g_CurrPanel==ResourcePacks)) { g_CurrPanel=ResourcePacks; }
     ImGui::Separator();
-    if (ImGui::RadioButton("Credits", g_CurrPanel==Credits)) {
-        g_CurrPanel=Credits;
-    }
-    if (ImGui::RadioButton("Misc", g_CurrPanel==Misc)) {
-        g_CurrPanel=Misc;
-    }
+    if (ImGui::RadioButton("Credits", g_CurrPanel==Credits)) { g_CurrPanel=Credits; }
+    if (ImGui::RadioButton("Misc", g_CurrPanel==Misc)) { g_CurrPanel=Misc; }
+
     ImGui::PopStyleVar();
     ImGui::EndChild();
 
@@ -866,6 +846,38 @@ static void ShowSettingsWindow()
         }
         else if (g_CurrPanel==Graphics)
         {
+//            ImGui::SeparatorText("Bloom");
+//            ImGui::Checkbox("Bloom", &Settings::g_SSAO);
+
+            ImGui::SeparatorText("General");
+
+            ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("Field of View.\nNormal: 70\nQuark Pro: 90");
+
+            ImGui::Checkbox("Vsync", &Settings::g_SSAO);
+
+            if (Settings::g_SSAO) ImGui::BeginDisabled();
+            ImGui::SliderInt("FPS Limit", &Settings::s_FpsCap, 0, 2000);
+            if (Settings::g_SSAO) ImGui::EndDisabled();
+
+            ImGui::SliderFloat("Chunk Load Distance", &Settings::s_ViewDistance, 0, 12);
+
+
+            ImGui::SeparatorText("Terrain Material Blending");
+
+            ImGui::DragFloat("Texture Scale", &GeometryRenderer::u_MaterialTextureScale, 0.1f);
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("Material Texture Sampling Scale (inv)");
+
+
+            ImGui::DragInt("Texture Resolution", &MaterialTextures::TEX_RESOLUTION, 16, 2048);
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("[Reload Required] for bake material texture atlas.");
+
+
+
+
             ImGui::SeparatorText("SSAO");
             ImGui::Checkbox("SSAO", &Settings::g_SSAO);
 
@@ -873,6 +885,10 @@ static void ShowSettingsWindow()
             ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
             static int g_ShadowResolution = 1024;
             ImGui::SliderInt("Shadow Depth Map Resolution", &g_ShadowResolution, 128, 2048);
+
+            ImGui::SeparatorText("Bloom");
+            ImGui::Checkbox("Bloom", &Settings::g_SSAO);
+
         }
         else if (g_CurrPanel==Audio)
         {
@@ -883,15 +899,43 @@ static void ShowSettingsWindow()
         }
         else if (g_CurrPanel==Controls)
         {
+            ImGui::SeparatorText("Mouse");
+
+            static float s_MouseSensitivity = 1.0f;
+            ImGui::SliderFloat("Mouse Sensitivity", &s_MouseSensitivity, 0, 2);
+
+
+            ImGui::SeparatorText("Keyboard");
 
         }
         else if (g_CurrPanel==Language)
         {
+            std::vector<std::pair<const char*, const char*>> g_Languages = {
+                    {"en_us", "English"},
+                    {"zh_cn", "Jian ti Zhong Wen"}
+            };
+            static const char* g_SelectedLanguage = "en_us";
 
+            for (auto it : g_Languages) {
+                if (ImGui::Selectable(it.second, g_SelectedLanguage==it.first)) {
+                    g_SelectedLanguage = it.first;
+                }
+            }
+
+            ImGui::Text("Translation may not 100%% accurate.");
         }
         else if (g_CurrPanel==Mods)
         {
-
+            static bool s_ModValidatin = true;
+            ImGui::Checkbox("Mod Files Hash Online Validation", &s_ModValidatin);
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("Only enable mods that passed official validation (need online check official database).\n"
+                                  "It will check mod file (hash) whether passed official validation"
+                                  "since native mods have big permission, at the same time of powerful, "
+                                  "it also maybe damage your computer. so we check");
+            // 检查Mod文件(hash摘要)是否通过官方验证 (需要联网检查官方数据库)
+            // 由于Native-Mod的权限极大，在强大和高效能的同时，也可能会有恶意Mod损害您的电脑.
+            // 开启Mod官方验证将会只启用通过官方验证的Mod
         }
         else if (g_CurrPanel==Shaders)
         {
@@ -899,7 +943,9 @@ static void ShowSettingsWindow()
         }
         else if (g_CurrPanel==ResourcePacks)
         {
-
+            if (ImGui::Button("Open ResourcePacks folder")) {
+                Loader::openURL("./resourcepacks");
+            }
         }
         else if (g_CurrPanel==Credits)
         {
@@ -908,6 +954,11 @@ static void ShowSettingsWindow()
             ImGui::SetWindowFontScale(1.0f);
 
             ImGui::Text("Dev: Eldrine Le Prismarine");
+
+            ImGui::SeparatorText("Links");
+            ImGui::SmallButton("ethertia.com");
+
+
         }
     }
     ImGui::EndChild();
