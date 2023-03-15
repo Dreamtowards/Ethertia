@@ -64,7 +64,7 @@ void ItemComponentEntity::onUse()  {
 
     HitCursor& cur = Ethertia::getHitCursor();
 
-    e->setPosition(cur.position + cur.normal * 1.0f);
+    e->position() = cur.position + cur.normal * 1.0f;
     Ethertia::getWorld()->addEntity(e);
 }
 

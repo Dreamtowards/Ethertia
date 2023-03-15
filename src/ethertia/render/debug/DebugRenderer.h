@@ -16,7 +16,7 @@ public:
     DECL_SHADER(SHADER_DEBUG_NORM, "shaders/debug/norm.{}");
 
     // limitLen+Pos: Only show partial (sphere) at pos with radius len
-    void renderDebugGeo(Model* model, glm::vec3 pos, glm::mat3 rot, float limitLen = 0, glm::vec3 limitPos = {}) {
+    void renderDebugGeo(VertexArrays* vao, glm::vec3 pos, glm::mat3 rot, float limitLen = 0, glm::vec3 limitPos = {}) {
         ShaderProgram& shader = *SHADER_DEBUG_NORM;
 
         shader.useProgram();
@@ -29,7 +29,7 @@ public:
             shader.setVector3f("limitPos", limitPos);
         }
 
-        model->_glDrawArrays();
+        RenderCommand::DrawArrays(vao);
 
         if (limitLen) {
             shader.setFloat("limitLen", 0);
@@ -42,12 +42,12 @@ public:
 
     void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false) {
         static float M_LINE[]  = {0,0,0,1,1,1};
-        static Model* mLine = Loader::loadModel(2, {{3, M_LINE}});
+        static VertexArrays* mLine = Loader::loadModel(2, {{3, M_LINE}});
         static float M_BOX[]  = {0,0,0,1,0,0, 1,0,0,1,0,1, 1,0,1,0,0,1, 0,0,1,0,0,0,
                                  0,1,0,1,1,0, 1,1,0,1,1,1, 1,1,1,0,1,1, 0,1,1,0,1,0,
                                  0,0,0,0,1,0, 1,0,0,1,1,0, 1,0,1,1,1,1, 0,0,1,0,1,1,};
-        static Model* mBox = Loader::loadModel(24, {{3, M_BOX}});
-        Model* model = boxOutline ? mBox : mLine;
+        static VertexArrays* mBox = Loader::loadModel(24, {{3, M_BOX}});
+        VertexArrays* model = boxOutline ? mBox : mLine;
 
         auto& shader = *SHADER_DEBUG_MODEL;
         shader.useProgram();

@@ -8,6 +8,8 @@
 // Deferred Renderer compose stage.
 // take certain input: gPositionDepth, gNormal, gAlbedoSpec
 
+#include <ethertia/render/RenderEngine.h>
+
 class ComposeRenderer
 {
 public:
@@ -106,29 +108,9 @@ public:
         }
 
 
-
-        _DrawScreenQuad();
+        RenderCommand::DrawFullQuad();
     }
 
-    static Model* _Model_ScreenQuad() {
-        static Model* INST = nullptr;
-        if (!INST) {
-            // init RECT. def full viewport.
-            float _RECT_POS[] = {1,-1, 1,1, -1,-1, -1,1};
-            float _RECT_UV[]  = {1,0,  1,1, 0,0,  0,1};
-            INST = Loader::loadModel(4, {
-                    {2, _RECT_POS},
-                    {2, _RECT_UV}
-            });
-        }
-        return INST;
-    }
-
-    static void _DrawScreenQuad() {
-        Model* m = _Model_ScreenQuad();
-        glBindVertexArray(m->vaoId);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, m->vertexCount);
-    }
 };
 
 #endif //ETHERTIA_COMPOSERENDERER_H

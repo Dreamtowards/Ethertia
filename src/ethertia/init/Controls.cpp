@@ -210,7 +210,7 @@ static void handleKeyDown(KeyboardEvent* e) {
                     bool dropAll = Ethertia::getWindow().isCtrlKeyDown();
                     stack.moveTo(drop, dropAll ? stack.amount() : 1);
 
-                    Ethertia::getWorld()->dropItem(player.getPosition(), drop,player.getViewDirection() * 3.0f);
+                    Ethertia::getWorld()->dropItem(player.position(), drop,player.getViewDirection() * 3.0f);
                 }
             }
             break;

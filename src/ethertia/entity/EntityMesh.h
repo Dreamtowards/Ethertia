@@ -12,10 +12,9 @@ class EntityMesh : public Entity
 public:
     bool m_FaceCulling = true;
 
-//    static bool isFaceCulling(Entity* e) {
-//        EntityMesh* m = dynamic_cast<EntityMesh*>(e);
-//        return m ? m->m_FaceCulling : false;
-//    }
+    VertexArrays* m_Model = nullptr;
+    Texture* m_DiffMap = nullptr;
+
 
     EntityMesh() {
 
@@ -46,9 +45,9 @@ public:
         m_World->m_DynamicsWorld->addRigidBody(m_Rigidbody);
     }
 
-    void updateModel(Model* model) {
-        delete m_Model;
-        m_Model = model;
+    void updateModel(VertexArrays* vao) {
+        delete vao;
+        m_Model = vao;
     }
 
 //    void setMesh_Model(float* pos, Model* new_model) {

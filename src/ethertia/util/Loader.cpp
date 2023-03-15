@@ -74,12 +74,10 @@ void Loader::savePNG(const BitmapImage& img, const std::string& filename)
 
 
 
-Model* Loader::loadModel(size_t vcount, const std::vector<std::pair<int, float *>> &vdats)
+VertexArrays* Loader::loadModel(size_t vcount, const std::vector<std::pair<int, float *>> &vdats)
 {
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    Model* m = new Model(vao, vcount);
+    VertexArrays* vao = VertexArrays::GenVertexArrays();
+    vao->BindVertexArrays();
 
     int i = 0;
     for (auto vd : vdats) {
@@ -93,13 +91,13 @@ Model* Loader::loadModel(size_t vcount, const std::vector<std::pair<int, float *
 
         glVertexAttribPointer(i, vlen, GL_FLOAT, false, 0, nullptr);
         glEnableVertexAttribArray(i);
-        m->vbos.push_back(vbo);
+        vao->vboId[i] = vbo;
         i++;
     }
-    return m;
+    return vao;
 }
 
-Model* Loader::loadModel(const VertexBuffer* vbuf)
+VertexArrays* Loader::loadModel(const VertexBuffer* vbuf)
 {
     std::vector<std::pair<int, float*>> ls;
     ls.emplace_back(3, (float*)vbuf->positions.data());

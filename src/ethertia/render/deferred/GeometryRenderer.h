@@ -46,9 +46,14 @@ public:
         });
     }
 
+    static void PrepareFrame()
+    {
+        SHADER->useProgram();
+        SHADER->setViewProjection();
+    }
 
 
-    static void renderGeometryChunk(Model* vao, glm::vec3 pos, glm::mat3 rot, Texture* diff, float vertexWaving = 0)
+    static void render(VertexArrays* vao, glm::vec3 pos, glm::mat3 rot, Texture* diff, float vertexWaving = 0)
     {
         if (diff)
         {
@@ -68,19 +73,13 @@ public:
 
         SHADER->useProgram();
 
-        // todo: Duplicated VP Set
-        SHADER->setViewProjection();
         SHADER->setMatrix4f("matModel", Mth::matModel(pos, rot, glm::vec3(1.0f)));
-//
-//        SHADER->setFloat("debugVar1", debugVar1);
-//        SHADER->setFloat("debugVar2", debugVar2);
 
         SHADER->setFloat("Time", Ethertia::getPreciseTime());
 
         SHADER->setFloat("WaveFactor", vertexWaving);
 
-        vao->_glDrawArrays();
-//        RenderCommand::DrawArrays(vao);
+        RenderCommand::DrawArrays(vao);
     }
 
 

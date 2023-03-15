@@ -5,7 +5,12 @@
 #ifndef ETHERTIA_ENTITYCOMPONENT_H
 #define ETHERTIA_ENTITYCOMPONENT_H
 
-class EntityComponent
+#include <ethertia/render/RenderEngine.h>
+
+namespace Entt
+{
+
+class Component
 {
 public:
 
@@ -13,14 +18,50 @@ public:
 
 };
 
-class EntityComponentTransform : public EntityComponent
+class TransformComponent : public Entt::Component
 {
 public:
     glm::vec3 origin;
     glm::mat3 basis;
     glm::vec3 scale;
+};
+
+class ChunkProxyComponent
+{
 
 };
+
+class PlayerComponent
+{
+
+};
+
+class NoCullingFaceComponent
+{
+
+};
+
+class MeshComponent : public Entt::Component
+{
+    VertexArrays* m_VAO = nullptr;
+    Texture* m_DiffuseMap = nullptr;
+
+public:
+    MeshComponent(VertexArrays* mVao, Texture* mDiffuseMap) : m_VAO(mVao), m_DiffuseMap(mDiffuseMap) {}
+
+    void onRender();
+
+    void onLoad();
+
+    void onUnload();
+
+
+};
+
+
+
+}
+
 
 //class ComponentFaceCulling : public EntityComponent
 //{
@@ -35,11 +76,6 @@ public:
 //};
 
 
-class EntityComponentChunkMesh
-{
-
-};
-
 
 class Light
 {
@@ -53,14 +89,6 @@ public:
     vec3 direction;
     float coneAngle = 0;
     float coneRound = 0;
-
-};
-
-class EntityComponentLight : public EntityComponent
-{
-public:
-
-//    std::vector<Light*> getLights() {}
 
 };
 

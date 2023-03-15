@@ -36,7 +36,7 @@ public:
 
     EntityPlayer() {
 
-        m_Model = Loader::loadModel(MaterialMeshes::CAPSULE);
+//        m_Model = Loader::loadVertexArrays(MaterialMeshes::CAPSULE);
 
         auto* shapeCapsule = new btCapsuleShape(0.5, 2);
 
@@ -47,6 +47,16 @@ public:
         m_Rigidbody->setActivationState(DISABLE_DEACTIVATION);  // no auto deactivate
 
         m_Rigidbody->setFriction(0.8);
+    }
+
+    void onLoad(World* world) override
+    {
+
+    }
+
+    void onUnload(World* world) override
+    {
+
     }
 
     void setFlying(bool f) {

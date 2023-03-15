@@ -24,11 +24,42 @@ void RenderCommand::CheckError(std::string_view phase) {
 
 void RenderCommand::DrawArrays(VertexArrays* vao)
 {
-    glBindVertexArray(vao->vaoId);
+    vao->BindVertexArrays();
     glDrawArrays(GL_TRIANGLES, 0, vao->vertexCount);
 }
 
+void RenderCommand::DrawFullQuad() {
+    static VertexArrays* _Quad = nullptr;
+    if (!_Quad) {
+        // init RECT. def full viewport.
+        float _RECT_POS[] = {1,-1, 1,1, -1,-1, -1,1};
+        float _RECT_UV[]  = {1,0,  1,1, 0,0,  0,1};
+        _Quad = Loader::loadModel(4, {
+                {2, _RECT_POS},
+                {2, _RECT_UV}
+        });
+    }
+    _Quad->BindVertexArrays();
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
 
+
+
+//////////////// VAO, VertexArray ////////////////
+
+VertexArrays* VertexArrays::GenVertexArrays() {
+    VertexArrays* vao = new VertexArrays();
+    glGenVertexArrays(1, (GLuint*)&vao->vaoId);
+    return vao;
+}
+
+VertexArrays::~VertexArrays() {
+    glDeleteVertexArrays(1, (GLuint*)&vaoId);
+}
+
+void VertexArrays::BindVertexArrays() {
+    glBindVertexArray(vaoId);
+}
 
 
 //////////////// Texture ////////////////

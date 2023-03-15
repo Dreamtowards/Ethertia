@@ -35,14 +35,26 @@ public:
     REGISTER_ITEM(COAL,         "coal",         {new ItemComponentFuel(16.0)});
     REGISTER_ITEM(IRON_INGOT,   "iron_ingot",   {});
 
+//    static Entity* newEntityLantern()
+//    {
+//        Entity* entity = new Entity();
+//
+//        static VertexBuffer* _vbuf = Loader::loadOBJ("material/lantern/mesh.obj");
+//
+//        static VertexArrays* _vao = Loader::loadModel(_vbuf);
+//        static Texture* _diff = Loader::loadTexture("material/lantern/diff.png");
+//        entity->addComponent<Entt::MeshComponent>(_vao, _diff);
+//
+//
+//    }
 
-    // Lights
-    REGISTER_ITEM(LANTERN,      "lantern",      {new ItemComponentEntity{[](){ return new EntityLantern(); }}});
-    REGISTER_ITEM(TORCH,        "torch",        {new ItemComponentEntity([](){ return new EntityTorch(); })});
-
-
-    // ? Vehicle ?
-    REGISTER_ITEM(HELICOPTER,   "helicopter",   {new ItemComponentEntity([](){ return new EntityHelicopter(); })});
+//    // Lights
+//    REGISTER_ITEM(LANTERN,      "lantern",      {new ItemComponentEntity{[](){ return new EntityLantern(); }}});
+//    REGISTER_ITEM(TORCH,        "torch",        {new ItemComponentEntity([](){ return new EntityTorch(); })});
+//
+//
+//    // ? Vehicle ?
+//    REGISTER_ITEM(HELICOPTER,   "helicopter",   {new ItemComponentEntity([](){ return new EntityHelicopter(); })});
 
 
 };

@@ -39,7 +39,9 @@ static void Init();
 static void Destroy();
 static void RunMainLoop();
 
-// The main entrance & entire lifetime.
+
+// Entry Point & Entire Lifetime.
+
 int main()
 {
     Init();
@@ -63,6 +65,7 @@ static Timer        g_Timer;
 static HitCursor    g_HitCursor;
 static Profiler     g_Profiler;
 static Camera       g_Camera;
+
 
 // System Initialization.
 static void Init()
@@ -126,6 +129,7 @@ static void Init()
 
 }
 
+// System Cleanup
 static void Destroy()
 {
     Settings::saveSettings();
@@ -145,6 +149,8 @@ static void Destroy()
 }
 
 
+// MainLoop.
+// frequence=fps.
 static void RunMainLoop()
 {
     PROFILE("Frame");
@@ -194,12 +200,10 @@ static void RunMainLoop()
 
     {
         PROFILE("Render");
-        RenderEngine::framePrepare();
-
         if (world)
         {
             PROFILE("World");
-            RenderEngine::renderWorld(world);
+            RenderEngine::RenderWorld();
         }
         {
             PROFILE("GUI");
@@ -464,7 +468,7 @@ float Scheduler::_intl_program_time() {
 
 void Entity::onRender()
 {
-    GeometryRenderer::renderGeometryChunk(
+    GeometryRenderer::render(
             m_Model, getPosition(), getRotation(), m_DiffuseMap);
 }
 
@@ -475,7 +479,7 @@ void EntityMesh::onRender()
     if (isFoliage)
         glDisable(GL_CULL_FACE);
 
-    GeometryRenderer::renderGeometryChunk(
+    GeometryRenderer::render(
             m_Model, getPosition(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
 
     if (isFoliage)

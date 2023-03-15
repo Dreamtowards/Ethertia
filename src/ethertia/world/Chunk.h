@@ -28,9 +28,10 @@ public:
 
     bool m_Populated = false;
 
-
     uint64_t m_CreatedTime = 0;  // millis timestamp.
     float m_InhabitedTime = 0;  // seconds.
+
+
 
     //bool m_MeshInvalid = false;  // invalidMesh
 //    bool m_NeedsSave = false;
@@ -61,11 +62,11 @@ public:
 
         // init the proxy entity
         m_MeshTerrain = new EntityMesh();
-        m_MeshTerrain->setPosition(position);
+        m_MeshTerrain->position() = position;
         m_MeshTerrain->m_Rigidbody->setFriction(0.8f);
 
         m_MeshVegetable = new EntityMesh();
-        m_MeshVegetable->setPosition(position);
+        m_MeshVegetable->position() = position;
         m_MeshVegetable->m_FaceCulling = false;
         m_MeshVegetable->setNoCollision();
     }

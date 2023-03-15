@@ -21,7 +21,7 @@ public:
     // ...
     // vec3i jointIdxs;
     // vec3  jointWeights
-    static void render(Model* model, const std::vector<Animation::Joint>& joints)
+    static void render(VertexArrays* vao, const std::vector<Animation::Joint>& joints)
     {
         SHADER->useProgram();
 
@@ -34,7 +34,8 @@ public:
 
         SHADER->setViewProjection();
 
-        model->_glDrawArrays();
+
+        RenderCommand::DrawArrays(vao);
 
     }
 

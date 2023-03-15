@@ -9,6 +9,7 @@
 
 #include <ethertia/render/deferred/ComposeRenderer.h>
 #include <ethertia/render/ShaderProgram.h>
+#include <ethertia/render/RenderCommand.h>
 
 class SSAORenderer
 {
@@ -32,8 +33,6 @@ public:
         SHADER->setInt("gPositionDepth", 0);
         SHADER->setInt("gNormal", 1);
         SHADER->setInt("texNoise", 2);
-
-        RenderEngine::checkGlError("Test2");
 
         using glm::vec3;
 
@@ -79,7 +78,7 @@ public:
     {
         auto _ap = fboSSAO->BeginFramebuffer_Scoped();
 
-        glClear(GL_COLOR_BUFFER_BIT);
+        RenderCommand::Clear();
 
         gPositionDepth->BindTexture(0);
         gNormal       ->BindTexture(1);
@@ -93,8 +92,7 @@ public:
 
         SHADER->setViewProjection();
 
-        ComposeRenderer::_DrawScreenQuad();
-
+        RenderCommand::DrawFullQuad();
     }
 
 };

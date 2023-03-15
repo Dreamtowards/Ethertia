@@ -14,7 +14,7 @@ class GuiRenderer
     DECL_SHADER(SHADER, "shaders/gui/gui.{}");
 
 public:
-    inline static Model* M_RECT_RB;  // RB,RT,LB,LT. TRIANGLE_STRIP.
+    inline static VertexArrays* M_RECT_RB;  // RB,RT,LB,LT. TRIANGLE_STRIP.
 
     static void init()
     {

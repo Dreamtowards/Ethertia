@@ -3,7 +3,6 @@
 //
 
 #include "RenderEngine.h"
-#include "GlState.h"
 
 
 #include <ethertia/world/World.h>
@@ -62,7 +61,7 @@ void RenderEngine::init()
     }
 
 
-    RenderEngine::checkGlError("End of RenderEngine Init");
+    RenderCommand::CheckError("End of RenderEngine Init");
 
 }
 
@@ -72,22 +71,7 @@ void RenderEngine::deinit()
 }
 
 
-void RenderEngine::framePrepare()
-{
-    Camera& cam = Ethertia::getCamera();
-
-    cam.update(Ethertia::isIngame());
-
-    if (Ethertia::isIngame())
-    {
-        cam.position = Ethertia::getPlayer()->getPosition();
-    }
-
-    RenderCommand::Clear();
-}
-
-
-void RenderEngine::renderWorldGeometry(World* world) {
+static void renderWorldGeometry(World* world) {
 
     // Geometry of Deferred Rendering
 
@@ -143,7 +127,7 @@ void RenderEngine::renderWorldGeometry(World* world) {
 }
 
 
-void RenderEngine::renderWorldCompose(World* world)
+static void renderWorldCompose(World* world)
 {
     // Compose of Deferred Rendering
 
@@ -242,12 +226,29 @@ void RenderEngine::renderWorldCompose(World* world)
 }
 
 
-void RenderEngine::renderWorld(World* world)
+void RenderEngine::RenderWorld()
 {
+    World* world = Ethertia::getWorld();
     assert(world);
+
+    RenderCommand::Clear();
+
+    {
+        Camera& cam = Ethertia::getCamera();
+
+        cam.update(Ethertia::isIngame());
+
+        if (Ethertia::isIngame())
+        {
+            cam.position = Ethertia::getPlayer()->getPosition();
+        }
+    }
+
+    GeometryRenderer::PrepareFrame();
+
     if (Settings::dbg_PauseWorldRender) return;
 
-    RenderEngine::checkGlError("Begin World Render");
+    RenderCommand::CheckError("Begin World Render");
 
     ParticleRenderer::updateAll(Ethertia::getDelta());
 
@@ -277,7 +278,7 @@ void RenderEngine::renderWorld(World* world)
 //    AnimRenderer::Inst()->render();
 
 
-    RenderEngine::checkGlError("End World Render");
+    RenderCommand::CheckError("End World Render");
 }
 
 

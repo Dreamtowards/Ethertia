@@ -19,6 +19,7 @@
 #include <ethertia/render/Texture.h>
 #include <ethertia/util/BitmapImage.h>
 #include <ethertia/render/VertexBuffer.h>
+#include <ethertia/render/VertexArrays.h>
 #include <ethertia/render/Model.h>
 #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/render/ShaderProgram.h>
@@ -142,11 +143,11 @@ public:
     /////////////// OpenGL VAO, VBO ///////////////
 
     // VertexCount, {{VertLen, VertData}}
-    static Model* loadModel(size_t vcount, const std::vector<std::pair<int, float*>>& vdats);
+    static VertexArrays* loadModel(size_t vcount, const std::vector<std::pair<int, float*>>& vdats);
 
-    static Model* loadModel(const VertexBuffer* vbuf);
+    static VertexArrays* loadModel(const VertexBuffer* vbuf);
 
-    static Model* loadModel(size_t vcount, std::initializer_list<std::pair<int, float*>> vdats) {
+    static VertexArrays* loadModel(size_t vcount, std::initializer_list<std::pair<int, float*>> vdats) {
         return loadModel(vcount, std::vector(vdats));
     }
 

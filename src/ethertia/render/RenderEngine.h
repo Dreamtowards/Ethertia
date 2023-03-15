@@ -6,18 +6,14 @@
 #define ETHERTIA_RENDERENGINE_H
 
 #include <glm/glm.hpp>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
-#include <ethertia/render/Camera.h>
-#include <ethertia/render/Model.h>
-#include <ethertia/util/DtorCaller.h>
-#include <ethertia/render/Framebuffer.h>
-#include <ethertia/util/Loader.h>
-#include <ethertia/util/Colors.h>
-#include <ethertia/util/Frustum.h>
+#include "Texture.h"
+#include "VertexArrays.h"
+#include "Framebuffer.h"
+#include "RenderCommand.h"
+
+#include <ethertia/util/AABB.h>
 #include <ethertia/util/Mth.h>
-#include <ethertia/util/Log.h>
 
 class RenderEngine
 {
@@ -27,17 +23,7 @@ public:
     static void init();
     static void deinit();
 
-    static void framePrepare();
-
-    static void renderWorld(World* world);
-
-    static void renderWorldGeometry(World* world);
-
-    static void renderWorldCompose(World* world);
-
-    static void checkGlError(std::string_view phase = "") {
-
-    }
+    static void RenderWorld();
 
     // Sun (Day) or Moon (Night).  Noon -> vec3(0, -1, 0)
     static glm::vec3 SunlightDir(float daytime) {

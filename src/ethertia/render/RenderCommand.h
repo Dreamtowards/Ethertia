@@ -24,8 +24,9 @@ struct RenderCommand
     static void DrawArrays(VertexArrays* vao);
     // static void DrawIndexed();
 
-    static void BindTexture2D(Texture* tex, int slot = 0);
-    static BitmapImage* GetTexImage(Texture* tex);
+    // Screen Quad. kinda high-level. useful for Post-processing. e.g. SSAO etc.
+    // Built-in VAO is [vec2 PosNDC, vec2 TexCoord]
+    static void DrawFullQuad();
 
 };
 

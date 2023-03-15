@@ -18,7 +18,7 @@ public:
 
     inline static std::vector<Particle*> m_Particles;
 
-    inline static Model* M_PLANE_C_STRIP = nullptr;
+    inline static VertexArrays* M_PLANE_C_STRIP = nullptr;
 
     static void init()
     {

@@ -53,7 +53,7 @@ public:
             if (!e->m_Model)
                 continue;
 
-            SHADER->setMatrix4f("matModel", Mth::matModel(e->getPosition(), e->getRotation(), glm::vec3(1)));
+            SHADER->setMatrix4f("matModel", Mth::matModel(e->position(), e->getRotation(), glm::vec3(1)));
 
             e->m_Model->_glDrawArrays();
         }
