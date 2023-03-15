@@ -12,9 +12,6 @@ class EntityMesh : public Entity
 public:
     bool m_FaceCulling = true;
 
-    VertexArrays* m_Model = nullptr;
-    Texture* m_DiffMap = nullptr;
-
 
     EntityMesh() {
 

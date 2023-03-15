@@ -55,7 +55,7 @@ public:
 
             SHADER->setMatrix4f("matModel", Mth::matModel(e->position(), e->getRotation(), glm::vec3(1)));
 
-            e->m_Model->_glDrawArrays();
+            RenderCommand::DrawArrays(e->m_Model);
         }
 
     }

@@ -243,7 +243,7 @@ void World::addEntity(Entity* e)
     auto old_grav = e->m_Rigidbody->getGravity(); // fix little stupid auto-change gravity
 
     // add entity bodies to DynamicsWorld.
-    e->onLoad(m_DynamicsWorld);
+    e->onLoad(this);
 
     e->m_Rigidbody->setGravity(old_grav);
 }
@@ -256,7 +256,7 @@ void World::removeEntity(Entity* e)
 
     Collections::erase(m_Entities, e);
 
-    e->onUnload(m_DynamicsWorld);
+    e->onUnload(this);
 
     e->m_World = nullptr;
 }
@@ -284,7 +284,7 @@ void World::dropItem(glm::vec3 p, const ItemStack& stack, glm::vec3 vel)
     assert(!stack.empty());
     EntityDroppedItem* eDroppedItem = new EntityDroppedItem();
     eDroppedItem->m_DroppedItem = stack;
-    eDroppedItem->setPosition(p);
+    eDroppedItem->position() = p;
     eDroppedItem->applyLinearVelocity(vel);
     addEntity(eDroppedItem);
 }

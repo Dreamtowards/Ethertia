@@ -534,13 +534,13 @@ static void ShowEntityInsp()
     }
 //    ImGui::BeginChild();
 
-    ImGui::TextDisabled("%i components", (int)entity->m_Components.size());
+    ImGui::TextDisabled("%i components", (int)entity->numComponents());
 
     if (ImGui::CollapsingHeader("Transform")) {
 
-        ImGui::DragFloat3("Position", entity->pos());
-        ImGui::DragFloat3("Rotation", entity->pos());
-        ImGui::DragFloat3("Scale", entity->pos());
+        ImGui::DragFloat3("Position", &entity->position()[0]);
+        ImGui::DragFloat3("Rotation", &entity->position()[0]);
+        ImGui::DragFloat3("Scale", &entity->position()[0]);
 
         ImGui::Separator();
         ImGui::TextDisabled("Gizmo:");
@@ -588,9 +588,9 @@ static void ShowEntityInsp()
 
 
         {
-            EntityComponentTransform& ct = entity->getComponent<EntityComponentTransform>();
+//            EntityComponentTransform& ct = entity->getComponent<EntityComponentTransform>();
 
-            glm::mat4 matModel = Mth::matModel(entity->getPosition(),
+            glm::mat4 matModel = Mth::matModel(entity->position(),
                                                entity->getRotation(),
                                                {1, 1, 1});
 
@@ -611,8 +611,8 @@ static void ShowEntityInsp()
                 glm::mat3 rot;
                 Mth::decomposeTransform(matModel, pos, rot, scl);
 
-                entity->setPosition(pos);
-                *(glm::mat3*)entity->rot() = rot;
+                entity->position() = pos;
+//                *(glm::mat3*)entity->rot() = rot;
             }
         }
     }
@@ -1140,7 +1140,7 @@ static void RenderWindows()
         DebugRenderer::Inst().renderDebugWorldBasis();
     }
     if (dbg_Gbuffer) {
-        Dbg_DrawGbuffers(0, 32);
+//        Dbg_DrawGbuffers(0, 32);
     }
 
     World* world = Ethertia::getWorld();
@@ -1221,6 +1221,19 @@ void ImGuis::TextAlign(const char* text, ImVec2 align) {
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() - align.x * size.x);
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() - align.y * size.y);
     ImGui::Text("%s", text);
+}
+
+void ImGuis::forWorldpoint(const glm::vec3 &worldpos, const std::function<void(glm::vec2)> &fn)
+{
+    glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getCamera().matView, Ethertia::getCamera().matProjection);
+
+    auto& vp = Ethertia::getViewport();
+    p.x = p.x * vp.width;
+    p.y = p.y * vp.height;
+
+    if (p.z > 0) {
+        fn(glm::vec2(p.x, p.y));
+    }
 }
 
 void ImGuis::RenderGUI()

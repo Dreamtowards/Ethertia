@@ -10,8 +10,8 @@
 #include <ethertia/render/deferred/ComposeRenderer.h>
 #include <ethertia/render/sky/SkyGradientRenderer.h>
 #include <ethertia/render/sky/SkyboxRenderer.h>
-#include <ethertia/render/gui/GuiRenderer.h>
-#include <ethertia/render/gui/FontRenderer.h>
+//#include <ethertia/render/gui/GuiRenderer.h>
+//#include <ethertia/render/gui/FontRenderer.h>
 #include <ethertia/render/particle/ParticleRenderer.h>
 #include <ethertia/render/ssao/SSAORenderer.h>
 #include <ethertia/render/debug/DebugRenderer.h>
@@ -40,8 +40,8 @@ void RenderEngine::init()
 
 
     std::cout << " renderers[";
-    GuiRenderer::init();        std::cout << "gui, ";
-    FontRenderer::init();       std::cout << "font, ";
+//    GuiRenderer::init();        std::cout << "gui, ";
+//    FontRenderer::init();       std::cout << "font, ";
     GeometryRenderer::init();     std::cout << "geometry";
     ComposeRenderer::init();
     SkyboxRenderer::init();
@@ -108,11 +108,11 @@ static void renderWorldGeometry(World* world) {
 
         // Debug: draw Norm/Border
         if (Dbg::dbg_EntityGeo) {
-            DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation());
+            DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->position(), entity->getRotation());
         }
         // Debug: draw Entity that Crosshair Hits.
         if (Dbg::dbg_HitPointEntityGeo && entity == Ethertia::getHitCursor().hitEntity) {
-            DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->getPosition(), entity->getRotation(),
+            DebugRenderer::Inst().renderDebugGeo(entity->m_Model, entity->position(), entity->getRotation(),
                            Ethertia::getHitCursor().brushSize, Ethertia::getHitCursor().position);
         }
         // Debug: draw Every Entity AABB.
@@ -167,20 +167,21 @@ static void renderWorldCompose(World* world)
 
         renderLights.push_back(&sunLight);
     }
-    for (Entity* e : world->m_Entities)
-    {
-        if (EntityLantern* lat = dynamic_cast<EntityLantern*>(e))
-        {
-            renderLights.push_back(lat->getLights());
-        }
-
-        if (EntityTorch* lat = dynamic_cast<EntityTorch*>(e))
-        {
-            renderLights.push_back(lat->getLights());
-
-            ParticleRenderer::m_Particles.push_back(lat->genParticles());
-        }
-    }
+    //fixme: Do it later
+//    for (Entity* e : world->m_Entities)
+//    {
+//        if (EntityLantern* lat = dynamic_cast<EntityLantern*>(e))
+//        {
+//            renderLights.push_back(lat->getLights());
+//        }
+//
+//        if (EntityTorch* lat = dynamic_cast<EntityTorch*>(e))
+//        {
+//            renderLights.push_back(lat->getLights());
+//
+//            ParticleRenderer::m_Particles.push_back(lat->genParticles());
+//        }
+//    }
 
 
     // CNS. 让接下来Alpha!=1.0的地方的颜色 添加到背景颜色中 为了接下来的天空颜色叠加
@@ -205,16 +206,16 @@ static void renderWorldCompose(World* world)
             float i = Item::REGISTRY.getOrderId(stack.item());
             float n = Item::REGISTRY.size();
 
-            ParticleRenderer::render(ItemTextures::ITEM_ATLAS, eDroppedItem->getPosition(), 0.3f,
+            ParticleRenderer::render(ItemTextures::ITEM_ATLAS, eDroppedItem->position(), 0.3f,
                                        {i/n, 0},
                                        {1/n, 1});
 
             if (stack.amount() > 1)
             {
-                // tmp draw count.
-                Gui::drawWorldpoint(eDroppedItem->getPosition(), [&](glm::vec2 p) {
-                    Gui::drawString(p.x, p.y, std::to_string(stack.amount()));
-                });
+                // fixme: tmp draw count.
+//                Gui::drawWorldpoint(eDroppedItem->position(), [&](glm::vec2 p) {
+//                    Gui::drawString(p.x, p.y, std::to_string(stack.amount()));
+//                });
             }
         }
     }
@@ -231,8 +232,6 @@ void RenderEngine::RenderWorld()
     World* world = Ethertia::getWorld();
     assert(world);
 
-    RenderCommand::Clear();
-
     {
         Camera& cam = Ethertia::getCamera();
 
@@ -240,7 +239,7 @@ void RenderEngine::RenderWorld()
 
         if (Ethertia::isIngame())
         {
-            cam.position = Ethertia::getPlayer()->getPosition();
+            cam.position = Ethertia::getPlayer()->position();
         }
     }
 
@@ -266,7 +265,7 @@ void RenderEngine::RenderWorld()
     renderWorldCompose(world);
 
 
-    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), ComposeRenderer::fboCompose->texColor[0]);
+//    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), ComposeRenderer::fboCompose->texColor[0]);
 
 
 //    static Model* model = Loader::loadModel(100, {

@@ -86,53 +86,53 @@ static void ShowDebugTextOverlay()
     ImGui::PopStyleVar(2);
 }
 
-#include <ethertia/gui/Gui.h>
-
-void Dbg_DrawGbuffers(float x, float y)
-{
-    auto* gbuffer = GeometryRenderer::fboGbuffer;
-
-    float h = 120;
-    float w = h * 1.5f;
-
-    Gui::drawRect(x, y, w, h, {
-            .tex = gbuffer->texColor[0],
-            .channel_mode = Gui::DrawRectArgs::C_RGB
-    });
-    Gui::drawString(x,y, "Pos");
-
-    Gui::drawRect(x+w, y, w, h, {
-            .tex = gbuffer->texColor[0],
-            .channel_mode = Gui::DrawRectArgs::C_AAA
-    });
-    Gui::drawString(x+w,y, "Dep");
-
-    Gui::drawRect(x, y+h, w, h, gbuffer->texColor[1]);
-    Gui::drawString(0,h, "Norm");
-
-    Gui::drawRect(x, y+h*2, w, h, {
-            .tex = gbuffer->texColor[2],
-            .channel_mode = Gui::DrawRectArgs::C_RGB
-    });
-    Gui::drawString(x,y+h*2, "Albedo");
-
-    Gui::drawRect(x+w, y+h*2, w, h, {
-            .tex = gbuffer->texColor[2],
-            .channel_mode = Gui::DrawRectArgs::C_AAA
-    });
-    Gui::drawString(x+w,y+h*2, "Roug");
-
-    Gui::drawRect(x, y+h*3, w, h, {
-            .tex = SSAORenderer::fboSSAO->texColor[0],
-            .channel_mode = Gui::DrawRectArgs::C_RGB
-    });
-    Gui::drawString(x,y+h*3, "SSAO");
-
-
-    Gui::drawRect(x, y+h*4, w, h, {
-            .tex = ShadowRenderer::fboDepthMap->texDepth,
-            .channel_mode = Gui::DrawRectArgs::C_RGB
-    });
-    Gui::drawString(x,y+h*4, "Shadow");
-
-}
+//#include <ethertia/gui/Gui.h>
+//
+//void Dbg_DrawGbuffers(float x, float y)
+//{
+//    auto* gbuffer = GeometryRenderer::fboGbuffer;
+//
+//    float h = 120;
+//    float w = h * 1.5f;
+//
+//    Gui::drawRect(x, y, w, h, {
+//            .tex = gbuffer->texColor[0],
+//            .channel_mode = Gui::DrawRectArgs::C_RGB
+//    });
+//    Gui::drawString(x,y, "Pos");
+//
+//    Gui::drawRect(x+w, y, w, h, {
+//            .tex = gbuffer->texColor[0],
+//            .channel_mode = Gui::DrawRectArgs::C_AAA
+//    });
+//    Gui::drawString(x+w,y, "Dep");
+//
+//    Gui::drawRect(x, y+h, w, h, gbuffer->texColor[1]);
+//    Gui::drawString(0,h, "Norm");
+//
+//    Gui::drawRect(x, y+h*2, w, h, {
+//            .tex = gbuffer->texColor[2],
+//            .channel_mode = Gui::DrawRectArgs::C_RGB
+//    });
+//    Gui::drawString(x,y+h*2, "Albedo");
+//
+//    Gui::drawRect(x+w, y+h*2, w, h, {
+//            .tex = gbuffer->texColor[2],
+//            .channel_mode = Gui::DrawRectArgs::C_AAA
+//    });
+//    Gui::drawString(x+w,y+h*2, "Roug");
+//
+//    Gui::drawRect(x, y+h*3, w, h, {
+//            .tex = SSAORenderer::fboSSAO->texColor[0],
+//            .channel_mode = Gui::DrawRectArgs::C_RGB
+//    });
+//    Gui::drawString(x,y+h*3, "SSAO");
+//
+//
+//    Gui::drawRect(x, y+h*4, w, h, {
+//            .tex = ShadowRenderer::fboDepthMap->texDepth,
+//            .channel_mode = Gui::DrawRectArgs::C_RGB
+//    });
+//    Gui::drawString(x,y+h*4, "Shadow");
+//
+//}

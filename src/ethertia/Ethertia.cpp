@@ -103,7 +103,7 @@ static void Init()
     Controls::initControls();
 
     g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
-    g_Player->setPosition({10, 10, 10});
+    g_Player->position() = {10, 10, 10};
     g_Player->switchGamemode(Gamemode::SPECTATOR);
     g_Player->setFlying(true);
 
@@ -200,6 +200,8 @@ static void RunMainLoop()
 
     {
         PROFILE("Render");
+        RenderCommand::Clear();
+
         if (world)
         {
             PROFILE("World");
@@ -469,7 +471,7 @@ float Scheduler::_intl_program_time() {
 void Entity::onRender()
 {
     GeometryRenderer::render(
-            m_Model, getPosition(), getRotation(), m_DiffuseMap);
+            m_Model, position(), getRotation(), m_DiffuseMap);
 }
 
 void EntityMesh::onRender()
@@ -480,7 +482,7 @@ void EntityMesh::onRender()
         glDisable(GL_CULL_FACE);
 
     GeometryRenderer::render(
-            m_Model, getPosition(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
+            m_Model, position(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
 
     if (isFoliage)
         glEnable(GL_CULL_FACE);  // set back

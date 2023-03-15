@@ -4,7 +4,7 @@
 
 
 
-## Build & Run
+## I. Build & Run
 
 1. Get Sources  
    https://github.com/Dreamtowards/Ethertia  
@@ -27,7 +27,7 @@
 
 
 
-## Setup Dev
+## II. Dev Setup
 
 ### IDE: CLion
 
@@ -47,13 +47,12 @@
 
 ### Version Control: Github Desktop
 
-相比之下这个就次要了，选你喜欢的。这里介绍 Github Desktop. 因为它独立 便携 清晰.
+这不是必要的，用你习惯的。这里介绍 Github Desktop. 因为它独立 便携 清晰.
 
 
 
 
 
+## III. How to Contribute
 
-## How to Contribute
-
-
+Git: Pull Request

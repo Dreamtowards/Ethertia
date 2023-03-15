@@ -30,8 +30,8 @@ public:
 
     btRigidBody* m_Rigidbody = nullptr;
 
-//    Model* m_Model = nullptr;
-//    Texture* m_DiffuseMap = nullptr;
+    VertexArrays* m_Model = nullptr;
+    Texture* m_DiffuseMap = nullptr;
 //    std::vector<EntityComponent*> m_Components;
 
 
@@ -134,18 +134,18 @@ public:
         auto o = m_Rigidbody->getLinearVelocity();
         m_Rigidbody->setLinearVelocity(btVector3(o.x()+vel.x, o.y()+vel.y, o.z()+vel.z));
     }
-//
-//
-//    AABB getAABB() {
-//        btVector3 min, max;
-//        m_Rigidbody->getAabb(min, max);
-//        return AABB(glm::vec3(min.x(), min.y(), min.z()),
-//                    glm::vec3(max.x(), max.y(), max.z()));
-//    }
-//
-//
-//
-//
+
+
+    AABB getAABB() {
+        btVector3 min, max;
+        m_Rigidbody->getAabb(min, max);
+        return AABB(glm::vec3(min.x(), min.y(), min.z()),
+                    glm::vec3(max.x(), max.y(), max.z()));
+    }
+
+
+
+
     void initRigidbody(float mass, btCollisionShape* shape, const btTransform& startTransform = btTransform::getIdentity())
     {
         assert(m_Rigidbody == nullptr);

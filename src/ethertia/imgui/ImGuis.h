@@ -27,6 +27,9 @@ public:
     // align: {0,0}=LeftTop, {1,1}=RightBottom, {0.5,0.5}=Center, etc.
     static void TextAlign(const char* text, ImVec2 align);
 
+
+
+    static void forWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
 };
 
 #endif //ETHERTIA_IMGUIS_H

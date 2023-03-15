@@ -1,11 +1,11 @@
-## Ethertia · 以太效應
+# Ethertia · 以太效應
 
 **Building · Survive · Interact**
 
-[ethertia.com](https://ethertia.com)
-[Roadmap](https://github.com/users/Dreamtowards/projects/2)
-[Wikipedia](https://zh.wikipedia.org/wiki/Ethertia)
-[@Bilibili](https://space.bilibili.com/19483166)
+[Ethertia.com](https://ethertia.com) - 
+[Roadmap](https://github.com/users/Dreamtowards/projects/2) - 
+[Wikipedia](https://zh.wikipedia.org/wiki/Ethertia) - 
+[@Bilibili](https://space.bilibili.com/19483166) - 
 [@QQ](https://jq.qq.com/?_wv=1027&k=tgM29oDM) 
 |
 [@Eldrine Le Prismarine](https://elytra.dev/~pris)
@@ -27,19 +27,18 @@ Preview Screenshots:
 <img style="height: 60px;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/2023-01-16_01.04.07_473.938.png">
 <img style="height: 60px;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/2022-12-30_21.59.00_526.642.png">
 
-## Docs
+---
 
-
-**Getting Started**
-- [Build & Run & Dev](setup-dev.md)
+#### **Getting Started**
+- [Build & Run & Dev](run/assets/docs/zh-cn/setup-dev.md)
 - [Source Overview]()
 - [Make some _noise_]()
 - [About Ethertia]()
 
-**Misc**
+#### **Misc**
 - [社区给出的建议](mentor-suggs.md)
 
-**Systems**
+#### **Systems**
 
 - [ImGui]()
 - [WorldGen]()
@@ -49,9 +48,9 @@ Preview Screenshots:
 
 - [Multiplayer & Networking]()
 
-**All Versions**
+#### **All Versions**
 
-**Developers**
+#### **Developers**
 
 - Eldrine Le Prismarine (voxel, graphics, gameplay)
 - Thaumstrail

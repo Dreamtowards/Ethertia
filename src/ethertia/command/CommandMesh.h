@@ -18,7 +18,7 @@ public:
         {
             EntityMesh* entity = new EntityMesh();
             Ethertia::getWorld()->addEntity(entity);
-            entity->setPosition(player->getPosition());
+            entity->position() = player->position();
 
             const VertexBuffer& vbuf = *MaterialMeshes::STOOL;
             entity->setMesh(EntityMesh::createMeshShape(vbuf.vertexCount(), vbuf.positions.data()));
