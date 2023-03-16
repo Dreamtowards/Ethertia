@@ -6,7 +6,7 @@
 
 #include <ethertia/util/Log.h>
 
-
+#include <set>
 
 inline static bool g_EnableValidationLayer = true;
 inline static std::vector<const char*> g_ValidationLayers = {
@@ -110,26 +110,17 @@ static QueueFamilyIndices _FindQueueFamilies(VkPhysicalDevice physicalDevice, Vk
 
     int i = 0;
     for (const auto& queueFamily : queueFamilies) {
-//        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-//            queueFamilyIdxs.m_GraphicsFamily = i;
-//        }
-//
-//        VkBool32 supportPresent = false;
-//        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supportPresent);
-//        if (supportPresent)
-//            queueFamilyIdxs.m_PresentFamily = i;
-
-        // Temporary! not accurate.
-        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT && queueFamilyIdxs.m_GraphicsFamily == -1) {
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             queueFamilyIdxs.m_GraphicsFamily = i;
-        } else {
-
-            VkBool32 supportPresent = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supportPresent);
-            if (supportPresent)
-                queueFamilyIdxs.m_PresentFamily = i;
         }
 
+        VkBool32 supportPresent = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supportPresent);
+        if (supportPresent)
+            queueFamilyIdxs.m_PresentFamily = i;
+
+        if (queueFamilyIdxs.isComplete())
+            break;
 
 //        Log::info("QueueFamily[{}]: {} :: Graphics: {}, Compute: {}, Transfer: {}",
 //                  i, std::bitset<sizeof(VkQueueFlags)>(queueFamily.queueFlags),
@@ -137,8 +128,6 @@ static QueueFamilyIndices _FindQueueFamilies(VkPhysicalDevice physicalDevice, Vk
 //                  queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT,
 //                  queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT);
 
-//        if (queueFamilyIdxs.isComplete())
-//            break;
         i++;
     }
 
@@ -156,22 +145,20 @@ static VkDevice InitLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR 
     QueueFamilyIndices queueFamily = _FindQueueFamilies(physicalDevice, surface);
     float queuePriority = 1.0f;  // 0.0-1.0
 
-    // todo BUG: vk requires pQueueCreateInfos::queueFamilyIndex to be Unique
-    int numQueues = 2;
-    uint arrQueueFamilyIdx[] = {queueFamily.m_GraphicsFamily, queueFamily.m_PresentFamily};
-    VkDeviceQueueCreateInfo arrQueueCreateInfo[numQueues];
-    for (int i = 0;i < numQueues;++i) {
-        VkDeviceQueueCreateInfo& queueCreateInfo = arrQueueCreateInfo[i];
-        queueCreateInfo = {};
+    std::set<uint32_t> uniqQueueFamilyIdx = {queueFamily.m_GraphicsFamily, queueFamily.m_PresentFamily};
+    std::vector<VkDeviceQueueCreateInfo> arrQueueCreateInfo;
+    for (uint32_t queueFamilyIdx : uniqQueueFamilyIdx) {
+        VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.pQueuePriorities = &queuePriority;
 
-        queueCreateInfo.queueFamilyIndex = arrQueueFamilyIdx[i];
+        queueCreateInfo.queueFamilyIndex = queueFamilyIdx;
         queueCreateInfo.queueCount = 1;
+        arrQueueCreateInfo.push_back(queueCreateInfo);
     }
 
-    createInfo.pQueueCreateInfos = arrQueueCreateInfo;
-    createInfo.queueCreateInfoCount = numQueues;
+    createInfo.pQueueCreateInfos = arrQueueCreateInfo.data();
+    createInfo.queueCreateInfoCount = arrQueueCreateInfo.size();
 
     // Device Features
     VkPhysicalDeviceFeatures deviceFeatures{};
@@ -662,7 +649,10 @@ static void InitSurface(VkInstance vkInstance, GLFWwindow* glfwWindow, VkSurface
 
 
 
-
+// 1. VkInstance (+ValidationLayer)
+// 2. Init Surface.
+// 3. Pick a PhysicalDevice
+// 4. Create a LogicalDevice and QueueFamilies
 
 void Vulkan::Init(GLFWwindow* glfwWindow)
 {
