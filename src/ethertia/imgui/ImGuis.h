@@ -15,6 +15,7 @@ class ImGuis
 {
 public:
     inline static std::vector<std::string> g_MessageBox;
+    inline static glm::vec4 wViewportXYWH;
 
     static void Init();
     static void Destroy();

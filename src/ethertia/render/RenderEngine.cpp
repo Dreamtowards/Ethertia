@@ -232,16 +232,6 @@ void RenderEngine::RenderWorld()
     World* world = Ethertia::getWorld();
     assert(world);
 
-    {
-        Camera& cam = Ethertia::getCamera();
-
-        cam.update(Ethertia::isIngame());
-
-        if (Ethertia::isIngame())
-        {
-            cam.position = Ethertia::getPlayer()->position();
-        }
-    }
 
     GeometryRenderer::PrepareFrame();
 

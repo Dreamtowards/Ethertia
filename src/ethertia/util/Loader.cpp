@@ -78,6 +78,7 @@ VertexArrays* Loader::loadModel(size_t vcount, const std::vector<std::pair<int, 
 {
     VertexArrays* vao = VertexArrays::GenVertexArrays();
     vao->BindVertexArrays();
+    vao->vertexCount = vcount;
 
     int i = 0;
     for (auto vd : vdats) {

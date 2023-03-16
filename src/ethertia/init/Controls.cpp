@@ -385,9 +385,13 @@ void Controls::handleContinuousInput()
     // Hit Cursor.
     handleHitCursor();
 
+
+    camera.update(Ethertia::isIngame());
+
     if (!Ethertia::isIngame())
         return;
 
+    camera.position = Ethertia::getPlayer()->position();
 
     // Player Move.
 

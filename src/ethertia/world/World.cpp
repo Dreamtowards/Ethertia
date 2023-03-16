@@ -243,7 +243,7 @@ void World::addEntity(Entity* e)
     auto old_grav = e->m_Rigidbody->getGravity(); // fix little stupid auto-change gravity
 
     // add entity bodies to DynamicsWorld.
-    e->onLoad(this);
+    e->onLoad();
 
     e->m_Rigidbody->setGravity(old_grav);
 }
@@ -256,7 +256,7 @@ void World::removeEntity(Entity* e)
 
     Collections::erase(m_Entities, e);
 
-    e->onUnload(this);
+    e->onUnload();
 
     e->m_World = nullptr;
 }

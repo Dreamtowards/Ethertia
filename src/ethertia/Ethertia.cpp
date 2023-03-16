@@ -436,9 +436,12 @@ Window& Ethertia::getWindow() { return *g_Window; }
 
 const Ethertia::Viewport& Ethertia::getViewport() {
     static Ethertia::Viewport g_Viewport;
-    g_Viewport = {
-            0, 0, (float)getWindow().getWidth(), (float)getWindow().getHeight()
-    };
+    if (ImGuis::wViewportXYWH.x != Mth::Inf) {
+        glm::vec4 v = ImGuis::wViewportXYWH;
+        g_Viewport = { v.x, v.y, v.z, v.w };
+    } else {
+        g_Viewport = {0, 0, (float)getWindow().getWidth(), (float)getWindow().getHeight()};
+    }
     return g_Viewport;
 }
 

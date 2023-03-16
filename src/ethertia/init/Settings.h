@@ -39,6 +39,15 @@ public:
     inline static bool g_SSAO = true,
                        g_ShadowMapping = true;
 
+    // Window
+    inline static bool w_Viewport = true,
+                       w_Toolbar = true,
+                       w_EntityList = false,
+                       w_EntityInsp = true,
+                       w_ShaderInsp = false,
+                       w_Console = false,
+                       w_Settings = false;
+
 
     inline static float s_ViewDistance = 4;
     inline static int   s_FpsCap = 60;

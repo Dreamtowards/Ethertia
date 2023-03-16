@@ -77,6 +77,9 @@ public:
             if (height==0) return 0;
             return width/height;
         }
+        float right() const { return x+width; }
+        float bottom() const { return y+height; }
+
     };
 
     // game viewport. useful when game required to be rendered in a specific area.

@@ -49,6 +49,16 @@ void Settings::loadSettings() {  using nlohmann::json;
     set_ifexists(settings, "graphics.ssao", &g_SSAO);
     set_ifexists(settings, "graphics.shadow", &g_ShadowMapping);
 
+    set_ifexists(settings, "window.viewport", &w_Viewport);
+    set_ifexists(settings, "window.settings", &w_Settings);
+    set_ifexists(settings, "window.toolbar", &w_Toolbar);
+    set_ifexists(settings, "window.console", &w_Console);
+
+    set_ifexists(settings, "window.entity_list", &w_EntityList);
+    set_ifexists(settings, "window.entity_insp", &w_EntityInsp);
+    set_ifexists(settings, "window.shader_insp", &w_ShaderInsp);
+
+
 }
 
 
@@ -68,7 +78,14 @@ void Settings::saveSettings()  {  using nlohmann::json;
         {"simd_level",     NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel)},
         {"mods",           MODS},
         {"graphics.ssao",  Settings::g_SSAO},
-        {"graphics.shadow",Settings::g_ShadowMapping}
+        {"graphics.shadow",Settings::g_ShadowMapping},
+        {"window.viewport",w_Viewport},
+        {"window.settings",w_Settings},
+        {"window.toolbar", w_Toolbar},
+        {"window.console", w_Console},
+        {"window.entity_list", w_EntityList},
+        {"window.entity_insp", w_EntityInsp},
+        {"window.shader_insp", w_ShaderInsp}
     });
 
     std::ofstream f(SETTINGS_FILE);

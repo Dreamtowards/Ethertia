@@ -1,4 +1,6 @@
-# Ethertia · 以太效應
+<br>
+
+## Ethertia · 以太效應
 
 **Building · Survive · Interact**
 
@@ -23,13 +25,11 @@ Preview Screenshots:
 
 ![](https://camo.githubusercontent.com/9e94d950fab8bfbc6400bcc629c95112e50e8bb5d1859831351ae92f1a87b87c/68747470733a2f2f692e3332383838382e78797a2f323032332f30332f31302f73696b354e2e706e67)
 
-<img style="height: 60px;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/_figures/23u07.png">
-<img style="height: 60px;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/2023-01-16_01.04.07_473.938.png">
-<img style="height: 60px;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/2022-12-30_21.59.00_526.642.png">
+<img style="height: 60px;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/_figures/23u07.png"> <img style="height: 60px;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/2023-01-16_01.04.07_473.938.png"> <img style="height: 60px;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/2022-12-30_21.59.00_526.642.png">
 
 ---
 
-#### **Getting Started**
+### **Getting Started**
 - [Build & Run & Dev](run/assets/docs/zh-cn/setup-dev.md)
 - [Source Overview]()
 - [Make some _noise_]()
@@ -38,19 +38,18 @@ Preview Screenshots:
 #### **Misc**
 - [社区给出的建议](mentor-suggs.md)
 
-#### **Systems**
+### **Systems**
 
 - [ImGui]()
 - [WorldGen]()
   - Biomes
 - Graphics
 - [Mod]()
-
 - [Multiplayer & Networking]()
 
 #### **All Versions**
 
-#### **Developers**
+### **Developers**
 
 - Eldrine Le Prismarine (voxel, graphics, gameplay)
 - Thaumstrail

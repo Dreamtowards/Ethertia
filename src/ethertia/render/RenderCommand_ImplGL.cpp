@@ -14,16 +14,19 @@ void RenderCommand::Clear(glm::vec4 c)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void RenderCommand::CheckError(std::string_view phase) {
+int RenderCommand::CheckError(std::string_view phase) {
     GLuint err;
-    while ((err = glGetError()) != GL_NO_ERROR) {
+    if ((err = glGetError()) != GL_NO_ERROR) {
         Log::warn("###### GL Error @{} ######", phase);
         Log::warn("ERR: {}", err);
+        return err;
     }
+    return 0;
 }
 
 void RenderCommand::DrawArrays(VertexArrays* vao)
 {
+    assert(vao->vboId);
     vao->BindVertexArrays();
     glDrawArrays(GL_TRIANGLES, 0, vao->vertexCount);
 }

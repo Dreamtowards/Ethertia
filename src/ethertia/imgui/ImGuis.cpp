@@ -59,7 +59,7 @@ void ImGuis::Init()
 
         ImGuiStyle& style = ImGui::GetStyle();
         style.GrabMinSize = 7;
-        style.FrameBorderSize = 1;
+        style.FrameBorderSize = 0;
         style.WindowMenuButtonPosition = ImGuiDir_Right;
         style.SeparatorTextBorderSize = 2;
         style.DisplaySafeAreaPadding = {0, 0};
@@ -77,20 +77,29 @@ void ImGuis::Init()
             col = ImVec4(f,f,f,col.w);
         }
 
+        auto& Col = style.Colors;
 
-        style.Colors[ImGuiCol_CheckMark] =
-        style.Colors[ImGuiCol_SliderGrab] =
+        Col[ImGuiCol_CheckMark] =
+        Col[ImGuiCol_SliderGrab] =
                 {1.000f, 1.000f, 1.000f, 1.000f};
 
 //    style.Colors[ImGuiCol_MenuBarBg] = {0,0,0,0};
 
-        style.Colors[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
-        style.Colors[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
-        style.Colors[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
+        Col[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
+        Col[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
+        Col[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
 
-        style.Colors[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
-        style.Colors[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
+        Col[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
+        Col[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
 
+        Col[ImGuiCol_Tab] =
+        Col[ImGuiCol_TabUnfocused] = {0,0,0,0};
+
+        Col[ImGuiCol_TabActive] = {0.26f, 0.26f, 0.26f, 1.000f};
+        Col[ImGuiCol_TabUnfocusedActive] =
+        Col[ImGuiCol_WindowBg] = {0.176f, 0.176f, 0.176f, 1.000f}; //{0.19f, 0.19f, 0.19f, 1.0f};  // {0.212f, 0.212f, 0.212f, 1.000f};
+        Col[ImGuiCol_TitleBg] =
+        Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
 
 //        style.Colors[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
 //        style.Colors[ImGuiCol_Button] =
@@ -131,19 +140,13 @@ void ImGuis::Destroy()
 
 
 
-
+// w_: Window
 static bool
         w_ImGuiDemo = false,
         w_NewWorld = false,
-        w_Entities = false,
-        w_EntityInsp = false,
-        w_ShaderProgramInsp = false,
-        w_MessageBox = false,
         w_NodeEditor = false,
         w_TitleScreen = false,
-        w_Singleplayer = false,
-        w_Settings = false,
-        w_Game = false;
+        w_Singleplayer = false;
 
 static bool
         dbg_Text = false,
@@ -160,6 +163,17 @@ static int g_WorldGrids = 10;
 
 static Entity* g_InspEntity = nullptr;
 static ShaderProgram* g_InspShaderProgram = nullptr;
+
+
+
+static Texture* LazyLoadTex(const std::string& p) {
+    static std::map<std::string, Texture*> _Cache;
+    auto& it = _Cache[p];
+    if (!it) {
+        it = Loader::loadTexture(p);
+    }
+    return it;
+}
 
 
 #include "ImDebugs.cpp"
@@ -232,20 +246,6 @@ static void _MenuSystem()
 
     ImGui::Separator();
 
-    if (ImGui::BeginMenu("Mods")) {
-        for (std::string& mod : Settings::MODS) {
-            ImGui::MenuItem(mod.c_str());
-        }
-        ImGui::EndMenu();
-    }
-//    if (ImGui::BeginMenu("Shaders")) {
-//        ImGui::EndMenu();
-//    }
-    if (ImGui::BeginMenu("Resource Packs")) {
-        ImGui::EndMenu();
-    }
-    ImGui::Separator();
-
     if (ImGui::BeginMenu("Settings..")) {
 
         if (ImGui::MenuItem("Profile")) {}
@@ -256,6 +256,9 @@ static void _MenuSystem()
 
         ImGui::EndMenu();
     }
+
+    ImGui::MenuItem("Mods", "0 mods loaded");
+    ImGui::MenuItem("Resource Packs");
 
     if (ImGui::MenuItem("About", Ethertia::Version::version_name().c_str())) {}
 
@@ -313,6 +316,9 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("NoChunkSave", &Settings::dbg_NoChunkSave);
             ImGui::Checkbox("NoChunkLoad", &Settings::dbg_NoChunkLoad);
 
+            ImGui::Checkbox("PauseThread ChunkMeshing", &Dbg::dbg_PauseThread_ChunkMeshing);
+            ImGui::Checkbox("PauseThread ChunkLoad/Gen/Save", &Dbg::dbg_PauseThread_ChunkLoadGenSave);
+
             ImGui::Separator();
 
             ImGui::SliderInt("World GridSize", &g_WorldGrids, 0, 500);
@@ -366,18 +372,18 @@ static void ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Game", &w_Game);
-            ImGui::Checkbox("Entities", &w_Entities);
-            ImGui::Checkbox("Entity Inspector", &w_EntityInsp);
-            ImGui::Checkbox("ShaderProgram Inspector", &w_ShaderProgramInsp);
+            ImGui::Checkbox("Viewport", &Settings::w_Viewport);
+            ImGui::Checkbox("Entity List", &Settings::w_EntityList);
+            ImGui::Checkbox("Entity Inspect", &Settings::w_EntityInsp);
+            ImGui::Checkbox("Shader Inspect", &Settings::w_ShaderInsp);
+            ImGui::Checkbox("Console", &Settings::w_Console);
 
             ImGui::Separator();
             ImGui::Checkbox("NodeEditor", &w_NodeEditor);
-            ImGui::Checkbox("MessageList", &w_MessageBox);
 
             ImGui::Checkbox("TitleScreen", &w_TitleScreen);
             ImGui::Checkbox("Singleplayer", &w_Singleplayer);
-            ImGui::Checkbox("Settings", &w_Settings);
+            ImGui::Checkbox("Settings", &Settings::w_Settings);
 
 //            ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
 
@@ -401,6 +407,25 @@ static void ShowMainMenuBar()
         }
 
 
+        {
+            ImGui::SameLine(ImGui::GetWindowWidth() - 180);
+
+            float sz = 14;
+
+            ImGui::ImageButton("gPP", LazyLoadTex("gui/icon/play-prev.png")->pTexId(), {sz,sz});
+
+            if (ImGui::ImageButton("gPlayPause",
+                               Ethertia::isIngame() ? LazyLoadTex("gui/icon/pause28.png")->pTexId() :
+                               LazyLoadTex("gui/icon/play28.png")->pTexId(), {sz, sz})) {
+                Ethertia::isIngame() = !Ethertia::isIngame();
+            }
+
+            ImGui::ImageButton("gSettings", LazyLoadTex("gui/icon/cogs28.png")->pTexId(), {sz,sz});
+            ImGui::ImageButton("gSettings2", LazyLoadTex("gui/icon/books.png")->pTexId(), {sz,sz});
+
+
+        }
+
 //        using Dbg = DebugStat;
 //        if (Dbg::dbg_ChunkProvideState) {
 //            ImGui::Text("ChunkProviding[%s]", Dbg::dbg_ChunkProvideState);
@@ -412,8 +437,8 @@ static void ShowMainMenuBar()
 //            ImGui::Text("ChunkMeshing... (%i)", Dbg::dbg_NumChunksMeshInvalid);
 //        }
 
-        ImGui::SameLine(ImGui::GetWindowWidth()-90);
-        ImGui::SmallButton("Profile");
+//        ImGui::SameLine(ImGui::GetWindowWidth()-90);
+//        ImGui::SmallButton("Profile");
 
         ImGui::EndMenuBar();
     }
@@ -452,7 +477,7 @@ void ShowNewWorldWindow()
 
 static void ShowShaderProgramInsp()
 {
-    ImGui::Begin("ShaderProgram", &w_ShaderProgramInsp);
+    ImGui::Begin("ShaderProgram", &Settings::w_Settings);
 
 
     ShaderProgram* shader = g_InspShaderProgram;
@@ -524,7 +549,7 @@ static void ShowShaderProgramInsp()
 
 static void ShowEntityInsp()
 {
-    ImGui::Begin("Entity", &w_EntityInsp);
+    ImGui::Begin("Entity", &Settings::w_EntityInsp);
 
     Entity* entity = g_InspEntity;
     if (!entity) {
@@ -632,7 +657,7 @@ static void ShowEntityInsp()
 
 static void ShowEntities()
 {
-    ImGui::Begin("Entities", &w_Entities);
+    ImGui::Begin("Entities", &Settings::w_EntityList);
 
     World* world = Ethertia::getWorld();
     if (!world) {
@@ -783,7 +808,7 @@ void ShowNodeEditor()
 
 static void ShowSettingsWindow()
 {
-    ImGui::Begin("Settings", &w_Settings);
+    ImGui::Begin("Settings", &Settings::w_Settings);
 
     static enum SettingsPanel {
         Profile,
@@ -1026,7 +1051,7 @@ static void ShowTitleScreenWindow()
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Settings", btnSize)) {
-        w_Settings = true;
+        Settings::w_Settings = true;
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Terminate", btnSize)) {
@@ -1048,7 +1073,9 @@ static void ShowDockspaceAndMainMenubar()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
 
     // Purple 0.373, 0.157, 0.467, Origen0.741, 0.345, 0.133
-    glm::vec4 _col = Ethertia::isIngame() ? glm::vec4{0,0,0,0.6} : glm::vec4{0.373, 0.157, 0.467, 1.0};
+    glm::vec4 _col =
+            Settings::dbg_PauseWorldRender ? glm::vec4{0.741, 0.345, 0.133,1/*0.6*/} :
+            Ethertia::isIngame() ? glm::vec4{0.176f, 0.176f, 0.176f, 0.700f} : glm::vec4{0.373, 0.157, 0.467, 1.0};
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(_col.x, _col.y, _col.z, _col.w));
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
@@ -1059,9 +1086,88 @@ static void ShowDockspaceAndMainMenubar()
     ImGui::PopStyleVar();
     ImGui::PopStyleVar();
 
-    ImGui::DockSpace(ImGui::GetID("MainDockSpace"), {0, 0}, ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::DockSpace(ImGui::GetID("MainDockSpace"), {0, 0},
+                     ImGuiDockNodeFlags_PassthruCentralNode);  //ImGuiDockNodeFlags_AutoHideTabBar
 
     ShowMainMenuBar();
+
+    ImGui::End();
+}
+
+static void ShowToolbar()
+{
+    ImGui::Begin("MASH", nullptr,
+                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+
+#define _TOOLBAR_BTN(id) ImGui::ImageButton(id, LazyLoadTex(id)->pTexId(), {40, 40}, {0,1}, {1,0})
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {1, 0});
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+
+    _TOOLBAR_BTN("gui/geo/sel.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/mov.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/mov-all.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/rot.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/scl.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/bnd.png");
+    ImGui::SameLine();
+
+    ImGui::Dummy({4, 0});
+    ImGui::SameLine();
+
+    _TOOLBAR_BTN("gui/geo/sel-rect.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/sel-cir.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/sel-cus.png");
+    ImGui::SameLine();
+
+    ImGui::Dummy({4, 0});
+    ImGui::SameLine();
+
+    _TOOLBAR_BTN("gui/geo/g-cube.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/g-sph.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/g-col.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/g-tor.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/g-cone.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/g-plane.png");
+    ImGui::SameLine();
+
+    ImGui::Dummy({4, 0});
+    ImGui::SameLine();
+
+    _TOOLBAR_BTN("gui/geo/grab.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/brush.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/pencil.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/fill.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/erase.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/pik.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/fing.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/stamp.png");
+    ImGui::SameLine();
+    _TOOLBAR_BTN("gui/geo/cpy.png");
+    ImGui::SameLine();
+
+
+    ImGui::PopStyleVar(3);
 
     ImGui::End();
 }
@@ -1070,11 +1176,8 @@ static void RenderWindows()
 {
     ShowDockspaceAndMainMenubar();
 
-
-    ImGuizmo::BeginFrame();
-    ImGuizmo::SetOrthographic(false);
-    ImGuiIO& io = ImGui::GetIO();
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    if (Settings::w_Toolbar)
+        ShowToolbar();
 
 
     glPolygonMode(GL_FRONT_AND_BACK, Settings::dbg_PolyLine ? GL_LINE : GL_FILL);
@@ -1086,48 +1189,67 @@ static void RenderWindows()
     if (w_NewWorld) {
         ShowNewWorldWindow();
     }
-    if (w_Entities) {
+    if (Settings::w_EntityList) {
         ShowEntities();
     }
-    if (w_EntityInsp) {
+    if (Settings::w_EntityInsp) {
         ShowEntityInsp();
         if (g_InspEntity) {
             RenderEngine::drawLineBox(g_InspEntity->getAABB(), Colors::YELLOW);
         }
     }
-    if (w_ShaderProgramInsp) {
+    if (Settings::w_ShaderInsp) {
         ShowShaderProgramInsp();
     }
 
 
     {
 
-        if (g_WorldGrids > 0)
-        {
-            glm::mat4 iden(1.0f);
-            ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
-                               glm::value_ptr(iden), (float)g_WorldGrids);
-        }
-
-        if (g_GizmoViewManipulation)
-        {
-            static float camLen = 10.0f;
-            ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
-                                     ImVec2(ImGui::GetIO().DisplaySize.x-128-24, 20+24), ImVec2(128, 128),
-                                     0x10101010);
-        }
-
-        if (w_Game)
+        if (Settings::w_Viewport)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-            ImGui::Begin("Game", &w_Game);
+            ImGui::Begin("Viewport", &Settings::w_Viewport);
             ImGui::PopStyleVar();
 
+            ImVec2 size = ImGuis::GetWindowContentSize();
+            ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
+            ImGuis::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
-            ImGuis::Image(ComposeRenderer::fboCompose->texColor[0]->texId, ImGuis::GetWindowContentSize());
+            ImGuis::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
+            ImGui::SetCursorPos({0,0});
+            ImGui::InvisibleButton("PreventsGameWindowMove", size);
+
+
+            ImGuizmo::BeginFrame();
+            ImGuizmo::SetOrthographic(false);
+            ImGuizmo::SetDrawlist();
+            auto& vp = Ethertia::getViewport();
+            ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
+
+            if (g_WorldGrids > 0)
+            {
+                glm::mat4 iden(1.0f);
+                ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
+                                   glm::value_ptr(iden), (float)g_WorldGrids);
+            }
+
+            if (g_GizmoViewManipulation)
+            {
+                static float camLen = 10.0f;
+                auto& vp = Ethertia::getViewport();
+                ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
+                                         ImVec2(vp.right()-128-24, vp.y+24), ImVec2(128, 128),
+                                         0x10101010);
+            }
 
             ImGui::End();
+        } else {
+            ImGuis::wViewportXYWH = {Mth::Inf, 0, 0, 0};
         }
+
+
+
+
     }
 
     if (dbg_Text) {
@@ -1163,9 +1285,9 @@ static void RenderWindows()
         ShowNodeEditor();
     }
 
-    if (w_MessageBox)
+    if (Settings::w_Console)
     {
-        ImGui::Begin("MessageBox", &w_MessageBox);
+        ImGui::Begin("MessageBox", &Settings::w_Console);
         ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
         for (auto& str : ImGuis::g_MessageBox) {
             ImGui::Text("%s", str.c_str());
@@ -1194,7 +1316,7 @@ static void RenderWindows()
     if (w_Singleplayer) {
         ShowSingleplayerWindow();
     }
-    if (w_Settings) {
+    if (Settings::w_Settings) {
         ShowSettingsWindow();
     }
 
@@ -1203,13 +1325,13 @@ static void RenderWindows()
 
 // texId: 0=white
 void ImGuis::Image(GLuint texId, ImVec2 size, glm::vec4 color) {
-    assert(false);
-//    if (texId == 0)
-//        texId = GuiRenderer::TEX_WHITE->texId;
-//    ImGui::Image((void*)(intptr_t)texId,
-//                 {size.x, size.y},
-//                 {0, 1}, {1, 0},
-//                 {color.x, color.y, color.z, color.w});
+//    assert(false);
+    if (texId == 0)
+        texId = Texture::WHITE->texId;
+    ImGui::Image((void*)(intptr_t)texId,
+                 {size.x, size.y},
+                 {0, 1}, {1, 0},
+                 {color.x, color.y, color.z, color.w});
 }
 
 ImVec2 ImGuis::GetWindowContentSize() {

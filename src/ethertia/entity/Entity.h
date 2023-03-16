@@ -84,12 +84,12 @@ public:
     virtual void onRender();
 
 
-    virtual void onLoad(World* world) {
-//        world->m_DynamicsWorld->addRigidBody(m_Rigidbody);
+    virtual void onLoad() {
+        m_World->m_DynamicsWorld->addRigidBody(m_Rigidbody);
     }
 
-    virtual void onUnload(World* world) {
-//        world->m_DynamicsWorld->removeRigidBody(m_Rigidbody);
+    virtual void onUnload() {
+        m_World->m_DynamicsWorld->removeRigidBody(m_Rigidbody);
     }
 
 //    void setCollisionShape(btCollisionShape* s) {

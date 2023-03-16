@@ -43,7 +43,7 @@ public:
     }
 
     void updateModel(VertexArrays* vao) {
-        delete vao;
+        delete m_Model;
         m_Model = vao;
     }
 

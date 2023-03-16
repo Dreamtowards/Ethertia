@@ -35,6 +35,10 @@ public:
     void BindTexture(int slot = 0);
 
     BitmapImage* GetTexImage();
+
+    void* pTexId() {
+        return (void*)(intptr_t)texId;
+    }
 };
 
 

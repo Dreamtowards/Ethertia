@@ -17,7 +17,8 @@ struct RenderCommand
 
     static void Clear(glm::vec4 clearcolor = {0,0,0,1});
 
-    static void CheckError(std::string_view phase);
+    // return error code. if not 0 means have error
+    static int CheckError(std::string_view phase);
 
     // -- Draw ------------------------------
 

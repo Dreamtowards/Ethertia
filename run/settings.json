@@ -1,14 +1,21 @@
 {
   "assets": "./assets/",
-  "display_height": 761,
-  "display_width": 1184,
+  "display_height": 1005,
+  "display_width": 1652,
   "fov": 124.64800262451172,
   "fullscreen": false,
   "graphics.shadow": false,
-  "graphics.ssao": false,
+  "graphics.ssao": true,
   "mods": [],
   "mtl_resolution": 256,
   "simd_level": "SSE3",
   "view_distance": 5.070000171661377,
-  "vsync": false
+  "vsync": false,
+  "window.console": true,
+  "window.entity_insp": true,
+  "window.entity_list": true,
+  "window.settings": false,
+  "window.shader_insp": true,
+  "window.toolbar": true,
+  "window.viewport": true
 }

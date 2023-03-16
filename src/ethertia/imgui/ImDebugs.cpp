@@ -73,7 +73,8 @@ static void ShowDebugTextOverlay()
 
     );
 
-    ImGui::SetNextWindowPos({0, 32});
+    auto& vp = Ethertia::getViewport();
+    ImGui::SetNextWindowPos({vp.x+0, vp.y+16});
     ImGui::SetNextWindowBgAlpha(0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0,0});
@@ -81,6 +82,16 @@ static void ShowDebugTextOverlay()
                                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     if (ImGui::Begin("DebugTextOverlay", &dbg_Text, window_flags)) {
         ImGui::Text("%s", str.c_str());
+
+        if (dbg_Gbuffer) {
+            ImVec2 siz = {vp.width / 10, vp.height / 10};
+            ImGuis::Image(GeometryRenderer::fboGbuffer->texColor[0]->texId, siz);  // Pos.rgb Dep.a
+            ImGuis::Image(GeometryRenderer::fboGbuffer->texColor[1]->texId, siz);  // Norm.rgb
+            ImGuis::Image(GeometryRenderer::fboGbuffer->texColor[2]->texId, siz);  // Albedo.rgb
+
+            ImGuis::Image(SSAORenderer::fboSSAO->texColor[0]->texId, siz);  // AO.r
+            ImGuis::Image(ShadowRenderer::fboDepthMap->texDepth->texId, siz);  // Depth.texDepth.r
+        }
     }
     ImGui::End();
     ImGui::PopStyleVar(2);
