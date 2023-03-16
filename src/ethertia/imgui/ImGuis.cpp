@@ -408,7 +408,14 @@ static void ShowMainMenuBar()
 
 
         {
-            ImGui::SameLine(ImGui::GetWindowWidth() - 180);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
+            ImGui::SameLine(ImGui::GetWindowWidth() - 180 - 100);
+
+            if (ImGui::BeginCombo("cTmp", "Ethertia | Debug")) {
+                ImGui::Selectable("Ethertia", true);
+                ImGui::Selectable("DedicatedServer", false);
+                ImGui::EndCombo();
+            }
 
             float sz = 14;
 
@@ -423,7 +430,7 @@ static void ShowMainMenuBar()
             ImGui::ImageButton("gSettings", LazyLoadTex("gui/icon/cogs28.png")->pTexId(), {sz,sz});
             ImGui::ImageButton("gSettings2", LazyLoadTex("gui/icon/books.png")->pTexId(), {sz,sz});
 
-
+            ImGui::PopStyleVar();
         }
 
 //        using Dbg = DebugStat;
@@ -1072,11 +1079,14 @@ static void ShowDockspaceAndMainMenubar()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
 
-    // Purple 0.373, 0.157, 0.467, Origen0.741, 0.345, 0.133
-    glm::vec4 _col =
-            Settings::dbg_PauseWorldRender ? glm::vec4{0.741, 0.345, 0.133,1/*0.6*/} :
-            Ethertia::isIngame() ? glm::vec4{0.176f, 0.176f, 0.176f, 0.700f} : glm::vec4{0.373, 0.157, 0.467, 1.0};
-    ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(_col.x, _col.y, _col.z, _col.w));
+    ImVec4 Blu = {0.188, 0.478, 0.776, 1.0};
+    ImVec4 Pur = {0.373, 0.157, 0.467, 1.0};
+    ImVec4 Org = {0.741, 0.345, 0.133, 1.0};
+    ImVec4 _Dar = {0.176f, 0.176f, 0.176f, 0.700f};
+    ImVec4 _col =
+            Settings::dbg_PauseWorldRender ? Org :
+            Ethertia::isIngame() ? _Dar : Pur;
+    ImGui::PushStyleColor(ImGuiCol_MenuBarBg, _col);
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
                                     | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
@@ -1103,7 +1113,7 @@ static void ShowToolbar()
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {1, 0});
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+//    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
 
     _TOOLBAR_BTN("gui/geo/sel.png");
     ImGui::SameLine();
@@ -1167,7 +1177,7 @@ static void ShowToolbar()
     ImGui::SameLine();
 
 
-    ImGui::PopStyleVar(3);
+    ImGui::PopStyleVar(2);
 
     ImGui::End();
 }

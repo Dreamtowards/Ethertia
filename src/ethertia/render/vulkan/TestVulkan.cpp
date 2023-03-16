@@ -18,7 +18,7 @@ int main()
 
     GLFWwindow* glfwWindow = glfwCreateWindow(1280, 720, "Test", nullptr, nullptr);
 
-    Vulkan::init(glfwWindow);
+    Vulkan::Init(glfwWindow);
 
     while (!glfwWindowShouldClose(glfwWindow))
     {
@@ -27,7 +27,7 @@ int main()
         glfwPollEvents();
     }
 
-    Vulkan::deinit();
+    Vulkan::Destroy();
 
     glfwDestroyWindow(glfwWindow);
     glfwTerminate();
