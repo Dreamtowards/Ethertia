@@ -66,7 +66,7 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
-class HelloTriangleApplication {
+class VulkanIntl {
 public:
     void run() {
         initWindow();
@@ -106,14 +106,6 @@ private:
     VkSemaphore renderFinishedSemaphore;
     VkFence inFlightFence;
 
-    void initWindow() {
-        glfwInit();
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-    }
 
     void initVulkan() {
         createInstance();
@@ -899,8 +891,14 @@ private:
     }
 };
 
-int main() {
-    HelloTriangleApplication app;
+int main()
+{
+    glfwInit();
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 
     try {
         app.run();

@@ -480,7 +480,7 @@ void createGraphicsPipeline() {
 
 
 
-static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice)
 {
     QueueFamilyIndices queueFamilyIdxs;
 
@@ -499,7 +499,7 @@ static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice, VkS
         }
 
         VkBool32 supportPresent = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &supportPresent);
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, g_vkSurfaceKHR, &supportPresent);
         if (supportPresent)
             queueFamilyIdxs.m_PresentFamily = i;
 
@@ -520,13 +520,13 @@ static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice, VkS
 
 
 
-static VkDevice InitLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkQueue* _Dst_GraphicsQueue, VkQueue* _Dst_PresentQueue)
+static void InitLogicalDevice()
 {
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
     // Queue Family
-    QueueFamilyIndices queueFamily = findQueueFamilies(physicalDevice, surface);
+    QueueFamilyIndices queueFamily = findQueueFamilies(g_vkPhysDevice);
     float queuePriority = 1.0f;  // 0.0-1.0
 
     std::set<uint32_t> uniqQueueFamilyIdx = {queueFamily.m_GraphicsFamily, queueFamily.m_PresentFamily};
@@ -568,18 +568,13 @@ static VkDevice InitLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR 
     }
 
     // VK_KHR_swapchain
-
-    VkDevice device;
-    VkResult err = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
-    if (err != VK_SUCCESS) {
+    if (vkCreateDevice(g_vkPhysDevice, &createInfo, nullptr, &g_vkDevice) != VK_SUCCESS) {
         throw std::runtime_error("failed to create logical device.");
     }
 
     // Get Queue by the way.
-    vkGetDeviceQueue(device, queueFamily.m_GraphicsFamily, 0, _Dst_GraphicsQueue);
-    vkGetDeviceQueue(device, queueFamily.m_PresentFamily, 0, _Dst_PresentQueue);
-
-    return device;
+    vkGetDeviceQueue(g_vkDevice, queueFamily.m_GraphicsFamily, 0, &g_vkGraphicsQueue);
+    vkGetDeviceQueue(g_vkDevice, queueFamily.m_PresentFamily, 0, &g_vkPresentQueue);
 }
 
 
@@ -649,7 +644,7 @@ static VkExtent2D _ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities
     return extent;
 }
 
-static VkSwapchainKHR CreateSwapchain() {
+static void CreateSwapchainAndImageViews() {
     SwapChainSupportDetails swapchainDetails = _QuerySwapChainSupport(g_vkPhysDevice, g_vkSurfaceKHR);
 
     VkSurfaceFormatKHR surfaceFormat = _ChooseSwapSurfaceFormat(swapchainDetails.m_Formats);
@@ -675,7 +670,7 @@ static VkSwapchainKHR CreateSwapchain() {
     g_vkSwapchainImageFormat = surfaceFormat.format;
 
     // Image Share Mode. Queue Family.
-    QueueFamilyIndices queueFamily = findQueueFamilies(g_vkPhysDevice, g_vkSurfaceKHR);
+    QueueFamilyIndices queueFamily = findQueueFamilies(g_vkPhysDevice);
     uint32_t queueFamilyIdxs[] = {queueFamily.m_GraphicsFamily, queueFamily.m_PresentFamily};
 
     if (queueFamily.m_GraphicsFamily != queueFamily.m_PresentFamily) {
@@ -694,18 +689,19 @@ static VkSwapchainKHR CreateSwapchain() {
     createInfo.clipped = VK_TRUE;  // true: not care the pixels behind other windows for vk optims.  but may cause problem when we read the pixels.
     createInfo.oldSwapchain = nullptr;
 
-    VkSwapchainKHR swapchain;
-    VkResult err = vkCreateSwapchainKHR(g_vkDevice, &createInfo, nullptr, &swapchain);
+    VkResult err = vkCreateSwapchainKHR(g_vkDevice, &createInfo, nullptr, &g_vkSwapchainKHR);
     if (err != VK_SUCCESS)
         throw std::runtime_error("failed to create vk swapchain khr.");
 
     // Get Swapchain Images.
     int expectedImageCount = imageCount;
-    vkGetSwapchainImagesKHR(g_vkDevice, swapchain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(g_vkDevice, g_vkSwapchainKHR, &imageCount, nullptr);
     assert(expectedImageCount == imageCount);
 
     g_SwapchainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(g_vkDevice, swapchain, &imageCount, g_SwapchainImages.data());
+    vkGetSwapchainImagesKHR(g_vkDevice, g_vkSwapchainKHR, &imageCount, g_SwapchainImages.data());
+
+
 
     // Image Views
     g_SwapchainImageViews.resize(imageCount);
@@ -731,8 +727,6 @@ static VkSwapchainKHR CreateSwapchain() {
             throw std::runtime_error("failed to create sawpchain imageviews.");
         }
     }
-
-    return swapchain;
 }
 
 
@@ -740,7 +734,7 @@ static VkSwapchainKHR CreateSwapchain() {
 
 ////////////// Physical Device //////////////
 
-static int ratePhysicalDeviceSuitable(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+static int ratePhysicalDeviceSuitable(VkPhysicalDevice physicalDevice)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
@@ -748,11 +742,11 @@ static int ratePhysicalDeviceSuitable(VkPhysicalDevice physicalDevice, VkSurface
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
 
-    QueueFamilyIndices queueFamily = findQueueFamilies(physicalDevice, surface);
+    QueueFamilyIndices queueFamily = findQueueFamilies(physicalDevice);
     if (!queueFamily.isComplete())
         return 0;
 
-    SwapChainSupportDetails swapChainSupport = _QuerySwapChainSupport(physicalDevice, surface);
+    SwapChainSupportDetails swapChainSupport = _QuerySwapChainSupport(physicalDevice, g_vkSurfaceKHR);
     if (!swapChainSupport.isSwapChainAdequate())
         return 0;
 
@@ -769,7 +763,7 @@ static int ratePhysicalDeviceSuitable(VkPhysicalDevice physicalDevice, VkSurface
 
 
 // the arg VkSurfaceKHR is used to rate a device that whether supports Surface Present. 　
-static VkPhysicalDevice InitPhysicalDevice(VkSurfaceKHR surface)
+static VkPhysicalDevice InitPhysicalDevice()
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(g_vkInstance, &deviceCount, nullptr);
@@ -782,7 +776,7 @@ static VkPhysicalDevice InitPhysicalDevice(VkSurfaceKHR surface)
 
     std::multimap<int, VkPhysicalDevice> candidates;
     for (const auto& device : devices) {
-        int score = ratePhysicalDeviceSuitable(device, surface);
+        int score = ratePhysicalDeviceSuitable(device);
         candidates.insert(std::make_pair(score, device));
     }
 
@@ -1036,7 +1030,7 @@ static void CreateFramebuffers()
 
 static void CreateCommandPool()
 {
-    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(g_vkPhysDevice, g_vkSurfaceKHR);
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(g_vkPhysDevice);
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -1156,7 +1150,7 @@ static void DrawFrame()
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(g_vkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+    if (vkQueueSubmit(g_vkGraphicsQueue, 1, &submitInfo, g_InflightFence) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer.");
     }
 
@@ -1183,20 +1177,17 @@ void Vulkan::Init(GLFWwindow* glfwWindow)
     g_vkInstance = CreateVkInstance();
     CreateSurface(glfwWindow);
 
-    InitPhysicalDevice(g_vkSurfaceKHR);
-    g_vkDevice = InitLogicalDevice(g_vkPhysDevice, g_vkSurfaceKHR, &g_vkGraphicsQueue, &g_vkPresentQueue);
+    InitPhysicalDevice();
+    InitLogicalDevice();
 
-    CreateSwapchain();  // & InitImageViews
+    CreateSwapchainAndImageViews();  // & InitImageViews
 
     createRenderPass();
     createGraphicsPipeline();
 
     CreateFramebuffers();
-
     CreateCommandPool();
-
     CreateCommandBuffer();
-
     CreateSyncObjects_Semaphores_Fences();
 }
 
@@ -1209,6 +1200,7 @@ void Vulkan::Destroy()
         vkDestroyImageView(g_vkDevice, imageview, nullptr);
     }
 
+    vkDestroyFence(g_vkDevice, g_InflightFence, nullptr);
     vkDestroySemaphore(g_vkDevice, g_SemaphoreImageAvailable, nullptr);
     vkDestroySemaphore(g_vkDevice, g_SemaphoreRenderFinished, nullptr);
 
@@ -1231,13 +1223,13 @@ void Vulkan::Destroy()
 
 
 
+#include <ethertia/util/BenchmarkTimer.h>
 
 int main()
 {
-
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+//    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     GLFWwindow* glfwWindow = glfwCreateWindow(800, 600, "Test", nullptr, nullptr);
 
@@ -1245,10 +1237,10 @@ int main()
 
     while (!glfwWindowShouldClose(glfwWindow))
     {
-
-//        DrawFrame();
-
+        BENCHMARK_TIMER;
         glfwPollEvents();
+
+        DrawFrame();
     }
 
     Vulkan::Destroy();
