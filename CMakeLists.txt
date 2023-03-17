@@ -100,8 +100,9 @@ add_executable(Ethertia
 
 #        src/ethertia/gui/Gui.cpp
 #        src/ethertia/Ethertia.cpp
+#        src/ethertia/render/vulkan/TestVulkan.cpp
         src/ethertia/render/vulkan/Vulkan.cpp
-        src/ethertia/render/vulkan/TestVulkan.cpp
+#        src/ethertia/render/vulkan/Copy.cpp
         )
 
 add_executable(DedicatedServer

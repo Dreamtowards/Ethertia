@@ -13,16 +13,17 @@
 #include <span>
 #include <complex>
 
-#include <glad/glad.h>
 #include <nbt/nbt_tags.h>
+#include <glad/glad.h>
 
 #include <ethertia/render/Texture.h>
-#include <ethertia/util/BitmapImage.h>
-#include <ethertia/render/VertexBuffer.h>
 #include <ethertia/render/VertexArrays.h>
 #include <ethertia/render/Model.h>
-#include <ethertia/audio/AudioEngine.h>
 #include <ethertia/render/ShaderProgram.h>
+
+#include <ethertia/util/BitmapImage.h>
+#include <ethertia/render/VertexBuffer.h>
+#include <ethertia/audio/AudioEngine.h>
 
 // Dup with GuiCommon.h
 #define DECL_Inst(T) static T* Inst() { static T* INST = new T(); return INST; }
@@ -117,16 +118,6 @@ public:
 
 
 
-    static void loadShaderProgram(ShaderProgram* p, const std::string& assets_p)
-    {
-        std::string path = Loader::fileResolve(Strings::fmt(assets_p, "gsh"));
-        bool geo = Loader::fileExists(path);
-
-        p->reloadSources(Loader::loadAssets(Strings::fmt(assets_p, "vsh")).new_string(),
-                          Loader::loadAssets(Strings::fmt(assets_p, "fsh")).new_string(),
-                          geo ? Loader::loadFile(path).new_string() : "");
-    }
-
 
     //////////// PNG ////////////
 
@@ -140,6 +131,23 @@ public:
 
 
 
+
+#ifndef LOADER_NO_OPENGL
+
+
+
+
+    static void loadShaderProgram(ShaderProgram* p, const std::string& assets_p)
+    {
+        std::string path = Loader::fileResolve(Strings::fmt(assets_p, "gsh"));
+        bool geo = Loader::fileExists(path);
+
+        p->reloadSources(Loader::loadAssets(Strings::fmt(assets_p, "vsh")).new_string(),
+                          Loader::loadAssets(Strings::fmt(assets_p, "fsh")).new_string(),
+                          geo ? Loader::loadFile(path).new_string() : "");
+    }
+
+
     /////////////// OpenGL VAO, VBO ///////////////
 
     // VertexCount, {{VertLen, VertData}}
@@ -150,10 +158,6 @@ public:
     static VertexArrays* loadModel(size_t vcount, std::initializer_list<std::pair<int, float*>> vdats) {
         return loadModel(vcount, std::vector(vdats));
     }
-
-
-
-
 
     ////////////////// OpenGL Texture: 2D, CubeMap //////////////////
 
@@ -188,6 +192,7 @@ public:
     }
 
 
+#endif
 
 
 
