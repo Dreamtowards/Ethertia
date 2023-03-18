@@ -151,7 +151,7 @@ inline static VkBuffer g_VertexBuffer = nullptr;
 VkDeviceMemory g_VertexBufferMemory;
 
 
-#define DECL_UNIFORM_FIELD alignas(16)
+#define DECL_unif alignas(16)
 
 struct UniformBufferObject
 {

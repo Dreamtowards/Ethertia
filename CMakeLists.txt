@@ -66,28 +66,22 @@ include_directories(lib/imgui-docking)
 
 
 add_executable(Ethertia
-        lib/glad/glad.c
-        lib/tinyfd/tinyfiledialogs.c
-
-        lib/imgui-docking/imgui.cpp
-        lib/imgui-docking/imgui_draw.cpp
-        lib/imgui-docking/imgui_widgets.cpp
-        lib/imgui-docking/imgui_tables.cpp
-        lib/imgui-docking/imgui_demo.cpp
-        lib/imgui-docking/backends/imgui_impl_glfw.cpp
-        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
-
-        lib/imguizmo/ImGuizmo.cpp
-        lib/imgui-knobs/imgui-knobs.cpp
-
-        lib/imgui-imnodes/imnodes.cpp
-
-#        lib/imgui-imnodes/example/color_node_editor.cpp
-#        lib/imgui-node-editor/imgui_node_editor.cpp
-#        lib/imgui-node-editor/imgui_canvas.cpp
-#        lib/imgui-node-editor/crude_json.cpp
-#        lib/imgui-node-editor/imgui_node_editor_api.cpp
-
+#        lib/glad/glad.c
+#        lib/tinyfd/tinyfiledialogs.c
+#
+#        lib/imgui-docking/imgui.cpp
+#        lib/imgui-docking/imgui_draw.cpp
+#        lib/imgui-docking/imgui_widgets.cpp
+#        lib/imgui-docking/imgui_tables.cpp
+#        lib/imgui-docking/imgui_demo.cpp
+#        lib/imgui-docking/backends/imgui_impl_glfw.cpp
+#        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
+#
+#        lib/imguizmo/ImGuizmo.cpp
+#        lib/imgui-knobs/imgui-knobs.cpp
+#
+#        lib/imgui-imnodes/imnodes.cpp
+#
 #        src/ethertia/imgui/ImGuis.cpp
 #        src/ethertia/util/Loader.cpp
 #        src/ethertia/init/Controls.cpp
@@ -97,10 +91,9 @@ add_executable(Ethertia
 #        src/ethertia/render/RenderCommand_ImplGL.cpp
 #        src/ethertia/item/ItemComponents.cpp
 #        src/ethertia/world/World.cpp
-
+#
 #        src/ethertia/gui/Gui.cpp
 #        src/ethertia/Ethertia.cpp
-#        src/ethertia/render/vulkan/TestVulkan.cpp
         src/ethertia/render/vulkan/Vulkan.cpp
 #        src/ethertia/render/vulkan/Copy.cpp
         )

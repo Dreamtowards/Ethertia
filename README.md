@@ -57,3 +57,13 @@ Preview Screenshots:
 
 
 
+### **Resources**
+
+People came here may wanted Graphics / Voxel gamedev knownledges.
+however, there is some my favorite resources:
+- The Cherno - *Hazel Engine*
+
+- Graphics
+  - [3D Game Shaders for Beginners](https://github.com/lettier/3d-game-shaders-for-beginners)
+  - [Vulkan Examples by SaschaWillems](https://github.com/SaschaWillems/Vulkan#Headless) 
+  

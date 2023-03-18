@@ -15,6 +15,7 @@
 
 #include <ethertia/util/Log.h>
 #include <ethertia/util/Strings.h>
+#include <ethertia/util/BenchmarkTimer.h>
 
 #define DECL_SHADER(varname, srcpath) inline static ShaderProgram* varname = ShaderProgram::decl(srcpath);
 
