@@ -10,10 +10,16 @@ layout(location = 1) in vec3 in_col;
 
 layout(location = 0) out vec3 SomeColor;
 
+layout(binding = 0) uniform UniformBufferObject {
+    mat4 model;
+    mat4 view;
+    mat4 proj;
+} ubo;
+
 
 void main()
 {
-    gl_Position = vec4(in_pos, 0, 1);
+    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(in_pos, 0, 1);
 
     SomeColor = in_col;
 }

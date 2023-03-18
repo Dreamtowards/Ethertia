@@ -5,8 +5,15 @@
 #include "Vulkan.h"
 
 #include <set>
+#include <chrono>
+#include <array>
 
 #include <ethertia/util/Log.h>
+
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 
 //#define LOADER_NO_OPENGL
 //#include <ethertia/util/Loader.h>
@@ -33,19 +40,24 @@ inline static VkExtent2D g_SwapchainExtent = {};
 inline static VkFormat g_SwapchainImageFormat = {};
 
 inline static VkRenderPass g_RenderPass = nullptr;
+inline static VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
 inline static VkPipelineLayout g_PipelineLayout = nullptr;
 inline static VkPipeline g_GraphicsPipeline = nullptr;
 inline static std::vector<VkFramebuffer> g_SwapchainFramebuffers;
 
 inline static VkCommandPool g_CommandPool = nullptr;
-inline static std::vector<VkCommandBuffer> g_CommandBuffers;
+inline static std::vector<VkCommandBuffer> g_CommandBuffers;  // for each InflightFrame
 
-inline static std::vector<VkSemaphore> g_SemaphoreImageAvailable;
+inline static std::vector<VkSemaphore> g_SemaphoreImageAvailable;  // for each InflightFrame
 inline static std::vector<VkSemaphore> g_SemaphoreRenderFinished;
 inline static std::vector<VkFence>     g_InflightFence;
 
 inline static int MAX_FRAMES_INFLIGHT = 2;
 inline static int g_CurrentFrameInflight = 0;
+
+
+inline static std::vector<VkBuffer> g_UniformBuffer;  // for each Swapchain Frame
+inline static std::vector<VkDeviceMemory> g_UniformBufferMemory;
 
 // Requires RecreateSwapchain. when Window/Framebuffer resized.
 inline static bool g_IsFramebufferResized = false;
@@ -97,8 +109,6 @@ std::vector<char> _LoadFile(const std::string& path)
 
 
 
-#include <glm/glm.hpp>
-#include <array>
 
 struct Vertex
 {
@@ -138,6 +148,17 @@ VkDeviceMemory g_VertexBufferMemory;
 
 
 
+struct UniformBufferObject
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
+
+
+
+
 class VulkanIntl {
 public:
 
@@ -153,6 +174,7 @@ public:
         CreateSwapchainAndImageViews();
 
         CreateRenderPass();
+        CreateDescriptorSetLayout();
         CreateGraphicsPipeline();
         CreateFramebuffers();
 
@@ -163,7 +185,15 @@ public:
 
     static void Destroy()
     {
+        vkDeviceWaitIdle(g_Device);
+
         DestroySwapchain();
+
+        vkDestroyDescriptorSetLayout(g_Device, g_DescriptorSetLayout, nullptr);
+        for (int i = 0; i < g_SwapchainImages.size(); ++i) {
+            vkDestroyBuffer(g_Device, g_UniformBuffer[i], nullptr);
+            vkFreeMemory(g_Device, g_UniformBufferMemory[i], nullptr);
+        }
 
         vkDestroyBuffer(g_Device, g_VertexBuffer, nullptr);
         vkFreeMemory(g_Device, g_VertexBufferMemory, nullptr);
@@ -862,8 +892,10 @@ public:
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
+
+        pipelineLayoutInfo.setLayoutCount = 1;
+        pipelineLayoutInfo.pSetLayouts = &g_DescriptorSetLayout;
 
         if (vkCreatePipelineLayout(g_Device, &pipelineLayoutInfo, nullptr, &g_PipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("failed to create pipeline layout!");
@@ -1108,7 +1140,71 @@ public:
     }
 
 
+
+
+
+
+
+
+
+    static void CreateDescriptorSetLayout()
+    {
+        VkDescriptorSetLayoutBinding uboLayoutBinding{};
+        uboLayoutBinding.binding = 0;
+        uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        uboLayoutBinding.descriptorCount = 1;
+        uboLayoutBinding.stageFlags = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 1;
+        layoutInfo.pBindings = &uboLayoutBinding;
+
+        if (vkCreateDescriptorSetLayout(g_Device, &layoutInfo, nullptr, &g_DescriptorSetLayout) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create descriptor set layout.");
+        }
+    }
+
+    static void CreateUniformBuffer()
+    {
+        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+        g_UniformBuffer.resize(g_SwapchainImages.size());
+        g_UniformBufferMemory.resize(g_SwapchainImages.size());
+
+        for (int i = 0; i < g_SwapchainImages.size(); ++i) {
+            CreateBuffer(bufferSize,
+                         g_UniformBuffer[i],
+                         g_UniformBufferMemory[i],
+                         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        }
+    }
+
+    static void UpdateUniformBuffer(uint32_t imageIdx)
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        UniformBufferObject ubo{};
+
+        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), g_SwapchainExtent.width / (float) g_SwapchainExtent.height, 0.1f, 10.0f);
+
+        ubo.proj[1][1] *= -1;
+
+        void* data;
+        vkMapMemory(g_Device, g_UniformBufferMemory[imageIdx], 0, sizeof(ubo), 0, &data);
+        memcpy(data, &ubo, sizeof(ubo));
+        vkUnmapMemory(g_Device, g_UniformBufferMemory[imageIdx]);
+    }
+
+
 };
+
 
 
 
@@ -1212,6 +1308,8 @@ static void DrawFrame()
     vkResetCommandBuffer(g_CommandBuffers[currframe], 0);
     RecordCommandBuffer(g_CommandBuffers[currframe], imageIdx);
 
+    VulkanIntl::UpdateUniformBuffer(imageIdx);
+
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
@@ -1273,6 +1371,7 @@ int main()
     VulkanIntl::Init(glfwWindow);
 
     VulkanIntl::CreateVertexBuffer();
+    VulkanIntl::CreateUniformBuffer();
 
 
     int n = 0;
@@ -1290,7 +1389,6 @@ int main()
         DrawFrame();
     }
 
-    vkDeviceWaitIdle(g_Device);
     VulkanIntl::Destroy();
 
     glfwDestroyWindow(glfwWindow);
