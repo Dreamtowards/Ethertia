@@ -174,8 +174,8 @@ target_link_libraries(Ethertia nbt++)
 
 #VK_ICD_FILENAMES = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json;
 #VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d
-include_directories(/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/include)
-target_link_directories(Ethertia PUBLIC /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/lib)
+include_directories(lib/vulkan/include)
+target_link_directories(Ethertia PUBLIC lib/vulkan/bin/osx-x64)
 target_link_libraries(Ethertia vulkan.1.3.236 )
 
 #if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. Not anymore.!
