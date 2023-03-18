@@ -5,23 +5,15 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
-layout(location = 0) out vec3 SomeColor;
+layout(location = 0) in vec2 in_pos;
+layout(location = 1) in vec3 in_col;
 
-vec2 _in_pos_ls[3] = vec2[](
-    vec2(0, -0.5),
-    vec2(0.5,0.5),
-    vec2(-0.5,0.5)
-);
-vec3 cols[3] = vec3[](
-    vec3(1,0,0),
-    vec3(0,1,0),
-    vec3(0,0,1)
-);
+layout(location = 0) out vec3 SomeColor;
 
 
 void main()
 {
-    gl_Position = vec4(_in_pos_ls[gl_VertexIndex], 0, 1);
+    gl_Position = vec4(in_pos, 0, 1);
 
-    SomeColor = cols[gl_VertexIndex];
+    SomeColor = in_col;
 }
