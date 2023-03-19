@@ -21,24 +21,24 @@
 
 
 
-inline static VkInstance g_vkInstance = nullptr;
-inline static VkPhysicalDevice g_PhysDevice = nullptr;
-inline static VkDevice g_Device = nullptr;  // Logical Device
+inline static VkInstance        g_vkInstance    = nullptr;
+inline static VkPhysicalDevice  g_PhysDevice    = nullptr;
+inline static VkDevice          g_Device        = nullptr;  // Logical Device
 
 inline static VkQueue g_GraphicsQueue = nullptr;
 inline static VkQueue g_PresentQueue = nullptr;  // Surface Present
 
-inline static VkSurfaceKHR g_SurfaceKHR = nullptr;
-inline static VkSwapchainKHR g_SwapchainKHR = nullptr;
-inline static std::vector<VkImage> g_SwapchainImages;  // auto clean by vk swapchain
-inline static std::vector<VkImageView> g_SwapchainImageViews;
-inline static VkExtent2D g_SwapchainExtent = {};
-inline static VkFormat g_SwapchainImageFormat = {};
+inline static VkSurfaceKHR      g_SurfaceKHR = nullptr;
+inline static VkSwapchainKHR    g_SwapchainKHR = nullptr;
+inline static std::vector<VkImage>      g_SwapchainImages;  // auto clean by vk swapchain
+inline static std::vector<VkImageView>  g_SwapchainImageViews;
+inline static VkExtent2D    g_SwapchainExtent = {};
+inline static VkFormat      g_SwapchainImageFormat = {};
 
-inline static VkRenderPass g_RenderPass = nullptr;
+inline static VkRenderPass      g_RenderPass = nullptr;
 inline static VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
-inline static VkPipelineLayout g_PipelineLayout = nullptr;
-inline static VkPipeline g_GraphicsPipeline = nullptr;
+inline static VkPipelineLayout  g_PipelineLayout = nullptr;
+inline static VkPipeline        g_GraphicsPipeline = nullptr;
 inline static std::vector<VkFramebuffer> g_SwapchainFramebuffers;  // for each Swapchain Image.
 
 inline static VkCommandPool g_CommandPool = nullptr;
@@ -67,8 +67,7 @@ inline static VkImage g_DepthImage = nullptr;
 inline static VkDeviceMemory g_DepthImageMemory = nullptr;
 inline static VkImageView g_DepthImageView = nullptr;
 
-// Requires RecreateSwapchain. when Window/Framebuffer resized.
-inline static bool g_IsFramebufferResized = false;
+inline static bool g_RecreateSwapchainRequested = false;  // when Window/Framebuffer resized.
 inline static GLFWwindow* g_WindowHandle = nullptr;
 
 
@@ -190,19 +189,22 @@ public:
         CreateCommandBuffer();
         CreateSyncObjects_Semaphores_Fences();
 
-        CreateDepthTexture();  // before fbos.
         CreateRenderPass();
         CreateDescriptorSetLayout();
         CreateGraphicsPipeline();
+        CreateDepthTexture();  // before fbos.
         CreateFramebuffers();
 
-
-
-        CreateTextureImage();
-        CreateTextureImageView();
         g_TextureSampler = CreateTextureSampler();
 
-        CreateVertexBuffer();
+        {
+            BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/viking_room.png");
+            CreateTextureImage(bitmapImage, g_TextureImage, g_TextureImageMemory, &g_TextureImageView);
+
+            VertexData vdata = Loader::loadOBJ("/Users/dreamtowards/Downloads/viking_room.obj");
+            CreateVertexBuffer(vdata.data(), vdata.size(), g_VertexBuffer, g_VertexBufferMemory);
+        }
+
         CreateUniformBuffers();
         CreateDescriptorPool();
         CreateDescriptorSets();
@@ -847,12 +849,12 @@ public:
 
 
 
-    static VkShaderModule CreateShaderModule(const std::vector<char>& code)
+    static VkShaderModule CreateShaderModule(const void* data, size_t size)
     {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+        createInfo.codeSize = size;
+        createInfo.pCode = reinterpret_cast<const uint32_t*>(data);
 
         VkShaderModule shaderModule;
         if (vkCreateShaderModule(g_Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
@@ -864,11 +866,11 @@ public:
 
     static void CreateGraphicsPipeline()
     {
-        auto vertShaderCode = Loader::loadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/vert.spv");
-        auto fragShaderCode = Loader::loadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/frag.spv");
+        auto vertSrc = Loader::loadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/vert.spv");
+        auto fragSrc = Loader::loadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/frag.spv");
 
-        VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+        VkShaderModule vertShaderModule = CreateShaderModule(vertSrc.data(), vertSrc.size());
+        VkShaderModule fragShaderModule = CreateShaderModule(fragSrc.data(), fragSrc.size());
 
         VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
         vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -1141,11 +1143,10 @@ public:
         EndOnetimeCommandBuffer(cmdbuf);
     }
 
-    static void CreateVertexBuffer()
+    // Static buffer. (high effective read on GPU, but cannot visible/modify from CPU)
+    static void CreateVertexBuffer(const void* in_data, size_t size, VkBuffer& out_buffer, VkDeviceMemory& out_bufferMemory)
     {
-        VkDeviceSize bufferSize = sizeof(g_Vertices[0]) * g_Vertices.size();
-
-
+        VkDeviceSize bufferSize = size;
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
@@ -1153,16 +1154,16 @@ public:
                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        void* data;
-        vkMapMemory(g_Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, g_Vertices.data(), bufferSize);
+        void* mapped_dst;
+        vkMapMemory(g_Device, stagingBufferMemory, 0, bufferSize, 0, &mapped_dst);
+        memcpy(mapped_dst, in_data, bufferSize);
         vkUnmapMemory(g_Device, stagingBufferMemory);
 
-        CreateBuffer(bufferSize, g_VertexBuffer, g_VertexBufferMemory,
+        CreateBuffer(bufferSize, out_buffer, out_bufferMemory,
                      VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        CopyBuffer(stagingBuffer, g_VertexBuffer, bufferSize);
+        CopyBuffer(stagingBuffer, out_buffer, bufferSize);
 
         vkDestroyBuffer(g_Device, stagingBuffer, nullptr);
         vkFreeMemory(g_Device, stagingBufferMemory, nullptr);
@@ -1381,14 +1382,11 @@ public:
         vkBindImageMemory(g_Device, image, imageMemory, 0);
     }
 
-    static void CreateTextureImage()
+    static void CreateTextureImage(BitmapImage& bitmapImage, VkImage& out_image, VkDeviceMemory& out_imageMemory, VkImageView* out_imageView = nullptr)
     {
-        BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/texture.jpg");
         int texWidth = bitmapImage.m_Width;
         int texHeight = bitmapImage.m_Height;
         void* pixels = bitmapImage.m_Pixels;
-
-
         VkDeviceSize imageSize = texWidth * texHeight * 4;
 
         VkBuffer stagingBuffer;
@@ -1404,22 +1402,27 @@ public:
 
 
         CreateImage(texWidth, texHeight,
-                    g_TextureImage, g_TextureImageMemory,
+                    out_image, out_imageMemory,
                     VK_FORMAT_R8G8B8A8_SRGB,
                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                     VK_IMAGE_TILING_OPTIMAL);
 
-        TransitionImageLayout(g_TextureImage, VK_FORMAT_R8G8B8A8_SRGB,
+        TransitionImageLayout(out_image, VK_FORMAT_R8G8B8A8_SRGB,
                               VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-            CopyBufferToImage(stagingBuffer, g_TextureImage, texWidth, texHeight);
+            CopyBufferToImage(stagingBuffer, out_image, texWidth, texHeight);
 
-        TransitionImageLayout(g_TextureImage, VK_FORMAT_R8G8B8A8_SRGB,
+        TransitionImageLayout(out_image, VK_FORMAT_R8G8B8A8_SRGB,
                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         vkDestroyBuffer(g_Device, stagingBuffer, nullptr);
         vkFreeMemory(g_Device, stagingBufferMemory, nullptr);
+
+        if (out_imageView)
+        {
+            *out_imageView = CreateImageView(out_image, VK_FORMAT_R8G8B8A8_SRGB);
+        }
     }
 
     static void TransitionImageLayout(VkImage image, VkFormat format,
@@ -1544,12 +1547,6 @@ public:
                 1,&region);
 
         EndOnetimeCommandBuffer(cmdbuf);
-    }
-
-    static void CreateTextureImageView()
-    {
-        g_TextureImageView = CreateImageView(g_TextureImage, VK_FORMAT_R8G8B8A8_SRGB);
-
     }
 
     // Common
@@ -1743,7 +1740,7 @@ static void RecordCommandBuffer(VkCommandBuffer cmdbuf, uint32_t imageIdx)
 
 
 
-static void DrawFrame()
+static void DrawFrameIntl()
 {
     const int currframe = g_CurrentFrameInflight;
 
@@ -1794,8 +1791,8 @@ static void DrawFrame()
     presentInfo.pImageIndices = &imageIdx;
 
     rs = vkQueuePresentKHR(g_PresentQueue, &presentInfo);
-    if (rs == VK_ERROR_OUT_OF_DATE_KHR || rs == VK_SUBOPTIMAL_KHR || g_IsFramebufferResized) {
-        g_IsFramebufferResized = false;
+    if (rs == VK_ERROR_OUT_OF_DATE_KHR || rs == VK_SUBOPTIMAL_KHR || g_RecreateSwapchainRequested) {
+        g_RecreateSwapchainRequested = false;
         VulkanIntl::RecreateSwapchain();
     } else if (rs != VK_SUCCESS) {
         throw std::runtime_error("failed to present swapchain image.");
@@ -1813,166 +1810,50 @@ static void DrawFrame()
 
 
 
+#include "VulkanIntl.h"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Begin GLFW Window ==================
-
-#include <eldaria/Window.h>
-
-static void glfw_framebuffer_resized(GLFWwindow* glfwWindow, int w, int h) {
-    g_IsFramebufferResized = true;
-}
-
-Window::Window(int w, int h, const char* title)
+void Vulkan::Init(void* glfwWindow)
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
-
-    m_WindowHandle = glfwCreateWindow(w, h, title, nullptr, nullptr);
-
-    glfwSetFramebufferSizeCallback(m_WindowHandle, glfw_framebuffer_resized);
+    VulkanIntl::Init(static_cast<GLFWwindow*>(glfwWindow));
 }
 
-Window::~Window()
-{
-    glfwDestroyWindow(m_WindowHandle);
-}
-
-bool Window::isCloseRequested() {
-    return glfwWindowShouldClose(m_WindowHandle);
-}
-
-
-
-// End GLFW Window ==================
-
-
-
-
-
-
-
-
-
-#include <fstream>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
-
-std::vector<char> Loader::loadFile(const std::string& path)
-{
-    std::ifstream file(path, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) {
-        throw std::runtime_error(Strings::fmt("Failed open file. ", path));
-    }
-    size_t filesize = file.tellg();
-    std::vector<char> data(filesize);
-
-    file.seekg(0);
-    file.read(data.data(), filesize);
-    file.close();
-
-    return data;
-}
-
-
-BitmapImage Loader::loadPNG(const std::string& path)
-{
-    int w, h, channels;
-    stbi_uc* pixels = stbi_load(path.c_str(), &w, &h, &channels, 4);
-
-    BitmapImage bi;
-    bi.m_Pixels = pixels;
-    bi.m_Width = w;
-    bi.m_Height = h;
-    bi.m_PixelsFreeFunc = &stbi_image_free;
-    bi.m_Filename = path;
-    return bi;
-}
-
-
-
-
-
-
-
-
-
-
-
-#include <ethertia/util/BenchmarkTimer.h>
-
-static bool     g_Running = false;
-static Window*  g_Window = nullptr;
-
-static void Init();
-static void Destroy();
-static void RunMainLoop();
-
-int main()
-{
-    Init();
-
-    while (g_Running)
-    {
-        RunMainLoop();
-    }
-
-    Destroy();
-}
-
-static void Init()
-{
-    g_Running = true;
-    g_Window = new Window(800, 600, "Test");
-
-    VulkanIntl::Init(g_Window->m_WindowHandle);
-}
-
-static void Destroy()
+void Vulkan::Destroy()
 {
     VulkanIntl::Destroy();
-
-    glfwTerminate();
 }
 
-static void RunMainLoop()
+void Vulkan::DrawFrame()
 {
-    static int n = 0;
-    static float t = 0;
-    if (t > 1.0f) {
-        Log::info("{} frames in {} sec", n, t);
-        t = 0; n = 0;
-    }
-    ++n;
-    BENCHMARK_TIMER_VAL(&t);
-
-
-    glfwPollEvents();
-
-    if (g_Window->isCloseRequested()) {
-        g_Running = false;
-    }
-
-
-    DrawFrame();
+    DrawFrameIntl();
 }
+
+void Vulkan::RequestRecreateSwapchain()
+{
+    g_RecreateSwapchainRequested = true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//class VertexData
+//{
+//public:
+//
+//    std::vector<glm::vec3> m_Positions;
+//    std::vector<glm::vec2> m_TexCoords;
+//    std::vector<glm::vec3> m_Normals;
+//};

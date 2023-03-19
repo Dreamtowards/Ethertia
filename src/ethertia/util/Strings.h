@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <cstring>
 #include <functional>
+#include <cmath>
 
 class Strings
 {
