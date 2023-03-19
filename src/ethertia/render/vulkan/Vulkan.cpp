@@ -67,6 +67,8 @@ inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each Inflig
 
 inline static VkImage g_TextureImage = nullptr;
 inline static VkDeviceMemory g_TextureImageMemory = nullptr;
+inline static VkImageView g_TextureImageView = nullptr;
+inline static VkSampler g_TextureSampler = nullptr;
 
 
 // Requires RecreateSwapchain. when Window/Framebuffer resized.
@@ -211,6 +213,8 @@ public:
 
         DestroySwapchain();
 
+        vkDestroySampler(g_Device, g_TextureSampler, nullptr);
+        vkDestroyImageView(g_Device, g_TextureImageView, nullptr);
         vkDestroyImage(g_Device, g_TextureImage, nullptr);
         vkFreeMemory(g_Device, g_TextureImageMemory, nullptr);
 
@@ -447,6 +451,9 @@ public:
         VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
 
+        if (!deviceFeatures.samplerAnisotropy)
+            return 0;
+
         QueueFamilyIndices queueFamily = findQueueFamilies(physicalDevice);
         if (!queueFamily.isComplete())
             return 0;
@@ -501,6 +508,7 @@ public:
         // Device Features
         VkPhysicalDeviceFeatures deviceFeatures{};
         //vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+        deviceFeatures.samplerAnisotropy = VK_TRUE;
         createInfo.pEnabledFeatures = &deviceFeatures;
 
         // Device Extensions  (needs check is supported?)
@@ -594,15 +602,15 @@ public:
             imageCount = swapchainDetails.m_Capabilities.maxImageCount;
         }
 
-        VkSwapchainCreateInfoKHR createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = g_SurfaceKHR;
-        createInfo.minImageCount = imageCount;
-        createInfo.imageFormat = surfaceFormat.format;
-        createInfo.imageColorSpace = surfaceFormat.colorSpace;
-        createInfo.imageExtent = extent;
-        createInfo.imageArrayLayers = 1;  // normally 1, except VR.
-        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        VkSwapchainCreateInfoKHR swapchainInfo{};
+        swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        swapchainInfo.surface = g_SurfaceKHR;
+        swapchainInfo.minImageCount = imageCount;
+        swapchainInfo.imageFormat = surfaceFormat.format;
+        swapchainInfo.imageColorSpace = surfaceFormat.colorSpace;
+        swapchainInfo.imageExtent = extent;
+        swapchainInfo.imageArrayLayers = 1;  // normally 1, except VR.
+        swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         g_SwapchainImageFormat = surfaceFormat.format;
 
         // Image Share Mode. Queue Family.
@@ -610,22 +618,22 @@ public:
         uint32_t queueFamilyIdxs[] = {queueFamily.m_GraphicsFamily, queueFamily.m_PresentFamily};
 
         if (queueFamily.m_GraphicsFamily != queueFamily.m_PresentFamily) {
-            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-            createInfo.queueFamilyIndexCount = 2;
-            createInfo.pQueueFamilyIndices = queueFamilyIdxs;
+            swapchainInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            swapchainInfo.queueFamilyIndexCount = 2;
+            swapchainInfo.pQueueFamilyIndices = queueFamilyIdxs;
         } else {
-            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;  // most performance.
-            createInfo.queueFamilyIndexCount = 0;  // opt
-            createInfo.pQueueFamilyIndices = nullptr;
+            swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;  // most performance.
+            swapchainInfo.queueFamilyIndexCount = 0;  // opt
+            swapchainInfo.pQueueFamilyIndices = nullptr;
         }
 
-        createInfo.preTransform = swapchainDetails.m_Capabilities.currentTransform;  // Non transform
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;  // Non Alpha.
-        createInfo.presentMode = presentMode;
-        createInfo.clipped = VK_TRUE;  // true: not care the pixels behind other windows for vk optims.  but may cause problem when we read the pixels.
-        createInfo.oldSwapchain = nullptr;
+        swapchainInfo.preTransform = swapchainDetails.m_Capabilities.currentTransform;  // Non transform
+        swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;  // Non Alpha.
+        swapchainInfo.presentMode = presentMode;
+        swapchainInfo.clipped = VK_TRUE;  // true: not care the pixels behind other windows for vk optims.  but may cause problem when we read the pixels.
+        swapchainInfo.oldSwapchain = nullptr;
 
-        VkResult err = vkCreateSwapchainKHR(g_Device, &createInfo, nullptr, &g_SwapchainKHR);
+        VkResult err = vkCreateSwapchainKHR(g_Device, &swapchainInfo, nullptr, &g_SwapchainKHR);
         if (err != VK_SUCCESS)
             throw std::runtime_error("failed to create vk swapchain khr.");
 
@@ -642,26 +650,7 @@ public:
         // Image Views
         g_SwapchainImageViews.resize(imageCount);
         for (int i = 0; i < imageCount; ++i) {
-            VkImageViewCreateInfo createInfo{};
-            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            createInfo.image = g_SwapchainImages[i];
-            createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            createInfo.format = surfaceFormat.format;
-
-            createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            createInfo.subresourceRange.baseMipLevel = 0;
-            createInfo.subresourceRange.levelCount = 1;
-            createInfo.subresourceRange.baseArrayLayer = 0;
-            createInfo.subresourceRange.layerCount = 1;      // except VR.
-
-            if (vkCreateImageView(g_Device, &createInfo, nullptr, &g_SwapchainImageViews[i]) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create sawpchain imageviews.");
-            }
+            g_SwapchainImageViews[i] = CreateImageView(g_SwapchainImages[i], surfaceFormat.format);
         }
     }
 
@@ -1481,6 +1470,67 @@ public:
         );
 
         EndOnetimeCommandBuffer(cmdbuf);
+    }
+
+    static void CreateTextureImageView()
+    {
+        g_TextureImageView = CreateImageView(g_TextureImage, VK_FORMAT_R8G8B8A8_SRGB);
+
+    }
+
+    static VkImageView CreateImageView(VkImage image, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB)
+    {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = format;
+        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;  // except VR.
+        //viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        //viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        //viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        //viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+        VkImageView imageView;
+        if (vkCreateImageView(g_Device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create texture image view.");
+        }
+        return imageView;
+    }
+
+    static VkSampler CreateTextureSampler()
+    {
+        VkSamplerCreateInfo samplerInfo{};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+        VkPhysicalDeviceProperties properties{};  // todo optim.
+        vkGetPhysicalDeviceProperties(g_PhysDevice, &properties);
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.mipLodBias = 0.0f;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 0.0f;
+
+        VkSampler textureSampler;
+        if (vkCreateSampler(g_Device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create texture sampler!");
+        }
+        return textureSampler;
     }
 };
 
