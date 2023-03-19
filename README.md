@@ -74,3 +74,6 @@ however, there is some my favorite resources:
 
 ### **CLangFormat**
 
+- 如何设计 BitmapImage 的传递方式? Value? Ptr?
+- 如何设计 VertexData 的排列? positions[], tex[].. 
+  还是 Vertex<vec3 pos, vec2 tex> vectices[] 

@@ -10,6 +10,8 @@
 #include <chrono>
 #include <array>
 
+#include <eldaria/Loader.h>
+
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>
 
@@ -18,15 +20,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
-//#define LOADER_NO_OPENGL
-//#include <ethertia/util/Loader.h>
-
-
-inline static bool g_EnableValidationLayer = true;
-inline static std::vector<const char*> g_ValidationLayers = {
-        "VK_LAYER_KHRONOS_validation"
-};
-inline static VkDebugUtilsMessengerEXT g_DebugMessengerEXT = nullptr;
 
 inline static VkInstance g_vkInstance = nullptr;
 inline static VkPhysicalDevice g_PhysDevice = nullptr;
@@ -101,30 +94,6 @@ struct SwapchainSupportDetails
 
 
 
-#include <fstream>
-
-std::vector<char> _LoadFile(const std::string& path)
-{
-    std::ifstream file(path, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) {
-        throw std::runtime_error(Strings::fmt("Failed open file. ", path));
-        //Log::warn("Failed open file: ", path);
-        //return std::make_pair(nullptr, -1);
-    }
-    size_t filesize = file.tellg();
-    std::vector<char> data(filesize);
-
-    file.seekg(0);
-    file.read(data.data(), filesize);
-    file.close();
-
-    return data;
-}
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
-
 
 
 
@@ -150,10 +119,12 @@ struct Vertex
         attributeDescriptions[0].location = 0;
         attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, col);
+
         attributeDescriptions[2].binding = 0;
         attributeDescriptions[2].location = 2;
         attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
@@ -194,8 +165,15 @@ struct UniformBufferObject
 
 
 
-class VulkanIntl {
+class VulkanIntl
+{
 public:
+    inline static bool g_EnableValidationLayer = true;
+    inline static std::vector<const char*> g_ValidationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+    inline static VkDebugUtilsMessengerEXT g_DebugMessengerEXT = nullptr;
+
 
     static void Init(GLFWwindow* glfwWindow)
     {
@@ -611,7 +589,8 @@ public:
 
 
 
-    static void CreateSwapchainAndImageViews() {
+    static void CreateSwapchainAndImageViews()
+    {
         SwapchainSupportDetails swapchainDetails = querySwapchainSupport(g_PhysDevice, g_SurfaceKHR);
 
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapchainDetails.m_Formats);
@@ -677,7 +656,8 @@ public:
         }
     }
 
-    static SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) {
+    static SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+    {
         SwapchainSupportDetails details;
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.m_Capabilities);
@@ -699,7 +679,8 @@ public:
         return details;
     }
 
-    static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+    static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+    {
         if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED) {
             return {VK_FORMAT_B8G8R8A8_UNORM,VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
         }
@@ -711,7 +692,8 @@ public:
         }
         return availableFormats[0];
     }
-    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
+    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+    {
         if (Collections::find(availablePresentModes, VK_PRESENT_MODE_MAILBOX_KHR) != -1)
             return VK_PRESENT_MODE_MAILBOX_KHR;
         if (Collections::find(availablePresentModes, VK_PRESENT_MODE_IMMEDIATE_KHR) != -1)
@@ -719,7 +701,8 @@ public:
 
         return VK_PRESENT_MODE_FIFO_KHR;  // FIFO_KHR is vk guaranteed available.
     }
-    static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+    static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+    {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
             return capabilities.currentExtent;
 
@@ -738,7 +721,7 @@ public:
         vkDestroyImage(g_Device, g_DepthImage, nullptr);
         vkDestroyImageView(g_Device, g_DepthImageView, nullptr);
         vkFreeMemory(g_Device, g_DepthImageMemory, nullptr);
-        
+
         for (auto fb : g_SwapchainFramebuffers) {
             vkDestroyFramebuffer(g_Device, fb, nullptr);
         }
@@ -864,7 +847,8 @@ public:
 
 
 
-    static VkShaderModule CreateShaderModule(const std::vector<char>& code) {
+    static VkShaderModule CreateShaderModule(const std::vector<char>& code)
+    {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = code.size();
@@ -878,9 +862,10 @@ public:
         return shaderModule;
     }
 
-    static void CreateGraphicsPipeline() {
-        auto vertShaderCode = _LoadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/ethertia/render/vulkan/vert.spv");
-        auto fragShaderCode = _LoadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/ethertia/render/vulkan/frag.spv");
+    static void CreateGraphicsPipeline()
+    {
+        auto vertShaderCode = Loader::loadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/vert.spv");
+        auto fragShaderCode = Loader::loadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/frag.spv");
 
         VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
@@ -1398,10 +1383,11 @@ public:
 
     static void CreateTextureImage()
     {
-        int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load("/Users/dreamtowards/Downloads/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        if (!pixels)
-            throw std::runtime_error("failed to load texture image.");
+        BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/texture.jpg");
+        int texWidth = bitmapImage.m_Width;
+        int texHeight = bitmapImage.m_Height;
+        void* pixels = bitmapImage.m_Pixels;
+
 
         VkDeviceSize imageSize = texWidth * texHeight * 4;
 
@@ -1415,8 +1401,6 @@ public:
         vkMapMemory(g_Device, stagingBufferMemory, 0, imageSize, 0, &data);
             memcpy(data, pixels, imageSize);
         vkUnmapMemory(g_Device, stagingBufferMemory);
-
-        stbi_image_free(pixels);
 
 
         CreateImage(texWidth, texHeight,
@@ -1851,22 +1835,7 @@ static void DrawFrame()
 
 // Begin GLFW Window ==================
 
-
-class Window
-{
-public:
-    Window(int w, int h, const char* title);
-    ~Window();
-
-    bool isCloseRequested();
-
-
-    GLFWwindow* m_WindowHandle = nullptr;
-};
-
-
-
-
+#include <eldaria/Window.h>
 
 static void glfw_framebuffer_resized(GLFWwindow* glfwWindow, int w, int h) {
     g_IsFramebufferResized = true;
@@ -1899,20 +1868,47 @@ bool Window::isCloseRequested() {
 
 
 
-class Loader
+
+
+
+
+#include <fstream>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
+
+std::vector<char> Loader::loadFile(const std::string& path)
 {
-public:
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+        throw std::runtime_error(Strings::fmt("Failed open file. ", path));
+    }
+    size_t filesize = file.tellg();
+    std::vector<char> data(filesize);
 
-    // load entire file. filename could be absolute-path or relative-path.
-    static std::vector<char> loadFile(const std::string& filename);
+    file.seekg(0);
+    file.read(data.data(), filesize);
+    file.close();
 
-
-};
-
-std::vector<char> Loader::loadFile(const std::string& filename)
-{
-
+    return data;
 }
+
+
+BitmapImage Loader::loadPNG(const std::string& path)
+{
+    int w, h, channels;
+    stbi_uc* pixels = stbi_load(path.c_str(), &w, &h, &channels, 4);
+
+    BitmapImage bi;
+    bi.m_Pixels = pixels;
+    bi.m_Width = w;
+    bi.m_Height = h;
+    bi.m_PixelsFreeFunc = &stbi_image_free;
+    bi.m_Filename = path;
+    return bi;
+}
+
 
 
 

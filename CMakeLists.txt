@@ -94,7 +94,7 @@ add_executable(Ethertia
 #
 #        src/ethertia/gui/Gui.cpp
 #        src/ethertia/Ethertia.cpp
-        src/ethertia/render/vulkan/Vulkan.cpp
+        src/eldaria/Vulkan.cpp
 #        src/ethertia/render/vulkan/Copy.cpp
         )
 
