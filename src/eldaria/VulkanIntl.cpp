@@ -132,23 +132,9 @@ struct Vertex
     }
 };
 
-const std::vector<Vertex> g_Vertices = {
-        {{-0.5f,-0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{ 0.5f,-0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{ 0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{ 0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-        {{-0.5f,-0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-
-        {{-0.5f,-0.5f,-0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{ 0.5f,-0.5f,-0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{ 0.5f, 0.5f,-0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{ 0.5f, 0.5f,-0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f,-0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-        {{-0.5f,-0.5f,-0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-};
+int g_DrawVerts = 0;
 inline static VkBuffer g_VertexBuffer = nullptr;
-VkDeviceMemory g_VertexBufferMemory;
+inline static VkDeviceMemory g_VertexBufferMemory;
 
 
 #define DECL_unif alignas(16)
@@ -201,7 +187,24 @@ public:
             BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/viking_room.png");
             CreateTextureImage(bitmapImage, g_TextureImage, g_TextureImageMemory, &g_TextureImageView);
 
+//            const std::vector<Vertex> g_Vertices = {
+//                    {{-0.5f,-0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+//                    {{ 0.5f,-0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+//                    {{ 0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+//                    {{ 0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+//                    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+//                    {{-0.5f,-0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+//
+//                    {{-0.5f,-0.5f,-0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+//                    {{ 0.5f,-0.5f,-0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+//                    {{ 0.5f, 0.5f,-0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+//                    {{ 0.5f, 0.5f,-0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+//                    {{-0.5f, 0.5f,-0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+//                    {{-0.5f,-0.5f,-0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+//            };
+//            CreateVertexBuffer(g_Vertices.data(), g_Vertices.size() * sizeof(g_Vertices[0]),g_VertexBuffer, g_VertexBufferMemory);
             VertexData vdata = Loader::loadOBJ("/Users/dreamtowards/Downloads/viking_room.obj");
+            g_DrawVerts = vdata.vertexCount();
             CreateVertexBuffer(vdata.data(), vdata.size(), g_VertexBuffer, g_VertexBufferMemory);
         }
 
@@ -1729,7 +1732,7 @@ static void RecordCommandBuffer(VkCommandBuffer cmdbuf, uint32_t imageIdx)
 
     vkCmdBindDescriptorSets(cmdbuf, VK_PIPELINE_BIND_POINT_GRAPHICS, g_PipelineLayout, 0, 1,
                             &g_DescriptorSets[g_CurrentFrameInflight], 0, nullptr);  // i?
-    vkCmdDraw(cmdbuf, g_Vertices.size(), 1, 0, 0);
+    vkCmdDraw(cmdbuf, g_DrawVerts, 1, 0, 0);
 
     vkCmdEndRenderPass(cmdbuf);
 

@@ -51,7 +51,7 @@ static void RunMainLoop()
     static int n = 0;
     static float t = 0;
     if (t > 1.0f) {
-        Log::info("{} frames in {} sec", n, t);
+        Log::info("{} frames in {} sec.", n, t);
         t = 0; n = 0;
     }
     ++n;
@@ -65,4 +65,6 @@ static void RunMainLoop()
     }
 
     Vulkan::DrawFrame();
+
+    //Timer::sleep_for(4);
 }

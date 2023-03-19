@@ -67,9 +67,30 @@ VertexData Loader::loadOBJ(const std::string& filename)
             glm::vec2 tex = *reinterpret_cast<glm::vec2*>(&attrib.texcoords[2*index.texcoord_index]);
             glm::vec3 norm = *reinterpret_cast<glm::vec3*>(&attrib.normals[3*index.normal_index]);
 
-            vertexdata.m_Vertices.push_back({pos, tex, norm});
+            // vulkan y 0=top
+            tex.y = 1.0f - tex.y;
+
+            vertexdata.m_Vertices.push_back({pos, {1,1,1}, tex});
         }
     }
+
+//    for (const auto& shape : shapes) {
+//        for (const auto& index : shape.mesh.indices) {
+//            VertexData::Vertex vertex{};
+//            vertex.pos = {
+//                    attrib.vertices[3 * index.vertex_index + 0],
+//                    attrib.vertices[3 * index.vertex_index + 1],
+//                    attrib.vertices[3 * index.vertex_index + 2]
+//            };
+//            vertex.tex = {
+//                    attrib.texcoords[2 * index.texcoord_index + 0],
+//                    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+//            };
+//            vertex.norm = {1,1,1};
+//
+//            vertexdata.m_Vertices.push_back(vertex);
+//        }
+//    }
     return vertexdata;
 }
 
@@ -100,11 +121,11 @@ BitmapImage::~BitmapImage()
 
 VertexData::VertexData(const std::string& _filename) : m_Filename(_filename)
 {
-    Log::info("New VertexData: {}", m_Filename);
+    Log::info("New VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
 }
 VertexData::~VertexData()
 {
-    Log::info("Delete VertexData: {}", m_Filename);
+    Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
 }
 
 

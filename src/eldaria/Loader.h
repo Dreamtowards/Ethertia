@@ -17,8 +17,8 @@ class VertexData
 public:
     struct Vertex {
         glm::vec3 pos;
-        glm::vec2 tex;
         glm::vec3 norm;
+        glm::vec2 tex;
     };
 
     VertexData(const std::string& _filename);
@@ -26,6 +26,8 @@ public:
 
     const void* data() const { return m_Vertices.data(); }
     size_t size() const { return sizeof(m_Vertices[0]) * m_Vertices.size(); }
+
+    size_t vertexCount() const { return m_Vertices.size(); }
 
     std::vector<Vertex> m_Vertices;
     std::string m_Filename;  // optional. debug tag.
