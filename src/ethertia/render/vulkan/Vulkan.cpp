@@ -145,7 +145,7 @@ struct Vertex
         std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[0].offset = offsetof(Vertex, pos);
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
@@ -1708,41 +1708,158 @@ static void DrawFrame()
 
 
 
-#include <ethertia/util/BenchmarkTimer.h>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Begin GLFW Window ==================
+
+
+class Window
+{
+public:
+    Window(int w, int h, const char* title);
+    ~Window();
+
+    bool isCloseRequested();
+
+
+    GLFWwindow* m_WindowHandle = nullptr;
+};
+
+
+
+
 
 static void glfw_framebuffer_resized(GLFWwindow* glfwWindow, int w, int h) {
     g_IsFramebufferResized = true;
 }
 
-int main()
+Window::Window(int w, int h, const char* title)
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
 
-    GLFWwindow* glfwWindow = glfwCreateWindow(80, 60, "Test", nullptr, nullptr);
+    m_WindowHandle = glfwCreateWindow(w, h, title, nullptr, nullptr);
 
-    glfwSetFramebufferSizeCallback(glfwWindow, glfw_framebuffer_resized);
+    glfwSetFramebufferSizeCallback(m_WindowHandle, glfw_framebuffer_resized);
+}
 
-    VulkanIntl::Init(glfwWindow);
+Window::~Window()
+{
+    glfwDestroyWindow(m_WindowHandle);
+}
+
+bool Window::isCloseRequested() {
+    return glfwWindowShouldClose(m_WindowHandle);
+}
 
 
-    int n = 0;
-    float t = 0;
-    while (!glfwWindowShouldClose(glfwWindow))
+
+// End GLFW Window ==================
+
+
+
+
+
+class Loader
+{
+public:
+
+    // load entire file. filename could be absolute-path or relative-path.
+    static std::vector<char> loadFile(const std::string& filename);
+
+
+};
+
+std::vector<char> Loader::loadFile(const std::string& filename)
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+#include <ethertia/util/BenchmarkTimer.h>
+
+static bool     g_Running = false;
+static Window*  g_Window = nullptr;
+
+static void Init();
+static void Destroy();
+static void RunMainLoop();
+
+int main()
+{
+    Init();
+
+    while (g_Running)
     {
-        if (t > 1.0f) {
-            Log::info("{} frames in {} sec", n, t);
-            t = 0; n = 0;
-        }
-        ++n;
-        BENCHMARK_TIMER_VAL(&t);
-        glfwPollEvents();
-
-        DrawFrame();
+        RunMainLoop();
     }
 
+    Destroy();
+}
+
+static void Init()
+{
+    g_Running = true;
+    g_Window = new Window(800, 600, "Test");
+
+    VulkanIntl::Init(g_Window->m_WindowHandle);
+}
+
+static void Destroy()
+{
     VulkanIntl::Destroy();
 
-    glfwDestroyWindow(glfwWindow);
     glfwTerminate();
+}
+
+static void RunMainLoop()
+{
+    static int n = 0;
+    static float t = 0;
+    if (t > 1.0f) {
+        Log::info("{} frames in {} sec", n, t);
+        t = 0; n = 0;
+    }
+    ++n;
+    BENCHMARK_TIMER_VAL(&t);
+
+
+    glfwPollEvents();
+
+    if (g_Window->isCloseRequested()) {
+        g_Running = false;
+    }
+
+
+    DrawFrame();
 }

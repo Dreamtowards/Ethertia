@@ -35,6 +35,7 @@ void Settings::loadSettings() {  using nlohmann::json;
     set_ifexists(settings, "fov",            &Ethertia::getCamera().fov);
     set_ifexists(settings, "display_width",  &displayWidth);
     set_ifexists(settings, "display_height", &displayHeight);
+    set_ifexists(settings, "vsync",          &s_Vsync);
 
     set_ifexists(settings, "assets",         &Loader::ASSETS);
     set_ifexists(settings, "mods", &MODS);
@@ -72,7 +73,7 @@ void Settings::saveSettings()  {  using nlohmann::json;
         {"assets",         Loader::ASSETS},
         {"display_width",  Ethertia::getWindow().getWidth()},
         {"display_height", Ethertia::getWindow().getHeight()},
-        {"vsync",          false},
+        {"vsync",          s_Vsync},
         {"fullscreen",     false},
         {"mtl_resolution", MaterialTextures::TEX_RESOLUTION},
         {"simd_level",     NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel)},

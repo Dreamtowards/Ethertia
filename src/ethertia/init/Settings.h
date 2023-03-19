@@ -51,6 +51,7 @@ public:
 
     inline static float s_ViewDistance = 4;
     inline static int   s_FpsCap = 60;
+    inline static bool  s_Vsync = true;
 
 
 };

@@ -201,6 +201,10 @@ public:
         scrollDY = 0;
     }
 
+    void setVSync(bool vsync) {
+        glfwSwapInterval(vsync ? 1 : 0);
+    }
+
     static void onWindowClose(GLFWwindow* _win) {
         Window* win = (Window*)glfwGetWindowUserPointer(_win);
 

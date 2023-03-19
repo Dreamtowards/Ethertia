@@ -1,7 +1,7 @@
 {
   "assets": "./assets/",
-  "display_height": 1005,
-  "display_width": 1652,
+  "display_height": 624,
+  "display_width": 1055,
   "fov": 124.64800262451172,
   "fullscreen": false,
   "graphics.shadow": false,
@@ -10,7 +10,7 @@
   "mtl_resolution": 256,
   "simd_level": "SSE3",
   "view_distance": 5.070000171661377,
-  "vsync": false,
+  "vsync": true,
   "window.console": true,
   "window.entity_insp": true,
   "window.entity_list": true,

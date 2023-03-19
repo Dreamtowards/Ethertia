@@ -887,7 +887,7 @@ static void ShowSettingsWindow()
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("Field of View.\nNormal: 70\nQuark Pro: 90");
 
-            ImGui::Checkbox("Vsync", &Settings::g_SSAO);
+            ImGui::Checkbox("Vsync", &Settings::s_Vsync);
 
             if (Settings::g_SSAO) ImGui::BeginDisabled();
             ImGui::SliderInt("FPS Limit", &Settings::s_FpsCap, 0, 2000);

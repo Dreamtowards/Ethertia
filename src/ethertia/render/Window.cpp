@@ -35,7 +35,7 @@ Window::Window(int _w, int _h, const char *_title) : width(_w), height(_h)
     centralize();
 
     glfwMakeContextCurrent(m_WindowHandle);
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw std::runtime_error("Failed to init GLAD.");

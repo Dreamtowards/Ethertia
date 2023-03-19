@@ -216,6 +216,7 @@ static void RunMainLoop()
 
     {
         PROFILE("SwapBuffer");
+        window.setVSync(Settings::s_Vsync);
         window.swapBuffers();
 
         AudioEngine::checkAlError("Frame");
