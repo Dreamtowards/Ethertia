@@ -20,6 +20,9 @@
 
 ![](run/screenshots/_figures/ethertia-poster0225d4-lres.jpg)
 
+Ethertia, a GAME program, featured Voxel, Procedural World Gen, Built-in Editor.  
+
+[comment]: <> (C++ written, render with Vulkan & OpenGL.)
 
 Preview Screenshots:
 
@@ -57,7 +60,7 @@ Preview Screenshots:
 
 
 
-### **Resources**
+### **Lectures**
 
 People came here may wanted Graphics / Voxel gamedev knownledges.
 however, there is some my favorite resources:
@@ -66,4 +69,8 @@ however, there is some my favorite resources:
 - Graphics
   - [3D Game Shaders for Beginners](https://github.com/lettier/3d-game-shaders-for-beginners)
   - [Vulkan Examples by SaschaWillems](https://github.com/SaschaWillems/Vulkan#Headless) 
-  
+  - [GAMES104]()
+
+
+### **CLangFormat**
+
