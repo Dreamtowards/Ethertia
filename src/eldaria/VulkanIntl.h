@@ -36,8 +36,13 @@ public:
 
         VkRenderPass        g_RenderPass;
     };
-    static State& GetState();
+    static State& GetState(bool init = false);
 
+
+    // helper func. since g_Device be needed frequently.
+    static VkDevice vkDevice() {
+        return GetState().g_Device;
+    }
 };
 
 

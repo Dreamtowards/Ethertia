@@ -1844,9 +1844,10 @@ void VulkanIntl::SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBu
 
 
 
-VulkanIntl::State& VulkanIntl::GetState() {
+VulkanIntl::State& VulkanIntl::GetState(bool init)
+{
     static VulkanIntl::State vk;
-    {
+    if (init) {
 #define ASSIGN_VK_STATE(varname) vk.varname = VulkanIntl_Impl::varname;
 
         ASSIGN_VK_STATE(g_Instance);

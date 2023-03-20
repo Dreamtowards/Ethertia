@@ -6,8 +6,6 @@
 #include "VulkanIntl.h"
 #include "Imgui.h"
 
-#include <GLFW/glfw3.h>
-
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/Log.h>
 
@@ -40,14 +38,15 @@ static void Init()
     Window::Init();
     g_Window = new Window(800, 600, "Test");
 
-    VulkanIntl::Init(g_Window->m_WindowHandle);
+        GLFWwindow* _glfwWindow = g_Window->m_WindowHandle;
+    VulkanIntl::Init(_glfwWindow);
+    Imgui::Init(_glfwWindow);
 
-    Imgui::Init(g_Window->m_WindowHandle);
 }
 
 static void Destroy()
 {
-    vkDeviceWaitIdle(VulkanIntl::GetState().g_Device);
+    vkDeviceWaitIdle(VulkanIntl::vkDevice());
 
     Imgui::Destroy();
 
