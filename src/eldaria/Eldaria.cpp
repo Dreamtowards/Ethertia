@@ -40,16 +40,18 @@ static void Init()
     Window::Init();
     g_Window = new Window(800, 600, "Test");
 
-    Vulkan::Init(g_Window->m_WindowHandle);
+    VulkanIntl::Init(g_Window->m_WindowHandle);
 
     Imgui::Init(g_Window->m_WindowHandle);
 }
 
 static void Destroy()
 {
+    vkDeviceWaitIdle(VulkanIntl::GetState().g_Device);
+
     Imgui::Destroy();
 
-    Vulkan::Destroy();
+    VulkanIntl::Destroy();
 
     Window::Destroy();
 }
@@ -72,7 +74,7 @@ static void RunMainLoop()
         g_Running = false;
     }
 
-    Vulkan::DrawFrame();
+    VulkanIntl::DrawFrame();
 
 
     //Timer::sleep_for(4);

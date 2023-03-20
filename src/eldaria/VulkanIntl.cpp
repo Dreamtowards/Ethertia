@@ -69,18 +69,94 @@ inline static VkDeviceMemory g_VertexBufferMemory;
 
 struct UniformBufferObject
 {
-    alignas(16) glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
+    DECL_unif glm::mat4 model;
+    DECL_unif glm::mat4 view;
+    DECL_unif glm::mat4 proj;
 };
 
 
-#define VK_CHECK(rs) if ((rs) != VK_SUCCESS) throw std::runtime_error("[vulkan] operation failed, error: ");
 
-
-class VulkanIntl_
+class VulkanIntl_Impl
 {
 public:
+
+    inline static VkInstance        g_Instance  = nullptr;
+    inline static VkPhysicalDevice  g_PhysDevice= nullptr;
+    inline static VkDevice          g_Device    = nullptr;  // Logical Device
+
+    inline static VkRenderPass      g_RenderPass = nullptr;
+
+    inline static VkQueue g_GraphicsQueue = nullptr;
+    inline static VkQueue g_PresentQueue = nullptr;  // Surface Present
+
+    inline static VkSurfaceKHR          g_SurfaceKHR = nullptr;
+    inline static VkSwapchainKHR        g_SwapchainKHR = nullptr;
+    inline static std::vector<VkImage>  g_SwapchainImages;  // auto clean by vk swapchain
+    inline static std::vector<VkImageView> g_SwapchainImageViews;
+    inline static VkExtent2D            g_SwapchainExtent = {};
+    inline static VkFormat              g_SwapchainImageFormat = {};
+    inline static std::vector<VkFramebuffer> g_SwapchainFramebuffers;  // for each Swapchain Image.
+
+    inline static VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
+    inline static VkPipelineLayout  g_PipelineLayout = nullptr;
+    inline static VkPipeline        g_GraphicsPipeline = nullptr;
+
+    inline static VkCommandPool g_CommandPool = nullptr;
+    inline static std::vector<VkCommandBuffer> g_CommandBuffers;
+
+    inline static std::vector<VkSemaphore> g_SemaphoreImageAvailable;  // for each InflightFrame   ImageAcquired, RenderComplete
+    inline static std::vector<VkSemaphore> g_SemaphoreRenderFinished;
+    inline static std::vector<VkFence>     g_InflightFence;
+
+    inline static int MAX_FRAMES_INFLIGHT = 2;
+    inline static int g_CurrentFrameInflight = 0;
+
+    inline static std::vector<VkBuffer> g_UniformBuffers;  // for each InflightFrame
+    inline static std::vector<VkDeviceMemory> g_UniformBuffersMemory;
+    inline static std::vector<void*> g_UniformBuffersMapped;  // 'Persistent Mapping' since vkMapMemory cost.
+
+    inline static VkDescriptorPool g_DescriptorPool = nullptr;
+    inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each InflightFrame
+
+    inline static VkImage g_TextureImage = nullptr;
+    inline static VkDeviceMemory g_TextureImageMemory = nullptr;
+    inline static VkImageView g_TextureImageView = nullptr;
+    inline static VkSampler g_TextureSampler = nullptr;
+
+    inline static VkImage g_DepthImage = nullptr;
+    inline static VkDeviceMemory g_DepthImageMemory = nullptr;
+    inline static VkImageView g_DepthImageView = nullptr;
+
+    inline static bool g_RecreateSwapchainRequested = false;  // when Window/Framebuffer resized.
+    inline static GLFWwindow* g_WindowHandle = nullptr;
+
+    inline static bool g_EnableValidationLayer = true;
+    inline static std::vector<const char*> g_ValidationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+    inline static VkDebugUtilsMessengerEXT g_DebugMessengerEXT = nullptr;
+
+
+    struct QueueFamilyIndices {
+        uint32_t m_GraphicsFamily = -1;
+        uint32_t m_PresentFamily = -1;  //Surface Present.
+
+        bool isComplete() const {
+            return m_GraphicsFamily != -1 && m_PresentFamily != -1;
+        }
+    };
+
+    struct SwapchainSupportDetails
+    {
+        VkSurfaceCapabilitiesKHR m_Capabilities{};
+        std::vector<VkSurfaceFormatKHR> m_Formats;
+        std::vector<VkPresentModeKHR> m_PresentModes;
+
+        bool isSwapChainAdequate() const {
+            return !m_Formats.empty() && !m_PresentModes.empty();
+        }
+    };
+
 
     static void Init(GLFWwindow* glfwWindow)
     {
@@ -137,8 +213,6 @@ public:
 
     static void Destroy()
     {
-        vkDeviceWaitIdle(g_Device);
-
         DestroySwapchain();
 
         vkDestroySampler(g_Device, g_TextureSampler, nullptr);
@@ -171,10 +245,10 @@ public:
         vkDestroyDevice(g_Device, nullptr);
 
         if (g_EnableValidationLayer) {
-            extDestroyDebugMessenger(g_vkInstance, g_DebugMessengerEXT, nullptr);
+            extDestroyDebugMessenger(g_Instance, g_DebugMessengerEXT, nullptr);
         }
-        vkDestroySurfaceKHR(g_vkInstance, g_SurfaceKHR, nullptr);
-        vkDestroyInstance(g_vkInstance, nullptr);
+        vkDestroySurfaceKHR(g_Instance, g_SurfaceKHR, nullptr);
+        vkDestroyInstance(g_Instance, nullptr);
     }
 
 
@@ -261,17 +335,16 @@ public:
         }
 
 
-        VkResult err = vkCreateInstance(&instInfo, nullptr, &g_vkInstance);
+        VkResult err = vkCreateInstance(&instInfo, nullptr, &g_Instance);
         if (err) {
             throw std::runtime_error(Strings::fmt("failed to create vulkan instance. ", err));
         }
 
         if (g_EnableValidationLayer) {
             // Setup EXT DebugMessenger
-            auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(g_vkInstance, "vkCreateDebugUtilsMessengerEXT");
+            auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(g_Instance, "vkCreateDebugUtilsMessengerEXT");
             if (func != nullptr) {
-                VkResult err = func(g_vkInstance, &debugMessagerInfo, nullptr, &g_DebugMessengerEXT);
-                assert(err == VK_SUCCESS);
+                VK_CHECK(func(g_Instance, &debugMessagerInfo, nullptr, &g_DebugMessengerEXT));
             } else {
                 throw std::runtime_error("ext DebugMessenger not present.");
             }
@@ -333,7 +406,7 @@ public:
 
     static void CreateSurface(GLFWwindow* glfwWindow)
     {
-        if (glfwCreateWindowSurface(g_vkInstance, glfwWindow, nullptr, &g_SurfaceKHR) != VK_SUCCESS) {
+        if (glfwCreateWindowSurface(g_Instance, glfwWindow, nullptr, &g_SurfaceKHR) != VK_SUCCESS) {
             throw std::runtime_error("failed to create window surface via glfw.");
         }
     }
@@ -348,14 +421,14 @@ public:
     static void PickPhysicalDevice()
     {
         uint32_t gpu_count = 0;
-        vkEnumeratePhysicalDevices(g_vkInstance, &gpu_count, nullptr);
+        vkEnumeratePhysicalDevices(g_Instance, &gpu_count, nullptr);
 
         Log::info("GPUs: ", gpu_count);
         if (gpu_count == 0)
             throw std::runtime_error("failed to find GPU with vulkan support.");
 
         std::vector<VkPhysicalDevice> gpus(gpu_count);
-        vkEnumeratePhysicalDevices(g_vkInstance, &gpu_count, gpus.data());
+        vkEnumeratePhysicalDevices(g_Instance, &gpu_count, gpus.data());
 
         std::multimap<int, VkPhysicalDevice> candidates;
         for (const auto& device : gpus) {
@@ -1451,6 +1524,8 @@ public:
         vkFreeCommandBuffers(g_Device, g_CommandPool, 1, &cmdbuf);
     }
 
+
+
     // Common
     static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
     {
@@ -1662,7 +1737,7 @@ public:
         VkResult rs = vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAvailable[currframe],
                                             VK_NULL_HANDLE, &imageIdx);
         if (rs == VK_ERROR_OUT_OF_DATE_KHR) {
-            VulkanIntl::RecreateSwapchain();
+            RecreateSwapchain();
             return;
         } else if (!(rs == VK_SUCCESS || rs == VK_SUBOPTIMAL_KHR)) {
             throw std::runtime_error("failed to acquire swapchain image.");
@@ -1673,7 +1748,7 @@ public:
         vkResetCommandBuffer(g_CommandBuffers[currframe], 0);
         RecordCommandBuffer(g_CommandBuffers[currframe], imageIdx);
 
-        VulkanIntl::UpdateUniformBuffer(currframe);
+        UpdateUniformBuffer(currframe);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -1705,7 +1780,7 @@ public:
         rs = vkQueuePresentKHR(g_PresentQueue, &presentInfo);
         if (rs == VK_ERROR_OUT_OF_DATE_KHR || rs == VK_SUBOPTIMAL_KHR || g_RecreateSwapchainRequested) {
             g_RecreateSwapchainRequested = false;
-            VulkanIntl::RecreateSwapchain();
+            RecreateSwapchain();
         } else if (rs != VK_SUCCESS) {
             throw std::runtime_error("failed to present swapchain image.");
         }
@@ -1736,20 +1811,20 @@ public:
 
 
 
+void VulkanIntl::Init(GLFWwindow* glfwWindow) {
+    VulkanIntl_Impl::Init(glfwWindow);
+}
 
+void VulkanIntl::Destroy() {
+    VulkanIntl_Impl::Destroy();
+}
 
+void VulkanIntl::DrawFrame() {
+    VulkanIntl_Impl::DrawFrameIntl();
+}
 
-
-
-
-
-
-
-
-
-void Vulkan::RequestRecreateSwapchain()
-{
-    g_RecreateSwapchainRequested = true;
+void VulkanIntl::RequestRecreateSwapchain() {
+    VulkanIntl_Impl::g_RecreateSwapchainRequested = true;
 }
 
 
@@ -1757,23 +1832,29 @@ void Vulkan::RequestRecreateSwapchain()
 
 
 
+void VulkanIntl::SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record)
+{
+    VkCommandBuffer cmdbuf = VulkanIntl_Impl::BeginOnetimeCommandBuffer();
+
+    fn_record(cmdbuf);
+
+    VulkanIntl_Impl::EndOnetimeCommandBuffer(cmdbuf);
+}
 
 
 
 
+VulkanIntl::State& VulkanIntl::GetState() {
+    static VulkanIntl::State vk;
+    {
+#define ASSIGN_VK_STATE(varname) vk.varname = VulkanIntl_Impl::varname;
 
-
-
-
-
-
-
-
-//class VertexData
-//{
-//public:
-//
-//    std::vector<glm::vec3> m_Positions;
-//    std::vector<glm::vec2> m_TexCoords;
-//    std::vector<glm::vec3> m_Normals;
-//};
+        ASSIGN_VK_STATE(g_Instance);
+        ASSIGN_VK_STATE(g_PhysDevice);
+        ASSIGN_VK_STATE(g_Device);
+        ASSIGN_VK_STATE(g_GraphicsQueue);
+        ASSIGN_VK_STATE(g_PresentQueue);
+        ASSIGN_VK_STATE(g_RenderPass);
+    }
+    return vk;
+}
