@@ -12,13 +12,6 @@
 #include <stdexcept>
 
 
-static void _vk_check_result(VkResult rs)
-{
-    if (rs != VK_SUCCESS) throw std::runtime_error("[vulkan] Error: VkResult = ");
-}
-#define VK_CHECK(rs) _vk_check_result(rs)
-
-
 class VulkanIntl
 {
 public:
@@ -30,6 +23,7 @@ public:
 
     static void RequestRecreateSwapchain();
 
+    // on Graphics Queue., alloc CommandBuffer from main-thread CommandPool.
     static void SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record);
 
     struct State
@@ -45,5 +39,14 @@ public:
     static State& GetState();
 
 };
+
+
+static void _vk_check_result(VkResult rs)
+{
+    if (rs != VK_SUCCESS) throw std::runtime_error("[vulkan] Error: VkResult = ");
+}
+#define VK_CHECK(rs) _vk_check_result(rs)
+
+
 
 #endif //ETHERTIA_VULKANINTL_H
