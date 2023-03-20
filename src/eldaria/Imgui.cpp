@@ -76,6 +76,7 @@ void Imgui::Init(GLFWwindow* glfwWindow)
     {
         ImGui_ImplVulkan_CreateFontsTexture(cmdbuf);
     });
+    ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
 void Imgui::Destroy()
