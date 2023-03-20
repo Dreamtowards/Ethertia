@@ -13,6 +13,9 @@ public:
     Window(int w, int h, const char* title);
     ~Window();
 
+    static void Init();     // glfwInit(); etc.
+    static void Destroy();  // glfwTerminate();
+
     // reset 'delta' states like mouseDX, isFramebufferResized etc.
     // then:: glfwPollEvents()
     void ProcessEvents();

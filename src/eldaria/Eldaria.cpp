@@ -4,6 +4,7 @@
 
 #include "Window.h"
 #include "VulkanIntl.h"
+#include "Imgui.h"
 
 #include <GLFW/glfw3.h>
 
@@ -31,19 +32,26 @@ int main()
     Destroy();
 }
 
+
 static void Init()
 {
     g_Running = true;
+
+    Window::Init();
     g_Window = new Window(800, 600, "Test");
 
     Vulkan::Init(g_Window->m_WindowHandle);
+
+    Imgui::Init(g_Window->m_WindowHandle);
 }
 
 static void Destroy()
 {
+    Imgui::Destroy();
+
     Vulkan::Destroy();
 
-    glfwTerminate();
+    Window::Destroy();
 }
 
 static void RunMainLoop()
@@ -65,6 +73,7 @@ static void RunMainLoop()
     }
 
     Vulkan::DrawFrame();
+
 
     //Timer::sleep_for(4);
 }

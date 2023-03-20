@@ -73,24 +73,6 @@ VertexData Loader::loadOBJ(const std::string& filename)
             vertexdata.m_Vertices.push_back({pos, {1,1,1}, tex});
         }
     }
-
-//    for (const auto& shape : shapes) {
-//        for (const auto& index : shape.mesh.indices) {
-//            VertexData::Vertex vertex{};
-//            vertex.pos = {
-//                    attrib.vertices[3 * index.vertex_index + 0],
-//                    attrib.vertices[3 * index.vertex_index + 1],
-//                    attrib.vertices[3 * index.vertex_index + 2]
-//            };
-//            vertex.tex = {
-//                    attrib.texcoords[2 * index.texcoord_index + 0],
-//                    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-//            };
-//            vertex.norm = {1,1,1};
-//
-//            vertexdata.m_Vertices.push_back(vertex);
-//        }
-//    }
     return vertexdata;
 }
 
@@ -163,7 +145,6 @@ static void glfw_framebuffer_resized(GLFWwindow* glfwWindow, int w, int h)
 
 Window::Window(int w, int h, const char* title)
 {
-    glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
 
     m_WindowHandle = glfwCreateWindow(w, h, title, nullptr, nullptr);
@@ -181,9 +162,31 @@ bool Window::isCloseRequested() {
     return glfwWindowShouldClose(m_WindowHandle);
 }
 
+// PollEvents / HandleEvents / ProcessEvents
 void Window::ProcessEvents()
 {
     m_FramebufferResized = false;
 
     glfwPollEvents();
+}
+
+
+static void glfw_error_callback(int error, const char* description)
+{
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
+
+void Window::Init()
+{
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit())
+        throw std::runtime_error("failed to init glfw.");
+
+    if (!glfwVulkanSupported())
+        throw std::runtime_error("GLFW: Vulkan not supported.");
+}
+
+void Window::Destroy()
+{
+    glfwTerminate();
 }

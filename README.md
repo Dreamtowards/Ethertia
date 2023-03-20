@@ -64,12 +64,21 @@ Preview Screenshots:
 
 People came here may wanted Graphics / Voxel gamedev knownledges.
 however, there is some my favorite resources:
-- The Cherno - *Hazel Engine*
 
-- Graphics
+- Vulkan
+  - [Vulkan Tutorial](https://vulkan-tutorial.com/Introduction)
+  - [vkguide.dev](https://vkguide.dev/docs/introduction/vulkan_execution/)
+  - [imgui/example-glfw-vulkan]()
+  - [Vulkan Examples by SaschaWillems](https://github.com/SaschaWillems/Vulkan#Headless)
+
+- OpenGL
+  
+- Shaders
   - [3D Game Shaders for Beginners](https://github.com/lettier/3d-game-shaders-for-beginners)
-  - [Vulkan Examples by SaschaWillems](https://github.com/SaschaWillems/Vulkan#Headless) 
-  - [GAMES104]()
+
+- Engine Architecture & Common
+  - The Cherno - *Hazel Engine*
+  - [GAMES104 Courses]()
 
 
 ### **CLangFormat**

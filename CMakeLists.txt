@@ -69,12 +69,13 @@ add_executable(Ethertia
 #        lib/glad/glad.c
 #        lib/tinyfd/tinyfiledialogs.c
 #
-#        lib/imgui-docking/imgui.cpp
-#        lib/imgui-docking/imgui_draw.cpp
-#        lib/imgui-docking/imgui_widgets.cpp
-#        lib/imgui-docking/imgui_tables.cpp
-#        lib/imgui-docking/imgui_demo.cpp
-#        lib/imgui-docking/backends/imgui_impl_glfw.cpp
+        lib/imgui-docking/imgui.cpp
+        lib/imgui-docking/imgui_draw.cpp
+        lib/imgui-docking/imgui_widgets.cpp
+        lib/imgui-docking/imgui_tables.cpp
+        lib/imgui-docking/imgui_demo.cpp
+        lib/imgui-docking/backends/imgui_impl_glfw.cpp
+        lib/imgui-docking/backends/imgui_impl_vulkan.cpp
 #        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
 #
 #        lib/imguizmo/ImGuizmo.cpp
@@ -97,6 +98,7 @@ add_executable(Ethertia
         src/eldaria/Eldaria.cpp
         src/eldaria/Loader.cpp
         src/eldaria/VulkanIntl.cpp
+        src/eldaria/Imgui.cpp
 #        src/ethertia/render/vulkan/Copy.cpp
         )
 
