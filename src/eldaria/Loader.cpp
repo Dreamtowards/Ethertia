@@ -135,6 +135,27 @@ Loader::DataBlock::~DataBlock()
 
 #include "Window.h"
 
+
+static void glfw_error_callback(int error, const char* description)
+{
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
+
+void Window::Init()
+{
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit())
+        throw std::runtime_error("failed to init glfw.");
+
+    if (!glfwVulkanSupported())
+        throw std::runtime_error("GLFW: Vulkan not supported.");
+}
+
+void Window::Destroy()
+{
+    glfwTerminate();
+}
+
 #define UnpackGLFWwindow Window* win = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow))
 
 static void glfw_framebuffer_resized(GLFWwindow* glfwWindow, int w, int h)
@@ -161,32 +182,32 @@ Window::~Window()
 bool Window::isCloseRequested() {
     return glfwWindowShouldClose(m_WindowHandle);
 }
+bool Window::isFramebufferResized() {
+    return m_FramebufferResized;
+}
 
 // PollEvents / HandleEvents / ProcessEvents
 void Window::ProcessEvents()
 {
+    // reset delta states
     m_FramebufferResized = false;
 
     glfwPollEvents();
 }
 
 
-static void glfw_error_callback(int error, const char* description)
-{
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+bool Window::isKeyDown(int key) {
+    return glfwGetKey(m_WindowHandle, key) == GLFW_PRESS;
+}
+bool Window::isMouseDown(int mb) {
+    return glfwGetMouseButton(m_WindowHandle, mb) == GLFW_PRESS;
 }
 
-void Window::Init()
-{
-    glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit())
-        throw std::runtime_error("failed to init glfw.");
 
-    if (!glfwVulkanSupported())
-        throw std::runtime_error("GLFW: Vulkan not supported.");
-}
+bool Window::isCtrlKeyDown() { return isKeyDown(GLFW_KEY_LEFT_CONTROL) || isKeyDown(GLFW_KEY_RIGHT_CONTROL); }
+bool Window::isShiftKeyDown() { return isKeyDown(GLFW_KEY_LEFT_SHIFT) || isKeyDown(GLFW_KEY_RIGHT_SHIFT); }
+bool Window::isAltKeyDown() { return isKeyDown(GLFW_KEY_LEFT_ALT) || isKeyDown(GLFW_KEY_RIGHT_ALT); }
 
-void Window::Destroy()
-{
-    glfwTerminate();
-}
+bool Window::isMouseLeftDown() { return isMouseDown(GLFW_MOUSE_BUTTON_LEFT); }
+bool Window::isMouseMiddleDown() { return isMouseDown(GLFW_MOUSE_BUTTON_MIDDLE); }
+bool Window::isMouseRightDown() { return isMouseDown(GLFW_MOUSE_BUTTON_RIGHT); }

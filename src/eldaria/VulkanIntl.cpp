@@ -19,7 +19,7 @@
 
 
 
-#include "Imgui.h"
+#include "imgui/Imgui.h"
 
 #include "VulkanIntl.h"
 
@@ -1813,6 +1813,8 @@ public:
 
 void VulkanIntl::Init(GLFWwindow* glfwWindow) {
     VulkanIntl_Impl::Init(glfwWindow);
+
+    VulkanIntl::GetState(true);  // init state sync.
 }
 
 void VulkanIntl::Destroy() {

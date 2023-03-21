@@ -21,8 +21,19 @@ public:
     void ProcessEvents();
 
     bool isCloseRequested();
-
     bool isFramebufferResized();
+
+
+    bool isKeyDown(int key);
+    bool isMouseDown(int mb);
+
+    bool isCtrlKeyDown();
+    bool isShiftKeyDown();
+    bool isAltKeyDown();
+
+    bool isMouseLeftDown();
+    bool isMouseMiddleDown();
+    bool isMouseRightDown();
 
 
     GLFWwindow* m_WindowHandle = nullptr;

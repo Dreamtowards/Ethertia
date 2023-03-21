@@ -11,7 +11,6 @@
 
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
-#include <ethertia/util/Endian.h>
 
 class Colors
 {

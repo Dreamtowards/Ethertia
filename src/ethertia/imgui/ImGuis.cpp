@@ -31,75 +31,65 @@
 #include <ethertia/render/debug/DebugRenderer.h>
 #include <ethertia/render/deferred/GeometryRenderer.h>
 
-void ImGuis::Init()
+static void InitStyle()
 {
-    BENCHMARK_TIMER;
-    Log::info("Init ImGui.. \1");
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
-    ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
-
-    {
-        ImFontConfig fontConf;
-        fontConf.OversampleH = 3;
-        fontConf.OversampleV = 3;
-        fontConf.RasterizerMultiply = 1.6f;
-        // fontConf.GlyphExtraSpacing.x = 1.0f;
-        io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
+    ImFontConfig fontConf;
+    fontConf.OversampleH = 3;
+    fontConf.OversampleV = 3;
+    fontConf.RasterizerMultiply = 1.6f;
+    // fontConf.GlyphExtraSpacing.x = 1.0f;
+    io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
 //        imgui_io.DeltaTime = 1.0f / 60.0f;
 
-        // Enable Docking.
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    // Enable Docking.
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.GrabMinSize = 7;
-        style.FrameBorderSize = 0;
-        style.WindowMenuButtonPosition = ImGuiDir_Right;
-        style.SeparatorTextBorderSize = 2;
-        style.DisplaySafeAreaPadding = {0, 0};
-        style.FramePadding = {8, 2};
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.GrabMinSize = 7;
+    style.FrameBorderSize = 0;
+    style.WindowMenuButtonPosition = ImGuiDir_Right;
+    style.SeparatorTextBorderSize = 2;
+    style.DisplaySafeAreaPadding = {0, 0};
+    style.FramePadding = {8, 2};
 
-        style.ScrollbarSize = 10;
-        style.ScrollbarRounding = 2;
-        style.TabRounding = 2;
+    style.ScrollbarSize = 10;
+    style.ScrollbarRounding = 2;
+    style.TabRounding = 2;
 
-        for (int i = 0; i < ImGuiCol_COUNT; ++i)
-        {
-            ImVec4& col = style.Colors[i];
-            float f = std::max(Colors::luminance({col.x, col.y, col.z}), 0.06f);
-            //(col.x + col.y + col.z) / 3.0f;
-            col = ImVec4(f,f,f,col.w);
-        }
+    for (int i = 0; i < ImGuiCol_COUNT; ++i)
+    {
+        ImVec4& col = style.Colors[i];
+        float f = std::max(Colors::luminance({col.x, col.y, col.z}), 0.06f);
+        //(col.x + col.y + col.z) / 3.0f;
+        col = ImVec4(f,f,f,col.w);
+    }
 
-        auto& Col = style.Colors;
+    auto& Col = style.Colors;
 
-        Col[ImGuiCol_CheckMark] =
-        Col[ImGuiCol_SliderGrab] =
-                {1.000f, 1.000f, 1.000f, 1.000f};
+    Col[ImGuiCol_CheckMark] =
+    Col[ImGuiCol_SliderGrab] =
+            {1.000f, 1.000f, 1.000f, 1.000f};
 
 //    style.Colors[ImGuiCol_MenuBarBg] = {0,0,0,0};
 
-        Col[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
-        Col[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
-        Col[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
+    Col[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
+    Col[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
+    Col[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
 
-        Col[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
-        Col[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
+    Col[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
+    Col[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
 
-        Col[ImGuiCol_Tab] =
-        Col[ImGuiCol_TabUnfocused] = {0,0,0,0};
+    Col[ImGuiCol_Tab] =
+    Col[ImGuiCol_TabUnfocused] = {0,0,0,0};
 
-        Col[ImGuiCol_TabActive] = {0.26f, 0.26f, 0.26f, 1.000f};
-        Col[ImGuiCol_TabUnfocusedActive] =
-        Col[ImGuiCol_WindowBg] = {0.176f, 0.176f, 0.176f, 1.000f}; //{0.19f, 0.19f, 0.19f, 1.0f};  // {0.212f, 0.212f, 0.212f, 1.000f};
-        Col[ImGuiCol_TitleBg] =
-        Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
+    Col[ImGuiCol_TabActive] = {0.26f, 0.26f, 0.26f, 1.000f};
+    Col[ImGuiCol_TabUnfocusedActive] =
+    Col[ImGuiCol_WindowBg] = {0.176f, 0.176f, 0.176f, 1.000f}; //{0.19f, 0.19f, 0.19f, 1.0f};  // {0.212f, 0.212f, 0.212f, 1.000f};
+    Col[ImGuiCol_TitleBg] =
+    Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
 
 //        style.Colors[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
 //        style.Colors[ImGuiCol_Button] =
@@ -116,7 +106,21 @@ void ImGuis::Init()
 //        style.Colors[ImGuiCol_HeaderActive] =
 //                {0.170f, 0.170f, 0.170f, 1.000f};
 
-    }
+}
+
+void ImGuis::Init()
+{
+    BENCHMARK_TIMER;
+    Log::info("Init ImGui.. \1");
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
+    ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
+
+    InitStyle();
 
     ImNodes::CreateContext();
     ImNodes::GetIO().EmulateThreeButtonMouse.Modifier = &io.KeyShift;

@@ -4,10 +4,11 @@
 
 #include "Window.h"
 #include "VulkanIntl.h"
-#include "Imgui.h"
+#include "imgui/Imgui.h"
 
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/Log.h>
+#include "DebugStat.h"
 
 
 
@@ -66,6 +67,7 @@ static void RunMainLoop()
     ++n;
     BENCHMARK_TIMER_VAL(&t);
 
+    Dbg::dbg_PauseImgui = g_Window->isAltKeyDown();
 
     g_Window->ProcessEvents();
 
