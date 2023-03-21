@@ -813,9 +813,7 @@ void ShowNodeEditor()
     ImGui::End();
 }
 
-//ImVec2 operator+(ImVec2 lhs, ImVec2 rhs) {
-//    return {lhs.x + rhs.x, lhs.y+rhs.y}
-//}
+
 
 static void ShowSettingsWindow()
 {

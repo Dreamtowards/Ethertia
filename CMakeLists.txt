@@ -162,17 +162,14 @@ target_link_libraries(Ethertia nbt++)
 #add_subdirectory(lib/yaml-cpp)
 #link_libraries(yaml-cpp)
 
-# VK_ICD_FILENAMES = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json;VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d
-# VK_ICD_FILENAMES = vulkansdk/macOS/share/vulkan/icd.d/MoltenVK_icd.json
-# VK_LAYER_PATH = vulkansdk/macOS/share/vulkan/explicit_layer.d
+
 # https://vulkan.lunarg.com/sdk/home
-# include Vulkan SDK.
 
-
-#VK_ICD_FILENAMES = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json;
-#VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d
+# Vulkan, for Apple Darwin need 2 env variables: (no quote)
+#VK_DRIVER_FILES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json    # a.k.a. VK_ICD_FILENAMES, installable client drivers.
+#VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d           # for validation layer.
 include_directories(lib/vulkan/include)
-target_link_directories(Ethertia PUBLIC lib/vulkan/bin/osx-x64)
+target_link_directories(Ethertia PUBLIC lib/vulkan/bin/darwin-x64)
 target_link_libraries(Ethertia vulkan.1.3.236 )
 
-#if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. Not anymore.!
+#if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. it's linked by ICD loaders.

@@ -11,6 +11,7 @@ class DebugStat
 public:
 
     inline static bool dbg_PauseImgui = false;
+    inline static int dbg_FPS = 0;
 
 };
 

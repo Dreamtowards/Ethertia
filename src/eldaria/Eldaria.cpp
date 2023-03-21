@@ -19,8 +19,15 @@ static void Init();
 static void Destroy();
 static void RunMainLoop();
 
-int main()
+int main(int argc, char** argv, char** env)
 {
+    // Username: Win[USERNAME] Mac[USER, LOGNAME]
+    // Home:     Win[HOMEPATH, USERPROFILE] Mac[Home]
+    while (*env) {
+        Log::info("Env  {}", *env);
+        ++env;
+    }
+
     Init();
 
     while (g_Running)
@@ -55,6 +62,7 @@ static void Destroy()
 
     Window::Destroy();
 }
+
 
 static void RunMainLoop()
 {

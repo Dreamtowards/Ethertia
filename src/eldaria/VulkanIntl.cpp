@@ -161,8 +161,7 @@ public:
     static void Init(GLFWwindow* glfwWindow)
     {
         CreateVkInstance();
-        CreateSurface(glfwWindow);
-        g_WindowHandle = glfwWindow;
+        CreateSurface(g_WindowHandle=glfwWindow);
 
         PickPhysicalDevice();
         CreateLogicalDevice();
@@ -176,6 +175,7 @@ public:
         CreateRenderPass();
         CreateDescriptorSetLayout();
         CreateGraphicsPipeline();
+
         CreateDepthTexture();  // before fbos.
         CreateFramebuffers();
 
@@ -754,6 +754,34 @@ public:
 
 
 
+    class FramebufferAttachment
+    {
+        VkImage m_Image;
+        VkDeviceMemory m_ImageMemory;
+        VkImageView m_ImageView;
+    };
+    class Framebuffer
+    {
+        VkRenderPass m_RenderPass;
+        VkFramebuffer m_Framebuffer;
+        int m_Width;
+        int m_Height;
+
+        FramebufferAttachment m_Attachments[8];
+    };
+
+    struct
+    {
+        glm::mat4 matModel;
+        glm::mat4 matView;
+        glm::mat4 matProjection;
+    } ubo_GBuffer_VS;
+
+    VkPipeline g_Pipeline_GBuffer;
+    VkPipeline g_Pipeline_Compose;
+
+
+
 
 
 
@@ -957,7 +985,7 @@ public:
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.pushConstantRangeCount = 0;
-
+        pipelineLayoutInfo.pPushConstantRanges = nullptr;
         pipelineLayoutInfo.setLayoutCount = 1;
         pipelineLayoutInfo.pSetLayouts = &g_DescriptorSetLayout;
 
