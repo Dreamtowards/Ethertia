@@ -70,6 +70,7 @@ however, there is some my favorite resources:
   - [vkguide.dev](https://vkguide.dev/docs/introduction/vulkan_execution/)
   - [imgui/example-glfw-vulkan]()
   - [Vulkan Examples by SaschaWillems](https://github.com/SaschaWillems/Vulkan#Headless)
+  - [Vk Journey](https://vulkanppp.wordpress.com/)
 
 - OpenGL
   

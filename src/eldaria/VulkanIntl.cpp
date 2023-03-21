@@ -104,11 +104,11 @@ public:
     inline static VkCommandPool g_CommandPool = nullptr;
     inline static std::vector<VkCommandBuffer> g_CommandBuffers;
 
-    inline static std::vector<VkSemaphore> g_SemaphoreImageAvailable;  // for each InflightFrame   ImageAcquired, RenderComplete
-    inline static std::vector<VkSemaphore> g_SemaphoreRenderFinished;
+    inline static std::vector<VkSemaphore> g_SemaphoreImageAcquired;  // for each InflightFrame   ImageAcquired, RenderComplete
+    inline static std::vector<VkSemaphore> g_SemaphoreRenderComplete;
     inline static std::vector<VkFence>     g_InflightFence;
 
-    inline static int MAX_FRAMES_INFLIGHT = 2;
+    inline static const int MAX_FRAMES_INFLIGHT = 2;
     inline static int g_CurrentFrameInflight = 0;
 
     inline static std::vector<VkBuffer> g_UniformBuffers;  // for each InflightFrame
@@ -166,18 +166,19 @@ public:
         PickPhysicalDevice();
         CreateLogicalDevice();
 
-        CreateSwapchainAndImageViews();
-
         CreateCommandPool();
-        CreateCommandBuffer();
+        CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
 
-        CreateRenderPass();
-        CreateDescriptorSetLayout();
-        CreateGraphicsPipeline();
+        CreateSwapchainAndImageViews();
+        CreateRenderPass();     // depend: Swapchain format
+        CreateDepthTexture();   // depend: CommandPool
+        CreateFramebuffers();   // depend: DepthTexture, RenderPass
 
-        CreateDepthTexture();  // before fbos.
-        CreateFramebuffers();
+
+        CreateDescriptorSetLayout();
+        CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
+
 
         g_TextureSampler = CreateTextureSampler();
 
@@ -185,22 +186,6 @@ public:
             BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/viking_room.png");
             CreateTextureImage(bitmapImage, g_TextureImage, g_TextureImageMemory, &g_TextureImageView);
 
-//            const std::vector<Vertex> g_Vertices = {
-//                    {{-0.5f,-0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-//                    {{ 0.5f,-0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-//                    {{ 0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-//                    {{ 0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-//                    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-//                    {{-0.5f,-0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-//
-//                    {{-0.5f,-0.5f,-0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-//                    {{ 0.5f,-0.5f,-0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-//                    {{ 0.5f, 0.5f,-0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-//                    {{ 0.5f, 0.5f,-0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-//                    {{-0.5f, 0.5f,-0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-//                    {{-0.5f,-0.5f,-0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-//            };
-//            CreateVertexBuffer(g_Vertices.data(), g_Vertices.size() * sizeof(g_Vertices[0]),g_VertexBuffer, g_VertexBufferMemory);
             VertexData vdata = Loader::loadOBJ("/Users/dreamtowards/Downloads/viking_room.obj");
             g_DrawVerts = vdata.vertexCount();
             CreateVertexBuffer(vdata.data(), vdata.size(), g_VertexBuffer, g_VertexBufferMemory);
@@ -236,8 +221,8 @@ public:
         vkDestroyRenderPass(g_Device, g_RenderPass, nullptr);
 
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
-            vkDestroySemaphore(g_Device, g_SemaphoreImageAvailable[i], nullptr);
-            vkDestroySemaphore(g_Device, g_SemaphoreRenderFinished[i], nullptr);
+            vkDestroySemaphore(g_Device, g_SemaphoreImageAcquired[i], nullptr);
+            vkDestroySemaphore(g_Device, g_SemaphoreRenderComplete[i], nullptr);
             vkDestroyFence(g_Device, g_InflightFence[i], nullptr);
         }
         vkDestroyCommandPool(g_Device, g_CommandPool, nullptr);
@@ -650,7 +635,8 @@ public:
 
         // Image Views
         g_SwapchainImageViews.resize(imageCount);
-        for (int i = 0; i < imageCount; ++i) {
+        for (int i = 0; i < imageCount; ++i)
+        {
             g_SwapchainImageViews[i] = CreateImageView(g_SwapchainImages[i], surfaceFormat.format);
         }
     }
@@ -1081,7 +1067,7 @@ public:
     }
 
 
-    static void CreateCommandBuffer()
+    static void CreateCommandBuffers()
     {
         g_CommandBuffers.resize(MAX_FRAMES_INFLIGHT);
 
@@ -1099,9 +1085,6 @@ public:
 
     static void CreateSyncObjects_Semaphores_Fences()
     {
-        g_SemaphoreImageAvailable.resize(MAX_FRAMES_INFLIGHT);
-        g_SemaphoreRenderFinished.resize(MAX_FRAMES_INFLIGHT);
-        g_InflightFence.resize(MAX_FRAMES_INFLIGHT);
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -1110,12 +1093,20 @@ public:
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
-            if (vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreImageAvailable[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreRenderFinished[i]) != VK_SUCCESS ||
-                vkCreateFence(g_Device, &fenceInfo, nullptr, &g_InflightFence[i]) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create semaphores or fence.");
-            }
+        g_SemaphoreImageAcquired.resize(MAX_FRAMES_INFLIGHT);
+        g_SemaphoreRenderComplete.resize(MAX_FRAMES_INFLIGHT);
+        g_InflightFence.resize(MAX_FRAMES_INFLIGHT);
+
+        for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i)
+        {
+            VK_CHECK(vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]));
+            VK_CHECK(vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]));
+            VK_CHECK(vkCreateFence(g_Device, &fenceInfo, nullptr, &g_InflightFence[i]));
+//            if (vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]) != VK_SUCCESS ||
+//                vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]) != VK_SUCCESS ||
+//                vkCreateFence(g_Device, &fenceInfo, nullptr, &g_InflightFence[i]) != VK_SUCCESS) {
+//                throw std::runtime_error("failed to create semaphores or fence.");
+//            }
         }
     }
 
@@ -1228,7 +1219,6 @@ public:
         samplerLayoutBinding.binding = 1;
         samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.pImmutableSamplers = nullptr;
         samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 
@@ -1285,16 +1275,15 @@ public:
 
     static void CreateDescriptorPool()
     {
-        std::array<VkDescriptorPoolSize, 2> poolSizes{};
-        poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        poolSizes[0].descriptorCount = MAX_FRAMES_INFLIGHT;
-        poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[1].descriptorCount = MAX_FRAMES_INFLIGHT;
+        VkDescriptorPoolSize pool_sizes[] = {
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_INFLIGHT},
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_INFLIGHT}
+        };
 
         VkDescriptorPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        poolInfo.poolSizeCount = poolSizes.size();
-        poolInfo.pPoolSizes = poolSizes.data();
+        poolInfo.poolSizeCount = std::size(pool_sizes);
+        poolInfo.pPoolSizes = pool_sizes;
         poolInfo.maxSets = MAX_FRAMES_INFLIGHT;
 
         if (vkCreateDescriptorPool(g_Device, &poolInfo, nullptr, &g_DescriptorPool) != VK_SUCCESS) {
@@ -1317,7 +1306,8 @@ public:
             throw std::runtime_error("failed to allocate descriptor sets.");
         }
 
-        for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
+        for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i)
+        {
             VkDescriptorBufferInfo bufferInfo{};
             bufferInfo.buffer = g_UniformBuffers[i];
             bufferInfo.offset = 0;
@@ -1762,7 +1752,7 @@ public:
         vkWaitForFences(g_Device, 1, &g_InflightFence[currframe], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIdx;
-        VkResult rs = vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAvailable[currframe],
+        VkResult rs = vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe],
                                             VK_NULL_HANDLE, &imageIdx);
         if (rs == VK_ERROR_OUT_OF_DATE_KHR) {
             RecreateSwapchain();
@@ -1783,13 +1773,13 @@ public:
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &g_CommandBuffers[currframe];
 
-        VkSemaphore waitSemaphores[] = { g_SemaphoreImageAvailable[currframe] };
+        VkSemaphore waitSemaphores[] = { g_SemaphoreImageAcquired[currframe] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
-        VkSemaphore signalSemaphores[] = { g_SemaphoreRenderFinished[currframe] };
+        VkSemaphore signalSemaphores[] = { g_SemaphoreRenderComplete[currframe] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -1839,7 +1829,8 @@ public:
 
 
 
-void VulkanIntl::Init(GLFWwindow* glfwWindow) {
+void VulkanIntl::Init(GLFWwindow* glfwWindow)
+{
     VulkanIntl_Impl::Init(glfwWindow);
 
     VulkanIntl::GetState(true);  // init state sync.

@@ -15,6 +15,7 @@ public:
 
     static void Init();     // glfwInit(); etc.
     static void Destroy();  // glfwTerminate();
+    static double Time();   // glfwGetTime(). precise seconds from program starts.
 
     // reset 'delta' states like mouseDX, isFramebufferResized etc.
     // then:: glfwPollEvents()

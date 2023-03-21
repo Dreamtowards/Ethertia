@@ -101,14 +101,22 @@ BitmapImage::~BitmapImage()
 
 
 
+
+
+
+
+
 VertexData::VertexData(const std::string& _filename) : m_Filename(_filename)
 {
-    Log::info("New VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
+    Log::info("New VertexData: {}", m_Filename);
 }
 VertexData::~VertexData()
 {
     Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
 }
+
+
+
 
 
 
@@ -125,6 +133,11 @@ Loader::DataBlock::~DataBlock()
 
     Log::info("Delete DataBlock: {}", m_Filename);
 }
+
+
+
+
+
 
 
 
@@ -154,6 +167,11 @@ void Window::Init()
 void Window::Destroy()
 {
     glfwTerminate();
+}
+
+double Window::Time()
+{
+    return glfwGetTime();
 }
 
 #define UnpackGLFWwindow Window* win = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow))

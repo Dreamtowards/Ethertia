@@ -23,10 +23,10 @@ int main(int argc, char** argv, char** env)
 {
     // Username: Win[USERNAME] Mac[USER, LOGNAME]
     // Home:     Win[HOMEPATH, USERPROFILE] Mac[Home]
-    while (*env) {
-        Log::info("Env  {}", *env);
-        ++env;
-    }
+//    while (*env) {
+//        Log::info("Env  {}", *env);
+//        ++env;
+//    }
 
     Init();
 
@@ -66,25 +66,21 @@ static void Destroy()
 
 static void RunMainLoop()
 {
-    static int n = 0;
-    static float t = 0;
-    if (t > 1.0f) {
-        Log::info("{} frames in {} sec.", n, t);
-        t = 0; n = 0;
-    }
-    ++n;
-    BENCHMARK_TIMER_VAL(&t);
-
+    if (Dbg::_fps_frame(Window::Time()))
+        Log::info("{} fps", Dbg::dbg_FPS);
     Dbg::dbg_PauseImgui = g_Window->isAltKeyDown();
+
 
     g_Window->ProcessEvents();
 
-    if (g_Window->isCloseRequested()) {
+    if (g_Window->isCloseRequested())
         g_Running = false;
-    }
+    //if (g_Window->isFramebufferResized())
+        //VulkanIntl::RequestRecreateSwapchain();
 
     VulkanIntl::DrawFrame();
 
 
-    //Timer::sleep_for(4);
+    if (!g_Window->isCtrlKeyDown())
+        Timer::sleep_for(8);
 }
