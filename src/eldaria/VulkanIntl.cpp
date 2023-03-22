@@ -88,6 +88,21 @@ public:
         return shaderInfo;
     }
 
+    static void LoadShaderStages_H(
+            VkPipelineShaderStageCreateInfo* dst,
+            const std::string& spv_filename_pat)
+    {
+        dst[0] = LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT,
+                                 Loader::fileResolve(Strings::fmt(spv_filename_pat, "vert")));
+        dst[1] = LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT,
+                                 Loader::fileResolve(Strings::fmt(spv_filename_pat, "frag")));
+    }
+
+    static void DestroyShaderModules(VkPipelineShaderStageCreateInfo* dst) {
+        vkDestroyShaderModule(g_Device, dst[0].module, nullptr);
+        vkDestroyShaderModule(g_Device, dst[1].module, nullptr);
+    }
+
     // Thread unsafe!
     static VkPipelineVertexInputStateCreateInfo c_PipelineVertexInputState(
             int numVertBinding = 0,
@@ -397,16 +412,15 @@ public:
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0; // Optional
 
-        if (vkCreateImage(g_Device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image.");
-        }
+        VK_CHECK_MSG(vkCreateImage(g_Device, &imageInfo, nullptr, &image),
+                     "failed to create image.");
 
         VkMemoryRequirements memRequirements;
         vkGetImageMemoryRequirements(g_Device, image, &memRequirements);
 
         imageMemory = vkh::AllocateMemory(memRequirements, memProperties);
 
-        vkBindImageMemory(g_Device, image, imageMemory, 0);
+        VK_CHECK(vkBindImageMemory(g_Device, image, imageMemory, 0));
     }
 
     // Common
@@ -886,12 +900,12 @@ public:
         CreateDepthTexture();
         CreateFramebuffers();   // depend: DepthTexture, RenderPass
 
+        g_TextureSampler = vkh::CreateTextureSampler();
 
         CreateDescriptorSetLayout();
         CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
 
 
-        g_TextureSampler = vkh::CreateTextureSampler();
 
         {
             BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/viking_room.png");
@@ -905,6 +919,10 @@ public:
         CreateUniformBuffers();
         CreateDescriptorPool();
         CreateDescriptorSets();
+
+
+//        InitDeferredRendering();
+
     }
 
     static void Destroy()
@@ -1441,7 +1459,7 @@ public:
         VkDeviceMemory m_ImageMemory;
         VkImageView m_ImageView;
     };
-    static struct
+    inline static struct
     {
         VkRenderPass m_RenderPass;
         VkFramebuffer m_Framebuffer;
@@ -1462,7 +1480,7 @@ public:
         } UBO_VS;
     } g_Deferred_Gbuffer;
 
-    static struct
+    inline static struct
     {
         VkPipeline m_Pipeline;
 
@@ -1493,28 +1511,29 @@ public:
         // ### init Gbuffer's Framebuffer & RenderPass
         int size = 1024;
 
-        g_Deferred_Gbuffer.gPosition = CreateFramebufferAttachment(size,size, VK_FORMAT_R16G16B16_SFLOAT);
-        g_Deferred_Gbuffer.gNormal   = CreateFramebufferAttachment(size,size, VK_FORMAT_R16G16B16_SFLOAT);
-        g_Deferred_Gbuffer.gAlbedo   = CreateFramebufferAttachment(size,size, VK_FORMAT_R16G16B16_SFLOAT);
+        VkFormat rgbFormat = VK_FORMAT_R16G16B16_SFLOAT;
+        g_Deferred_Gbuffer.gPosition = CreateFramebufferAttachment(size,size, rgbFormat);
+        g_Deferred_Gbuffer.gNormal   = CreateFramebufferAttachment(size,size, rgbFormat);
+        g_Deferred_Gbuffer.gAlbedo   = CreateFramebufferAttachment(size,size, rgbFormat);
 
         auto depFormat = vkh::findDepthFormat();
         g_Deferred_Gbuffer.gDepth = CreateFramebufferAttachment(size,size, depFormat, true);
 
         VkAttachmentDescription attachmentDesc[] = {
-                vkh::c_AttachmentDescription(VK_FORMAT_R16G16B16_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
-                vkh::c_AttachmentDescription(VK_FORMAT_R16G16B16_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
-                vkh::c_AttachmentDescription(VK_FORMAT_R16G16B16_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+                vkh::c_AttachmentDescription(rgbFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+                vkh::c_AttachmentDescription(rgbFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+                vkh::c_AttachmentDescription(rgbFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
                 vkh::c_AttachmentDescription(depFormat, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
         };
 
 
         VkAttachmentReference colorAttachmentRefs[] = {
                 {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
-                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
-                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+                {1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+                {2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
         };
         VkAttachmentReference depthAttachmentRef =
-                {0, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+                {3, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -1522,7 +1541,24 @@ public:
         subpass.pColorAttachments = colorAttachmentRefs;
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
+        // Use subpass dependencies for attachment layout transitions
         VkSubpassDependency dependencies[2];
+
+        dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[0].dstSubpass = 0;
+        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        dependencies[1].srcSubpass = 0;
+        dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 
         VkRenderPassCreateInfo renderPassInfo{};
@@ -1592,9 +1628,9 @@ public:
         VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(3, colorBlendAttachments);
 
         VkPipelineShaderStageCreateInfo vshGbuffer =
-                vkh::LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT,Loader::fileResolve("shaders/deferred_gbuffer.vsh.spv"));
+                vkh::LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT,Loader::fileResolve("shaders/spv/def_gbuffer/vert.spv"));
         VkPipelineShaderStageCreateInfo fshGbuffer =
-                vkh::LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT,Loader::fileResolve("shaders/deferred_gbuffer.fsh.spv"));
+                vkh::LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT,Loader::fileResolve("shaders/spv/def_gbuffer/frag.spv"));
         VkPipelineShaderStageCreateInfo shaderStages[] = {vshGbuffer, fshGbuffer};
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -1717,10 +1753,8 @@ public:
 
     static void CreateGraphicsPipeline()
     {
-        auto bindingDescription = Vertex::getBindingDescription();
-        auto attributeDescriptions = Vertex::getAttributeDescriptions();
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkh::c_PipelineVertexInputState_H(
-                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT });
+                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT });
 
         VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkh::c_PipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         VkPipelineViewportStateCreateInfo viewportState = vkh::c_PipelineViewportState(1, 1);
@@ -1736,11 +1770,12 @@ public:
 
         g_PipelineLayout = vkh::CreatePipelineLayout(1, &g_DescriptorSetLayout);
 
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo =
-                vkh::LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT, "/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/vert.spv");
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo =
-                vkh::LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, "/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/frag.spv");
-        VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+//        VkPipelineShaderStageCreateInfo vertShaderStageInfo =
+//                vkh::LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT, Loader::fileResolve("shaders/spv/def_gbuffer/vert.spv"));
+//        VkPipelineShaderStageCreateInfo fragShaderStageInfo =
+//                vkh::LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, Loader::fileResolve());
+        VkPipelineShaderStageCreateInfo shaderStages[2];
+        vkh::LoadShaderStages_H(shaderStages, "shaders/spv/def_gbuffer/{}.spv");
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -1763,8 +1798,9 @@ public:
             throw std::runtime_error("failed to create graphics pipeline.");
         }
 
-        vkDestroyShaderModule(g_Device, fragShaderStageInfo.module, nullptr);
-        vkDestroyShaderModule(g_Device, vertShaderStageInfo.module, nullptr);
+//        vkDestroyShaderModule(g_Device, fragShaderStageInfo.module, nullptr);
+//        vkDestroyShaderModule(g_Device, vertShaderStageInfo.module, nullptr);
+        vkh::DestroyShaderModules(shaderStages);
     }
 
 

@@ -70,7 +70,7 @@ VertexData Loader::loadOBJ(const std::string& filename)
             // vulkan y 0=top
             tex.y = 1.0f - tex.y;
 
-            vertexdata.m_Vertices.push_back({pos, {1,1,1}, tex});
+            vertexdata.m_Vertices.push_back({pos, tex, norm});
         }
     }
     return vertexdata;

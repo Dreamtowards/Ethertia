@@ -18,7 +18,7 @@ layout(set = 0, binding = 0) uniform Geo_UBO {
 
 void main()
 {
-    vec3 worldpos = ubo.matModel * vec4(in_pos, 1);
+    vec4 worldpos = ubo.matModel * vec4(in_pos, 1);
     gl_Position = ubo.matProjection * ubo.matView * worldpos;
 
 
