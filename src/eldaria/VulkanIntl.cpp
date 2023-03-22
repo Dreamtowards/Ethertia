@@ -848,6 +848,59 @@ public:
             framebufferInfo.layers = 1;
             return framebufferInfo;
         }
+
+
+
+
+        // (0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+        static VkDescriptorSetLayoutBinding c_DescriptorSetLayoutBinding(int bind,
+                                                                         VkDescriptorType descType,
+                                                                         VkShaderStageFlags shaderStageFlags) {
+            VkDescriptorSetLayoutBinding binding{};
+            binding.binding = bind;
+            binding.descriptorType = descType;
+            binding.descriptorCount = 1;
+            binding.stageFlags = shaderStageFlags;
+            return binding;
+        }
+        static VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device, std::initializer_list<VkDescriptorSetLayoutBinding> bindings)
+        {
+            VkDescriptorSetLayoutCreateInfo layoutInfo{};
+            layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            layoutInfo.bindingCount = bindings.size();
+            layoutInfo.pBindings = bindings.begin();
+
+            VkDescriptorSetLayout descriptorSetLayout;
+            if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+                throw std::runtime_error("failed to create descriptor set layout.");
+            }
+            return descriptorSetLayout;
+        }
+
+//        static VkPipelineLayoutCreateInfo c_PipelineLayout(int numSetLayouts, VkDescriptorSetLayout* pSetLayouts)
+//        {
+//            VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+//            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+//            pipelineLayoutInfo.pushConstantRangeCount = 0;
+//            pipelineLayoutInfo.pPushConstantRanges = nullptr;
+//            pipelineLayoutInfo.setLayoutCount = numSetLayouts;
+//            pipelineLayoutInfo.pSetLayouts = pSetLayouts;
+//            return pipelineLayoutInfo;
+//        }
+        static VkPipelineLayout CreatePipelineLayout(int numSetLayouts, VkDescriptorSetLayout* pSetLayouts) {
+            VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            pipelineLayoutInfo.pushConstantRangeCount = 0;
+            pipelineLayoutInfo.pPushConstantRanges = nullptr;
+            pipelineLayoutInfo.setLayoutCount = numSetLayouts;
+            pipelineLayoutInfo.pSetLayouts = pSetLayouts;
+
+            VkPipelineLayout pipelineLayout;
+            VK_CHECK_MSG(
+                    vkCreatePipelineLayout(g_Device, &pipelineLayoutInfo, nullptr, &pipelineLayout),
+                    "failed to create pipeline layout!");
+            return pipelineLayout;
+        }
     };
 
 
@@ -925,6 +978,24 @@ public:
                                    std::size(attachmentViews), attachmentViews);
         VK_CHECK(vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_Gbuffer_FBO.m_Framebuffer));
 
+
+
+
+        VkDescriptorSetLayout descriptorSetLayout = vkh::CreateDescriptorSetLayout(g_Device, {
+                // binding 0: VSH uniform
+                vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
+                // 1: FSH uniform
+                vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                // 2: FSH gPosition
+                vkh::c_DescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                // 3: FSH gNormal
+                vkh::c_DescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                // 4: FSH gAlbedo
+                vkh::c_DescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+
+        });
+
+
     }
 
 
@@ -988,6 +1059,7 @@ public:
         if (vkCreateRenderPass(g_Device, &renderPassInfo, nullptr, &g_RenderPass) != VK_SUCCESS) {
             throw std::runtime_error("failed to create render pass.");
         }
+
     }
 
 
@@ -1075,16 +1147,7 @@ public:
         depthStencil.front = {}; // Optional
         depthStencil.back = {}; // Optional
 
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.pPushConstantRanges = nullptr;
-        pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &g_DescriptorSetLayout;
-
-        if (vkCreatePipelineLayout(g_Device, &pipelineLayoutInfo, nullptr, &g_PipelineLayout) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create pipeline layout!");
-        }
+        g_PipelineLayout = vkh::CreatePipelineLayout(1, &g_DescriptorSetLayout);
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -1180,9 +1243,9 @@ public:
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = g_CommandBuffers.size();
 
-        if (vkAllocateCommandBuffers(g_Device, &allocInfo, g_CommandBuffers.data()) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate command buffers!");
-        }
+        VK_CHECK_MSG(
+                vkAllocateCommandBuffers(g_Device, &allocInfo, g_CommandBuffers.data()),
+                "failed to allocate command buffers!");
     }
 
 
@@ -1205,11 +1268,6 @@ public:
             VK_CHECK(vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]));
             VK_CHECK(vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]));
             VK_CHECK(vkCreateFence(g_Device, &fenceInfo, nullptr, &g_InflightFence[i]));
-//            if (vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]) != VK_SUCCESS ||
-//                vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]) != VK_SUCCESS ||
-//                vkCreateFence(g_Device, &fenceInfo, nullptr, &g_InflightFence[i]) != VK_SUCCESS) {
-//                throw std::runtime_error("failed to create semaphores or fence.");
-//            }
         }
     }
 
@@ -1307,44 +1365,12 @@ public:
 
 
 
-
-    static VkDescriptorSetLayoutBinding _VkDescriptorSetLayoutBinding(uint32_t binding,
-                                                                      VkDescriptorType descType,
-                                                                      VkShaderStageFlags stageFlags,
-                                                                      uint32_t descCount = 1) {
-        VkDescriptorSetLayoutBinding bd{};
-        bd.binding = binding;
-        bd.descriptorType = descType;
-
-
-    }
-
-
     static void CreateDescriptorSetLayout()
     {
-        VkDescriptorSetLayoutBinding uboLayoutBinding{};
-        uboLayoutBinding.binding = 0;
-        uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uboLayoutBinding.descriptorCount = 1;
-        uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-        VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-        samplerLayoutBinding.binding = 1;
-        samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-
-        std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
-
-        VkDescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 2;
-        layoutInfo.pBindings = bindings.data();
-
-        if (vkCreateDescriptorSetLayout(g_Device, &layoutInfo, nullptr, &g_DescriptorSetLayout) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor set layout.");
-        }
+        g_DescriptorSetLayout = vkh::CreateDescriptorSetLayout(g_Device, {
+                    vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
+                    vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+        });
     }
 
     static void CreateUniformBuffers()

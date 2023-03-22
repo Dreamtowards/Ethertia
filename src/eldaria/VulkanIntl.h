@@ -52,6 +52,8 @@ static void _vk_check_result(VkResult rs)
 }
 #define VK_CHECK(rs) _vk_check_result(rs)
 
+#define VK_CHECK_MSG(rs, msg) _vk_check_result(rs)
+
 
 
 #endif //ETHERTIA_VULKANINTL_H
