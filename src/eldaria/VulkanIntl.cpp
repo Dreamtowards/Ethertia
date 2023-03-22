@@ -1453,6 +1453,13 @@ public:
         FramebufferAttachment gNormal;
         FramebufferAttachment gAlbedo;
         FramebufferAttachment gDepth;
+
+        struct
+        {
+            glm::mat4 matModel;
+            glm::mat4 matView;
+            glm::mat4 matProjection;
+        } UBO_VS;
     } g_Deferred_Gbuffer;
 
     static struct
@@ -1460,16 +1467,6 @@ public:
         VkPipeline m_Pipeline;
 
     } g_Deferred_Compose;
-
-    struct
-    {
-        glm::mat4 matModel;
-        glm::mat4 matView;
-        glm::mat4 matProjection;
-    } ubo_GBuffer_VS;
-
-    VkPipeline g_Pipeline_GBuffer;
-    VkPipeline g_Pipeline_Compose;
 
 
 
@@ -1672,18 +1669,8 @@ public:
 
     static void CreateRenderPass()
     {
-        VkAttachmentDescription colorAttachment =
-                vkh::c_AttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
-        // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
-        VkAttachmentDescription depthAttachment =
-                vkh::c_AttachmentDescription(vkh::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-
-
-        VkAttachmentReference colorAttachmentRef =
-                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
-        VkAttachmentReference depthAttachmentRef =
-                {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+        VkAttachmentReference colorAttachmentRef = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+        VkAttachmentReference depthAttachmentRef = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -1699,6 +1686,13 @@ public:
         dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        VkAttachmentDescription colorAttachment =
+                vkh::c_AttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+        // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
+        VkAttachmentDescription depthAttachment =
+                vkh::c_AttachmentDescription(vkh::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
         std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
 
@@ -1725,13 +1719,8 @@ public:
     {
         auto bindingDescription = Vertex::getBindingDescription();
         auto attributeDescriptions = Vertex::getAttributeDescriptions();
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo =
-//                vkh::c_PipelineVertexInputState(1, &bindingDescription, attributeDescriptions.size(), attributeDescriptions.data());
-                vkh::c_PipelineVertexInputState_H({
-                    VK_FORMAT_R32G32B32_SFLOAT,
-                    VK_FORMAT_R32G32B32_SFLOAT,
-                    VK_FORMAT_R32G32_SFLOAT
-                });
+        VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkh::c_PipelineVertexInputState_H(
+                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT });
 
         VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkh::c_PipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         VkPipelineViewportStateCreateInfo viewportState = vkh::c_PipelineViewportState(1, 1);
