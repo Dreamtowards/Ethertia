@@ -35,6 +35,8 @@ public:
         VkQueue             g_PresentQueue;
 
         VkRenderPass        g_RenderPass;
+
+        VkCommandPool       g_CommandPool;
     };
     static State& GetState(bool init = false);
 
