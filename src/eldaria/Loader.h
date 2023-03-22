@@ -64,6 +64,11 @@ public:
 
 
 
+    static std::string fileResolve(const std::string& uri) {
+        return "./assets/"+uri;
+    }
+
+
 };
 
 #endif //ETHERTIA_LOADER_H
