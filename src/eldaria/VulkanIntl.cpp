@@ -740,21 +740,24 @@ public:
 
 
 
-    class FramebufferAttachment
+    struct FramebufferAttachment
     {
         VkImage m_Image;
         VkDeviceMemory m_ImageMemory;
         VkImageView m_ImageView;
     };
-    class Framebuffer
+    static struct
     {
         VkRenderPass m_RenderPass;
         VkFramebuffer m_Framebuffer;
         int m_Width;
         int m_Height;
 
-        FramebufferAttachment m_Attachments[8];
-    };
+        FramebufferAttachment gPosition;
+        FramebufferAttachment gNormal;
+        FramebufferAttachment gAlbedo;
+        FramebufferAttachment gDepth;
+    } g_Gbuffer_FBO;
 
     struct
     {
@@ -765,6 +768,166 @@ public:
 
     VkPipeline g_Pipeline_GBuffer;
     VkPipeline g_Pipeline_Compose;
+
+
+
+
+    class vkh
+    {
+    public:
+        static VkShaderModule LoadShaderModule(const void* data, size_t size)
+        {
+            VkShaderModuleCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+            createInfo.codeSize = size;
+            createInfo.pCode = reinterpret_cast<const uint32_t*>(data);
+
+            VkShaderModule shaderModule;
+            if (vkCreateShaderModule(g_Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+                throw std::runtime_error("failed to create shader module!");
+            }
+
+            return shaderModule;
+        }
+
+        static VkPipelineShaderStageCreateInfo LoadShaderStage(const std::string& spv_filename, VkShaderStageFlagBits stage)
+        {
+            auto src = Loader::loadFile(spv_filename);
+            VkShaderModule shaderModule = LoadShaderModule(src.data(), src.size());
+
+            VkPipelineShaderStageCreateInfo shaderInfo{};
+            shaderInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderInfo.stage = stage;
+            shaderInfo.module = shaderModule;
+            shaderInfo.pName = "main";
+
+            return shaderInfo;
+        }
+
+        static VkPipelineInputAssemblyStateCreateInfo c_PipelineInputAssemblyState(
+                VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) {
+            VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+            inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+            inputAssembly.topology = topology;
+            inputAssembly.primitiveRestartEnable = VK_FALSE;
+            return inputAssembly;
+        }
+        static VkPipelineViewportStateCreateInfo c_PipelineViewportState(
+                int viewportCount = 1, int scissorCount = 1) {
+            VkPipelineViewportStateCreateInfo viewportState{};
+            viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+            viewportState.viewportCount = viewportCount;
+            viewportState.scissorCount = scissorCount;
+            return viewportState;
+        }
+
+        static VkAttachmentDescription c_AttachmentDescription(VkFormat format = VK_FORMAT_R16G16B16_SFLOAT, VkImageLayout finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+            VkAttachmentDescription d{};
+            d.format = format;
+            d.samples = VK_SAMPLE_COUNT_1_BIT;
+            d.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            d.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            d.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            d.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            d.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            d.finalLayout = finalLayout;  // VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL / VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+            return d;
+        }
+        static VkFramebufferCreateInfo c_Framebuffer(int w, int h,
+                                                     VkRenderPass renderPass,
+                                                     int attchCount,
+                                                     VkImageView* pAttach)
+        {
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.width = w;
+            framebufferInfo.height = h;
+            framebufferInfo.renderPass = renderPass;
+            framebufferInfo.attachmentCount = attchCount;
+            framebufferInfo.pAttachments = pAttach;
+            framebufferInfo.layers = 1;
+            return framebufferInfo;
+        }
+    };
+
+
+    static FramebufferAttachment CreateFramebufferAttachment(int w, int h, VkFormat format, bool depth = false)
+    {
+        FramebufferAttachment fbAttach{};
+
+        CreateImage(w, h, fbAttach.m_Image,fbAttach.m_ImageMemory, format,
+                    depth ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT : VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+        fbAttach.m_ImageView = CreateImageView(fbAttach.m_Image, format,
+                                               depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+
+        return fbAttach;
+    }
+
+
+
+    static void InitDeferredRendering()
+    {
+        int size = 1024;
+
+        g_Gbuffer_FBO.gPosition = CreateFramebufferAttachment(size,size, VK_FORMAT_R16G16B16_SFLOAT);
+        g_Gbuffer_FBO.gNormal   = CreateFramebufferAttachment(size,size, VK_FORMAT_R16G16B16_SFLOAT);
+        g_Gbuffer_FBO.gAlbedo   = CreateFramebufferAttachment(size,size, VK_FORMAT_R16G16B16_SFLOAT);
+
+        auto depFormat = findDepthFormat();
+        g_Gbuffer_FBO.gDepth = CreateFramebufferAttachment(size,size, depFormat, true);
+
+        VkAttachmentDescription attachmentDesc[] = {
+                vkh::c_AttachmentDescription(VK_FORMAT_R16G16B16_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+                vkh::c_AttachmentDescription(VK_FORMAT_R16G16B16_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+                vkh::c_AttachmentDescription(VK_FORMAT_R16G16B16_SFLOAT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+                vkh::c_AttachmentDescription(depFormat, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+        };
+
+
+        VkAttachmentReference colorAttachmentRefs[] = {
+                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+        };
+        VkAttachmentReference depthAttachmentRef =
+                {0, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+
+        VkSubpassDescription subpass{};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = std::size(colorAttachmentRefs);
+        subpass.pColorAttachments = colorAttachmentRefs;
+        subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+        VkSubpassDependency dependencies[2];
+
+
+        VkRenderPassCreateInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = std::size(attachmentDesc);
+        renderPassInfo.pAttachments = attachmentDesc;
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &subpass;
+        renderPassInfo.dependencyCount = std::size(dependencies);
+        renderPassInfo.pDependencies = dependencies;
+
+        VK_CHECK(vkCreateRenderPass(g_Device, &renderPassInfo, nullptr, &g_Gbuffer_FBO.m_RenderPass));
+
+
+        VkImageView attachmentViews[] = {
+                g_Gbuffer_FBO.gPosition.m_ImageView,
+                g_Gbuffer_FBO.gNormal.m_ImageView,
+                g_Gbuffer_FBO.gAlbedo.m_ImageView,
+                g_Gbuffer_FBO.gDepth.m_ImageView
+        };
+        VkFramebufferCreateInfo framebufferInfo =
+                vkh::c_Framebuffer(size,size, g_Gbuffer_FBO.m_RenderPass,
+                                   std::size(attachmentViews), attachmentViews);
+        VK_CHECK(vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_Gbuffer_FBO.m_Framebuffer));
+
+    }
+
+
 
 
 
@@ -783,39 +946,25 @@ public:
 
     static void CreateRenderPass()
     {
-        VkAttachmentDescription colorAttachment{};
-        colorAttachment.format = g_SwapchainImageFormat;
-        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        VkAttachmentDescription colorAttachment =
+                vkh::c_AttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-        VkAttachmentReference colorAttachmentRef{};
-        colorAttachmentRef.attachment = 0;
-        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
+        VkAttachmentDescription depthAttachment =
+                vkh::c_AttachmentDescription(findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-        VkAttachmentDescription depthAttachment{};
-        depthAttachment.format = findDepthFormat();
-        depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        VkAttachmentReference depthAttachmentRef{};
-        depthAttachmentRef.attachment = 1;
-        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        VkAttachmentReference colorAttachmentRef =
+                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+        VkAttachmentReference depthAttachmentRef =
+                {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
 
         VkSubpassDependency dependency{};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -845,55 +994,16 @@ public:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    static VkShaderModule CreateShaderModule(const void* data, size_t size)
-    {
-        VkShaderModuleCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = size;
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(data);
-
-        VkShaderModule shaderModule;
-        if (vkCreateShaderModule(g_Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create shader module!");
-        }
-
-        return shaderModule;
-    }
-
     static void CreateGraphicsPipeline()
     {
-        auto vertSrc = Loader::loadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/vert.spv");
-        auto fragSrc = Loader::loadFile("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/frag.spv");
+        VkPipelineShaderStageCreateInfo vertShaderStageInfo =
+                vkh::LoadShaderStage("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/vert.spv",
+                                     VK_SHADER_STAGE_VERTEX_BIT);
 
-        VkShaderModule vertShaderModule = CreateShaderModule(vertSrc.data(), vertSrc.size());
-        VkShaderModule fragShaderModule = CreateShaderModule(fragSrc.data(), fragSrc.size());
+        VkPipelineShaderStageCreateInfo fragShaderStageInfo =
+                vkh::LoadShaderStage("/Users/dreamtowards/Documents/YouRepository/Ethertia/src/eldaria/shaders/spv/frag.spv",
+                                     VK_SHADER_STAGE_FRAGMENT_BIT);
 
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-        vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertShaderStageInfo.module = vertShaderModule;
-        vertShaderStageInfo.pName = "main";
-
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-        fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = fragShaderModule;
-        fragShaderStageInfo.pName = "main";
 
         VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
@@ -907,25 +1017,22 @@ public:
         vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        inputAssembly.primitiveRestartEnable = VK_FALSE;
+        VkPipelineInputAssemblyStateCreateInfo inputAssembly =
+                vkh::c_PipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
-        VkPipelineViewportStateCreateInfo viewportState{};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportState.viewportCount = 1;
-        viewportState.scissorCount = 1;
+        VkPipelineViewportStateCreateInfo viewportState =
+                vkh::c_PipelineViewportState(1, 1);
+
 
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.rasterizerDiscardEnable = VK_FALSE;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizer.lineWidth = 1.0f;
         rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;  // tmp edit
         rasterizer.depthBiasEnable = VK_FALSE;
+        rasterizer.depthClampEnable = VK_FALSE;
+        rasterizer.rasterizerDiscardEnable = VK_FALSE;
+        rasterizer.lineWidth = 1.0f;
 
         VkPipelineMultisampleStateCreateInfo multisampling{};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -1000,8 +1107,8 @@ public:
             throw std::runtime_error("failed to create graphics pipeline.");
         }
 
-        vkDestroyShaderModule(g_Device, fragShaderModule, nullptr);
-        vkDestroyShaderModule(g_Device, vertShaderModule, nullptr);
+        vkDestroyShaderModule(g_Device, fragShaderStageInfo.module, nullptr);
+        vkDestroyShaderModule(g_Device, vertShaderStageInfo.module, nullptr);
     }
 
 
@@ -1033,17 +1140,13 @@ public:
     {
         g_SwapchainFramebuffers.resize(g_SwapchainImageViews.size());
 
-        for (size_t i = 0; i < g_SwapchainImageViews.size(); i++) {
+        for (size_t i = 0; i < g_SwapchainImageViews.size(); i++)
+        {
             std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImageView };
 
-            VkFramebufferCreateInfo framebufferInfo{};
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = g_RenderPass;
-            framebufferInfo.attachmentCount = attachments.size();
-            framebufferInfo.pAttachments = attachments.data();
-            framebufferInfo.width = g_SwapchainExtent.width;
-            framebufferInfo.height = g_SwapchainExtent.height;
-            framebufferInfo.layers = 1;
+            VkFramebufferCreateInfo framebufferInfo =
+                    vkh::c_Framebuffer(g_SwapchainExtent.width, g_SwapchainExtent.height,
+                                       g_RenderPass, attachments.size(), attachments.data());
 
             if (vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_SwapchainFramebuffers[i]) != VK_SUCCESS) {
                 throw std::runtime_error("failed to create framebuffer!");
@@ -1205,6 +1308,16 @@ public:
 
 
 
+    static VkDescriptorSetLayoutBinding _VkDescriptorSetLayoutBinding(uint32_t binding,
+                                                                      VkDescriptorType descType,
+                                                                      VkShaderStageFlags stageFlags,
+                                                                      uint32_t descCount = 1) {
+        VkDescriptorSetLayoutBinding bd{};
+        bd.binding = binding;
+        bd.descriptorType = descType;
+
+
+    }
 
 
     static void CreateDescriptorSetLayout()
@@ -1358,8 +1471,8 @@ public:
                             VkImage& image,
                             VkDeviceMemory& imageMemory,
                             VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
-                            VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                             VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                            VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                             VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL)
     {
         VkImageCreateInfo imageInfo{};
@@ -1373,7 +1486,7 @@ public:
         imageInfo.format = format;
         imageInfo.tiling = tiling;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageInfo.usage = usage;
+        imageInfo.usage = usage | VK_IMAGE_USAGE_SAMPLED_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.flags = 0; // Optional
@@ -1419,9 +1532,7 @@ public:
         CreateImage(texWidth, texHeight,
                     out_image, out_imageMemory,
                     VK_FORMAT_R8G8B8A8_SRGB,
-                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                    VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                    VK_IMAGE_TILING_OPTIMAL);
+                    VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
         TransitionImageLayout(out_image, VK_FORMAT_R8G8B8A8_SRGB,
                               VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -1632,10 +1743,7 @@ public:
 
         CreateImage(g_SwapchainExtent.width, g_SwapchainExtent.height,
                     g_DepthImage, g_DepthImageMemory,
-                    depthFormat,
-                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                    VK_IMAGE_TILING_OPTIMAL);
+                    depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 
         g_DepthImageView = CreateImageView(g_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
