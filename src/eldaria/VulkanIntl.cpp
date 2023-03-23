@@ -200,6 +200,10 @@ public:
         dynamicState.pDynamicStates = pStates;
         return dynamicState;
     }
+    static VkPipelineDynamicStateCreateInfo c_PipelineDynamicState_H_ViewportScissor() {
+        static std::vector<VkDynamicState> _dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+        return c_PipelineDynamicState(_dynamicStates.size(), _dynamicStates.data());
+    }
     static VkPipelineColorBlendAttachmentState c_PipelineColorBlendAttachmentState() {
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.blendEnable = VK_FALSE;
@@ -1505,19 +1509,23 @@ public:
     }
 
 
-
+    // Init Deferred Rendering. not use Subpass. use isolated RenderPass
+    // 1. Create Gbuffer Attachments [Image, Memory, View] for gPosition, gNormal, gAlbedo
+    // 2. Create Gbuffer RenderPass
+    // 3. Create Gbuffer Framebuffer
+    // 4. Create Gbuffer Pipeline
     static void InitDeferredRendering()
     {
-        // ### init Gbuffer's Framebuffer & RenderPass
-        int size = 1024;
 
+        // Gbuffer Attachments
+        int attach_size = 1024;
         VkFormat rgbFormat = VK_FORMAT_R16G16B16_SFLOAT;
-        g_Deferred_Gbuffer.gPosition = CreateFramebufferAttachment(size,size, rgbFormat);
-        g_Deferred_Gbuffer.gNormal   = CreateFramebufferAttachment(size,size, rgbFormat);
-        g_Deferred_Gbuffer.gAlbedo   = CreateFramebufferAttachment(size,size, rgbFormat);
+        g_Deferred_Gbuffer.gPosition = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
+        g_Deferred_Gbuffer.gNormal   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
+        g_Deferred_Gbuffer.gAlbedo   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
 
         auto depFormat = vkh::findDepthFormat();
-        g_Deferred_Gbuffer.gDepth = CreateFramebufferAttachment(size,size, depFormat, true);
+        g_Deferred_Gbuffer.gDepth = CreateFramebufferAttachment(attach_size,attach_size, depFormat, true);
 
         VkAttachmentDescription attachmentDesc[] = {
                 vkh::c_AttachmentDescription(rgbFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
@@ -1526,14 +1534,15 @@ public:
                 vkh::c_AttachmentDescription(depFormat, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
         };
 
+        // Gbuffer RenderPass
 
         VkAttachmentReference colorAttachmentRefs[] = {
-                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
-                {1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
-                {2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},
+                {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gPosition
+                {1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gNormal
+                {2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gAlbedo
         };
         VkAttachmentReference depthAttachmentRef =
-                {3, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+                {3, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};  // gDepth
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -1541,25 +1550,22 @@ public:
         subpass.pColorAttachments = colorAttachmentRefs;
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
-        // Use subpass dependencies for attachment layout transitions
         VkSubpassDependency dependencies[2];
+            dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+            dependencies[0].dstSubpass = 0;
+            dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-        dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependencies[0].dstSubpass = 0;
-        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-        dependencies[1].srcSubpass = 0;
-        dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-        dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
+            dependencies[1].srcSubpass = 0;
+            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -1579,9 +1585,8 @@ public:
                 g_Deferred_Gbuffer.gAlbedo.m_ImageView,
                 g_Deferred_Gbuffer.gDepth.m_ImageView
         };
-        VkFramebufferCreateInfo framebufferInfo =
-                vkh::c_Framebuffer(size,size, g_Deferred_Gbuffer.m_RenderPass,
-                                   std::size(attachmentViews), attachmentViews);
+        VkFramebufferCreateInfo framebufferInfo = vkh::c_Framebuffer(attach_size,attach_size, g_Deferred_Gbuffer.m_RenderPass, std::size(attachmentViews), attachmentViews);
+
         VK_CHECK(vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_Deferred_Gbuffer.m_Framebuffer));
 
 
@@ -1761,19 +1766,13 @@ public:
         VkPipelineRasterizationStateCreateInfo rasterizer = vkh::c_PipelineRasterizationState(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
         VkPipelineMultisampleStateCreateInfo multisampling = vkh::c_PipelineMultisampleState();
         VkPipelineDepthStencilStateCreateInfo depthStencil = vkh::c_PipelineDepthStencilState();
-
-        std::vector<VkDynamicState> _dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-        VkPipelineDynamicStateCreateInfo dynamicState = vkh::c_PipelineDynamicState(_dynamicStates.size(), _dynamicStates.data());
+        VkPipelineDynamicStateCreateInfo dynamicState = vkh::c_PipelineDynamicState_H_ViewportScissor();
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment = vkh::c_PipelineColorBlendAttachmentState();
         VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(1, &colorBlendAttachment);
 
         g_PipelineLayout = vkh::CreatePipelineLayout(1, &g_DescriptorSetLayout);
 
-//        VkPipelineShaderStageCreateInfo vertShaderStageInfo =
-//                vkh::LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT, Loader::fileResolve("shaders/spv/def_gbuffer/vert.spv"));
-//        VkPipelineShaderStageCreateInfo fragShaderStageInfo =
-//                vkh::LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT, Loader::fileResolve());
         VkPipelineShaderStageCreateInfo shaderStages[2];
         vkh::LoadShaderStages_H(shaderStages, "shaders/spv/def_gbuffer/{}.spv");
 
@@ -1798,8 +1797,6 @@ public:
             throw std::runtime_error("failed to create graphics pipeline.");
         }
 
-//        vkDestroyShaderModule(g_Device, fragShaderStageInfo.module, nullptr);
-//        vkDestroyShaderModule(g_Device, vertShaderStageInfo.module, nullptr);
         vkh::DestroyShaderModules(shaderStages);
     }
 
@@ -2228,6 +2225,10 @@ void VulkanIntl::SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBu
     vkh::SubmitOnetimeCommandBuffer(fn_record);
 }
 
+VkImageView VulkanIntl::getTestImgView() {
+    return VulkanIntl_Impl::g_DepthImageView;
+}
+
 
 
 
@@ -2244,6 +2245,7 @@ VulkanIntl::State& VulkanIntl::GetState(bool init)
         ASSIGN_VK_STATE(g_PresentQueue);
         ASSIGN_VK_STATE(g_RenderPass);
         ASSIGN_VK_STATE(g_CommandPool);
+        ASSIGN_VK_STATE(g_TextureSampler);
     }
     return vk;
 }

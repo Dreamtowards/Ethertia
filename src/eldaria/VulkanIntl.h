@@ -37,6 +37,8 @@ public:
         VkRenderPass        g_RenderPass;
 
         VkCommandPool       g_CommandPool;
+
+        VkSampler           g_TextureSampler;
     };
     static State& GetState(bool init = false);
 
@@ -45,6 +47,8 @@ public:
     static VkDevice vkDevice() {
         return GetState().g_Device;
     }
+
+    static VkImageView getTestImgView();
 };
 
 

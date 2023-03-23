@@ -179,6 +179,74 @@ void Imgui::Destroy()
 
 #include "Imgui_Intl_Impl.cpp"
 
+
+
+static void ShowViewport()
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+    ImGui::Begin("Viewport", &Imgui::w_Viewport);
+    ImGui::PopStyleVar();
+
+//    ImVec2 size = ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin();
+//    ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
+//    ImGuis::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
+
+    static void* texId = ImGui_ImplVulkan_AddTexture(VulkanIntl::GetState().g_TextureSampler,
+                                                     VulkanIntl::getTestImgView(),
+                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    ImGui::Image(texId, ImGui::GetContentRegionAvail());
+    ImGui::SetCursorPos({0,0});
+//    ImGui::InvisibleButton("PreventsGameWindowMove", size);
+
+
+//    ImGuizmo::BeginFrame();
+//    ImGuizmo::SetOrthographic(false);
+//    ImGuizmo::SetDrawlist();
+//    auto& vp = Ethertia::getViewport();
+//    ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
+//
+//    if (g_WorldGrids > 0)
+//    {
+//        glm::mat4 iden(1.0f);
+//        ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
+//                           glm::value_ptr(iden), (float)g_WorldGrids);
+//    }
+//
+//    if (g_GizmoViewManipulation)
+//    {
+//        static float camLen = 10.0f;
+//        auto& vp = Ethertia::getViewport();
+//        ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
+//                                 ImVec2(vp.right()-128-24, vp.y+24), ImVec2(128, 128),
+//                                 0x10101010);
+//    }
+
+    ImGui::End();
+}
+
+
+
+
+static void DrawWindows()
+{
+    ShowDockspaceAndMainMenubar();
+
+    if (Imgui::w_Viewport) {
+        ShowViewport();
+    }
+
+    if (Imgui::w_Settings) {
+        ShowSettingsWindow();
+    }
+
+    // Draw Debug
+    if (Imgui::w_ImguiDemo) {
+        ImGui::ShowDemoWindow(&Imgui::w_ImguiDemo);
+    }
+
+}
+
+
 void Imgui::RenderGUI(VkCommandBuffer cmdbuf)
 {
     if (Dbg::dbg_PauseImgui)

@@ -492,33 +492,3 @@ static void ShowSettingsWindow()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-static void DrawWindows()
-{
-    ShowDockspaceAndMainMenubar();
-
-    if (Imgui::w_Viewport) {
-
-    }
-
-    if (Imgui::w_Settings) {
-        ShowSettingsWindow();
-    }
-
-    // Draw Debug
-    if (Imgui::w_ImguiDemo) {
-        ImGui::ShowDemoWindow(&Imgui::w_ImguiDemo);
-    }
-
-}
