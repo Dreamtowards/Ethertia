@@ -75,8 +75,8 @@ static void RunMainLoop()
 
     if (g_Window->isCloseRequested())
         g_Running = false;
-    //if (g_Window->isFramebufferResized())
-        //VulkanIntl::RequestRecreateSwapchain();
+    if (g_Window->isFramebufferResized())
+        VulkanIntl::RequestRecreateSwapchain();
 
     VulkanIntl::DrawFrame();
 

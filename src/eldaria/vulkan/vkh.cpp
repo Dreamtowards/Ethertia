@@ -415,6 +415,12 @@ public:
         return score;
     }
 
+    static void CreateSurface(VkInstance instance, GLFWwindow* glfwWindow, VkSurfaceKHR& out_SurfaceKHR)
+    {
+        if (glfwCreateWindowSurface(instance, glfwWindow, nullptr, &out_SurfaceKHR) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create window surface via glfw.");
+        }
+    }
 
 
 

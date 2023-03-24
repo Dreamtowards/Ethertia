@@ -102,7 +102,7 @@ public:
     static void Init(GLFWwindow* glfwWindow)
     {
         g_Instance = vkh::CreateInstance();
-        CreateSurface(g_WindowHandle=glfwWindow);
+        vkh::CreateSurface(g_Instance, g_WindowHandle=glfwWindow, g_SurfaceKHR);
 
         PickPhysicalDevice();
         CreateLogicalDevice();
@@ -184,24 +184,6 @@ public:
         vkh::DestroyInstance(g_Instance);
     }
 
-
-
-
-
-    static void CreateSurface(GLFWwindow* glfwWindow)
-    {
-        if (glfwCreateWindowSurface(g_Instance, glfwWindow, nullptr, &g_SurfaceKHR) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create window surface via glfw.");
-        }
-    }
-
-
-
-
-
-
-
-
     static void PickPhysicalDevice()
     {
         uint32_t gpu_count = 0;
@@ -229,16 +211,6 @@ public:
         }
         g_PhysDevice = dev;
     }
-
-
-
-
-
-
-
-
-
-
 
     static void CreateLogicalDevice()
     {
@@ -280,13 +252,13 @@ public:
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
         createInfo.enabledExtensionCount = deviceExtensions.size();
 
-        // Device Validation Layer: already deprecated. ValidationLayer only belongs to VkInstance.
-        if (g_EnableValidationLayer) {
-            createInfo.ppEnabledLayerNames = g_ValidationLayers.data();
-            createInfo.enabledLayerCount = g_ValidationLayers.size();
-        } else {
-            createInfo.enabledLayerCount = 0;
-        }
+//        // Device Validation Layer: already deprecated. ValidationLayer only belongs to VkInstance.
+//        if (g_EnableValidationLayer) {
+//            createInfo.ppEnabledLayerNames = g_ValidationLayers.data();
+//            createInfo.enabledLayerCount = g_ValidationLayers.size();
+//        } else {
+//            createInfo.enabledLayerCount = 0;
+//        }
 
         // VK_KHR_swapchain
         if (vkCreateDevice(g_PhysDevice, &createInfo, nullptr, &g_Device) != VK_SUCCESS) {
@@ -507,15 +479,15 @@ public:
         // ### init init Compose's
 
         VkDescriptorSetLayout descriptorSetLayout = vkh::CreateDescriptorSetLayout({
-                // binding 0: VSH uniform
+                // binding 0: vsh uniform
                 vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
-                // 1: FSH uniform
+                // 1: fsh uniform
                 vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
-                // 2: FSH gPosition
+                // 2: fsh gPosition
                 vkh::c_DescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
-                // 3: FSH gNormal
+                // 3: fsh gNormal
                 vkh::c_DescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
-                // 4: FSH gAlbedo
+                // 4: fsh gAlbedo
                 vkh::c_DescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
         });
 
@@ -1041,12 +1013,12 @@ public:
         uint32_t imageIdx;
         VkResult rs = vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe],
                                             VK_NULL_HANDLE, &imageIdx);
-        if (rs == VK_ERROR_OUT_OF_DATE_KHR) {
-            RecreateSwapchain();
-            return;
-        } else if (!(rs == VK_SUCCESS || rs == VK_SUBOPTIMAL_KHR)) {
-            throw std::runtime_error("failed to acquire swapchain image.");
-        }
+//        if (rs == VK_ERROR_OUT_OF_DATE_KHR) {
+//            RecreateSwapchain();
+//            return;
+//        } else if (!(rs == VK_SUCCESS || rs == VK_SUBOPTIMAL_KHR)) {
+//            throw std::runtime_error("failed to acquire swapchain image.");
+//        }
         vkResetFences(g_Device, 1, &g_InflightFence[currframe]);
         vkResetCommandBuffer(g_CommandBuffers[currframe], 0);
 
@@ -1068,12 +1040,13 @@ public:
         presentInfo.pImageIndices = &imageIdx;
 
         rs = vkQueuePresentKHR(g_PresentQueue, &presentInfo);
-        if (rs == VK_ERROR_OUT_OF_DATE_KHR || rs == VK_SUBOPTIMAL_KHR || g_RecreateSwapchainRequested) {
+        if (/*rs == VK_ERROR_OUT_OF_DATE_KHR || rs == VK_SUBOPTIMAL_KHR || */g_RecreateSwapchainRequested) {
             g_RecreateSwapchainRequested = false;
             RecreateSwapchain();
-        } else if (rs != VK_SUCCESS) {
-            throw std::runtime_error("failed to present swapchain image.");
         }
+//        else if (rs != VK_SUCCESS) {
+//            throw std::runtime_error("failed to present swapchain image.");
+//        }
 
         // vkQueueWaitIdle(g_vkPresentQueue);  // BigWaste on GPU.
 
