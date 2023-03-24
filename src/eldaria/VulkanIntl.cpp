@@ -208,53 +208,28 @@ public:
         vkEnumeratePhysicalDevices(g_Instance, &gpu_count, nullptr);
 
         Log::info("GPUs: ", gpu_count);
-        if (gpu_count == 0)
-            throw std::runtime_error("failed to find GPU with vulkan support.");
+        assert(gpu_count && "failed to find GPU with vulkan support.");
 
         std::vector<VkPhysicalDevice> gpus(gpu_count);
         vkEnumeratePhysicalDevices(g_Instance, &gpu_count, gpus.data());
 
-        std::multimap<int, VkPhysicalDevice> candidates;
-        for (const auto& device : gpus) {
-            int score = ratePhysicalDeviceSuitable(device);
-            candidates.insert(std::make_pair(score, device));
-        }
+        VkPhysicalDevice dev = gpus[0];
+        for (const auto& physGPU : gpus)
+        {
+            VkPhysicalDeviceProperties deviceProperties;
+            vkGetPhysicalDeviceProperties(physGPU, &deviceProperties);
 
-        if (candidates.cbegin()->first > 0) {
-            g_PhysDevice = candidates.cbegin()->second;
-        } else {
-            throw std::runtime_error("failed to find a suitable GPU.");
+            VkPhysicalDeviceFeatures deviceFeatures;
+            vkGetPhysicalDeviceFeatures(physGPU, &deviceFeatures);
+
+            if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+                dev = physGPU;
+                break;
+            }
         }
+        g_PhysDevice = dev;
     }
 
-    static int ratePhysicalDeviceSuitable(VkPhysicalDevice physicalDevice)
-    {
-        VkPhysicalDeviceProperties deviceProperties;
-        vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
-
-        if (!deviceFeatures.samplerAnisotropy)
-            return 0;
-
-        QueueFamilyIndices queueFamily = vkh::findQueueFamilies(physicalDevice, g_SurfaceKHR);
-        if (!queueFamily.isComplete())
-            return 0;
-
-        SwapchainSupportDetails swapchainSupport = querySwapchainSupport(physicalDevice, g_SurfaceKHR);
-        if (!swapchainSupport.isSwapChainAdequate())
-            return 0;
-
-        int score = 0;
-        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-            score += 800;
-        }
-        score += deviceProperties.limits.maxImageDimension2D;
-
-        Log::info("Device ", deviceProperties.deviceName);
-        return score;
-    }
 
 
 
@@ -340,130 +315,7 @@ public:
 
 
 
-//    static void CreateSwapchainAndImageViews()
-//    {
-//        SwapchainSupportDetails swapchainDetails = querySwapchainSupport(g_PhysDevice, g_SurfaceKHR);
-//
-//        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapchainDetails.m_Formats);
-//        VkPresentModeKHR presentMode = chooseSwapPresentMode(swapchainDetails.m_PresentModes);
-//        VkExtent2D extent = chooseSwapExtent(swapchainDetails.m_Capabilities);
-//        g_SwapchainExtent = extent;
-//
-//        // tri buf
-//        uint32_t imageCount = swapchainDetails.m_Capabilities.minImageCount + 1;
-//        if (swapchainDetails.m_Capabilities.maxImageCount > 0 && imageCount > swapchainDetails.m_Capabilities.maxImageCount) {
-//            imageCount = swapchainDetails.m_Capabilities.maxImageCount;
-//        }
-//
-//        VkSwapchainCreateInfoKHR swapchainInfo{};
-//        swapchainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-//        swapchainInfo.surface = g_SurfaceKHR;
-//        swapchainInfo.minImageCount = imageCount;
-//        swapchainInfo.imageFormat = surfaceFormat.format;
-//        swapchainInfo.imageColorSpace = surfaceFormat.colorSpace;
-//        swapchainInfo.imageExtent = extent;
-//        swapchainInfo.imageArrayLayers = 1;  // normally 1, except VR.
-//        swapchainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-//        g_SwapchainImageFormat = surfaceFormat.format;
-//
-//        // Image Share Mode. Queue Family.
-//        QueueFamilyIndices queueFamily = vkh::findQueueFamilies(g_PhysDevice, g_SurfaceKHR);
-//        uint32_t queueFamilyIdxs[] = {queueFamily.m_GraphicsFamily, queueFamily.m_PresentFamily};
-//
-//        if (queueFamily.m_GraphicsFamily != queueFamily.m_PresentFamily) {
-//            swapchainInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-//            swapchainInfo.queueFamilyIndexCount = 2;
-//            swapchainInfo.pQueueFamilyIndices = queueFamilyIdxs;
-//        } else {
-//            swapchainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;  // most performance.
-//            swapchainInfo.queueFamilyIndexCount = 0;  // opt
-//            swapchainInfo.pQueueFamilyIndices = nullptr;
-//        }
-//
-//        swapchainInfo.preTransform = swapchainDetails.m_Capabilities.currentTransform;  // Non transform
-//        swapchainInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;  // Non Alpha.
-//        swapchainInfo.presentMode = presentMode;
-//        swapchainInfo.clipped = VK_TRUE;  // true: not care the pixels behind other windows for vk optims.  but may cause problem when we read the pixels.
-//        swapchainInfo.oldSwapchain = nullptr;
-//
-//        VK_CHECK_MSG(vkCreateSwapchainKHR(g_Device, &swapchainInfo, nullptr, &g_SwapchainKHR),
-//                     "failed to create vk swapchain khr.");
-//
-//        // Get Swapchain Images.
-//        int expectedImageCount = imageCount;
-//        vkGetSwapchainImagesKHR(g_Device, g_SwapchainKHR, &imageCount, nullptr);
-//        assert(expectedImageCount == imageCount);
-//
-//        g_SwapchainImages.resize(imageCount);
-//        vkGetSwapchainImagesKHR(g_Device, g_SwapchainKHR, &imageCount, g_SwapchainImages.data());
-//
-//
-//
-//        // Image Views
-//        g_SwapchainImageViews.resize(imageCount);
-//        for (int i = 0; i < imageCount; ++i)
-//        {
-//            g_SwapchainImageViews[i] = vkh::CreateImageView(g_SwapchainImages[i], surfaceFormat.format);
-//        }
-//    }
-//
-//    static SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
-//    {
-//        SwapchainSupportDetails details;
-//
-//        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.m_Capabilities);
-//
-//        uint32_t formatCount;
-//        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
-//        if (formatCount) {
-//            details.m_Formats.resize(formatCount);
-//            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.m_Formats.data());
-//        }
-//
-//        uint32_t presentModeCount;
-//        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
-//        if (presentModeCount) {
-//            details.m_PresentModes.resize(presentModeCount);
-//            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details.m_PresentModes.data());
-//        }
-//
-//        return details;
-//    }
-//
-//    static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
-//    {
-//        if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED) {
-//            return {VK_FORMAT_B8G8R8A8_UNORM,VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
-//        }
-//
-//        for (const auto& availableFormat : availableFormats) {
-//            if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
-//                availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-//                return availableFormat;
-//        }
-//        return availableFormats[0];
-//    }
-//    static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
-//    {
-//        if (Collections::find(availablePresentModes, VK_PRESENT_MODE_MAILBOX_KHR) != -1)
-//            return VK_PRESENT_MODE_MAILBOX_KHR;
-//        if (Collections::find(availablePresentModes, VK_PRESENT_MODE_IMMEDIATE_KHR) != -1)
-//            return VK_PRESENT_MODE_IMMEDIATE_KHR;
-//
-//        return VK_PRESENT_MODE_FIFO_KHR;  // FIFO_KHR is vk guaranteed available.
-//    }
-//    static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
-//    {
-//        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-//            return capabilities.currentExtent;
-//
-//        int width, height;
-//        glfwGetFramebufferSize(g_WindowHandle, &width, &height);
-//        VkExtent2D extent = { (uint32_t)width, (uint32_t)height };
-//        extent.width = std::clamp(extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-//        extent.height = std::clamp(extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-//        return extent;
-//    }
+
 
 
 
@@ -511,11 +363,13 @@ public:
 
 
 
+    // aka RenderTarget in DX12
     struct FramebufferAttachment
     {
         VkImage m_Image;
         VkDeviceMemory m_ImageMemory;
         VkImageView m_ImageView;
+        VkAttachmentDescription m_Desc;
     };
     inline static struct
     {
@@ -551,15 +405,18 @@ public:
 
     static FramebufferAttachment CreateFramebufferAttachment(int w, int h, VkFormat format, bool depth = false)
     {
-        FramebufferAttachment fbAttach{};
+        FramebufferAttachment out{};
 
-        vkh::CreateImage(w, h, fbAttach.m_Image,fbAttach.m_ImageMemory, format,
+        vkh::CreateImage(w, h, out.m_Image,out.m_ImageMemory, format,
                     depth ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT : VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 
-        fbAttach.m_ImageView = vkh::CreateImageView(fbAttach.m_Image, format,
-                                               depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+        out.m_ImageView = vkh::CreateImageView(out.m_Image, format,
+                    depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
 
-        return fbAttach;
+        out.m_Desc = vkh::c_AttachmentDescription(format,
+                    depth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        return out;
     }
 
 
@@ -577,15 +434,13 @@ public:
         g_Deferred_Gbuffer.gPosition = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gNormal   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gAlbedo   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
-
-        auto depFormat = vkh::findDepthFormat();
-        g_Deferred_Gbuffer.gDepth = CreateFramebufferAttachment(attach_size,attach_size, depFormat, true);
+        g_Deferred_Gbuffer.gDepth = CreateFramebufferAttachment(attach_size,attach_size, vkh::findDepthFormat(), true);
 
         VkAttachmentDescription attachmentDesc[] = {
-                vkh::c_AttachmentDescription(rgbFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
-                vkh::c_AttachmentDescription(rgbFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
-                vkh::c_AttachmentDescription(rgbFormat, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
-                vkh::c_AttachmentDescription(depFormat, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+                g_Deferred_Gbuffer.gPosition.m_Desc,
+                g_Deferred_Gbuffer.gNormal.m_Desc,
+                g_Deferred_Gbuffer.gAlbedo.m_Desc,
+                g_Deferred_Gbuffer.gDepth.m_Desc
         };
 
         // Gbuffer RenderPass
