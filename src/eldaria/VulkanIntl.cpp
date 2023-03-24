@@ -741,6 +741,24 @@ public:
         EndOnetimeCommandBuffer(cmdbuf);
     }
 
+    static void QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, VkSemaphore signal, VkFence fence)
+    {
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &cmdbuf;
+
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &wait;
+
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &signal;
+
+        VK_CHECK_MSG(vkQueueSubmit(queue, 1, &submitInfo, fence),
+                     "failed to submit draw command buffer.");
+    }
 
 
 
@@ -749,41 +767,6 @@ public:
 
 };
 
-
-struct Vertex
-{
-    glm::vec3 pos;
-    glm::vec3 col;
-    glm::vec2 tex;
-
-    static VkVertexInputBindingDescription getBindingDescription() {
-        VkVertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(Vertex);
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return bindingDescription;
-    }
-
-
-    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
-        attributeDescriptions[0].binding = 0;
-        attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-        attributeDescriptions[1].binding = 0;
-        attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(Vertex, col);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(Vertex, tex);
-        return attributeDescriptions;
-    }
-};
 
 int g_DrawVerts = 0;
 inline static VkBuffer g_VertexBuffer = nullptr;
@@ -891,6 +874,7 @@ public:
         PickPhysicalDevice();
         CreateLogicalDevice();
 
+        CreateDescriptorPool();
         CreateCommandPool();
         CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
@@ -899,12 +883,13 @@ public:
         vkh::g_GraphicsQueue = g_GraphicsQueue;
         vkh::g_CommandPool = g_CommandPool;
 
+        g_TextureSampler = vkh::CreateTextureSampler();
+
         CreateSwapchainAndImageViews();
         CreateRenderPass();     // depend: Swapchain format
         CreateDepthTexture();
         CreateFramebuffers();   // depend: DepthTexture, RenderPass
 
-        g_TextureSampler = vkh::CreateTextureSampler();
 
         CreateDescriptorSetLayout();
         CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
@@ -921,7 +906,6 @@ public:
         }
 
         CreateUniformBuffers();
-        CreateDescriptorPool();
         CreateDescriptorSets();
 
 
@@ -1585,7 +1569,9 @@ public:
                 g_Deferred_Gbuffer.gAlbedo.m_ImageView,
                 g_Deferred_Gbuffer.gDepth.m_ImageView
         };
-        VkFramebufferCreateInfo framebufferInfo = vkh::c_Framebuffer(attach_size,attach_size, g_Deferred_Gbuffer.m_RenderPass, std::size(attachmentViews), attachmentViews);
+        VkFramebufferCreateInfo framebufferInfo =
+                vkh::c_Framebuffer(attach_size,attach_size, g_Deferred_Gbuffer.m_RenderPass,
+                                   std::size(attachmentViews), attachmentViews);
 
         VK_CHECK(vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_Deferred_Gbuffer.m_Framebuffer));
 
@@ -2135,29 +2121,14 @@ public:
 
         UpdateUniformBuffer(currframe);
 
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &g_CommandBuffers[currframe];
-
-        VkSemaphore waitSemaphores[] = { g_SemaphoreImageAcquired[currframe] };
-        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphores;
-        submitInfo.pWaitDstStageMask = waitStages;
-
-        VkSemaphore signalSemaphores[] = { g_SemaphoreRenderComplete[currframe] };
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
-
-        if (vkQueueSubmit(g_GraphicsQueue, 1, &submitInfo, g_InflightFence[currframe]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to submit draw command buffer.");
-        }
+        vkh::QueueSubmit(g_GraphicsQueue, g_CommandBuffers[currframe],
+                         g_SemaphoreImageAcquired[currframe], g_SemaphoreRenderComplete[currframe],
+                         g_InflightFence[currframe]);
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
+        presentInfo.pWaitSemaphores = &g_SemaphoreRenderComplete[currframe];
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &g_SwapchainKHR;
         presentInfo.pImageIndices = &imageIdx;
