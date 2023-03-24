@@ -54,7 +54,8 @@ public:
 
 static void _vk_check_result(VkResult rs)
 {
-    if (rs != VK_SUCCESS) throw std::runtime_error("[vulkan] Error: VkResult = ");
+    if (rs != VK_SUCCESS)
+        throw std::runtime_error("[vulkan] Error: VkResult = ");
 }
 #define VK_CHECK(rs) _vk_check_result(rs)
 

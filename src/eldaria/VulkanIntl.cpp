@@ -26,9 +26,7 @@
 #include "vulkan/vkh.cpp"
 
 
-int g_DrawVerts = 0;
-inline static VkBuffer g_VertexBuffer = nullptr;
-inline static VkDeviceMemory g_VertexBufferMemory;
+vkh::VertexData g_TestModel;
 
 
 #define DECL_unif alignas(16)
@@ -63,12 +61,17 @@ public:
     inline static VkFormat              g_SwapchainImageFormat = {};
     inline static std::vector<VkFramebuffer> g_SwapchainFramebuffers;  // for each Swapchain Image.
 
+    inline static bool g_RecreateSwapchainRequested = false;  // when Window/Framebuffer resized.
+    inline static GLFWwindow* g_WindowHandle = nullptr;
+
     inline static VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
     inline static VkPipelineLayout  g_PipelineLayout = nullptr;
     inline static VkPipeline        g_GraphicsPipeline = nullptr;
 
     inline static VkCommandPool g_CommandPool = nullptr;
     inline static std::vector<VkCommandBuffer> g_CommandBuffers;
+    inline static VkDescriptorPool g_DescriptorPool = nullptr;
+    inline static VkSampler g_TextureSampler = nullptr;
 
     inline static std::vector<VkSemaphore> g_SemaphoreImageAcquired;  // for each InflightFrame   ImageAcquired, RenderComplete
     inline static std::vector<VkSemaphore> g_SemaphoreRenderComplete;
@@ -81,20 +84,10 @@ public:
     inline static std::vector<VkDeviceMemory> g_UniformBuffersMemory;
     inline static std::vector<void*> g_UniformBuffersMapped;  // 'Persistent Mapping' since vkMapMemory cost.
 
-    inline static VkDescriptorPool g_DescriptorPool = nullptr;
     inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each InflightFrame
 
-    inline static VkImage g_TextureImage = nullptr;
-    inline static VkDeviceMemory g_TextureImageMemory = nullptr;
-    inline static VkImageView g_TextureImageView = nullptr;
-    inline static VkSampler g_TextureSampler = nullptr;
-
-    inline static VkImage g_DepthImage = nullptr;
-    inline static VkDeviceMemory g_DepthImageMemory = nullptr;
-    inline static VkImageView g_DepthImageView = nullptr;
-
-    inline static bool g_RecreateSwapchainRequested = false;  // when Window/Framebuffer resized.
-    inline static GLFWwindow* g_WindowHandle = nullptr;
+    inline static vkh::Image g_DepthImage;
+    inline static vkh::Image g_TextureImage;
 
 
 
@@ -131,18 +124,20 @@ public:
 
         {
             BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/viking_room.png");
-            vkh::CreateTextureImage(bitmapImage, g_TextureImage, g_TextureImageMemory, &g_TextureImageView);
+            vkh::CreateTextureImage(bitmapImage, g_TextureImage);
 
             VertexData vdata = Loader::loadOBJ("/Users/dreamtowards/Downloads/viking_room.obj");
-            g_DrawVerts = vdata.vertexCount();
-            vkh::CreateVertexBuffer(vdata.data(), vdata.size(), g_VertexBuffer, g_VertexBufferMemory);
+            g_TestModel.m_VertexCount = vdata.vertexCount();
+            vkh::CreateVertexBuffer(vdata.data(), vdata.size(),
+                                    g_TestModel.m_VertexBuffer,
+                                    g_TestModel.m_VertexBufferMemory);
         }
 
         CreateUniformBuffers();
         CreateDescriptorSets();
 
 
-//        InitDeferredRendering();
+        InitDeferredRendering();
 
     }
 
@@ -150,21 +145,15 @@ public:
     {
         DestroySwapchain();
 
-        vkDestroySampler(g_Device, g_TextureSampler, nullptr);
-        vkDestroyImageView(g_Device, g_TextureImageView, nullptr);
-        vkDestroyImage(g_Device, g_TextureImage, nullptr);
-        vkFreeMemory(g_Device, g_TextureImageMemory, nullptr);
+        g_TextureImage.destroy();
+        g_TestModel.destroy();
 
-        vkDestroyDescriptorPool(g_Device, g_DescriptorPool, nullptr);
 
         vkDestroyDescriptorSetLayout(g_Device, g_DescriptorSetLayout, nullptr);
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
             vkDestroyBuffer(g_Device, g_UniformBuffers[i], nullptr);
             vkFreeMemory(g_Device, g_UniformBuffersMemory[i], nullptr);
         }
-
-        vkDestroyBuffer(g_Device, g_VertexBuffer, nullptr);
-        vkFreeMemory(g_Device, g_VertexBufferMemory, nullptr);
 
         vkDestroyPipeline(g_Device, g_GraphicsPipeline, nullptr);
         vkDestroyPipelineLayout(g_Device, g_PipelineLayout, nullptr);
@@ -175,10 +164,11 @@ public:
             vkDestroySemaphore(g_Device, g_SemaphoreRenderComplete[i], nullptr);
             vkDestroyFence(g_Device, g_InflightFence[i], nullptr);
         }
+
+        vkDestroySampler(g_Device, g_TextureSampler, nullptr);
+        vkDestroyDescriptorPool(g_Device, g_DescriptorPool, nullptr);
         vkDestroyCommandPool(g_Device, g_CommandPool, nullptr);
-
         vkDestroyDevice(g_Device, nullptr);
-
         vkDestroySurfaceKHR(g_Instance, g_SurfaceKHR, nullptr);
 
         vkh::DestroyInstance(g_Instance);
@@ -270,13 +260,6 @@ public:
         vkGetDeviceQueue(g_Device, queueFamily.m_PresentFamily, 0, &g_PresentQueue);
     }
 
-
-
-
-
-
-
-
     static void CreateSwapchainAndImageViews()
     {
         vkh::CreateSwapchain(g_PhysDevice, g_SurfaceKHR, g_WindowHandle,
@@ -285,17 +268,9 @@ public:
                              g_SwapchainImages, g_SwapchainImageViews);
     }
 
-
-
-
-
-
-
     static void DestroySwapchain()
     {
-        vkDestroyImage(g_Device, g_DepthImage, nullptr);
-        vkDestroyImageView(g_Device, g_DepthImageView, nullptr);
-        vkFreeMemory(g_Device, g_DepthImageMemory, nullptr);
+        g_DepthImage.destroy();
 
         for (auto fb : g_SwapchainFramebuffers) {
             vkDestroyFramebuffer(g_Device, fb, nullptr);
@@ -324,11 +299,10 @@ public:
         CreateFramebuffers();
     }
 
-
     static void CreateDepthTexture()
     {
         vkh::CreateDepthTextureImage(g_SwapchainExtent.width, g_SwapchainExtent.height,
-                                     g_DepthImage, g_DepthImageMemory, g_DepthImageView);
+                                     g_DepthImage.m_Image, g_DepthImage.m_ImageMemory, g_DepthImage.m_ImageView);
     }
 
 
@@ -380,7 +354,7 @@ public:
         FramebufferAttachment out{};
 
         vkh::CreateImage(w, h, out.m_Image,out.m_ImageMemory, format,
-                    depth ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT : VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+                    depth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
         out.m_ImageView = vkh::CreateImageView(out.m_Image, format,
                     depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
@@ -399,15 +373,15 @@ public:
     // 4. Create Gbuffer Pipeline
     static void InitDeferredRendering()
     {
-
         // Gbuffer Attachments
         int attach_size = 1024;
-        VkFormat rgbFormat = VK_FORMAT_R16G16B16_SFLOAT;
+        VkFormat rgbFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
         g_Deferred_Gbuffer.gPosition = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gNormal   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gAlbedo   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gDepth = CreateFramebufferAttachment(attach_size,attach_size, vkh::findDepthFormat(), true);
 
+        return;
         VkAttachmentDescription attachmentDesc[] = {
                 g_Deferred_Gbuffer.gPosition.m_Desc,
                 g_Deferred_Gbuffer.gNormal.m_Desc,
@@ -714,7 +688,7 @@ public:
 
         for (size_t i = 0; i < g_SwapchainImageViews.size(); i++)
         {
-            std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImageView };
+            std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImage.m_ImageView };
 
             VkFramebufferCreateInfo framebufferInfo =
                     vkh::c_Framebuffer(g_SwapchainExtent.width, g_SwapchainExtent.height,
@@ -878,7 +852,7 @@ public:
 
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = g_TextureImageView;
+            imageInfo.imageView = g_TextureImage.m_ImageView;
             imageInfo.sampler = g_TextureSampler;
 
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
@@ -986,11 +960,11 @@ public:
 
 
         VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(cmdbuf, 0, 1, &g_VertexBuffer, offsets);
+        vkCmdBindVertexBuffers(cmdbuf, 0, 1, &g_TestModel.m_VertexBuffer, offsets);
 
         vkCmdBindDescriptorSets(cmdbuf, VK_PIPELINE_BIND_POINT_GRAPHICS, g_PipelineLayout, 0, 1,
                                 &g_DescriptorSets[g_CurrentFrameInflight], 0, nullptr);  // i?
-        vkCmdDraw(cmdbuf, g_DrawVerts, 1, 0, 0);
+        vkCmdDraw(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0);
 
 
         Imgui::RenderGUI(cmdbuf);
@@ -1011,8 +985,9 @@ public:
         vkWaitForFences(g_Device, 1, &g_InflightFence[currframe], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIdx;
-        VkResult rs = vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe],
-                                            VK_NULL_HANDLE, &imageIdx);
+        //VkResult rs =
+        vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe],
+                              nullptr, &imageIdx);
 //        if (rs == VK_ERROR_OUT_OF_DATE_KHR) {
 //            RecreateSwapchain();
 //            return;
@@ -1039,7 +1014,8 @@ public:
         presentInfo.pSwapchains = &g_SwapchainKHR;
         presentInfo.pImageIndices = &imageIdx;
 
-        rs = vkQueuePresentKHR(g_PresentQueue, &presentInfo);
+        //rs =
+        vkQueuePresentKHR(g_PresentQueue, &presentInfo);
         if (/*rs == VK_ERROR_OUT_OF_DATE_KHR || rs == VK_SUBOPTIMAL_KHR || */g_RecreateSwapchainRequested) {
             g_RecreateSwapchainRequested = false;
             RecreateSwapchain();
@@ -1104,7 +1080,7 @@ void VulkanIntl::SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBu
 }
 
 VkImageView VulkanIntl::getTestImgView() {
-    return VulkanIntl_Impl::g_DepthImageView;
+    return VulkanIntl_Impl::g_DepthImage.m_ImageView;
 }
 
 

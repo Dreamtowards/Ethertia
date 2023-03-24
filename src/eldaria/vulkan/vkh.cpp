@@ -160,6 +160,31 @@ public:
     inline static VkQueue       g_GraphicsQueue = nullptr;
 
 
+    struct Image
+    {
+        VkImage m_Image = nullptr;
+        VkDeviceMemory m_ImageMemory = nullptr;
+        VkImageView m_ImageView = nullptr;
+
+        void destroy()
+        {
+            vkDestroyImage(g_Device, m_Image, nullptr);
+            vkFreeMemory(g_Device, m_ImageMemory, nullptr);
+            vkDestroyImageView(g_Device, m_ImageView, nullptr);
+        }
+    };
+    struct VertexData
+    {
+        VkBuffer m_VertexBuffer = nullptr;
+        VkDeviceMemory m_VertexBufferMemory = nullptr;
+        int m_VertexCount = 0;
+
+        void destroy()
+        {
+            vkDestroyBuffer(g_Device, m_VertexBuffer, nullptr);
+            vkFreeMemory(g_Device, m_VertexBufferMemory, nullptr);
+        }
+    };
 
 
     [[nodiscard]]
@@ -771,15 +796,15 @@ public:
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
         imageInfo.extent.width  = texWidth;
         imageInfo.extent.height = texHeight;
+        imageInfo.format = format;
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = 1;
         imageInfo.arrayLayers = 1;
-        imageInfo.format = format;
-        imageInfo.tiling = tiling;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageInfo.usage = usage | VK_IMAGE_USAGE_SAMPLED_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.tiling = tiling;
         imageInfo.flags = 0; // Optional
 
         VK_CHECK_MSG(vkCreateImage(g_Device, &imageInfo, nullptr, &image),
@@ -798,9 +823,9 @@ public:
     {
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image = image;
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         viewInfo.format = format;
+        viewInfo.image = image;
         viewInfo.subresourceRange.aspectMask = aspectFlags;
         viewInfo.subresourceRange.baseMipLevel = 0;
         viewInfo.subresourceRange.levelCount = 1;
@@ -888,6 +913,9 @@ public:
         vkFreeMemory(g_Device, stagingBufferMemory, nullptr);
     }
 
+    static void CreateTextureImage(BitmapImage& bitmapImage, vkh::Image& img) {
+        vkh::CreateTextureImage(bitmapImage, img.m_Image, img.m_ImageMemory, &img.m_ImageView);
+    }
     static void CreateTextureImage(BitmapImage& bitmapImage, VkImage& out_image, VkDeviceMemory& out_imageMemory, VkImageView* out_imageView = nullptr)
     {
         int texWidth = bitmapImage.m_Width;
