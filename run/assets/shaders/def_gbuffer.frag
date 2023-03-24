@@ -5,7 +5,7 @@ layout(location = 0) in vec3 WorldPos;
 layout(location = 1) in vec2 TexCoord;
 layout(location = 2) in vec3 WorldNorm;
 
-layout(location = 0) out vec3 gPosition;
+layout(location = 0) out vec4 gPosition;
 //layout(location = 1) out vec3 gNormal;
 //layout(location = 2) out vec3 gAlbedo;
 
@@ -16,7 +16,7 @@ void main()
 
     // FragColor = vec4(TheColor * texture(texSampler, TexCoord).rgb, 1.0);
 
-    gPosition = WorldPos;
+    gPosition = vec4(WorldPos, 0.5);
 //    gNormal = WorldNorm;
 //    gAlbedo = texture(diffuseSampler, TexCoord).rgb;
 }
