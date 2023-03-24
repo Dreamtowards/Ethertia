@@ -4,10 +4,10 @@
 layout(location = 0) out vec2 TexCoord;
 
 // 0,0: LeftTop. CCW to backward. 2 triangles.
-const vec2 _tex[] = (
-    (0, 0), (0, 1), (1, 1),
-    (1, 1), (1, 0), (0, 0)
-);
+const vec2 _tex[6] = {
+    vec2(0, 0), vec2(0, 1), vec2(1, 1),
+    vec2(1, 1), vec2(1, 0), vec2(0, 0)
+};
 
 void main()
 {

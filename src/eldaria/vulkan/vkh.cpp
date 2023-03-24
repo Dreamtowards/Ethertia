@@ -782,6 +782,9 @@ public:
     }
 
 
+    static void CreateImage() {
+
+    }
 
     static void CreateImage(int texWidth, int texHeight,
                             VkImage& image,
@@ -1199,6 +1202,12 @@ public:
         scissor.offset = offset;
         scissor.extent = extent;
         vkCmdSetScissor(cmdbuf, 0, 1, &scissor);
+    }
+
+    static void CmdBindVertexBuffer(VkCommandBuffer cmdbuf, const VkBuffer vbuf)
+    {
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(cmdbuf, 0, 1, &vbuf, offsets);
     }
 
     static void CmdBindGraphicsPipeline(VkCommandBuffer cmdbuf,

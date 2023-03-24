@@ -312,9 +312,10 @@ public:
     // aka RenderTarget in DX12
     struct FramebufferAttachment
     {
-        VkImage m_Image;
-        VkDeviceMemory m_ImageMemory;
-        VkImageView m_ImageView;
+//        VkImage m_Image;
+//        VkDeviceMemory m_ImageMemory;
+//        VkImageView m_ImageView;
+        vkh::Image m_Img;
         VkAttachmentDescription m_Desc;
     };
     inline static struct
@@ -353,10 +354,10 @@ public:
     {
         FramebufferAttachment out{};
 
-        vkh::CreateImage(w, h, out.m_Image,out.m_ImageMemory, format,
+        vkh::CreateImage(w, h, out.m_Img.m_Image,out.m_Img.m_ImageMemory, format,
                     depth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
-        out.m_ImageView = vkh::CreateImageView(out.m_Image, format,
+        out.m_Img.m_ImageView = vkh::CreateImageView(out.m_Img.m_Image, format,
                     depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
 
         out.m_Desc = vkh::c_AttachmentDescription(format,
@@ -379,9 +380,8 @@ public:
         g_Deferred_Gbuffer.gPosition = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gNormal   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gAlbedo   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
-        g_Deferred_Gbuffer.gDepth = CreateFramebufferAttachment(attach_size,attach_size, vkh::findDepthFormat(), true);
+        g_Deferred_Gbuffer.gDepth    = CreateFramebufferAttachment(attach_size,attach_size, vkh::findDepthFormat(), true);
 
-        return;
         VkAttachmentDescription attachmentDesc[] = {
                 g_Deferred_Gbuffer.gPosition.m_Desc,
                 g_Deferred_Gbuffer.gNormal.m_Desc,
@@ -405,22 +405,28 @@ public:
         subpass.pColorAttachments = colorAttachmentRefs;
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
-        VkSubpassDependency dependencies[2];
-            dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-            dependencies[0].dstSubpass = 0;
-            dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-            dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-            dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-            dependencies[1].srcSubpass = 0;
-            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+        VkSubpassDependency dependency{};
+            dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+            dependency.dstSubpass = 0;
+            dependency.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependency.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+//
+//            dependencies[1].srcSubpass = 0;
+//            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+//            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+//            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+//            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+//            dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+//            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+//        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+//        dependency.dstSubpass = 0;
+//        dependency.srcAccessMask = 0;
+//        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+//        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+//        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -428,17 +434,18 @@ public:
         renderPassInfo.pAttachments = attachmentDesc;
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = std::size(dependencies);
-        renderPassInfo.pDependencies = dependencies;
+        renderPassInfo.dependencyCount = 1;//std::size(dependencies);
+        renderPassInfo.pDependencies = &dependency;
 
         VK_CHECK(vkCreateRenderPass(g_Device, &renderPassInfo, nullptr, &g_Deferred_Gbuffer.m_RenderPass));
 
+        // Gbuffer Framebuffer
 
         VkImageView attachmentViews[] = {
-                g_Deferred_Gbuffer.gPosition.m_ImageView,
-                g_Deferred_Gbuffer.gNormal.m_ImageView,
-                g_Deferred_Gbuffer.gAlbedo.m_ImageView,
-                g_Deferred_Gbuffer.gDepth.m_ImageView
+                g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView,
+                g_Deferred_Gbuffer.gNormal.m_Img.m_ImageView,
+                g_Deferred_Gbuffer.gAlbedo.m_Img.m_ImageView,
+                g_Deferred_Gbuffer.gDepth.m_Img.m_ImageView,
         };
         VkFramebufferCreateInfo framebufferInfo =
                 vkh::c_Framebuffer(attach_size,attach_size, g_Deferred_Gbuffer.m_RenderPass,
@@ -447,39 +454,19 @@ public:
         VK_CHECK(vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_Deferred_Gbuffer.m_Framebuffer));
 
 
+        // Gbuffer Pipeline
 
-
-
-        // ### init init Compose's
-
-        VkDescriptorSetLayout descriptorSetLayout = vkh::CreateDescriptorSetLayout({
-                // binding 0: vsh uniform
-                vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
-                // 1: fsh uniform
-                vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
-                // 2: fsh gPosition
-                vkh::c_DescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
-                // 3: fsh gNormal
-                vkh::c_DescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
-                // 4: fsh gAlbedo
-                vkh::c_DescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkPipelineVertexInputStateCreateInfo vertexInputState = vkh::c_PipelineVertexInputState_H({
+            VK_FORMAT_R32G32B32_SFLOAT, // in_pos
+            VK_FORMAT_R32G32_SFLOAT,    // in_tex
+            VK_FORMAT_R32G32B32_SFLOAT  // in_norm
         });
-
-        VkPipelineLayout pipelineLayout = vkh::CreatePipelineLayout(1, &descriptorSetLayout);
-
-
-        // ### Pipelines for GBuffer & Compose
-
-        // VkPipeline:: GBuffer
-
-        VkPipelineVertexInputStateCreateInfo vertexInputState = vkh::c_PipelineVertexInputState();
         VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkh::c_PipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-        VkPipelineRasterizationStateCreateInfo rasterizator = vkh::c_PipelineRasterizationState();
         VkPipelineViewportStateCreateInfo viewportState = vkh::c_PipelineViewportState(1, 1);
         VkPipelineRasterizationStateCreateInfo rasterizer = vkh::c_PipelineRasterizationState();  // VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE
         VkPipelineMultisampleStateCreateInfo multisampling = vkh::c_PipelineMultisampleState();
         VkPipelineDepthStencilStateCreateInfo depthStencil = vkh::c_PipelineDepthStencilState();
-        VkPipelineDynamicStateCreateInfo dynamicState = vkh::c_PipelineDynamicState();
+        VkPipelineDynamicStateCreateInfo dynamicState = vkh::c_PipelineDynamicState_H_ViewportScissor();
 
         // for gPosition, gNormal, gAlbedo, if no, as color mask = 0x0, black will be render.
         VkPipelineColorBlendAttachmentState colorBlendAttachments[] = {
@@ -489,11 +476,8 @@ public:
         };
         VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(3, colorBlendAttachments);
 
-        VkPipelineShaderStageCreateInfo vshGbuffer =
-                vkh::LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT,Loader::fileResolve("shaders/spv/def_gbuffer/vert.spv"));
-        VkPipelineShaderStageCreateInfo fshGbuffer =
-                vkh::LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT,Loader::fileResolve("shaders/spv/def_gbuffer/frag.spv"));
-        VkPipelineShaderStageCreateInfo shaderStages[] = {vshGbuffer, fshGbuffer};
+        VkPipelineShaderStageCreateInfo shaderStages[2];
+        vkh::LoadShaderStages_H(shaderStages, "shaders/spv/def_gbuffer/{}.spv");
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -510,27 +494,45 @@ public:
         pipelineInfo.layout = g_PipelineLayout;
         pipelineInfo.renderPass = g_Deferred_Gbuffer.m_RenderPass;
         pipelineInfo.subpass = 0;
-        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
         VK_CHECK(vkCreateGraphicsPipelines(g_Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Gbuffer.m_Pipeline));
 
+        vkh::DestroyShaderModules(shaderStages);  // right here. before next load another.
 
 
-        //  VkPipeline:: COMPOSE
 
 
-        VkPipelineShaderStageCreateInfo vshCompose = vkh::LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT,
-                                                                          Loader::fileResolve("shaders/deferred_compose.vsh.spv"));
-        VkPipelineShaderStageCreateInfo fshCompose = vkh::LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT,
-                                                                          Loader::fileResolve("shaders/deferred_compose.fsh.spv"));
-        shaderStages[0] = vshCompose;
-        shaderStages[1] = fshCompose;
+
+//        VkDescriptorSetLayout descriptorSetLayout = vkh::CreateDescriptorSetLayout({
+//                // binding 0: vsh uniform
+//                vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
+//                // 1: fsh uniform
+//                vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+//                // 2: fsh gPosition
+//                vkh::c_DescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
+//                // 3: fsh gNormal
+//                vkh::c_DescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+//                // 4: fsh gAlbedo
+//                vkh::c_DescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+//        });
+//
+//        VkPipelineLayout pipelineLayout = vkh::CreatePipelineLayout(1, &descriptorSetLayout);
+
+
+        //  Compose Pipeline
+
+
+        vkh::LoadShaderStages_H(shaderStages, "shaders/spv/def_compose/{}.spv");
+
         pipelineInfo.stageCount = std::size(shaderStages);
         pipelineInfo.pStages = shaderStages;
 
         VkPipelineVertexInputStateCreateInfo emptyVertexInputState = vkh::c_PipelineVertexInputState();
-
         pipelineInfo.pVertexInputState = &emptyVertexInputState;
+
+        colorBlending = vkh::c_PipelineColorBlendState(1, colorBlendAttachments);
+        pipelineInfo.pColorBlendState = &colorBlending;
+
         pipelineInfo.renderPass = g_RenderPass;
 
 
@@ -539,12 +541,7 @@ public:
 
 
 
-
-        vkDestroyShaderModule(g_Device, vshGbuffer.module, nullptr);
-        vkDestroyShaderModule(g_Device, fshGbuffer.module, nullptr);
-
-        vkDestroyShaderModule(g_Device, vshCompose.module, nullptr);
-        vkDestroyShaderModule(g_Device, fshCompose.module, nullptr);
+        vkh::DestroyShaderModules(shaderStages);
 
     }
 
@@ -585,19 +582,15 @@ public:
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-        VkAttachmentDescription colorAttachment =
-                vkh::c_AttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
-        // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
-        VkAttachmentDescription depthAttachment =
-                vkh::c_AttachmentDescription(vkh::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-
-        std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
+        VkAttachmentDescription attachmentsDesc[] = {
+                vkh::c_AttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
+                vkh::c_AttachmentDescription(vkh::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
+        };
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = attachments.size();
-        renderPassInfo.pAttachments = attachments.data();
+        renderPassInfo.attachmentCount = std::size(attachmentsDesc);
+        renderPassInfo.pAttachments = attachmentsDesc;
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
         renderPassInfo.dependencyCount = 1;
@@ -919,21 +912,34 @@ public:
 
         // Gbuffer
 
-//        VkExtent2D gbufferExtent = g_SwapchainExtent;
-//        vkh::CmdBeginRenderPass(cmdbuf, g_Deferred_Gbuffer.m_RenderPass,
-//                                        g_Deferred_Gbuffer.m_Framebuffer, gbufferExtent, 4);
-//
-//        vkh::CmdBindGraphicsPipeline(cmdbuf, g_Deferred_Gbuffer.m_Pipeline);
-//        vkh::CmdSetViewport(cmdbuf, gbufferExtent);
-//        vkh::CmdSetScissor(cmdbuf, gbufferExtent);
-//
-//
-//
-//        vkCmdEndRenderPass(cmdbuf);  // End Gbuffer
+        VkClearValue clearValues[4]{};
+        clearValues[0].color = {0.0f, 0.0f, 0.2f, 1.0f};
+        clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[3].depthStencil = {1.0f, 0};
+        VkExtent2D gbufferExtent = {1024, 1024};
+        vkh::CmdBeginRenderPass(cmdbuf, g_Deferred_Gbuffer.m_RenderPass,
+                                        g_Deferred_Gbuffer.m_Framebuffer, gbufferExtent, 4, clearValues);
+
+        vkh::CmdBindGraphicsPipeline(cmdbuf, g_Deferred_Gbuffer.m_Pipeline);
+        vkh::CmdSetViewport(cmdbuf, gbufferExtent);
+        vkh::CmdSetScissor(cmdbuf, gbufferExtent);
+
+        vkCmdBindDescriptorSets(cmdbuf, VK_PIPELINE_BIND_POINT_GRAPHICS, g_PipelineLayout, 0, 1,
+                                &g_DescriptorSets[g_CurrentFrameInflight], 0, nullptr);  // i?
+
+        vkh::CmdBindVertexBuffer(cmdbuf, g_TestModel.m_VertexBuffer);
+
+        vkCmdDraw(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0);
+
+
+        vkCmdEndRenderPass(cmdbuf);  // End Gbuffer
+
+
+
 
 
         // Main
-        VkClearValue clearValues[2]{};
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
         vkh::CmdBeginRenderPass(cmdbuf, g_RenderPass, g_SwapchainFramebuffers[imageIdx], g_SwapchainExtent,
@@ -942,34 +948,19 @@ public:
         vkh::CmdBindGraphicsPipeline(cmdbuf, g_GraphicsPipeline);
         vkh::CmdSetViewport(cmdbuf, g_SwapchainExtent);
         vkh::CmdSetScissor(cmdbuf, g_SwapchainExtent);
-//        vkCmdBindPipeline(cmdbuf, VK_PIPELINE_BIND_POINT_GRAPHICS, g_GraphicsPipeline);
-//
-//        VkViewport viewport{};
-//        viewport.x = 0.0f;
-//        viewport.y = 0.0f;
-//        viewport.width = g_SwapchainExtent.width;
-//        viewport.height = g_SwapchainExtent.height;
-//        viewport.minDepth = 0.0f;
-//        viewport.maxDepth = 1.0f;
-//        vkCmdSetViewport(cmdbuf, 0, 1, &viewport);
-//
-//        VkRect2D scissor{};
-//        scissor.offset = {0, 0};
-//        scissor.extent = g_SwapchainExtent;
-//        vkCmdSetScissor(cmdbuf, 0, 1, &scissor);
-
-
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(cmdbuf, 0, 1, &g_TestModel.m_VertexBuffer, offsets);
 
         vkCmdBindDescriptorSets(cmdbuf, VK_PIPELINE_BIND_POINT_GRAPHICS, g_PipelineLayout, 0, 1,
                                 &g_DescriptorSets[g_CurrentFrameInflight], 0, nullptr);  // i?
+
+        vkh::CmdBindVertexBuffer(cmdbuf, g_TestModel.m_VertexBuffer);
+
         vkCmdDraw(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0);
 
 
         Imgui::RenderGUI(cmdbuf);
 
         vkCmdEndRenderPass(cmdbuf);
+
 
         if (vkEndCommandBuffer(cmdbuf) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer.");
@@ -985,22 +976,14 @@ public:
         vkWaitForFences(g_Device, 1, &g_InflightFence[currframe], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIdx;
-        //VkResult rs =
-        vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe],
-                              nullptr, &imageIdx);
-//        if (rs == VK_ERROR_OUT_OF_DATE_KHR) {
-//            RecreateSwapchain();
-//            return;
-//        } else if (!(rs == VK_SUCCESS || rs == VK_SUBOPTIMAL_KHR)) {
-//            throw std::runtime_error("failed to acquire swapchain image.");
-//        }
+        vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe], nullptr, &imageIdx);
         vkResetFences(g_Device, 1, &g_InflightFence[currframe]);
         vkResetCommandBuffer(g_CommandBuffers[currframe], 0);
 
+        UpdateUniformBuffer(currframe);
 
         RecordCommandBuffer(g_CommandBuffers[currframe], imageIdx);
 
-        UpdateUniformBuffer(currframe);
 
         vkh::QueueSubmit(g_GraphicsQueue, g_CommandBuffers[currframe],
                          g_SemaphoreImageAcquired[currframe], g_SemaphoreRenderComplete[currframe],
@@ -1014,17 +997,13 @@ public:
         presentInfo.pSwapchains = &g_SwapchainKHR;
         presentInfo.pImageIndices = &imageIdx;
 
-        //rs =
         vkQueuePresentKHR(g_PresentQueue, &presentInfo);
-        if (/*rs == VK_ERROR_OUT_OF_DATE_KHR || rs == VK_SUBOPTIMAL_KHR || */g_RecreateSwapchainRequested) {
+        if (g_RecreateSwapchainRequested) {
             g_RecreateSwapchainRequested = false;
             RecreateSwapchain();
         }
-//        else if (rs != VK_SUCCESS) {
-//            throw std::runtime_error("failed to present swapchain image.");
-//        }
 
-        // vkQueueWaitIdle(g_vkPresentQueue);  // BigWaste on GPU.
+//         vkQueueWaitIdle(g_PresentQueue);  // BigWaste on GPU.
 
         g_CurrentFrameInflight = (g_CurrentFrameInflight + 1) % MAX_FRAMES_INFLIGHT;
     }
@@ -1080,7 +1059,7 @@ void VulkanIntl::SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBu
 }
 
 VkImageView VulkanIntl::getTestImgView() {
-    return VulkanIntl_Impl::g_DepthImage.m_ImageView;
+    return VulkanIntl_Impl::g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView;
 }
 
 
