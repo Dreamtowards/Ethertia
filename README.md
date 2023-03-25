@@ -1,16 +1,16 @@
 <img height="130" align="right" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/_figures/ethertia-poster0225d4-lres.jpg">
 
-# Ethertia <small>· 以太效應</small>
+# Ethertia <sub>· 以太效應</sub>
 
-**Building · Survive · Interact** | A Voxel Game, Built-in Editor, with GL & C++.
+**Building · Survive · Interact** &nbsp; | &nbsp; A Voxel Game, Built-in Editor, with GL & C++.
 
 [Ethertia.com](https://ethertia.com) - 
 [Roadmap](https://github.com/users/Dreamtowards/projects/2) - 
-[Wikipedia](https://zh.wikipedia.org/wiki/Ethertia) - 
-[@Bilibili](https://space.bilibili.com/19483166) - 
-[@QQ](https://jq.qq.com/?_wv=1027&k=tgM29oDM) 
-|
-[@Eldrine Le Prismarine](https://elytra.dev/~pris)
+[Wikipedia](https://zh.wikipedia.org/wiki/Ethertia) -
+[Discord](https://zh.wikipedia.org/wiki/Ethertia) -
+[Bilibili](https://space.bilibili.com/19483166) - 
+[QQ](https://jq.qq.com/?_wv=1027&k=tgM29oDM) -
+[Eldrine Le Prismarine](https://elytra.dev/~pris)
 
 [![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/darwin.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml)
 [![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml)
