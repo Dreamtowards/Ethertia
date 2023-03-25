@@ -20,7 +20,8 @@
 
 ![](run/screenshots/_figures/ethertia-poster0225d4-lres.jpg)
 
-Ethertia, a GAME program, featured Voxel, Procedural World Gen, Built-in Editor.  
+Ethertia, a GAME program, featured Voxel, Procedural World Gen, Built-in Editor. 
+with Vulkan, Cplusplus.
 
 [comment]: <> (C++ written, render with Vulkan & OpenGL.)
 
@@ -36,6 +37,7 @@ Preview Screenshots:
 - [Build & Run & Dev](run/assets/docs/zh-cn/setup-dev.md)
 - [Source Overview]()
 - [Make some _noise_]()
+- [Getting Dev.]()
 - [About Ethertia]()
 
 #### **Misc**
@@ -65,25 +67,12 @@ Preview Screenshots:
 People came here may wanted Graphics / Voxel gamedev knownledges.
 however, there is some my favorite resources:
 
-- Vulkan
   - [Vulkan Tutorial](https://vulkan-tutorial.com/Introduction)
   - [vkguide.dev](https://vkguide.dev/docs/introduction/vulkan_execution/)
   - [imgui/example-glfw-vulkan]()
   - [Vulkan Examples by SaschaWillems](https://github.com/SaschaWillems/Vulkan#Headless)
   - [Vk Journey](https://vulkanppp.wordpress.com/)
-
-- OpenGL
-  
-- Shaders
   - [3D Game Shaders for Beginners](https://github.com/lettier/3d-game-shaders-for-beginners)
-
-- Engine Architecture & Common
   - The Cherno - *Hazel Engine*
   - [GAMES104 Courses]()
 
-
-### **CLangFormat**
-
-- 如何设计 BitmapImage 的传递方式? Value? Ptr?
-- 如何设计 VertexData 的排列? positions[], tex[].. 
-  还是 Vertex<vec3 pos, vec2 tex> vectices[] 

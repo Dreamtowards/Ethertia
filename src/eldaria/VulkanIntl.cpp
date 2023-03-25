@@ -454,6 +454,7 @@ public:
         VK_CHECK(vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_Deferred_Gbuffer.m_Framebuffer));
 
 
+
         // Gbuffer Pipeline
 
         VkPipelineVertexInputStateCreateInfo vertexInputState = vkh::c_PipelineVertexInputState_H({

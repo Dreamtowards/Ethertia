@@ -410,35 +410,44 @@ public:
         return queueFamilyIdxs;
     }
 
-
-    static int RateGPU(VkPhysicalDevice physicalDevice, VkSurfaceKHR surfaceKHR)
+    class GPU
     {
-        VkPhysicalDeviceProperties deviceProperties;
-        vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+    public:
+        bool isDiscrete;
 
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+        VkPhysicalDeviceProperties m_Properties;
+        VkPhysicalDeviceFeatures m_Features;
+    };
 
-        if (!deviceFeatures.samplerAnisotropy)
-            return 0;
 
-        QueueFamilyIndices queueFamily = vkh::findQueueFamilies(physicalDevice, surfaceKHR);
-        if (!queueFamily.isComplete())
-            return 0;
-
-        SwapchainSupportDetails swapchainSupport = querySwapchainSupport(physicalDevice, surfaceKHR);
-        if (!swapchainSupport.isSwapChainAdequate())
-            return 0;
-
-        int score = 0;
-        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-            score += 800;
-        }
-        score += deviceProperties.limits.maxImageDimension2D;
-
-        Log::info("Device ", deviceProperties.deviceName);
-        return score;
-    }
+//    static int RateGPU(VkPhysicalDevice physicalDevice, VkSurfaceKHR surfaceKHR)
+//    {
+//        VkPhysicalDeviceProperties deviceProperties;
+//        vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+//
+//        VkPhysicalDeviceFeatures deviceFeatures;
+//        vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+//
+//        if (!deviceFeatures.samplerAnisotropy)
+//            return 0;
+//
+//        QueueFamilyIndices queueFamily = vkh::findQueueFamilies(physicalDevice, surfaceKHR);
+//        if (!queueFamily.isComplete())
+//            return 0;
+//
+//        SwapchainSupportDetails swapchainSupport = querySwapchainSupport(physicalDevice, surfaceKHR);
+//        if (!swapchainSupport.isSwapChainAdequate())
+//            return 0;
+//
+//        int score = 0;
+//        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+//            score += 800;
+//        }
+//        score += deviceProperties.limits.maxImageDimension2D;
+//
+//        Log::info("Device ", deviceProperties.deviceName);
+//        return score;
+//    }
 
     static void CreateSurface(VkInstance instance, GLFWwindow* glfwWindow, VkSurfaceKHR& out_SurfaceKHR)
     {

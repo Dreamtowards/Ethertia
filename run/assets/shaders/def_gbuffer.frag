@@ -10,6 +10,8 @@ layout(location = 0) out vec4 gPosition;
 //layout(location = 2) out vec3 gAlbedo;
 
 layout(set = 0, binding = 1) uniform sampler2D diffuseSampler;
+layout(set = 0, binding = 2) uniform sampler2D normalSampler;
+layout(set = 0, binding = 3) uniform sampler2D dramSampler;  // Disp, Refl, AO, Metal
 
 void main()
 {
