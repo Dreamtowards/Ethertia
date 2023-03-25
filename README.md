@@ -1,8 +1,8 @@
-<img height="95" align="right" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/_figures/ethertia-poster0225d4-lres.jpg">
+<img height="130" align="right" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/_figures/ethertia-poster0225d4-lres.jpg">
 
-# Ethertia · 以太效應
+# Ethertia <small>· 以太效應</small>
 
-**Building · Survive · Interact**
+**Building · Survive · Interact** | A Voxel Game, Built-in Editor, with GL & C++.
 
 [Ethertia.com](https://ethertia.com) - 
 [Roadmap](https://github.com/users/Dreamtowards/projects/2) - 
@@ -15,8 +15,6 @@
 [![Build-MacOSX](https://github.com/Dreamtowards/Ethertia/actions/workflows/darwin.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/macos.yml)
 [![Build-Windows](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml/badge.svg)](https://github.com/Dreamtowards/Ethertia/actions/workflows/windows.yml)
 
-
-A Voxel Game, Built-in Editor, made with GL & C++.
 
 ---
 
