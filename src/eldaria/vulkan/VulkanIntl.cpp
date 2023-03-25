@@ -471,7 +471,7 @@ public:
         VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(3, colorBlendAttachments);
 
         VkPipelineShaderStageCreateInfo shaderStages[2];
-        vkh::LoadShaderStages_H(shaderStages, "shaders/spv/def_gbuffer/{}.spv");
+        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -516,7 +516,7 @@ public:
         //  Compose Pipeline
 
 
-        vkh::LoadShaderStages_H(shaderStages, "shaders/spv/def_compose/{}.spv");
+        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_compose/{}.spv");
 
         pipelineInfo.stageCount = std::size(shaderStages);
         pipelineInfo.pStages = shaderStages;
@@ -618,7 +618,7 @@ public:
         g_PipelineLayout = vkh::CreatePipelineLayout(1, &g_DescriptorSetLayout);
 
         VkPipelineShaderStageCreateInfo shaderStages[2];
-        vkh::LoadShaderStages_H(shaderStages, "shaders/spv/def_gbuffer/{}.spv");
+        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

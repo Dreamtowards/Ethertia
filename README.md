@@ -1,8 +1,10 @@
-<br>
+<img style="width: 25%; float: right;" src="https://github.com/Dreamtowards/Ethertia/raw/main/run/screenshots/_figures/ethertia-poster0225d4-lres.jpg">
 
-## Ethertia · 以太效應
+# Ethertia · 以太效應
 
 **Building · Survive · Interact**
+
+A Voxel Game, Built-in Editor, made with GL & C++.
 
 [Ethertia.com](https://ethertia.com) - 
 [Roadmap](https://github.com/users/Dreamtowards/projects/2) - 
@@ -18,14 +20,9 @@
 
 [comment]: <> (---)
 
-![](run/screenshots/_figures/ethertia-poster0225d4-lres.jpg)
-
-Ethertia, a GAME program, featured Voxel, Procedural World Gen, Built-in Editor. 
-with Vulkan, Cplusplus.
-
 [comment]: <> (C++ written, render with Vulkan & OpenGL.)
 
-Preview Screenshots:
+Screenshots / Preview:
 
 ![](https://camo.githubusercontent.com/9e94d950fab8bfbc6400bcc629c95112e50e8bb5d1859831351ae92f1a87b87c/68747470733a2f2f692e3332383838382e78797a2f323032332f30332f31302f73696b354e2e706e67)
 
@@ -36,23 +33,17 @@ Preview Screenshots:
 ### **Getting Started**
 - [Build & Run & Dev](run/assets/docs/zh-cn/setup-dev.md)
 - [Source Overview]()
-- [Make some _noise_]()
 - [Getting Dev.]()
-- [About Ethertia]()
+- [What/Why Ethertia]()
 
-#### **Misc**
-- [社区给出的建议](mentor-suggs.md)
 
-### **Systems**
+### **DevDoc**
 
-- [ImGui]()
 - [WorldGen]()
-  - Biomes
-- Graphics
+- [Graphics]()
 - [Mod]()
 - [Multiplayer & Networking]()
-
-#### **All Versions**
+- [ImGui]()
 
 ### **Developers**
 
@@ -60,7 +51,12 @@ Preview Screenshots:
 - Thaumstrail
 - Kmroiosn
 
+<br>
 
+- [社区给出的建议](mentor-suggs.md)
+
+
+<!--
 
 ### **Lectures**
 

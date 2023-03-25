@@ -40,7 +40,7 @@ static void Destroy();
 static void RunMainLoop();
 
 
-// Entry Point & Entire Lifetime.
+// EntryPoint. entire lifetime.
 
 int main()
 {
@@ -107,7 +107,6 @@ static void Init()
     g_Player->switchGamemode(Gamemode::SPECTATOR);
     g_Player->setFlying(true);
 
-//    GuiIngame::initGUIs();
 
     // Proc Threads
     ChunkMeshProc::initThread();

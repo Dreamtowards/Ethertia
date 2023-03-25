@@ -39,10 +39,7 @@ static void InitStyle()
     fontConf.OversampleH = 3;
     fontConf.OversampleV = 3;
     fontConf.RasterizerMultiply = 1.6f;
-    // fontConf.GlyphExtraSpacing.x = 1.0f;
     io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
-
-//        imgui_io.DeltaTime = 1.0f / 60.0f;
 
     // Enable Docking.
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -123,7 +120,7 @@ void ImGuis::Init()
     InitStyle();
 
     ImNodes::CreateContext();
-    ImNodes::GetIO().EmulateThreeButtonMouse.Modifier = &io.KeyShift;
+    ImNodes::GetIO().EmulateThreeButtonMouse.Modifier = &ImGui::GetIO().KeyShift;
 
 }
 
@@ -250,15 +247,9 @@ static void _MenuSystem()
 
     ImGui::Separator();
 
-    if (ImGui::BeginMenu("Settings..")) {
-
-        if (ImGui::MenuItem("Profile")) {}
-        if (ImGui::MenuItem("Graphics")) {}
-        if (ImGui::MenuItem("Sounds & Music")) {}
-        if (ImGui::MenuItem("Controls")) {}
-        if (ImGui::MenuItem("Language")) {}
-
-        ImGui::EndMenu();
+    if (ImGui::MenuItem("Settings.."))
+    {
+        Settings::w_Settings = true;
     }
 
     ImGui::MenuItem("Mods", "0 mods loaded");

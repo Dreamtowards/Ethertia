@@ -66,9 +66,39 @@ include_directories(lib/imgui-docking)
 
 
 add_executable(Ethertia
-#        lib/glad/glad.c
-#        lib/tinyfd/tinyfiledialogs.c
-#
+        lib/glad/glad.c
+        lib/tinyfd/tinyfiledialogs.c
+
+        lib/imgui-docking/imgui.cpp
+        lib/imgui-docking/imgui_draw.cpp
+        lib/imgui-docking/imgui_widgets.cpp
+        lib/imgui-docking/imgui_tables.cpp
+        lib/imgui-docking/imgui_demo.cpp
+        lib/imgui-docking/backends/imgui_impl_glfw.cpp
+#        lib/imgui-docking/backends/imgui_impl_vulkan.cpp
+        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
+
+        lib/imguizmo/ImGuizmo.cpp
+        lib/imgui-knobs/imgui-knobs.cpp
+
+        lib/imgui-imnodes/imnodes.cpp
+
+        src/ethertia/imgui/ImGuis.cpp
+        src/ethertia/util/Loader.cpp
+        src/ethertia/init/Controls.cpp
+        src/ethertia/init/Settings.cpp
+        src/ethertia/render/Window.cpp
+        src/ethertia/render/RenderEngine.cpp
+        src/ethertia/render/RenderCommand_ImplGL.cpp
+        src/ethertia/item/ItemComponents.cpp
+        src/ethertia/world/World.cpp
+
+        src/ethertia/gui/Gui.cpp
+        src/ethertia/Ethertia.cpp
+        )
+
+
+add_executable(Eldaria
         lib/imgui-docking/imgui.cpp
         lib/imgui-docking/imgui_draw.cpp
         lib/imgui-docking/imgui_widgets.cpp
@@ -76,30 +106,13 @@ add_executable(Ethertia
         lib/imgui-docking/imgui_demo.cpp
         lib/imgui-docking/backends/imgui_impl_glfw.cpp
         lib/imgui-docking/backends/imgui_impl_vulkan.cpp
-#        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
-#
-#        lib/imguizmo/ImGuizmo.cpp
-#        lib/imgui-knobs/imgui-knobs.cpp
-#
-#        lib/imgui-imnodes/imnodes.cpp
-#
-#        src/ethertia/imgui/ImGuis.cpp
-#        src/ethertia/util/Loader.cpp
-#        src/ethertia/init/Controls.cpp
-#        src/ethertia/init/Settings.cpp
-#        src/ethertia/render/Window.cpp
-#        src/ethertia/render/RenderEngine.cpp
-#        src/ethertia/render/RenderCommand_ImplGL.cpp
-#        src/ethertia/item/ItemComponents.cpp
-#        src/ethertia/world/World.cpp
-#
-#        src/ethertia/gui/Gui.cpp
-#        src/ethertia/Ethertia.cpp
+
         src/eldaria/Eldaria.cpp
         src/eldaria/util/Loader.cpp
         src/eldaria/vulkan/VulkanIntl.cpp
         src/eldaria/imgui/Imgui.cpp
         )
+
 
 add_executable(DedicatedServer
         src/ethertia/network/DedicatedServer.cpp
@@ -132,15 +145,17 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 
 else()
     target_link_directories(Ethertia PUBLIC ${BIN_DIR})
+    target_link_directories(Eldaria PUBLIC ${BIN_DIR})
 
-    target_link_libraries(Ethertia BulletDynamics BulletCollision LinearMath
-            FastNoise)
+    target_link_libraries(Ethertia BulletDynamics BulletCollision LinearMath FastNoise)
 
     if (APPLE)
         target_link_libraries(Ethertia glfw.3 openal)
+        target_link_libraries(Eldaria glfw.3 openal)
     endif ()
     if(WIN32)
         target_link_libraries(Ethertia glfw3 OpenAL32)
+        target_link_libraries(Eldaria glfw3 OpenAL32)
     endif()
 endif()
 
@@ -168,7 +183,7 @@ target_link_libraries(Ethertia nbt++)
 #VK_DRIVER_FILES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json    # a.k.a. VK_ICD_FILENAMES, installable client drivers.
 #VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d           # for validation layer.
 include_directories(lib/vulkan/include)
-target_link_directories(Ethertia PUBLIC lib/vulkan/bin/darwin-x64)
-target_link_libraries(Ethertia vulkan.1.3.236 )
+target_link_directories(Eldaria PUBLIC lib/vulkan/bin/darwin-x64)
+target_link_libraries(Eldaria vulkan.1.3.236 )
 
 #if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. it's linked by ICD loaders.
