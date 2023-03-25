@@ -8,8 +8,7 @@
 #include <chrono>
 #include <array>
 
-#include <eldaria/Loader.h>
-
+#include <eldaria/util/Loader.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>
 
@@ -18,12 +17,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
-
-#include "imgui/Imgui.h"
-
 #include "VulkanIntl.h"
 
-#include "vulkan/vkh.cpp"
+#include <eldaria/vulkan/vkh.cpp>
+#include <eldaria/imgui/Imgui.h>
 
 
 vkh::VertexData g_TestModel;
@@ -104,10 +101,8 @@ public:
         CreateCommandPool();
         CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
-        vkh::g_Device = g_Device;
-        vkh::g_PhysDevice = g_PhysDevice;
-        vkh::g_GraphicsQueue = g_GraphicsQueue;
-        vkh::g_CommandPool = g_CommandPool;
+        vkh::g_Device = g_Device; vkh::g_PhysDevice = g_PhysDevice;
+        vkh::g_GraphicsQueue = g_GraphicsQueue; vkh::g_CommandPool = g_CommandPool;
 
         g_TextureSampler = vkh::CreateTextureSampler();
 
@@ -119,8 +114,6 @@ public:
 
         CreateDescriptorSetLayout();
         CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
-
-
 
         {
             BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/viking_room.png");
@@ -228,7 +221,7 @@ public:
 
         // Device Features
         VkPhysicalDeviceFeatures deviceFeatures{};
-        //vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+        vkGetPhysicalDeviceFeatures(g_PhysDevice, &deviceFeatures);
         deviceFeatures.samplerAnisotropy = VK_TRUE;
         createInfo.pEnabledFeatures = &deviceFeatures;
 

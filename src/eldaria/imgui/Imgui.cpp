@@ -10,7 +10,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_vulkan.h>
 
-#include "../VulkanIntl.h"
+#include <eldaria/vulkan/VulkanIntl.h>
 
 #include <array>
 #include <vector>
@@ -175,7 +175,7 @@ void Imgui::Destroy()
     // ImGui_ImplVulkanH_DestroyWindow(g_Instance, g_Device, &g_MainWindowData, g_Allocator);
 }
 
-#include "../DebugStat.h"
+#include <eldaria/init/DebugStat.h>
 
 #include "Imgui_Intl_Impl.cpp"
 

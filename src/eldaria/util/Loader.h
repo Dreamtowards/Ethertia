@@ -5,7 +5,7 @@
 #ifndef ETHERTIA_LOADER_H
 #define ETHERTIA_LOADER_H
 
-#include <eldaria/BitmapImage.h>
+#include <eldaria/util/BitmapImage.h>
 
 #include <glm/glm.hpp>
 

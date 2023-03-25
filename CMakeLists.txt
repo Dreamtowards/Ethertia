@@ -96,10 +96,9 @@ add_executable(Ethertia
 #        src/ethertia/gui/Gui.cpp
 #        src/ethertia/Ethertia.cpp
         src/eldaria/Eldaria.cpp
-        src/eldaria/Loader.cpp
-        src/eldaria/VulkanIntl.cpp
+        src/eldaria/util/Loader.cpp
+        src/eldaria/vulkan/VulkanIntl.cpp
         src/eldaria/imgui/Imgui.cpp
-#        src/ethertia/render/vulkan/Copy.cpp
         )
 
 add_executable(DedicatedServer

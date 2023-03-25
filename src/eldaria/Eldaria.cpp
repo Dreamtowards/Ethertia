@@ -3,12 +3,12 @@
 //
 
 #include "Window.h"
-#include "VulkanIntl.h"
+#include "vulkan/VulkanIntl.h"
 #include "imgui/Imgui.h"
 
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/Log.h>
-#include "DebugStat.h"
+#include <eldaria/init/DebugStat.h>
 
 
 
@@ -21,13 +21,6 @@ static void RunMainLoop();
 
 int main(int argc, char** argv, char** env)
 {
-    // Username: Win[USERNAME] Mac[USER, LOGNAME]
-    // Home:     Win[HOMEPATH, USERPROFILE] Mac[Home]
-//    while (*env) {
-//        Log::info("Env  {}", *env);
-//        ++env;
-//    }
-
     Init();
 
     while (g_Running)
