@@ -130,7 +130,6 @@ Loader::DataBlock::DataBlock(void* data, size_t size, const std::string& filenam
 Loader::DataBlock::~DataBlock()
 {
     std::free(m_Data);
-
     Log::info("Delete DataBlock: {}", m_Filename);
 }
 

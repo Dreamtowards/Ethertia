@@ -85,7 +85,7 @@ static void Init()
     ShaderProgram::loadAll();
     RenderEngine::init();
     AudioEngine::init();
-    Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target_name(), std::endian::native == std::endian::big ? "big" : "little");
+    Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target(), std::endian::native == std::endian::big ? "big" : "little");
 
     // Materials & Items
     Materials::registerMaterialItems();  // before items tex load.
@@ -452,16 +452,6 @@ const Ethertia::Viewport& Ethertia::getViewport() {
 
 
 
-void ShaderProgram::setViewProjection(bool view)
-{
-    setMatrix4f("matProjection", Ethertia::getCamera().matProjection);
-
-    setMatrix4f("matView", view ? Ethertia::getCamera().matView : glm::mat4(1.0));
-}
-
-void ShaderProgram::reload_sources_by_filenames() {
-    Loader::loadShaderProgram(this, m_SourceLocation);
-}
 
 
 float Scheduler::_intl_program_time() {

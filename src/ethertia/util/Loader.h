@@ -257,11 +257,11 @@ public:
 
     // macOS:   darwin-x64  | darwin-arm64
     // Windows: windows-x64 | windows-arm64
-    static std::string sys_target_name();
+    static std::string sys_target();
 
     // macOS:   lib<Name>.dylib
     // Windows: lib<Name>.dll
-    static std::string sys_lib_name(const std::string& name);
+    static std::string sys_libname(const std::string& name);
 
 
 

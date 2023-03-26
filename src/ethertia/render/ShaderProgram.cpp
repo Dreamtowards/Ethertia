@@ -65,3 +65,22 @@ void ShaderProgram::load(const char *vsh_src, const char *fsh_src, const char *g
     glDeleteShader(fsh);
     if (gsh) glDeleteShader(gsh);
 }
+
+
+
+
+
+
+#include <ethertia/Ethertia.h>
+#include <ethertia/util/Loader.h>
+
+void ShaderProgram::setViewProjection(bool view)
+{
+    setMatrix4f("matProjection", Ethertia::getCamera().matProjection);
+
+    setMatrix4f("matView", view ? Ethertia::getCamera().matView : glm::mat4(1.0));
+}
+
+void ShaderProgram::reload_sources_by_filenames() {
+    Loader::loadShaderProgram(this, m_SourceLocation);
+}

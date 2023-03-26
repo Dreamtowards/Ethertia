@@ -38,14 +38,15 @@ public:
         if (data.contains("website")) manifest.version = data["website"];
 
         std::string nameCompact = manifest.name; Strings::erase(nameCompact, ' ');
-        std::string pathProgram = _ModProgramPath(modpath, nameCompact);
+        auto conf_bin = data["bin"];
+        std::string binPath = conf_bin[Loader::sys_target()];
         {
-            bool succ = loadModProgram(pathProgram.c_str());
+            bool succ = loadModProgram(binPath.c_str());
 
             assert(succ && "Failed to load mod program.");
         }
 
-        Log::info("Mod {} ({}, {}) loaded in\1", manifest.name, manifest.id, pathProgram);
+        Log::info("Mod {} ({}, {}) loaded in\1", manifest.name, manifest.id, binPath);
     }
 
 
@@ -54,9 +55,9 @@ public:
 
 
     // <ModDir>/bin/<windows|darwin>-<x64|arm64>
-    static std::string _ModProgramPath(const std::string& modpath, const std::string& name) {
-        return modpath + "/bin/" + Loader::sys_target_name() + "/" + Loader::sys_lib_name(name);
-    }
+//    static std::string _ModProgramPath(const std::string& modpath, const std::string& name) {
+//        return modpath + "/bin/" + Loader::sys_target_name() + "/" + Loader::sys_lib_name(name);
+//    }
 
     static bool loadModProgram(const char* file)
     {

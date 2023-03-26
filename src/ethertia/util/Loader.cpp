@@ -422,7 +422,7 @@ const char* Loader::sysname()
 }
 
 // https://stackoverflow.com/questions/152016/detecting-cpu-architecture-compile-time
-std::string Loader::sys_target_name()
+std::string Loader::sys_target()
 {
 #if defined(__APPLE__) && defined(__x86_64__)
     return "darwin-x64";
@@ -437,7 +437,7 @@ std::string Loader::sys_target_name()
 #endif
 }
 
-std::string Loader::sys_lib_name(const std::string& name)  {
+std::string Loader::sys_libname(const std::string& name)  {
 #if __APPLE__
     return "lib" + name + ".dylib";
 #elif _WIN32
