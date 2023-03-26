@@ -29,7 +29,7 @@ void Settings::loadSettings() {  using nlohmann::json;
     if (!Loader::fileExists(SETTINGS_FILE))
         return;
 
-    json settings = json::parse(Loader::loadFile(SETTINGS_FILE).new_string());
+    json settings = json::parse((char*)Loader::loadFile(SETTINGS_FILE).data());
 
     set_ifexists(settings, "view_distance",  &s_ViewDistance);
     set_ifexists(settings, "fov",            &Ethertia::getCamera().fov);

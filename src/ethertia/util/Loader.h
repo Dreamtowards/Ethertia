@@ -28,40 +28,71 @@
 // Dup with GuiCommon.h
 #define DECL_Inst(T) static T* Inst() { static T* INST = new T(); return INST; }
 
+// Assets Location
+class AssetId
+{
+public:
+    AssetId(const std::string& uri) : m_URI(uri) {}
+
+private:
+    std::string m_URI = nullptr;
+
+//    operator std::string() {
+//        return
+//    }
+};
+
+class VertexData
+{
+public:
+    struct Vertex {
+        glm::vec3 pos;
+        glm::vec2 tex;
+        glm::vec3 norm;
+    };
+
+    VertexData(const std::string& _filename);
+    ~VertexData();
+
+    const void* data() const { return m_Vertices.data(); }
+    size_t size() const { return sizeof(m_Vertices[0]) * m_Vertices.size(); }
+
+    size_t vertexCount() const { return m_Vertices.size(); }
+
+    std::vector<Vertex> m_Vertices;
+    std::string m_Filename;  // optional. debug tag.
+};
+
 
 class Loader {
 
 public:
+    struct DataBlock
+    {
+        const void* data() const;
+        size_t size() const;
+
+        DataBlock(void* data, size_t size, const std::string& filename);
+        ~DataBlock();
+
+    private:
+        void*       m_Data;
+        size_t      m_Size;
+        std::string m_Filename;  // optional. debug tag.
+    };
 
     inline static std::string ASSETS = "assets/";
-
-
-    struct datablock
-    {
-        void* data;
-        size_t length;  // len in bytes
-
-        std::string new_string() {
-            return std::string((char*)data, length);
-        }
-
-        datablock(void* _data, size_t _len) : data(_data), length(_len) {}
-
-        datablock(const datablock& cpy) {
-            assert(false && "Implicit copy is disabled due to big consume.");
-        }
-
-        ~datablock() {
-            free(data);
-        }
-    };
 
 
 
     ////////////////// FILE & ASSETS //////////////////
 
-    static datablock loadFile(const std::string& path);
 
+    // load entire file. filename could be absolute-path or relative-path.
+    static DataBlock loadFile(const std::string& filename);
+
+
+    // produce real filename by resolve asset-path.
     inline static std::string fileAssets(const std::string& p) {
         return ASSETS + p;
     }
@@ -75,7 +106,7 @@ public:
             return fileAssets(p);
     }
 
-    static datablock loadAssets(const std::string& p) {
+    static DataBlock loadAssets(const std::string& p) {
         return loadFile(fileAssets(p));
     }
 
@@ -107,10 +138,10 @@ public:
     ////////////////// SOUNDS: OGG, WAV //////////////////
 
     // return: PCM data, 16 bit.
-    static int16_t* loadOGG(const datablock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
+    static int16_t* loadOGG(const DataBlock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
 
     // load to OpenAL buffer.
-    static AudioBuffer* loadOGG(const datablock& data);
+    static AudioBuffer* loadOGG(const DataBlock& data);
 
     // PCM, 16-bit sample, 1-channel
     static void saveWAV(const void* pcm, size_t size, std::ostream& dst, int samplePerSec = 44100);
@@ -122,10 +153,12 @@ public:
     //////////// PNG ////////////
 
     static BitmapImage loadPNG(const void* data, size_t len);
+    //static BitmapImage loadPNG(const char* filename);
 
-    static BitmapImage loadPNG(const datablock& m) { return loadPNG(m.data, m.length); }
 
-    static BitmapImage loadPNG(const std::string filepath) { return loadPNG(Loader::loadFile(Loader::fileResolve(filepath))); }
+    static BitmapImage loadPNG(const DataBlock& m) { return loadPNG(m.data(), m.size()); }
+
+    static BitmapImage loadPNG(const std::string uri) { return loadPNG(Loader::loadFile(Loader::fileResolve(uri))); }
 
     static void savePNG(const BitmapImage& img, const std::string& filename);
 
@@ -137,14 +170,14 @@ public:
 
 
 
-    static void loadShaderProgram(ShaderProgram* p, const std::string& assets_p)
+    static void loadShaderProgram(ShaderProgram* p, const std::string& uri)
     {
-        std::string path = Loader::fileResolve(Strings::fmt(assets_p, "gsh"));
-        bool geo = Loader::fileExists(path);
+        std::string gsh_path = Loader::fileResolve(Strings::fmt(uri, "gsh"));
+        bool geo = Loader::fileExists(gsh_path);
 
-        p->reloadSources(Loader::loadAssets(Strings::fmt(assets_p, "vsh")).new_string(),
-                          Loader::loadAssets(Strings::fmt(assets_p, "fsh")).new_string(),
-                          geo ? Loader::loadFile(path).new_string() : "");
+        p->load((char*)Loader::loadAssets(Strings::fmt(uri, "vsh")).data(),
+                          (char*)Loader::loadAssets(Strings::fmt(uri, "fsh")).data(),
+                          (char*)(geo ? Loader::loadFile(gsh_path).data() : nullptr));
     }
 
 

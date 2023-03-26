@@ -505,7 +505,7 @@ static void ShowShaderProgramInsp()
     }
 
     if (ImGui::Button("Reload Shader")) {
-        shader->reloadSources_();
+        shader->reload_sources_by_filenames();
         Log::info("Shader {} reloaded.", shader->m_SourceLocation);
     }
     ImGui::SameLine();

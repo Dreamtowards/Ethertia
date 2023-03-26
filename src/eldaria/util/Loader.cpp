@@ -147,6 +147,7 @@ Loader::DataBlock::~DataBlock()
 #include <GLFW/glfw3.h>
 
 #include <eldaria/Window.h>
+#include <ethertia/util/Loader.h>
 
 
 static void glfw_error_callback(int error, const char* description)

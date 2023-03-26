@@ -17,23 +17,21 @@
 
 
 
-Loader::datablock Loader::loadFile(const std::string& path)
+Loader::DataBlock Loader::loadFile(const std::string& path)
 {
-    std::ifstream file(path.c_str(), std::ios_base::binary);
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
-        throw std::runtime_error(Strings::fmt("Failed open file. ", path));
-        //Log::warn("Failed open file: ", path);
-        //return std::make_pair(nullptr, -1);
+        throw std::runtime_error(Strings::fmt("Failed to open file: ", path));
     }
-    file.seekg(0, std::ios_base::end);
-    size_t len = file.tellg();
-    file.seekg(0, std::ios_base::beg);
+    size_t filesize = (size_t)file.tellg() + 1;  // +1: we add '\0' at the end. for string load.
+    char* data = new char[filesize];
+    data[filesize-1] = '\0';
 
-    char* buf = new char[len];
-    file.read(buf, len);
+    file.seekg(0);
+    file.read(data, filesize);
     file.close();
 
-    return datablock(buf, len);
+    return Loader::DataBlock(data, filesize, path);
 }
 
 
@@ -55,10 +53,55 @@ const std::string & Loader::fileMkdirs(const std::string &filename)
 
 
 
+
+
+
+
+Loader::DataBlock::DataBlock(void* data, size_t size, const std::string& filename)
+        : m_Data(data), m_Size(size), m_Filename(filename)
+{
+    Log::info("New DataBlock: {} of {} bytes", m_Filename, size);
+}
+
+Loader::DataBlock::~DataBlock()
+{
+    std::free(m_Data);
+
+    Log::info("Delete DataBlock: {}", m_Filename);
+}
+
+const void* Loader::DataBlock::data() const {
+    return m_Data;
+}
+size_t Loader::DataBlock::size() const {
+    return m_Size;
+}
+
+
+
+
+VertexData::VertexData(const std::string& _filename) : m_Filename(_filename)
+{
+    Log::info("New VertexData: {}", m_Filename);
+}
+VertexData::~VertexData()
+{
+    Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
+}
+
+
+
+
+
+
+
+
+
 BitmapImage Loader::loadPNG(const void* data, size_t len)
 {
     int width, height, channels;
     void* pixels = stbi_load_from_memory((unsigned char*)data, len, &width, &height, &channels, 4);
+
     return BitmapImage(width, height, (unsigned int*)pixels);
 }
 
@@ -273,11 +316,11 @@ VertexBuffer* Loader::loadOBJ(const std::string& filepath)  {
 #include <stb/stb_vorbis.c>
 
 
-int16_t* Loader::loadOGG(const datablock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate) {
+int16_t* Loader::loadOGG(const DataBlock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate) {
     int channels = 0;
     int sample_rate = 0;
     int16_t* pcm = nullptr;
-    int len = stb_vorbis_decode_memory((unsigned char*)data.data, data.length, &channels, &sample_rate, &pcm);
+    int len = stb_vorbis_decode_memory((unsigned char*)data.data(), data.size(), &channels, &sample_rate, &pcm);
     if (len == -1)
         throw std::runtime_error("failed decode ogg.");
     assert(pcm);
@@ -292,7 +335,7 @@ int16_t* Loader::loadOGG(const datablock& data, size_t* dst_len, int* dst_channe
     return pcm;
 }
 
-AudioBuffer* Loader::loadOGG(const datablock& data) {
+AudioBuffer* Loader::loadOGG(const DataBlock& data) {
     size_t len;
     int channels;
     int sampleRate = 0;

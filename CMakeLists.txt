@@ -80,7 +80,6 @@ add_executable(Ethertia
 
         lib/imguizmo/ImGuizmo.cpp
         lib/imgui-knobs/imgui-knobs.cpp
-
         lib/imgui-imnodes/imnodes.cpp
 
         src/ethertia/imgui/ImGuis.cpp
@@ -89,6 +88,7 @@ add_executable(Ethertia
         src/ethertia/init/Settings.cpp
         src/ethertia/render/Window.cpp
         src/ethertia/render/RenderEngine.cpp
+        src/ethertia/render/ShaderProgram.cpp
         src/ethertia/render/RenderCommand_ImplGL.cpp
         src/ethertia/item/ItemComponents.cpp
         src/ethertia/world/World.cpp

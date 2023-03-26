@@ -29,7 +29,7 @@ public:
         using nlohmann::json;
 
         Mod::Manifest manifest;
-        json data = json::parse(Loader::loadFile(modpath + "/mod.json").new_string());
+        json data = json::parse((char*)Loader::loadFile(modpath + "/mod.json").data());
 
         manifest.name = data["name"];
         manifest.id = data["id"];

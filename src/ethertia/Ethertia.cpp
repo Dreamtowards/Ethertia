@@ -459,7 +459,7 @@ void ShaderProgram::setViewProjection(bool view)
     setMatrix4f("matView", view ? Ethertia::getCamera().matView : glm::mat4(1.0));
 }
 
-void ShaderProgram::reloadSources_() {
+void ShaderProgram::reload_sources_by_filenames() {
     Loader::loadShaderProgram(this, m_SourceLocation);
 }
 

@@ -32,7 +32,7 @@ public:
 
         {
             auto m = Loader::loadAssets("font/glyph_widths.bin");
-            uint8_t* wglyph = (uint8_t*)m.data;
+            uint8_t* wglyph = (uint8_t*)m.data();
             for (int i = 0; i < GLYPH_LIMIT; ++i) {
                 glyphWidths[i] = (float)wglyph[i] / 255.0f;
             }
