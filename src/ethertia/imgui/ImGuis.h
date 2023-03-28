@@ -17,6 +17,9 @@ public:
     inline static std::vector<std::string> g_MessageBox;
     inline static glm::vec4 wViewportXYWH;
 
+    // selected entity in the Entity Inspector.
+    inline static Entity* g_InspEntity = nullptr;
+
     static void Init();
     static void Destroy();
 

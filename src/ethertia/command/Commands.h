@@ -96,6 +96,15 @@ public:
             _SendMessage("Given {} x{}", id, amount);
         }
     };
+    class CommandSummon : public Command
+    {
+    public:
+        void onCommand(Args args) override
+        {
+            const std::string& id = args[1];
+
+        }
+    };
 
 
 

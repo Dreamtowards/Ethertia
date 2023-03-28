@@ -162,7 +162,6 @@ static bool g_GizmoViewManipulation = true;
 
 static int g_WorldGrids = 10;
 
-static Entity* g_InspEntity = nullptr;
 static ShaderProgram* g_InspShaderProgram = nullptr;
 
 
@@ -255,7 +254,7 @@ static void _MenuSystem()
     ImGui::MenuItem("Mods", "0 mods loaded");
     ImGui::MenuItem("Resource Packs");
 
-    if (ImGui::MenuItem("About", Ethertia::Version::version_name().c_str())) {}
+    if (ImGui::MenuItem("About")) {}
 
     ImGui::Separator();
 
@@ -380,6 +379,7 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("Singleplayer", &w_Singleplayer);
             ImGui::Checkbox("Settings", &Settings::w_Settings);
 
+            ImGui::Checkbox("Viewport Full", &Settings::ws_FullViewport);
 //            ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
 
             ImGui::Separator();
@@ -404,13 +404,13 @@ static void ShowMainMenuBar()
 
         {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
-            ImGui::SameLine(ImGui::GetWindowWidth() - 180 - 100);
+            ImGui::SameLine(ImGui::GetWindowWidth() - 100);
 
-            if (ImGui::BeginCombo("cTmp", "Ethertia | Debug")) {
-                ImGui::Selectable("Ethertia", true);
-                ImGui::Selectable("DedicatedServer", false);
-                ImGui::EndCombo();
-            }
+//            if (ImGui::BeginCombo("cTmp", "Ethertia | Debug")) {
+//                ImGui::Selectable("Ethertia", true);
+//                ImGui::Selectable("DedicatedServer", false);
+//                ImGui::EndCombo();
+//            }
 
             float sz = 14;
 
@@ -553,7 +553,7 @@ static void ShowEntityInsp()
 {
     ImGui::Begin("Entity", &Settings::w_EntityInsp);
 
-    Entity* entity = g_InspEntity;
+    Entity* entity = ImGuis::g_InspEntity;
     if (!entity) {
         ImGui::TextDisabled("No entity selected.");
         ImGui::End();
@@ -670,7 +670,33 @@ static void ShowEntities()
     auto& entities = world->m_Entities;
 
     if (ImGui::Button(" + ")) {
+        ImGui::OpenPopup("new_entity");
+    }
+    if (ImGui::BeginPopup("new_entity")) {
+        bool disabledDueNoWorld = Ethertia::getWorld() == nullptr;
+        if (disabledDueNoWorld) {
+            ImGui::TextDisabled("Disabled due No World Loaded");
+            ImGui::BeginDisabled();
+        }
 
+        if (ImGui::BeginMenu("Vehicle")) {
+            if (ImGui::MenuItem("Helicopter"))
+            {
+                EntityHelicopter* e = new EntityHelicopter();
+                e->position() = Ethertia::getCamera().position;
+
+                Ethertia::getWorld()->addEntity(e);
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::MenuItem("Light")) {
+
+        }
+
+        if (disabledDueNoWorld) {
+            ImGui::EndDisabled();
+        }
+        ImGui::EndPopup();
     }
 
     ImGui::SameLine();
@@ -696,7 +722,7 @@ static void ShowEntities()
         ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
 
         if (ImGui::Button("Unselect")) {
-            g_InspEntity = nullptr;
+            ImGuis::g_InspEntity = nullptr;
         }
 
         ImGui::EndPopup();
@@ -705,7 +731,7 @@ static void ShowEntities()
     if (_KeepSelectHitEntity) {
         auto& cur = Ethertia::getHitCursor();
         if (cur.hitEntity) {
-            g_InspEntity = cur.hitEntity;
+            ImGuis::g_InspEntity = cur.hitEntity;
         }
     }
 
@@ -738,8 +764,8 @@ static void ShowEntities()
             char buf[32];
 
             sprintf(buf, "#%.3i | %s", i, typeid(*e).name());
-            if (ImGui::Selectable(buf, g_InspEntity == e)) {
-                g_InspEntity = e;
+            if (ImGui::Selectable(buf, ImGuis::g_InspEntity == e)) {
+                ImGuis::g_InspEntity = e;
             }
             ++i;
         }
@@ -805,51 +831,52 @@ void ShowNodeEditor()
 }
 
 
+static enum SettingsPanel {
+    Profile,
+    CurrentWorld,
+    Graphics,
+    Audio,
+    Controls,
+    Language,
+    Mods,
+    Shaders,
+    ResourcePacks,
+    Credits,
+    Misc
+} g_CurrSettingsPanel;
 
 static void ShowSettingsWindow()
 {
     ImGui::Begin("Settings", &Settings::w_Settings);
 
-    static enum SettingsPanel {
-        Profile,
-        CurrentWorld,
-        Graphics,
-        Audio,
-        Controls,
-        Language,
-        Mods,
-        Shaders,
-        ResourcePacks,
-        Credits,
-        Misc
-    } g_CurrPanel;
+    SettingsPanel currp = g_CurrSettingsPanel;
 
-    ImGui::BeginChild("SettingNav", {150, 0}, true);
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8, 8});
+        ImGui::BeginChild("SettingNav", {150, 0}, true);
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8, 8});
 
-    if (ImGui::RadioButton("Profile", g_CurrPanel==Profile)) { g_CurrPanel=Profile; }
-    if (ImGui::RadioButton("Current World", g_CurrPanel==CurrentWorld)) { g_CurrPanel=CurrentWorld; }
-    ImGui::Separator();
-    if (ImGui::RadioButton("Graphics", g_CurrPanel==Graphics)) { g_CurrPanel=Graphics; }
-    if (ImGui::RadioButton("Music & Sounds", g_CurrPanel==Audio)) { g_CurrPanel=Audio; }
-    if (ImGui::RadioButton("Controls", g_CurrPanel==Controls)) { g_CurrPanel=Controls; }
-    if (ImGui::RadioButton("Language", g_CurrPanel==Language)) { g_CurrPanel=Language; }
-    ImGui::Separator();
-    if (ImGui::RadioButton("Mods", g_CurrPanel==Mods)) { g_CurrPanel=Mods; }
-    if (ImGui::RadioButton("Shaders", g_CurrPanel==Shaders)) { g_CurrPanel=Shaders; }
-    if (ImGui::RadioButton("Resource Packs", g_CurrPanel==ResourcePacks)) { g_CurrPanel=ResourcePacks; }
-    ImGui::Separator();
-    if (ImGui::RadioButton("Credits", g_CurrPanel==Credits)) { g_CurrPanel=Credits; }
-    if (ImGui::RadioButton("Misc", g_CurrPanel==Misc)) { g_CurrPanel=Misc; }
+        if (ImGui::RadioButton("Profile", currp==Profile)) { currp=Profile; }
+        if (ImGui::RadioButton("Current World", currp==CurrentWorld)) { currp=CurrentWorld; }
+        ImGui::Separator();
+        if (ImGui::RadioButton("Graphics", currp==Graphics)) { currp=Graphics; }
+        if (ImGui::RadioButton("Music & Sounds", currp==Audio)) { currp=Audio; }
+        if (ImGui::RadioButton("Controls", currp==Controls)) { currp=Controls; }
+        if (ImGui::RadioButton("Language", currp==Language)) { currp=Language; }
+        ImGui::Separator();
+        if (ImGui::RadioButton("Mods", currp==Mods)) { currp=Mods; }
+        if (ImGui::RadioButton("Shaders", currp==Shaders)) { currp=Shaders; }
+        if (ImGui::RadioButton("Resource Packs", currp==ResourcePacks)) { currp=ResourcePacks; }
+        ImGui::Separator();
+        if (ImGui::RadioButton("Credits", currp==Credits)) { currp=Credits; }
+        if (ImGui::RadioButton("Misc", currp==Misc)) { currp=Misc; }
 
-    ImGui::PopStyleVar();
-    ImGui::EndChild();
+        ImGui::PopStyleVar();
+        ImGui::EndChild();
 
     ImGui::SameLine();
 
     ImGui::BeginChild("SettingPanel", {0,0}, true);
     {
-        if (g_CurrPanel==Profile)
+        if (currp==Profile)
         {
             ImGui::Dummy({0, 14});
             ImGui::SetWindowFontScale(1.5f);
@@ -864,12 +891,19 @@ static void ShowSettingsWindow()
 
             ImGui::SeparatorText("Customize Character");
         }
-        else if (g_CurrPanel==CurrentWorld)
+        else if (currp==CurrentWorld)
         {
             static char WorldName[128];
             ImGui::InputText("World Name", WorldName, 128);
+
+            ImGui::BeginDisabled();
+
+            static char WorldSeed[128];
+            ImGui::InputText("World Seed", WorldSeed, 128);
+
+            ImGui::EndDisabled();
         }
-        else if (g_CurrPanel==Graphics)
+        else if (currp==Graphics)
         {
 //            ImGui::SeparatorText("Bloom");
 //            ImGui::Checkbox("Bloom", &Settings::g_SSAO);
@@ -915,14 +949,14 @@ static void ShowSettingsWindow()
             ImGui::Checkbox("Bloom", &Settings::g_SSAO);
 
         }
-        else if (g_CurrPanel==Audio)
+        else if (currp==Audio)
         {
             static int g_MasterVolume = 0;
             ImGui::SliderInt("Master Volume", &g_MasterVolume, 0, 100, "%d%%");
             ImGui::Dummy({0, 8});
             ImGui::SliderInt("Music", &g_MasterVolume, 0, 100, "%d%%");
         }
-        else if (g_CurrPanel==Controls)
+        else if (currp==Controls)
         {
             ImGui::SeparatorText("Mouse");
 
@@ -933,7 +967,7 @@ static void ShowSettingsWindow()
             ImGui::SeparatorText("Keyboard");
 
         }
-        else if (g_CurrPanel==Language)
+        else if (currp==Language)
         {
             std::vector<std::pair<const char*, const char*>> g_Languages = {
                     {"en_us", "English"},
@@ -949,7 +983,7 @@ static void ShowSettingsWindow()
 
             ImGui::Text("Translation may not 100%% accurate.");
         }
-        else if (g_CurrPanel==Mods)
+        else if (currp==Mods)
         {
             static bool s_ModValidatin = true;
             ImGui::Checkbox("Mod Files Hash Online Validation", &s_ModValidatin);
@@ -962,17 +996,17 @@ static void ShowSettingsWindow()
             // 由于Native-Mod的权限极大，在强大和高效能的同时，也可能会有恶意Mod损害您的电脑.
             // 开启Mod官方验证将会只启用通过官方验证的Mod
         }
-        else if (g_CurrPanel==Shaders)
+        else if (currp==Shaders)
         {
 
         }
-        else if (g_CurrPanel==ResourcePacks)
+        else if (currp==ResourcePacks)
         {
             if (ImGui::Button("Open ResourcePacks folder")) {
                 Loader::openURL("./resourcepacks");
             }
         }
-        else if (g_CurrPanel==Credits)
+        else if (currp==Credits)
         {
             ImGui::SetWindowFontScale(1.4f);
             ImGui::Text("%s", Ethertia::Version::name().c_str());
@@ -1175,6 +1209,70 @@ static void ShowToolbar()
     ImGui::End();
 }
 
+
+static void ShowGameViewport()
+{
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
+
+    static ImGuiID _ViewportLastDockId = 0;
+    static bool _RequestSetBackToLastDock = false;  // when just cancel full viewport
+
+    // WorkArea: menubars
+    if (Settings::ws_FullViewport)
+    {
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+
+        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;  // ImGuiWindowFlags_NoDocking
+        _RequestSetBackToLastDock = true;
+    } else if (_RequestSetBackToLastDock) {
+        _RequestSetBackToLastDock = false;
+        ImGui::SetNextWindowDockID(_ViewportLastDockId);
+    }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+    ImGui::Begin("Viewport", &Settings::w_Viewport, windowFlags);
+    ImGui::PopStyleVar();
+
+    if (ImGui::GetWindowDockID()) {
+        _ViewportLastDockId = ImGui::GetWindowDockID();
+    }
+
+    ImVec2 size = ImGuis::GetWindowContentSize();
+    ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
+    ImGuis::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
+
+    ImGuis::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
+    ImGui::SetCursorPos({0,0});
+    ImGui::InvisibleButton("PreventsGameWindowMove", size);
+
+
+    ImGuizmo::BeginFrame();
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist();
+    auto& vp = Ethertia::getViewport();
+    ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
+
+    if (g_WorldGrids > 0)
+    {
+        glm::mat4 iden(1.0f);
+        ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
+                           glm::value_ptr(iden), (float)g_WorldGrids);
+    }
+
+    if (g_GizmoViewManipulation)
+    {
+        static float camLen = 10.0f;
+        auto& vp = Ethertia::getViewport();
+        ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
+                                 ImVec2(vp.right()-128-24, vp.y+24), ImVec2(128, 128),
+                                 0x10101010);
+    }
+
+    ImGui::End();
+}
+
 static void RenderWindows()
 {
     ShowDockspaceAndMainMenubar();
@@ -1197,8 +1295,8 @@ static void RenderWindows()
     }
     if (Settings::w_EntityInsp) {
         ShowEntityInsp();
-        if (g_InspEntity) {
-            RenderEngine::drawLineBox(g_InspEntity->getAABB(), Colors::YELLOW);
+        if (ImGuis::g_InspEntity) {
+            RenderEngine::drawLineBox(ImGuis::g_InspEntity->getAABB(), Colors::YELLOW);
         }
     }
     if (Settings::w_ShaderInsp) {
@@ -1210,42 +1308,7 @@ static void RenderWindows()
 
         if (Settings::w_Viewport)
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-            ImGui::Begin("Viewport", &Settings::w_Viewport);
-            ImGui::PopStyleVar();
-
-            ImVec2 size = ImGuis::GetWindowContentSize();
-            ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
-            ImGuis::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
-
-            ImGuis::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
-            ImGui::SetCursorPos({0,0});
-            ImGui::InvisibleButton("PreventsGameWindowMove", size);
-
-
-            ImGuizmo::BeginFrame();
-            ImGuizmo::SetOrthographic(false);
-            ImGuizmo::SetDrawlist();
-            auto& vp = Ethertia::getViewport();
-            ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
-
-            if (g_WorldGrids > 0)
-            {
-                glm::mat4 iden(1.0f);
-                ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
-                                   glm::value_ptr(iden), (float)g_WorldGrids);
-            }
-
-            if (g_GizmoViewManipulation)
-            {
-                static float camLen = 10.0f;
-                auto& vp = Ethertia::getViewport();
-                ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
-                                         ImVec2(vp.right()-128-24, vp.y+24), ImVec2(128, 128),
-                                         0x10101010);
-            }
-
-            ImGui::End();
+            ShowGameViewport();
         } else {
             ImGuis::wViewportXYWH = {Mth::Inf, 0, 0, 0};
         }

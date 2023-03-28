@@ -48,6 +48,8 @@ public:
                        w_Console = false,
                        w_Settings = false;
 
+    inline static bool ws_FullViewport = false;
+
 
     inline static float s_ViewDistance = 4;
     inline static int   s_FpsCap = 60;

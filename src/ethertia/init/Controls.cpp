@@ -17,6 +17,7 @@
 //#include <ethertia/gui/screen/GuiIngame.h>
 //#include <ethertia/gui/screen/GuiScreenPause.h>
 
+#include <ethertia/imgui/ImGuis.h>
 
 static void initConsoleThread()
 {
@@ -234,8 +235,12 @@ static void handleKeyDown(KeyboardEvent* e) {
 //            }
 //            break;
 //        }
-        case GLFW_KEY_PERIOD: {
+        case GLFW_KEY_ESCAPE: {
             Ethertia::isIngame() = !Ethertia::isIngame();
+            break;
+        }
+        case GLFW_KEY_GRAVE_ACCENT: {
+            Settings::ws_FullViewport = !Settings::ws_FullViewport;
             break;
         }
     }
@@ -245,11 +250,6 @@ static void handleKeyDown(KeyboardEvent* e) {
 void Controls::initControls()
 {
     initConsoleThread();
-
-    Ethertia::getWindow().eventbus().listen([](WindowCloseEvent* e)
-    {
-        Ethertia::shutdown();
-    });
 
     Ethertia::getWindow().eventbus().listen(handleMouseButton);
 
@@ -377,6 +377,9 @@ void Controls::handleContinuousInput()
     Window& window = Ethertia::getWindow();
     EntityPlayer* player = Ethertia::getPlayer();
 
+    if (window.isCloseRequested())
+        Ethertia::shutdown();
+
     float dt = Ethertia::getDelta();
 
     window.setMouseGrabbed(Ethertia::isIngame());
@@ -401,18 +404,19 @@ void Controls::handleContinuousInput()
         player->setSprint(false);
     }
 
-//    if (player->m_RidingOn == nullptr) {
+    EntityHelicopter* helicopter = dynamic_cast<EntityHelicopter*>(ImGuis::g_InspEntity);
+    if (!helicopter) {
         player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
                      window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
                      window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
-//    }
-//    else
-//    {   // Vehicle Control.
-//        player->m_RidingOn->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
-//                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
-//                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
-//                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
-//    }
+    }
+    else
+    {
+        helicopter->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
+                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
+                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
+    }
 
 
     // Camera Move

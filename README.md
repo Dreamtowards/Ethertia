@@ -27,10 +27,10 @@ _Screenshots:_
 ---
 
 ### **Getting Started**
-- [Build & Run & Dev](run/assets/docs/zh-cn/setup-dev.md)
-- [Source Overview]()
-- [Getting Dev.]()
-- [What/Why Ethertia]()
+- [Build & Run](run/assets/docs/zh-cn/build-run.md)
+- [Source Overview](run/assets/docs/zh-cn/source-overview.md)
+- [Getting Dev.](run/assets/docs/zh-cn/getting-dev.md)
+- [What/Why Ethertia](run/assets/docs/zh-cn/about-ethertia.md)
 
 
 ### **DevDoc**
