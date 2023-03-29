@@ -21,3 +21,22 @@
 ## How to Contribute
 
 Pull Request
+
+### Commit Formats
+
+在commit时使用以下前缀 表示变更的内容类型:
+
+| Type Prefix | Meaning | 
+| ----   | --- |
+| feat   | New Feature |
+| fix    |  |
+| fix-to | bugfix, 多次提交修复问题 |
+| docs   |    |
+| style  | 格式 (不影响代码运行) |
+| refactor  | 重构 |
+| optim  | 性能优化 |
+| test   | 增加测试 |
+| chore  | 构建过程或辅助工具的变动
+| revert | 回滚到之前的版本 |
+
+e.g.: `feat: full-display game viewport`
