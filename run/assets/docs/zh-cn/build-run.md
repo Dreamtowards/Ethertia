@@ -3,7 +3,7 @@
 [[VIDEO]]()
 
 如果您想构建源代码并运行，以便分析或修改，这里是正确的地方.  
-如果您只想运行，可以前往 Releases 里下载已编译发布版本直接运行.
+如果您只想运行，可以前往 [Releases]() 里下载已编译的发布版直接运行.
 
 ### 1. Download
 
@@ -11,7 +11,7 @@ https://github.com/Dreamtowards/Ethertia
 下载源代码仓库 (约200MB),  
 
 ### 2. Build
-为了构建程序, 运行 `build_windows.bat`. (或`build_darwin.command`(macOS))
+为了构建程序, 运行 `build_windows.bat`. (macOS: `build_darwin.command`)
 > 需要CMake
 
 > **注意:** 对于 Windows 系统，您需要 ucrt mingw64 的开发环境，因为我们是unix系gcc编译器.  

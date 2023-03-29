@@ -1224,7 +1224,7 @@ static void ShowGameViewport()
         ImGui::SetNextWindowPos(viewport->Pos);
         ImGui::SetNextWindowSize(viewport->Size);
 
-        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;  // ImGuiWindowFlags_NoDocking
+        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;  // ImGuiWindowFlags_NoDocking
         _RequestSetBackToLastDock = true;
     } else if (_RequestSetBackToLastDock) {
         _RequestSetBackToLastDock = false;
@@ -1232,8 +1232,9 @@ static void ShowGameViewport()
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
     ImGui::Begin("Viewport", &Settings::w_Viewport, windowFlags);
-    ImGui::PopStyleVar();
+    ImGui::PopStyleVar(2);
 
     if (ImGui::GetWindowDockID()) {
         _ViewportLastDockId = ImGui::GetWindowDockID();
