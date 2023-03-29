@@ -882,6 +882,8 @@ public:
     inline static ImVec2 _keysize = {_keysize_std, _keysize_std};
     inline static float _keygap = 4;
 
+    inline static std::function<ImU32(ImGuiKey)> g_FuncKeyColor = [](auto){return -1;};
+
     static void RenderKey(ImVec2& p, const char* name, ImGuiKey keycode, float keySizeX = 1.0f, float sizeAddGaps = 0)
     {
         float gapAdd = sizeAddGaps * _keygap;
@@ -895,7 +897,11 @@ public:
 
         ImU32 col = ImGui::GetColorU32(hover ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
         if (ImGui::IsKeyDown(keycode)) {
-            col = ImGui::GetColorU32(ImGuiCol_Header);
+            col = ImGui::GetColorU32(ImGuiCol_HeaderActive);
+        }
+        ImU32 evalColor = g_FuncKeyColor(keycode);
+        if (evalColor != -1) {
+            col = evalColor;
         }
 
         ImGui::RenderFrame(p, p+size,col, true, ImGui::GetStyle().FrameRounding);
@@ -1006,11 +1012,14 @@ public:
         p = {tmpX, tmpY};
         RenderKey(p, "^", ImGuiKey_UpArrow);
 
+        ImGui::SetCursorScreenPos({begin.x, p.y + 60});
     }
 
 
 };
 
+
+#include <ethertia/init/KeyBinding.h>
 
 static void ShowSettingsWindow()
 {
@@ -1133,22 +1142,61 @@ static void ShowSettingsWindow()
 //
 //            ImGui::SeparatorText("Keyboard");
 
+            ImKeymap::g_FuncKeyColor = [](ImGuiKey k) -> ImU32 {
+                for (auto& it : KeyBinding::REGISTRY) {
+                    if (it.second->key() == k)
+                        return ImGui::GetColorU32(ImGuiCol_Header);
+                }
+                return -1;
+            };
+
             ImKeymap::ShowKeymap();
+
+            for (auto& it : KeyBinding::REGISTRY)
+            {
+                auto& name = it.first;
+                KeyBinding* keyBinding = it.second;
+
+                ImGui::Text("%s", name.c_str());
+
+
+                const char* keyName = ImGui::GetKeyName(keyBinding->key());
+
+                ImGui::SameLine(240);
+                ImGui::PushItemWidth(100);
+                if (ImGui::Button(keyName ? keyName : "?"))
+                {
+
+                }
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("Press Key");
+
+                    ImGuiKey k = GetPressedKey();
+                    if (k) {
+                        keyBinding->m_Key = k;
+                    }
+                }
+                
+                ImGui::PopItemWidth();
+            }
 
         }
         else if (currp==Language)
         {
             std::vector<std::pair<const char*, const char*>> g_Languages = {
                     {"en_us", "English"},
-                    {"zh_cn", "Jian ti Zhong Wen"}
+                    {"zh_tw", "Chinese (Complified)"},
+                    {"zh_cn", "Chinese (Simplified)"}
             };
             static const char* g_SelectedLanguage = "en_us";
 
+            ImGui::BeginChild("LangList", {0, 200});
             for (auto it : g_Languages) {
                 if (ImGui::Selectable(it.second, g_SelectedLanguage==it.first)) {
                     g_SelectedLanguage = it.first;
                 }
             }
+            ImGui::EndChild();
 
             ImGui::TextDisabled("Translation may not 100%% accurate.");
         }

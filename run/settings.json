@@ -1,7 +1,7 @@
 {
   "assets": "./assets/",
-  "display_height": 1005,
-  "display_width": 1653,
+  "display_height": 1050,
+  "display_width": 1650,
   "fov": 91.69000244140625,
   "fullscreen": false,
   "graphics.shadow": false,
@@ -14,7 +14,7 @@
   "window.console": true,
   "window.entity_insp": true,
   "window.entity_list": true,
-  "window.settings": false,
+  "window.settings": true,
   "window.shader_insp": true,
   "window.toolbar": true,
   "window.viewport": true

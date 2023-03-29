@@ -173,6 +173,16 @@ void Imgui::forWorldpoint(const glm::vec3 &worldpos, const std::function<void(gl
     }
 }
 
+static ImGuiKey GetPressedKey()
+{
+    for (int k = ImGuiKey_NamedKey_BEGIN; k < ImGuiKey_NamedKey_END; ++k)
+    {
+        if (ImGui::IsKeyPressed((ImGuiKey)k))
+            return (ImGuiKey)k;
+    }
+    return ImGuiKey_None;
+}
+
 
 
 #include "Imgui_intl_draw.cpp"
