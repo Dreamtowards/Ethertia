@@ -13,6 +13,7 @@
 #include <cstring>
 #include <functional>
 #include <cmath>
+#include <cassert>
 
 class Strings
 {
