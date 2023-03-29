@@ -11,7 +11,7 @@
 #include <ethertia/entity/Entity.h>
 
 
-class ImGuis
+class Imgui
 {
 public:
     inline static std::vector<std::string> g_MessageBox;

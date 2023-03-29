@@ -20,6 +20,6 @@
 'Ethertia' 是原名，'以太效应' 是中文名.
 
 Ethertia 是 Ether 和 aria 的组合变种, 前者代表虚幻广阔的以太，后者代表某种文艺气息。  
-(例)或者也可认为是 Ethernet 和 Celestia 的组合.
+(例)或者也可认为是 [Ethernet](https://en.wikipedia.org/wiki/Ethernet) 和 [Celestia](https://zh.wikipedia.org/wiki/Celestia) 名字的组合.
 
 末尾的 tia 读作 'ti-a' 而不是 'sh-a'. 另外它不是 'Etheria' 因为我们想避免通用名。

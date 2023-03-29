@@ -17,7 +17,7 @@
 //#include <ethertia/gui/screen/GuiIngame.h>
 //#include <ethertia/gui/screen/GuiScreenPause.h>
 
-#include <ethertia/imgui/ImGuis.h>
+#include <ethertia/imgui/Imgui.h>
 
 static void initConsoleThread()
 {
@@ -404,7 +404,7 @@ void Controls::handleContinuousInput()
         player->setSprint(false);
     }
 
-    EntityHelicopter* helicopter = dynamic_cast<EntityHelicopter*>(ImGuis::g_InspEntity);
+    EntityHelicopter* helicopter = dynamic_cast<EntityHelicopter*>(Imgui::g_InspEntity);
     if (!helicopter) {
         player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
                      window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),

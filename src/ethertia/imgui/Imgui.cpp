@@ -3,7 +3,7 @@
 //
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <ethertia/imgui/ImGuis.h>
+#include <ethertia/imgui/Imgui.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -19,7 +19,6 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/render/RenderEngine.h>
-//#include <ethertia/gui/screen/GuiDebugV.h>
 
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/init/Controls.h>
@@ -105,7 +104,7 @@ static void InitStyle()
 
 }
 
-void ImGuis::Init()
+void Imgui::Init()
 {
     BENCHMARK_TIMER;
     Log::info("Init ImGui.. \1");
@@ -124,7 +123,7 @@ void ImGuis::Init()
 
 }
 
-void ImGuis::Destroy()
+void Imgui::Destroy()
 {
     ImNodes::DestroyContext();
 
@@ -553,7 +552,7 @@ static void ShowEntityInsp()
 {
     ImGui::Begin("Entity", &Settings::w_EntityInsp);
 
-    Entity* entity = ImGuis::g_InspEntity;
+    Entity* entity = Imgui::g_InspEntity;
     if (!entity) {
         ImGui::TextDisabled("No entity selected.");
         ImGui::End();
@@ -722,7 +721,7 @@ static void ShowEntities()
         ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
 
         if (ImGui::Button("Unselect")) {
-            ImGuis::g_InspEntity = nullptr;
+            Imgui::g_InspEntity = nullptr;
         }
 
         ImGui::EndPopup();
@@ -731,7 +730,7 @@ static void ShowEntities()
     if (_KeepSelectHitEntity) {
         auto& cur = Ethertia::getHitCursor();
         if (cur.hitEntity) {
-            ImGuis::g_InspEntity = cur.hitEntity;
+            Imgui::g_InspEntity = cur.hitEntity;
         }
     }
 
@@ -764,8 +763,8 @@ static void ShowEntities()
             char buf[32];
 
             sprintf(buf, "#%.3i | %s", i, typeid(*e).name());
-            if (ImGui::Selectable(buf, ImGuis::g_InspEntity == e)) {
-                ImGuis::g_InspEntity = e;
+            if (ImGui::Selectable(buf, Imgui::g_InspEntity == e)) {
+                Imgui::g_InspEntity = e;
             }
             ++i;
         }
@@ -1057,18 +1056,18 @@ static void ShowTitleScreenWindow()
 
     // Background
 //    ImGui::Image(Texture::DEBUG->texId_ptr(),
-//                 ImGuis::GetWindowContentSize(),
+//                 Imgui::GetWindowContentSize(),
 //                 {0,1}, {1,0});
 
     // LeftBottom Version/Stats
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
-    ImGuis::TextAlign(Strings::fmt("0 mods loaded.\n{}", Ethertia::Version::name()).c_str(),
+    Imgui::TextAlign(Strings::fmt("0 mods loaded.\n{}", Ethertia::Version::name()).c_str(),
                       {0.0f, 1.0f});
 
     // RightBottom Copyright
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
     ImGui::SetCursorPosX(ImGui::GetWindowWidth());
-    ImGuis::TextAlign("Copyright (c) Eldrine Le Prismarine, Do not distribute!",
+    Imgui::TextAlign("Copyright (c) Eldrine Le Prismarine, Do not distribute!",
                       {1,1});
 
     ImVec2 btnSize = {300, 20};
@@ -1240,11 +1239,11 @@ static void ShowGameViewport()
         _ViewportLastDockId = ImGui::GetWindowDockID();
     }
 
-    ImVec2 size = ImGuis::GetWindowContentSize();
+    ImVec2 size = Imgui::GetWindowContentSize();
     ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
-    ImGuis::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
+    Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
-    ImGuis::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
+    Imgui::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
     ImGui::SetCursorPos({0,0});
     ImGui::InvisibleButton("PreventsGameWindowMove", size);
 
@@ -1296,8 +1295,8 @@ static void RenderWindows()
     }
     if (Settings::w_EntityInsp) {
         ShowEntityInsp();
-        if (ImGuis::g_InspEntity) {
-            RenderEngine::drawLineBox(ImGuis::g_InspEntity->getAABB(), Colors::YELLOW);
+        if (Imgui::g_InspEntity) {
+            RenderEngine::drawLineBox(Imgui::g_InspEntity->getAABB(), Colors::YELLOW);
         }
     }
     if (Settings::w_ShaderInsp) {
@@ -1311,7 +1310,7 @@ static void RenderWindows()
         {
             ShowGameViewport();
         } else {
-            ImGuis::wViewportXYWH = {Mth::Inf, 0, 0, 0};
+            Imgui::wViewportXYWH = {Mth::Inf, 0, 0, 0};
         }
 
 
@@ -1356,7 +1355,7 @@ static void RenderWindows()
     {
         ImGui::Begin("MessageBox", &Settings::w_Console);
         ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
-        for (auto& str : ImGuis::g_MessageBox) {
+        for (auto& str : Imgui::g_MessageBox) {
             ImGui::Text("%s", str.c_str());
         }
         ImGui::EndChild();
@@ -1391,7 +1390,7 @@ static void RenderWindows()
 
 
 // texId: 0=white
-void ImGuis::Image(GLuint texId, ImVec2 size, glm::vec4 color) {
+void Imgui::Image(GLuint texId, ImVec2 size, glm::vec4 color) {
 //    assert(false);
     if (texId == 0)
         texId = Texture::WHITE->texId;
@@ -1401,18 +1400,18 @@ void ImGuis::Image(GLuint texId, ImVec2 size, glm::vec4 color) {
                  {color.x, color.y, color.z, color.w});
 }
 
-ImVec2 ImGuis::GetWindowContentSize() {
+ImVec2 Imgui::GetWindowContentSize() {
     return ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin();
 }
 
-void ImGuis::TextAlign(const char* text, ImVec2 align) {
+void Imgui::TextAlign(const char* text, ImVec2 align) {
     ImVec2 size = ImGui::CalcTextSize(text);
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() - align.x * size.x);
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() - align.y * size.y);
     ImGui::Text("%s", text);
 }
 
-void ImGuis::forWorldpoint(const glm::vec3 &worldpos, const std::function<void(glm::vec2)> &fn)
+void Imgui::forWorldpoint(const glm::vec3 &worldpos, const std::function<void(glm::vec2)> &fn)
 {
     glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getCamera().matView, Ethertia::getCamera().matProjection);
 
@@ -1425,7 +1424,7 @@ void ImGuis::forWorldpoint(const glm::vec3 &worldpos, const std::function<void(g
     }
 }
 
-void ImGuis::RenderGUI()
+void Imgui::RenderGUI()
 {
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplOpenGL3_NewFrame();

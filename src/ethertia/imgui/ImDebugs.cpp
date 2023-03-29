@@ -85,12 +85,12 @@ static void ShowDebugTextOverlay()
 
         if (dbg_Gbuffer) {
             ImVec2 siz = {vp.width / 10, vp.height / 10};
-            ImGuis::Image(GeometryRenderer::fboGbuffer->texColor[0]->texId, siz);  // Pos.rgb Dep.a
-            ImGuis::Image(GeometryRenderer::fboGbuffer->texColor[1]->texId, siz);  // Norm.rgb
-            ImGuis::Image(GeometryRenderer::fboGbuffer->texColor[2]->texId, siz);  // Albedo.rgb
+            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[0]->texId, siz);  // Pos.rgb Dep.a
+            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[1]->texId, siz);  // Norm.rgb
+            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[2]->texId, siz);  // Albedo.rgb
 
-            ImGuis::Image(SSAORenderer::fboSSAO->texColor[0]->texId, siz);  // AO.r
-            ImGuis::Image(ShadowRenderer::fboDepthMap->texDepth->texId, siz);  // Depth.texDepth.r
+            Imgui::Image(SSAORenderer::fboSSAO->texColor[0]->texId, siz);  // AO.r
+            Imgui::Image(ShadowRenderer::fboDepthMap->texDepth->texId, siz);  // Depth.texDepth.r
         }
     }
     ImGui::End();
