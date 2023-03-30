@@ -22,6 +22,23 @@ struct Image
     void destroy();
 };
 
+
+class VertexBuffer
+{
+public:
+    VkBuffer m_VertexBuffer = nullptr;
+    VkDeviceMemory m_VertexBufferMemory = nullptr;
+
+    VkBuffer m_IndexBuffer = nullptr;
+    VkDeviceMemory m_IndexBufferMemory = nullptr;
+
+    // used by vkCmdDraw()
+    int m_VertexCount = 0;
+
+    void destroy();
+};
+
+
 struct QueueFamilyIndices {
     uint32_t m_GraphicsFamily = -1;
     uint32_t m_PresentFamily = -1;  //Surface Present.
@@ -153,6 +170,8 @@ public:
                               VkOffset2D offset = {0, 0});
 
     static void CmdBindVertexBuffer(VkCommandBuffer cmdbuf, const VkBuffer vbuf);
+
+    static void CmdBindIndexBuffer(VkCommandBuffer cmdbuf, const VkBuffer idx_buf);
 
     static void CmdBindGraphicsPipeline(VkCommandBuffer cmdbuf, VkPipeline graphicsPipeline);
 

@@ -10,7 +10,14 @@ void Image::destroy()
     vkDestroyImageView(vkh::g_Device, m_ImageView, nullptr);
 }
 
+void VertexBuffer::destroy()
+{
+    vkDestroyBuffer(vkh::g_Device, m_VertexBuffer, nullptr);
+    vkFreeMemory(vkh::g_Device, m_VertexBufferMemory, nullptr);
 
+    vkDestroyBuffer(vkh::g_Device, m_IndexBuffer, nullptr);
+    vkFreeMemory(vkh::g_Device, m_IndexBufferMemory, nullptr);
+}
 
 
 
@@ -1218,6 +1225,11 @@ void vkh::CmdBindVertexBuffer(VkCommandBuffer cmdbuf, const VkBuffer vbuf)
 {
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(cmdbuf, 0, 1, &vbuf, offsets);
+}
+
+void vkh::CmdBindIndexBuffer(VkCommandBuffer cmdbuf, const VkBuffer idx_buf)
+{
+    vkCmdBindIndexBuffer(cmdbuf, idx_buf, 0, VK_INDEX_TYPE_UINT32);
 }
 
 void vkh::CmdBindGraphicsPipeline(VkCommandBuffer cmdbuf, VkPipeline graphicsPipeline)

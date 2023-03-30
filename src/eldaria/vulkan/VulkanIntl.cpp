@@ -122,7 +122,7 @@ public:
             VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
             g_TestModel.m_VertexCount = vdata.vertexCount();
             vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), g_TestModel.m_VertexBuffer, g_TestModel.m_VertexBufferMemory);
-            vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), g_TestModel.m_IndexBuffer, g_TestModel.m_IndexBufferMemory);
+            vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), g_TestModel.m_IndexBuffer, g_TestModel.m_IndexBufferMemory, true);
         }
 
         CreateUniformBuffers();
@@ -947,8 +947,10 @@ public:
 
         vkh::CmdBindVertexBuffer(cmdbuf, g_TestModel.m_VertexBuffer);
 
-        vkCmdDraw(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0);
+        vkh::CmdBindIndexBuffer(cmdbuf, g_TestModel.m_IndexBuffer);
 
+//        vkCmdDraw(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0);
+        vkCmdDrawIndexed(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0, 0);
 
         Imgui::RenderGUI(cmdbuf);
 
