@@ -17,6 +17,20 @@
 #include <ethertia/util/Log.h>
 
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
+namespace std {
+    template<> struct hash<VertexData::Vertex> {
+        size_t operator()(VertexData::Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^
+                     (hash<glm::vec2>()(vertex.tex) << 1)) >> 1) ^
+                   (hash<glm::vec3>()(vertex.norm) << 1);
+        }
+    };
+}
+
+
 Loader::DataBlock Loader::loadFile(const std::string& path)
 {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
@@ -43,9 +57,15 @@ BitmapImage Loader::loadPNG(const std::string& path)
     return BitmapImage(pixels, w, h, path);
 }
 
+#include <ethertia/util/BenchmarkTimer.h>
 
+// Arrays vs Indexed compare for viking_room.obj (Single Vertex is vec3+vec2+vec3 8*f32 = 32 bytes, Index is uint32 = 4 bytes)
+// (arrays: 11484 vert *32 = 367,488 bytes) dbg-run 18ms
+// (indexed: 6759 unique vert *32 = 216,288 bytes (=x0.59) + 11484 indices * 4 = 45,936 bytes  =  262,224 bytes (=x0.713)) dbg-run 21ms
 VertexData Loader::loadOBJ(const std::string& filename)
 {
+    BENCHMARK_TIMER;
+
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -56,26 +76,34 @@ VertexData Loader::loadOBJ(const std::string& filename)
     }
     //if (!err.empty()) { Log::warn("Error occur when loading .OBJ '{}': ", filename, err); }
 
-    VertexData vertexdata{filename};
+    VertexData vtx{filename};
+
+    std::unordered_map<VertexData::Vertex, uint32_t> unique_verts;
 
     for (tinyobj::shape_t& shape : shapes)
     {
-        vertexdata.m_Vertices.reserve(vertexdata.m_Vertices.size() + shape.mesh.indices.size());
+        vtx.m_Vertices.reserve(vtx.m_Vertices.size() + shape.mesh.indices.size());
 
         for (tinyobj::index_t& index : shape.mesh.indices)
         {
             glm::vec3 pos = *reinterpret_cast<glm::vec3*>(&attrib.vertices[3*index.vertex_index]);
             glm::vec2 tex = *reinterpret_cast<glm::vec2*>(&attrib.texcoords[2*index.texcoord_index]);
             glm::vec3 norm = *reinterpret_cast<glm::vec3*>(&attrib.normals[3*index.normal_index]);
+            VertexData::Vertex vert = {pos, tex, norm};
 
             // vulkan y 0=top
             tex.y = 1.0f - tex.y;
 
-            vertexdata.m_Vertices.push_back({pos, tex, norm});
-            vertexdata.m_Indices.push_back(vertexdata.m_Indices.size());
+            if (unique_verts.count(vert))
+            {
+                unique_verts[vert] = vtx.m_Vertices.size();
+                vtx.m_Vertices.push_back(vert);
+            }
+
+            vtx.m_Indices.push_back(unique_verts[vert]);
         }
     }
-    return vertexdata;
+    return vtx;
 }
 
 
@@ -134,9 +162,6 @@ VertexData::~VertexData()
 {
     Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
 }
-
-
-
 
 
 

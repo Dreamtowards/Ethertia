@@ -120,6 +120,9 @@ public:
             vkh::CreateTextureImage(bitmapImage, g_TextureImage);
 
             VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
+            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
+            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
+            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
             g_TestModel.m_VertexCount = vdata.vertexCount();
             vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), g_TestModel.m_VertexBuffer, g_TestModel.m_VertexBufferMemory);
             vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), g_TestModel.m_IndexBuffer, g_TestModel.m_IndexBufferMemory, true);

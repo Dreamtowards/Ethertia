@@ -13,13 +13,21 @@
 #include <string>
 #include <vector>
 
+
 class VertexData
 {
 public:
-    struct Vertex {
+    class Vertex
+    {
+    public:
         glm::vec3 pos;
         glm::vec2 tex;
         glm::vec3 norm;
+
+
+        bool operator==(const Vertex& o) const {
+            return pos == o.pos && tex == o.tex && norm == o.norm;
+        }
     };
 
     VertexData(const std::string& _filename);
