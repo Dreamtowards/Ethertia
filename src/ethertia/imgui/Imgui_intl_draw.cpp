@@ -60,6 +60,8 @@
 
 
 
+#include "ethertia/entity/component/EntityDrivingSeat.h"
+
 static enum SettingsPanel {
     Profile,
     CurrentWorld,
@@ -731,7 +733,7 @@ static void ShowEntities()
             }
             if (ImGui::MenuItem("DrivingSeat"))
             {
-                EntityHelicopter* e = new EntityHelicopter();
+                EntityDrivingSeat* e = new EntityDrivingSeat();
                 e->position() = Ethertia::getCamera().position;
 
                 Ethertia::getWorld()->addEntity(e);

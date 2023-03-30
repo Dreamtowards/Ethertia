@@ -11,6 +11,7 @@
 class EntityDrivingSeat : public Entity
 {
     EntityPlayer* driver = nullptr;
+    btGeneric6DofConstraint* current_constraint = nullptr;
 
 public:
     EntityDrivingSeat()
@@ -42,11 +43,15 @@ public:
         constraint->setAngularLowerLimit(btVector3(0, 0, 0));
         constraint->setAngularUpperLimit(btVector3(0, 0, 0));
 
+        current_constraint = constraint;
+
         Ethertia::getWorld()->m_DynamicsWorld->addConstraint(constraint, true);
     }
 
     void removeDriver(EntityPlayer* entityPlayer) {
         driver = nullptr;
+        Ethertia::getWorld()->m_DynamicsWorld->removeConstraint(current_constraint);
+        current_constraint = nullptr;
     }
 };
 
