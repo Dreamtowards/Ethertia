@@ -11,6 +11,7 @@
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include "Settings.h"
+#include "ethertia/entity/component/EntityDrivingSeat.h"
 
 //#include <ethertia/gui/screen/GuiF4Lock.h>
 //#include <ethertia/gui/screen/GuiDebugV.h>
@@ -249,6 +250,14 @@ void handleHitCursor()
                 cur.cell_breaking_time = 0;  // reset breaking_time. hitting target changed.
             }
             cur.cell = hitCell;
+        }
+
+
+        // Hit EntityDrivingSeat Cell.
+        EntityDrivingSeat* drivingSeat = dynamic_cast<EntityDrivingSeat*>(cur.hitEntity);
+        if (drivingSeat)
+        {
+            drivingSeat->setDriver(Ethertia::getPlayer());
         }
     }
     else

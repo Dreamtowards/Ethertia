@@ -1,10 +1,10 @@
-# Blender 3.4.1 MTL File: 'helicopter.blend'
+# Blender 3.4.1 MTL File: 'None'
 # www.blender.org
 
-newmtl 1
+newmtl Material
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.239794 0.022398
+Kd 0.800000 0.800000 0.800000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
