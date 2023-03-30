@@ -182,8 +182,19 @@ target_link_libraries(Ethertia nbt++)
 #VK_DRIVER_FILES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json    # a.k.a. VK_ICD_FILENAMES, installable client drivers.
 #VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d           # for validation layer.
 
-#include_directories(lib/vulkan/include)
-#target_link_directories(Eldaria PUBLIC lib/vulkan/bin/darwin-x64)
-#target_link_libraries(Eldaria vulkan.1.3.236 )
+include_directories(lib/vulkan/include)
+
+if (APPLE)
+    target_link_directories(Eldaria PUBLIC lib/vulkan/bin/darwin-x64)
+    target_link_libraries(Eldaria vulkan.1.3.236)
+elseif(WIN32)
+    #
+    target_link_libraries(Eldaria "${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
+endif ()
+
+
+#set(VULKAN_SDK "E:/_Dev/VulkanSDK/1.3.243.0")
+#find_package(Vulkan REQUIRED)
+#target_link_libraries(target ${Vulkan_LIBRARIES})
 
 #if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. it's linked by ICD loaders.

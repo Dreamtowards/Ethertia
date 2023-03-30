@@ -38,6 +38,7 @@ BitmapImage Loader::loadPNG(const std::string& path)
 {
     int w, h, channels;
     stbi_uc* pixels = stbi_load(path.c_str(), &w, &h, &channels, 4);
+    assert(pixels);
 
     return BitmapImage(pixels, w, h, path);
 }

@@ -34,6 +34,7 @@ int main(int argc, char** argv, char** env)
 
 static void Init()
 {
+    BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     g_Running = true;
 
     Window::Init();

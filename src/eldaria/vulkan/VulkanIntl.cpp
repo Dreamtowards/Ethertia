@@ -116,10 +116,10 @@ public:
         CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
 
         {
-            BitmapImage bitmapImage = Loader::loadPNG("/Users/dreamtowards/Downloads/viking_room.png");
+            BitmapImage bitmapImage = Loader::loadPNG("./assets/entity/viking_room/viking_room.png");
             vkh::CreateTextureImage(bitmapImage, g_TextureImage);
 
-            VertexData vdata = Loader::loadOBJ("/Users/dreamtowards/Downloads/viking_room.obj");
+            VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
             g_TestModel.m_VertexCount = vdata.vertexCount();
             vkh::CreateVertexBuffer(vdata.data(), vdata.size(),
                                     g_TestModel.m_VertexBuffer,
