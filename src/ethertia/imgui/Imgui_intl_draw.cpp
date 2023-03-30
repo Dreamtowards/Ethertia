@@ -1,138 +1,78 @@
 //
-// Created by Dreamtowards on 2023/3/8.
+// Created by Dreamtowards on 2023/3/12.
 //
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include <ethertia/imgui/ImGuis.h>
 
-#include <glm/gtc/type_ptr.hpp>
-
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
-
-#include <imguizmo/ImGuizmo.h>
-#include <imgui-knobs/imgui-knobs.h>
-#include <imgui-imnodes/imnodes.h>
-
-
-#include <ethertia/init/Settings.h>
-#include <ethertia/Ethertia.h>
-#include <ethertia/render/Window.h>
-#include <ethertia/render/RenderEngine.h>
-//#include <ethertia/gui/screen/GuiDebugV.h>
-
-#include <ethertia/init/DebugStat.h>
-#include <ethertia/init/Controls.h>
-
-#include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/world/Chunk.h>
-#include <ethertia/render/ssao/SSAORenderer.h>
-#include <ethertia/render/shadow/ShadowRenderer.h>
-#include <ethertia/render/debug/DebugRenderer.h>
-#include <ethertia/render/deferred/GeometryRenderer.h>
-
-static void InitStyle()
-{
-    ImGuiIO& io = ImGui::GetIO();
-
-    ImFontConfig fontConf;
-    fontConf.OversampleH = 3;
-    fontConf.OversampleV = 3;
-    fontConf.RasterizerMultiply = 1.6f;
-    io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
-
-    // Enable Docking.
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.GrabMinSize = 7;
-    style.FrameBorderSize = 0;
-    style.WindowMenuButtonPosition = ImGuiDir_Right;
-    style.SeparatorTextBorderSize = 2;
-    style.DisplaySafeAreaPadding = {0, 0};
-    style.FramePadding = {8, 2};
-
-    style.ScrollbarSize = 10;
-    style.ScrollbarRounding = 2;
-    style.TabRounding = 2;
-
-    for (int i = 0; i < ImGuiCol_COUNT; ++i)
-    {
-        ImVec4& col = style.Colors[i];
-        float f = std::max(Colors::luminance({col.x, col.y, col.z}), 0.06f);
-        //(col.x + col.y + col.z) / 3.0f;
-        col = ImVec4(f,f,f,col.w);
-    }
-
-    auto& Col = style.Colors;
-
-    Col[ImGuiCol_CheckMark] =
-    Col[ImGuiCol_SliderGrab] =
-            {1.000f, 1.000f, 1.000f, 1.000f};
-
-//    style.Colors[ImGuiCol_MenuBarBg] = {0,0,0,0};
-
-    Col[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
-    Col[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
-    Col[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
-
-    Col[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
-    Col[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
-
-    Col[ImGuiCol_Tab] =
-    Col[ImGuiCol_TabUnfocused] = {0,0,0,0};
-
-    Col[ImGuiCol_TabActive] = {0.26f, 0.26f, 0.26f, 1.000f};
-    Col[ImGuiCol_TabUnfocusedActive] =
-    Col[ImGuiCol_WindowBg] = {0.176f, 0.176f, 0.176f, 1.000f}; //{0.19f, 0.19f, 0.19f, 1.0f};  // {0.212f, 0.212f, 0.212f, 1.000f};
-    Col[ImGuiCol_TitleBg] =
-    Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
-
-//        style.Colors[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
-//        style.Colors[ImGuiCol_Button] =
-//        style.Colors[ImGuiCol_Header] =
-//        style.Colors[ImGuiCol_FrameBg] =
-//                {0.322f, 0.322f, 0.322f, 0.540f};
+//#include <ethertia/gui/Gui.h>
 //
-//        style.Colors[ImGuiCol_ButtonHovered] =
-//        style.Colors[ImGuiCol_HeaderHovered] =
-//        style.Colors[ImGuiCol_FrameBgHovered] =
-//                {0.626f, 0.626f, 0.626f, 0.400f};
+//void Dbg_DrawGbuffers(float x, float y)
+//{
+//    auto* gbuffer = GeometryRenderer::fboGbuffer;
 //
-//        style.Colors[ImGuiCol_ButtonActive] =
-//        style.Colors[ImGuiCol_HeaderActive] =
-//                {0.170f, 0.170f, 0.170f, 1.000f};
+//    float h = 120;
+//    float w = h * 1.5f;
+//
+//    Gui::drawRect(x, y, w, h, {
+//            .tex = gbuffer->texColor[0],
+//            .channel_mode = Gui::DrawRectArgs::C_RGB
+//    });
+//    Gui::drawString(x,y, "Pos");
+//
+//    Gui::drawRect(x+w, y, w, h, {
+//            .tex = gbuffer->texColor[0],
+//            .channel_mode = Gui::DrawRectArgs::C_AAA
+//    });
+//    Gui::drawString(x+w,y, "Dep");
+//
+//    Gui::drawRect(x, y+h, w, h, gbuffer->texColor[1]);
+//    Gui::drawString(0,h, "Norm");
+//
+//    Gui::drawRect(x, y+h*2, w, h, {
+//            .tex = gbuffer->texColor[2],
+//            .channel_mode = Gui::DrawRectArgs::C_RGB
+//    });
+//    Gui::drawString(x,y+h*2, "Albedo");
+//
+//    Gui::drawRect(x+w, y+h*2, w, h, {
+//            .tex = gbuffer->texColor[2],
+//            .channel_mode = Gui::DrawRectArgs::C_AAA
+//    });
+//    Gui::drawString(x+w,y+h*2, "Roug");
+//
+//    Gui::drawRect(x, y+h*3, w, h, {
+//            .tex = SSAORenderer::fboSSAO->texColor[0],
+//            .channel_mode = Gui::DrawRectArgs::C_RGB
+//    });
+//    Gui::drawString(x,y+h*3, "SSAO");
+//
+//
+//    Gui::drawRect(x, y+h*4, w, h, {
+//            .tex = ShadowRenderer::fboDepthMap->texDepth,
+//            .channel_mode = Gui::DrawRectArgs::C_RGB
+//    });
+//    Gui::drawString(x,y+h*4, "Shadow");
+//
+//}
 
-}
 
-void ImGuis::Init()
-{
-    BENCHMARK_TIMER;
-    Log::info("Init ImGui.. \1");
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
 
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
-    ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
-    InitStyle();
 
-    ImNodes::CreateContext();
-    ImNodes::GetIO().EmulateThreeButtonMouse.Modifier = &ImGui::GetIO().KeyShift;
 
-}
-
-void ImGuis::Destroy()
-{
-    ImNodes::DestroyContext();
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-}
-
+static enum SettingsPanel {
+    Profile,
+    CurrentWorld,
+    Graphics,
+    Audio,
+    Controls,
+    Language,
+    Mods,
+    Shaders,
+    ResourcePacks,
+    Credits,
+    Misc
+} g_CurrSettingsPanel;
 
 
 
@@ -176,8 +116,101 @@ static Texture* LazyLoadTex(const std::string& p) {
 }
 
 
-#include "ImDebugs.cpp"
-#include "ethertia/entity/component/EntityDrivingSeat.h"
+
+
+static void ShowDebugTextOverlay()
+{
+    World* world = Ethertia::getWorld();
+    float dt = Ethertia::getDelta();
+    EntityPlayer* player = Ethertia::getPlayer();
+    btRigidBody* playerRb = player->m_Rigidbody;
+    float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
+
+    std::string cellInfo = "nil";
+    std::string chunkInfo = "nil";
+    std::string worldInfo = "nil";
+    HitCursor& cur = Ethertia::getHitCursor();
+
+
+    if (world)
+    {
+        worldInfo = Strings::fmt("{}. inhabited {}s, daytime {}. seed {}",
+                                 world->m_WorldInfo.Name,
+                                 world->m_WorldInfo.InhabitedTime,
+                                 Strings::daytime(world->getDayTime()),
+                                 world->getSeed());
+        Chunk* hitChunk = world->getLoadedChunk(cur.position);
+        if (hitChunk) {
+            chunkInfo = Strings::fmt("GenPop: {}, Inhabited: {}s",
+                                     hitChunk->m_Populated,
+                                     hitChunk->m_InhabitedTime);
+        }
+        if (cur.cell) {
+            Cell* c = cur.cell;
+            cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
+                                    c->mtl ? c->mtl->getRegistryId() : "nil",
+                                    c->density,
+                                    (int)c->exp_meta,
+                                    cur.cell_breaking_time);
+        }
+    }
+
+    std::string str = Strings::fmt(
+            "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
+            "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
+            "dt: {}, {}fps\n"
+            "\n"
+            "World: {}\n"
+            "HitChunk: {}\n"
+            "HitCell: {}\n"
+            "\n"
+            "task {}, async {}\n"
+            "ChunkProvide: {}\n"
+            "ChunkMeshing: {}\n"
+            "ChunkSaving:  {}\n"
+            ,
+            Ethertia::getCamera().position, Ethertia::getCamera().len,
+            meterPerSec, meterPerSec * 3.6f,
+            player->m_OnGround, player->m_NumContactPoints,
+
+            Settings::dbgEntitiesRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
+
+            dt, Mth::floor(1.0f/dt),
+            worldInfo,
+            chunkInfo,
+            cellInfo,
+
+            Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
+            DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
+            DebugStat::dbg_NumChunksMeshInvalid,
+            DebugStat::dbg_ChunksSaving
+
+    );
+
+    auto& vp = Ethertia::getViewport();
+    ImGui::SetNextWindowPos({vp.x+0, vp.y+16});
+    ImGui::SetNextWindowBgAlpha(0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0,0});
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking |
+                                    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    if (ImGui::Begin("DebugTextOverlay", &dbg_Text, window_flags)) {
+        ImGui::Text("%s", str.c_str());
+
+        if (dbg_Gbuffer) {
+            ImVec2 siz = {vp.width / 10, vp.height / 10};
+            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[0]->texId, siz);  // Pos.rgb Dep.a
+            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[1]->texId, siz);  // Norm.rgb
+            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[2]->texId, siz);  // Albedo.rgb
+
+            Imgui::Image(SSAORenderer::fboSSAO->texColor[0]->texId, siz);  // AO.r
+            Imgui::Image(ShadowRenderer::fboDepthMap->texDepth->texId, siz);  // Depth.texDepth.r
+        }
+    }
+    ImGui::End();
+    ImGui::PopStyleVar(2);
+}
+
 
 
 static void _MenuSystem()
@@ -251,10 +284,19 @@ static void _MenuSystem()
         Settings::w_Settings = true;
     }
 
-    ImGui::MenuItem("Mods", "0 mods loaded");
-    ImGui::MenuItem("Resource Packs");
+    if (ImGui::MenuItem("Mods", "0 mods loaded")) {
+        Settings::w_Settings = true;
+        g_CurrSettingsPanel = SettingsPanel::Mods;
+    }
+    if (ImGui::MenuItem("Resource Packs")) {
+        Settings::w_Settings = true;
+        g_CurrSettingsPanel = SettingsPanel::ResourcePacks;
+    }
 
-    if (ImGui::MenuItem("About")) {}
+    if (ImGui::MenuItem("About")) {
+        Settings::w_Settings = true;
+        g_CurrSettingsPanel = SettingsPanel::Credits;
+    }
 
     ImGui::Separator();
 
@@ -417,8 +459,8 @@ static void ShowMainMenuBar()
             ImGui::ImageButton("gPP", LazyLoadTex("gui/icon/play-prev.png")->pTexId(), {sz,sz});
 
             if (ImGui::ImageButton("gPlayPause",
-                               Ethertia::isIngame() ? LazyLoadTex("gui/icon/pause28.png")->pTexId() :
-                               LazyLoadTex("gui/icon/play28.png")->pTexId(), {sz, sz})) {
+                                   Ethertia::isIngame() ? LazyLoadTex("gui/icon/pause28.png")->pTexId() :
+                                   LazyLoadTex("gui/icon/play28.png")->pTexId(), {sz, sz})) {
                 Ethertia::isIngame() = !Ethertia::isIngame();
             }
 
@@ -553,7 +595,7 @@ static void ShowEntityInsp()
 {
     ImGui::Begin("Entity", &Settings::w_EntityInsp);
 
-    Entity* entity = ImGuis::g_InspEntity;
+    Entity* entity = Imgui::g_InspEntity;
     if (!entity) {
         ImGui::TextDisabled("No entity selected.");
         ImGui::End();
@@ -687,13 +729,6 @@ static void ShowEntities()
 
                 Ethertia::getWorld()->addEntity(e);
             }
-            if (ImGui::MenuItem("DrivingSeat"))
-            {
-                EntityDrivingSeat* e = new EntityDrivingSeat();
-                e->position() = Ethertia::getCamera().position;
-
-                Ethertia::getWorld()->addEntity(e);
-            }
             ImGui::EndMenu();
         }
         if (ImGui::MenuItem("Light")) {
@@ -729,7 +764,7 @@ static void ShowEntities()
         ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
 
         if (ImGui::Button("Unselect")) {
-            ImGuis::g_InspEntity = nullptr;
+            Imgui::g_InspEntity = nullptr;
         }
 
         ImGui::EndPopup();
@@ -738,7 +773,7 @@ static void ShowEntities()
     if (_KeepSelectHitEntity) {
         auto& cur = Ethertia::getHitCursor();
         if (cur.hitEntity) {
-            ImGuis::g_InspEntity = cur.hitEntity;
+            Imgui::g_InspEntity = cur.hitEntity;
         }
     }
 
@@ -771,8 +806,8 @@ static void ShowEntities()
             char buf[32];
 
             sprintf(buf, "#%.3i | %s", i, typeid(*e).name());
-            if (ImGui::Selectable(buf, ImGuis::g_InspEntity == e)) {
-                ImGuis::g_InspEntity = e;
+            if (ImGui::Selectable(buf, Imgui::g_InspEntity == e)) {
+                Imgui::g_InspEntity = e;
             }
             ++i;
         }
@@ -838,46 +873,180 @@ void ShowNodeEditor()
 }
 
 
-static enum SettingsPanel {
-    Profile,
-    CurrentWorld,
-    Graphics,
-    Audio,
-    Controls,
-    Language,
-    Mods,
-    Shaders,
-    ResourcePacks,
-    Credits,
-    Misc
-} g_CurrSettingsPanel;
+#include <imgui_internal.h>
+
+class ImKeymap
+{
+public:
+    inline static float _keysize_std = 54;
+    inline static ImVec2 _keysize = {_keysize_std, _keysize_std};
+    inline static float _keygap = 4;
+
+    inline static std::function<ImU32(ImGuiKey)> g_FuncKeyColor = [](auto){return -1;};
+
+    static void RenderKey(ImVec2& p, const char* name, ImGuiKey keycode, float keySizeX = 1.0f, float sizeAddGaps = 0)
+    {
+        float gapAdd = sizeAddGaps * _keygap;
+
+        ImVec2 offset = {2, 2};
+        if (name[1] == '\0')
+            offset = {0.5f*(_keysize.x-8), 0.5f*(_keysize.y-12)};
+
+        ImVec2 size = ImVec2(keySizeX * _keysize.x + gapAdd, _keysize.y);
+        bool hover = ImGui::IsMouseHoveringRect(p, p+size);
+
+        ImU32 col = ImGui::GetColorU32(hover ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+        if (ImGui::IsKeyDown(keycode)) {
+            col = ImGui::GetColorU32(ImGuiCol_HeaderActive);
+        }
+        ImU32 evalColor = g_FuncKeyColor(keycode);
+        if (evalColor != -1) {
+            col = evalColor;
+        }
+
+        ImGui::RenderFrame(p, p+size,col, true, ImGui::GetStyle().FrameRounding);
+        ImGui::RenderText(p+offset, name);
+
+        p.x += keySizeX * _keysize.x + gapAdd + _keygap;
+    }
+
+    static void ShowKeymap()
+    {
+        ImVec2 begin = ImGui::GetCursorScreenPos();
+        ImVec2 p = begin;
+
+        _keysize.y = _keysize_std * 0.5f;
+        RenderKey(p, "ESC", ImGuiKey_Escape); p.x += _keysize.x + _keygap;
+        RenderKey(p, "F1", ImGuiKey_F1);
+        RenderKey(p, "F2", ImGuiKey_F1);
+        RenderKey(p, "F3", ImGuiKey_F3);
+        RenderKey(p, "F4", ImGuiKey_F4); p.x += 0.5f * (_keysize.x + _keygap);
+        RenderKey(p, "F5", ImGuiKey_F5);
+        RenderKey(p, "F6", ImGuiKey_F6);
+        RenderKey(p, "F7", ImGuiKey_F7);
+        RenderKey(p, "F8", ImGuiKey_F8); p.x += 0.5f * (_keysize.x + _keygap);
+        RenderKey(p, "F9", ImGuiKey_F9);
+        RenderKey(p, "F10", ImGuiKey_F10);
+        RenderKey(p, "F11", ImGuiKey_F11);
+        RenderKey(p, "F12", ImGuiKey_F12);
+        _keysize.y = _keysize_std;
+
+#define STEP_ROW p.x = begin.x; p.y += _keysize.y + _keygap;
+        STEP_ROW;
+        RenderKey(p, "~\n`", ImGuiKey_GraveAccent);
+        RenderKey(p, "!\n1", ImGuiKey_1);
+        RenderKey(p, "@\n2", ImGuiKey_2);
+        RenderKey(p, "#\n3", ImGuiKey_3);
+        RenderKey(p, "$\n4", ImGuiKey_4);
+        RenderKey(p, "%\n5", ImGuiKey_5);
+        RenderKey(p, "^\n6", ImGuiKey_6);
+        RenderKey(p, "&\n7", ImGuiKey_7);
+        RenderKey(p, "*\n8", ImGuiKey_8);
+        RenderKey(p, "(\n9", ImGuiKey_9);
+        RenderKey(p, ")\n0", ImGuiKey_0);
+        RenderKey(p, "_\n-", ImGuiKey_Minus);
+        RenderKey(p, "+\n=", ImGuiKey_Equal);
+        RenderKey(p, "backspace", ImGuiKey_Backspace, 2.0f, 1);
+
+        STEP_ROW
+        RenderKey(p, "tab", ImGuiKey_Tab, 1.5f);
+        RenderKey(p, "Q", ImGuiKey_Q);
+        RenderKey(p, "W", ImGuiKey_W);
+        RenderKey(p, "E", ImGuiKey_E);
+        RenderKey(p, "R", ImGuiKey_R);
+        RenderKey(p, "T", ImGuiKey_T);
+        RenderKey(p, "Y", ImGuiKey_Y);
+        RenderKey(p, "U", ImGuiKey_U);
+        RenderKey(p, "I", ImGuiKey_I);
+        RenderKey(p, "O", ImGuiKey_O);
+        RenderKey(p, "P", ImGuiKey_P);
+        RenderKey(p, "{\n[", ImGuiKey_LeftBracket);
+        RenderKey(p, "}\n]", ImGuiKey_RightBracket);
+        RenderKey(p, "|\n\\", ImGuiKey_Backslash, 1.5f, 1);
+
+        STEP_ROW;
+        RenderKey(p, "caps", ImGuiKey_CapsLock, 1.75f, 1);
+        RenderKey(p, "A", ImGuiKey_A);
+        RenderKey(p, "S", ImGuiKey_S);
+        RenderKey(p, "D", ImGuiKey_D);
+        RenderKey(p, "F", ImGuiKey_F);
+        RenderKey(p, "G", ImGuiKey_G);
+        RenderKey(p, "H", ImGuiKey_H);
+        RenderKey(p, "J", ImGuiKey_J);
+        RenderKey(p, "K", ImGuiKey_K);
+        RenderKey(p, "L", ImGuiKey_L);
+        RenderKey(p, ":\n;", ImGuiKey_Semicolon);
+        RenderKey(p, "\"\n'", ImGuiKey_Apostrophe);
+        RenderKey(p, "return", ImGuiKey_Enter, 2.25f, 1);
+
+        STEP_ROW;
+        RenderKey(p, "shift", ImGuiKey_LeftShift, 2.0f, 1);
+        RenderKey(p, "Z", ImGuiKey_Z);
+        RenderKey(p, "X", ImGuiKey_X);
+        RenderKey(p, "C", ImGuiKey_C);
+        RenderKey(p, "V", ImGuiKey_V);
+        RenderKey(p, "B", ImGuiKey_B);
+        RenderKey(p, "N", ImGuiKey_N);
+        RenderKey(p, "M", ImGuiKey_M);
+        RenderKey(p, "<\n,", ImGuiKey_Comma);
+        RenderKey(p, ">\n.", ImGuiKey_Period);
+        RenderKey(p, "?\n/", ImGuiKey_Slash);
+        RenderKey(p, "shift", ImGuiKey_RightShift, 3, 2);
+
+        STEP_ROW;
+        RenderKey(p, "fn", ImGuiKey_F);
+        RenderKey(p, "ctrl", ImGuiKey_LeftCtrl);
+        RenderKey(p, "alt", ImGuiKey_LeftAlt);
+        RenderKey(p, "super", ImGuiKey_LeftSuper);
+        RenderKey(p, "", ImGuiKey_Space, 6, 5);
+        RenderKey(p, "super", ImGuiKey_RightSuper);
+        RenderKey(p, "alt", ImGuiKey_RightAlt);
+
+        float tmpY = p.y;
+        _keysize.y = _keysize_std*0.5f - _keygap*0.5f;
+        p.y += _keysize.y + _keygap;
+        RenderKey(p, "<", ImGuiKey_LeftArrow);
+        float tmpX = p.x;
+        RenderKey(p, "v", ImGuiKey_DownArrow);
+        RenderKey(p, ">", ImGuiKey_RightArrow);
+        p = {tmpX, tmpY};
+        RenderKey(p, "^", ImGuiKey_UpArrow);
+
+        ImGui::SetCursorScreenPos({begin.x, p.y + 60});
+    }
+
+
+};
+
+
+#include <ethertia/init/KeyBinding.h>
 
 static void ShowSettingsWindow()
 {
     ImGui::Begin("Settings", &Settings::w_Settings);
 
-    SettingsPanel currp = g_CurrSettingsPanel;
+    SettingsPanel& currp = g_CurrSettingsPanel;
 
-        ImGui::BeginChild("SettingNav", {150, 0}, true);
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8, 8});
+    ImGui::BeginChild("SettingNav", {150, 0}, true);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8, 8});
 
-        if (ImGui::RadioButton("Profile", currp==Profile)) { currp=Profile; }
-        if (ImGui::RadioButton("Current World", currp==CurrentWorld)) { currp=CurrentWorld; }
-        ImGui::Separator();
-        if (ImGui::RadioButton("Graphics", currp==Graphics)) { currp=Graphics; }
-        if (ImGui::RadioButton("Music & Sounds", currp==Audio)) { currp=Audio; }
-        if (ImGui::RadioButton("Controls", currp==Controls)) { currp=Controls; }
-        if (ImGui::RadioButton("Language", currp==Language)) { currp=Language; }
-        ImGui::Separator();
-        if (ImGui::RadioButton("Mods", currp==Mods)) { currp=Mods; }
-        if (ImGui::RadioButton("Shaders", currp==Shaders)) { currp=Shaders; }
-        if (ImGui::RadioButton("Resource Packs", currp==ResourcePacks)) { currp=ResourcePacks; }
-        ImGui::Separator();
-        if (ImGui::RadioButton("Credits", currp==Credits)) { currp=Credits; }
-        if (ImGui::RadioButton("Misc", currp==Misc)) { currp=Misc; }
+    if (ImGui::RadioButton("Profile", currp==Profile)) { currp=Profile; }
+    if (ImGui::RadioButton("Current World", currp==CurrentWorld)) { currp=CurrentWorld; }
+    ImGui::Separator();
+    if (ImGui::RadioButton("Graphics", currp==Graphics)) { currp=Graphics; }
+    if (ImGui::RadioButton("Music & Sounds", currp==Audio)) { currp=Audio; }
+    if (ImGui::RadioButton("Controls", currp==Controls)) { currp=Controls; }
+    if (ImGui::RadioButton("Language", currp==Language)) { currp=Language; }
+    ImGui::Separator();
+    if (ImGui::RadioButton("Mods", currp==Mods)) { currp=Mods; }
+    if (ImGui::RadioButton("Shaders", currp==Shaders)) { currp=Shaders; }
+    if (ImGui::RadioButton("Resource Packs", currp==ResourcePacks)) { currp=ResourcePacks; }
+    ImGui::Separator();
+    if (ImGui::RadioButton("Credits", currp==Credits)) { currp=Credits; }
+    if (ImGui::RadioButton("Misc", currp==Misc)) { currp=Misc; }
 
-        ImGui::PopStyleVar();
-        ImGui::EndChild();
+    ImGui::PopStyleVar();
+    ImGui::EndChild();
 
     ImGui::SameLine();
 
@@ -965,30 +1134,84 @@ static void ShowSettingsWindow()
         }
         else if (currp==Controls)
         {
-            ImGui::SeparatorText("Mouse");
+//            ImGui::SeparatorText("Mouse");
+//
+//            static float s_MouseSensitivity = 1.0f;
+//            ImGui::SliderFloat("Mouse Sensitivity", &s_MouseSensitivity, 0, 2);
+//
+//
+//            ImGui::SeparatorText("Keyboard");
 
-            static float s_MouseSensitivity = 1.0f;
-            ImGui::SliderFloat("Mouse Sensitivity", &s_MouseSensitivity, 0, 2);
+            ImKeymap::g_FuncKeyColor = [](ImGuiKey k) -> ImU32 {
+                for (auto& it : KeyBinding::REGISTRY) {
+                    if (it.second->key() == k)
+                        return ImGui::GetColorU32(ImGuiCol_Header);
+                }
+                return -1;
+            };
 
 
-            ImGui::SeparatorText("Keyboard");
+            ImGui::BeginChild("KeyBindingList", {270, 0});
+            for (auto& it : KeyBinding::REGISTRY)
+            {
+                auto& name = it.first;
+                KeyBinding* keyBinding = it.second;
+
+                ImGui::Text("%s", name.c_str());
+                if (ImGui::IsItemHovered() && ImGui::IsItemClicked()) {
+                    ImGui::SetTooltip("Click to reset (to: %s)", ImGui::GetKeyName(keyBinding->m_DefaultKey));
+                }
+
+
+                ImGui::SameLine(160);
+
+                if (ImGui::Button(ImGui::GetKeyName(keyBinding->key()), {100, 0})) {}
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Press Key");
+
+                    ImGuiKey k = GetPressedKey();
+                    if (k) {
+                        keyBinding->m_Key = k;
+                    }
+                }
+
+//                ImGui::SameLine();
+//                ImGui::PushID(name.c_str());
+//                if (ImGui::Button("Reset"))
+//                {
+//                    keyBinding->m_Key = keyBinding->m_DefaultKey;
+//                }
+//                ImGui::PopID();
+//                if (ImGui::IsItemHovered()) {
+//                    ImGui::SetTooltip("Reset to: %s", ImGui::GetKeyName(keyBinding->m_DefaultKey));
+//                }
+            }
+            ImGui::EndChild();
+
+            ImGui::SameLine();
+
+            ImKeymap::ShowKeymap();
 
         }
         else if (currp==Language)
         {
             std::vector<std::pair<const char*, const char*>> g_Languages = {
                     {"en_us", "English"},
-                    {"zh_cn", "Jian ti Zhong Wen"}
+                    {"zh_tw", "Chinese (Complified)"},
+                    {"zh_cn", "Chinese (Simplified)"}
             };
             static const char* g_SelectedLanguage = "en_us";
 
+            ImGui::BeginChild("LangList", {0, 200});
             for (auto it : g_Languages) {
                 if (ImGui::Selectable(it.second, g_SelectedLanguage==it.first)) {
                     g_SelectedLanguage = it.first;
                 }
             }
+            ImGui::EndChild();
 
-            ImGui::Text("Translation may not 100%% accurate.");
+            ImGui::TextDisabled("Translation may not 100%% accurate.");
         }
         else if (currp==Mods)
         {
@@ -1064,19 +1287,19 @@ static void ShowTitleScreenWindow()
 
     // Background
 //    ImGui::Image(Texture::DEBUG->texId_ptr(),
-//                 ImGuis::GetWindowContentSize(),
+//                 Imgui::GetWindowContentSize(),
 //                 {0,1}, {1,0});
 
     // LeftBottom Version/Stats
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
-    ImGuis::TextAlign(Strings::fmt("0 mods loaded.\n{}", Ethertia::Version::name()).c_str(),
-                      {0.0f, 1.0f});
+    Imgui::TextAlign(Strings::fmt("0 mods loaded.\n{}", Ethertia::Version::name()).c_str(),
+                     {0.0f, 1.0f});
 
     // RightBottom Copyright
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
     ImGui::SetCursorPosX(ImGui::GetWindowWidth());
-    ImGuis::TextAlign("Copyright (c) Eldrine Le Prismarine, Do not distribute!",
-                      {1,1});
+    Imgui::TextAlign("Copyright (c) Eldrine Le Prismarine, Do not distribute!",
+                     {1,1});
 
     ImVec2 btnSize = {300, 20};
     float btnX = ImGui::GetWindowWidth() / 2 - btnSize.x /2;
@@ -1247,11 +1470,11 @@ static void ShowGameViewport()
         _ViewportLastDockId = ImGui::GetWindowDockID();
     }
 
-    ImVec2 size = ImGuis::GetWindowContentSize();
+    ImVec2 size = Imgui::GetWindowContentSize();
     ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
-    ImGuis::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
+    Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
-    ImGuis::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
+    Imgui::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
     ImGui::SetCursorPos({0,0});
     ImGui::InvisibleButton("PreventsGameWindowMove", size);
 
@@ -1281,6 +1504,51 @@ static void ShowGameViewport()
     ImGui::End();
 }
 
+
+
+
+static void ShowConsole()
+{
+    ImGui::Begin("Console", &Settings::w_Console);
+    ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
+    for (auto& str : Imgui::g_MessageBox) {
+        ImGui::Text("%s", str.c_str());
+    }
+    ImGui::EndChild();
+    static char InputBuf[128];
+
+    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+    if (ImGui::InputText("###MsgBoxInput", InputBuf, 128,
+                         ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine))
+    {
+        if (InputBuf[0]) {
+            Ethertia::dispatchCommand(InputBuf);
+            InputBuf[0] = 0;  // clear.
+        }
+    }
+    ImGui::PopItemWidth();
+
+    // keeping auto focus on the input box
+    if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) ||
+        (Settings::w_Console_FocusInput)) {  // only enable when on focus.
+        Settings::w_Console_FocusInput = false;
+        if (ImGui::GetWindowDockID())
+            ImGui::SetWindowDock(ImGui::GetCurrentWindow(), 0, ImGuiCond_Always);
+
+        ImGui::SetWindowFocus();
+        ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+    }
+
+    ImGui::End();
+}
+
+
+
+
+
+
+
+
 static void RenderWindows()
 {
     ShowDockspaceAndMainMenubar();
@@ -1288,53 +1556,48 @@ static void RenderWindows()
     if (Settings::w_Toolbar)
         ShowToolbar();
 
+//    ImGui::Begin("Keymap");
+//    ImKeymap::ShowKeymap();
+//    ImGui::End();
+
 
     glPolygonMode(GL_FRONT_AND_BACK, Settings::dbg_PolyLine ? GL_LINE : GL_FILL);
 
-    if (w_ImGuiDemo) {
+    if (w_ImGuiDemo)
         ImGui::ShowDemoWindow(&w_ImGuiDemo);
-    }
 
-    if (w_NewWorld) {
+    if (w_NewWorld)
         ShowNewWorldWindow();
-    }
-    if (Settings::w_EntityList) {
+
+    if (Settings::w_EntityList)
         ShowEntities();
-    }
     if (Settings::w_EntityInsp) {
         ShowEntityInsp();
-        if (ImGuis::g_InspEntity) {
-            RenderEngine::drawLineBox(ImGuis::g_InspEntity->getAABB(), Colors::YELLOW);
+        if (Imgui::g_InspEntity) {
+            RenderEngine::drawLineBox(Imgui::g_InspEntity->getAABB(), Colors::YELLOW);
         }
     }
     if (Settings::w_ShaderInsp) {
         ShowShaderProgramInsp();
     }
 
-
+    if (Settings::w_Viewport)
     {
-
-        if (Settings::w_Viewport)
-        {
-            ShowGameViewport();
-        } else {
-            ImGuis::wViewportXYWH = {Mth::Inf, 0, 0, 0};
-        }
-
-
-
-
+        ShowGameViewport();
+    } else {
+        Imgui::wViewportXYWH = {Mth::Inf, 0, 0, 0};
     }
 
-    if (dbg_Text) {
-        ShowDebugTextOverlay();
+    if (Settings::w_Console)
+        ShowConsole();
+
+    if (Settings::w_Settings) {
+        ShowSettingsWindow();
     }
-    if (dbg_ViewBasis) {
-        DebugRenderer::Inst().renderDebugBasis();
-    }
-    if (dbg_WorldBasis) {
-        DebugRenderer::Inst().renderDebugWorldBasis();
-    }
+
+    if (dbg_Text)       ShowDebugTextOverlay();
+    if (dbg_ViewBasis)  DebugRenderer::Inst().renderDebugBasis();
+    if (dbg_WorldBasis) DebugRenderer::Inst().renderDebugWorldBasis();
     if (dbg_Gbuffer) {
 //        Dbg_DrawGbuffers(0, 32);
     }
@@ -1355,34 +1618,9 @@ static void RenderWindows()
     }
 
 
-    if (w_NodeEditor) {
+    if (w_NodeEditor)
         ShowNodeEditor();
-    }
 
-    if (Settings::w_Console)
-    {
-        ImGui::Begin("MessageBox", &Settings::w_Console);
-        ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
-        for (auto& str : ImGuis::g_MessageBox) {
-            ImGui::Text("%s", str.c_str());
-        }
-        ImGui::EndChild();
-        static char InputBuf[128];
-
-        if (ImGui::InputText("###MsgBoxInput", InputBuf, 128,
-                             ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine))
-        {
-            if (InputBuf[0]) {
-                Ethertia::dispatchCommand(InputBuf);
-                InputBuf[0] = 0;  // clear.
-            }
-        }
-        // keeping auto focus on the input box
-        if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
-            ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
-
-        ImGui::End();
-    }
 
     if (w_TitleScreen) {
         ShowTitleScreenWindow();
@@ -1390,60 +1628,6 @@ static void RenderWindows()
     if (w_Singleplayer) {
         ShowSingleplayerWindow();
     }
-    if (Settings::w_Settings) {
-        ShowSettingsWindow();
-    }
 
 }
 
-
-// texId: 0=white
-void ImGuis::Image(GLuint texId, ImVec2 size, glm::vec4 color) {
-//    assert(false);
-    if (texId == 0)
-        texId = Texture::WHITE->texId;
-    ImGui::Image((void*)(intptr_t)texId,
-                 {size.x, size.y},
-                 {0, 1}, {1, 0},
-                 {color.x, color.y, color.z, color.w});
-}
-
-ImVec2 ImGuis::GetWindowContentSize() {
-    return ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin();
-}
-
-void ImGuis::TextAlign(const char* text, ImVec2 align) {
-    ImVec2 size = ImGui::CalcTextSize(text);
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() - align.x * size.x);
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - align.y * size.y);
-    ImGui::Text("%s", text);
-}
-
-void ImGuis::forWorldpoint(const glm::vec3 &worldpos, const std::function<void(glm::vec2)> &fn)
-{
-    glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getCamera().matView, Ethertia::getCamera().matProjection);
-
-    auto& vp = Ethertia::getViewport();
-    p.x = p.x * vp.width;
-    p.y = p.y * vp.height;
-
-    if (p.z > 0) {
-        fn(glm::vec2(p.x, p.y));
-    }
-}
-
-void ImGuis::RenderGUI()
-{
-    ImGui_ImplGlfw_NewFrame();
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui::NewFrame();
-
-    glDisable(GL_DEPTH_TEST);
-
-    RenderWindows();
-
-    glEnable(GL_DEPTH_TEST);
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}

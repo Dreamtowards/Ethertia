@@ -82,7 +82,7 @@ add_executable(Ethertia
         lib/imgui-knobs/imgui-knobs.cpp
         lib/imgui-imnodes/imnodes.cpp
 
-        src/ethertia/imgui/ImGuis.cpp
+        src/ethertia/imgui/Imgui.cpp
         src/ethertia/util/Loader.cpp
         src/ethertia/init/Controls.cpp
         src/ethertia/init/Settings.cpp
@@ -182,8 +182,9 @@ target_link_libraries(Ethertia nbt++)
 # Vulkan, for Apple Darwin need 2 env variables: (no quote)
 #VK_DRIVER_FILES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json    # a.k.a. VK_ICD_FILENAMES, installable client drivers.
 #VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d           # for validation layer.
-include_directories(lib/vulkan/include)
-target_link_directories(Eldaria PUBLIC lib/vulkan/bin/darwin-x64)
-target_link_libraries(Eldaria vulkan.1.3.236 )
+
+#include_directories(lib/vulkan/include)
+#target_link_directories(Eldaria PUBLIC lib/vulkan/bin/darwin-x64)
+#target_link_libraries(Eldaria vulkan.1.3.236 )
 
 #if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. it's linked by ICD loaders.

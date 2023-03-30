@@ -30,7 +30,7 @@
 #include <ethertia/vr/OpenVR.h>
 #include <ethertia/init/Sounds.h>
 
-#include <ethertia/imgui/ImGuis.h>
+#include <ethertia/imgui/Imgui.h>
 #include <ethertia/world/Biome.h>
 #include <ethertia/render/deferred/GeometryRenderer.h>
 
@@ -116,7 +116,7 @@ static void Init()
 
 
 
-    ImGuis::Init();
+    Imgui::Init();
 
 
 
@@ -142,7 +142,7 @@ static void Destroy()
     RenderEngine::deinit();
     AudioEngine::deinit();
 
-    ImGuis::Destroy();
+    Imgui::Destroy();
 
     glfwTerminate();
 }
@@ -209,7 +209,7 @@ static void RunMainLoop()
         {
             PROFILE("GUI");
             //renderGUI();
-            ImGuis::RenderGUI();
+            Imgui::RenderGUI();
         }
     }
 
@@ -408,7 +408,7 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
 void Ethertia::notifyMessage(const std::string& msg) {
     Log::info("[MSG/C] ", msg);
 //    GuiMessageList::Inst()->addMessage(msg);
-    ImGuis::g_MessageBox.push_back(msg);
+    Imgui::g_MessageBox.push_back(msg);
 }
 
 bool& Ethertia::isIngame() {
@@ -436,8 +436,8 @@ Window& Ethertia::getWindow() { return *g_Window; }
 
 const Ethertia::Viewport& Ethertia::getViewport() {
     static Ethertia::Viewport g_Viewport;
-    if (ImGuis::wViewportXYWH.x != Mth::Inf) {
-        glm::vec4 v = ImGuis::wViewportXYWH;
+    if (Imgui::wViewportXYWH.x != Mth::Inf) {
+        glm::vec4 v = Imgui::wViewportXYWH;
         g_Viewport = { v.x, v.y, v.z, v.w };
     } else {
         g_Viewport = {0, 0, (float)getWindow().getWidth(), (float)getWindow().getHeight()};

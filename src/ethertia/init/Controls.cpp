@@ -18,7 +18,9 @@
 //#include <ethertia/gui/screen/GuiIngame.h>
 //#include <ethertia/gui/screen/GuiScreenPause.h>
 
-#include <ethertia/imgui/ImGuis.h>
+#include <ethertia/imgui/Imgui.h>
+
+#include <ethertia/init/KeyBinding.h>
 
 static void initConsoleThread()
 {
@@ -136,115 +138,46 @@ void handleMouseButton(MouseButtonEvent* e)
 
 
 
-static void handleKeyDown(KeyboardEvent* e) {
-    int key = e->getKey();
-
-//    if (key == GLFW_KEY_C) {
-//        static float fov;
-//        if (e->isPressed()) {
-//            fov = RenderEngine::fov;
-//            RenderEngine::fov = 20;
-//        } else if (e->isReleased()) {
-//            RenderEngine::fov = fov;
-//        }
-//    }
-
-    if (!e->isPressed())
-        return;
-
-
-    switch (key)
+static void handleKeyPress()
+{
+    if (ImGui::IsKeyPressed(KeyBindings::KEY_ESC.key()))
     {
-//        case GLFW_KEY_F1: {
-//            GuiIngame::Inst()->toggleVisible();
-//            break;
-//        }
-        case GLFW_KEY_F2: {
-            Controls::saveScreenshot();
-            break;
-        }
-//        case GLFW_KEY_F3: {
-//            GuiDebugV::Inst()->toggleVisible();
-//            break;
-//        }
-//        case GLFW_KEY_F4: {
-//            if (Ethertia::isIngame())
-//                Ethertia::getRootGUI()->addGui(GuiF4Lock::Inst());
-//            else if (Ethertia::getRootGUI()->last() == GuiF4Lock::Inst())
-//                Ethertia::getRootGUI()->removeLastGui();
-//            break;
-//        }
-        case GLFW_KEY_F11: {
-            Ethertia::getWindow().toggleFullscreen();
-            break;
-        }
-//        case GLFW_KEY_ESCAPE: {
-//            if (Ethertia::getWorld()) {
-//                if (Ethertia::getRootGUI()->last() != GuiIngame::Inst()) {
-//                    Ethertia::getRootGUI()->removeLastGui();
-//                } else {
-//                    Ethertia::getRootGUI()->addGui(GuiScreenPause::Inst());  // Pause
-//                }
-//            } else {
-//                if (Ethertia::getRootGUI()->last() != GuiScreenMainMenu::Inst()) {
-//                    Ethertia::getRootGUI()->removeLastGui();
-//                }
-//            }
-//            break;
-//        }
-//        case GLFW_KEY_SLASH: {
-//            if (Ethertia::isIngame()) {
-//                GuiMessageList::Inst()->setVisible(true);
-//
-//                Ethertia::getRootGUI()->addGui(GuiScreenChat::Inst());
-//                GuiScreenChat::Inst()->openCommandInput();
-//            }
-//            break;
-//        }
-        case GLFW_KEY_Q: {
-            if (Ethertia::isIngame()) {
-                EntityPlayer& player = *Ethertia::getPlayer();
-                ItemStack& stack = player.getHoldingItem();
-                if (!stack.empty())
-                {
-                    ItemStack drop;
+        Ethertia::isIngame() = !Ethertia::isIngame();
+    }
+    else if (ImGui::IsKeyPressed(KeyBindings::KEY_FULL_VIEWPORT.key()))
+    {
+        Settings::ws_FullViewport = !Settings::ws_FullViewport;
+    }
+    else if (ImGui::IsKeyPressed(KeyBindings::KEY_SCREENSHOT.key()))
+    {
+        Controls::saveScreenshot();
+    }
+    else if (ImGui::IsKeyPressed(KeyBindings::KEY_FULLSCREEN.key()))
+    {
+        Ethertia::getWindow().toggleFullscreen();
+    }
+    else if (ImGui::IsKeyPressed(KeyBindings::KEY_COMMAND.key()))
+    {
+        Settings::w_Console_FocusInput = true;
+    }
+    else if (ImGui::IsKeyPressed(KeyBindings::KEY_DROPITEM.key()))
+    {
+        if (Ethertia::isIngame()) {
+            EntityPlayer& player = *Ethertia::getPlayer();
+            ItemStack& stack = player.getHoldingItem();
+            if (!stack.empty())
+            {
+                ItemStack drop;
 
-                    bool dropAll = Ethertia::getWindow().isCtrlKeyDown();
-                    stack.moveTo(drop, dropAll ? stack.amount() : 1);
+                bool dropAll = Ethertia::getWindow().isCtrlKeyDown();
+                stack.moveTo(drop, dropAll ? stack.amount() : 1);
 
-                    Ethertia::getWorld()->dropItem(player.position(), drop,player.getViewDirection() * 3.0f);
-                }
+                Ethertia::getWorld()->dropItem(player.position(), drop,player.getViewDirection() * 3.0f);
             }
-            break;
-        }
-//        case GLFW_KEY_F: {
-//
-//            EntityPlayer* player = Ethertia::getPlayer();
-//
-//            if (player->m_RidingOn) {
-//                player->m_RidingOn->removeDriver();
-//                player->m_RidingOn = nullptr;
-//                return;
-//            }
-//
-//            HitCursor& cur = Ethertia::getHitCursor();
-//            if (EntityVehicle* car = dynamic_cast<EntityVehicle*>(cur.hitEntity)) {
-//                // if (cur.length > 10)  return;
-//
-//                player->m_RidingOn = car;
-//                car->addDriver(player);
-//            }
-//            break;
-//        }
-        case GLFW_KEY_ESCAPE: {
-            Ethertia::isIngame() = !Ethertia::isIngame();
-            break;
-        }
-        case GLFW_KEY_GRAVE_ACCENT: {
-            Settings::ws_FullViewport = !Settings::ws_FullViewport;
-            break;
         }
     }
+
+
 }
 
 
@@ -254,7 +187,6 @@ void Controls::initControls()
 
     Ethertia::getWindow().eventbus().listen(handleMouseButton);
 
-    Ethertia::getWindow().eventbus().listen(handleKeyDown);
 }
 
 void handleHitCursor()
@@ -397,6 +329,11 @@ void Controls::handleContinuousInput()
     // Hit Cursor.
     handleHitCursor();
 
+    handleKeyPress();
+
+
+
+
 
     camera.update(Ethertia::isIngame());
 
@@ -413,7 +350,7 @@ void Controls::handleContinuousInput()
         player->setSprint(false);
     }
 
-    EntityHelicopter* helicopter = dynamic_cast<EntityHelicopter*>(ImGuis::g_InspEntity);
+    EntityHelicopter* helicopter = dynamic_cast<EntityHelicopter*>(Imgui::g_InspEntity);
     if (!helicopter) {
         player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
                      window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
