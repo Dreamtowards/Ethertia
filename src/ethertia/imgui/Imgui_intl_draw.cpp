@@ -61,6 +61,7 @@
 
 
 #include "ethertia/entity/component/EntityDrivingSeat.h"
+#include "ethertia/entity/component/EntityPropeller .h"
 
 static enum SettingsPanel {
     Profile,
@@ -735,6 +736,13 @@ static void ShowEntities()
             {
                 EntityDrivingSeat* e = new EntityDrivingSeat();
                 e->position() = Ethertia::getCamera().position;
+
+                Ethertia::getWorld()->addEntity(e);
+            }
+            if (ImGui::MenuItem("Propeller"))
+            {
+                EntityPropeller* e = new EntityPropeller();
+                e->position() = Ethertia::getCamera().position ;
 
                 Ethertia::getWorld()->addEntity(e);
             }
