@@ -177,7 +177,7 @@ static Texture* LazyLoadTex(const std::string& p) {
 
 
 #include "ImDebugs.cpp"
-
+#include "ethertia/entity/component/EntityDrivingSeat.h"
 
 
 static void _MenuSystem()
@@ -683,6 +683,13 @@ static void ShowEntities()
             if (ImGui::MenuItem("Helicopter"))
             {
                 EntityHelicopter* e = new EntityHelicopter();
+                e->position() = Ethertia::getCamera().position;
+
+                Ethertia::getWorld()->addEntity(e);
+            }
+            if (ImGui::MenuItem("DrivingSeat"))
+            {
+                EntityDrivingSeat* e = new EntityDrivingSeat();
                 e->position() = Ethertia::getCamera().position;
 
                 Ethertia::getWorld()->addEntity(e);
