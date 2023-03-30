@@ -217,6 +217,7 @@ static void RunMainLoop()
         PROFILE("SwapBuffer");
         window.setVSync(Settings::s_Vsync);
         window.swapBuffers();
+        Dbg::_fps_frame(Ethertia::getPreciseTime());
 
         AudioEngine::checkAlError("Frame");
         AudioEngine::setListenerPosition(Ethertia::getCamera().position);

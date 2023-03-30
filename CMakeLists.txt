@@ -93,7 +93,6 @@ add_executable(Ethertia
         src/ethertia/item/ItemComponents.cpp
         src/ethertia/world/World.cpp
 
-        src/ethertia/gui/Gui.cpp
         src/ethertia/Ethertia.cpp
         )
 

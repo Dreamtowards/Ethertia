@@ -11,10 +11,10 @@
   "simd_level": "SSE3",
   "view_distance": 7.249000072479248,
   "vsync": true,
-  "window.console": true,
+  "window.console": false,
   "window.entity_insp": true,
   "window.entity_list": true,
-  "window.settings": true,
+  "window.settings": false,
   "window.shader_insp": true,
   "window.toolbar": true,
   "window.viewport": true

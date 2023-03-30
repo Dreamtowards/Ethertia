@@ -158,10 +158,11 @@ static void ShowDebugTextOverlay()
         }
     }
 
+
     std::string str = Strings::fmt(
             "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
+            "avg-fps: {}. dt: {}, {}fps\n"
             "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
-            "dt: {}, {}fps\n"
             "\n"
             "World: {}\n"
             "HitChunk: {}\n"
@@ -176,9 +177,10 @@ static void ShowDebugTextOverlay()
             meterPerSec, meterPerSec * 3.6f,
             player->m_OnGround, player->m_NumContactPoints,
 
+            Dbg::dbg_FPS, dt, Mth::floor(1.0f/dt),
+
             Settings::dbgEntitiesRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
 
-            dt, Mth::floor(1.0f/dt),
             worldInfo,
             chunkInfo,
             cellInfo,
