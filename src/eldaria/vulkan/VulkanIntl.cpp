@@ -23,7 +23,7 @@
 #include <eldaria/imgui/Imgui.h>
 
 
-vkh::VertexData g_TestModel;
+VertexBuffer g_TestModel;
 
 
 #define DECL_unif alignas(16)
@@ -83,8 +83,8 @@ public:
 
     inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each InflightFrame
 
-    inline static vkh::Image g_DepthImage;
-    inline static vkh::Image g_TextureImage;
+    inline static Image g_DepthImage;
+    inline static Image g_TextureImage;
 
 
 
@@ -121,9 +121,8 @@ public:
 
             VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
             g_TestModel.m_VertexCount = vdata.vertexCount();
-            vkh::CreateVertexBuffer(vdata.data(), vdata.size(),
-                                    g_TestModel.m_VertexBuffer,
-                                    g_TestModel.m_VertexBufferMemory);
+            vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), g_TestModel.m_VertexBuffer, g_TestModel.m_VertexBufferMemory);
+            vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), g_TestModel.m_IndexBuffer, g_TestModel.m_IndexBufferMemory);
         }
 
         CreateUniformBuffers();
@@ -308,7 +307,7 @@ public:
 //        VkImage m_Image;
 //        VkDeviceMemory m_ImageMemory;
 //        VkImageView m_ImageView;
-        vkh::Image m_Img;
+        Image m_Img;
         VkAttachmentDescription m_Desc;
     };
     inline static struct
@@ -1049,7 +1048,7 @@ void VulkanIntl::RequestRecreateSwapchain() {
 
 void VulkanIntl::SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record)
 {
-    vkh::SubmitOnetimeCommandBuffer(fn_record);
+    vkh::SubmitCommandBuffer_Onetime(fn_record);
 }
 
 VkImageView VulkanIntl::getTestImgView() {

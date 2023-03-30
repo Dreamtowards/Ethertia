@@ -109,8 +109,7 @@ add_executable(Eldaria
         src/eldaria/Eldaria.cpp
         src/eldaria/util/Loader.cpp
         src/eldaria/vulkan/VulkanIntl.cpp
-        src/eldaria/imgui/Imgui.cpp
-        )
+        src/eldaria/imgui/Imgui.cpp)
 
 
 add_executable(DedicatedServer

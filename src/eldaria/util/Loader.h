@@ -6,6 +6,7 @@
 #define ETHERTIA_LOADER_H
 
 #include <eldaria/util/BitmapImage.h>
+#include <eldaria/vulkan/VertexBuffer.h>
 
 #include <glm/glm.hpp>
 
@@ -24,13 +25,18 @@ public:
     VertexData(const std::string& _filename);
     ~VertexData();
 
-    const void* data() const { return m_Vertices.data(); }
-    size_t size() const { return sizeof(m_Vertices[0]) * m_Vertices.size(); }
+    const void* vtx_data() const { return m_Vertices.data(); }
+    size_t vtx_size() const { return sizeof(m_Vertices[0]) * m_Vertices.size(); }
+
+    const uint32_t* idx_data() const { return m_Indices.data(); }
+    size_t idx_size() const { return sizeof(m_Indices[0]) * m_Indices.size(); }
+
 
     size_t vertexCount() const { return m_Vertices.size(); }
 
     std::vector<Vertex> m_Vertices;
-    std::string m_Filename;  // optional. debug tag.
+    std::vector<uint32_t> m_Indices;
+    std::string m_Filename;  // dbg.
 };
 
 class Loader
@@ -62,6 +68,9 @@ public:
     // backend: tiny_obj_loader.
     static VertexData loadOBJ(const std::string& filename);
 
+
+
+    static VertexBuffer* loadVertexBuffer(const VertexData& vdata);
 
 
     static std::string fileResolve(const std::string& uri) {

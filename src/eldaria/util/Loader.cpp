@@ -72,12 +72,31 @@ VertexData Loader::loadOBJ(const std::string& filename)
             tex.y = 1.0f - tex.y;
 
             vertexdata.m_Vertices.push_back({pos, tex, norm});
+            vertexdata.m_Indices.push_back(vertexdata.m_Indices.size());
         }
     }
     return vertexdata;
 }
 
 
+
+
+
+
+
+#include <eldaria/vulkan/vkh.h>
+
+
+VertexBuffer* Loader::loadVertexBuffer(const VertexData& vdata)
+{
+    VertexBuffer* vb = new VertexBuffer();
+
+    vb->m_VertexCount = vdata.vertexCount();
+    vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), vb->m_VertexBuffer, vb->m_VertexBufferMemory);
+    vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), vb->m_IndexBuffer,  vb->m_IndexBufferMemory);
+
+    return vb;
+}
 
 
 
