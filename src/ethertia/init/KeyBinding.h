@@ -42,6 +42,7 @@ public:
         KEY_DEBUG_INFO      {ImGuiKey_F3,           "Debug info"},
         KEY_FULLSCREEN      {ImGuiKey_F11,          "Fullscreen"},
         KEY_COMMAND         {ImGuiKey_Slash,        "Command"},
+        //  G_ menas Gameplay category here.
         KEY_G_DROPITEM      {ImGuiKey_Q,            "G: Drop item"},
         KEY_G_SPRINT        {ImGuiKey_LeftCtrl,     "G: Sprint"},
         KEY_G_FORWARD       {ImGuiKey_W,            "G: Forward"},

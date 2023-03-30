@@ -191,6 +191,10 @@ public:
         return loadModel(vcount, std::vector(vdats));
     }
 
+    // load CPU VertexData to GPU VertexBuffer.
+    // use Compact
+//    static VertexArrays* loadVertexBuffer(size_t vcount, const void* data, std::vector<int> strides);
+
     ////////////////// OpenGL Texture: 2D, CubeMap //////////////////
 
     /// pixels_VertFlip: need y/vertical flipped pixels. cause of GL feature.

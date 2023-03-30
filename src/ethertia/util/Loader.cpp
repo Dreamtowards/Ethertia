@@ -114,8 +114,27 @@ void Loader::savePNG(const BitmapImage& img, const std::string& filename)
 }
 
 
-
-
+//// @s
+//VertexArrays* loadVertexBuffer(size_t vcount, const void* vertices_data, const std::vector<int>& strides, const void* indices_data)
+//{
+//    GLuint vaoId;
+//    glGenVertexArrays(1, &vaoId);
+//    glBindVertexArray(vaoId);
+//
+//    size_t vertices_data_size = 0;
+//    for (int i = 0; i < ; ++i) {
+//
+//    }
+//
+//    GLuint vboId;
+//    glGenBuffers(1, &vboId);
+//    glBindBuffer(GL_ARRAY_BUFFER, vboId);
+//    glBufferData(GL_ARRAY_BUFFER, vertices_data_size, vertices_data, GL_STATIC_DRAW);
+//
+//
+//     glVertexAttribPointer(i, vlen, GL_FLOAT, false, 0, nullptr);
+//    // glEnableVertexAttribArray(0);  // default enabled.
+//}
 
 VertexArrays* Loader::loadModel(size_t vcount, const std::vector<std::pair<int, float *>> &vdats)
 {
