@@ -36,7 +36,7 @@ public:
         KEY_SCREENSHOT      {ImGuiKey_F2,           "Screenshot"},
         KEY_DEBUG_INFO      {ImGuiKey_F3,           "Debug info"},
         KEY_FULLSCREEN      {ImGuiKey_F11,          "Fullscreen"},
-        KEY_COMMAND         {ImGuiKey_Slash,        "Gameplay: Command"},
+        KEY_COMMAND         {ImGuiKey_Slash,        "Command"},
         KEY_DROPITEM        {ImGuiKey_Q,            "Gameplay: Drop item"};
 
 };

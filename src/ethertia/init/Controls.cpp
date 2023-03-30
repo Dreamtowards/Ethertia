@@ -157,7 +157,7 @@ static void handleKeyPress()
     }
     else if (ImGui::IsKeyPressed(KeyBindings::KEY_COMMAND.key()))
     {
-
+        Settings::w_Console_FocusInput = true;
     }
     else if (ImGui::IsKeyPressed(KeyBindings::KEY_DROPITEM.key()))
     {

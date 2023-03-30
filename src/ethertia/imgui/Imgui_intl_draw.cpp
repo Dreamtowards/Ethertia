@@ -1150,25 +1150,24 @@ static void ShowSettingsWindow()
                 return -1;
             };
 
-            ImKeymap::ShowKeymap();
 
+            ImGui::BeginChild("KeyBindingList", {270, 0});
             for (auto& it : KeyBinding::REGISTRY)
             {
                 auto& name = it.first;
                 KeyBinding* keyBinding = it.second;
 
                 ImGui::Text("%s", name.c_str());
-
-
-                const char* keyName = ImGui::GetKeyName(keyBinding->key());
-
-                ImGui::SameLine(240);
-                ImGui::PushItemWidth(100);
-                if (ImGui::Button(keyName ? keyName : "?"))
-                {
-
+                if (ImGui::IsItemHovered() && ImGui::IsItemClicked()) {
+                    ImGui::SetTooltip("Click to reset (to: %s)", ImGui::GetKeyName(keyBinding->m_DefaultKey));
                 }
-                if (ImGui::IsItemHovered()) {
+
+
+                ImGui::SameLine(160);
+
+                if (ImGui::Button(ImGui::GetKeyName(keyBinding->key()), {100, 0})) {}
+                if (ImGui::IsItemHovered())
+                {
                     ImGui::SetTooltip("Press Key");
 
                     ImGuiKey k = GetPressedKey();
@@ -1176,9 +1175,23 @@ static void ShowSettingsWindow()
                         keyBinding->m_Key = k;
                     }
                 }
-                
-                ImGui::PopItemWidth();
+
+//                ImGui::SameLine();
+//                ImGui::PushID(name.c_str());
+//                if (ImGui::Button("Reset"))
+//                {
+//                    keyBinding->m_Key = keyBinding->m_DefaultKey;
+//                }
+//                ImGui::PopID();
+//                if (ImGui::IsItemHovered()) {
+//                    ImGui::SetTooltip("Reset to: %s", ImGui::GetKeyName(keyBinding->m_DefaultKey));
+//                }
             }
+            ImGui::EndChild();
+
+            ImGui::SameLine();
+
+            ImKeymap::ShowKeymap();
 
         }
         else if (currp==Language)
@@ -1516,8 +1529,15 @@ static void ShowConsole()
     ImGui::PopItemWidth();
 
     // keeping auto focus on the input box
-    if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+    if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) ||
+        (Settings::w_Console_FocusInput)) {  // only enable when on focus.
+        Settings::w_Console_FocusInput = false;
+        if (ImGui::GetWindowDockID())
+            ImGui::SetWindowDock(ImGui::GetCurrentWindow(), 0, ImGuiCond_Always);
+
+        ImGui::SetWindowFocus();
         ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
+    }
 
     ImGui::End();
 }

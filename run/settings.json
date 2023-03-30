@@ -14,7 +14,7 @@
   "window.console": true,
   "window.entity_insp": true,
   "window.entity_list": true,
-  "window.settings": true,
+  "window.settings": false,
   "window.shader_insp": true,
   "window.toolbar": true,
   "window.viewport": true
