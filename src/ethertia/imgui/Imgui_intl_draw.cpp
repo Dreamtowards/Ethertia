@@ -729,6 +729,13 @@ static void ShowEntities()
 
                 Ethertia::getWorld()->addEntity(e);
             }
+            if (ImGui::MenuItem("DrivingSeat"))
+            {
+                EntityHelicopter* e = new EntityHelicopter();
+                e->position() = Ethertia::getCamera().position;
+
+                Ethertia::getWorld()->addEntity(e);
+            }
             ImGui::EndMenu();
         }
         if (ImGui::MenuItem("Light")) {
