@@ -1011,8 +1011,20 @@ public:
         RenderKey(p, ">", ImGuiKey_RightArrow);
         p = {tmpX, tmpY};
         RenderKey(p, "^", ImGuiKey_UpArrow);
+        p.y += _keysize.y + _keygap;
+        p.y += 4;
 
-        ImGui::SetCursorScreenPos({begin.x, p.y + 60});
+        STEP_ROW;
+        float mbSize = _keysize.x;
+        RenderKey(p, "MLB", ImGuiKey_MouseLeft);
+        _keysize.x = 40;
+        RenderKey(p, "MMB", ImGuiKey_MouseMiddle);
+        _keysize.x = mbSize;
+        RenderKey(p, "MRB", ImGuiKey_MouseRight);
+
+
+        ImGui::ItemSize(p-begin + ImVec2(0, 60));
+//        ImGui::SetCursorScreenPos({begin.x, p.y + 60});
     }
 
 
@@ -1151,19 +1163,16 @@ static void ShowSettingsWindow()
             };
 
 
-            ImGui::BeginChild("KeyBindingList", {270, 0});
+            ImGui::BeginChild("KeyBindingList", {268, 0});
             for (auto& it : KeyBinding::REGISTRY)
             {
                 auto& name = it.first;
                 KeyBinding* keyBinding = it.second;
 
                 ImGui::Text("%s", name.c_str());
-                if (ImGui::IsItemHovered() && ImGui::IsItemClicked()) {
-                    ImGui::SetTooltip("Click to reset (to: %s)", ImGui::GetKeyName(keyBinding->m_DefaultKey));
-                }
-
 
                 ImGui::SameLine(160);
+
 
                 if (ImGui::Button(ImGui::GetKeyName(keyBinding->key()), {100, 0})) {}
                 if (ImGui::IsItemHovered())
@@ -1176,16 +1185,20 @@ static void ShowSettingsWindow()
                     }
                 }
 
-//                ImGui::SameLine();
-//                ImGui::PushID(name.c_str());
-//                if (ImGui::Button("Reset"))
-//                {
-//                    keyBinding->m_Key = keyBinding->m_DefaultKey;
-//                }
-//                ImGui::PopID();
-//                if (ImGui::IsItemHovered()) {
-//                    ImGui::SetTooltip("Reset to: %s", ImGui::GetKeyName(keyBinding->m_DefaultKey));
-//                }
+                if (keyBinding->key() != keyBinding->m_DefaultKey)
+                {
+                    ImGui::SameLine(132);
+
+                    ImGui::PushID(name.c_str());
+                    if (ImGui::Button("X"))
+                    {
+                        keyBinding->m_Key = keyBinding->m_DefaultKey;
+                    }
+                    ImGui::PopID();
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::SetTooltip("Reset (to: %s)", ImGui::GetKeyName(keyBinding->m_DefaultKey));
+                    }
+                }
             }
             ImGui::EndChild();
 
@@ -1531,9 +1544,9 @@ static void ShowConsole()
     // keeping auto focus on the input box
     if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) ||
         (Settings::w_Console_FocusInput)) {  // only enable when on focus.
-        Settings::w_Console_FocusInput = false;
-        if (ImGui::GetWindowDockID())
+        if (ImGui::GetWindowDockID() && Settings::w_Console_FocusInput)
             ImGui::SetWindowDock(ImGui::GetCurrentWindow(), 0, ImGuiCond_Always);
+        Settings::w_Console_FocusInput = false;
 
         ImGui::SetWindowFocus();
         ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
