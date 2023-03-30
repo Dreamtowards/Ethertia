@@ -140,27 +140,27 @@ void handleMouseButton(MouseButtonEvent* e)
 
 static void handleKeyPress()
 {
-    if (ImGui::IsKeyPressed(KeyBindings::KEY_ESC.key()))
+    if (KeyBindings::KEY_ESC.isPressed())
     {
         Ethertia::isIngame() = !Ethertia::isIngame();
     }
-    else if (ImGui::IsKeyPressed(KeyBindings::KEY_FULL_VIEWPORT.key()))
+    else if (KeyBindings::KEY_FULL_VIEWPORT.isPressed())
     {
         Settings::ws_FullViewport = !Settings::ws_FullViewport;
     }
-    else if (ImGui::IsKeyPressed(KeyBindings::KEY_SCREENSHOT.key()))
+    else if (KeyBindings::KEY_SCREENSHOT.isPressed())
     {
         Controls::saveScreenshot();
     }
-    else if (ImGui::IsKeyPressed(KeyBindings::KEY_FULLSCREEN.key()))
+    else if (KeyBindings::KEY_FULLSCREEN.isPressed())
     {
         Ethertia::getWindow().toggleFullscreen();
     }
-    else if (ImGui::IsKeyPressed(KeyBindings::KEY_COMMAND.key()))
+    else if (KeyBindings::KEY_COMMAND.isPressed())
     {
         Settings::w_Console_FocusInput = true;
     }
-    else if (ImGui::IsKeyPressed(KeyBindings::KEY_DROPITEM.key()))
+    else if (KeyBindings::KEY_G_DROPITEM.isPressed())
     {
         if (Ethertia::isIngame()) {
             EntityPlayer& player = *Ethertia::getPlayer();
@@ -344,17 +344,17 @@ void Controls::handleContinuousInput()
 
     // Player Move.
 
-    if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+    if (KeyBindings::KEY_G_SPRINT.isKeyDown()) {
         player->setSprint(true);
-    } else if (!window.isKeyDown(GLFW_KEY_W)) {
+    } else if (!KeyBindings::KEY_G_FORWARD.isKeyDown()) {
         player->setSprint(false);
     }
 
     EntityHelicopter* helicopter = dynamic_cast<EntityHelicopter*>(Imgui::g_InspEntity);
     if (!helicopter) {
-        player->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
-                     window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
-                     window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D));
+        player->move(KeyBindings::KEY_G_JUMP.isKeyDown(), KeyBindings::KEY_G_SNEAK.isKeyDown(),
+                     KeyBindings::KEY_G_FORWARD.isKeyDown(), KeyBindings::KEY_G_BACK.isKeyDown(),
+                     KeyBindings::KEY_G_LEFT.isKeyDown(), KeyBindings::KEY_G_RIGHT.isKeyDown());
     }
     else
     {
@@ -375,7 +375,7 @@ void Controls::handleContinuousInput()
 
     camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
 
-    if (window.isKeyDown(GLFW_KEY_L))
+    if (KeyBindings::KEY_G_CAM_DIST.isKeyDown())
         camera.len += window.getDScroll();
     camera.len = Mth::max(camera.len, 0.0f);
 
@@ -386,10 +386,12 @@ void Controls::handleContinuousInput()
     player->m_HotbarSlot += Mth::signal(-window.getDScroll());
     player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, HOTBAR_SLOT_MAX);
 
-    for (int i = 0; i <= HOTBAR_SLOT_MAX; ++i) {
-        if (window.isKeyDown(GLFW_KEY_1+i))
-            player->m_HotbarSlot = i;
-    }
+    if (KeyBindings::KEY_G_HOTBAR1.isPressed()) player->m_HotbarSlot = 0;
+    if (KeyBindings::KEY_G_HOTBAR2.isPressed()) player->m_HotbarSlot = 1;
+    if (KeyBindings::KEY_G_HOTBAR3.isPressed()) player->m_HotbarSlot = 2;
+    if (KeyBindings::KEY_G_HOTBAR4.isPressed()) player->m_HotbarSlot = 3;
+    if (KeyBindings::KEY_G_HOTBAR5.isPressed()) player->m_HotbarSlot = 4;
+
 
 
 }

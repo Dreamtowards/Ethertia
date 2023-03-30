@@ -49,7 +49,7 @@ public:
                        w_Settings = false;
 
     inline static bool ws_FullViewport = false;
-    inline static bool w_Console_FocusInput = false;
+    inline static bool w_Console_FocusInput = false;  // true: Force bring Console Window to front and Focus on the InputBox while Console Window was showing. used when press '/' key.
 
 
     inline static float s_ViewDistance = 4;

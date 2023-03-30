@@ -891,7 +891,7 @@ public:
     inline static ImVec2 _keysize = {_keysize_std, _keysize_std};
     inline static float _keygap = 4;
 
-    inline static std::function<ImU32(ImGuiKey)> g_FuncKeyColor = [](auto){return -1;};
+    inline static std::function<ImU32(ImGuiKey, bool hover)> g_FuncKeyColor = [](auto, auto){return -1;};
 
     static void RenderKey(ImVec2& p, const char* name, ImGuiKey keycode, float keySizeX = 1.0f, float sizeAddGaps = 0)
     {
@@ -908,7 +908,7 @@ public:
         if (ImGui::IsKeyDown(keycode)) {
             col = ImGui::GetColorU32(ImGuiCol_HeaderActive);
         }
-        ImU32 evalColor = g_FuncKeyColor(keycode);
+        ImU32 evalColor = g_FuncKeyColor(keycode, hover);
         if (evalColor != -1) {
             col = evalColor;
         }
@@ -1163,20 +1163,21 @@ static void ShowSettingsWindow()
 //
 //            ImGui::SeparatorText("Keyboard");
 
-            ImKeymap::g_FuncKeyColor = [](ImGuiKey k) -> ImU32 {
-                for (auto& it : KeyBinding::REGISTRY) {
-                    if (it.second->key() == k)
-                        return ImGui::GetColorU32(ImGuiCol_Header);
-                }
-                return -1;
-            };
+            static KeyBinding* s_HoveredKey = nullptr;
 
 
-            ImGui::BeginChild("KeyBindingList", {268, 0});
+            ImGui::BeginChild("KeyBindingList", {270, 0});
             for (auto& it : KeyBinding::REGISTRY)
             {
                 auto& name = it.first;
                 KeyBinding* keyBinding = it.second;
+
+                ImVec2 line_min = ImGui::GetCursorScreenPos();
+                ImVec2 line_max = line_min + ImVec2{270, 18};
+                if (ImGui::IsMouseHoveringRect(line_min, line_max) || s_HoveredKey == keyBinding) {
+                    ImGui::RenderFrame(line_min, line_max, ImGui::GetColorU32(ImGuiCol_TitleBg));
+                    s_HoveredKey = keyBinding;
+                }
 
                 ImGui::Text("%s", name.c_str());
 
@@ -1186,7 +1187,7 @@ static void ShowSettingsWindow()
                 if (ImGui::Button(ImGui::GetKeyName(keyBinding->key()), {100, 0})) {}
                 if (ImGui::IsItemHovered())
                 {
-                    ImGui::SetTooltip("Press Key");
+                    ImGui::SetTooltip("press key to set");
 
                     ImGuiKey k = GetPressedKey();
                     if (k) {
@@ -1213,8 +1214,31 @@ static void ShowSettingsWindow()
 
             ImGui::SameLine();
 
+
+            bool updatedHoveredKey = false;
+            ImKeymap::g_FuncKeyColor = [&updatedHoveredKey](ImGuiKey k, bool hover) -> ImU32 {
+                for (auto& it : KeyBinding::REGISTRY) {
+                    if (it.second->key() == k) {
+                        if (hover) {
+                            s_HoveredKey = it.second;
+                            updatedHoveredKey = true;
+
+                            ImGui::BeginTooltip();
+                            ImGui::Text("%s", it.first.c_str());
+                            ImGui::EndTooltip();
+                        }
+                        if (it.second == s_HoveredKey) {
+                            return ImGui::GetColorU32(ImGuiCol_TitleBg);
+                        }
+                        return ImGui::GetColorU32(ImGuiCol_Header);
+                    }
+                }
+                return -1;
+            };
             ImKeymap::ShowKeymap();
 
+            if (!updatedHoveredKey)
+                s_HoveredKey = nullptr;
         }
         else if (currp==Language)
         {
