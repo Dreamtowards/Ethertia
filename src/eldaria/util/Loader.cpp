@@ -5,6 +5,7 @@
 #include "Loader.h"
 
 #include <fstream>
+#include <unordered_map>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -24,8 +25,8 @@ namespace std {
     template<> struct hash<VertexData::Vertex> {
         size_t operator()(VertexData::Vertex const& vertex) const {
             return ((hash<glm::vec3>()(vertex.pos) ^
-                     (hash<glm::vec2>()(vertex.tex) << 1)) >> 1) ^
-                   (hash<glm::vec3>()(vertex.norm) << 1);
+                    (hash<glm::vec2>()(vertex.tex)  << 1)) >> 1) ^
+                    (hash<glm::vec3>()(vertex.norm) << 1);
         }
     };
 }
@@ -94,7 +95,10 @@ VertexData Loader::loadOBJ(const std::string& filename)
             // vulkan y 0=top
             tex.y = 1.0f - tex.y;
 
-            if (unique_verts.count(vert))
+//            vtx.m_Vertices.push_back(vert);
+//            vtx.m_Indices.push_back(vtx.m_Indices.size()); continue;
+
+            if (unique_verts.find(vert) == unique_verts.end())
             {
                 unique_verts[vert] = vtx.m_Vertices.size();
                 vtx.m_Vertices.push_back(vert);
@@ -160,7 +164,7 @@ VertexData::VertexData(const std::string& _filename) : m_Filename(_filename)
 }
 VertexData::~VertexData()
 {
-    Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
+    Log::info("Delete VertexData: {} with {} vertices, {} indices", m_Filename, m_Vertices.size(), m_Indices.size());
 }
 
 

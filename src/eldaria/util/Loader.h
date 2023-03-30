@@ -40,7 +40,7 @@ public:
     size_t idx_size() const { return sizeof(m_Indices[0]) * m_Indices.size(); }
 
 
-    size_t vertexCount() const { return m_Vertices.size(); }
+    size_t vertexCount() const { return m_Indices.empty() ? m_Vertices.size() : m_Indices.size(); }
 
     std::vector<Vertex> m_Vertices;
     std::vector<uint32_t> m_Indices;
