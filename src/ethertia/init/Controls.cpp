@@ -12,6 +12,7 @@
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include "Settings.h"
 #include "ethertia/entity/component/EntityDrivingSeat.h"
+#include "ethertia/entity/component/EntityPropeller .h"
 
 //#include <ethertia/gui/screen/GuiF4Lock.h>
 //#include <ethertia/gui/screen/GuiDebugV.h>
@@ -258,6 +259,11 @@ void handleHitCursor()
         if (drivingSeat)
         {
             drivingSeat->setDriver(Ethertia::getPlayer());
+        }
+        EntityPropeller* propeller = dynamic_cast<EntityPropeller*>(cur.hitEntity);
+        if (propeller)
+        {
+            propeller->rotate();
         }
     }
     else
