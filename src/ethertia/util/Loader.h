@@ -18,7 +18,6 @@
 
 #include <ethertia/render/Texture.h>
 #include <ethertia/render/VertexArrays.h>
-#include <ethertia/render/Model.h>
 #include <ethertia/render/ShaderProgram.h>
 
 #include <ethertia/util/BitmapImage.h>
