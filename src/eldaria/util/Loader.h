@@ -78,7 +78,7 @@ public:
 
 
 
-    static VertexBuffer* loadVertexBuffer(const VertexData& vdata);
+    static vkx::VertexBuffer* loadVertexBuffer(const VertexData& vdata);
 
 
     static std::string fileResolve(const std::string& uri) {

@@ -22,6 +22,7 @@ public:
     inline static bool dbg_RenderedEntityAABB = false;
     inline static bool dbg_NoVegetable = false;
 
+    inline static bool dbg_ShowChunkMeshCounter = false;
 
 
     inline static int dbg_FPS = 0;

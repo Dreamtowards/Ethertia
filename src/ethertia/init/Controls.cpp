@@ -41,7 +41,7 @@ static void initConsoleThread()
 
 
 
-void handleMouseButton(MouseButtonEvent* e)
+void handleMouseKey()
 {
     World* world = Ethertia::getWorld();
     EntityPlayer* player = Ethertia::getPlayer();
@@ -51,13 +51,8 @@ void handleMouseButton(MouseButtonEvent* e)
         return;
 
 
-    if (!e->isPressed()) {
-        cur.cell_breaking_time = 0;
-        return;
-    }
-
     // Use Item
-    if (e->getButton() == GLFW_MOUSE_BUTTON_RIGHT)
+    if (KeyBindings::KEY_G_USE.isPressed())
     {
         ItemStack& stack = player->getHoldingItem();
 
@@ -91,7 +86,7 @@ void handleMouseButton(MouseButtonEvent* e)
 
     glm::vec3 p = cur.position;
     float n = cur.brushSize;
-    if (e->getButton() == GLFW_MOUSE_BUTTON_LEFT) {
+    if (KeyBindings::KEY_G_ATTACK.isPressed()) {
 
 //        if (GuiDebugV::g_BlockMode) {
 //
@@ -132,6 +127,10 @@ void handleMouseButton(MouseButtonEvent* e)
                 }
             }
         }
+    }
+    else
+    {
+        cur.cell_breaking_time = 0;
     }
 
 
@@ -185,8 +184,6 @@ static void handleKeyPress()
 void Controls::initControls()
 {
     initConsoleThread();
-
-    Ethertia::getWindow().eventbus().listen(handleMouseButton);
 
 }
 
@@ -336,6 +333,8 @@ void Controls::handleContinuousInput()
     handleHitCursor();
 
     handleKeyPress();
+
+    handleMouseKey();
 
 
 

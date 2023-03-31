@@ -8,7 +8,7 @@
 
 Window::Window(int _w, int _h, const char *_title) : width(_w), height(_h)
 {
-    BenchmarkTimer _tm;
+    BENCHMARK_TIMER;
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

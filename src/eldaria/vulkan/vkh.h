@@ -12,6 +12,33 @@
 
 // vulkan helper
 
+namespace vkx
+{
+
+    class VertexBuffer
+    {
+    public:
+        ~VertexBuffer() { destroy(); }
+
+        VkBuffer m_VertexBuffer = nullptr;
+        VkDeviceMemory m_VertexBufferMemory = nullptr;
+
+        VkBuffer m_IndexBuffer = nullptr;
+        VkDeviceMemory m_IndexBufferMemory = nullptr;
+
+        // used by vkCmdDraw()
+        int m_VertexCount = 0;
+
+        void destroy();
+    };
+
+    class Pipeline
+    {
+    public:
+
+
+    };
+}
 
 struct Image
 {
@@ -23,20 +50,6 @@ struct Image
 };
 
 
-class VertexBuffer
-{
-public:
-    VkBuffer m_VertexBuffer = nullptr;
-    VkDeviceMemory m_VertexBufferMemory = nullptr;
-
-    VkBuffer m_IndexBuffer = nullptr;
-    VkDeviceMemory m_IndexBufferMemory = nullptr;
-
-    // used by vkCmdDraw()
-    int m_VertexCount = 0;
-
-    void destroy();
-};
 
 
 struct QueueFamilyIndices {

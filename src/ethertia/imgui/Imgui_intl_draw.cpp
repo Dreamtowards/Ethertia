@@ -384,7 +384,6 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
             ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
             ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
-            ImGui::Checkbox("Polygon Line", &Settings::dbg_PolyLine);
 
             ImGui::Checkbox("NoVegetable", &Dbg::dbg_NoVegetable);
 
@@ -1382,6 +1381,158 @@ static void ShowTitleScreenWindow()
     ImGui::End();
 }
 
+static float RenderProfilerSection(const Profiler::Section& sec, float x, float y, float full_width, float full_width_time)
+{
+    const float LINE_HEIGHT = 16;
+
+    double s_time = sec.sumTime;
+    double s_width = (s_time / full_width_time) * full_width;
+    glm::vec4 color = Colors::ofRGB(std::hash<std::string>()(sec.name) * 256);
+    ImU32 col = ImGui::GetColorU32({color.x, color.y, color.z, color.w});
+
+    ImVec2 min = {x,y};
+    ImVec2 max = min+ImVec2(s_width, LINE_HEIGHT);
+    ImGui::RenderFrame(min, max, col);
+    ImGui::RenderText(min, sec.name.c_str());
+
+    if (s_width > 200) {
+        ImGui::RenderText({max.x, min.y}, Strings::fmt("{}ms@{}", sec._avgTime * 1000.0, sec.numExec).c_str());
+        //Gui::drawString(x+sec_width, y, Strings::fmt("{}ms@{}", sec._avgTime * 1000.0, sec.numExec), Colors::WHITE80, 12, {-1.0, 0.0});
+    }
+
+    float dx = 0;
+    for (const Profiler::Section& sub_sec : sec.sections)
+    {
+        dx += RenderProfilerSection(sub_sec, x+dx, y-LINE_HEIGHT, s_width, s_time);
+    }
+
+    if (ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(min, max))
+    {
+        ImGui::SetTooltip("%s\n"
+                          "\n"
+                          "avg %fms\n"
+                          "las %fms\n"
+                          "sum %fms\n"
+                          "exc %u\n"
+                          "%p  %f",
+                          sec.name.c_str(),
+                          sec._avgTime * 1000.0f,
+                          sec._lasTime * 1000.0f,
+                          sec.sumTime  * 1000.0f,
+                          (uint32_t)sec.numExec,
+                          (float)(sec.parent ? sec.sumTime / sec.parent->sumTime : Mth::NaN));
+    }
+
+    return s_width;
+}
+
+static void ShowProfilers()
+{
+    ImGui::Begin("Profiler");
+
+    static int s_SelectedProfilerIdx = 0;
+    static std::pair<const char*, Profiler::Section*> PROFILERS[] = {
+            {"Main Thread", &Ethertia::getProfiler().GetRootSection()},
+            {"Chunk Mesh", &Ethertia::getProfiler().GetRootSection()},
+            {"Chunk Gen/Load/Save", &Ethertia::getProfiler().GetRootSection()}
+    };
+
+    {
+        ImGui::BeginCombo("Profiler", PROFILERS[s_SelectedProfilerIdx].first);
+        for (int i = 0; i < std::size(PROFILERS); ++i)
+        {
+            if (ImGui::Selectable(PROFILERS[i].first, s_SelectedProfilerIdx == i)) {
+                s_SelectedProfilerIdx = i;
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::SameLine();
+
+    static int s_SelectedSizeFunc = 0;
+    static const char* s_SizeFunc[] = {
+            "SumTime",
+            "AvgTime",
+            "LastTime"
+    };
+    ImGui::Combo("Size Func", &s_SelectedSizeFunc, s_SizeFunc, std::size(s_SizeFunc));
+
+    const Profiler::Section& sec = *PROFILERS[s_SelectedProfilerIdx].second;
+    ImVec2 begin = {ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMax().y - 16};
+    float width = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
+    RenderProfilerSection(sec, begin.x, begin.y, width, sec.sumTime);
+
+    ImGui::End();
+}
+
+// draw AABB Box for InvalidMeshChunks (To be mesh), and draw Mesh Counter for each chunk indicates how many times the chunk had meshed.
+static void DbgShowChunkMeshingAndCounter()
+{
+    Ethertia::getWorld()->forLoadedChunks([](Chunk* c)
+    {
+        if (c->m_MeshingState != Chunk::MESH_VALID)
+        {
+
+        }
+    });
+}
+
+static void RenderLine(glm::vec3 p0, glm::vec3 p1, ImU32 col = ImGui::GetColorU32({1,1,1,1}), float thickness = 1.0f)
+{
+    glm::vec2 p0s, p1s;
+    if (Imgui::CalcViewportWorldpos(p0, p0s) && Imgui::CalcViewportWorldpos(p1, p1s))
+    {
+        ImGui::GetWindowDrawList()->AddLine({p0s.x, p0s.y}, {p1s.x, p1s.y}, col, thickness);
+    }
+}
+
+static void RenderAABB(glm::vec3 min, glm::vec3 max, ImU32 col, float tk = 1.0f)
+{
+    using glm::vec3; using glm::vec2;
+
+    // p0-3: on min.z
+    vec3 p0 = min;
+    vec3 p1 = {max.x, min.y, min.z};
+    vec3 p2 = {min.x, max.y, min.z};
+    vec3 p3 = {max.x, max.y, min.z};
+
+    // on max.z
+    vec3 p4 = {min.x, min.y, max.z};
+    vec3 p5 = {max.x, min.y, max.z};
+    vec3 p6 = {min.x, max.y, max.z};
+    vec3 p7 = max;
+
+    RenderLine(p0, p1, col, tk); RenderLine(p2, p3, col, tk); RenderLine(p4, p5, col, tk); RenderLine(p6, p7, col, tk);
+
+    RenderLine(p0, p2, col, tk); RenderLine(p1, p3, col, tk); RenderLine(p4, p6, col, tk); RenderLine(p5, p7, col, tk);
+
+    RenderLine(p0, p4, col, tk); RenderLine(p1, p5, col, tk); RenderLine(p2, p6, col, tk); RenderLine(p3, p7, col, tk);
+
+
+//    vec2 p0s, p1s, p2s, p3s,
+//         p4s, p5s, p6s, p7s;
+//    if (Imgui::CalcViewportWorldpos(p0, p0s) || Imgui::CalcViewportWorldpos(p1, p1s) || Imgui::CalcViewportWorldpos(p2, p2s) || Imgui::CalcViewportWorldpos(p3, p3s) ||
+//        Imgui::CalcViewportWorldpos(p4, p4s) || Imgui::CalcViewportWorldpos(p5, p5s) || Imgui::CalcViewportWorldpos(p6, p6s) || Imgui::CalcViewportWorldpos(p7, p7s))
+//    {
+//        ImDrawList* dl = ImGui::GetWindowDrawList();
+//#define ADD_LINE(v0, v1) dl->AddLine({v0.x, v0.y}, {v1.x, v1.y}, col, thickness)
+//        // X Axis
+//        ADD_LINE(p0s, p1s); ADD_LINE(p2s, p3s); ADD_LINE(p4s, p5s); ADD_LINE(p6s, p7s);
+//        // Y Axis
+//        ADD_LINE(p0s, p2s); ADD_LINE(p1s, p3s); ADD_LINE(p4s, p6s); ADD_LINE(p5s, p7s);
+//        // Z Axis
+//        ADD_LINE(p0s, p4s); ADD_LINE(p1s, p5s); ADD_LINE(p2s, p6s); ADD_LINE(p3s, p7s);
+//    }
+
+    // X Axis
+    // RenderLine(p0, p1), (p2, p3), (p4, p5), (p6, p7)
+    // Y Axis
+    // (p0, p2), (p1, p3), (p4, p6), (p5, p7)
+    // Z Axis
+    // (p0. p4), (p1, p5), (p2, p6), (p3, p7)
+
+}
 
 static void ShowDockspaceAndMainMenubar()
 {
@@ -1557,6 +1708,11 @@ static void ShowGameViewport()
                                  0x10101010);
     }
 
+
+    RenderAABB(glm::vec3{10}, glm::vec3{20}, ImGui::GetColorU32(ImGuiCol_ButtonHovered));
+
+    RenderLine(glm::vec3{10}, glm::vec3{20}, ImGui::GetColorU32(ImGuiCol_Header));
+
     ImGui::End();
 }
 
@@ -1612,12 +1768,6 @@ static void RenderWindows()
     if (Settings::w_Toolbar)
         ShowToolbar();
 
-//    ImGui::Begin("Keymap");
-//    ImKeymap::ShowKeymap();
-//    ImGui::End();
-
-
-    glPolygonMode(GL_FRONT_AND_BACK, Settings::dbg_PolyLine ? GL_LINE : GL_FILL);
 
     if (w_ImGuiDemo)
         ImGui::ShowDemoWindow(&w_ImGuiDemo);

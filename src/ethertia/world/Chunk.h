@@ -56,6 +56,11 @@ public:
 
     // std::vector<VertexBuffer*> m_BakeMeshes;
 
+
+    // perf: 为了性能测试。该区块被Mesh了多少次.
+    int dbg_MeshCounter = 0;
+
+
     Chunk(glm::vec3 p, World* w) : position(p), m_World(w) {
 
         m_CreatedTime = Timer::timestampMillis();  // will be reset when Load Chunk From File.

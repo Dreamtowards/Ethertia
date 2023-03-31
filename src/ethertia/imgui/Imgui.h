@@ -34,6 +34,9 @@ public:
 
 
     static void forWorldpoint(const glm::vec3& worldpos, const std::function<void(glm::vec2)>& fn);
+
+    // return true: visible (not in back / out of view)
+    static bool CalcViewportWorldpos(glm::vec3 worldpos, glm::vec2& out_screenpos);
 };
 
 #endif //ETHERTIA_IMGUIS_H

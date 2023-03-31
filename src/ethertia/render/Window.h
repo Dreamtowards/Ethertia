@@ -300,7 +300,7 @@ public:
 
     static void onCharInput(GLFWwindow* _win, unsigned int codepoint) {
         Window* win = (Window*)glfwGetWindowUserPointer(_win);
-
+        
         CharInputEvent e(codepoint);
         win->eventbus().post(&e);
     }
@@ -309,11 +309,8 @@ public:
     BitmapImage* screenshot()
     {
         BitmapImage* img = new BitmapImage(framebufferWidth, framebufferHeight);
-
         glReadPixels(0, 0, img->getWidth(), img->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, img->getPixels());
-
         img->fillAlpha(1.0);
-
         return img;
     }
 };
