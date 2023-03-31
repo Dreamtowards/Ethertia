@@ -30,11 +30,11 @@ public:
     void setDriver(EntityPlayer* entityPlayer) {
         driver = entityPlayer;
 
-        btTransform transformA = m_Rigidbody->getWorldTransform();
-        btTransform transformB = entityPlayer->m_Rigidbody->getWorldTransform();
-        btTransform relativeTransform = transformA.inverse() * transformB;
-        btTransform frameInA = relativeTransform;
-        btTransform frameInB = transformB.inverse() * relativeTransform * transformA;
+        btTransform frameInA, frameInB;
+        frameInA.setIdentity();
+        frameInB.setIdentity();
+        frameInA.setOrigin(btVector3(0.0, 1.5, 0.0));
+        frameInB.setOrigin(btVector3(0.0, 0.0, 0.0));
 
         auto* constraint = new btGeneric6DofConstraint(*m_Rigidbody, *(entityPlayer->m_Rigidbody), frameInA, frameInB, true);
 
