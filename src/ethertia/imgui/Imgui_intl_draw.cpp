@@ -93,12 +93,11 @@ static bool
         w_Singleplayer = false;
 
 static bool
-        dbg_Text = false,
         dbg_ViewBasis = false,
-        dbg_WorldBasis = false,
         dbg_AllEntityAABB = false,
         dbg_AllChunkAABB = false,
-        dbg_Gbuffer = false;
+        dbg_Gbuffer = false,
+        dbg_ChunkMeshingAABBAndCounter = false;  // MeshCounter, MeshingAABB
 
 
 static bool g_GizmoViewManipulation = true;
@@ -120,101 +119,6 @@ static Texture* LazyLoadTex(const std::string& p) {
 
 
 
-
-static void ShowDebugTextOverlay()
-{
-    World* world = Ethertia::getWorld();
-    float dt = Ethertia::getDelta();
-    EntityPlayer* player = Ethertia::getPlayer();
-    btRigidBody* playerRb = player->m_Rigidbody;
-    float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
-
-    std::string cellInfo = "nil";
-    std::string chunkInfo = "nil";
-    std::string worldInfo = "nil";
-    HitCursor& cur = Ethertia::getHitCursor();
-
-
-    if (world)
-    {
-        worldInfo = Strings::fmt("{}. inhabited {}s, daytime {}. seed {}",
-                                 world->m_WorldInfo.Name,
-                                 world->m_WorldInfo.InhabitedTime,
-                                 Strings::daytime(world->getDayTime()),
-                                 world->getSeed());
-        Chunk* hitChunk = world->getLoadedChunk(cur.position);
-        if (hitChunk) {
-            chunkInfo = Strings::fmt("GenPop: {}, Inhabited: {}s",
-                                     hitChunk->m_Populated,
-                                     hitChunk->m_InhabitedTime);
-        }
-        if (cur.cell) {
-            Cell* c = cur.cell;
-            cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
-                                    c->mtl ? c->mtl->getRegistryId() : "nil",
-                                    c->density,
-                                    (int)c->exp_meta,
-                                    cur.cell_breaking_time);
-        }
-    }
-
-
-    std::string str = Strings::fmt(
-            "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
-            "avg-fps: {}. dt: {}, {}fps\n"
-            "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
-            "\n"
-            "World: {}\n"
-            "HitChunk: {}\n"
-            "HitCell: {}\n"
-            "\n"
-            "task {}, async {}\n"
-            "ChunkProvide: {}\n"
-            "ChunkMeshing: {}\n"
-            "ChunkSaving:  {}\n"
-            ,
-            Ethertia::getCamera().position, Ethertia::getCamera().len,
-            meterPerSec, meterPerSec * 3.6f,
-            player->m_OnGround, player->m_NumContactPoints,
-
-            Dbg::dbg_FPS, dt, Mth::floor(1.0f/dt),
-
-            Settings::dbgEntitiesRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
-
-            worldInfo,
-            chunkInfo,
-            cellInfo,
-
-            Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
-            DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
-            DebugStat::dbg_NumChunksMeshInvalid,
-            DebugStat::dbg_ChunksSaving
-
-    );
-
-    auto& vp = Ethertia::getViewport();
-    ImGui::SetNextWindowPos({vp.x+0, vp.y+16});
-    ImGui::SetNextWindowBgAlpha(0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0,0});
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking |
-                                    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-    if (ImGui::Begin("DebugTextOverlay", &dbg_Text, window_flags)) {
-        ImGui::Text("%s", str.c_str());
-
-        if (dbg_Gbuffer) {
-            ImVec2 siz = {vp.width / 10, vp.height / 10};
-            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[0]->texId, siz);  // Pos.rgb Dep.a
-            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[1]->texId, siz);  // Norm.rgb
-            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[2]->texId, siz);  // Albedo.rgb
-
-            Imgui::Image(SSAORenderer::fboSSAO->texColor[0]->texId, siz);  // AO.r
-            Imgui::Image(ShadowRenderer::fboDepthMap->texDepth->texId, siz);  // Depth.texDepth.r
-        }
-    }
-    ImGui::End();
-    ImGui::PopStyleVar(2);
-}
 
 
 
@@ -344,15 +248,17 @@ static void ShowMainMenuBar()
 //        ChunkGenProc::gp_ChunkGen.laterClearRootSection();
 //    }
 
-            ImGui::Checkbox("DbgText", &dbg_Text);
-            ImGui::Checkbox("DbgWorldBasis", &dbg_WorldBasis);
-            ImGui::Checkbox("DbgViewBasis", &dbg_ViewBasis);
+            ImGui::Checkbox("Text Info", &Dbg::dbg_TextInfo);
+            ImGui::Checkbox("World Basis", &Dbg::dbg_WorldBasis);
+            ImGui::Checkbox("View Basis", &dbg_ViewBasis);
 
             ImGui::Checkbox("DbgAllEntityAABB", &dbg_AllEntityAABB);
             ImGui::Checkbox("DbgAllChunkAABB", &dbg_AllChunkAABB);
 //            ImGui::Checkbox("DbgHitEntityAABB", &GuiDebugV::dbg_CursorPt);
 //            ImGui::Checkbox("DbgNearChunkBoundAABB", &GuiDebugV::dbgChunkBoundAABB);
 //            ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
+
+            ImGui::Checkbox("ChunkMeshing AABB & Counter", &dbg_ChunkMeshingAABBAndCounter);
 
             ImGui::Checkbox("NoChunkSave", &Settings::dbg_NoChunkSave);
             ImGui::Checkbox("NoChunkLoad", &Settings::dbg_NoChunkLoad);
@@ -1414,7 +1320,7 @@ static float RenderProfilerSection(const Profiler::Section& sec, float x, float 
                           "las %fms\n"
                           "sum %fms\n"
                           "exc %u\n"
-                          "%p  %f",
+                          "%%p  %f",
                           sec.name.c_str(),
                           sec._avgTime * 1000.0f,
                           sec._lasTime * 1000.0f,
@@ -1473,12 +1379,25 @@ static void DbgShowChunkMeshingAndCounter()
     {
         if (c->m_MeshingState != Chunk::MESH_VALID)
         {
+            Imgui::RenderAABB(c->chunkpos(), c->chunkpos()+glm::vec3(16),
+                              c->m_MeshingState == Chunk::MESH_INVALID ?  // MeshInvalid or Meshing
+                                ImGui::GetColorU32({0.2, 0, 0, .5}) :
+                                ImGui::GetColorU32({1, 0, 0, 1}));
+        }
 
+        glm::vec3 pTextW = c->chunkpos() + glm::vec3(8.0f);
+        glm::vec2 pTextS;
+        if (Imgui::CalcViewportWorldpos(pTextW, pTextS))
+        {
+            ImGui::RenderText({pTextS.x, pTextS.y}, Strings::fmt("Meshed x{}", c->dbg_MeshCounter).c_str());
         }
     });
+
+
 }
 
-static void RenderLine(glm::vec3 p0, glm::vec3 p1, ImU32 col = ImGui::GetColorU32({1,1,1,1}), float thickness = 1.0f)
+
+void Imgui::RenderWorldLine(glm::vec3 p0, glm::vec3 p1, ImU32 col, float thickness)
 {
     glm::vec2 p0s, p1s;
     if (Imgui::CalcViewportWorldpos(p0, p0s) && Imgui::CalcViewportWorldpos(p1, p1s))
@@ -1487,51 +1406,23 @@ static void RenderLine(glm::vec3 p0, glm::vec3 p1, ImU32 col = ImGui::GetColorU3
     }
 }
 
-static void RenderAABB(glm::vec3 min, glm::vec3 max, ImU32 col, float tk = 1.0f)
+void Imgui::RenderAABB(glm::vec3 min, glm::vec3 max, ImU32 col, float tk)
 {
     using glm::vec3; using glm::vec2;
-
     // p0-3: on min.z
     vec3 p0 = min;
     vec3 p1 = {max.x, min.y, min.z};
     vec3 p2 = {min.x, max.y, min.z};
     vec3 p3 = {max.x, max.y, min.z};
-
     // on max.z
     vec3 p4 = {min.x, min.y, max.z};
     vec3 p5 = {max.x, min.y, max.z};
     vec3 p6 = {min.x, max.y, max.z};
     vec3 p7 = max;
 
-    RenderLine(p0, p1, col, tk); RenderLine(p2, p3, col, tk); RenderLine(p4, p5, col, tk); RenderLine(p6, p7, col, tk);
-
-    RenderLine(p0, p2, col, tk); RenderLine(p1, p3, col, tk); RenderLine(p4, p6, col, tk); RenderLine(p5, p7, col, tk);
-
-    RenderLine(p0, p4, col, tk); RenderLine(p1, p5, col, tk); RenderLine(p2, p6, col, tk); RenderLine(p3, p7, col, tk);
-
-
-//    vec2 p0s, p1s, p2s, p3s,
-//         p4s, p5s, p6s, p7s;
-//    if (Imgui::CalcViewportWorldpos(p0, p0s) || Imgui::CalcViewportWorldpos(p1, p1s) || Imgui::CalcViewportWorldpos(p2, p2s) || Imgui::CalcViewportWorldpos(p3, p3s) ||
-//        Imgui::CalcViewportWorldpos(p4, p4s) || Imgui::CalcViewportWorldpos(p5, p5s) || Imgui::CalcViewportWorldpos(p6, p6s) || Imgui::CalcViewportWorldpos(p7, p7s))
-//    {
-//        ImDrawList* dl = ImGui::GetWindowDrawList();
-//#define ADD_LINE(v0, v1) dl->AddLine({v0.x, v0.y}, {v1.x, v1.y}, col, thickness)
-//        // X Axis
-//        ADD_LINE(p0s, p1s); ADD_LINE(p2s, p3s); ADD_LINE(p4s, p5s); ADD_LINE(p6s, p7s);
-//        // Y Axis
-//        ADD_LINE(p0s, p2s); ADD_LINE(p1s, p3s); ADD_LINE(p4s, p6s); ADD_LINE(p5s, p7s);
-//        // Z Axis
-//        ADD_LINE(p0s, p4s); ADD_LINE(p1s, p5s); ADD_LINE(p2s, p6s); ADD_LINE(p3s, p7s);
-//    }
-
-    // X Axis
-    // RenderLine(p0, p1), (p2, p3), (p4, p5), (p6, p7)
-    // Y Axis
-    // (p0, p2), (p1, p3), (p4, p6), (p5, p7)
-    // Z Axis
-    // (p0. p4), (p1, p5), (p2, p6), (p3, p7)
-
+    RenderWorldLine(p0, p1, col, tk); RenderWorldLine(p2, p3, col, tk); RenderWorldLine(p4, p5, col, tk); RenderWorldLine(p6, p7, col, tk);  // X
+    RenderWorldLine(p0, p2, col, tk); RenderWorldLine(p1, p3, col, tk); RenderWorldLine(p4, p6, col, tk); RenderWorldLine(p5, p7, col, tk);  // Y
+    RenderWorldLine(p0, p4, col, tk); RenderWorldLine(p1, p5, col, tk); RenderWorldLine(p2, p6, col, tk); RenderWorldLine(p3, p7, col, tk);  // Z
 }
 
 static void ShowDockspaceAndMainMenubar()
@@ -1647,6 +1538,102 @@ static void ShowToolbar()
 }
 
 
+static void ShowDebugTextOverlay()
+{
+    World* world = Ethertia::getWorld();
+    float dt = Ethertia::getDelta();
+    EntityPlayer* player = Ethertia::getPlayer();
+    btRigidBody* playerRb = player->m_Rigidbody;
+    float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
+
+    std::string cellInfo = "nil";
+    std::string chunkInfo = "nil";
+    std::string worldInfo = "nil";
+    HitCursor& cur = Ethertia::getHitCursor();
+
+
+    if (world)
+    {
+        worldInfo = Strings::fmt("{}. inhabited {}s, daytime {}. seed {}",
+                                 world->m_WorldInfo.Name,
+                                 world->m_WorldInfo.InhabitedTime,
+                                 Strings::daytime(world->getDayTime()),
+                                 world->getSeed());
+        Chunk* hitChunk = world->getLoadedChunk(cur.position);
+        if (hitChunk) {
+            chunkInfo = Strings::fmt("GenPop: {}, Inhabited: {}s",
+                                     hitChunk->m_Populated,
+                                     hitChunk->m_InhabitedTime);
+        }
+        if (cur.cell) {
+            Cell* c = cur.cell;
+            cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
+                                    c->mtl ? c->mtl->getRegistryId() : "nil",
+                                    c->density,
+                                    (int)c->exp_meta,
+                                    cur.cell_breaking_time);
+        }
+    }
+
+
+    std::string str = Strings::fmt(
+            "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
+            "avg-fps: {}. dt: {}, {}fps\n"
+            "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
+            "\n"
+            "World: {}\n"
+            "HitChunk: {}\n"
+            "HitCell: {}\n"
+            "\n"
+            "task {}, async {}\n"
+            "ChunkProvide: {}\n"
+            "ChunkMeshing: {}\n"
+            "ChunkSaving:  {}\n"
+            ,
+            Ethertia::getCamera().position, Ethertia::getCamera().len,
+            meterPerSec, meterPerSec * 3.6f,
+            player->m_OnGround, player->m_NumContactPoints,
+
+            Dbg::dbg_FPS, dt, Mth::floor(1.0f/dt),
+
+            Settings::dbgEntitiesRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
+
+            worldInfo,
+            chunkInfo,
+            cellInfo,
+
+            Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
+            DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
+            DebugStat::dbg_NumChunksMeshInvalid,
+            DebugStat::dbg_ChunksSaving
+
+    );
+
+    auto& vp = Ethertia::getViewport();
+    ImGui::RenderText({vp.x, vp.y+16}, str.c_str());
+//    ImGui::SetNextWindowPos({vp.x+0, vp.y+16});
+//    ImGui::SetNextWindowBgAlpha(0.0f);
+//    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+//    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0,0});
+//    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking |
+//                                    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+//    if (ImGui::Begin("DebugTextOverlay", &dbg_Text, window_flags)) {
+//        ImGui::Text("%s", str.c_str());
+//
+//        if (dbg_Gbuffer) {
+//            ImVec2 siz = {vp.width / 10, vp.height / 10};
+//            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[0]->texId, siz);  // Pos.rgb Dep.a
+//            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[1]->texId, siz);  // Norm.rgb
+//            Imgui::Image(GeometryRenderer::fboGbuffer->texColor[2]->texId, siz);  // Albedo.rgb
+//
+//            Imgui::Image(SSAORenderer::fboSSAO->texColor[0]->texId, siz);  // AO.r
+//            Imgui::Image(ShadowRenderer::fboDepthMap->texDepth->texId, siz);  // Depth.texDepth.r
+//        }
+//    }
+//    ImGui::End();
+//    ImGui::PopStyleVar(2);
+}
+
 static void ShowGameViewport()
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
@@ -1708,10 +1695,41 @@ static void ShowGameViewport()
                                  0x10101010);
     }
 
+    if (dbg_ChunkMeshingAABBAndCounter)
+    {
+        DbgShowChunkMeshingAndCounter();
+    }
+    if (Dbg::dbg_TextInfo)
+    {
+        ShowDebugTextOverlay();
+    }
+    if (Dbg::dbg_WorldBasis)
+    {
+        float n = 5;
+        Imgui::RenderWorldLine({0,0,0}, {n,0,0}, ImGui::GetColorU32({1,0,0,1}));
+        Imgui::RenderWorldLine({0,0,0}, {0,n,0}, ImGui::GetColorU32({0,1,0,1}));
+        Imgui::RenderWorldLine({0,0,0}, {0,0,n}, ImGui::GetColorU32({0,0,1,1}));
+    }
 
-    RenderAABB(glm::vec3{10}, glm::vec3{20}, ImGui::GetColorU32(ImGuiCol_ButtonHovered));
+    if (dbg_ViewBasis)  DebugRenderer::Inst().renderDebugBasis();
+    if (dbg_Gbuffer) {
+//        Dbg_DrawGbuffers(0, 32);
+    }
 
-    RenderLine(glm::vec3{10}, glm::vec3{20}, ImGui::GetColorU32(ImGuiCol_Header));
+    World* world = Ethertia::getWorld();
+    if (world) {
+        if (dbg_AllEntityAABB) {
+            for (Entity* e : world->m_Entities) {
+                if (Ethertia::getCamera().testFrustum(e->getAABB()))
+                    RenderEngine::drawLineBox(e->getAABB(), Colors::RED);
+            }
+        }
+        if (dbg_AllChunkAABB) {
+            world->forLoadedChunks([&](Chunk* chunk){
+                RenderEngine::drawLineBox(chunk->position, glm::vec3{16.0f}, Colors::RED);
+            });
+        }
+    }
 
     ImGui::End();
 }
@@ -1801,27 +1819,6 @@ static void RenderWindows()
         ShowSettingsWindow();
     }
 
-    if (dbg_Text)       ShowDebugTextOverlay();
-    if (dbg_ViewBasis)  DebugRenderer::Inst().renderDebugBasis();
-    if (dbg_WorldBasis) DebugRenderer::Inst().renderDebugWorldBasis();
-    if (dbg_Gbuffer) {
-//        Dbg_DrawGbuffers(0, 32);
-    }
-
-    World* world = Ethertia::getWorld();
-    if (world) {
-        if (dbg_AllEntityAABB) {
-            for (Entity* e : world->m_Entities) {
-                if (Ethertia::getCamera().testFrustum(e->getAABB()))
-                    RenderEngine::drawLineBox(e->getAABB(), Colors::RED);
-            }
-        }
-        if (dbg_AllChunkAABB) {
-            world->forLoadedChunks([&](Chunk* chunk){
-                RenderEngine::drawLineBox(chunk->position, glm::vec3{16.0f}, Colors::RED);
-            });
-        }
-    }
 
 
     if (w_NodeEditor)

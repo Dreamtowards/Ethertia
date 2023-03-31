@@ -37,6 +37,10 @@ public:
 
     // return true: visible (not in back / out of view)
     static bool CalcViewportWorldpos(glm::vec3 worldpos, glm::vec2& out_screenpos);
+
+    static void RenderWorldLine(glm::vec3 p0, glm::vec3 p1, ImU32 col = ImGui::GetColorU32({1,1,1,1}), float thickness = 1.0f);
+
+    static void RenderAABB(glm::vec3 min, glm::vec3 max, ImU32 col, float tk = 1.0f);
 };
 
 #endif //ETHERTIA_IMGUIS_H

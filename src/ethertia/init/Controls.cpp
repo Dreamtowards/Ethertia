@@ -144,23 +144,23 @@ static void handleKeyPress()
     {
         Ethertia::isIngame() = !Ethertia::isIngame();
     }
-    else if (KeyBindings::KEY_FULL_VIEWPORT.isPressed())
+    if (KeyBindings::KEY_FULL_VIEWPORT.isPressed())
     {
         Settings::ws_FullViewport = !Settings::ws_FullViewport;
     }
-    else if (KeyBindings::KEY_SCREENSHOT.isPressed())
+    if (KeyBindings::KEY_SCREENSHOT.isPressed())
     {
         Controls::saveScreenshot();
     }
-    else if (KeyBindings::KEY_FULLSCREEN.isPressed())
+    if (KeyBindings::KEY_FULLSCREEN.isPressed())
     {
         Ethertia::getWindow().toggleFullscreen();
     }
-    else if (KeyBindings::KEY_COMMAND.isPressed())
+    if (KeyBindings::KEY_COMMAND.isPressed())
     {
         Settings::w_Console_FocusInput = true;
     }
-    else if (KeyBindings::KEY_G_DROPITEM.isPressed())
+    if (KeyBindings::KEY_G_DROPITEM.isPressed())
     {
         if (Ethertia::isIngame()) {
             EntityPlayer& player = *Ethertia::getPlayer();
@@ -175,6 +175,9 @@ static void handleKeyPress()
                 Ethertia::getWorld()->dropItem(player.position(), drop,player.getViewDirection() * 3.0f);
             }
         }
+    }
+    if (KeyBindings::KEY_DEBUG_INFO.isPressed())
+    {
     }
 
 
