@@ -172,7 +172,11 @@ static void _MenuSystem()
     }
 
     bool worldvalid = Ethertia::getWorld();
-    if (ImGui::MenuItem("Edit World..", nullptr, false, worldvalid)) {}
+    if (ImGui::MenuItem("Edit World..", nullptr, false, worldvalid))
+    {
+        Settings::w_Settings = true;
+        g_CurrSettingsPanel = SettingsPanel::CurrentWorld;
+    }
     if (ImGui::MenuItem("Save World", nullptr, false, worldvalid)) {}
 
     if (ImGui::MenuItem("Close World", nullptr, false, worldvalid)) {
@@ -317,6 +321,7 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("Entity Inspect", &Settings::w_EntityInsp);
             ImGui::Checkbox("Shader Inspect", &Settings::w_ShaderInsp);
             ImGui::Checkbox("Console", &Settings::w_Console);
+            ImGui::Checkbox("Profiler", &Settings::w_Profiler);
 
             ImGui::Separator();
             ImGui::Checkbox("NodeEditor", &w_NodeEditor);
@@ -326,7 +331,6 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("Settings", &Settings::w_Settings);
 
             ImGui::Checkbox("Full Viewport", &Settings::ws_FullViewport);
-//            ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
 
             ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
 
@@ -953,6 +957,7 @@ public:
 
 
 #include <ethertia/init/KeyBinding.h>
+#include <ethertia/world/ChunkLoader.h>
 
 static void ShowSettingsWindow()
 {
@@ -1002,15 +1007,33 @@ static void ShowSettingsWindow()
         }
         else if (currp==CurrentWorld)
         {
-            static char WorldName[128];
-            ImGui::InputText("World Name", WorldName, 128);
+            World* world = Ethertia::getWorld();
+            if (!world)
+            {
+                ImGui::TextDisabled("No world loaded.");
+            }
+            else
+            {
+                ImGui::BeginDisabled();
+                const WorldInfo& winf = world->m_WorldInfo;
 
-            ImGui::BeginDisabled();
+                static char WorldName[128];
+                ImGui::InputText("World Name", WorldName, 128);
 
-            static char WorldSeed[128];
-            ImGui::InputText("World Seed", WorldSeed, 128);
+                static char WorldSeed[128];
+                ImGui::InputText("World Seed", WorldSeed, 128);
 
-            ImGui::EndDisabled();
+                ImGui::EndDisabled();
+
+                if (ImGui::Button("Open World Save Directory"))
+                {
+                    Loader::openURL(world->m_ChunkLoader->m_ChunkDir);
+                }
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("%s", world->m_ChunkLoader->m_ChunkDir.c_str());
+                }
+            }
+
         }
         else if (currp==Graphics)
         {
@@ -1359,8 +1382,8 @@ static void ShowProfilers()
 
     static int s_SelectedTimeFunc = 0;
     static std::pair<const char*, std::function<float(const Profiler::Section& sec)>> s_TimeFuncs[] = {
-            {"SumTime", [](const Profiler::Section& sec) { return sec.sumTime; }},
             {"AvgTime", [](const Profiler::Section& sec) { return sec._avgTime; }},
+            {"SumTime", [](const Profiler::Section& sec) { return sec.sumTime; }},
             {"LastTime",[](const Profiler::Section& sec) { return sec._lasTime; }}
     };
     ImGui::SetNextItemWidth(120);
