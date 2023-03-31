@@ -10,8 +10,8 @@
 //A propeller that gives thrust in one direction
 class EntityPropeller : public Entity
 {
-    float m_EngineForce = 10;
-    float m_AngularVelocity = 100;
+    float m_EngineForce = 1;
+    float m_AngularVelocity = 10;
 
 public:
     EntityPropeller()
@@ -29,12 +29,8 @@ public:
     void rotate()
     {
         // Rotate
-        float mass = m_Rigidbody->getMass();
-        btVector3 localInertia;
-        m_Rigidbody->getCollisionShape()->calculateLocalInertia(mass, localInertia);
-        btVector3 angularMomentum = localInertia * m_AngularVelocity;
-        btVector3 torque = m_Rigidbody->getWorldTransform().getBasis() * angularMomentum;
-        m_Rigidbody->applyTorque(torque);
+        btVector3 axis(0, 1, 0); // y 轴
+        m_Rigidbody->setAngularVelocity(m_AngularVelocity * axis);
 
         // Thrust force
         btVector3 normal = m_Rigidbody->getWorldTransform().getBasis().getColumn(1);
