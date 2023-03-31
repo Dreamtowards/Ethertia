@@ -23,7 +23,7 @@
 #include <eldaria/imgui/Imgui.h>
 
 
-VertexBuffer g_TestModel;
+vkx::VertexBuffer g_TestModel;
 
 
 #define DECL_unif alignas(16)

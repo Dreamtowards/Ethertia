@@ -173,6 +173,17 @@ void Imgui::forWorldpoint(const glm::vec3 &worldpos, const std::function<void(gl
     }
 }
 
+bool Imgui::CalcViewportWorldpos(glm::vec3 worldpos, glm::vec2& out_screenpos)
+{
+    glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getCamera().matView, Ethertia::getCamera().matProjection);
+
+    auto& vp = Ethertia::getViewport();
+    out_screenpos.x = vp.x + p.x * vp.width;
+    out_screenpos.y = vp.y + p.y * vp.height;
+
+    return p.z > 0;
+}
+
 static ImGuiKey GetPressedKey()
 {
     for (int k = ImGuiKey_NamedKey_BEGIN; k < ImGuiKey_NamedKey_END; ++k)
@@ -182,6 +193,8 @@ static ImGuiKey GetPressedKey()
     }
     return ImGuiKey_None;
 }
+
+
 
 
 

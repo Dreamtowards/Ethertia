@@ -43,20 +43,22 @@ public:
         KEY_FULLSCREEN      {ImGuiKey_F11,          "Fullscreen"},
         KEY_COMMAND         {ImGuiKey_Slash,        "Command"},
         //  G_ menas Gameplay category here.
-        KEY_G_DROPITEM      {ImGuiKey_Q,            "G: Drop item"},
-        KEY_G_SPRINT        {ImGuiKey_LeftCtrl,     "G: Sprint"},
-        KEY_G_FORWARD       {ImGuiKey_W,            "G: Forward"},
-        KEY_G_BACK          {ImGuiKey_S,            "G: Back"},
-        KEY_G_LEFT          {ImGuiKey_A,            "G: Left"},
-        KEY_G_RIGHT         {ImGuiKey_D,            "G: Right"},
-        KEY_G_JUMP          {ImGuiKey_Space,        "G: Jump"},
-        KEY_G_SNEAK         {ImGuiKey_LeftShift,    "G: Sneak"},
-        KEY_G_CAM_DIST      {ImGuiKey_V,            "G: Camera Distance"},
-        KEY_G_HOTBAR1       {ImGuiKey_1,            "G: Hotbar 1"},
-        KEY_G_HOTBAR2       {ImGuiKey_2,            "G: Hotbar 2"},
-        KEY_G_HOTBAR3       {ImGuiKey_3,            "G: Hotbar 3"},
-        KEY_G_HOTBAR4       {ImGuiKey_4,            "G: Hotbar 4"},
-        KEY_G_HOTBAR5       {ImGuiKey_5,            "G: Hotbar 5"}
+        KEY_G_DROPITEM      {ImGuiKey_Q,            "Drop item"},
+        KEY_G_SPRINT        {ImGuiKey_LeftCtrl,     "Sprint"},
+        KEY_G_FORWARD       {ImGuiKey_W,            "Forward"},
+        KEY_G_BACK          {ImGuiKey_S,            "Back"},
+        KEY_G_LEFT          {ImGuiKey_A,            "Left"},
+        KEY_G_RIGHT         {ImGuiKey_D,            "Right"},
+        KEY_G_JUMP          {ImGuiKey_Space,        "Jump"},
+        KEY_G_SNEAK         {ImGuiKey_LeftShift,    "Sneak"},
+        KEY_G_CAM_DIST      {ImGuiKey_V,            "Camera Distance"},
+        KEY_G_HOTBAR1       {ImGuiKey_1,            "Hotbar 1"},
+        KEY_G_HOTBAR2       {ImGuiKey_2,            "Hotbar 2"},
+        KEY_G_HOTBAR3       {ImGuiKey_3,            "Hotbar 3"},
+        KEY_G_HOTBAR4       {ImGuiKey_4,            "Hotbar 4"},
+        KEY_G_HOTBAR5       {ImGuiKey_5,            "Hotbar 5"},
+        KEY_G_USE           {ImGuiKey_MouseRight,   "Use/Place"},
+        KEY_G_ATTACK        {ImGuiKey_MouseLeft,    "Attack/Destroy"}
         ;
 
 };

@@ -23,6 +23,17 @@ public:
     inline static bool dbg_NoVegetable = false;
 
 
+    // GUI Render
+    inline static bool dbg_TextInfo = false,
+                       dbg_WorldBasis = false,
+                       dbg_ViewBasis = false,
+                       dbg_ViewGizmo = true,
+                       dbg_MeshingChunksAABB = false,   // draw AABB for Chunks that is meshing. RED=Meshing, DARK_RED=WaitTobeMesh/InvalidMesh.
+                       dbg_ChunkMeshedCounter = false;  // draw a number in every chunk shows that chunk had been Meshed how many times.
+
+    inline static int dbg_WorldHintGrids = 10;
+
+
 
     inline static int dbg_FPS = 0;
 

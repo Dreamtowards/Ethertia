@@ -153,6 +153,7 @@ public:
                 delete meshTerrain;
                 delete meshVegetable;
             }
+            ++chunk->dbg_MeshCounter;
 
             chunk->m_MeshingState = Chunk::MESH_VALID;  // must clear MESHING state for delete chunk (unloadChunk)
             vbufTerrain->clear();

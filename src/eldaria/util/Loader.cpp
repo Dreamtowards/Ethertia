@@ -13,13 +13,14 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader/tiny_obj_loader.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
 
 #include <ethertia/util/Strings.h>
 #include <ethertia/util/Log.h>
 
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
 
 namespace std {
     template<> struct hash<VertexData::Vertex> {
@@ -58,15 +59,11 @@ BitmapImage Loader::loadPNG(const std::string& path)
     return BitmapImage(pixels, w, h, path);
 }
 
-#include <ethertia/util/BenchmarkTimer.h>
-
 // Arrays vs Indexed compare for viking_room.obj (Single Vertex is vec3+vec2+vec3 8*f32 = 32 bytes, Index is uint32 = 4 bytes)
 // (arrays: 11484 vert *32 = 367,488 bytes) dbg-run 18ms
-// (indexed: 6759 unique vert *32 = 216,288 bytes (=x0.59) + 11484 indices * 4 = 45,936 bytes  =  262,224 bytes (=x0.713)) dbg-run 21ms
+// (indexed: 4725 unique vert *32 = 151,200 bytes (=x0.41) + 11484 indices * 4 = 45,936 bytes  =  197,136 bytes (=x0.54)) dbg-run 21ms
 VertexData Loader::loadOBJ(const std::string& filename)
 {
-    BENCHMARK_TIMER;
-
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -95,15 +92,11 @@ VertexData Loader::loadOBJ(const std::string& filename)
             // vulkan y 0=top
             tex.y = 1.0f - tex.y;
 
-//            vtx.m_Vertices.push_back(vert);
-//            vtx.m_Indices.push_back(vtx.m_Indices.size()); continue;
-
             if (unique_verts.find(vert) == unique_verts.end())
             {
                 unique_verts[vert] = vtx.m_Vertices.size();
                 vtx.m_Vertices.push_back(vert);
             }
-
             vtx.m_Indices.push_back(unique_verts[vert]);
         }
     }
@@ -119,9 +112,9 @@ VertexData Loader::loadOBJ(const std::string& filename)
 #include <eldaria/vulkan/vkh.h>
 
 
-VertexBuffer* Loader::loadVertexBuffer(const VertexData& vdata)
+vkx::VertexBuffer* Loader::loadVertexBuffer(const VertexData& vdata)
 {
-    VertexBuffer* vb = new VertexBuffer();
+    vkx::VertexBuffer* vb = new vkx::VertexBuffer();
 
     vb->m_VertexCount = vdata.vertexCount();
     vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), vb->m_VertexBuffer, vb->m_VertexBufferMemory);

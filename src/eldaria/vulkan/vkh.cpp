@@ -10,7 +10,7 @@ void Image::destroy()
     vkDestroyImageView(vkh::g_Device, m_ImageView, nullptr);
 }
 
-void VertexBuffer::destroy()
+void vkx::VertexBuffer::destroy()
 {
     vkDestroyBuffer(vkh::g_Device, m_VertexBuffer, nullptr);
     vkFreeMemory(vkh::g_Device, m_VertexBufferMemory, nullptr);

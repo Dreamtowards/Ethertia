@@ -13,6 +13,7 @@
 #include "Settings.h"
 #include "ethertia/entity/component/EntityDrivingSeat.h"
 #include "ethertia/entity/component/EntityPropeller .h"
+#include <ethertia/init/DebugStat.h>
 
 //#include <ethertia/gui/screen/GuiF4Lock.h>
 //#include <ethertia/gui/screen/GuiDebugV.h>
@@ -41,7 +42,7 @@ static void initConsoleThread()
 
 
 
-void handleMouseButton(MouseButtonEvent* e)
+void handleMouseKey()
 {
     World* world = Ethertia::getWorld();
     EntityPlayer* player = Ethertia::getPlayer();
@@ -51,13 +52,8 @@ void handleMouseButton(MouseButtonEvent* e)
         return;
 
 
-    if (!e->isPressed()) {
-        cur.cell_breaking_time = 0;
-        return;
-    }
-
     // Use Item
-    if (e->getButton() == GLFW_MOUSE_BUTTON_RIGHT)
+    if (KeyBindings::KEY_G_USE.isPressed())
     {
         ItemStack& stack = player->getHoldingItem();
 
@@ -91,7 +87,7 @@ void handleMouseButton(MouseButtonEvent* e)
 
     glm::vec3 p = cur.position;
     float n = cur.brushSize;
-    if (e->getButton() == GLFW_MOUSE_BUTTON_LEFT) {
+    if (KeyBindings::KEY_G_ATTACK.isPressed()) {
 
 //        if (GuiDebugV::g_BlockMode) {
 //
@@ -133,6 +129,10 @@ void handleMouseButton(MouseButtonEvent* e)
             }
         }
     }
+    else
+    {
+        cur.cell_breaking_time = 0;
+    }
 
 
 }
@@ -145,23 +145,23 @@ static void handleKeyPress()
     {
         Ethertia::isIngame() = !Ethertia::isIngame();
     }
-    else if (KeyBindings::KEY_FULL_VIEWPORT.isPressed())
+    if (KeyBindings::KEY_FULL_VIEWPORT.isPressed())
     {
         Settings::ws_FullViewport = !Settings::ws_FullViewport;
     }
-    else if (KeyBindings::KEY_SCREENSHOT.isPressed())
+    if (KeyBindings::KEY_SCREENSHOT.isPressed())
     {
         Controls::saveScreenshot();
     }
-    else if (KeyBindings::KEY_FULLSCREEN.isPressed())
+    if (KeyBindings::KEY_FULLSCREEN.isPressed())
     {
         Ethertia::getWindow().toggleFullscreen();
     }
-    else if (KeyBindings::KEY_COMMAND.isPressed())
+    if (KeyBindings::KEY_COMMAND.isPressed())
     {
         Settings::w_Console_FocusInput = true;
     }
-    else if (KeyBindings::KEY_G_DROPITEM.isPressed())
+    if (KeyBindings::KEY_G_DROPITEM.isPressed())
     {
         if (Ethertia::isIngame()) {
             EntityPlayer& player = *Ethertia::getPlayer();
@@ -177,6 +177,21 @@ static void handleKeyPress()
             }
         }
     }
+    if (KeyBindings::KEY_DEBUG_INFO.isPressed())
+    {
+        if (Dbg::dbg_TextInfo)
+        {
+            Dbg::dbg_TextInfo = false;
+            Dbg::dbg_WorldBasis = false;
+            Dbg::dbg_ViewBasis = false;
+        }
+        else
+        {
+            Dbg::dbg_TextInfo = true;
+            Dbg::dbg_WorldBasis = true;
+            Dbg::dbg_ViewBasis = true;
+        }
+    }
 
 
 }
@@ -185,8 +200,6 @@ static void handleKeyPress()
 void Controls::initControls()
 {
     initConsoleThread();
-
-    Ethertia::getWindow().eventbus().listen(handleMouseButton);
 
 }
 
@@ -336,6 +349,8 @@ void Controls::handleContinuousInput()
     handleHitCursor();
 
     handleKeyPress();
+
+    handleMouseKey();
 
 
 

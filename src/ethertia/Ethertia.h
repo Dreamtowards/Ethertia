@@ -17,6 +17,12 @@
 #include <ethertia/util/Registry.h>
 
 
+#include <cassert>
+#ifndef NDEBUG
+#define ET_DEBUG
+#endif
+
+
 class World;
 class WorldInfo;
 class EntityPlayer;

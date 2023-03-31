@@ -66,12 +66,12 @@ public:
 
 
                     // CNS 在生成后 重建附近区块模型
-                    Ethertia::getAsyncScheduler().addDelayTask([=]()
-                    {
-                        for (int i = 0; i < 6; ++i) {
-                            world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
-                        }
-                    }, 0.5f + Mth::min(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 4.0f));
+//                    Ethertia::getAsyncScheduler().addDelayTask([=]()
+//                    {
+//                        for (int i = 0; i < 6; ++i) {
+//                            world->requestRemodel(chunkpos + Mth::QFACES[i] * 16.0f, false);
+//                        }
+//                    }, 0.5f + Mth::min(ChunkMeshProc::dist2ChunkCam(chunk) / 60000.0f, 4.0f));
                 }
 
 
