@@ -13,6 +13,7 @@
 #include "Settings.h"
 #include "ethertia/entity/component/EntityDrivingSeat.h"
 #include "ethertia/entity/component/EntityPropeller .h"
+#include <ethertia/init/DebugStat.h>
 
 //#include <ethertia/gui/screen/GuiF4Lock.h>
 //#include <ethertia/gui/screen/GuiDebugV.h>
@@ -178,6 +179,18 @@ static void handleKeyPress()
     }
     if (KeyBindings::KEY_DEBUG_INFO.isPressed())
     {
+        if (Dbg::dbg_TextInfo)
+        {
+            Dbg::dbg_TextInfo = false;
+            Dbg::dbg_WorldBasis = false;
+            Dbg::dbg_ViewBasis = false;
+        }
+        else
+        {
+            Dbg::dbg_TextInfo = true;
+            Dbg::dbg_WorldBasis = true;
+            Dbg::dbg_ViewBasis = true;
+        }
     }
 
 

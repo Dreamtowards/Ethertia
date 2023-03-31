@@ -93,16 +93,9 @@ static bool
         w_Singleplayer = false;
 
 static bool
-        dbg_ViewBasis = false,
         dbg_AllEntityAABB = false,
         dbg_AllChunkAABB = false,
-        dbg_Gbuffer = false,
-        dbg_ChunkMeshingAABBAndCounter = false;  // MeshCounter, MeshingAABB
-
-
-static bool g_GizmoViewManipulation = true;
-
-static int g_WorldGrids = 10;
+        dbg_Gbuffer = false;
 
 static ShaderProgram* g_InspShaderProgram = nullptr;
 
@@ -233,10 +226,10 @@ static void ShowMainMenuBar()
 //            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
 //            ImGui::EndMenu();
 //        }
-        if (ImGui::BeginMenu("Debug"))
+        if (ImGui::BeginMenu("World"))
         {
 
-//    if (ImGui::Button("Remesh Chunks")) {
+//    if (ImGui::Button("Remesh All Chunks")) {
 //        for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
 //            it.second->requestRemodel();
 //        }
@@ -248,17 +241,14 @@ static void ShowMainMenuBar()
 //        ChunkGenProc::gp_ChunkGen.laterClearRootSection();
 //    }
 
-            ImGui::Checkbox("Text Info", &Dbg::dbg_TextInfo);
-            ImGui::Checkbox("World Basis", &Dbg::dbg_WorldBasis);
-            ImGui::Checkbox("View Basis", &dbg_ViewBasis);
-
-            ImGui::Checkbox("DbgAllEntityAABB", &dbg_AllEntityAABB);
-            ImGui::Checkbox("DbgAllChunkAABB", &dbg_AllChunkAABB);
+            ImGui::Checkbox("AllEntityAABB", &dbg_AllEntityAABB);
+            ImGui::Checkbox("AllChunkAABB", &dbg_AllChunkAABB);
 //            ImGui::Checkbox("DbgHitEntityAABB", &GuiDebugV::dbg_CursorPt);
 //            ImGui::Checkbox("DbgNearChunkBoundAABB", &GuiDebugV::dbgChunkBoundAABB);
 //            ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
 
-            ImGui::Checkbox("ChunkMeshing AABB & Counter", &dbg_ChunkMeshingAABBAndCounter);
+            ImGui::Checkbox("MeshingChunks AABB", &Dbg::dbg_MeshingChunksAABB);
+            ImGui::Checkbox("Chunk Mesh Counter", &Dbg::dbg_ChunkMeshedCounter);
 
             ImGui::Checkbox("NoChunkSave", &Settings::dbg_NoChunkSave);
             ImGui::Checkbox("NoChunkLoad", &Settings::dbg_NoChunkLoad);
@@ -268,41 +258,20 @@ static void ShowMainMenuBar()
 
             ImGui::Separator();
 
-            ImGui::SliderInt("World GridSize", &g_WorldGrids, 0, 500);
-            ImGui::Checkbox("ViewManipulation Gizmo", &g_GizmoViewManipulation);
+            ImGui::Checkbox("Text Info", &Dbg::dbg_TextInfo);
+            ImGui::Checkbox("View Gizmo", &Dbg::dbg_ViewGizmo);
+            ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
+            ImGui::Checkbox("World Basis", &Dbg::dbg_WorldBasis);
+            ImGui::SliderInt("World GridSize", &Dbg::dbg_WorldHintGrids, 0, 500);
 
-            // ImGui::Checkbox("Hit Entity AABB", &gAllChunkAABB);
-
-            ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
-
-            ImGui::SeparatorText("Controlling");
+            ImGui::Separator();
 
             ImGui::Checkbox("Hit Tracking", &Ethertia::getHitCursor().keepTracking);
             ImGui::SliderFloat("BrushSize", &Ethertia::getHitCursor().brushSize, 0, 16);
-//    ImGui::Checkbox("BlockMode", &Settings::dbgPolyLine);
 
             Camera& cam = Ethertia::getCamera();
-            ImGui::SliderFloat("Cam Smooth", &cam.m_Smoothness, 0, 5);
-            ImGui::SliderFloat("Cam Roll", &cam.eulerAngles.z, -3.14, 3.14);
-
-            ImGui::SeparatorText("Rendering");
-            ImGui::Checkbox("PauseWorldRender", &Settings::dbg_PauseWorldRender);
-            ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
-            ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
-            ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
-
-            ImGui::Checkbox("NoVegetable", &Dbg::dbg_NoVegetable);
-
-
-            static float knobVal = 10;
-            ImGuiKnobs::Knob("Test2", &knobVal, -100, 100, 0.1f, "%.1fdB", ImGuiKnobVariant_Tick);
-
-//    if (ImGui::Button("Click Sound")) {
-//        Log::info("PlaySoundClick");
-//        Sounds::AS_GUI->UnqueueAllBuffers();
-//        Sounds::AS_GUI->QueueBuffer(Sounds::GUI_CLICK->m_BufferId);
-//        Sounds::AS_GUI->play();
-//    }
+            ImGui::SliderFloat("Camera Smoothness", &cam.m_Smoothness, 0, 5);
+            ImGui::SliderFloat("Camera Roll", &cam.eulerAngles.z, -3.14, 3.14);
 
             ImGui::EndMenu();
         }
@@ -313,6 +282,31 @@ static void ShowMainMenuBar()
 
             ImGui::Checkbox("SSAO", &Settings::g_SSAO);
             ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
+
+            ImGui::Separator();
+
+            ImGui::Checkbox("PauseWorldRender", &Settings::dbg_PauseWorldRender);
+            ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
+            ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
+            ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
+
+            ImGui::Checkbox("NoVegetable", &Dbg::dbg_NoVegetable);
+
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Audio"))
+        {
+
+            static float knobVal = 10;
+            ImGuiKnobs::Knob("Test2", &knobVal, -100, 100, 0.1f, "%.1fdB", ImGuiKnobVariant_Tick);
+
+
+//    if (ImGui::Button("Click Sound")) {
+//        Log::info("PlaySoundClick");
+//        Sounds::AS_GUI->UnqueueAllBuffers();
+//        Sounds::AS_GUI->QueueBuffer(Sounds::GUI_CLICK->m_BufferId);
+//        Sounds::AS_GUI->play();
+//    }
 
             ImGui::EndMenu();
         }
@@ -331,8 +325,11 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("Singleplayer", &w_Singleplayer);
             ImGui::Checkbox("Settings", &Settings::w_Settings);
 
-            ImGui::Checkbox("Viewport Full", &Settings::ws_FullViewport);
+            ImGui::Checkbox("Full Viewport", &Settings::ws_FullViewport);
 //            ImGui::Checkbox("Profiler", &GuiDebugV::dbgDrawFrameProfiler);
+
+            ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
+
 
             ImGui::Separator();
 
@@ -354,9 +351,9 @@ static void ShowMainMenuBar()
         }
 
 
-        {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
-            ImGui::SameLine(ImGui::GetWindowWidth() - 100);
+//        {
+//            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
+//            ImGui::SameLine(ImGui::GetWindowWidth() - 100);
 
 //            if (ImGui::BeginCombo("cTmp", "Ethertia | Debug")) {
 //                ImGui::Selectable("Ethertia", true);
@@ -364,21 +361,21 @@ static void ShowMainMenuBar()
 //                ImGui::EndCombo();
 //            }
 
-            float sz = 14;
-
-            ImGui::ImageButton("gPP", LazyLoadTex("gui/icon/play-prev.png")->pTexId(), {sz,sz});
-
-            if (ImGui::ImageButton("gPlayPause",
-                                   Ethertia::isIngame() ? LazyLoadTex("gui/icon/pause28.png")->pTexId() :
-                                   LazyLoadTex("gui/icon/play28.png")->pTexId(), {sz, sz})) {
-                Ethertia::isIngame() = !Ethertia::isIngame();
-            }
-
-            ImGui::ImageButton("gSettings", LazyLoadTex("gui/icon/cogs28.png")->pTexId(), {sz,sz});
-            ImGui::ImageButton("gSettings2", LazyLoadTex("gui/icon/books.png")->pTexId(), {sz,sz});
-
-            ImGui::PopStyleVar();
-        }
+//            float sz = 14;
+//
+//            ImGui::ImageButton("gPP", LazyLoadTex("gui/icon/play-prev.png")->pTexId(), {sz,sz});
+//
+//            if (ImGui::ImageButton("gPlayPause",
+//                                   Ethertia::isIngame() ? LazyLoadTex("gui/icon/pause28.png")->pTexId() :
+//                                   LazyLoadTex("gui/icon/play28.png")->pTexId(), {sz, sz})) {
+//                Ethertia::isIngame() = !Ethertia::isIngame();
+//            }
+//
+//            ImGui::ImageButton("gSettings", LazyLoadTex("gui/icon/cogs28.png")->pTexId(), {sz,sz});
+//            ImGui::ImageButton("gSettings2", LazyLoadTex("gui/icon/books.png")->pTexId(), {sz,sz});
+//
+//            ImGui::PopStyleVar();
+//        }
 
 //        using Dbg = DebugStat;
 //        if (Dbg::dbg_ChunkProvideState) {
@@ -1377,7 +1374,7 @@ static void DbgShowChunkMeshingAndCounter()
 {
     Ethertia::getWorld()->forLoadedChunks([](Chunk* c)
     {
-        if (c->m_MeshingState != Chunk::MESH_VALID)
+        if (Dbg::dbg_MeshingChunksAABB && c->m_MeshingState != Chunk::MESH_VALID)
         {
             Imgui::RenderAABB(c->chunkpos(), c->chunkpos()+glm::vec3(16),
                               c->m_MeshingState == Chunk::MESH_INVALID ?  // MeshInvalid or Meshing
@@ -1385,11 +1382,14 @@ static void DbgShowChunkMeshingAndCounter()
                                 ImGui::GetColorU32({1, 0, 0, 1}));
         }
 
-        glm::vec3 pTextW = c->chunkpos() + glm::vec3(8.0f);
-        glm::vec2 pTextS;
-        if (Imgui::CalcViewportWorldpos(pTextW, pTextS))
+        if (Dbg::dbg_ChunkMeshedCounter)
         {
-            ImGui::RenderText({pTextS.x, pTextS.y}, Strings::fmt("Meshed x{}", c->dbg_MeshCounter).c_str());
+            glm::vec3 pTextW = c->chunkpos() + glm::vec3(8.0f);
+            glm::vec2 pTextS;
+            if (Imgui::CalcViewportWorldpos(pTextW, pTextS))
+            {
+                ImGui::RenderText({pTextS.x, pTextS.y}, Strings::fmt("Meshed x{}", c->dbg_MeshCounter).c_str());
+            }
         }
     });
 
@@ -1679,23 +1679,24 @@ static void ShowGameViewport()
     auto& vp = Ethertia::getViewport();
     ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
 
-    if (g_WorldGrids > 0)
-    {
-        glm::mat4 iden(1.0f);
-        ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
-                           glm::value_ptr(iden), (float)g_WorldGrids);
-    }
 
-    if (g_GizmoViewManipulation)
+    if (Dbg::dbg_ViewGizmo)
     {
         static float camLen = 10.0f;
         auto& vp = Ethertia::getViewport();
         ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
                                  ImVec2(vp.right()-128-24, vp.y+24), ImVec2(128, 128),
-                                 0x10101010);
+                                 //0x10101010
+                                 0);
+    }
+    if (Dbg::dbg_WorldHintGrids > 0)
+    {
+        glm::mat4 iden(1.0f);
+        ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
+                           glm::value_ptr(iden), (float)Dbg::dbg_WorldHintGrids);
     }
 
-    if (dbg_ChunkMeshingAABBAndCounter)
+    if (Dbg::dbg_ChunkMeshedCounter || Dbg::dbg_MeshingChunksAABB)
     {
         DbgShowChunkMeshingAndCounter();
     }
@@ -1710,10 +1711,18 @@ static void ShowGameViewport()
         Imgui::RenderWorldLine({0,0,0}, {0,n,0}, ImGui::GetColorU32({0,1,0,1}));
         Imgui::RenderWorldLine({0,0,0}, {0,0,n}, ImGui::GetColorU32({0,0,1,1}));
     }
-
-    if (dbg_ViewBasis)  DebugRenderer::Inst().renderDebugBasis();
-    if (dbg_Gbuffer) {
-//        Dbg_DrawGbuffers(0, 32);
+    if (Dbg::dbg_ViewBasis)
+    {
+        glm::mat4* pView = &Ethertia::getCamera().matView;
+        glm::mat4 camView = *pView;
+        *pView = glm::mat4(1.0f);  // disable view matrix. of RenderWorldLine
+        float n = 0.01f;
+        glm::vec3 o = {0, 0, -0.1};
+        glm::mat3 rot(camView);
+        Imgui::RenderWorldLine(o, o+rot*glm::vec3(n, 0, 0), ImGui::GetColorU32({1,0,0,1}));
+        Imgui::RenderWorldLine(o, o+rot*glm::vec3(0, n, 0), ImGui::GetColorU32({0,1,0,1}));
+        Imgui::RenderWorldLine(o, o+rot*glm::vec3(0, 0, n), ImGui::GetColorU32({0,0,1,1}));
+        *pView = camView;  // restore.
     }
 
     World* world = Ethertia::getWorld();
