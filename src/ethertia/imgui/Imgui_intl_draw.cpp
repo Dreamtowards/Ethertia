@@ -1284,11 +1284,11 @@ static void ShowTitleScreenWindow()
     ImGui::End();
 }
 
-static float RenderProfilerSection(const Profiler::Section& sec, float x, float y, float full_width, float full_width_time)
+static float RenderProfilerSection(const Profiler::Section& sec, float x, float y, float full_width, float full_width_time, const std::function<float(const Profiler::Section&)>& timefunc)
 {
     const float LINE_HEIGHT = 16;
 
-    double s_time = sec.sumTime;
+    double s_time = timefunc(sec);
     double s_width = (s_time / full_width_time) * full_width;
     glm::vec4 color = Colors::ofRGB(std::hash<std::string>()(sec.name) * 256);
     ImU32 col = ImGui::GetColorU32({color.x, color.y, color.z, color.w});
@@ -1298,15 +1298,16 @@ static float RenderProfilerSection(const Profiler::Section& sec, float x, float 
     ImGui::RenderFrame(min, max, col);
     ImGui::RenderText(min, sec.name.c_str());
 
-    if (s_width > 200) {
-        ImGui::RenderText({max.x, min.y}, Strings::fmt("{}ms@{}", sec._avgTime * 1000.0, sec.numExec).c_str());
-        //Gui::drawString(x+sec_width, y, Strings::fmt("{}ms@{}", sec._avgTime * 1000.0, sec.numExec), Colors::WHITE80, 12, {-1.0, 0.0});
+    if (s_width > 180) {
+        std::string str = Strings::fmt("{}ms@{}", s_time * 1000.0, sec.numExec);
+        ImVec2 text_size = ImGui::CalcTextSize(str.c_str());
+        ImGui::RenderText({max.x-text_size.x, min.y}, str.c_str());
     }
 
     float dx = 0;
     for (const Profiler::Section& sub_sec : sec.sections)
     {
-        dx += RenderProfilerSection(sub_sec, x+dx, y-LINE_HEIGHT, s_width, s_time);
+        dx += RenderProfilerSection(sub_sec, x+dx, y-LINE_HEIGHT, s_width, s_time, timefunc);
     }
 
     if (ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(min, max))
@@ -1334,14 +1335,16 @@ static void ShowProfilers()
     ImGui::Begin("Profiler");
 
     static int s_SelectedProfilerIdx = 0;
-    static std::pair<const char*, Profiler::Section*> PROFILERS[] = {
-            {"Main Thread", &Ethertia::getProfiler().GetRootSection()},
-            {"Chunk Mesh", &Ethertia::getProfiler().GetRootSection()},
-            {"Chunk Gen/Load/Save", &Ethertia::getProfiler().GetRootSection()}
+    static std::pair<const char*, Profiler*> PROFILERS[] = {
+            {"Main Thread", &Ethertia::getProfiler()},
+            {"Chunk Mesh", &Dbg::dbgProf_ChunkMeshGen},
+            {"Chunk Gen/Load/Save", &Dbg::dbgProf_ChunkGen}
     };
 
+
+    ImGui::SetNextItemWidth(200);
+    if (ImGui::BeginCombo("###Profiler", PROFILERS[s_SelectedProfilerIdx].first))
     {
-        ImGui::BeginCombo("Profiler", PROFILERS[s_SelectedProfilerIdx].first);
         for (int i = 0; i < std::size(PROFILERS); ++i)
         {
             if (ImGui::Selectable(PROFILERS[i].first, s_SelectedProfilerIdx == i)) {
@@ -1351,20 +1354,41 @@ static void ShowProfilers()
         ImGui::EndCombo();
     }
 
+
     ImGui::SameLine();
 
-    static int s_SelectedSizeFunc = 0;
-    static const char* s_SizeFunc[] = {
-            "SumTime",
-            "AvgTime",
-            "LastTime"
+    static int s_SelectedTimeFunc = 0;
+    static std::pair<const char*, std::function<float(const Profiler::Section& sec)>> s_TimeFuncs[] = {
+            {"SumTime", [](const Profiler::Section& sec) { return sec.sumTime; }},
+            {"AvgTime", [](const Profiler::Section& sec) { return sec._avgTime; }},
+            {"LastTime",[](const Profiler::Section& sec) { return sec._lasTime; }}
     };
-    ImGui::Combo("Size Func", &s_SelectedSizeFunc, s_SizeFunc, std::size(s_SizeFunc));
+    ImGui::SetNextItemWidth(120);
+    if (ImGui::BeginCombo("###ProfilerTimeFunc", s_TimeFuncs[s_SelectedTimeFunc].first))
+    {
+        for (int i = 0; i < std::size(s_TimeFuncs); ++i)
+        {
+            if (ImGui::Selectable(s_TimeFuncs[i].first, s_SelectedTimeFunc == i)) {
+                s_SelectedTimeFunc = i;
+            }
+        }
+        ImGui::EndCombo();
+    }
 
-    const Profiler::Section& sec = *PROFILERS[s_SelectedProfilerIdx].second;
-    ImVec2 begin = {ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMax().y - 16};
+    ImGui::SameLine();
+
+    Profiler& prof = *PROFILERS[s_SelectedProfilerIdx].second;
+
+    if (ImGui::Button("Reset"))
+    {
+        prof.laterClearRootSection();
+    }
+
+    const Profiler::Section& sec = prof.GetRootSection();
+    auto& timefunc = s_TimeFuncs[s_SelectedTimeFunc].second;
+    ImVec2 begin = ImGui::GetWindowPos() + ImVec2{ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMax().y - 16};
     float width = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
-    RenderProfilerSection(sec, begin.x, begin.y, width, sec.sumTime);
+    RenderProfilerSection(sec, begin.x, begin.y, width, timefunc(sec), timefunc);
 
     ImGui::End();
 }
@@ -1716,7 +1740,7 @@ static void ShowGameViewport()
         glm::mat4* pView = &Ethertia::getCamera().matView;
         glm::mat4 camView = *pView;
         *pView = glm::mat4(1.0f);  // disable view matrix. of RenderWorldLine
-        float n = 0.01f;
+        float n = 0.016f;
         glm::vec3 o = {0, 0, -0.1};
         glm::mat3 rot(camView);
         Imgui::RenderWorldLine(o, o+rot*glm::vec3(n, 0, 0), ImGui::GetColorU32({1,0,0,1}));
@@ -1801,6 +1825,9 @@ static void RenderWindows()
 
     if (w_NewWorld)
         ShowNewWorldWindow();
+
+    if (Settings::w_Profiler)
+        ShowProfilers();
 
     if (Settings::w_EntityList)
         ShowEntities();

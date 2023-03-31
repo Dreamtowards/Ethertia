@@ -101,14 +101,18 @@ public:
     }
 
     Section& GetRootSection() {
+        if (m_RootSection.sections.empty()) return m_RootSection;  // temporary solution when no section recorded.
         assert(m_RootSection.sections.size() == 1);
         return m_RootSection.sections.at(0);
     }
+
+    // when we want reset/clear profiler data, we cannot just direct clear,
+    // it consist push/pop,. clear should be after last pop.
     void laterClearRootSection() {
-        if (m_CurrentSection == &m_RootSection) {
+        if (m_CurrentSection == &m_RootSection) {  // just clear directly.
             m_RootSection.reset();
         } else {
-            // Delay clear after pop.
+            // Delay clear after last pop.
             sectionToBeClear = &GetRootSection();
         }
     }

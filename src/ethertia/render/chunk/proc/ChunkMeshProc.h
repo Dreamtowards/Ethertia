@@ -40,11 +40,11 @@ public:
                     continue;
                 }
                 World* world = Ethertia::getWorld();
-                PROFILE_X(gp_MeshGen, "MeshGen");
+                PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "MeshGen");
 
                 Chunk* chunk = nullptr;
                 {
-                    PROFILE_X(gp_MeshGen, "Seek");
+                    PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Seek");
                     chunk = findNearestMeshInvalidChunk(world, Ethertia::getCamera().position, Settings::s_ViewDistance);
                 }
 
@@ -66,8 +66,6 @@ public:
         }
     }
 
-    inline static Profiler gp_MeshGen;
-
     inline static ObjectPool<VertexBuffer> g_VertBufPool;
 
     static void meshChunk_Upload(Chunk* chunk) {
@@ -86,17 +84,17 @@ public:
 
 
         {
-            PROFILE_X(gp_MeshGen, "Mesh");
+            PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Mesh");
 
 //        vbuf = MarchingCubesMeshGen::genMesh(chunk);
 
             {
-                PROFILE_X(gp_MeshGen, "Iso");
+                PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Iso");
                 SurfaceNetsMeshGen::contouring(chunk, vbufTerrain);
             }
 
             {
-                PROFILE_X(gp_MeshGen, "Vegetable");
+                PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Vegetable");
                 BlockyMeshGen::gen(chunk, vbufVegetable, true);
             }
 
@@ -105,7 +103,7 @@ public:
         }
 
         {
-            PROFILE_X(gp_MeshGen, "Norm");
+            PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Norm");
 
             checkNonNaN(vbufTerrain->positions.data(), vbufTerrain->vertexCount()*3);
 
@@ -117,7 +115,7 @@ public:
         }
 
         {
-            PROFILE_X(gp_MeshGen, "Blocky");
+            PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Blocky");
 
             // CNS. 在 Norm生成之后。因为这里会自带Norm 不需要别人处理。
 
@@ -129,7 +127,7 @@ public:
         btBvhTriangleMeshShape* meshVegetable = nullptr;
 
         {
-            PROFILE_X(gp_MeshGen, "Bvh");
+            PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Bvh");
 
             if (vbufTerrain->vertexCount()) {
                 meshTerrain = EntityMesh::createMeshShape(vbufTerrain->vertexCount(), vbufTerrain->positions.data());

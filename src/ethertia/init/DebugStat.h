@@ -33,6 +33,8 @@ public:
 
     inline static int dbg_WorldHintGrids = 10;
 
+    inline static Profiler dbgProf_ChunkGen;
+    inline static Profiler dbgProf_ChunkMeshGen;
 
 
     inline static int dbg_FPS = 0;

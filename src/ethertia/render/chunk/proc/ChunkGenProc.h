@@ -16,8 +16,6 @@ public:
 
     inline static int g_Running = 0;
 
-    inline static Profiler gp_ChunkGen;
-
     static void initThread()
     {
         new std::thread([]()
@@ -37,11 +35,11 @@ public:
                     continue;
                 }
                 World* world = Ethertia::getWorld();
-                PROFILE_X(gp_ChunkGen, "ChunkProc");
+                PROFILE_X(Dbg::dbgProf_ChunkGen, "ChunkProc");
 
                 vec3 chunkpos;
                 {
-                    PROFILE_X(gp_ChunkGen, "Find");
+                    PROFILE_X(Dbg::dbgProf_ChunkGen, "Find");
                     chunkpos = findNearestNotLoadedChunk(world, Ethertia::getCamera().position, Settings::s_ViewDistance);
                 }
 
@@ -52,7 +50,7 @@ public:
                 }
                 else  // found not-loaded chunk.
                 {
-                    PROFILE_X(gp_ChunkGen, "Gen/Load");
+                    PROFILE_X(Dbg::dbgProf_ChunkGen, "Gen/Load");
 
                     // Gen or Load.
                     Chunk* chunk = world->provideChunk(chunkpos);
@@ -75,7 +73,7 @@ public:
                 }
 
 
-                PROFILE_X(gp_ChunkGen, "Save");
+                PROFILE_X(Dbg::dbgProf_ChunkGen, "Save");
                 // Unload Chunks
                 _UnloadChunks(world, Ethertia::getCamera().position, Settings::s_ViewDistance);
 

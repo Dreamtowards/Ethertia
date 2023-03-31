@@ -45,7 +45,8 @@ public:
                        w_EntityInsp = true,
                        w_ShaderInsp = false,
                        w_Console = false,
-                       w_Settings = false;
+                       w_Settings = false,
+                       w_Profiler = true;
 
     inline static bool ws_FullViewport = false;
     inline static bool w_Console_FocusInput = false;  // true: Force bring Console Window to front and Focus on the InputBox while Console Window was showing. used when press '/' key.

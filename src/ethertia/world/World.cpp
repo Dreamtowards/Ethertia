@@ -108,7 +108,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     glm::vec3 chunkpos = Chunk::chunkpos(p);
 
     {
-        PROFILE_X(ChunkGenProc::gp_ChunkGen, "Load");  // not accurate. many times wouldn't load
+        PROFILE_X(Dbg::dbgProf_ChunkGen, "Load");  // not accurate. many times wouldn't load
 
         DebugStat::dbg_ChunkProvideState = "load";
         chunk = m_ChunkLoader->loadChunk(chunkpos, this);
@@ -117,7 +117,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
 
     if (!chunk)
     {
-        PROFILE_X(ChunkGenProc::gp_ChunkGen, "Gen");
+        PROFILE_X(Dbg::dbgProf_ChunkGen, "Gen");
 
         DebugStat::dbg_ChunkProvideState = "gen";
         chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
@@ -138,7 +138,7 @@ Chunk* World::provideChunk(glm::vec3 p)  {
         addEntity(chunk->m_MeshVegetable);
     });
 
-    PROFILE_X(ChunkGenProc::gp_ChunkGen, "Popula");
+    PROFILE_X(Dbg::dbgProf_ChunkGen, "Popula");
     // check populates
     tryPopulate(this, chunkpos + glm::vec3(0, 0, 0));
     tryPopulate(this, chunkpos + glm::vec3(-16, 0, 0));
