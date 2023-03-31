@@ -147,7 +147,7 @@ static void handleKeyPress()
     }
     if (KeyBindings::KEY_FULL_VIEWPORT.isPressed())
     {
-        Settings::ws_FullViewport = !Settings::ws_FullViewport;
+        Settings::w_Viewport_Full = !Settings::w_Viewport_Full;
     }
     if (KeyBindings::KEY_SCREENSHOT.isPressed())
     {

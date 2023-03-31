@@ -254,8 +254,8 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("MeshingChunks AABB", &Dbg::dbg_MeshingChunksAABB);
             ImGui::Checkbox("Chunk Mesh Counter", &Dbg::dbg_ChunkMeshedCounter);
 
-            ImGui::Checkbox("NoChunkSave", &Settings::dbg_NoChunkSave);
-            ImGui::Checkbox("NoChunkLoad", &Settings::dbg_NoChunkLoad);
+            ImGui::Checkbox("NoChunkSave", &Dbg::dbg_NoChunkSave);
+            ImGui::Checkbox("NoChunkLoad", &Dbg::dbg_NoChunkLoad);
 
             ImGui::Checkbox("PauseThread ChunkMeshing", &Dbg::dbg_PauseThread_ChunkMeshing);
             ImGui::Checkbox("PauseThread ChunkLoad/Gen/Save", &Dbg::dbg_PauseThread_ChunkLoadGenSave);
@@ -289,7 +289,7 @@ static void ShowMainMenuBar()
 
             ImGui::Separator();
 
-            ImGui::Checkbox("PauseWorldRender", &Settings::dbg_PauseWorldRender);
+            ImGui::Checkbox("PauseWorldRender", &Dbg::dbg_PauseWorldRender);
             ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
             ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
             ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
@@ -330,7 +330,7 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("Singleplayer", &w_Singleplayer);
             ImGui::Checkbox("Settings", &Settings::w_Settings);
 
-            ImGui::Checkbox("Full Viewport", &Settings::ws_FullViewport);
+            ImGui::Checkbox("Full Viewport", &Settings::w_Viewport_Full);
 
             ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
 
@@ -686,7 +686,7 @@ static void ShowEntities()
         ImGui::SliderInt("List Limit", &_ListLimit, 0, 5000);
 
 
-        ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
+        ImGui::TextDisabled("%i rendered / %i loaded.", Dbg::dbg_NumEntityRendered, (int)entities.size());
 
         if (ImGui::Button("Unselect")) {
             Imgui::g_InspEntity = nullptr;
@@ -1486,7 +1486,7 @@ static void ShowDockspaceAndMainMenubar()
     ImVec4 Org = {0.741, 0.345, 0.133, 1.0};
     ImVec4 _Dar = {0.176f, 0.176f, 0.176f, 0.700f};
     ImVec4 _col =
-            Settings::dbg_PauseWorldRender ? Org :
+            Dbg::dbg_PauseWorldRender ? Org :
             Ethertia::isIngame() ? _Dar : Pur;
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, _col);
 
@@ -1643,7 +1643,7 @@ static void ShowDebugTextOverlay()
 
             Dbg::dbg_FPS, dt, Mth::floor(1.0f/dt),
 
-            Settings::dbgEntitiesRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
+            Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
 
             worldInfo,
             chunkInfo,
@@ -1689,7 +1689,7 @@ static void ShowGameViewport()
     static bool _RequestSetBackToLastDock = false;  // when just cancel full viewport
 
     // WorkArea: menubars
-    if (Settings::ws_FullViewport)
+    if (Settings::w_Viewport_Full)
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);

@@ -12,9 +12,9 @@
 #include <ethertia/render/sky/SkyboxRenderer.h>
 //#include <ethertia/render/gui/GuiRenderer.h>
 //#include <ethertia/render/gui/FontRenderer.h>
+#include <ethertia/render/debug/DebugRenderer.h>
 #include <ethertia/render/particle/ParticleRenderer.h>
 #include <ethertia/render/ssao/SSAORenderer.h>
-#include <ethertia/render/debug/DebugRenderer.h>
 #include <ethertia/render/shadow/ShadowRenderer.h>
 #include <ethertia/render/anim/AnimRenderer.h>
 
@@ -86,7 +86,7 @@ static void renderWorldGeometry(World* world) {
     glDisable(GL_BLEND);  // Blending is inhabited in Deferred Rendering.
 
 
-    Settings::dbgEntitiesRendered = 0;
+    Dbg::dbg_NumEntityRendered = 0;
     for (Entity* entity : world->getEntities()) {
         if (!entity || !entity->m_Model) continue;
         if (entity->m_Model->vertexCount == 0) // most are Empty Chunks.
@@ -104,7 +104,7 @@ static void renderWorldGeometry(World* world) {
         entity->onRender();
 
 
-        ++Settings::dbgEntitiesRendered;
+        ++Dbg::dbg_NumEntityRendered;
 
         // Debug: draw Norm/Border
         if (Dbg::dbg_EntityGeo) {
@@ -235,7 +235,7 @@ void RenderEngine::RenderWorld()
 
     GeometryRenderer::PrepareFrame();
 
-    if (Settings::dbg_PauseWorldRender) return;
+    if (Dbg::dbg_PauseWorldRender) return;
 
     RenderCommand::CheckError("Begin World Render");
 

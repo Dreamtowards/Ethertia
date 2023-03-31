@@ -130,8 +130,8 @@ static void Init()
 #ifdef ET_DEBUG
     // 现在还没做高效能批量存储，现在的离散存储很慢 对磁盘也不太好 所以干脆禁用
     Log::info("Disabled Chunk Load/Save");
-    Settings::dbg_NoChunkLoad = true;
-    Settings::dbg_NoChunkSave = true;
+    Dbg::dbg_NoChunkLoad = true;
+    Dbg::dbg_NoChunkSave = true;
 #endif
 
 }

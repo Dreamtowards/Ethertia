@@ -16,6 +16,13 @@ public:
     inline static bool dbg_PauseThread_ChunkLoadGenSave = false;
     inline static bool dbg_PauseThread_ChunkMeshing = false;
 
+    inline static bool  dbg_PauseWorldRender = false,
+            dbg_NoChunkSave = true,
+            dbg_NoChunkLoad = true;
+
+
+    inline static int dbg_NumEntityRendered = 0;
+
 
     inline static bool dbg_EntityGeo = false;
     inline static bool dbg_HitPointEntityGeo = false;

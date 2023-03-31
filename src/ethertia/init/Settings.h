@@ -27,14 +27,6 @@ public:
     //static void loadProgramArguments(int argc, const char* argv[]) {}
 
 
-    // DEBUG States
-
-    inline static bool  dbg_PauseWorldRender = false,
-                        dbg_NoChunkSave = true,
-                        dbg_NoChunkLoad = true;
-
-    inline static int dbgEntitiesRendered = 0;
-
     inline static bool g_SSAO = true,
                        g_ShadowMapping = true;
 
@@ -48,7 +40,7 @@ public:
                        w_Settings = false,
                        w_Profiler = true;
 
-    inline static bool ws_FullViewport = false;
+    inline static bool w_Viewport_Full = false;
     inline static bool w_Console_FocusInput = false;  // true: Force bring Console Window to front and Focus on the InputBox while Console Window was showing. used when press '/' key.
 
 

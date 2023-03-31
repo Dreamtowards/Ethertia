@@ -13,7 +13,7 @@
 #include <nbt/nbt_tags.h>
 
 #include <ethertia/util/Strings.h>
-#include <ethertia/init/Settings.h>
+#include <ethertia/init/DebugStat.h>
 
 
 
@@ -233,7 +233,7 @@ public:
     }
     static const size_t CELL_SIZE = 1+4, CELLS_ALL_SIZE = 4096 * CELL_SIZE;
 
-    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {  if (Settings::dbg_NoChunkLoad) return nullptr;
+    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {  if (Dbg::dbg_NoChunkLoad) return nullptr;
         auto tagChunk = getChunkData(chunkpos);
         if (!tagChunk) return nullptr;
 
@@ -283,7 +283,7 @@ public:
         return chunk;
     }
 
-    void saveChunk(Chunk* chunk) {  if (Settings::dbg_NoChunkSave) return;
+    void saveChunk(Chunk* chunk) {  if (Dbg::dbg_NoChunkSave) return;
         nbt::tag_compound tagChunk;
         tagChunk.put("ChunkPos", NBT::vec3(chunk->position));
         tagChunk.put("CreatedTime", (int64_t)chunk->m_CreatedTime);
