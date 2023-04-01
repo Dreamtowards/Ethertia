@@ -160,7 +160,7 @@ static void renderWorldCompose(World* world)
 
 
         float dayBrightness = 1.0 - abs(daytime-0.5) * 2.0;
-        glm::vec3 SunColor = glm::vec3(1.0) * dayBrightness * 2.5f;
+        glm::vec3 SunColor = Dbg::dbg_WorldSunColor * dayBrightness * Dbg::dbg_WorldSunColorBrightnessMul;
         sunLight.color = SunColor;
 
         sunLight.attenuation = {1, 0, 0};

@@ -207,12 +207,16 @@ void Imgui::RenderGUI()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
 
-    glDisable(GL_DEPTH_TEST);
+    {
+        PROFILE("Proc");
 
-    RenderWindows();
+        RenderWindows();
+    }
 
-    glEnable(GL_DEPTH_TEST);
+    {
+        PROFILE("Render");
 
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
 }

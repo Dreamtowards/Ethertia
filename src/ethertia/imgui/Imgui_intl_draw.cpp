@@ -198,6 +198,12 @@ static void _MenuSystem()
         Settings::w_Settings = true;
         g_CurrSettingsPanel = SettingsPanel::ResourcePacks;
     }
+    if (ImGui::MenuItem("Controls")) {
+        Settings::w_Settings = true;
+        g_CurrSettingsPanel = SettingsPanel::Controls;
+    }
+
+
 
     if (ImGui::MenuItem("About")) {
         Settings::w_Settings = true;
@@ -233,18 +239,6 @@ static void ShowMainMenuBar()
         if (ImGui::BeginMenu("World"))
         {
 
-//    if (ImGui::Button("Remesh All Chunks")) {
-//        for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
-//            it.second->requestRemodel();
-//        }
-//    }
-//    if (ImGui::Button("Reset Profilers")) {
-//        Ethertia::getProfiler().laterClearRootSection();
-//
-//        ChunkMeshProc::gp_MeshGen.laterClearRootSection();
-//        ChunkGenProc::gp_ChunkGen.laterClearRootSection();
-//    }
-
             ImGui::Checkbox("AllEntityAABB", &dbg_AllEntityAABB);
             ImGui::Checkbox("AllChunkAABB", &dbg_AllChunkAABB);
 //            ImGui::Checkbox("DbgHitEntityAABB", &GuiDebugV::dbg_CursorPt);
@@ -259,6 +253,12 @@ static void ShowMainMenuBar()
 
             ImGui::Checkbox("PauseThread ChunkMeshing", &Dbg::dbg_PauseThread_ChunkMeshing);
             ImGui::Checkbox("PauseThread ChunkLoad/Gen/Save", &Dbg::dbg_PauseThread_ChunkLoadGenSave);
+
+            if (ImGui::Button("Remesh All Chunks")) {
+                for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
+                    it.second->requestRemodel();
+                }
+            }
 
             ImGui::Separator();
 
@@ -1025,6 +1025,15 @@ static void ShowSettingsWindow()
 
                 ImGui::EndDisabled();
 
+                ImGui::SliderFloat("Day Time", &world->m_WorldInfo.DayTime, 0, 1);
+                ImGui::SliderFloat("Day Time Length", &world->m_WorldInfo.DayLength, 1, 3600);
+
+
+                ImGui::ColorEdit3("Sun Color", &Dbg::dbg_WorldSunColor.x);
+                ImGui::ColorEdit3("Dbg Color", &Dbg::dbg_ShaderDbgColor.x);
+                ImGui::DragFloat("Sun Brightness Mul", &Dbg::dbg_WorldSunColorBrightnessMul, 0.1);
+
+
                 if (ImGui::Button("Open World Save Directory"))
                 {
                     Loader::openURL(world->m_ChunkLoader->m_ChunkDir);
@@ -1359,7 +1368,7 @@ static void ShowProfilers()
 
     static int s_SelectedProfilerIdx = 0;
     static std::pair<const char*, Profiler*> PROFILERS[] = {
-            {"Main Thread", &Ethertia::getProfiler()},
+            {"MainLoop", &Ethertia::getProfiler()},
             {"Chunk Mesh", &Dbg::dbgProf_ChunkMeshGen},
             {"Chunk Gen/Load/Save", &Dbg::dbgProf_ChunkGen}
     };
