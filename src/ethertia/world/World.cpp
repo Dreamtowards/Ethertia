@@ -99,6 +99,7 @@ static void tryPopulate(World* world, glm::vec3 chunkpos) {
     if (c && !c->m_Populated && isNeighbourChunksAllLoaded(world, chunkpos)) {  // && isNeighbourAllLoaded()
         World::populate(world, chunkpos);
         c->m_Populated = true;
+        c->invalidateMesh();
     }
 }
 

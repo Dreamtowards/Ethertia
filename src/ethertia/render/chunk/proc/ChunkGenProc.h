@@ -55,7 +55,8 @@ public:
                     // Gen or Load.
                     Chunk* chunk = world->provideChunk(chunkpos);
 
-                    chunk->invalidateMesh();
+
+//                    chunk->invalidateMesh();  // postpone to after-populated.
 
                     // CNS. 隐患：在密集生成区块时请求更新周围网格，可能造成过多的无用的互相更新。并且这里没有顾及到8个角
 //                    for (int i = 0; i < 6; ++i) {
