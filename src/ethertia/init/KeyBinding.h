@@ -42,7 +42,7 @@ public:
         KEY_DEBUG_INFO      {ImGuiKey_F3,           "Debug info"},
         KEY_FULLSCREEN      {ImGuiKey_F11,          "Fullscreen"},
         KEY_COMMAND         {ImGuiKey_Slash,        "Command"},
-        //  G_ menas Gameplay category here.
+        //  G_ means Gameplay category here.
         KEY_G_DROPITEM      {ImGuiKey_Q,            "Drop item"},
         KEY_G_SPRINT        {ImGuiKey_LeftCtrl,     "Sprint"},
         KEY_G_FORWARD       {ImGuiKey_W,            "Forward"},
@@ -58,7 +58,8 @@ public:
         KEY_G_HOTBAR4       {ImGuiKey_4,            "Hotbar 4"},
         KEY_G_HOTBAR5       {ImGuiKey_5,            "Hotbar 5"},
         KEY_G_USE           {ImGuiKey_MouseRight,   "Use/Place"},
-        KEY_G_ATTACK        {ImGuiKey_MouseLeft,    "Attack/Destroy"}
+        KEY_G_ATTACK        {ImGuiKey_MouseLeft,    "Attack/Destroy"},
+        KEY_G_HOLD        {ImGuiKey_F,    "Hold"}
         ;
 
 };
