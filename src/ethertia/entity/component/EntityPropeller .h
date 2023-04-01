@@ -29,7 +29,7 @@ public:
     void rotate()
     {
         // Rotate
-        btVector3 axis(0, 1, 0); // y 轴
+        btVector3 axis = m_Rigidbody->getWorldTransform().getBasis().getColumn(1); // 法向量
         m_Rigidbody->setAngularVelocity(m_AngularVelocity * axis);
 
         // Thrust force

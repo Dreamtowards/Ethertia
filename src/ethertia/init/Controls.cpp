@@ -205,7 +205,7 @@ static void handleKeyPress()
             s_HoldingEntity = nullptr;
         } else {
             HitCursor& cur = Ethertia::getHitCursor();
-            if (cur.hitEntity)/* && !cur.hitTerrain)*/ {
+            if (cur.hitEntity && !cur.hitTerrain) {
                 s_HoldingEntity = cur.hitEntity;
                 s_HoldingEntityRelPos = cur.position - cur.hitEntity->position();
                 s_HoldingEntityDist = cur.length;
@@ -228,7 +228,6 @@ static void handleKeyPress()
         glm::vec3 force_pos = cam.position + cam.direction * s_HoldingEntityDist - s_HoldingEntityRelPos;
         s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(Mth::btVec3(force_pos));
     }
-
     if (KeyBindings::KEY_G_SITTING.isPressed())
     {
         EntityDrivingSeat* entityDrivingSeat = dynamic_cast<EntityDrivingSeat*>(Ethertia::getHitCursor().hitEntity);
