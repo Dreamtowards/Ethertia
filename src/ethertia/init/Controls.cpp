@@ -53,6 +53,8 @@ void handleMouseKey()
 
 
     // Use Item
+    static Entity* firstEntity = nullptr;
+    static Entity* secondEntity = nullptr;
     if (KeyBindings::KEY_G_USE.isPressed())
     {
         ItemStack& stack = player->getHoldingItem();
@@ -64,6 +66,28 @@ void handleMouseKey()
                 comp->onUse();
             }
             --stack.m_Amount;
+        }
+
+        // Link Object
+        if (cur.hitEntity && !cur.hitTerrain)
+        {
+
+            if (firstEntity)
+            {
+                secondEntity = cur.hitEntity;
+
+                btTransform frameInA, frameInB;
+                frameInA = firstEntity->m_Rigidbody->getWorldTransform().inverse() * secondEntity->m_Rigidbody->getWorldTransform();
+                frameInB = secondEntity->m_Rigidbody->getWorldTransform().inverse() * firstEntity->m_Rigidbody->getWorldTransform();
+                auto * fixedConstraint = new btFixedConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, frameInA, frameInB);
+                world->m_DynamicsWorld->addConstraint(fixedConstraint, true);
+
+                firstEntity = nullptr;
+                secondEntity = nullptr;
+            }else
+            {
+                firstEntity = cur.hitEntity;
+            }
         }
     }
 
@@ -205,7 +229,7 @@ static void handleKeyPress()
             s_HoldingEntity = nullptr;
         } else {
             HitCursor& cur = Ethertia::getHitCursor();
-            if (cur.hitEntity)/* && !cur.hitTerrain)*/ {
+            if (cur.hitEntity && !cur.hitTerrain) {
                 s_HoldingEntity = cur.hitEntity;
                 s_HoldingEntityRelPos = cur.position - cur.hitEntity->position();
                 s_HoldingEntityDist = cur.length;
@@ -229,7 +253,6 @@ static void handleKeyPress()
         glm::vec3 force_pos = cam.position + cam.direction * s_HoldingEntityDist - s_HoldingEntityRelPos;
         s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(Mth::btVec3(force_pos));
     }
-
     if (KeyBindings::KEY_G_SITTING.isPressed())
     {
         EntityDrivingSeat* entityDrivingSeat = dynamic_cast<EntityDrivingSeat*>(Ethertia::getHitCursor().hitEntity);
@@ -314,7 +337,7 @@ void handleHitCursor()
         EntityPropeller* propeller = dynamic_cast<EntityPropeller*>(cur.hitEntity);
         if (propeller)
         {
-            propeller->rotate();
+//            propeller->rotate();
         }
     }
     else
