@@ -48,7 +48,8 @@ public:
         Ethertia::getWorld()->m_DynamicsWorld->addConstraint(constraint, true);
     }
 
-    void removeDriver(EntityPlayer* entityPlayer) {
+    // Remove constraint
+    void removeDriver() {
         driver = nullptr;
         Ethertia::getWorld()->m_DynamicsWorld->removeConstraint(current_constraint);
         current_constraint = nullptr;

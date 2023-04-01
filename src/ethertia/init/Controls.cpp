@@ -192,8 +192,22 @@ static void handleKeyPress()
             Dbg::dbg_ViewBasis = true;
         }
     }
-
-
+    if (KeyBindings::KEY_G_HOLD.isPressed())
+    {
+        //Constrain the object directly in front of the camera at all times
+        Entity* target_entity = dynamic_cast<Entity*>(Ethertia::getHitCursor().hitEntity);
+        if (target_entity && !Ethertia::getHitCursor().hitTerrain)
+        {
+            btVector3 cameraPosition = Mth::btVec3(Ethertia::getCamera().actual_pos);
+            btVector3 cameraForward = Mth::btVec3(Ethertia::getCamera().direction);
+            btScalar distance = 10.0f;
+            btVector3 objectPosition = cameraPosition + cameraForward * distance;
+            target_entity->m_Rigidbody->getWorldTransform().setOrigin(objectPosition);
+            target_entity->m_Rigidbody->getWorldTransform().setBasis(btMatrix3x3(cameraForward.getX(), 0.0f, 0.0f,
+                                                             0.0f, cameraForward.getY(), 0.0f,
+                                                             0.0f, 0.0f, cameraForward.getZ()));
+        }
+    }
 }
 
 
