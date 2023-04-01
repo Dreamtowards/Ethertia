@@ -192,21 +192,42 @@ static void handleKeyPress()
             Dbg::dbg_ViewBasis = true;
         }
     }
+
+
+    static Entity* s_HoldingEntity = nullptr;  // use this persistent instead of get hitEntity every time, prevents lost of tracking
+    static glm::vec3 s_HoldingEntityRelPos;  // precisely hold the hitPoint & hitDistance
+    static float s_HoldingEntityDist;
+
+    //Constrain the object directly in front of the camera at all times
     if (KeyBindings::KEY_G_HOLD.isPressed())
     {
-        //Constrain the object directly in front of the camera at all times
-        Entity* target_entity = dynamic_cast<Entity*>(Ethertia::getHitCursor().hitEntity);
-        if (target_entity && !Ethertia::getHitCursor().hitTerrain)
-        {
-            btVector3 cameraPosition = Mth::btVec3(Ethertia::getCamera().actual_pos);
-            btVector3 cameraForward = Mth::btVec3(Ethertia::getCamera().direction);
-            btScalar distance = 10.0f;
-            btVector3 objectPosition = cameraPosition + cameraForward * distance;
-            target_entity->m_Rigidbody->getWorldTransform().setOrigin(objectPosition);
-            target_entity->m_Rigidbody->getWorldTransform().setBasis(btMatrix3x3(cameraForward.getX(), 0.0f, 0.0f,
-                                                             0.0f, cameraForward.getY(), 0.0f,
-                                                             0.0f, 0.0f, cameraForward.getZ()));
+        if (s_HoldingEntity) {
+            s_HoldingEntity = nullptr;
+        } else {
+            HitCursor& cur = Ethertia::getHitCursor();
+            if (cur.hitEntity)/* && !cur.hitTerrain)*/ {
+                s_HoldingEntity = cur.hitEntity;
+                s_HoldingEntityRelPos = cur.position - cur.hitEntity->position();
+                s_HoldingEntityDist = cur.length;
+            }
         }
+    }
+    if (s_HoldingEntity)
+    {
+        btVector3 cameraPosition = Mth::btVec3(Ethertia::getCamera().position);
+        btVector3 cameraForward = Mth::btVec3(Ethertia::getCamera().direction);
+        btScalar distance = 10.0f;
+        btVector3 objectPosition = cameraPosition + cameraForward * distance;
+        s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(objectPosition);
+        // seems this have not rotate 'correctly.?' if you want rotation as cam-dir, maybe can use Quaternion e.g. setBasis(to_mat3(to_quat(camDir)))
+//            target_entity->m_Rigidbody->getWorldTransform().setBasis(btMatrix3x3(cameraForward.getX(), 0.0f, 0.0f,
+//                                                             0.0f, cameraForward.getY(), 0.0f,
+//                                                             0.0f, 0.0f, cameraForward.getZ()));
+
+        Camera& cam = Ethertia::getCamera();
+        glm::vec3 force_pos = cam.position + cam.direction * s_HoldingEntityDist - s_HoldingEntityRelPos;
+        s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(Mth::btVec3(force_pos));
+
     }
 }
 

@@ -21,7 +21,11 @@ public:
     float fov = 90;
     glm::vec3 eulerAngles;  // ORDER: YXZ
 
+private:
+    // Do not use this, this just temporary for Debug.
+    // Actual view pos (3rd view + length)
     glm::vec3 actual_pos;
+public:
 
     glm::vec3 direction;  // readonly. produced by EulerAngles.
     float len;

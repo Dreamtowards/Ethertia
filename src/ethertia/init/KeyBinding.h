@@ -25,7 +25,7 @@ DECL_RegistryId(m_Name);
     }
 
 
-    bool isPressed()  { return ImGui::IsKeyPressed(m_Key); }  // once, from !Down to Down
+    bool isPressed(bool repeat=false)  { return ImGui::IsKeyPressed(m_Key, repeat); }  // once, from !Down to Down
     bool isReleased() { return ImGui::IsKeyReleased(m_Key); }
     bool isKeyDown()  { return ImGui::IsKeyDown(m_Key); }  // is hold
 

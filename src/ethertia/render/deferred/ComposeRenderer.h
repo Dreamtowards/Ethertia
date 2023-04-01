@@ -74,7 +74,7 @@ public:
         shaderCompose->useProgram();
 
         Camera& cam = Ethertia::getCamera();
-        shaderCompose->setVector3f("CameraPos", cam.actual_pos);
+        shaderCompose->setVector3f("CameraPos", cam.position);
         shaderCompose->setVector3f("CameraDir", cam.direction);
 
         HitCursor& cur = Ethertia::getHitCursor();
