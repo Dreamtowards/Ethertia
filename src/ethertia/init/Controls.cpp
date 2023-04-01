@@ -227,7 +227,15 @@ static void handleKeyPress()
         Camera& cam = Ethertia::getCamera();
         glm::vec3 force_pos = cam.position + cam.direction * s_HoldingEntityDist - s_HoldingEntityRelPos;
         s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(Mth::btVec3(force_pos));
+    }
 
+    if (KeyBindings::KEY_G_SITTING.isPressed())
+    {
+        EntityDrivingSeat* entityDrivingSeat = dynamic_cast<EntityDrivingSeat*>(Ethertia::getHitCursor().hitEntity);
+        if (entityDrivingSeat)
+        {
+            entityDrivingSeat->setDriver(Ethertia::getPlayer());
+        }
     }
 }
 
@@ -302,12 +310,6 @@ void handleHitCursor()
         }
 
 
-        // Hit EntityDrivingSeat Cell.
-        EntityDrivingSeat* drivingSeat = dynamic_cast<EntityDrivingSeat*>(cur.hitEntity);
-        if (drivingSeat)
-        {
-            drivingSeat->setDriver(Ethertia::getPlayer());
-        }
         EntityPropeller* propeller = dynamic_cast<EntityPropeller*>(cur.hitEntity);
         if (propeller)
         {

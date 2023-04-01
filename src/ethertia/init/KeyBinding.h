@@ -59,7 +59,8 @@ public:
         KEY_G_HOTBAR5       {ImGuiKey_5,            "Hotbar 5"},
         KEY_G_USE           {ImGuiKey_MouseRight,   "Use/Place"},
         KEY_G_ATTACK        {ImGuiKey_MouseLeft,    "Attack/Destroy"},
-        KEY_G_HOLD        {ImGuiKey_F,    "Hold"}
+        KEY_G_HOLD          {ImGuiKey_F,            "Hold"},
+        KEY_G_SITTING       {ImGuiKey_G,            "Sit"}
         ;
 
 };
