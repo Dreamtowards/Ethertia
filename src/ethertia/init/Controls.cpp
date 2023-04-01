@@ -241,17 +241,16 @@ static void handleKeyPress()
     {
         btVector3 cameraPosition = Mth::btVec3(Ethertia::getCamera().position);
         btVector3 cameraForward = Mth::btVec3(Ethertia::getCamera().direction);
-        btScalar distance = 10.0f;
-        btVector3 objectPosition = cameraPosition + cameraForward * distance;
+        btVector3 objectPosition = cameraPosition + cameraForward * s_HoldingEntityDist - Mth::btVec3(s_HoldingEntityRelPos);
         s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(objectPosition);
         // seems this have not rotate 'correctly.?' if you want rotation as cam-dir, maybe can use Quaternion e.g. setBasis(to_mat3(to_quat(camDir)))
 //            target_entity->m_Rigidbody->getWorldTransform().setBasis(btMatrix3x3(cameraForward.getX(), 0.0f, 0.0f,
 //                                                             0.0f, cameraForward.getY(), 0.0f,
 //                                                             0.0f, 0.0f, cameraForward.getZ()));
 
-        Camera& cam = Ethertia::getCamera();
-        glm::vec3 force_pos = cam.position + cam.direction * s_HoldingEntityDist - s_HoldingEntityRelPos;
-        s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(Mth::btVec3(force_pos));
+//        Camera& cam = Ethertia::getCamera();
+//        glm::vec3 force_pos = cam.position + cam.direction * s_HoldingEntityDist - s_HoldingEntityRelPos;
+//        s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(Mth::btVec3(force_pos));
     }
     if (KeyBindings::KEY_G_SITTING.isPressed())
     {

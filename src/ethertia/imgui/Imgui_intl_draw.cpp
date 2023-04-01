@@ -610,6 +610,8 @@ static void ShowEntityInsp()
     ImGui::End();
 }
 
+#include <ethertia/init/ItemTextures.h>
+
 static void ShowEntities()
 {
     ImGui::Begin("Entities", &Settings::w_EntityList);
@@ -658,6 +660,24 @@ static void ShowEntities()
         }
         if (ImGui::MenuItem("Light")) {
 
+        }
+        ImGui::SeparatorText("Items");
+
+        for (auto& it : Item::REGISTRY)
+        {
+            if (ImGui::MenuItem(it.first.c_str()))
+            {
+
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::BeginTooltip();
+                float n = Item::REGISTRY.size();
+                float i = Item::REGISTRY.getOrderId((Item*)it.second);
+                ImVec2 uvMin = {i/n, 1};
+                ImVec2 uvSize = {1.0f/n, -1};
+                ImGui::Image(ItemTextures::ITEM_ATLAS->pTexId(), {64, 64}, uvMin, uvMin+uvSize);
+                ImGui::EndTooltip();
+            }
         }
 
         if (disabledDueNoWorld) {
@@ -1808,7 +1828,7 @@ static void ShowGameViewport()
     {
         float hotbarSize = 45;
         float hotbarGap = 4;
-        ImVec2 min = {vp.x,
+        ImVec2 min = {vp.x + hotbarGap,
                       vp.y + vp.height - hotbarSize - hotbarGap};
         ImVec2 size = {hotbarSize, hotbarSize};
         ImU32 col_bg = ImGui::GetColorU32(ImGuiCol_Button);
