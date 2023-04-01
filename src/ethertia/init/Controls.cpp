@@ -208,6 +208,14 @@ static void handleKeyPress()
                                                              0.0f, 0.0f, cameraForward.getZ()));
         }
     }
+    if (KeyBindings::KEY_G_SITTING.isPressed())
+    {
+        EntityDrivingSeat* entityDrivingSeat = dynamic_cast<EntityDrivingSeat*>(Ethertia::getHitCursor().hitEntity);
+        if (entityDrivingSeat)
+        {
+            entityDrivingSeat->setDriver(Ethertia::getPlayer());
+        }
+    }
 }
 
 
@@ -281,12 +289,6 @@ void handleHitCursor()
         }
 
 
-        // Hit EntityDrivingSeat Cell.
-        EntityDrivingSeat* drivingSeat = dynamic_cast<EntityDrivingSeat*>(cur.hitEntity);
-        if (drivingSeat)
-        {
-            drivingSeat->setDriver(Ethertia::getPlayer());
-        }
         EntityPropeller* propeller = dynamic_cast<EntityPropeller*>(cur.hitEntity);
         if (propeller)
         {

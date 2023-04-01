@@ -28,6 +28,14 @@ public:
 
     // Restrict driver in seat
     void setDriver(EntityPlayer* entityPlayer) {
+
+        // If sit already contains driver, remove.
+        if (driver != nullptr)
+        {
+            removeDriver();
+            return;
+        }
+
         driver = entityPlayer;
 
         btTransform frameInA, frameInB;
