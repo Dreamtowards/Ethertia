@@ -194,9 +194,9 @@ static void handleKeyPress()
     }
 
 
-    static Entity* s_HoldingEntity = nullptr;  // use this persistent instead of get hitEntity every time, prevents lost of tracking
-    static glm::vec3 s_HoldingEntityRelPos;  // precisely hold the hitPoint & hitDistance
-    static float s_HoldingEntityDist;
+    static Entity*      s_HoldingEntity = nullptr;  // use this persistent instead of get hitEntity every time, prevents lost of tracking
+    static glm::vec3    s_HoldingEntityRelPos;  // precisely hold the hitPoint & hitDistance
+    static float        s_HoldingEntityDist;
 
     //Constrain the object directly in front of the camera at all times
     if (KeyBindings::KEY_G_HOLD.isPressed())
@@ -212,6 +212,7 @@ static void handleKeyPress()
             }
         }
     }
+    // (tmp) update for HoldingEntity above
     if (s_HoldingEntity)
     {
         btVector3 cameraPosition = Mth::btVec3(Ethertia::getCamera().position);

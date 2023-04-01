@@ -61,7 +61,6 @@ public:
         float noiseTerrHeight[16*16];
         fnFrac->GenUniformGrid2D(noiseTerrHeight, chunkpos.x, chunkpos.z, 16, 16, 1 / 400.0f, seed);
 
-        int idxXZY = 0;
         for (int rx = 0; rx < 16; ++rx) {
             for (int ry = 0; ry < 16; ++ry) {
                 for (int rz = 0; rz < 16; ++rz) {  // rz*256+ry*16+rx
@@ -69,19 +68,19 @@ public:
                           y = chunkpos.y + ry,
                           z = chunkpos.z + rz;
 
-                    float terr = noiseTerrHeight[NoiseGen::IdxXZ(rx, rz)];// - terrRg.min;
+                    float terr2d = noiseTerrHeight[NoiseGen::IdxXZ(rx, rz)];// - terrRg.min;
                     float noise3d = noiseVal[NoiseGen::Idx3(rx,ry,rz)];
 
-                    float f = terr - y/64.0f;//
+                    float f = terr2d - y/50.0f;
 
-                    if (f > -0.2) {
-                        float add = Mth::max(0.0f, noise3d * 8);
-                        if (f < -0.4) {
-                            f = Mth::lerp(0.5f, f, add);
-                        } else {
-                            f += add;
-                        }
-                    }
+//                    if (f > -0.2) {
+//                        float add = noise3d * 8;//Mth::max(0.0f, noise3d * 8);
+//                        if (f < -0.4) {
+//                            f = Mth::lerp(0.5f, f, add);
+//                        } else {
+                            f += noise3d * 18;
+//                        }
+//                    }
 
 
                     Material* mtl = 0;

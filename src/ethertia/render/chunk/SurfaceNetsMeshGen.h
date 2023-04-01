@@ -57,6 +57,19 @@ public:
         return std::isnan(v.x) || std::isnan(v.y) || std::isnan(v.z);
     }
 
+    // Gradient
+    static glm::vec3 _EvalNormGrad(glm::vec3 p, Chunk* chunk)
+    {
+        const float E = 1.0f;  // Epsilon
+        float denom = 1.0f / (2.0f * E);
+        using glm::vec3;
+        return glm::normalize(glm::vec3(
+                chunk->g_cell(p + vec3(E,0,0)).density - chunk->g_cell(p - vec3(E,0,0)).density,
+                chunk->g_cell(p + vec3(0,E,0)).density - chunk->g_cell(p - vec3(0,E,0)).density,
+                chunk->g_cell(p + vec3(0,0,E)).density - chunk->g_cell(p - vec3(0,0,E)).density
+        ) * denom);
+    }
+
     static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf) {
 
 //        for (int rx = 0; rx < 16; ++rx) {
@@ -91,15 +104,20 @@ public:
 
                                 vec3 quadp = rp + ADJACENT[axis_i][wind_vi];
 
-                                vec3& fp = World::_GetCell(chunk, quadp).fp;
+                                Cell& c = World::_GetCell(chunk, quadp);
+                                vec3& fp = c.fp;
                                 if (fp.x == Mth::Inf) {  // only eval invalid cell.
                                     fp = featurepoint(quadp, chunk);
+                                    c.norm = _EvalNormGrad(quadp, chunk);
                                 }
 
                                 assert(!_hasnan(fp));
                                 vec3 p = quadp + fp;
 
                                 vbuf->addpos(p);
+
+
+                                vbuf->addnorm(-c.norm);
 
                                 // determine the MtlId of 8 corners. use Nearest Positive Density Corner.
                                 float min_dist = Mth::Inf;
@@ -115,10 +133,6 @@ public:
                                 ASSERT_WARN(mtl != 0, "MtlId == 0 Cell.");
 
                                 vbuf->add_uv_mtl_pure(mtl ? mtl->m_TexId : 0);
-
-//                                if (mtl == Materials::MOSS) {
-//                                    grass_fp.push_back(quadp + fp);
-//                                }
 
                             }
                         }

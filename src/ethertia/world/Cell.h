@@ -18,6 +18,7 @@ public:
     char exp_meta = 0;  // tmp: 1=block.
 
     glm::vec3 fp{Mth::Inf};  // featurepoint cache. in-cell.
+    glm::vec3 norm;  // cache gradient (point normal). valid as fp.x != Inf. differentiated of nearby cell densities.
 
     Cell(Material* _mtl = nullptr, float _density = 0.0f) : mtl(_mtl), density(_density) {}
 

@@ -43,6 +43,15 @@ public:
         return simplex;
     }
 
+    template<typename NoiseType>
+    static const FastNoise::SmartNode<NoiseType>& Generator() {
+        static FastNoise::SmartNode<NoiseType> _inst = FastNoise::New<NoiseType>(g_SIMDLevel);
+        return _inst;
+    }
+    static const FastNoise::SmartNode<FastNoise::CellularValue>& CellularValue() {
+        return Generator<FastNoise::CellularValue>();
+    }
+
 
     inline static int IdxXZ(int rx, int rz) {
         return rz*16 + rx;

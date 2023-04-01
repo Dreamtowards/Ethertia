@@ -132,6 +132,11 @@ public:
         requestRemodel();
     }
 
+    // Effective Get Cell on WorldWide.
+    Cell& g_cell(glm::vec3 worldp) {
+        return World::_GetCell(this, worldp);
+    }
+
 };
 
 #endif //ETHERTIA_CHUNK_H

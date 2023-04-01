@@ -107,8 +107,10 @@ public:
 
             checkNonNaN(vbufTerrain->positions.data(), vbufTerrain->vertexCount()*3);
 
-            vbufTerrain->normals.resize(vbufTerrain->vertexCount() * 3);
-            VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
+            assert(vbufTerrain->normals.size() == vbufTerrain->vertexCount() * 3);
+//            vbufTerrain->normals.resize(vbufTerrain->vertexCount() * 3);
+//            VertexProcess::othonorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->normals.data());
+//            VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
 
             vbufVegetable->normals.resize(vbufVegetable->vertexCount() * 3);
             VertexProcess::set_all_vec3(vbufVegetable->normals.data(), vbufVegetable->vertexCount(), {0,1,0});

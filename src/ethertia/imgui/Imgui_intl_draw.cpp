@@ -1690,51 +1690,9 @@ static void ShowDebugTextOverlay()
 //    ImGui::PopStyleVar(2);
 }
 
-static void ShowGameViewport()
+
+static void DrawViewportDebugs()
 {
-    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
-
-    static ImGuiID _ViewportLastDockId = 0;
-    static bool _RequestSetBackToLastDock = false;  // when just cancel full viewport
-
-    // WorkArea: menubars
-    if (Settings::w_Viewport_Full)
-    {
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
-
-        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;  // ImGuiWindowFlags_NoDocking
-        _RequestSetBackToLastDock = true;
-    } else if (_RequestSetBackToLastDock) {
-        _RequestSetBackToLastDock = false;
-        ImGui::SetNextWindowDockID(_ViewportLastDockId);
-    }
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-    ImGui::Begin("Viewport", &Settings::w_Viewport, windowFlags);
-    ImGui::PopStyleVar(2);
-
-    if (ImGui::GetWindowDockID()) {
-        _ViewportLastDockId = ImGui::GetWindowDockID();
-    }
-
-    ImVec2 size = Imgui::GetWindowContentSize();
-    ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
-    Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
-
-    Imgui::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
-    ImGui::SetCursorPos({0,0});
-    ImGui::InvisibleButton("PreventsGameWindowMove", size);
-
-
-    ImGuizmo::BeginFrame();
-    ImGuizmo::SetOrthographic(false);
-    ImGuizmo::SetDrawlist();
-    auto& vp = Ethertia::getViewport();
-    ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
-
 
     if (Dbg::dbg_ViewGizmo)
     {
@@ -1742,7 +1700,7 @@ static void ShowGameViewport()
         auto& vp = Ethertia::getViewport();
         ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
                                  ImVec2(vp.right()-128-24, vp.y+24), ImVec2(128, 128),
-                                 //0x10101010
+                //0x10101010
                                  0);
     }
     if (Dbg::dbg_WorldHintGrids > 0)
@@ -1793,6 +1751,75 @@ static void ShowGameViewport()
             world->forLoadedChunks([&](Chunk* chunk){
                 RenderEngine::drawLineBox(chunk->position, glm::vec3{16.0f}, Colors::RED);
             });
+        }
+    }
+
+}
+
+static void ShowGameViewport()
+{
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
+
+    static ImGuiID _ViewportLastDockId = 0;
+    static bool _RequestSetBackToLastDock = false;  // when just cancel full viewport
+
+    // WorkArea: menubars
+    if (Settings::w_Viewport_Full)
+    {
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+
+        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;  // ImGuiWindowFlags_NoDocking
+        _RequestSetBackToLastDock = true;
+    } else if (_RequestSetBackToLastDock) {
+        _RequestSetBackToLastDock = false;
+        ImGui::SetNextWindowDockID(_ViewportLastDockId);
+    }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+    ImGui::Begin("Viewport", &Settings::w_Viewport, windowFlags);
+    ImGui::PopStyleVar(2);
+
+    if (ImGui::GetWindowDockID()) {
+        _ViewportLastDockId = ImGui::GetWindowDockID();
+    }
+
+    ImVec2 size = Imgui::GetWindowContentSize();
+    ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
+    Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
+
+    Imgui::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
+    ImGui::SetCursorPos({0,0});
+    ImGui::InvisibleButton("PreventsGameWindowMove", size);
+
+
+    ImGuizmo::BeginFrame();
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist();
+    auto& vp = Ethertia::getViewport();
+    ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
+
+
+    DrawViewportDebugs();
+
+
+    {
+        float hotbarSize = 45;
+        float hotbarGap = 4;
+        ImVec2 min = {vp.x,
+                      vp.y + vp.height - hotbarSize - hotbarGap};
+        ImVec2 size = {hotbarSize, hotbarSize};
+        ImU32 col_bg = ImGui::GetColorU32(ImGuiCol_Button);
+
+        // Player Inventory Hotbar
+        EntityPlayer* player = Ethertia::getPlayer();
+        for (int i = 0; i < player->m_Inventory.size(); ++i)
+        {
+            ImGui::RenderFrame(min, min+size, col_bg);
+
+            min.x += hotbarSize + hotbarGap;
         }
     }
 
