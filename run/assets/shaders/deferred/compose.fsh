@@ -28,6 +28,8 @@ uniform mat4 matInvProjection;
 
 uniform mat4 matShadowSpace;
 
+uniform vec3 dbg_Color;
+
 uniform float debugVar0 = 0;
 uniform float debugVar1 = 0;
 uniform float debugVar2 = 0;
@@ -154,10 +156,11 @@ void main() {
     vec3 SkyBg = vec3(0.529, 0.808, 0.957);
     vec3 SkyTop = vec3(0.298, 0.612, 0.831);
 
+    SkyTop = dbg_Color;
 //    SkyTop = vec3(0.16, 0.27, 0.45);   // Shader DarkBlue
 //    SkyBg = vec3(0.51, 0.75, 0.83);
-    SkyTop = vec3(0.247, 0.494, 0.761);  // DeepBlueSky
-    SkyBg = vec3(0.471, 0.745, 0.933);
+//    SkyTop = vec3(0.247, 0.394, 0.761);  // DeepBlueSky
+//    SkyBg = vec3(0.471, 0.745, 0.933);
 //    SkyTop = vec3(0.576, 0.569, 0.969); // MC Purple #9391f7
 //    SkyBg = vec3(0.659, 0.718, 0.965);
 //    SkyTop = vec3(0.31, 0.31, 0.41);  // Glow Sunset
@@ -203,7 +206,8 @@ void main() {
 
     float Shadow = CalcShadow(FragPos);
 
-    vec3 Lighting = (Ambient + (1.0 - Shadow) * (sumDiffuse + sumSpecular)) * Albedo;
+    vec3 Lighting = (Ambient + (1.0 - Shadow) *
+                    (sumDiffuse + sumSpecular)) * Albedo;
 
     FragColor = vec4(Lighting, 1.0);
 
@@ -241,10 +245,11 @@ void main() {
 
     if (_PosDepth.w == 1.0f) {
 
-        float skydist = max(0, rayDisk(RayPos, RayDir, vec3(0,100, 0), vec3(0,1,0), 99000));
-        float skyTopColorFactor = skydist == 0 ? 0 : max(0, 1.0 - skydist / 400);
+//        float skydist = max(0, rayDisk(RayPos, RayDir, vec3(0,100, 0), vec3(0,1,0), 999999));
+//        float skyTopColorFactor = skydist == 0 ? 0 : max(0, 1.0 - skydist / 800);
+        float f = abs(dot(vec3(0,1,0), RayDir));
 
-        FragColor.rgb = mix(SkyBg,SkyTop, skyTopColorFactor);
+        FragColor.rgb = mix(SkyBg,SkyTop, min(1, f *2.5));
         FragColor.a = 0;//skyTopColorFactor;
 //        discard;
         //FragColor.rgb = bgSkyColor;

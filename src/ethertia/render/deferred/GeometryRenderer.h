@@ -16,7 +16,7 @@
 class GeometryRenderer
 {
 public:
-    DECL_SHADER(SHADER, "shaders/chunk/geometry.{}");
+    DECL_SHADER(SHADER, "shaders/deferred/gbuffer.{}");
 
     inline static Framebuffer* fboGbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
 
@@ -28,8 +28,8 @@ public:
         SHADER->setInt("diffuseMap", 0);
         SHADER->setInt("normalMap", 1);
         SHADER->setInt("dramMap", 2);
-
         SHADER->setFloat("MtlCap", Material::REGISTRY.size());
+
 
         SHADER->m_Uniforms["MtlTexScale"].bind(&u_MaterialTextureScale);
 
@@ -55,6 +55,14 @@ public:
 
     static void render(VertexArrays* vao, glm::vec3 pos, glm::mat3 rot, Texture* diff, float vertexWaving = 0)
     {
+        // tmp add for ReloadShader
+        SHADER->useProgram();
+        SHADER->setInt("diffuseMap", 0);
+        SHADER->setInt("normalMap", 1);
+        SHADER->setInt("dramMap", 2);
+        SHADER->setFloat("MtlCap", Material::REGISTRY.size());
+
+
         if (diff)
         {
             diff->BindTexture(0);

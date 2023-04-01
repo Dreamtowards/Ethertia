@@ -9,12 +9,13 @@
 // take certain input: gPositionDepth, gNormal, gAlbedoSpec
 
 #include <ethertia/render/RenderEngine.h>
+#include <ethertia/init/DebugStat.h>
 
 class ComposeRenderer
 {
 public:
 
-    inline static ShaderProgram* shaderCompose = ShaderProgram::decl("shaders/compose/compose.{}");
+    inline static ShaderProgram* shaderCompose = ShaderProgram::decl("shaders/deferred/compose.{}");
 
     // Deferred Rendering Compose FBO
     inline static Framebuffer* fboCompose = nullptr;
@@ -52,6 +53,15 @@ public:
                               Texture* gShadowMap, glm::mat4 matShadowSpace,
                               const std::vector<Light*>& lights)
     {
+        // tmp add for debug ReloadShader
+        shaderCompose->useProgram();
+        shaderCompose->setInt("gPositionDepth", 0);
+        shaderCompose->setInt("gNormal", 1);
+        shaderCompose->setInt("gAlbedoRoughness", 2);
+        shaderCompose->setInt("gAmbientOcclusion", 3);
+        shaderCompose->setInt("gShadowMap", 4);  // Shadow Depth Map.
+
+
         gPositionDepth   ->BindTexture(0);
         gNormal          ->BindTexture(1);
         gAlbedoRoughness ->BindTexture(2);
@@ -71,6 +81,7 @@ public:
         shaderCompose->setVector3f("cursorPos", cur.cell ? cur.cell_position : glm::vec3{0,0,0});
         shaderCompose->setFloat("cursorSize", cur.brushSize);
 
+        shaderCompose->setVector3f("dbg_Color", Dbg::dbg_ShaderDbgColor);
 //
 //        shaderCompose.setFloat("debugVar0", debugVar0);
 //        shaderCompose->setFloat("debugVar1", EntityRenderer::debugVar1);

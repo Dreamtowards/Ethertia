@@ -32,9 +32,13 @@ GLuint loadShader(GLuint shader_type, const char* src, const char* err_iden) {
 
 void ShaderProgram::load(const char *vsh_src, const char *fsh_src, const char *gsh_src)
 {
-    if (!m_ProgramId) {
-        m_ProgramId = glCreateProgram();
+//    if (!m_ProgramId) {
+//        m_ProgramId = glCreateProgram();
+//    }
+    if (m_ProgramId) {
+        glDeleteProgram(m_ProgramId);
     }
+    m_ProgramId = glCreateProgram();
 
     m_Good = true;
 
