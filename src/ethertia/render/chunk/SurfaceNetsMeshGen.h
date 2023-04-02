@@ -58,15 +58,15 @@ public:
     }
 
     // Gradient
-    static glm::vec3 _EvalNormGrad(glm::vec3 p, Chunk* chunk)
+    static glm::vec3 _EvalNormGrad(glm::vec3 p, Chunk* chunk, float c_dens)
     {
         const float E = 1.0f;  // Epsilon
         float denom = 1.0f / (2.0f * E);
         using glm::vec3;
         return glm::normalize(glm::vec3(
-                chunk->g_cell(p + vec3(E,0,0)).density - chunk->g_cell(p - vec3(E,0,0)).density,
-                chunk->g_cell(p + vec3(0,E,0)).density - chunk->g_cell(p - vec3(0,E,0)).density,
-                chunk->g_cell(p + vec3(0,0,E)).density - chunk->g_cell(p - vec3(0,0,E)).density
+                chunk->g_cell(p + vec3(E,0,0)).density -  /*c_dens,*/chunk->g_cell(p - vec3(E,0,0)).density,
+                chunk->g_cell(p + vec3(0,E,0)).density -  /*c_dens,*/chunk->g_cell(p - vec3(0,E,0)).density,
+                chunk->g_cell(p + vec3(0,0,E)).density -  /*c_dens */chunk->g_cell(p - vec3(0,0,E)).density
         ) * denom);
     }
 
@@ -108,7 +108,7 @@ public:
                                 vec3& fp = c.fp;
                                 if (fp.x == Mth::Inf) {  // only eval invalid cell.
                                     fp = featurepoint(quadp, chunk);
-                                    c.norm = _EvalNormGrad(quadp, chunk);
+                                    c.norm = _EvalNormGrad(quadp, chunk, c.density);
                                 }
 
                                 assert(!_hasnan(fp));

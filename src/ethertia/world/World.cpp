@@ -153,7 +153,8 @@ Chunk* World::provideChunk(glm::vec3 p)  {
 }
 
 
-void World::saveUnloadedChunks() {
+void World::saveUnloadedChunks()
+{
     // chunks will be force save when: 1. 太多区块在卸载列表 2. 太久没保存
     LOCK_GUARD(m_LockUnloadedChunks);
 

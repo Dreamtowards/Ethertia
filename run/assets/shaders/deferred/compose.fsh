@@ -182,7 +182,7 @@ void main() {
 
         // Diffuse
         vec3 FragToLight = normalize(light.position - FragPos);
-        vec3 Diffuse = light.color * Albedo * max(0.0, dot(FragToLight, Norm));
+        vec3 Diffuse = light.color * Albedo * max(0.24, dot(FragToLight, Norm));
 
         // Specular
         // vec3 lightReflect = reflect(-FragToLight, Norm);
@@ -206,7 +206,7 @@ void main() {
 
     float Shadow = CalcShadow(FragPos);
 
-    vec3 Lighting = (Ambient + (1.0 - Shadow) *
+    vec3 Lighting = (Ambient + max(0.2, (1.0 - Shadow)) *
                     (sumDiffuse + sumSpecular)) * Albedo;
 
     FragColor = vec4(Lighting, 1.0);
@@ -241,6 +241,7 @@ void main() {
     vec3 RayDir = CalcPixelRay();
 
 
+//    FragColor.rgb = Norm;
 
 
     if (_PosDepth.w == 1.0f) {
