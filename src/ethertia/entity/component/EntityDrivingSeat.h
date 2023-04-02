@@ -11,7 +11,7 @@
 class EntityDrivingSeat : public Entity
 {
     EntityPlayer* driver = nullptr;
-    btGeneric6DofConstraint* current_constraint = nullptr;
+    btPoint2PointConstraint* current_constraint = nullptr;
 
 public:
     EntityDrivingSeat()
@@ -38,18 +38,10 @@ public:
 
         driver = entityPlayer;
 
-        btTransform frameInA, frameInB;
-        frameInA.setIdentity();
-        frameInB.setIdentity();
-        frameInA.setOrigin(btVector3(0.0, 1.5, 0.0));
-        frameInB.setOrigin(btVector3(0.0, 0.0, 0.0));
+        btVector3 pivot1 = btVector3(0, 0, 0);
+        btVector3 pivot2 = btVector3(0, -1.5, 0);
 
-        auto* constraint = new btGeneric6DofConstraint(*m_Rigidbody, *(entityPlayer->m_Rigidbody), frameInA, frameInB, true);
-
-        constraint->setLinearLowerLimit(btVector3(0, 0, 0));
-        constraint->setLinearUpperLimit(btVector3(0, 0, 0));
-        constraint->setAngularLowerLimit(btVector3(0, 0, 0));
-        constraint->setAngularUpperLimit(btVector3(0, 0, 0));
+        auto* constraint = new btPoint2PointConstraint(*m_Rigidbody, *(entityPlayer->m_Rigidbody), pivot1, pivot2);
 
         current_constraint = constraint;
 
