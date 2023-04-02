@@ -19,7 +19,7 @@ class EntityHelicopter : public EntityVehicle
     // 那个player里的delta是当前帧时间.. 因为帧率可能会波动 不应该影响运动速度 所以*dt
 
     // CNS. 螺旋桨 发动机推力
-    float m_EngineForce = 8000;
+    float m_EngineForce = 10000;
 
 public:
     EntityHelicopter()

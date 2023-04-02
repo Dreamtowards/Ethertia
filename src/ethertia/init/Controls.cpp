@@ -68,7 +68,7 @@ void handleMouseKey()
             --stack.m_Amount;
         }
 
-        // Link Object
+        // Right click two object and link them
         if (cur.hitEntity && !cur.hitTerrain)
         {
 
@@ -77,9 +77,12 @@ void handleMouseKey()
                 secondEntity = cur.hitEntity;
 
                 btTransform frameInA, frameInB;
-                frameInA = firstEntity->m_Rigidbody->getWorldTransform().inverse() * secondEntity->m_Rigidbody->getWorldTransform();
-                frameInB = secondEntity->m_Rigidbody->getWorldTransform().inverse() * firstEntity->m_Rigidbody->getWorldTransform();
-                auto * fixedConstraint = new btFixedConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, frameInA, frameInB);
+                frameInA = firstEntity->m_Rigidbody->getWorldTransform();
+                frameInB = secondEntity->m_Rigidbody->getWorldTransform();
+
+                btTransform relTrans = frameInA.inverseTimes(frameInB);
+
+                auto * fixedConstraint = new btFixedConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, relTrans, btTransform::getIdentity());
                 world->m_DynamicsWorld->addConstraint(fixedConstraint, true);
 
                 firstEntity = nullptr;
