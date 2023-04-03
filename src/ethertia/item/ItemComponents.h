@@ -73,5 +73,22 @@ public:
 };
 
 
+// Apply bullet constraint on two entity with different constraint type and locations
+class ItemComponentToolUniversalLinkTool : public ItemComponentTool
+{
+public:
+    enum ToolMode {Point2Point, Hinge, Generic6Dof};
+    ToolMode currentMode = Point2Point;
+
+    // Location relative to its entity.
+    Entity* firstEntity = nullptr;
+    btTransform firstLocation = btTransform::getIdentity();
+
+    Entity* secondEntity = nullptr;
+    btTransform secondLocation = btTransform::getIdentity();
+    void onUse() override;
+
+};
+
 
 #endif //ETHERTIA_ITEMCOMPONENTS_H

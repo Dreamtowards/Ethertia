@@ -76,3 +76,52 @@ void ItemComponentToolGrapple::onUse()
 
     Ethertia::getPlayer()->applyLinearVelocity(dir * 24.3f);
 }
+
+void ItemComponentToolUniversalLinkTool::onUse()
+{
+    bool isHitTerrain = !Ethertia::getHitCursor().hitTerrain;
+    Entity* hitEntity = Ethertia::getHitCursor().hitEntity;
+
+    if (hitEntity && !isHitTerrain)
+    {
+        if (firstEntity)
+        {
+            secondEntity = hitEntity;
+            secondLocation.setOrigin(Mth::btVec3(Ethertia::getHitCursor().position));
+
+            // Reset two joints
+            firstEntity = nullptr;
+            firstLocation.setIdentity();
+
+            secondEntity = nullptr;
+            secondLocation.setIdentity();
+        } else
+        {
+            firstEntity = hitEntity;
+            firstLocation.setOrigin(Mth::btVec3(Ethertia::getHitCursor().position));
+        }
+    }
+    if (firstEntity && secondEntity)
+    {
+        switch (currentMode) {
+            case Point2Point:
+            {
+                auto* point2pointConstraint = new btPoint2PointConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, firstLocation.getOrigin(), secondLocation.getOrigin());
+                Ethertia::getWorld()->m_DynamicsWorld->addConstraint(point2pointConstraint);
+                break;
+            }
+            case Hinge:
+            {
+                auto* hingeConstraint = new btHingeConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, firstLocation, secondLocation, true);
+                Ethertia::getWorld()->m_DynamicsWorld->addConstraint(hingeConstraint);
+                break;
+            }
+            case Generic6Dof:
+            {
+                auto* generic6DofConstraint = new btGeneric6DofConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, firstLocation, secondLocation, true);
+                Ethertia::getWorld()->m_DynamicsWorld->addConstraint(generic6DofConstraint);
+                break;
+            }
+        }
+    }
+}

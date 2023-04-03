@@ -25,10 +25,11 @@ public:
 
 
     // Tool
-    REGISTER_ITEM(PICKAXE,      "pickaxe",      {new ItemComponentTool()});
-    REGISTER_ITEM(GRAPPLE,      "grapple",      {new ItemComponentToolGrapple()});
-    REGISTER_ITEM(HOE,          "hoe",          {new ItemComponentTool()});
-    REGISTER_ITEM(SHEARS,       "shears",       {new ItemComponentTool()});
+    REGISTER_ITEM(PICKAXE,               "pickaxe",              {new ItemComponentTool()});
+    REGISTER_ITEM(GRAPPLE,               "grapple",              {new ItemComponentToolGrapple()});
+    REGISTER_ITEM(HOE,                   "hoe",                  {new ItemComponentTool()});
+    REGISTER_ITEM(SHEARS,                "shears",               {new ItemComponentTool()});
+    REGISTER_ITEM(UNIVERSAL_LINK_TOOL,   "universal_link_tool",  {new ItemComponentToolUniversalLinkTool()})
 
     // Craft Material
     REGISTER_ITEM(STICK,        "stick",        {new ItemComponentFuel(3.0)});

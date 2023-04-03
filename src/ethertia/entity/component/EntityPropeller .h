@@ -7,7 +7,6 @@
 
 #include "ethertia/entity/Entity.h"
 
-//A propeller that gives thrust in one direction
 class EntityPropeller : public Entity
 {
     float m_EngineForce = 1;
@@ -24,6 +23,7 @@ public:
         m_Model = M_Hel;
         initRigidbody(1, createHullShape(M_Hel->vertexCount, M_Propeller->positions.data()));
         m_Rigidbody->setFriction(0.8);
+
     }
 
     void rotate()
@@ -37,6 +37,7 @@ public:
         btVector3 force = m_EngineForce * normal;
         m_Rigidbody->applyCentralImpulse(force);
     }
+
 };
 
 #endif //ETHERTIA_ENTITYPROPELLER_H
