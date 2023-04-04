@@ -121,7 +121,11 @@ add_library(TwilightForest SHARED
         )
 
 
-
+#On linux, We can build shared libraries as default.
+if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC))
+        AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(BUILD_SHARED_LIBS ON)
+endif()
 
 if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 

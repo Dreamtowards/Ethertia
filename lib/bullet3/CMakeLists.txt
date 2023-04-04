@@ -309,7 +309,14 @@ ENDIF(COMMAND cmake_policy)
 # This is the shortcut to finding GLU, GLUT and OpenGL if they are properly installed on your system
 # This should be the case.
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+#Using GLVND to avoid GLX.
+set(OpenGL_GL_PREFERENCE GLVND)
 FIND_PACKAGE(OpenGL)
+set(OPENGL_LIBRARIES OPENGL_opengl_LIBRARY)
+else()
+FIND_PACKAGE(OpenGL)
+endif()
 IF (OPENGL_FOUND)
 	MESSAGE("OPENGL FOUND")
 	MESSAGE(${OPENGL_LIBRARIES})

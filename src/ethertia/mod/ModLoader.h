@@ -7,7 +7,7 @@
 #ifndef ETHERTIA_MODLOADER_H
 #define ETHERTIA_MODLOADER_H
 
-#ifdef __APPLE__
+#if defined(__APPLE__)|| defined(__linux)
 #include <dlfcn.h>
 #elif __WIN32__
 #include <windows.h>
@@ -61,7 +61,7 @@ public:
 
     static bool loadModProgram(const char* file)
     {
-#ifdef __APPLE__
+#if defined(__APPLE__)|| defined(__linux)
 
         void* handle = dlopen(file, RTLD_LAZY);
         if (!handle) {
