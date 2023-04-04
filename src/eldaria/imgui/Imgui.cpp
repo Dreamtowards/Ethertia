@@ -225,8 +225,6 @@ static void ShowViewport()
 }
 
 
-
-
 static void DrawWindows()
 {
     ShowDockspaceAndMainMenubar();

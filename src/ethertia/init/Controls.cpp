@@ -468,7 +468,7 @@ void Controls::handleContinuousInput()
     int HOTBAR_SLOT_MAX = 9;
     // Hotbar Scrolling / Key Switch.
     player->m_HotbarSlot += Mth::signal(-window.getDScroll());
-    player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, HOTBAR_SLOT_MAX);
+    player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, (int)player->m_Inventory.size()-1);
 
     if (KeyBindings::KEY_G_HOTBAR1.isPressed()) player->m_HotbarSlot = 0;
     if (KeyBindings::KEY_G_HOTBAR2.isPressed()) player->m_HotbarSlot = 1;

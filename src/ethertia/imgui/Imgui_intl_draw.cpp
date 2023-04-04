@@ -610,7 +610,28 @@ static void ShowEntityInsp()
     ImGui::End();
 }
 
+#include <imgui_internal.h>
+
+
 #include <ethertia/init/ItemTextures.h>
+
+static void ItemImage(const Item* item, float size = 64)
+{
+    float n = Item::REGISTRY.size();
+    float i = Item::REGISTRY.getOrderId(item);
+    ImVec2 uvMin = {i/n, 1};
+    ImVec2 uvSize = {1.0f/n, -1};
+    ImGui::Image(ItemTextures::ITEM_ATLAS->pTexId(), {size, size}, uvMin, uvMin+uvSize);
+}
+
+void RenderItemStack(const ItemStack& stack, float size)
+{
+    ImVec2 pos = ImGui::GetCursorScreenPos();  // before ItemImage()
+    ItemImage(stack.item(), size);
+
+    ImGui::RenderText(pos+ImVec2{0, size-14}, std::to_string(stack.m_Amount).c_str());
+}
+
 
 static void ShowEntities()
 {
@@ -667,15 +688,12 @@ static void ShowEntities()
         {
             if (ImGui::MenuItem(it.first.c_str()))
             {
-
+                ItemStack stack(it.second, 10);
+                Ethertia::getPlayer()->m_Inventory.putItemStack(stack);
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::BeginTooltip();
-                float n = Item::REGISTRY.size();
-                float i = Item::REGISTRY.getOrderId((Item*)it.second);
-                ImVec2 uvMin = {i/n, 1};
-                ImVec2 uvSize = {1.0f/n, -1};
-                ImGui::Image(ItemTextures::ITEM_ATLAS->pTexId(), {64, 64}, uvMin, uvMin+uvSize);
+                ItemImage(it.second);
                 ImGui::EndTooltip();
             }
         }
@@ -817,8 +835,6 @@ void ShowNodeEditor()
     ImGui::End();
 }
 
-
-#include <imgui_internal.h>
 
 class ImKeymap
 {
@@ -1832,12 +1848,20 @@ static void ShowGameViewport()
                       vp.y + vp.height - hotbarSize - hotbarGap};
         ImVec2 size = {hotbarSize, hotbarSize};
         ImU32 col_bg = ImGui::GetColorU32(ImGuiCol_Button);
+        ImU32 col_bg_sel = ImGui::GetColorU32(ImGuiCol_ButtonActive);
 
         // Player Inventory Hotbar
         EntityPlayer* player = Ethertia::getPlayer();
         for (int i = 0; i < player->m_Inventory.size(); ++i)
         {
-            ImGui::RenderFrame(min, min+size, col_bg);
+            ImGui::RenderFrame(min, min+size, i == player->m_HotbarSlot ? col_bg_sel : col_bg);
+            ImGui::SetCursorScreenPos(min);
+            ItemStack& stack = player->m_Inventory.at(i);
+
+            if (!stack.empty())
+            {
+                RenderItemStack(stack, hotbarSize);
+            }
 
             min.x += hotbarSize + hotbarGap;
         }
