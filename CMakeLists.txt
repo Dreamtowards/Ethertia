@@ -14,6 +14,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(LINUX TRUE)
+endif ()
 
 set(BIN_TARG "nil")
 if (APPLE)
@@ -24,6 +27,8 @@ if (APPLE)
     endif ()
 elseif (WIN32)
     set(BIN_TARG "windows-x64")  # x86-64
+elseif(LINUX)
+    set(BIN_TARG "linux-x64")  # x86-64
 endif ()
 set(BIN_DIR ${CMAKE_SOURCE_DIR}/run/bin/${BIN_TARG})
 
@@ -119,8 +124,7 @@ add_library(TwilightForest SHARED
 
 
 #On linux, We can build shared libraries as default.
-if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC))
-        AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC)) AND LINUX)
     set(BUILD_SHARED_LIBS ON)
 endif()
 
