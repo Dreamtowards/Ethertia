@@ -451,6 +451,8 @@ std::string Loader::sys_target()
     return "windows-x64";
 #elif defined(_WIN32) && (defined(__aarch64__) || defined(_M_ARM64))
     return "windows-arm64";
+#elif defined(__linux) && (defined(__amd64))
+    return "linux-x64";
 #else
         static_assert(false);
 #endif
@@ -461,6 +463,8 @@ std::string Loader::sys_libname(const std::string& name)  {
     return "lib" + name + ".dylib";
 #elif _WIN32
     return "lib" + name + ".dll";
+#elif __linux
+    return "lib" + name + ".so";
 #else
         static_assert(false);
 #endif
