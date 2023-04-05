@@ -433,7 +433,7 @@ const char* Loader::sysname()
     return "WINDOWS";
 #elif __APPLE__
     return "DARWIN";
-#elif __unix__
+#elif __linux
     return "LINUX";
 #else
         static_assert(false);
@@ -458,17 +458,17 @@ std::string Loader::sys_target()
 #endif
 }
 
-std::string Loader::sys_libname(const std::string& name)  {
-#if __APPLE__
-    return "lib" + name + ".dylib";
-#elif _WIN32
-    return "lib" + name + ".dll";
-#elif __linux
-    return "lib" + name + ".so";
-#else
-        static_assert(false);
-#endif
-}
+//std::string Loader::sys_libname(const std::string& name)  {
+//#if __APPLE__
+//    return "lib" + name + ".dylib";
+//#elif _WIN32
+//    return "lib" + name + ".dll";
+//#elif __linux
+//    return "lib" + name + ".so";
+//#else
+//        static_assert(false);
+//#endif
+//}
 
 
 size_t Loader::calcDirectorySize(const std::string& dir)

@@ -3,13 +3,10 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
+# we manually build shared-lib only the first time. (if doesn't have compiled libs), then we just use/link them instead of recompile them.
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC OFF)
 option(CMAKE_BUILD_TYPE Release)
-
-# there 3 build mode
-# 1. Dev: (DEBUG) + (Pre Compiled Shared Library, for faster compile, release-shared-library for faster speed & fastnoise correctness)
-# 2. Rel: (RELEASE) + No Shared Library. packed into one. be simple
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")

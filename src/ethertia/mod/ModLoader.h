@@ -29,24 +29,28 @@ public:
         using nlohmann::json;
 
         Mod::Manifest manifest;
-        json data = json::parse((char*)Loader::loadFile(modpath + "/mod.json").data());
+        json conf = json::parse((char*)Loader::loadFile(modpath + "/mod.json").data());
 
-        manifest.name = data["name"];
-        manifest.id = data["id"];
+        manifest.name = conf["name"];
+        manifest.id = conf["id"];
 
-        if (data.contains("version")) manifest.version = data["version"];
-        if (data.contains("website")) manifest.version = data["website"];
+        if (conf.contains("version")) manifest.version = conf["version"];
+        if (conf.contains("website")) manifest.version = conf["website"];
 
-        std::string nameCompact = manifest.name; Strings::erase(nameCompact, ' ');
-        auto conf_bin = data["bin"];
-        std::string binPath = conf_bin[Loader::sys_target()];
+        std::string sys_target = Loader::sys_target();
+        auto conf_bin = conf["bin"];
+        if (!conf_bin.contains(sys_target))
+            throw std::runtime_error(Strings::fmt("Mod {} doesn't support current system {}. (no binary executables)", manifest.name, sys_target));
+
+        std::string bin_path = conf_bin[sys_target];
         {
-            bool succ = loadModProgram(binPath.c_str());
+            // Load and Init.
+            bool succ = loadModProgram(bin_path.c_str());
 
-            assert(succ && "Failed to load mod program.");
+            assert(succ && "Failed to load/init mod program.");
         }
 
-        Log::info("Mod {} ({}, {}) loaded in\1", manifest.name, manifest.id, binPath);
+        Log::info("Mod {} ({}, {}) loaded in\1", manifest.name, manifest.id, bin_path);
     }
 
 

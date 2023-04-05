@@ -260,11 +260,13 @@ public:
 
     // macOS:   darwin-x64  | darwin-arm64
     // Windows: windows-x64 | windows-arm64
+    // Linux:   linux-x64
     static std::string sys_target();
 
+    // deprecated: no where used. it's originally used for locating mod's binary program.
     // macOS:   lib<Name>.dylib
     // Windows: lib<Name>.dll
-    static std::string sys_libname(const std::string& name);
+    // static std::string sys_libname(const std::string& name);
 
 
 
