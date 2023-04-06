@@ -100,11 +100,11 @@ static void Init()
     ClientConnectionProc::initPackets();
 
     // Client Controls.
-    Controls::initControls();
+    Controls::initConsoleThread();
 
     g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
     g_Player->position() = {10, 10, 10};
-    g_Player->switchGamemode(Gamemode::SPECTATOR);
+    g_Player->switchGamemode(Gamemode::CREATIVE);
     g_Player->setFlying(true);
 
 
@@ -202,7 +202,7 @@ static void RunMainLoop()
 
         window.resetDeltas();
         glfwPollEvents();
-        Controls::handleContinuousInput();
+        Controls::handleInput();
     }
 
     {

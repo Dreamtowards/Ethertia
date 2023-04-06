@@ -48,6 +48,9 @@ public:
     inline static int   s_FpsCap = 60;
     inline static bool  s_Vsync = true;
 
+    // Breaking Terrain Interval in seconds, Creative Mode.
+    inline static float g_CreativeBreakingInterval = 0.2;
+
 
 };
 

@@ -260,6 +260,19 @@ static void ShowMainMenuBar()
                 }
             }
 
+            if (ImGui::BeginMenu("Gamemode"))
+            {
+                EntityPlayer& p = *Ethertia::getPlayer();
+                int gm = Ethertia::getPlayer()->getGamemode();
+
+                if (ImGui::MenuItem("Survival",  nullptr, gm==Gamemode::SURVIVAL))  p.switchGamemode(Gamemode::SURVIVAL);
+                if (ImGui::MenuItem("Creative",  nullptr, gm==Gamemode::CREATIVE))  p.switchGamemode(Gamemode::CREATIVE);
+                if (ImGui::MenuItem("Spectator", nullptr, gm==Gamemode::SPECTATOR)) p.switchGamemode(Gamemode::SPECTATOR);
+
+                ImGui::EndMenu();
+            }
+            ImGui::SliderFloat("Creative Breaking Terrain Interval", &Settings::g_CreativeBreakingInterval, 0, 0.5f);
+
             ImGui::Separator();
 
             ImGui::Checkbox("Text Info", &Dbg::dbg_TextInfo);
@@ -1841,29 +1854,48 @@ static void ShowGameViewport()
     DrawViewportDebugs();
 
 
+    // Hotbar
+    EntityPlayer* player = Ethertia::getPlayer();
+    int gm = player->getGamemode();
+    if (gm == Gamemode::SURVIVAL || gm == Gamemode::CREATIVE)
     {
-        float hotbarSize = 45;
-        float hotbarGap = 4;
-        ImVec2 min = {vp.x + hotbarGap,
-                      vp.y + vp.height - hotbarSize - hotbarGap};
-        ImVec2 size = {hotbarSize, hotbarSize};
+        float hotbarSlotSize = 45;
+        float hotbarSlotGap = 4;
+        float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * player->m_Inventory.size() - hotbarSlotGap;
+        const ImVec2 hotbar_min = {vp.x + (vp.width-hotbarWidth)/2,
+                      vp.y + vp.height - hotbarSlotSize - hotbarSlotGap};
+        ImVec2 size = {hotbarSlotSize, hotbarSlotSize};
         ImU32 col_bg = ImGui::GetColorU32(ImGuiCol_Button);
         ImU32 col_bg_sel = ImGui::GetColorU32(ImGuiCol_ButtonActive);
 
         // Player Inventory Hotbar
-        EntityPlayer* player = Ethertia::getPlayer();
+        ImVec2 min = hotbar_min;
         for (int i = 0; i < player->m_Inventory.size(); ++i)
         {
             ImGui::RenderFrame(min, min+size, i == player->m_HotbarSlot ? col_bg_sel : col_bg);
-            ImGui::SetCursorScreenPos(min);
             ItemStack& stack = player->m_Inventory.at(i);
 
             if (!stack.empty())
             {
-                RenderItemStack(stack, hotbarSize);
+                ImGui::SetCursorScreenPos(min);
+                RenderItemStack(stack, hotbarSlotSize);
             }
 
-            min.x += hotbarSize + hotbarGap;
+            min.x += hotbarSlotSize + hotbarSlotGap;
+        }
+
+        // Player Health
+        if (gm == Gamemode::SURVIVAL)
+        {
+            float healthWidth = hotbarWidth * 0.46f;
+            float healthHeight = 4;
+            static ImU32 col_health_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.4});
+            static ImU32 col_health = ImGui::GetColorU32({0.8, 0.3, 0.3, 1});
+            float perc = player->m_Health / 10.0f;
+
+            min = hotbar_min + ImVec2(0, -healthHeight - 4);
+            ImGui::RenderFrame(min, min+ImVec2(healthWidth, healthHeight), col_health_bg);
+            ImGui::RenderFrame(min, min+ImVec2(healthWidth * perc, healthHeight), col_health);
         }
     }
 
@@ -1897,9 +1929,9 @@ static void ShowConsole()
     // keeping auto focus on the input box
     if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) ||
         (Settings::w_Console_FocusInput)) {  // only enable when on focus.
-        if (ImGui::GetWindowDockID() && Settings::w_Console_FocusInput)
-            ImGui::SetWindowDock(ImGui::GetCurrentWindow(), 0, ImGuiCond_Always);
-        Settings::w_Console_FocusInput = false;
+//        if (ImGui::GetWindowDockID() && Settings::w_Console_FocusInput)
+//            ImGui::SetWindowDock(ImGui::GetCurrentWindow(), 0, ImGuiCond_Always);
+//        Settings::w_Console_FocusInput = false;
 
         ImGui::SetWindowFocus();
         ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget

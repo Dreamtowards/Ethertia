@@ -22,10 +22,10 @@ public:
 
     bool hitTerrain = false;
     Cell* cell = nullptr;  // may invalid even if .hit/.hitTerrain is true.  but the cell.mtl always is valid.
-    float cell_breaking_time = 0;  // sec
+    float cell_breaking_time = 0;  // sec breaking. >= 0. if not 0 means is breaking.
     glm::vec3 cell_position = {0,0,0};
 
-    float brushSize = 2.0;
+    float brushSize = 5.0;
 
 
     // Called when Nothing hit, detect per frame. from Controls::handleContinuousInput().

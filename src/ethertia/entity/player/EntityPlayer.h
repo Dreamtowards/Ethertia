@@ -14,12 +14,13 @@ class EntityPlayer : public Entity
 {
     int m_Gamemode = Gamemode::SURVIVAL;
 
+public:
+
     bool m_Flying = false;
 
     bool m_Sprint = false;
 
 
-public:
     float m_Health = 10.0f;
 
     bool m_OnGround = false;

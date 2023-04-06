@@ -40,6 +40,7 @@ static void InitStyle()
     fontConf.RasterizerMultiply = 1.6f;
     io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
+
     // Enable Docking.
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -203,9 +204,13 @@ static ImGuiKey GetPressedKey()
 
 void Imgui::RenderGUI()
 {
-    ImGui_ImplGlfw_NewFrame();
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui::NewFrame();
+    {
+        PROFILE("NewFrame");
+
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui::NewFrame();
+    }
 
     {
         PROFILE("Proc");

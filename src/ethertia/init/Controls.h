@@ -12,9 +12,9 @@ public:
 
     inline static float gDigSpeedMultiplier = 8.0f;
 
-    static void initControls();
+    static void initConsoleThread();
 
-    static void handleContinuousInput();
+    static void handleInput();
 
     static void saveScreenshot();
 

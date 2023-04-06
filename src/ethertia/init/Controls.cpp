@@ -24,7 +24,7 @@
 
 #include <ethertia/init/KeyBinding.h>
 
-static void initConsoleThread()
+void Controls::initConsoleThread()
 {
     new std::thread([]()
     {
@@ -41,128 +41,6 @@ static void initConsoleThread()
 }
 
 
-
-void handleMouseKey()
-{
-    World* world = Ethertia::getWorld();
-    EntityPlayer* player = Ethertia::getPlayer();
-    HitCursor& cur = Ethertia::getHitCursor();
-
-    if (!(world && Ethertia::isIngame()))
-        return;
-
-
-    // Use Item
-    static Entity* firstEntity = nullptr;
-    static Entity* secondEntity = nullptr;
-    if (KeyBindings::KEY_G_USE.isPressed())
-    {
-        ItemStack& stack = player->getHoldingItem();
-
-        if (!stack.empty())
-        {
-            for (ItemComponent* comp : stack.item()->m_Components)
-            {
-                comp->onUse();
-            }
-            --stack.m_Amount;
-        }
-
-        // Right click two object and link them
-        if (cur.hitEntity && !cur.hitTerrain)
-        {
-
-            if (firstEntity)
-            {
-                secondEntity = cur.hitEntity;
-
-                btTransform frameInA, frameInB;
-                frameInA = firstEntity->m_Rigidbody->getWorldTransform();
-                frameInB = secondEntity->m_Rigidbody->getWorldTransform();
-
-                btTransform relTrans = frameInA.inverseTimes(frameInB);
-
-                auto * fixedConstraint = new btFixedConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, relTrans, btTransform::getIdentity());
-                world->m_DynamicsWorld->addConstraint(fixedConstraint, true);
-
-                firstEntity = nullptr;
-                secondEntity = nullptr;
-            }else
-            {
-                firstEntity = cur.hitEntity;
-            }
-        }
-    }
-
-        // MouseButton Middle, Picking.
-//        if (e->getButton() == GLFW_MOUSE_BUTTON_3)
-//        {
-//            const Material* mtl = world->getCell(p - cur.normal*0.1f).mtl;
-//            if (mtl && player->getGamemode() != Gamemode::SURVIVAL)
-//            {
-//                ItemStack stack(mtl->m_MaterialItem, 1);
-//
-//                player->getHoldingItem().clear();
-//                stack.moveTo(player->getHoldingItem());
-//            }
-//        }
-
-
-
-    if (!cur.hit)
-        return;
-
-    glm::vec3 p = cur.position;
-    float n = cur.brushSize;
-    if (KeyBindings::KEY_G_ATTACK.isPressed()) {
-
-//        if (GuiDebugV::g_BlockMode) {
-//
-//            Cell& c = world->getCell( p + -cur.normal*0.1f );
-//
-//            c.mtl = 0;
-//            c.density = 0;
-//
-//            world->requestRemodel(p);
-//            return;
-//        }
-//        AABB::forCube(dig_size, [world, cp, dig_size](glm::vec3 rp)
-//        {
-//            Cell& c = world->getCell(cp+rp);
-//
-//            float f = std::max(0.0f, dig_size - glm::length(rp + glm::vec3(0.5f)));
-//
-//            c.density -= f;
-////                    if (c.density < 0) { c.mtl = 0; }
-//
-//            world->requestRemodel(cp+rp);
-//        });
-        for (int dx = floor(-n); dx <= ceil(n); ++dx) {
-            for (int dz = floor(-n); dz <= ceil(n); ++dz) {
-                for (int dy = floor(-n); dy <= ceil(n); ++dy) {
-                    glm::vec3 d(dx, dy, dz);
-
-                    Cell& b = world->getCell(p + d);
-                    float f = n - glm::length(d);
-
-                    // b.id = placingBlock;
-                    b.density = b.density - Mth::max(0.0f, f);
-                    if (f > 0 && b.density < 0 //&& b.id == Materials::LEAVES
-                            ) {
-                        b.mtl = 0;
-                    }
-                    world->requestRemodel(p+d);
-                }
-            }
-        }
-    }
-    else
-    {
-        cur.cell_breaking_time = 0;
-    }
-
-
-}
 
 
 
@@ -188,22 +66,6 @@ static void handleKeyPress()
     {
         Settings::w_Console_FocusInput = true;
     }
-    if (KeyBindings::KEY_G_DROPITEM.isPressed())
-    {
-        if (Ethertia::isIngame()) {
-            EntityPlayer& player = *Ethertia::getPlayer();
-            ItemStack& stack = player.getHoldingItem();
-            if (!stack.empty())
-            {
-                ItemStack drop;
-
-                bool dropAll = Ethertia::getWindow().isCtrlKeyDown();
-                stack.moveTo(drop, dropAll ? stack.amount() : 1);
-
-                Ethertia::getWorld()->dropItem(player.position(), drop,player.getViewDirection() * 3.0f);
-            }
-        }
-    }
     if (KeyBindings::KEY_DEBUG_INFO.isPressed())
     {
         if (Dbg::dbg_TextInfo)
@@ -220,6 +82,176 @@ static void handleKeyPress()
         }
     }
 
+    // Follow are Gameplay keys.
+    if (!Ethertia::isIngame() || !Ethertia::getWorld())
+        return;
+
+    HitCursor& cur = Ethertia::getHitCursor();
+    EntityPlayer& player = *Ethertia::getPlayer();
+    bool isCreativeMode = player.getGamemode() == Gamemode::CREATIVE;
+    bool isSurvivalMode = player.getGamemode() == Gamemode::SURVIVAL;
+
+    const Material* hitCellMtl = nullptr;
+    if (cur.cell && cur.cell->mtl) {
+        hitCellMtl = cur.cell->mtl;
+    }
+
+    // Pick Terrain
+    if (hitCellMtl && KeyBindings::KEY_G_PICK.isPressed() && isCreativeMode)
+    {
+        ItemStack stack(cur.cell->mtl->m_MaterialItem, 1);
+        stack.moveTo(player.getHoldingItem());
+    }
+
+    // Break Terrain
+    World* world = Ethertia::getWorld();
+    if (hitCellMtl && KeyBindings::KEY_G_ATTACK.isKeyDown())
+    {
+        if (isSurvivalMode)
+        {
+            cur.cell_breaking_time += Ethertia::getDelta();// * Controls::gDigSpeedMultiplier;
+
+            float fullDigTime = cur.cell->mtl->m_Hardness;
+            if (cur.cell_breaking_time >= fullDigTime)
+            {
+                // Do Dig
+                world->dropItem(cur.position + cur.normal * 0.2f, // +norm prevents fall down
+                                ItemStack(cur.cell->mtl->m_MaterialItem, 1));
+                cur.cell->set_nil();
+                world->invalidateCellFp(cur.cell_position, 3);
+                world->requestRemodel(cur.cell_position);
+                cur.cell = nullptr;
+
+
+//            if (!Ethertia::getPlayer()->getHoldingItem().empty())
+//            {
+//                glm::vec3 cp = cur.cell_position;
+//                float dig_size = cur.brushSize;
+//                AABB::forCube(dig_size, [world, cp, dig_size](glm::vec3 rp)
+//                {
+//                    Cell& c = world->getCell(cp+rp);
+//
+//                    float f = std::max(0.0f, dig_size - glm::length(rp + glm::vec3(0.5f)));
+//
+//                    c.density -= f;
+////                    if (c.density < 0) { c.mtl = 0; }
+//
+//                    world->requestRemodel(cp+rp);
+//                });
+//            }
+
+
+                // clear hit-cell state.
+                cur.cell_breaking_time = 0;
+            }
+        }
+
+        float CurrTime = Ethertia::getPreciseTime();
+        static float s_LastTimeBreakTerrain = 0;
+        if (isCreativeMode && (s_LastTimeBreakTerrain + Settings::g_CreativeBreakingInterval) <= CurrTime)
+        {
+            s_LastTimeBreakTerrain = CurrTime;
+
+            // Break Instant and No Drops.
+            glm::vec3 p = cur.position;
+            float n = cur.brushSize;
+            for (int dx = std::floor(-n); dx <= std::ceil(n); ++dx) {
+                for (int dz = std::floor(-n); dz <= std::ceil(n); ++dz) {
+                    for (int dy = std::floor(-n); dy <= std::ceil(n); ++dy) {
+                        glm::vec3 d(dx, dy, dz);
+
+                        Cell& b = world->getCell(p + d);
+                        float f = n - glm::length(d);
+
+                        // b.id = placingBlock;
+                        b.density = b.density - Mth::max(0.0f, f);
+                        if (f > 0 && b.density < 0 //&& b.id == Materials::LEAVES
+                                ) {
+                            b.mtl = 0;
+                        }
+                        world->requestRemodel(p+d);
+                    }
+                }
+            }
+        }
+
+    } else {
+        cur.cell_breaking_time = 0;
+    }
+
+
+    // Use Item (could Place Terrain)
+    if (KeyBindings::KEY_G_USE.isPressed())
+    {
+        ItemStack& stack = player.getHoldingItem();
+
+        if (!stack.empty())
+        {
+            for (ItemComponent* comp : stack.item()->m_Components)
+            {
+                comp->onUse();
+            }
+            --stack.m_Amount;
+        }
+
+        // Right click two object and link them
+        if (cur.hitEntity && !cur.hitTerrain)
+        {
+            static Entity* firstEntity = nullptr;
+            static Entity* secondEntity = nullptr;
+
+            if (firstEntity)
+            {
+                secondEntity = cur.hitEntity;
+
+                btTransform frameInA, frameInB;
+                frameInA = firstEntity->m_Rigidbody->getWorldTransform();
+                frameInB = secondEntity->m_Rigidbody->getWorldTransform();
+
+                btTransform relTrans = frameInA.inverseTimes(frameInB);
+
+                auto * fixedConstraint = new btFixedConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, relTrans, btTransform::getIdentity());
+                world->m_DynamicsWorld->addConstraint(fixedConstraint, true);
+
+                firstEntity = nullptr;
+                secondEntity = nullptr;
+            }
+            else
+            {
+                firstEntity = cur.hitEntity;
+            }
+        }
+    }
+
+
+    // Drop Item
+    if (KeyBindings::KEY_G_DROPITEM.isPressed())
+    {
+        ItemStack& stack = player.getHoldingItem();
+        if (!stack.empty())
+        {
+            ItemStack drop;
+
+            bool dropAll = Ethertia::getWindow().isCtrlKeyDown();
+            stack.moveTo(drop, dropAll ? stack.amount() : 1);
+
+            Ethertia::getWorld()->dropItem(player.position(), drop,player.getViewDirection() * 3.0f);
+        }
+    }
+
+
+    // Hotbar Scrolling / Key Switch.
+    int HOTBAR_SLOT_MAX = 9;
+    player.m_HotbarSlot += Mth::signal(-Ethertia::getWindow().getDScroll());
+    player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, (int)player.m_Inventory.size()-1);
+
+    if (KeyBindings::KEY_G_HOTBAR1.isPressed()) player.m_HotbarSlot = 0;
+    if (KeyBindings::KEY_G_HOTBAR2.isPressed()) player.m_HotbarSlot = 1;
+    if (KeyBindings::KEY_G_HOTBAR3.isPressed()) player.m_HotbarSlot = 2;
+    if (KeyBindings::KEY_G_HOTBAR4.isPressed()) player.m_HotbarSlot = 3;
+    if (KeyBindings::KEY_G_HOTBAR5.isPressed()) player.m_HotbarSlot = 4;
+
+
 
     static Entity*      s_HoldingEntity = nullptr;  // use this persistent instead of get hitEntity every time, prevents lost of tracking
     static glm::vec3    s_HoldingEntityRelPos;  // precisely hold the hitPoint & hitDistance
@@ -231,7 +263,6 @@ static void handleKeyPress()
         if (s_HoldingEntity) {
             s_HoldingEntity = nullptr;
         } else {
-            HitCursor& cur = Ethertia::getHitCursor();
             if (cur.hitEntity && !cur.hitTerrain) {
                 s_HoldingEntity = cur.hitEntity;
                 s_HoldingEntityRelPos = cur.position - cur.hitEntity->position();
@@ -255,6 +286,7 @@ static void handleKeyPress()
 //        glm::vec3 force_pos = cam.position + cam.direction * s_HoldingEntityDist - s_HoldingEntityRelPos;
 //        s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(Mth::btVec3(force_pos));
     }
+
     if (KeyBindings::KEY_G_SITTING.isPressed())
     {
         EntityDrivingSeat* entityDrivingSeat = dynamic_cast<EntityDrivingSeat*>(Ethertia::getHitCursor().hitEntity);
@@ -263,14 +295,9 @@ static void handleKeyPress()
             entityDrivingSeat->setDriver(Ethertia::getPlayer());
         }
     }
-}
-
-
-void Controls::initControls()
-{
-    initConsoleThread();
 
 }
+
 
 void handleHitCursor()
 {
@@ -287,114 +314,56 @@ void handleHitCursor()
     btCollisionObject* obj = nullptr;
     cur.hit = Ethertia::getWorld()->raycast(_p_beg, _p_beg + camera.direction * 100.0f, p, n, &obj);
 
-    if (cur.hit)
-    {
-        cur.position = p;
-        cur.normal = n;
-        cur.hitEntity = (Entity*)obj->getUserPointer();
-        cur.length = glm::length(p - _p_beg);
-
-        // Hit Terrain Cell.
-        cur.hitTerrain = dynamic_cast<EntityMesh*>(cur.hitEntity);
-        if (cur.hitTerrain)
-        {
-            glm::vec3 cp_base = glm::floor(p - n*0.01f);  // cell_pos
-            Cell* hitCell = &world->getCell(cp_base);
-            cur.cell_position = cp_base;
-
-//            // check full block, shrink: p-n*Epsilon
-//            if (!hitCell->mtl) {
-//                Cell& c = world->getCell(p - n*0.1f);
-//                if (c.mtl && c.exp_meta == 1) {  // is cube
-//                    hitCell = &c;
-//                }
-//            }
-
-            // check smooth terrain. for 8 corners, sel a valid cell that closest to the hit point.
-            if (!hitCell->mtl || hitCell->isSmoothMtl()) {  // nil or smooth-mtl.
-                glm::vec3 sel_p{INFINITY};
-                float min_dist = INFINITY;
-                for (int i = 0; i < 8; ++i) {
-                    glm::vec3 cp = cp_base + SurfaceNetsMeshGen::VERT[i];  // corners. cell_pos.
-                    const Cell& c = world->getCell(cp);
-                    float dist = glm::length2(cp-p);
-                    if (c.mtl && dist < min_dist) {
-                        min_dist = dist;
-                        sel_p = cp;
-                    }
-                }
-                if (sel_p.x != INFINITY) {
-                    cur.cell_position = sel_p;
-                    hitCell = &world->getCell(sel_p);
-                }
-            }
-
-            if (hitCell->mtl == nullptr || hitCell != cur.cell) {
-                cur.cell_breaking_time = 0;  // reset breaking_time. hitting target changed.
-            }
-            cur.cell = hitCell;
-        }
-
-
-        EntityPropeller* propeller = dynamic_cast<EntityPropeller*>(cur.hitEntity);
-        if (propeller)
-        {
-//            propeller->rotate();
-        }
-    }
-    else
-    {
+    if (!cur.hit) {
         cur.reset();
+        return;
     }
 
+    cur.position = p;
+    cur.normal = n;
+    cur.hitEntity = (Entity*)obj->getUserPointer();
+    cur.length = glm::length(p - _p_beg);
 
-    if (Ethertia::isIngame() && Ethertia::getWindow().isMouseLeftDown() && cur.cell && cur.cell->mtl)
+    // Hit Terrain Cell.
+    cur.hitTerrain = dynamic_cast<EntityMesh*>(cur.hitEntity);
+    if (cur.hitTerrain)
     {
-        cur.cell_breaking_time += Ethertia::getDelta() * Controls::gDigSpeedMultiplier;
+        glm::vec3 cp_base = glm::floor(p - n*0.01f);  // cell_pos. try get full block, shrink: p-n*Epsilon
+        Cell* hitCell = &world->getCell(cp_base);
+        cur.cell_position = cp_base;
 
-        float fullDigTime = cur.cell->mtl->m_Hardness;
-        if (cur.cell_breaking_time >= fullDigTime)
-        {
-            // Do Dig
-//            world->dropItem(cur.position + cur.normal * 0.2f, // +norm prevents fall down
-//                            ItemStack(cur.cell->mtl->m_MaterialItem, 1));
-//            cur.cell->set_nil();
-//            world->invalidateCellFp(cur.cell_position, 3);
-//            world->requestRemodel(cur.cell_position);
-
-
-//            if (!Ethertia::getPlayer()->getHoldingItem().empty())
-//            {
-//                glm::vec3 cp = cur.cell_position;
-//                float dig_size = cur.brushSize;
-//                AABB::forCube(dig_size, [world, cp, dig_size](glm::vec3 rp)
-//                {
-//                    Cell& c = world->getCell(cp+rp);
-//
-//                    float f = std::max(0.0f, dig_size - glm::length(rp + glm::vec3(0.5f)));
-//
-//                    c.density -= f;
-////                    if (c.density < 0) { c.mtl = 0; }
-//
-//                    world->requestRemodel(cp+rp);
-//                });
-//            }
-//            else
-//            {
-//                world->digCell(cur.cell_position);
-//            }
-
-
-            // clear hit-cell state.
-            cur.cell = nullptr;
-            cur.cell_breaking_time = 0;
+        // check smooth terrain. for 8 corners, sel a valid cell that closest to the hit point.
+        if (!hitCell->mtl || hitCell->isSmoothMtl()) {  // nil or smooth-mtl.
+            glm::vec3 sel_p{INFINITY};
+            float min_dist = INFINITY;
+            for (int i = 0; i < 8; ++i) {
+                glm::vec3 cp = cp_base + SurfaceNetsMeshGen::VERT[i];  // corners. cell_pos.
+                const Cell& c = world->getCell(cp);
+                float dist = glm::length2(cp-p);
+                if (c.mtl && dist < min_dist) {
+                    min_dist = dist;
+                    sel_p = cp;
+                }
+            }
+            if (sel_p.x != INFINITY) {
+                cur.cell_position = sel_p;
+                hitCell = &world->getCell(sel_p);
+            }
         }
-    } else {
-        cur.cell_breaking_time = 0;
+
+        if (hitCell->mtl == nullptr || hitCell != cur.cell) {
+            cur.cell_breaking_time = 0;  // reset breaking_time. hitting target changed.
+        }
+        if (hitCell->mtl == nullptr) {
+            hitCell = nullptr;
+        }
+
+        cur.cell = hitCell;
     }
 }
 
-void Controls::handleContinuousInput()
+
+void Controls::handleInput()
 {
     Camera& camera = Ethertia::getCamera();
     Window& window = Ethertia::getWindow();
@@ -403,28 +372,26 @@ void Controls::handleContinuousInput()
     if (window.isCloseRequested())
         Ethertia::shutdown();
 
-    float dt = Ethertia::getDelta();
-
     window.setMouseGrabbed(Ethertia::isIngame());
     window.setStickyKeys(!Ethertia::isIngame());
+
 
     // Hit Cursor.
     handleHitCursor();
 
     handleKeyPress();
 
-    handleMouseKey();
 
+    camera.position = Ethertia::getPlayer()->position();
 
-
-
-
-    camera.update(Ethertia::isIngame());
+    if (player->getGamemode() == Gamemode::SPECTATOR) {  // track camera viewMatrix only while InGame.
+        camera.update(Ethertia::isIngame());
+    } else {
+        camera.update(true);
+    }
 
     if (!Ethertia::isIngame())
         return;
-
-    camera.position = Ethertia::getPlayer()->position();
 
     // Player Move.
 
@@ -457,24 +424,13 @@ void Controls::handleContinuousInput()
 //    }
 //    RenderEngine::fov += smFov.delta;
 
+    float dt = Ethertia::getDelta();
     camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
 
     if (KeyBindings::KEY_G_CAM_DIST.isKeyDown())
         camera.len += window.getDScroll();
     camera.len = Mth::max(camera.len, 0.0f);
 
-
-
-    int HOTBAR_SLOT_MAX = 9;
-    // Hotbar Scrolling / Key Switch.
-    player->m_HotbarSlot += Mth::signal(-window.getDScroll());
-    player->m_HotbarSlot = Mth::clamp(player->m_HotbarSlot, 0, (int)player->m_Inventory.size()-1);
-
-    if (KeyBindings::KEY_G_HOTBAR1.isPressed()) player->m_HotbarSlot = 0;
-    if (KeyBindings::KEY_G_HOTBAR2.isPressed()) player->m_HotbarSlot = 1;
-    if (KeyBindings::KEY_G_HOTBAR3.isPressed()) player->m_HotbarSlot = 2;
-    if (KeyBindings::KEY_G_HOTBAR4.isPressed()) player->m_HotbarSlot = 3;
-    if (KeyBindings::KEY_G_HOTBAR5.isPressed()) player->m_HotbarSlot = 4;
 
 
 

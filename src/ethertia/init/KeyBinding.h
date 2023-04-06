@@ -51,7 +51,6 @@ public:
         KEY_G_RIGHT         {ImGuiKey_D,            "Right"},
         KEY_G_JUMP          {ImGuiKey_Space,        "Jump"},
         KEY_G_SNEAK         {ImGuiKey_LeftShift,    "Sneak"},
-        KEY_G_CAM_DIST      {ImGuiKey_V,            "Camera Distance"},
         KEY_G_HOTBAR1       {ImGuiKey_1,            "Hotbar 1"},
         KEY_G_HOTBAR2       {ImGuiKey_2,            "Hotbar 2"},
         KEY_G_HOTBAR3       {ImGuiKey_3,            "Hotbar 3"},
@@ -59,6 +58,9 @@ public:
         KEY_G_HOTBAR5       {ImGuiKey_5,            "Hotbar 5"},
         KEY_G_USE           {ImGuiKey_MouseRight,   "Use/Place"},
         KEY_G_ATTACK        {ImGuiKey_MouseLeft,    "Attack/Destroy"},
+        KEY_G_PICK          {ImGuiKey_MouseMiddle,  "Pick"},
+        // maybe we can make an action menu? like hold Tab in GTA-V then show the menu, we can choose lot actions we want.
+        KEY_G_CAM_DIST      {ImGuiKey_V,            "Camera Distance"},  // temp
         KEY_G_HOLD          {ImGuiKey_F,            "Hold"},
         KEY_G_SITTING       {ImGuiKey_G,            "Sit"}
         ;
