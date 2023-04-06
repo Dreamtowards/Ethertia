@@ -148,7 +148,7 @@ static void handleKeyPress()
 
         float CurrTime = Ethertia::getPreciseTime();
         static float s_LastTimeBreakTerrain = 0;
-        if (isCreativeMode && (s_LastTimeBreakTerrain + Settings::g_CreativeBreakingInterval) <= CurrTime)
+        if (isCreativeMode && (s_LastTimeBreakTerrain + Settings::gInterval_BreakingTerrain_CreativeMode) <= CurrTime)
         {
             s_LastTimeBreakTerrain = CurrTime;
 

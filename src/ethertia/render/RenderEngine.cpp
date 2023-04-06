@@ -245,8 +245,13 @@ void RenderEngine::RenderWorld()
     renderWorldGeometry(world);
 
 
-    if (Settings::g_ShadowMapping)
-    ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()));
+    float CurrTime = Ethertia::getPreciseTime();
+    static float s_LastTimeRenderShadowDepthMap = 0;
+    if (Settings::g_ShadowMapping && (s_LastTimeRenderShadowDepthMap + Settings::gInterval_ShadowDepthMap) <= CurrTime)
+    {
+        s_LastTimeRenderShadowDepthMap = CurrTime;
+        ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()));
+    }
 
     if (Settings::g_SSAO)
     SSAORenderer::renderSSAO(GeometryRenderer::fboGbuffer->texColor[0], GeometryRenderer::fboGbuffer->texColor[1]);

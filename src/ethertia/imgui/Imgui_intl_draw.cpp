@@ -271,7 +271,7 @@ static void ShowMainMenuBar()
 
                 ImGui::EndMenu();
             }
-            ImGui::SliderFloat("Creative Breaking Terrain Interval", &Settings::g_CreativeBreakingInterval, 0, 0.5f);
+            ImGui::SliderFloat("Breaking Terrain Interval in CreativeMode", &Settings::gInterval_BreakingTerrain_CreativeMode, 0, 0.5f);
 
             ImGui::Separator();
 
@@ -296,9 +296,11 @@ static void ShowMainMenuBar()
         {
             ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
             ImGui::SliderFloat("ViewDistance", &Settings::s_ViewDistance, 0, 16);
+            ImGui::Checkbox("Vsync", &Settings::s_Vsync);
 
             ImGui::Checkbox("SSAO", &Settings::g_SSAO);
             ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
+            ImGui::SliderFloat("Shadow Depth Map Re-Render Interval", &Settings::gInterval_ShadowDepthMap, 0, 10);
 
             ImGui::Separator();
 
@@ -1927,8 +1929,8 @@ static void ShowConsole()
     ImGui::PopItemWidth();
 
     // keeping auto focus on the input box
-    if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) ||
-        (Settings::w_Console_FocusInput)) {  // only enable when on focus.
+    if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0))) {
+        //|| (Settings::w_Console_FocusInput)) {  // only enable when on focus.
 //        if (ImGui::GetWindowDockID() && Settings::w_Console_FocusInput)
 //            ImGui::SetWindowDock(ImGui::GetCurrentWindow(), 0, ImGuiCond_Always);
 //        Settings::w_Console_FocusInput = false;

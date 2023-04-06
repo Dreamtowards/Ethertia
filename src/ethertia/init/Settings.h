@@ -48,8 +48,12 @@ public:
     inline static int   s_FpsCap = 60;
     inline static bool  s_Vsync = true;
 
-    // Breaking Terrain Interval in seconds, Creative Mode.
-    inline static float g_CreativeBreakingInterval = 0.2;
+    // Interval(sec) of Breaking Terrain in Creative Mode.
+    inline static float gInterval_BreakingTerrain_CreativeMode = 0.2;
+
+
+    // Interval(sec) of Re-Render ShadowMap's DepthMap. (which kanda expensive.)
+    inline static float gInterval_ShadowDepthMap = 0.4f;
 
 
 };
