@@ -68,18 +68,11 @@ static void handleKeyPress()
     }
     if (KeyBindings::KEY_DEBUG_INFO.isPressed())
     {
-        if (Dbg::dbg_TextInfo)
-        {
-            Dbg::dbg_TextInfo = false;
-            Dbg::dbg_WorldBasis = false;
-            Dbg::dbg_ViewBasis = false;
-        }
-        else
-        {
-            Dbg::dbg_TextInfo = true;
-            Dbg::dbg_WorldBasis = true;
-            Dbg::dbg_ViewBasis = true;
-        }
+        bool dbg = !Dbg::dbg_TextInfo;
+        Dbg::dbg_TextInfo =
+        Dbg::dbg_WorldBasis =
+        Dbg::dbg_ViewBasis =
+        Dbg::dbg_ViewGizmo = dbg;
     }
 
     // Follow are Gameplay keys.

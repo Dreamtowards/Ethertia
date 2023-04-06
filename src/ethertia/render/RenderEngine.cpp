@@ -249,12 +249,18 @@ void RenderEngine::RenderWorld()
     static float s_LastTimeRenderShadowDepthMap = 0;
     if (Settings::g_ShadowMapping && (s_LastTimeRenderShadowDepthMap + Settings::gInterval_ShadowDepthMap) <= CurrTime)
     {
+        PROFILE("ShadowDepthMap");
+
         s_LastTimeRenderShadowDepthMap = CurrTime;
         ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()));
     }
 
     if (Settings::g_SSAO)
-    SSAORenderer::renderSSAO(GeometryRenderer::fboGbuffer->texColor[0], GeometryRenderer::fboGbuffer->texColor[1]);
+    {
+        PROFILE("SSAO");
+
+        SSAORenderer::renderSSAO(GeometryRenderer::fboGbuffer->texColor[0], GeometryRenderer::fboGbuffer->texColor[1]);
+    }
 
 
     renderWorldCompose(world);

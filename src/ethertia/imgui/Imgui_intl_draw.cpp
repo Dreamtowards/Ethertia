@@ -75,7 +75,7 @@ static enum SettingsPanel {
     ResourcePacks,
     Credits,
     Misc
-} g_CurrSettingsPanel;
+} g_CurrSettingsPanel = SettingsPanel::Graphics;
 
 
 
@@ -1867,8 +1867,8 @@ static void ShowGameViewport()
         const ImVec2 hotbar_min = {vp.x + (vp.width-hotbarWidth)/2,
                       vp.y + vp.height - hotbarSlotSize - hotbarSlotGap};
         ImVec2 size = {hotbarSlotSize, hotbarSlotSize};
-        ImU32 col_bg = ImGui::GetColorU32(ImGuiCol_Button);
-        ImU32 col_bg_sel = ImGui::GetColorU32(ImGuiCol_ButtonActive);
+        static ImU32 col_bg = ImGui::GetColorU32({0, 0, 0, 0.3});
+        static ImU32 col_bg_sel = ImGui::GetColorU32({1, 1, 1, 0.5});
 
         // Player Inventory Hotbar
         ImVec2 min = hotbar_min;
@@ -1899,6 +1899,18 @@ static void ShowGameViewport()
             ImGui::RenderFrame(min, min+ImVec2(healthWidth, healthHeight), col_health_bg);
             ImGui::RenderFrame(min, min+ImVec2(healthWidth * perc, healthHeight), col_health);
         }
+    }
+
+    // Crosshair
+    if (!Dbg::dbg_ViewBasis)
+    {
+        // want make a 3d Crosshair like MCVR. but it requires a special Pipeline (shaders).
+//        HitCursor& cur = Ethertia::getHitCursor();
+//        glm::mat4 matModel = glm::lookAt(cur.position, cur.position + cur.normal, glm::vec3(0, 1, 0));
+
+        ImVec2 min = {vp.x + vp.width/2, vp.y + vp.height/2};
+        ImVec2 size = {2, 2};
+        ImGui::RenderFrame(min-size/2, min+size, ImGui::GetColorU32({1,1,1,1}));
     }
 
     ImGui::End();

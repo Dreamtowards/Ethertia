@@ -20,7 +20,7 @@ public:
     // Deferred Rendering Compose FBO
     inline static Framebuffer* fboCompose = nullptr;
 
-    inline static float fogDensity = 0.01f;
+    inline static float fogDensity = 0.006f;
     inline static float fogGradient = 1.5f;
 
     ComposeRenderer() = delete;
