@@ -1821,14 +1821,36 @@ static void ShowPlayerInventory()
     {
         const float slot_gap = 4;
         const int row_items = 6;
-        ImGui::BeginChild("InventoryStacks", {(slot_size+slot_gap)*row_items+slot_gap, 0}, true);
+        ImGui::BeginChild("InventoryStacks", {(slot_size+slot_gap)*row_items+slot_gap, 0});
 
+        ImVec2 stacks_min = ImGui::GetCursorScreenPos();
+        ImVec2 min = stacks_min;
+        Inventory& inv = Ethertia::getPlayer()->m_Inventory;
+        for (int i = 0; i < inv.size(); ++i)
+        {
+            const ItemStack& stack = inv.at(i);
+
+            ImGui::SetCursorScreenPos(min);
+            ImGui::Button("###InvStackClick", {slot_size, slot_size});
+
+            if (!stack.empty()) {
+                ImGui::SetCursorScreenPos(min);
+                RenderItemStack(stack, slot_size);
+            }
+
+            if ((i+1) % row_items == 0) {
+                min.x = stacks_min.x;
+                min.y += slot_size + slot_gap;
+            } else {
+                min.x += slot_size + slot_gap;
+            }
+        }
 
         ImGui::EndChild();
     }
     ImGui::SameLine();
     {
-        ImGui::BeginChild("InventoryRecipes", {190, 0}, true);
+        ImGui::BeginChild("InventoryRecipes", {190, 0});
 
         for (auto& it : Recipe::REGISTRY)
         {
