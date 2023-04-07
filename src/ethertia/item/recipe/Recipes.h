@@ -23,7 +23,7 @@ public:
 #define REG_Recipe(result, ...) Recipe::REGISTRY.regist(new Recipe( result , { __VA_ARGS__ }));
 
         REG_Recipe({Items::SHEARS},
-                   {Items::IRON_INGOT}, {Items::IRON_INGOT});
+                   {Items::IRON_INGOT, 2});
 
         REG_Recipe({Items::HOE},
                    {Items::STICK, 2}, {Materials::STONE->item(), 2});

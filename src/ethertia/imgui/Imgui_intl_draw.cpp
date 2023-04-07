@@ -630,7 +630,7 @@ static void ShowEntityInsp()
 
 #include <ethertia/init/ItemTextures.h>
 
-static void ItemImage(const Item* item, float size = 64)
+static void ItemImage(const Item* item, float size = 40)
 {
     float n = Item::REGISTRY.size();
     float i = Item::REGISTRY.getOrderId(item);
@@ -639,10 +639,14 @@ static void ItemImage(const Item* item, float size = 64)
     ImGui::Image(ItemTextures::ITEM_ATLAS->pTexId(), {size, size}, uvMin, uvMin+uvSize);
 }
 
-void RenderItemStack(const ItemStack& stack, float size)
+void RenderItemStack(const ItemStack& stack, float size = 40)
 {
     ImVec2 pos = ImGui::GetCursorScreenPos();  // before ItemImage()
     ItemImage(stack.item(), size);
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::SetTooltip("%s", stack.item()->m_Name.c_str());
+    }
 
     ImGui::RenderText(pos+ImVec2{0, size-14}, std::to_string(stack.m_Amount).c_str());
 }
@@ -1807,6 +1811,51 @@ static void DrawViewportDebugs()
 
 }
 
+#include <ethertia/item/recipe/Recipe.h>
+
+static void ShowPlayerInventory()
+{
+    ImGui::Begin("Inventory");
+
+    const float slot_size = 40;
+    {
+        const float slot_gap = 4;
+        const int row_items = 6;
+        ImGui::BeginChild("InventoryStacks", {(slot_size+slot_gap)*row_items+slot_gap, 0}, true);
+
+
+        ImGui::EndChild();
+    }
+    ImGui::SameLine();
+    {
+        ImGui::BeginChild("InventoryRecipes", {190, 0}, true);
+
+        for (auto& it : Recipe::REGISTRY)
+        {
+            Recipe* recipe = it.second;
+
+
+            ImGui::Button("###RecipeCraft", {180, slot_size});
+            ImGui::SameLine(8);
+
+            RenderItemStack(recipe->m_Result, slot_size);
+
+            for (const ItemStack& src_stack : recipe->m_Source)
+            {
+                ImGui::SameLine();
+                RenderItemStack(src_stack, slot_size * 0.6f);
+            }
+
+
+//            ImGui::Dummy({180, slot_size});
+        }
+
+        ImGui::EndChild();
+    }
+
+    ImGui::End();
+}
+
 static void ShowGameViewport()
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
@@ -1985,6 +2034,7 @@ static void RenderWindows()
     if (Settings::w_Toolbar)
         ShowToolbar();
 
+    ShowPlayerInventory();
 
     if (w_ImGuiDemo)
         ImGui::ShowDemoWindow(&w_ImGuiDemo);

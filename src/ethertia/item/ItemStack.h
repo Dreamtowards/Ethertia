@@ -21,9 +21,9 @@ public:
 
     // nbt::tag_compound* m_Data = nullptr;
 
-    ItemStack(const Item* item) : m_ItemType(item), m_Amount(1) {}
+    ItemStack() {}
 
-    ItemStack(const Item* item, int amount) : m_ItemType(item), m_Amount(amount) {}
+    ItemStack(const Item* item, int amount = 1) : m_ItemType(item), m_Amount(amount) {}
 
     [[nodiscard]] bool empty() const {
         //assert((m_Amount==0) == (m_ItemType== nullptr));
