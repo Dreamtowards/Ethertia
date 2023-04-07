@@ -206,7 +206,7 @@ void main() {
 
     float Shadow = CalcShadow(FragPos);
 
-    vec3 Lighting = (Ambient + max(0.2, (1.0 - Shadow)) *
+    vec3 Lighting = (Ambient + max(0.24, (1.0 - Shadow)) *
                     (sumDiffuse + sumSpecular)) * Albedo;
 
     FragColor = vec4(Lighting, 1.0);
@@ -219,14 +219,16 @@ void main() {
 
 
     // Brush hint.
-    FragColor.r += 0.2 * min(1.0, max(0.0, cursorSize - length(cursorPos - FragPos)));
+    FragColor.rgb += 0.1 * max(0.0, (cursorSize - length(cursorPos - FragPos)) / (cursorSize*0.6) );
 
-//    {
-//        vec3 dif = abs(cursorPos-FragPos);
-////        float cross_f = min(dif.x, min(dif.y, dif.z)) < 0.01 ? 1 : 0;
-////        float cross_f = abs(cursorPos.x - FragPos.x);
-//        FragColor.r += min(dif.x, min(dif.z, dif.y)) < 0.005 ? 0.5 * max(0, 1-length(cursorPos-FragPos)/2) : 0;
-//    }
+    FragColor.rgb += abs(cursorSize - length(cursorPos - FragPos)) < 0.004 ? 1 : 0;
+
+    {
+        vec3 dif = abs(cursorPos-FragPos);
+//        float cross_f = min(dif.x, min(dif.y, dif.z)) < 0.01 ? 1 : 0;
+//        float cross_f = abs(cursorPos.x - FragPos.x);
+        FragColor.rgb += min(dif.x, min(dif.z, dif.y)) < 0.005 ? 0.5 * max(0, cursorSize-length(cursorPos-FragPos)) : 0;
+    }
 
     // Fog
     float viewLen = length(CameraPos - FragPos);
