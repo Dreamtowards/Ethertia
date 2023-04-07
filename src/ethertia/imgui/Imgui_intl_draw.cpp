@@ -1889,17 +1889,19 @@ static void ShowGameViewport()
         // Player Health
         if (gm == Gamemode::SURVIVAL)
         {
-            float healthWidth = hotbarWidth * 0.46f;
+            float healthWidth = hotbarWidth * 0.42f;
             float healthHeight = 4;
-            static ImU32 col_health_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.4});
+            static ImU32 col_health_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.6});
             static ImU32 col_health = ImGui::GetColorU32({0.8, 0.3, 0.3, 1});
             float perc = player->m_Health / 10.0f;
 
-            min = hotbar_min + ImVec2(0, -healthHeight - 4);
+            min = hotbar_min + ImVec2(0, -healthHeight - 8);
             ImGui::RenderFrame(min, min+ImVec2(healthWidth, healthHeight), col_health_bg);
             ImGui::RenderFrame(min, min+ImVec2(healthWidth * perc, healthHeight), col_health);
         }
     }
+
+    const ImVec2 vpCenter = {vp.x + vp.width/2, vp.y + vp.height/2};
 
     // Crosshair
     if (!Dbg::dbg_ViewBasis)
@@ -1908,9 +1910,24 @@ static void ShowGameViewport()
 //        HitCursor& cur = Ethertia::getHitCursor();
 //        glm::mat4 matModel = glm::lookAt(cur.position, cur.position + cur.normal, glm::vec3(0, 1, 0));
 
-        ImVec2 min = {vp.x + vp.width/2, vp.y + vp.height/2};
+        ImVec2 min = vpCenter;
         ImVec2 size = {2, 2};
         ImGui::RenderFrame(min-size/2, min+size, ImGui::GetColorU32({1,1,1,1}));
+    }
+
+    // Cell Breaking Time Indicator
+    HitCursor& cur = Ethertia::getHitCursor();
+    if (gm == Gamemode::SURVIVAL && cur.cell_breaking_time)
+    {
+        float width = 40;
+        float h = 4;
+        ImVec2 min = vpCenter + ImVec2(-width/2, -12);
+        float perc = cur.cell_breaking_time / Dbg::dbg_CurrCellBreakingFullTime;
+
+        static ImU32 col_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.8});
+        static ImU32 col_fg = ImGui::GetColorU32({0.8, 0.8, 0.8, 1});
+        ImGui::RenderFrame(min, min+ImVec2(width, h), col_bg);
+        ImGui::RenderFrame(min, min+ImVec2(width * perc, h), col_fg);
     }
 
     ImGui::End();

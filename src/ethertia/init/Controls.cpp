@@ -105,6 +105,7 @@ static void handleKeyPress()
             cur.cell_breaking_time += Ethertia::getDelta();// * Controls::gDigSpeedMultiplier;
 
             float fullDigTime = cur.cell->mtl->m_Hardness;
+            Dbg::dbg_CurrCellBreakingFullTime = fullDigTime;
             if (cur.cell_breaking_time >= fullDigTime)
             {
                 // Do Dig

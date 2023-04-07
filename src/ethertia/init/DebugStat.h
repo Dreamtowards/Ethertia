@@ -47,6 +47,9 @@ public:
     inline static Profiler dbgProf_ChunkGen;
     inline static Profiler dbgProf_ChunkMeshGen;
 
+    // Terrain Breaking.
+    inline static float dbg_CurrCellBreakingFullTime = 0;
+
 
     inline static int dbg_FPS = 0;
 
