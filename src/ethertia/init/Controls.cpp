@@ -109,8 +109,21 @@ static void handleKeyPress()
             if (cur.cell_breaking_time >= fullDigTime)
             {
                 // Do Dig
-                world->dropItem(cur.position + cur.normal * 0.2f, // +norm prevents fall down
-                                ItemStack(cur.cell->mtl->m_MaterialItem, 1));
+                const Material* mtl = cur.cell->mtl;
+                glm::vec3 pos_drop = cur.position + cur.normal * 0.2f; // +norm prevents fall down
+
+                if (mtl == Materials::LEAVES)
+                {
+                    int rnd = Timer::timestampMillis();
+                    if (rnd % 2 == 0) world->dropItem(pos_drop, ItemStack(Items::STICK, 1));
+                    if (rnd % 4 == 0) world->dropItem(pos_drop, ItemStack(Items::APPLE, 1));
+                    if (rnd % 4 == 0) world->dropItem(pos_drop, ItemStack(Items::LIME, 1));
+                }
+                else
+                {
+                    world->dropItem(pos_drop, ItemStack(mtl->m_MaterialItem, 1));
+                }
+
                 cur.cell->set_nil();
                 world->invalidateCellFp(cur.cell_position, 3);
                 world->requestRemodel(cur.cell_position);

@@ -573,7 +573,7 @@ void World::processEntityCollision() {
         assert(!player || dynamic_cast<EntityPlayer*>(player));
 
         // player pick item
-        if (player && Ethertia::getWindow().isKeyDown(GLFW_KEY_P)) {
+        if (player) {
             EntityDroppedItem* eDroppedItem = dynamic_cast<EntityDroppedItem*>(playerIsA ? ptrB : ptrA);
             if (eDroppedItem) {
                 removeEntity(eDroppedItem);
