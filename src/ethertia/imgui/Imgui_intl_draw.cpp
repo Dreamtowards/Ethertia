@@ -630,25 +630,54 @@ static void ShowEntityInsp()
 
 #include <ethertia/init/ItemTextures.h>
 
-static void ItemImage(const Item* item, float size = 40)
+static void ItemImage(const Item* item, float size = 40, ImDrawList* dl = ImGui::GetWindowDrawList())
 {
     float n = Item::REGISTRY.size();
     float i = Item::REGISTRY.getOrderId(item);
     ImVec2 uvMin = {i/n, 1};
     ImVec2 uvSize = {1.0f/n, -1};
-    ImGui::Image(ItemTextures::ITEM_ATLAS->pTexId(), {size, size}, uvMin, uvMin+uvSize);
+    ImVec2 min = ImGui::GetCursorScreenPos();
+    dl->AddImage(ItemTextures::ITEM_ATLAS->pTexId(), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
+    ImGui::Dummy({size, size});
 }
 
-void RenderItemStack(const ItemStack& stack, float size = 40)
+static ItemStack s_HoldingItemStack;
+
+void RenderItemStack(ItemStack& stack, bool manipulation = false, float size = 40)
 {
     ImVec2 pos = ImGui::GetCursorScreenPos();  // before ItemImage()
-    ItemImage(stack.item(), size);
-    if (ImGui::IsItemHovered())
+
+    if (!stack.empty())
     {
-        ImGui::SetTooltip("%s", stack.item()->m_Name.c_str());
+        ItemImage(stack.item(), size);
+    }
+    bool k = ImGui::IsKeyPressed(ImGuiKey_MouseLeft);
+
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
+    {
+        if (!stack.empty())
+        {
+            ImGui::SetTooltip("%s", stack.item()->m_Name.c_str());
+        }
+
+        if (manipulation && ImGui::IsKeyPressed(ImGuiKey_MouseLeft, false))
+        {
+
+            if (s_HoldingItemStack.empty() && !stack.empty())
+            {
+                stack.moveTo(s_HoldingItemStack);
+            }
+            else if (!s_HoldingItemStack.empty() && stack.empty())
+            {
+                s_HoldingItemStack.moveTo(stack);
+            }
+        }
     }
 
-    ImGui::RenderText(pos+ImVec2{0, size-14}, std::to_string(stack.m_Amount).c_str());
+    // Amount
+    if (!stack.empty()) {
+        ImGui::RenderText(pos + ImVec2{0, size-14}, std::to_string(stack.m_Amount).c_str());
+    }
 }
 
 
@@ -1567,6 +1596,14 @@ static void ShowDockspaceAndMainMenubar()
 
     ShowMainMenuBar();
 
+
+    // Draw Holding ItemStack. tmp.
+    if (!s_HoldingItemStack.empty())
+    {
+        ImGui::SetCursorScreenPos(ImGui::GetMousePos() - ImVec2(20, 20));
+        ItemImage(s_HoldingItemStack.item(), 40, ImGui::GetForegroundDrawList());
+    }
+    
     ImGui::End();
 }
 
@@ -1828,15 +1865,13 @@ static void ShowPlayerInventory()
         Inventory& inv = Ethertia::getPlayer()->m_Inventory;
         for (int i = 0; i < inv.size(); ++i)
         {
-            const ItemStack& stack = inv.at(i);
+            ItemStack& stack = inv.at(i);
 
             ImGui::SetCursorScreenPos(min);
             ImGui::Button("###InvStackClick", {slot_size, slot_size});
 
-            if (!stack.empty()) {
-                ImGui::SetCursorScreenPos(min);
-                RenderItemStack(stack, slot_size);
-            }
+            ImGui::SetCursorScreenPos(min);
+            RenderItemStack(stack, true, slot_size);
 
             if ((i+1) % row_items == 0) {
                 min.x = stacks_min.x;
@@ -1856,16 +1891,16 @@ static void ShowPlayerInventory()
         {
             Recipe* recipe = it.second;
 
-
+            ImVec2 mark = ImGui::GetCursorScreenPos();
             ImGui::Button("###RecipeCraft", {180, slot_size});
-            ImGui::SameLine(8);
+            ImGui::SetCursorScreenPos(mark);
 
-            RenderItemStack(recipe->m_Result, slot_size);
+            RenderItemStack(recipe->m_Result, false, slot_size);
 
-            for (const ItemStack& src_stack : recipe->m_Source)
+            for (ItemStack& src_stack : recipe->m_Source)
             {
                 ImGui::SameLine();
-                RenderItemStack(src_stack, slot_size * 0.6f);
+                RenderItemStack(src_stack, false, slot_size * 0.6f);
             }
 
 
@@ -1951,7 +1986,7 @@ static void ShowGameViewport()
             if (!stack.empty())
             {
                 ImGui::SetCursorScreenPos(min);
-                RenderItemStack(stack, hotbarSlotSize);
+                RenderItemStack(stack, false, hotbarSlotSize);
             }
 
             min.x += hotbarSlotSize + hotbarSlotGap;
@@ -2105,6 +2140,7 @@ static void RenderWindows()
     if (w_Singleplayer) {
         ShowSingleplayerWindow();
     }
+
 
 }
 
