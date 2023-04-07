@@ -62,6 +62,10 @@ public:
     {
         drops.push_back(ItemStack(m_MaterialItem, 1));
     }
+
+    const Item* item() const {
+        return m_MaterialItem;
+    }
 };
 
 #endif //ETHERTIA_MATERIAL_H

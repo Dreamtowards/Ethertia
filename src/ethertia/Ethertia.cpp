@@ -29,6 +29,7 @@
 #include <ethertia/mod/ModLoader.h>
 #include <ethertia/vr/OpenVR.h>
 #include <ethertia/init/Sounds.h>
+#include <ethertia/item/recipe/Recipes.h>
 
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/world/Biome.h>
@@ -93,6 +94,8 @@ static void Init()
     MaterialMeshes::load();
     ItemTextures::load();
 
+    Recipes::init();
+
     Sounds::load();
 
 
@@ -125,6 +128,7 @@ static void Init()
     Item::REGISTRY.dbgPrintEntries("Items");
     Biome::REGISTRY.dbgPrintEntries("Biomes");
     Command::REGISTRY.dbgPrintEntries("Commands");
+    Recipe::REGISTRY.dbgPrintEntries("Recipes");
 
 
 #ifdef ET_DEBUG
@@ -135,6 +139,7 @@ static void Init()
 #endif
 
 }
+
 
 // System Cleanup
 static void Destroy()

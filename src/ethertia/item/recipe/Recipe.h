@@ -6,7 +6,7 @@
 #define ETHERTIA_RECIPE_H
 
 #include <ethertia/util/Registry.h>
-#include <ethertia/item/Item.h>
+#include <ethertia/item/ItemStack.h>
 
 class Recipe
 {
@@ -15,15 +15,15 @@ public:
 
 
     // may use ItemStack?
-    Item* m_Produce;
-    std::vector<const Item*> m_Source;
+    ItemStack m_Result;
+    std::vector<ItemStack> m_Source;
 
-    Recipe(Item* result, const std::vector<const Item*>& source) : m_Produce(result), m_Source(source)
+    Recipe(ItemStack result, const std::initializer_list<ItemStack>& source) : m_Result(result), m_Source(source)
     {
 
     }
 
-    DECL_RegistryId(m_Produce->getRegistryId());
+    DECL_RegistryId(m_Result.item()->getRegistryId());
 
 
 };
