@@ -1603,7 +1603,7 @@ static void ShowDockspaceAndMainMenubar()
         ImGui::SetCursorScreenPos(ImGui::GetMousePos() - ImVec2(20, 20));
         ItemImage(s_HoldingItemStack.item(), 40, ImGui::GetForegroundDrawList());
     }
-    
+
     ImGui::End();
 }
 
@@ -1854,6 +1854,15 @@ static void ShowPlayerInventory()
 {
     ImGui::Begin("Inventory");
 
+    static bool tmpInited = false;
+    if (!tmpInited) {
+        tmpInited = true;
+        for (auto& it : Item::REGISTRY) {
+            ItemStack stack(it.second, 10);
+            Ethertia::getPlayer()->m_Inventory.putItemStack(stack);
+        }
+    }
+
     const float slot_size = 40;
     {
         const float slot_gap = 4;
@@ -1967,9 +1976,11 @@ static void ShowGameViewport()
     int gm = player->getGamemode();
     if (gm == Gamemode::SURVIVAL || gm == Gamemode::CREATIVE)
     {
+        int numSlots = std::min((int)player->m_Inventory.size(), 8);
+
         float hotbarSlotSize = 45;
         float hotbarSlotGap = 4;
-        float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * player->m_Inventory.size() - hotbarSlotGap;
+        float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * numSlots - hotbarSlotGap;
         const ImVec2 hotbar_min = {vp.x + (vp.width-hotbarWidth)/2,
                       vp.y + vp.height - hotbarSlotSize - hotbarSlotGap};
         ImVec2 size = {hotbarSlotSize, hotbarSlotSize};
@@ -1978,7 +1989,7 @@ static void ShowGameViewport()
 
         // Player Inventory Hotbar
         ImVec2 min = hotbar_min;
-        for (int i = 0; i < player->m_Inventory.size(); ++i)
+        for (int i = 0; i < numSlots; ++i)
         {
             ImGui::RenderFrame(min, min+size, i == player->m_HotbarSlot ? col_bg_sel : col_bg);
             ItemStack& stack = player->m_Inventory.at(i);

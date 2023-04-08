@@ -30,7 +30,7 @@ public:
 
     int m_HotbarSlot = 0;
 
-    Inventory m_Inventory{8};
+    Inventory m_Inventory{100};
 
 //    Entity* m_RidingOn = nullptr;
 
