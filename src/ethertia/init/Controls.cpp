@@ -248,10 +248,6 @@ static void handleKeyPress()
 
 
     // Hotbar Scrolling / Key Switch.
-    int HOTBAR_SLOT_MAX = 9;
-    player.m_HotbarSlot += Mth::signal(-Ethertia::getWindow().getDScroll());
-    player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, (int)player.m_Inventory.size()-1);
-
     if (KeyBindings::KEY_G_HOTBAR1.isPressed()) player.m_HotbarSlot = 0;
     if (KeyBindings::KEY_G_HOTBAR2.isPressed()) player.m_HotbarSlot = 1;
     if (KeyBindings::KEY_G_HOTBAR3.isPressed()) player.m_HotbarSlot = 2;

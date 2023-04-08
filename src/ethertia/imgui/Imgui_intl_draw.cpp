@@ -676,7 +676,10 @@ void RenderItemStack(ItemStack& stack, bool manipulation = false, float size = 4
 
     // Amount
     if (!stack.empty()) {
-        ImGui::RenderText(pos + ImVec2{0, size-14}, std::to_string(stack.m_Amount).c_str());
+        std::string str = std::to_string(stack.m_Amount);
+        ImVec2 t_size = ImGui::CalcTextSize(str.c_str());
+
+        ImGui::RenderText(pos + ImVec2{size-t_size.x, size-14}, str.c_str());
     }
 }
 
@@ -1972,15 +1975,18 @@ static void ShowGameViewport()
 
 
     // Hotbar
-    EntityPlayer* player = Ethertia::getPlayer();
-    int gm = player->getGamemode();
+    EntityPlayer& player = *Ethertia::getPlayer();
+    int gm = player.getGamemode();
     if (gm == Gamemode::SURVIVAL || gm == Gamemode::CREATIVE)
     {
-        int numSlots = std::min((int)player->m_Inventory.size(), 8);
+        int hotbarSlots = std::min((int)player.m_Inventory.size(), 8);
+        player.m_HotbarSlot += Mth::signal(-Ethertia::getWindow().getDScroll());
+        player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, hotbarSlots);
+
 
         float hotbarSlotSize = 45;
         float hotbarSlotGap = 4;
-        float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * numSlots - hotbarSlotGap;
+        float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * hotbarSlots - hotbarSlotGap;
         const ImVec2 hotbar_min = {vp.x + (vp.width-hotbarWidth)/2,
                       vp.y + vp.height - hotbarSlotSize - hotbarSlotGap};
         ImVec2 size = {hotbarSlotSize, hotbarSlotSize};
@@ -1989,10 +1995,10 @@ static void ShowGameViewport()
 
         // Player Inventory Hotbar
         ImVec2 min = hotbar_min;
-        for (int i = 0; i < numSlots; ++i)
+        for (int i = 0; i < hotbarSlots; ++i)
         {
-            ImGui::RenderFrame(min, min+size, i == player->m_HotbarSlot ? col_bg_sel : col_bg);
-            ItemStack& stack = player->m_Inventory.at(i);
+            ImGui::RenderFrame(min, min+size, i == player.m_HotbarSlot ? col_bg_sel : col_bg);
+            ItemStack& stack = player.m_Inventory.at(i);
 
             if (!stack.empty())
             {
@@ -2010,7 +2016,7 @@ static void ShowGameViewport()
             float healthHeight = 4;
             static ImU32 col_health_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.6});
             static ImU32 col_health = ImGui::GetColorU32({0.8, 0.3, 0.3, 1});
-            float perc = player->m_Health / 10.0f;
+            float perc = player.m_Health / 10.0f;
 
             min = hotbar_min + ImVec2(0, -healthHeight - 8);
             ImGui::RenderFrame(min, min+ImVec2(healthWidth, healthHeight), col_health_bg);
