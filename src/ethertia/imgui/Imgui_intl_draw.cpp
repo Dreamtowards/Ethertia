@@ -675,7 +675,8 @@ void RenderItemStack(ItemStack& stack, bool manipulation = false, float size = 4
     }
 
     // Amount
-    if (!stack.empty()) {
+    if (!stack.empty())
+    {
         std::string str = std::to_string(stack.m_Amount);
         ImVec2 t_size = ImGui::CalcTextSize(str.c_str());
 
@@ -683,6 +684,15 @@ void RenderItemStack(ItemStack& stack, bool manipulation = false, float size = 4
     }
 }
 
+#include <ethertia/entity/EntityChicken.h>
+#include <ethertia/entity/EntityFurnace.h>
+
+
+static void CreateEntityToWorld(Entity* e)
+{
+    e->position() = Ethertia::getCamera().position;;
+    Ethertia::getWorld()->addEntity(e);
+}
 
 static void ShowEntities()
 {
@@ -709,29 +719,32 @@ static void ShowEntities()
         if (ImGui::BeginMenu("Vehicle")) {
             if (ImGui::MenuItem("Helicopter"))
             {
-                EntityHelicopter* e = new EntityHelicopter();
-                e->position() = Ethertia::getCamera().position;
-
-                Ethertia::getWorld()->addEntity(e);
+                CreateEntityToWorld(new EntityHelicopter());
             }
             if (ImGui::MenuItem("DrivingSeat"))
             {
-                EntityDrivingSeat* e = new EntityDrivingSeat();
-                e->position() = Ethertia::getCamera().position;
-
-                Ethertia::getWorld()->addEntity(e);
+                CreateEntityToWorld(new EntityDrivingSeat());
             }
             if (ImGui::MenuItem("Propeller"))
             {
-                EntityPropeller* e = new EntityPropeller();
-                e->position() = Ethertia::getCamera().position ;
-
-                Ethertia::getWorld()->addEntity(e);
+                CreateEntityToWorld(new EntityPropeller());
             }
             ImGui::EndMenu();
         }
         if (ImGui::MenuItem("Light")) {
 
+        }
+        if (ImGui::MenuItem("Mesh"))
+        {
+            CreateEntityToWorld(new EntityMesh());
+        }
+        if (ImGui::MenuItem("Chicken"))
+        {
+            CreateEntityToWorld(new EntityChicken());
+        }
+        if (ImGui::MenuItem("Furnace"))
+        {
+            CreateEntityToWorld(new EntityFurnace());
         }
         ImGui::SeparatorText("Items");
 
@@ -1980,9 +1993,12 @@ static void ShowGameViewport()
     if (gm == Gamemode::SURVIVAL || gm == Gamemode::CREATIVE)
     {
         int hotbarSlots = std::min((int)player.m_Inventory.size(), 8);
-        player.m_HotbarSlot += Mth::signal(-Ethertia::getWindow().getDScroll());
-        player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, hotbarSlots);
 
+        if (Ethertia::isIngame())
+        {
+            player.m_HotbarSlot += Mth::signal(-Ethertia::getWindow().getDScroll());
+            player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, hotbarSlots);
+        }
 
         float hotbarSlotSize = 45;
         float hotbarSlotGap = 4;

@@ -7,7 +7,7 @@
 
 #include <ethertia/entity/Entity.h>
 
-class EntityChicken
+class EntityChicken : public Entity
 {
 public:
 
@@ -16,7 +16,10 @@ public:
     EntityChicken()
     {
 
-        // setGravity(0, -0.8, 0)
+        initRigidbody(1.0f, new btSphereShape(0.2f));
+        m_Rigidbody->setGravity({0, -0.8, 0});
+
+
     }
 
 

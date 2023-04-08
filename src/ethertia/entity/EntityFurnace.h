@@ -20,6 +20,12 @@ public:
 
     ItemStack m_Output;
 
+    EntityFurnace()
+    {
+
+        initRigidbody(30.0f, new btSphereShape(0.2f));
+    }
+
 //    bool canSmelt() {
 //        if (m_Fuel.empty())
 //            return false;
