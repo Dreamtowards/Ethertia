@@ -555,11 +555,18 @@ void World::processEntityCollision() {
     btDispatcher* disp = m_DynamicsWorld->getDispatcher();
     int numManifolds = disp->getNumManifolds();
 
+    // CNS. 由於要刪除被拾起的物體，應該在迭代完成后刪除，否則可能會在本次接下來的迭代中再次訪問 造成非法訪問到已被刪除的 從而崩潰
+    std::vector<EntityDroppedItem*> PickDroppedItems;
+    std::vector<std::pair<EntityDroppedItem*, EntityDroppedItem*>> MergeDroppedItems;
+
     for (int i = 0; i < numManifolds; ++i)
     {
         btPersistentManifold* manifold = disp->getManifoldByIndexInternal(i);
-        const btCollisionObject* colA = static_cast<const btCollisionObject*>(manifold->getBody0());
-        const btCollisionObject* colB = static_cast<const btCollisionObject*>(manifold->getBody1());
+//        const btCollisionObject* colA = static_cast<const btCollisionObject*>(manifold->getBody0());
+//        const btCollisionObject* colB = static_cast<const btCollisionObject*>(manifold->getBody1());
+
+       btCollisionObject* colA = (btCollisionObject*)manifold->getBody0();
+       btCollisionObject* colB = (btCollisionObject*)manifold->getBody1();
 
         Entity* ptrA = static_cast<Entity*>(colA->getUserPointer());
         Entity* ptrB = static_cast<Entity*>(colB->getUserPointer());
@@ -576,10 +583,7 @@ void World::processEntityCollision() {
         if (player) {
             EntityDroppedItem* eDroppedItem = dynamic_cast<EntityDroppedItem*>(playerIsA ? ptrB : ptrA);
             if (eDroppedItem) {
-                removeEntity(eDroppedItem);
-                ItemStack& stack = eDroppedItem->m_DroppedItem;
-                player->m_Inventory.putItemStack(stack);
-                delete eDroppedItem;  // there?
+                PickDroppedItems.push_back(eDroppedItem);
             }
         } else {
             // item auto merge
@@ -588,10 +592,9 @@ void World::processEntityCollision() {
             if (itemA && itemB)
             {
                 if (itemA->m_DroppedItem.stackableWith(itemB->m_DroppedItem)) {
-                    removeEntity(itemA);
-                    itemA->m_DroppedItem.moveTo(itemB->m_DroppedItem);
-                    delete itemA;
+                    MergeDroppedItems.push_back({itemA, itemB});
                 }
+
             }
         }
 
@@ -615,8 +618,22 @@ void World::processEntityCollision() {
             }
         }
     }
-
     EntityPlayer* player = Ethertia::getPlayer();
+
+    for (auto& pair : MergeDroppedItems) {
+        EntityDroppedItem* itemA = pair.first;
+        EntityDroppedItem* itemB = pair.second;
+        removeEntity(itemA);
+        itemA->m_DroppedItem.moveTo(itemB->m_DroppedItem);
+        delete itemA;
+    }
+    for (EntityDroppedItem* eDroppedItem : PickDroppedItems) {
+        removeEntity(eDroppedItem);
+        ItemStack& stack = eDroppedItem->m_DroppedItem;
+        player->m_Inventory.putItemStack(stack);
+        delete eDroppedItem;  // there?
+    }
+
 //    if (player->m_OnGround)
 //        Log::info("onG");
 //    if (player->m_AppliedImpulse > 200)
