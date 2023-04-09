@@ -14,7 +14,7 @@
 #include <ethertia/util/AABB.h>
 #include <ethertia/world/World.h>
 
-#include <ethertia/entity/EntityComponent.h>
+#include <ethertia/entity/component/EntityComponent.h>
 #include <ethertia/render/Texture.h>
 #include <ethertia/render/VertexBuffer.h>
 #include <ethertia/util/Loader.h>

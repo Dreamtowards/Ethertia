@@ -684,7 +684,7 @@ void RenderItemStack(ItemStack& stack, bool manipulation = false, float size = 4
     }
 }
 
-#include <ethertia/entity/EntityChicken.h>
+#include <ethertia/entity/passive/EntityChicken.h>
 #include <ethertia/entity/EntityFurnace.h>
 
 

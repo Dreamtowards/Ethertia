@@ -221,14 +221,14 @@ void main() {
     // Brush hint.
     FragColor.rgb += 0.1 * max(0.0, (cursorSize - length(cursorPos - FragPos)) / (cursorSize*0.6) );
 
-    FragColor.rgb += abs(cursorSize - length(cursorPos - FragPos)) < 0.004 ? 1 : 0;
+    FragColor.rgb += abs(cursorSize - length(cursorPos - FragPos)) < 0.004 ? 0.3 : 0;
 
-    {
-        vec3 dif = abs(cursorPos-FragPos);
-//        float cross_f = min(dif.x, min(dif.y, dif.z)) < 0.01 ? 1 : 0;
-//        float cross_f = abs(cursorPos.x - FragPos.x);
-        FragColor.rgb += min(dif.x, min(dif.z, dif.y)) < 0.005 ? 0.5 * max(0, cursorSize-length(cursorPos-FragPos)) : 0;
-    }
+//    {
+//        vec3 dif = abs(cursorPos-FragPos);
+////        float cross_f = min(dif.x, min(dif.y, dif.z)) < 0.01 ? 1 : 0;
+////        float cross_f = abs(cursorPos.x - FragPos.x);
+//        FragColor.rgb += min(dif.x, min(dif.z, dif.y)) < 0.005 ? 0.5 * max(0, cursorSize-length(cursorPos-FragPos)) : 0;
+//    }
 
     // Fog
     float viewLen = length(CameraPos - FragPos);
