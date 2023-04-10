@@ -214,31 +214,31 @@ static void ShowMainMenuBar()
         }
 
 
-        {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
-            ImGui::SameLine(ImGui::GetWindowWidth() - 180 - 100);
-
-            if (ImGui::BeginCombo("cTmp", "Ethertia | Debug")) {
-                ImGui::Selectable("Ethertia", true);
-                ImGui::Selectable("DedicatedServer", false);
-                ImGui::EndCombo();
-            }
-
-            float sz = 14;
-
-//            ImGui::ImageButton("gPP", LazyLoadTex("gui/icon/play-prev.png")->pTexId(), {sz,sz});
+//        {
+//            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
+//            ImGui::SameLine(ImGui::GetWindowWidth() - 180 - 100);
 //
-//            if (ImGui::ImageButton("gPlayPause",
-//                                   Ethertia::isIngame() ? LazyLoadTex("gui/icon/pause28.png")->pTexId() :
-//                                   LazyLoadTex("gui/icon/play28.png")->pTexId(), {sz, sz})) {
-//                Ethertia::isIngame() = !Ethertia::isIngame();
+//            if (ImGui::BeginCombo("cTmp", "Ethertia | Debug")) {
+//                ImGui::Selectable("Ethertia", true);
+//                ImGui::Selectable("DedicatedServer", false);
+//                ImGui::EndCombo();
 //            }
 //
-//            ImGui::ImageButton("gSettings", LazyLoadTex("gui/icon/cogs28.png")->pTexId(), {sz,sz});
-//            ImGui::ImageButton("gSettings2", LazyLoadTex("gui/icon/books.png")->pTexId(), {sz,sz});
-
-            ImGui::PopStyleVar();
-        }
+//            float sz = 14;
+//
+////            ImGui::ImageButton("gPP", LazyLoadTex("gui/icon/play-prev.png")->pTexId(), {sz,sz});
+////
+////            if (ImGui::ImageButton("gPlayPause",
+////                                   Ethertia::isIngame() ? LazyLoadTex("gui/icon/pause28.png")->pTexId() :
+////                                   LazyLoadTex("gui/icon/play28.png")->pTexId(), {sz, sz})) {
+////                Ethertia::isIngame() = !Ethertia::isIngame();
+////            }
+////
+////            ImGui::ImageButton("gSettings", LazyLoadTex("gui/icon/cogs28.png")->pTexId(), {sz,sz});
+////            ImGui::ImageButton("gSettings2", LazyLoadTex("gui/icon/books.png")->pTexId(), {sz,sz});
+//
+//            ImGui::PopStyleVar();
+//        }
 
 
         ImGui::EndMenuBar();

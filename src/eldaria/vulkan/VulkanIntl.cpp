@@ -499,20 +499,23 @@ public:
 
 
 
-//        VkDescriptorSetLayout descriptorSetLayout = vkh::CreateDescriptorSetLayout({
-//                // binding 0: vsh uniform
-//                vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
-//                // 1: fsh uniform
-//                vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
-//                // 2: fsh gPosition
-//                vkh::c_DescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
-//                // 3: fsh gNormal
-//                vkh::c_DescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
-//                // 4: fsh gAlbedo
-//                vkh::c_DescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
-//        });
-//
-//        VkPipelineLayout pipelineLayout = vkh::CreatePipelineLayout(1, &descriptorSetLayout);
+
+
+
+        VkDescriptorSetLayout descriptorSetLayout = vkh::CreateDescriptorSetLayout({
+                // binding 0: vsh uniform
+                vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
+                // 1: fsh uniform
+                vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                // 2: fsh gPosition
+                vkh::c_DescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                // 3: fsh gNormal
+                vkh::c_DescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                // 4: fsh gAlbedo
+                vkh::c_DescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+        });
+
+        VkPipelineLayout pipelineLayout = vkh::CreatePipelineLayout(1, &descriptorSetLayout);
 
 
         //  Compose Pipeline
@@ -530,6 +533,7 @@ public:
         pipelineInfo.pColorBlendState = &colorBlending;
 
         pipelineInfo.renderPass = g_RenderPass;
+//        pipelineInfo.layout = pipelineLayout;
 
 
 
@@ -901,35 +905,36 @@ public:
 
     static void RecordCommandBuffer(VkCommandBuffer cmdbuf, uint32_t imageIdx)
     {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; // Optional
-        VK_CHECK(vkBeginCommandBuffer(cmdbuf, &beginInfo));
+        vkx::CommandBuffer cmd{cmdbuf};
+        cmd.BeginCommandBuffer(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 
-        // Gbuffer
+        // Deferred :: Gbuffer
 
         VkClearValue clearValues[4]{};
-        clearValues[0].color = {0.0f, 0.0f, 0.2f, 1.0f};
-        clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f};
-        clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gPosition
+        clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gNormal
+        clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gAlbedo
         clearValues[3].depthStencil = {1.0f, 0};
         VkExtent2D gbufferExtent = {1024, 1024};
-        vkh::CmdBeginRenderPass(cmdbuf, g_Deferred_Gbuffer.m_RenderPass,
-                                        g_Deferred_Gbuffer.m_Framebuffer, gbufferExtent, 4, clearValues);
+        cmd.CmdBeginRenderPass(g_Deferred_Gbuffer.m_RenderPass, g_Deferred_Gbuffer.m_Framebuffer, gbufferExtent,
+                               4, clearValues);
 
-        vkh::CmdBindGraphicsPipeline(cmdbuf, g_Deferred_Gbuffer.m_Pipeline);
-        vkh::CmdSetViewport(cmdbuf, gbufferExtent);
-        vkh::CmdSetScissor(cmdbuf, gbufferExtent);
+        cmd.CmdBindGraphicsPipeline(g_Deferred_Gbuffer.m_Pipeline);
+        cmd.CmdSetViewport(gbufferExtent);
+        cmd.CmdSetScissor(gbufferExtent);
 
-        vkCmdBindDescriptorSets(cmdbuf, VK_PIPELINE_BIND_POINT_GRAPHICS, g_PipelineLayout, 0, 1,
-                                &g_DescriptorSets[g_CurrentFrameInflight], 0, nullptr);  // i?
+        cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentFrameInflight]);
 
-        vkh::CmdBindVertexBuffer(cmdbuf, g_TestModel.m_VertexBuffer);
+        cmd.CmdBindVertexBuffer(g_TestModel.m_VertexBuffer);
+        cmd.CmdBindIndexBuffer(g_TestModel.m_IndexBuffer);
+        cmd.CmdDrawIndexed(g_TestModel.m_VertexCount);
 
-        vkCmdDraw(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0);
+        cmd.CmdEndRenderPass();
 
 
-        vkCmdEndRenderPass(cmdbuf);  // End Gbuffer
+
+        // Deferred :: Compose
+
 
 
 
@@ -938,31 +943,25 @@ public:
         // Main
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
-        vkh::CmdBeginRenderPass(cmdbuf, g_RenderPass, g_SwapchainFramebuffers[imageIdx], g_SwapchainExtent,
-                                2, clearValues);
+        cmd.CmdBeginRenderPass(g_RenderPass, g_SwapchainFramebuffers[imageIdx], g_SwapchainExtent,
+                               2, clearValues);
 
-        vkh::CmdBindGraphicsPipeline(cmdbuf, g_GraphicsPipeline);
-        vkh::CmdSetViewport(cmdbuf, g_SwapchainExtent);
-        vkh::CmdSetScissor(cmdbuf, g_SwapchainExtent);
+//        cmd.CmdBindGraphicsPipeline(g_GraphicsPipeline);
+        cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
+        cmd.CmdSetViewport(g_SwapchainExtent);
+        cmd.CmdSetScissor(g_SwapchainExtent);
 
-        vkCmdBindDescriptorSets(cmdbuf, VK_PIPELINE_BIND_POINT_GRAPHICS, g_PipelineLayout, 0, 1,
-                                &g_DescriptorSets[g_CurrentFrameInflight], 0, nullptr);  // i?
+        cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentFrameInflight]);
 
-        vkh::CmdBindVertexBuffer(cmdbuf, g_TestModel.m_VertexBuffer);
-
-        vkh::CmdBindIndexBuffer(cmdbuf, g_TestModel.m_IndexBuffer);
-
-//        vkCmdDraw(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0);
-        vkCmdDrawIndexed(cmdbuf, g_TestModel.m_VertexCount, 1, 0, 0, 0);
+        cmd.CmdBindVertexBuffer(g_TestModel.m_VertexBuffer);
+        cmd.CmdBindIndexBuffer(g_TestModel.m_IndexBuffer);
+        cmd.CmdDrawIndexed(g_TestModel.m_VertexCount);
 
         Imgui::RenderGUI(cmdbuf);
 
-        vkCmdEndRenderPass(cmdbuf);
+        cmd.CmdEndRenderPass();
 
-
-        if (vkEndCommandBuffer(cmdbuf) != VK_SUCCESS) {
-            throw std::runtime_error("failed to record command buffer.");
-        }
+        cmd.EndCommandBuffer();
     }
 
 

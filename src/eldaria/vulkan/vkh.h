@@ -32,6 +32,46 @@ namespace vkx
         void destroy();
     };
 
+    class CommandBuffer
+    {
+    public:
+        VkCommandBuffer m_CommandBuffer;
+
+        void BeginCommandBuffer(VkCommandBufferUsageFlags usage = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+        void EndCommandBuffer();
+
+        void CmdBeginRenderPass(VkRenderPass renderPass,
+                                VkFramebuffer framebuffer,
+                                VkExtent2D renderAreaExtent,
+                                int numClearValues,
+                                VkClearValue* pClearValues);
+        void CmdEndRenderPass();
+
+        void CmdSetViewport(VkExtent2D wh,
+                            float x = 0, float y = 0,
+                            float minDepth = 0.0f, float maxDepth = 1.0f);
+
+        void CmdSetScissor(VkExtent2D extent,
+                           VkOffset2D offset = {0, 0});
+
+        void CmdBindVertexBuffer(const VkBuffer vbuf);
+
+        void CmdBindIndexBuffer(const VkBuffer idx_buf);
+
+        void CmdBindGraphicsPipeline(VkPipeline graphics_pipeline);
+
+        void CmdBindDescriptorSets(VkPipelineLayout pipelineLayout,
+                                   const VkDescriptorSet* pDescriptorSets,
+                                   int descriptorSetCount = 1,
+                                   VkPipelineBindPoint ePipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS);
+
+        void CmdDrawIndexed(uint32_t vertex_count);
+
+    };
+
+
+
+
     class Pipeline
     {
     public:

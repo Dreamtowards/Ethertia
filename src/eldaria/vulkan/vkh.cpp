@@ -20,7 +20,68 @@ void vkx::VertexBuffer::destroy()
 }
 
 
+// ============== CommandBuffer ==============
 
+void vkx::CommandBuffer::BeginCommandBuffer(VkCommandBufferUsageFlags usage)
+{
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = usage;
+    VK_CHECK(vkBeginCommandBuffer(m_CommandBuffer, &beginInfo));
+}
+
+void vkx::CommandBuffer::EndCommandBuffer()
+{
+    VK_CHECK(vkEndCommandBuffer(m_CommandBuffer));
+}
+
+// no: when pClearValues=nullptr, color/depthStencil will be {0,0,0,1}, {1, 0}
+void vkx::CommandBuffer::CmdBeginRenderPass(VkRenderPass renderPass, VkFramebuffer framebuffer,
+        VkExtent2D renderAreaExtent, int numClearValues, VkClearValue* pClearValues)
+{
+    vkh::CmdBeginRenderPass(m_CommandBuffer, renderPass, framebuffer, renderAreaExtent, numClearValues, pClearValues);
+}
+void vkx::CommandBuffer::CmdEndRenderPass()
+{
+    vkCmdEndRenderPass(m_CommandBuffer);
+}
+
+void vkx::CommandBuffer::CmdSetViewport(VkExtent2D wh, float x, float y, float minDepth, float maxDepth)
+{
+    vkh::CmdSetViewport(m_CommandBuffer, wh, x, y, minDepth, maxDepth);
+}
+
+void vkx::CommandBuffer::CmdSetScissor(VkExtent2D extent, VkOffset2D offset)
+{
+    vkh::CmdSetScissor(m_CommandBuffer, extent, offset);
+}
+
+void vkx::CommandBuffer::CmdBindVertexBuffer(const VkBuffer vbuf)
+{
+    vkh::CmdBindVertexBuffer(m_CommandBuffer, vbuf);
+}
+
+void vkx::CommandBuffer::CmdBindIndexBuffer(const VkBuffer idx_buf)
+{
+    vkh::CmdBindIndexBuffer(m_CommandBuffer, idx_buf);
+}
+
+void vkx::CommandBuffer::CmdBindGraphicsPipeline(VkPipeline graphics_pipeline)
+{
+    vkh::CmdBindGraphicsPipeline(m_CommandBuffer, graphics_pipeline);
+}
+
+void vkx::CommandBuffer::CmdDrawIndexed(uint32_t vertex_count)
+{
+    vkCmdDrawIndexed(m_CommandBuffer, vertex_count, 1, 0, 0, 0);
+}
+
+void vkx::CommandBuffer::CmdBindDescriptorSets(VkPipelineLayout pipelineLayout, const VkDescriptorSet* pDescriptorSets,
+                                               int descriptorSetCount, VkPipelineBindPoint ePipelineBindPoint)
+{
+    vkCmdBindDescriptorSets(m_CommandBuffer, ePipelineBindPoint, pipelineLayout, 0, descriptorSetCount,
+                            pDescriptorSets, 0, nullptr);
+}
 
 
 
@@ -155,14 +216,16 @@ VkInstance vkh::CreateInstance()
     instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 
     // Optional Info.
-    VkApplicationInfo vkAppInfo{};
-    vkAppInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    vkAppInfo.pApplicationName = "N/A";
-    vkAppInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
-    vkAppInfo.pEngineName = "No Engine";
-    vkAppInfo.engineVersion = VK_MAKE_VERSION(0, 0, 1);
-    vkAppInfo.apiVersion = VK_API_VERSION_1_0;
-    instInfo.pApplicationInfo = &vkAppInfo;
+    VkApplicationInfo vkaInfo{
+        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+        .pNext = nullptr,
+        .pApplicationName = "N/A",
+        .applicationVersion = VK_MAKE_VERSION(0, 0, 1),
+        .pEngineName = "No Engine",
+        .engineVersion = VK_MAKE_VERSION(0, 0, 1),
+        .apiVersion = VK_API_VERSION_1_0
+    };
+    instInfo.pApplicationInfo = &vkaInfo;
 
 
     // VkInstance Extensions.
@@ -1236,5 +1299,3 @@ void vkh::CmdBindGraphicsPipeline(VkCommandBuffer cmdbuf, VkPipeline graphicsPip
 {
     vkCmdBindPipeline(cmdbuf, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 }
-
-//};
