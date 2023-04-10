@@ -113,16 +113,18 @@ public:
 
 
         CreateDescriptorSetLayout();
-        CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
+
+        g_PipelineLayout = vkh::CreatePipelineLayout(1, &g_DescriptorSetLayout);
+//        CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
 
         {
             BitmapImage bitmapImage = Loader::loadPNG("./assets/entity/viking_room/viking_room.png");
             vkh::CreateTextureImage(bitmapImage, g_TextureImage);
 
             VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
-            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
-            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
-            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
+//            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
+//            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
+//            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
             g_TestModel.m_VertexCount = vdata.vertexCount();
             vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), g_TestModel.m_VertexBuffer, g_TestModel.m_VertexBufferMemory);
             vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), g_TestModel.m_IndexBuffer, g_TestModel.m_IndexBufferMemory, true);
@@ -621,7 +623,6 @@ public:
         VkPipelineColorBlendAttachmentState colorBlendAttachment = vkh::c_PipelineColorBlendAttachmentState();
         VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(1, &colorBlendAttachment);
 
-        g_PipelineLayout = vkh::CreatePipelineLayout(1, &g_DescriptorSetLayout);
 
         VkPipelineShaderStageCreateInfo shaderStages[2];
         vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
@@ -953,9 +954,7 @@ public:
 
         cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentFrameInflight]);
 
-        cmd.CmdBindVertexBuffer(g_TestModel.m_VertexBuffer);
-        cmd.CmdBindIndexBuffer(g_TestModel.m_IndexBuffer);
-        cmd.CmdDrawIndexed(g_TestModel.m_VertexCount);
+        cmd.CmdDrawIndexed(6);
 
         Imgui::RenderGUI(cmdbuf);
 
