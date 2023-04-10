@@ -137,6 +137,8 @@ static void renderWorldCompose(World* world)
     glClearColor(0,0,0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+//    glEnable(GL_FRAMEBUFFER_SRGB);  // built-in Gamma Correction
+
     float daytime = Ethertia::getWorld()->getDayTime();
 
     SkyboxRenderer::renderWorldSkybox(daytime);
