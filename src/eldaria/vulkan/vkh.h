@@ -87,6 +87,68 @@ namespace vkx
         VkPipelineLayout m_PipelineLayout = nullptr;
 
     };
+
+    class DescriptorWrites
+    {
+        VkDescriptorSet m_DescriptorSet;
+
+        std::vector<VkWriteDescriptorSet> m_DescriptorWrites;
+
+        std::vector<VkDescriptorBufferInfo> m_BufferInfos;  // keep the info valid in memory until operate Allocate.
+        std::vector<VkDescriptorImageInfo>  m_ImageInfos;
+
+    public:
+        DescriptorWrites(VkDescriptorSet descriptorSet, int uboCount = 10, int imageCount = 10) : m_DescriptorSet(descriptorSet)
+        {
+            m_BufferInfos.reserve(uboCount);
+            m_ImageInfos.reserve(imageCount);
+        }
+
+        void WriteDescriptor_UniformBuffer(VkBuffer buffer, VkDeviceSize size)
+        {
+            VkDescriptorBufferInfo& bufferInfo = m_BufferInfos.emplace_back();
+            bufferInfo.buffer = buffer;
+            bufferInfo.offset = 0;
+            bufferInfo.range = size;
+
+            VkWriteDescriptorSet write;
+            write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write.dstSet = m_DescriptorSet;
+            write.dstBinding = m_DescriptorWrites.size();
+            write.dstArrayElement = 0;
+            write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            write.descriptorCount = 1;
+            write.pBufferInfo = &bufferInfo;
+
+            m_DescriptorWrites.push_back(write);
+        }
+
+        void WriteDescriptor_CombinedImageSampler(VkImageView imageView, VkSampler sampler)
+        {
+            VkDescriptorImageInfo& imageInfo = m_ImageInfos.emplace_back();
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.sampler = sampler;
+            imageInfo.imageView = imageView;
+
+            VkWriteDescriptorSet write;
+            write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write.dstSet = m_DescriptorSet;
+            write.dstBinding = m_DescriptorWrites.size();
+            write.dstArrayElement = 0;
+            write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            write.descriptorCount = 1;
+            write.pImageInfo = &imageInfo;
+
+            m_DescriptorWrites.push_back(write);
+        }
+
+        void WriteDescriptorSets(VkDevice device)
+        {
+            vkUpdateDescriptorSets(device, m_DescriptorWrites.size(), m_DescriptorWrites.data(), 0, nullptr);
+        }
+
+
+    };
 }
 
 struct Image

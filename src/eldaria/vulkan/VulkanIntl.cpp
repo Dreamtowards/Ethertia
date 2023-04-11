@@ -839,70 +839,79 @@ public:
         VkDescriptorSet descriptorSet;
         VK_CHECK(vkAllocateDescriptorSets(g_Device, &allocInfo, &descriptorSet));
 
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = g_UniformBuffers[0];
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+//        VkDescriptorBufferInfo bufferInfo{};
+//        bufferInfo.buffer = g_UniformBuffers[0];
+//        bufferInfo.offset = 0;
+//        bufferInfo.range = sizeof(UniformBufferObject);
+//
+//        VkDescriptorImageInfo imageInfo{};
+//        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+//        imageInfo.sampler = g_TextureSampler;
+//        imageInfo.imageView = g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView;
+//
+//        VkDescriptorImageInfo imageInfo1{};
+//        imageInfo1.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+//        imageInfo1.sampler = g_TextureSampler;
+//        imageInfo1.imageView = g_Deferred_Gbuffer.gNormal.m_Img.m_ImageView;
+//
+//
+//        VkDescriptorImageInfo imageInfo2{};
+//        imageInfo2.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+//        imageInfo2.sampler = g_TextureSampler;
+//        imageInfo2.imageView = g_Deferred_Gbuffer.gAlbedo.m_Img.m_ImageView;
+//
+//        std::array<VkWriteDescriptorSet, 5> descriptorWrites{};
+//
+//        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//        descriptorWrites[0].dstSet = descriptorSet;
+//        descriptorWrites[0].dstBinding = 0;
+//        descriptorWrites[0].dstArrayElement = 0;
+//        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//        descriptorWrites[0].descriptorCount = 1;
+//        descriptorWrites[0].pBufferInfo = &bufferInfo;
+//
+//        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//        descriptorWrites[1].dstSet = descriptorSet;
+//        descriptorWrites[1].dstBinding = 1;
+//        descriptorWrites[1].dstArrayElement = 0;
+//        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//        descriptorWrites[1].descriptorCount = 1;
+//        descriptorWrites[1].pBufferInfo = &bufferInfo;
+//
+//        descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//        descriptorWrites[2].dstSet = descriptorSet;
+//        descriptorWrites[2].dstBinding = 2;
+//        descriptorWrites[2].dstArrayElement = 0;
+//        descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//        descriptorWrites[2].descriptorCount = 1;
+//        descriptorWrites[2].pImageInfo = &imageInfo;
+//
+//        descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//        descriptorWrites[3].dstSet = descriptorSet;
+//        descriptorWrites[3].dstBinding = 3;
+//        descriptorWrites[3].dstArrayElement = 0;
+//        descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//        descriptorWrites[3].descriptorCount = 1;
+//        descriptorWrites[3].pImageInfo = &imageInfo1;
+//
+//        descriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//        descriptorWrites[4].dstSet = descriptorSet;
+//        descriptorWrites[4].dstBinding = 4;
+//        descriptorWrites[4].dstArrayElement = 0;
+//        descriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//        descriptorWrites[4].descriptorCount = 1;
+//        descriptorWrites[4].pImageInfo = &imageInfo2;
+//        vkUpdateDescriptorSets(g_Device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.sampler = g_TextureSampler;
-        imageInfo.imageView = g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView;
+        vkx::DescriptorWrites dwrites{descriptorSet};
+        dwrites.WriteDescriptor_UniformBuffer(g_UniformBuffers[0], sizeof(UniformBufferObject));
+        dwrites.WriteDescriptor_UniformBuffer(g_UniformBuffers[0], sizeof(UniformBufferObject));
+        dwrites.WriteDescriptor_CombinedImageSampler(g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView, g_TextureSampler);
+        dwrites.WriteDescriptor_CombinedImageSampler(g_Deferred_Gbuffer.gNormal.m_Img.m_ImageView, g_TextureSampler);
+        dwrites.WriteDescriptor_CombinedImageSampler(g_Deferred_Gbuffer.gAlbedo.m_Img.m_ImageView, g_TextureSampler);
 
-        VkDescriptorImageInfo imageInfo1{};
-        imageInfo1.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo1.sampler = g_TextureSampler;
-        imageInfo1.imageView = g_Deferred_Gbuffer.gNormal.m_Img.m_ImageView;
+        dwrites.WriteDescriptorSets(g_Device);
 
-
-        VkDescriptorImageInfo imageInfo2{};
-        imageInfo2.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo2.sampler = g_TextureSampler;
-        imageInfo2.imageView = g_Deferred_Gbuffer.gAlbedo.m_Img.m_ImageView;
-
-        std::array<VkWriteDescriptorSet, 5> descriptorWrites{};
-
-        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = descriptorSet;
-        descriptorWrites[0].dstBinding = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = descriptorSet;
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pBufferInfo = &bufferInfo;
-
-        descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[2].dstSet = descriptorSet;
-        descriptorWrites[2].dstBinding = 2;
-        descriptorWrites[2].dstArrayElement = 0;
-        descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[2].descriptorCount = 1;
-        descriptorWrites[2].pImageInfo = &imageInfo;
-
-        descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[3].dstSet = descriptorSet;
-        descriptorWrites[3].dstBinding = 3;
-        descriptorWrites[3].dstArrayElement = 0;
-        descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[3].descriptorCount = 1;
-        descriptorWrites[3].pImageInfo = &imageInfo1;
-
-        descriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[4].dstSet = descriptorSet;
-        descriptorWrites[4].dstBinding = 4;
-        descriptorWrites[4].dstArrayElement = 0;
-        descriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[4].descriptorCount = 1;
-        descriptorWrites[4].pImageInfo = &imageInfo2;
-
-        vkUpdateDescriptorSets(g_Device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 
         return descriptorSet;
     }
