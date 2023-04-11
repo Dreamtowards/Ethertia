@@ -104,14 +104,14 @@ namespace vkx
             m_ImageInfos.reserve(imageCount);
         }
 
-        void WriteDescriptor_UniformBuffer(VkBuffer buffer, VkDeviceSize size)
+        void UniformBuffer(VkBuffer buffer, VkDeviceSize size)
         {
             VkDescriptorBufferInfo& bufferInfo = m_BufferInfos.emplace_back();
             bufferInfo.buffer = buffer;
             bufferInfo.offset = 0;
             bufferInfo.range = size;
 
-            VkWriteDescriptorSet write;
+            VkWriteDescriptorSet write{};
             write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             write.dstSet = m_DescriptorSet;
             write.dstBinding = m_DescriptorWrites.size();
@@ -123,14 +123,14 @@ namespace vkx
             m_DescriptorWrites.push_back(write);
         }
 
-        void WriteDescriptor_CombinedImageSampler(VkImageView imageView, VkSampler sampler)
+        void CombinedImageSampler(VkImageView imageView, VkSampler sampler)
         {
             VkDescriptorImageInfo& imageInfo = m_ImageInfos.emplace_back();
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             imageInfo.sampler = sampler;
             imageInfo.imageView = imageView;
 
-            VkWriteDescriptorSet write;
+            VkWriteDescriptorSet write{};
             write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             write.dstSet = m_DescriptorSet;
             write.dstBinding = m_DescriptorWrites.size();
@@ -149,6 +149,12 @@ namespace vkx
 
 
     };
+
+
+    // ============ low level encapsulate ============
+
+    void AllocateDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, int descriptorSetCount, VkDescriptorSetLayout* descriptorSetLayouts, VkDescriptorSet* out_descriptorSets);
+
 }
 
 struct Image

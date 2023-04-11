@@ -86,6 +86,21 @@ void vkx::CommandBuffer::CmdBindDescriptorSets(VkPipelineLayout pipelineLayout, 
 
 
 
+// ================== Descriptor ==================
+
+void vkx::AllocateDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, int descriptorSetCount, VkDescriptorSetLayout* descriptorSetLayouts, VkDescriptorSet* out_descriptorSets)
+{
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = descriptorSetCount;
+    allocInfo.pSetLayouts = descriptorSetLayouts;
+
+    VK_CHECK(vkAllocateDescriptorSets(device, &allocInfo, out_descriptorSets));
+}
+
+
+
 
 // for VkInstance, not VkDevice.
 static void CheckValidationLayersSupport(const std::vector<const char*>& validationLayers) {
