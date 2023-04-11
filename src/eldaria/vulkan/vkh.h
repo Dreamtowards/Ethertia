@@ -48,9 +48,9 @@ namespace vkx
         void CmdSetScissor(VkExtent2D extent,
                            VkOffset2D offset = {0, 0});
 
-        void CmdBindVertexBuffer(const VkBuffer vbuf);
+        void CmdBindVertexBuffer(VkBuffer vbuf);
 
-        void CmdBindIndexBuffer(const VkBuffer idx_buf);
+        void CmdBindIndexBuffer(VkBuffer idx_buf);
 
         void CmdBindGraphicsPipeline(VkPipeline graphics_pipeline);
 
@@ -62,6 +62,14 @@ namespace vkx
         void CmdDrawIndexed(uint32_t vertex_count);
 
     };
+
+    // Onetime CommandBuffer
+    void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record,
+                             VkDevice device, VkCommandPool commandPool, VkQueue queue);
+
+    // use Global Default device/cmdpool/queue.
+    void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record);
+
 
 
     class Device
@@ -191,6 +199,15 @@ namespace vkx
         VkBuffer buffer() { return m_Buffer; };
     };
 
+    struct Image
+    {
+        VkImage m_Image = nullptr;
+        VkDeviceMemory m_ImageMemory = nullptr;
+        VkImageView m_ImageView = nullptr;
+
+        Image(VkImage image, VkDeviceMemory imageMemory, VkImageView imageView);
+        ~Image();
+    };
 
 
 
@@ -217,16 +234,25 @@ namespace vkx
                       VkDeviceMemory* pBufferMemory,  // out
                       VkBufferUsageFlags usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                       VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    void CreateImage(VkDevice device,
+                     int imgWidth, int imgHeight,
+                     VkImage* pImage,  // out
+                     VkDeviceMemory* pImageMemory,  // out
+                     VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
+                     VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                     VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL);
+
+
+    void CreateStagedImage(VkDevice device,
+                           int w, int h,
+                           void* pixels,  // 4 channel rgba8 pixels
+                           VkImage* pImage,  // out
+                           VkDeviceMemory* pImageMemory,  // out
+                           VkImageView* pImageView);  // out
 }
 
-struct Image
-{
-    VkImage m_Image = nullptr;
-    VkDeviceMemory m_ImageMemory = nullptr;
-    VkImageView m_ImageView = nullptr;
-
-    void destroy();
-};
 
 
 
@@ -287,21 +313,7 @@ public:
 
 
 
-    static void CreateImage(int texWidth, int texHeight,
-                            VkImage& image,
-                            VkDeviceMemory& imageMemory,
-                            VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
-                            VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                            VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                            VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL);
-
     static VkSampler CreateTextureSampler();
-
-    static void CreateTextureImage(BitmapImage& bitmapImage,
-                                   VkImage& out_image, VkDeviceMemory& out_imageMemory,
-                                   VkImageView* out_imageView = nullptr);
-
-    static void CreateTextureImage(BitmapImage& bitmapImage, Image& img);
 
     static void CreateDepthTextureImage(int w, int h, VkImage& depthImage, VkDeviceMemory& depthImageMemory, VkImageView& depthImageView);
 

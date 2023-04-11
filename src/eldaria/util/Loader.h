@@ -80,6 +80,8 @@ public:
 
     static vkx::VertexBuffer* loadVertexBuffer(const VertexData& vdata);
 
+    static vkx::Image* loadImage(const BitmapImage& bitmapImage);
+
 
     static std::string fileResolve(const std::string& uri) {
         return "./assets/"+uri;

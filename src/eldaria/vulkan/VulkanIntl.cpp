@@ -81,8 +81,8 @@ public:
 
     inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each InflightFrame
 
-    inline static Image g_DepthImage;
-    inline static Image g_TextureImage;
+    inline static vkx::Image* g_DepthImage;
+    inline static vkx::Image* g_TextureImage;
 
 
 
@@ -117,7 +117,8 @@ public:
 
         {
             BitmapImage bitmapImage = Loader::loadPNG("./assets/entity/viking_room/viking_room.png");
-            vkh::CreateTextureImage(bitmapImage, g_TextureImage);
+
+            g_TextureImage = Loader::loadImage(bitmapImage);
 
             VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
             g_TestModel = Loader::loadVertexBuffer(vdata);
@@ -138,7 +139,7 @@ public:
     {
         DestroySwapchain();
 
-        g_TextureImage.destroy();
+        delete g_TextureImage;
         delete g_TestModel;
 
 
@@ -262,7 +263,7 @@ public:
 
     static void DestroySwapchain()
     {
-        g_DepthImage.destroy();
+        delete g_DepthImage;
 
         for (auto fb : g_SwapchainFramebuffers) {
             vkDestroyFramebuffer(g_Device, fb, nullptr);
@@ -293,8 +294,9 @@ public:
 
     static void CreateDepthTexture()
     {
+        g_DepthImage = new vkx::Image(0,0,0);
         vkh::CreateDepthTextureImage(g_SwapchainExtent.width, g_SwapchainExtent.height,
-                                     g_DepthImage.m_Image, g_DepthImage.m_ImageMemory, g_DepthImage.m_ImageView);
+                                     g_DepthImage->m_Image, g_DepthImage->m_ImageMemory, g_DepthImage->m_ImageView);
     }
 
 
@@ -304,10 +306,7 @@ public:
     // aka RenderTarget in DX12
     struct FramebufferAttachment
     {
-//        VkImage m_Image;
-//        VkDeviceMemory m_ImageMemory;
-//        VkImageView m_ImageView;
-        Image m_Img;
+        vkx::Image* m_Img;
         VkAttachmentDescription m_Desc;
     };
     inline static struct
@@ -349,10 +348,12 @@ public:
     {
         FramebufferAttachment out{};
 
-        vkh::CreateImage(w, h, out.m_Img.m_Image,out.m_Img.m_ImageMemory, format,
+
+        out.m_Img = new vkx::Image(0,0,0);
+        vkx::CreateImage(g_Device, w, h, &out.m_Img->m_Image, &out.m_Img->m_ImageMemory, format,
                     depth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
-        out.m_Img.m_ImageView = vkh::CreateImageView(out.m_Img.m_Image, format,
+        out.m_Img->m_ImageView = vkh::CreateImageView(out.m_Img->m_Image, format,
                     depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
 
         out.m_Desc = vkh::c_AttachmentDescription(format,
@@ -437,10 +438,10 @@ public:
         // Gbuffer Framebuffer
 
         VkImageView attachmentViews[] = {
-                g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView,
-                g_Deferred_Gbuffer.gNormal.m_Img.m_ImageView,
-                g_Deferred_Gbuffer.gAlbedo.m_Img.m_ImageView,
-                g_Deferred_Gbuffer.gDepth.m_Img.m_ImageView,
+                g_Deferred_Gbuffer.gPosition.m_Img->m_ImageView,
+                g_Deferred_Gbuffer.gNormal.m_Img->m_ImageView,
+                g_Deferred_Gbuffer.gAlbedo.m_Img->m_ImageView,
+                g_Deferred_Gbuffer.gDepth.m_Img->m_ImageView,
         };
         VkFramebufferCreateInfo framebufferInfo =
                 vkh::c_Framebuffer(attach_size,attach_size, g_Deferred_Gbuffer.m_RenderPass,
@@ -683,7 +684,7 @@ public:
 
         for (size_t i = 0; i < g_SwapchainImageViews.size(); i++)
         {
-            std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImage.m_ImageView };
+            std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImage->m_ImageView };
 
             VkFramebufferCreateInfo framebufferInfo =
                     vkh::c_Framebuffer(g_SwapchainExtent.width, g_SwapchainExtent.height,
@@ -825,9 +826,9 @@ public:
         vkx::DescriptorWrites dwrites{descriptorSet};
         dwrites.UniformBuffer(g_UniformBuffers[0].buffer(), sizeof(UniformBufferObject));
         dwrites.UniformBuffer(g_UniformBuffers[0].buffer(), sizeof(UniformBufferObject));
-        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView, g_TextureSampler);
-        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gNormal.m_Img.m_ImageView, g_TextureSampler);
-        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gAlbedo.m_Img.m_ImageView, g_TextureSampler);
+        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gPosition.m_Img->m_ImageView, g_TextureSampler);
+        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gNormal.m_Img->m_ImageView, g_TextureSampler);
+        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gAlbedo.m_Img->m_ImageView, g_TextureSampler);
 
         dwrites.WriteDescriptorSets(g_Device);
 
@@ -846,7 +847,7 @@ public:
             vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
             writes.UniformBuffer(g_UniformBuffers[i].buffer(), sizeof(UniformBufferObject));
-            writes.CombinedImageSampler(g_TextureImage.m_ImageView, g_TextureSampler);
+            writes.CombinedImageSampler(g_TextureImage->m_ImageView, g_TextureSampler);
 
             writes.WriteDescriptorSets(g_Device);
         }
@@ -1036,7 +1037,7 @@ void VulkanIntl::SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBu
 }
 
 VkImageView VulkanIntl::getTestImgView() {
-    return VulkanIntl_Impl::g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView;
+    return VulkanIntl_Impl::g_Deferred_Gbuffer.gPosition.m_Img->m_ImageView;
 }
 
 

@@ -124,6 +124,18 @@ vkx::VertexBuffer* Loader::loadVertexBuffer(const VertexData& vdata)
     return new vkx::VertexBuffer(vtxBuffer, vtxMemory, idxBuffer, idxMemory, vcount);
 }
 
+vkx::Image* Loader::loadImage(const BitmapImage& bitmapImage)
+{
+    VkImage image;
+    VkDeviceMemory imageMemory;
+    VkImageView imageView;
+    vkx::CreateStagedImage(vkh::g_Device,
+                           bitmapImage.m_Width, bitmapImage.m_Height, bitmapImage.m_Pixels,
+                           &image, &imageMemory, &imageView);
+
+    return new vkx::Image(image, imageMemory, imageView);
+}
+
 
 
 
