@@ -114,13 +114,14 @@ VertexData Loader::loadOBJ(const std::string& filename)
 
 vkx::VertexBuffer* Loader::loadVertexBuffer(const VertexData& vdata)
 {
-    vkx::VertexBuffer* vb = new vkx::VertexBuffer();
+    VkBuffer vtxBuffer, idxBuffer;
+    VkDeviceMemory vtxMemory, idxMemory;
 
-    vb->m_VertexCount = vdata.vertexCount();
-    vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), vb->m_VertexBuffer, vb->m_VertexBufferMemory);
-    vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), vb->m_IndexBuffer,  vb->m_IndexBufferMemory);
+    vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), vtxBuffer, vtxMemory);
+    vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), idxBuffer,  idxMemory, true);
 
-    return vb;
+    int vcount = vdata.vertexCount();
+    return new vkx::VertexBuffer(vtxBuffer, vtxMemory, idxBuffer, idxMemory, vcount);
 }
 
 

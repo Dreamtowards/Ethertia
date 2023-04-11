@@ -23,7 +23,7 @@
 #include <eldaria/imgui/Imgui.h>
 
 
-vkx::VertexBuffer g_TestModel;
+vkx::VertexBuffer* g_TestModel = nullptr;
 
 
 #define DECL_unif alignas(16)
@@ -120,12 +120,10 @@ public:
             vkh::CreateTextureImage(bitmapImage, g_TextureImage);
 
             VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
-//            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
-//            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
-//            vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
-            g_TestModel.m_VertexCount = vdata.vertexCount();
-            vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), g_TestModel.m_VertexBuffer, g_TestModel.m_VertexBufferMemory);
-            vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), g_TestModel.m_IndexBuffer, g_TestModel.m_IndexBufferMemory, true);
+            g_TestModel = Loader::loadVertexBuffer(vdata);
+//            g_TestModel.m_VertexCount = vdata.vertexCount();
+//            vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), g_TestModel.m_VertexBuffer, g_TestModel.m_VertexBufferMemory);
+//            vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), g_TestModel.m_IndexBuffer, g_TestModel.m_IndexBufferMemory, true);
         }
 
         CreateUniformBuffers();
@@ -141,7 +139,7 @@ public:
         DestroySwapchain();
 
         g_TextureImage.destroy();
-        g_TestModel.destroy();
+        delete g_TestModel;
 
 
         vkDestroyDescriptorSetLayout(g_Device, g_DescriptorSetLayout, nullptr);
@@ -909,9 +907,9 @@ public:
 
         cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentFrameInflight]);
 
-        cmd.CmdBindVertexBuffer(g_TestModel.m_VertexBuffer);
-        cmd.CmdBindIndexBuffer(g_TestModel.m_IndexBuffer);
-        cmd.CmdDrawIndexed(g_TestModel.m_VertexCount);
+        cmd.CmdBindVertexBuffer(g_TestModel->vtxbuffer());
+        cmd.CmdBindIndexBuffer(g_TestModel->idxbuffer());
+        cmd.CmdDrawIndexed(g_TestModel->vertexCount());
 
         cmd.CmdEndRenderPass();
 

@@ -10,7 +10,7 @@ void Image::destroy()
     vkDestroyImageView(vkh::g_Device, m_ImageView, nullptr);
 }
 
-void vkx::VertexBuffer::destroy()
+vkx::VertexBuffer::~VertexBuffer()
 {
     vkDestroyBuffer(vkh::g_Device, m_VertexBuffer, nullptr);
     vkFreeMemory(vkh::g_Device, m_VertexBufferMemory, nullptr);
@@ -18,6 +18,14 @@ void vkx::VertexBuffer::destroy()
     vkDestroyBuffer(vkh::g_Device, m_IndexBuffer, nullptr);
     vkFreeMemory(vkh::g_Device, m_IndexBufferMemory, nullptr);
 }
+
+vkx::VertexBuffer::VertexBuffer(VkBuffer vertexBuffer, VkDeviceMemory vertexBufferMemory,
+                                VkBuffer indexBuffer,  VkDeviceMemory indexBufferMemory,
+                                int vertexCount) : m_VertexBuffer(vertexBuffer),
+                                                    m_VertexBufferMemory(vertexBufferMemory),
+                                                    m_IndexBuffer(indexBuffer),
+                                                    m_IndexBufferMemory(indexBufferMemory),
+                                                    m_VertexCount(vertexCount) {}
 
 
 // ============== CommandBuffer ==============
@@ -138,6 +146,10 @@ void vkx::UniformBuffer::MemCpy(void* src_ptr, size_t size)
 
 
 
+
+
+
+
 // ================ low level ================
 
 static uint32_t _findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
@@ -186,6 +198,11 @@ void vkx::CreateBuffer(VkDevice device, VkDeviceSize size, VkBuffer* pBuffer, Vk
 
     VK_CHECK(vkBindBufferMemory(device, *pBuffer, *pBufferMemory, 0));
 }
+
+
+
+
+
 
 
 
@@ -384,19 +401,19 @@ VkInstance vkh::CreateInstance()
 
 
         // VkInstance Layers
-        VkDebugUtilsMessengerCreateInfoEXT debugMessagerInfo;
+        VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo;
         if (g_EnableValidationLayer) {
             CheckValidationLayersSupport(g_ValidationLayers);
 
             instInfo.enabledLayerCount = g_ValidationLayers.size();
             instInfo.ppEnabledLayerNames = g_ValidationLayers.data();
 
-            debugMessagerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-            debugMessagerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-            debugMessagerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-            debugMessagerInfo.pfnUserCallback = debugMessengerCallback;
-            debugMessagerInfo.pUserData = nullptr; // Optional
-            instInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugMessagerInfo;
+            debugMessengerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+            debugMessengerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+            debugMessengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+            debugMessengerInfo.pfnUserCallback = debugMessengerCallback;
+            debugMessengerInfo.pUserData = nullptr; // Optional
+            instInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugMessengerInfo;
         } else {
             instInfo.enabledLayerCount = 0;
             instInfo.pNext = nullptr;
@@ -413,7 +430,7 @@ VkInstance vkh::CreateInstance()
             // Setup EXT DebugMessenger
             auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
             if (func != nullptr) {
-                VK_CHECK(func(instance, &debugMessagerInfo, nullptr, &g_DebugMessengerEXT));
+                VK_CHECK(func(instance, &debugMessengerInfo, nullptr, &g_DebugMessengerEXT));
             } else {
                 throw std::runtime_error("ext DebugMessenger not present.");
             }

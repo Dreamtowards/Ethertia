@@ -14,23 +14,17 @@
 
 namespace vkx
 {
-
-    class VertexBuffer
+    class Instance
     {
-    public:
-        ~VertexBuffer() { destroy(); }
+        VkInstance m_Instance = nullptr;
+        VkPhysicalDevice m_PhysDevice = nullptr;
+        VkDevice m_Device = nullptr;
 
-        VkBuffer m_VertexBuffer = nullptr;
-        VkDeviceMemory m_VertexBufferMemory = nullptr;
+        bool m_EnabledValidationLayer = true;
 
-        VkBuffer m_IndexBuffer = nullptr;
-        VkDeviceMemory m_IndexBufferMemory = nullptr;
 
-        // used by vkCmdDraw()
-        int m_VertexCount = 0;
-
-        void destroy();
     };
+
 
     class CommandBuffer
     {
@@ -154,6 +148,29 @@ namespace vkx
 
 
 
+
+    // created from Loader::loadVertexBuffer(const VertexData& vdata)
+    class VertexBuffer
+    {
+        VkBuffer m_VertexBuffer = nullptr;
+        VkDeviceMemory m_VertexBufferMemory = nullptr;
+
+        VkBuffer m_IndexBuffer = nullptr;
+        VkDeviceMemory m_IndexBufferMemory = nullptr;
+
+        // used by vkCmdDraw()
+        int m_VertexCount = 0;
+    public:
+        VertexBuffer(VkBuffer vertexBuffer, VkDeviceMemory vertexBufferMemory,
+                     VkBuffer indexBuffer,  VkDeviceMemory indexBufferMemory,
+                     int vertexCount);
+        ~VertexBuffer();
+
+        VkBuffer vtxbuffer() { return m_VertexBuffer; }
+        VkBuffer idxbuffer() { return m_IndexBuffer; }
+
+        int vertexCount() const { return m_VertexCount; };
+    };
 
     class UniformBuffer
     {
