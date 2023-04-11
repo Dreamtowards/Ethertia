@@ -70,12 +70,21 @@ namespace vkx
     };
 
 
+    class Device
+    {
+    public:
+
+
+    };
 
 
     class Pipeline
     {
     public:
 
+        VkDescriptorSetLayout m_DescriptorSetLayout = nullptr;
+
+        VkPipelineLayout m_PipelineLayout = nullptr;
 
     };
 }

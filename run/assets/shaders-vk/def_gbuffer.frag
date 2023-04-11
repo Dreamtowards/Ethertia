@@ -20,5 +20,5 @@ void main()
 
     gPosition = vec4(WorldPos, 0.5);
     gNormal.xyz = WorldNorm;
-    gAlbedo.xyz = texture(diffuseSampler, TexCoord).rgb;
+    gAlbedo.xyz = texture(diffuseSampler, vec2(TexCoord.x, 1.0 - TexCoord.y)).rgb;
 }
