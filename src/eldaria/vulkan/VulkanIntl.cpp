@@ -849,48 +849,17 @@ public:
     {
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_INFLIGHT, g_DescriptorSetLayout);
 
-        VkDescriptorSetAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = g_DescriptorPool;
-        allocInfo.descriptorSetCount = MAX_FRAMES_INFLIGHT;
-        allocInfo.pSetLayouts = layouts.data();
-
         g_DescriptorSets.resize(MAX_FRAMES_INFLIGHT);
-        if (vkAllocateDescriptorSets(g_Device, &allocInfo, g_DescriptorSets.data()) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate descriptor sets.");
-        }
+        vkx::AllocateDescriptorSets(g_Device, g_DescriptorPool, MAX_FRAMES_INFLIGHT, layouts.data(), g_DescriptorSets.data());
 
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i)
         {
-            VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = g_UniformBuffers[i];
-            bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformBufferObject);
+            vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
-            VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = g_TextureImage.m_ImageView;
-            imageInfo.sampler = g_TextureSampler;
+            writes.UniformBuffer(g_UniformBuffers[i], sizeof(UniformBufferObject));
+            writes.CombinedImageSampler(g_TextureImage.m_ImageView, g_TextureSampler);
 
-            std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-
-            descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[0].dstSet = g_DescriptorSets[i];
-            descriptorWrites[0].dstBinding = 0;
-            descriptorWrites[0].dstArrayElement = 0;
-            descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptorWrites[0].descriptorCount = 1;
-            descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-            descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[1].dstSet = g_DescriptorSets[i];
-            descriptorWrites[1].dstBinding = 1;
-            descriptorWrites[1].dstArrayElement = 0;
-            descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            descriptorWrites[1].descriptorCount = 1;
-            descriptorWrites[1].pImageInfo = &imageInfo;
-
-            vkUpdateDescriptorSets(g_Device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+            writes.WriteDescriptorSets(g_Device);
         }
     }
 
