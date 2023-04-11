@@ -140,7 +140,7 @@ void main()
             vec2 uvY = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.z);
             vec2 uvZ = vec2(mod(texScale * FragPos.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * FragPos.y);
 
-            vec3 tnormX = samp_norm(uvX);
+            vec3 tnormX = samp_norm(uvX);  // original texture space normal
             vec3 tnormY = samp_norm(uvY);
             vec3 tnormZ = samp_norm(uvZ);
 

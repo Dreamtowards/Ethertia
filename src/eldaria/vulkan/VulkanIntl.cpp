@@ -77,9 +77,7 @@ public:
     inline static const int MAX_FRAMES_INFLIGHT = 2;
     inline static int g_CurrentFrameInflight = 0;
 
-    inline static std::vector<VkBuffer> g_UniformBuffers;  // for each InflightFrame
-    inline static std::vector<VkDeviceMemory> g_UniformBuffersMemory;
-    inline static std::vector<void*> g_UniformBuffersMapped;  // 'Persistent Mapping' since vkMapMemory cost.
+    inline static std::vector<vkx::UniformBuffer> g_UniformBuffers;  // for each InflightFrame
 
     inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each InflightFrame
 
@@ -148,8 +146,7 @@ public:
 
         vkDestroyDescriptorSetLayout(g_Device, g_DescriptorSetLayout, nullptr);
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
-            vkDestroyBuffer(g_Device, g_UniformBuffers[i], nullptr);
-            vkFreeMemory(g_Device, g_UniformBuffersMemory[i], nullptr);
+            g_UniformBuffers[i].Destroy(g_Device);
         }
 
         vkDestroyPipeline(g_Device, g_GraphicsPipeline, nullptr);
@@ -776,18 +773,12 @@ public:
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
         g_UniformBuffers.resize(MAX_FRAMES_INFLIGHT);
-        g_UniformBuffersMemory.resize(MAX_FRAMES_INFLIGHT);
-        g_UniformBuffersMapped.resize(MAX_FRAMES_INFLIGHT);
 
-        for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
-            vkh::CreateBuffer(bufferSize,
-                         g_UniformBuffers[i],
-                         g_UniformBuffersMemory[i],
-                         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i)
+        {
+            vkx::UniformBuffer& ub = g_UniformBuffers[i];
+            ub.Create(g_Device, bufferSize);
 
-            vkMapMemory(g_Device, g_UniformBuffersMemory[i], 0, sizeof(UniformBufferObject), 0,
-                        &g_UniformBuffersMapped[i]);
         }
     }
 
@@ -806,7 +797,7 @@ public:
 
         ubo.proj[1][1] *= -1;
 
-        memcpy(g_UniformBuffersMapped[currframe], &ubo, sizeof(ubo));
+        g_UniformBuffers[currframe].MemCpy(&ubo, sizeof(ubo));
     }
 
 
@@ -834,8 +825,8 @@ public:
         vkx::AllocateDescriptorSets(g_Device, g_DescriptorPool, 1, &descriptorSetLayout, &descriptorSet);
 
         vkx::DescriptorWrites dwrites{descriptorSet};
-        dwrites.UniformBuffer(g_UniformBuffers[0], sizeof(UniformBufferObject));
-        dwrites.UniformBuffer(g_UniformBuffers[0], sizeof(UniformBufferObject));
+        dwrites.UniformBuffer(g_UniformBuffers[0].buffer(), sizeof(UniformBufferObject));
+        dwrites.UniformBuffer(g_UniformBuffers[0].buffer(), sizeof(UniformBufferObject));
         dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gPosition.m_Img.m_ImageView, g_TextureSampler);
         dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gNormal.m_Img.m_ImageView, g_TextureSampler);
         dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gAlbedo.m_Img.m_ImageView, g_TextureSampler);
@@ -856,7 +847,7 @@ public:
         {
             vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
-            writes.UniformBuffer(g_UniformBuffers[i], sizeof(UniformBufferObject));
+            writes.UniformBuffer(g_UniformBuffers[i].buffer(), sizeof(UniformBufferObject));
             writes.CombinedImageSampler(g_TextureImage.m_ImageView, g_TextureSampler);
 
             writes.WriteDescriptorSets(g_Device);

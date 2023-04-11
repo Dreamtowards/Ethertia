@@ -86,6 +86,10 @@ void vkx::CommandBuffer::CmdBindDescriptorSets(VkPipelineLayout pipelineLayout, 
 
 
 
+
+
+
+
 // ================== Descriptor ==================
 
 void vkx::AllocateDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, int descriptorSetCount, VkDescriptorSetLayout* descriptorSetLayouts, VkDescriptorSet* out_descriptorSets)
@@ -98,6 +102,95 @@ void vkx::AllocateDescriptorSets(VkDevice device, VkDescriptorPool descriptorPoo
 
     VK_CHECK(vkAllocateDescriptorSets(device, &allocInfo, out_descriptorSets));
 }
+
+
+
+
+
+
+
+
+
+
+
+void vkx::UniformBuffer::Create(VkDevice device, VkDeviceSize bufferSize)
+{
+    vkx::CreateBuffer(device,
+                      bufferSize,
+                      &m_Buffer,
+                      &m_BufferMemory,
+                      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    vkMapMemory(device, m_BufferMemory, 0, bufferSize, 0, &m_BufferMapped);
+}
+
+void vkx::UniformBuffer::Destroy(VkDevice device)
+{
+    vkDestroyBuffer(device, m_Buffer, nullptr);
+    vkFreeMemory(device, m_BufferMemory, nullptr);
+}
+
+void vkx::UniformBuffer::MemCpy(void* src_ptr, size_t size)
+{
+    std::memcpy(m_BufferMapped, src_ptr, size);
+}
+
+
+
+// ================ low level ================
+
+static uint32_t _findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(vkh::g_PhysDevice, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i;
+        }
+    }
+    throw std::runtime_error("failed to find suitable memory type!");
+}
+//VkMemoryRequirements memRequirements / VkDeviceSize size, uint32_t memoryTypeBits,
+VkDeviceMemory vkx::AllocateMemory(VkDevice device,
+                                   VkMemoryRequirements memRequirements,
+                                   VkMemoryPropertyFlags memProperties) {
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = _findMemoryType(memRequirements.memoryTypeBits, memProperties);
+
+    VkDeviceMemory deviceMemory;
+    VK_CHECK_MSG(vkAllocateMemory(device, &allocInfo, nullptr, &deviceMemory),
+                 "failed to allocate device memory.");
+    return deviceMemory;
+}
+
+
+void vkx::CreateBuffer(VkDevice device, VkDeviceSize size, VkBuffer* pBuffer, VkDeviceMemory* pBufferMemory, VkBufferUsageFlags usage,
+                       VkMemoryPropertyFlags memProperties)
+{
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK(vkCreateBuffer(device, &bufferInfo, nullptr, pBuffer));
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, *pBuffer, &memRequirements);
+
+    *pBufferMemory = vkx::AllocateMemory(device, memRequirements, memProperties);
+
+    VK_CHECK(vkBindBufferMemory(device, *pBuffer, *pBufferMemory, 0));
+}
+
+
+
+
+
 
 
 
@@ -817,34 +910,8 @@ VkPipelineLayout vkh::CreatePipelineLayout(int numSetLayouts, VkDescriptorSetLay
 }
 
 
-static uint32_t _findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(vkh::g_PhysDevice, &memProperties);
-
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-            return i;
-        }
-    }
-
-    throw std::runtime_error("failed to find suitable memory type!");
-}
 
 
-//VkMemoryRequirements memRequirements / VkDeviceSize size, uint32_t memoryTypeBits,
-VkDeviceMemory vkh::AllocateMemory(VkMemoryRequirements memRequirements,
-                                     VkMemoryPropertyFlags memProperties) {
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = _findMemoryType(memRequirements.memoryTypeBits, memProperties);
-
-    VkDeviceMemory deviceMemory;
-    VK_CHECK_MSG(vkAllocateMemory(g_Device, &allocInfo, nullptr, &deviceMemory),
-                 "failed to allocate device memory.");
-    return deviceMemory;
-}
 
 
 
@@ -879,26 +946,6 @@ VkImageView vkh::CreateImageView(VkImage image, VkFormat format, VkImageAspectFl
 
 
 
-void vkh::CreateBuffer(VkDeviceSize size, VkBuffer &buffer, VkDeviceMemory &bufferMemory, VkBufferUsageFlags usage,
-                       VkMemoryPropertyFlags memProperties)
-{
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    VK_CHECK_MSG(
-            vkCreateBuffer(g_Device, &bufferInfo, nullptr, &buffer),
-            "failed to create a vertex buffer");
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(g_Device, buffer, &memRequirements);
-
-    bufferMemory = vkh::AllocateMemory(memRequirements, memProperties);
-
-    vkBindBufferMemory(g_Device, buffer, bufferMemory, 0);
-}
 
 void vkh::CreateImage(int texWidth, int texHeight, VkImage &image, VkDeviceMemory &imageMemory, VkFormat format,
                       VkImageUsageFlags usage, VkMemoryPropertyFlags memProperties, VkImageTiling tiling)
@@ -924,7 +971,7 @@ void vkh::CreateImage(int texWidth, int texHeight, VkImage &image, VkDeviceMemor
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(g_Device, image, &memRequirements);
 
-    imageMemory = vkh::AllocateMemory(memRequirements, memProperties);
+    imageMemory = vkx::AllocateMemory(g_Device, memRequirements, memProperties);
 
     VK_CHECK(vkBindImageMemory(g_Device, image, imageMemory, 0));
 }
@@ -976,7 +1023,7 @@ void vkh::CreateVertexBuffer(const void *in_data, size_t size, VkBuffer &out_buf
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    CreateBuffer(bufferSize, stagingBuffer, stagingBufferMemory,
+    vkx::CreateBuffer(g_Device, bufferSize, &stagingBuffer, &stagingBufferMemory,
                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
@@ -985,7 +1032,7 @@ void vkh::CreateVertexBuffer(const void *in_data, size_t size, VkBuffer &out_buf
     memcpy(mapped_dst, in_data, bufferSize);
     vkUnmapMemory(g_Device, stagingBufferMemory);
 
-    CreateBuffer(bufferSize, out_buffer, out_bufferMemory,
+    vkx::CreateBuffer(g_Device, bufferSize, &out_buffer, &out_bufferMemory,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | (bufferUsageIndexBuffer ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT),
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -1078,7 +1125,7 @@ void vkh::CreateTextureImage(BitmapImage& bitmapImage, VkImage& out_image, VkDev
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    vkh::CreateBuffer(imageSize, stagingBuffer, stagingBufferMemory,
+    vkx::CreateBuffer(g_Device, imageSize, &stagingBuffer, &stagingBufferMemory,
                       VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 

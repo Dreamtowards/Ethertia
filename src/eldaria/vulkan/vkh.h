@@ -151,10 +151,55 @@ namespace vkx
     };
 
 
+
+
+
+
+    class UniformBuffer
+    {
+        VkBuffer m_Buffer = nullptr;
+        VkDeviceMemory m_BufferMemory = nullptr;
+        void* m_BufferMapped = nullptr;  // 'Persistent Mapping' since vkMapMemory costs.
+
+//        VkDevice _devi;  // for vkDestroy..()
+//    public:
+//        UniformBuffer(VkDevice device, VkDeviceSize bufferSize);
+//        ~UniformBuffer();
+
+    public:
+        void Create(VkDevice device, VkDeviceSize bufferSize);
+        void Destroy(VkDevice device);
+        void MemCpy(void* src_ptr, size_t size);
+
+        VkBuffer buffer() { return m_Buffer; };
+    };
+
+
+
+
+
+
     // ============ low level encapsulate ============
 
-    void AllocateDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, int descriptorSetCount, VkDescriptorSetLayout* descriptorSetLayouts, VkDescriptorSet* out_descriptorSets);
+    // vkAllocateDescriptorSets() helper
+    void AllocateDescriptorSets(VkDevice device,
+                                VkDescriptorPool descriptorPool,
+                                int descriptorSetCount,
+                                VkDescriptorSetLayout* descriptorSetLayouts,
+                                VkDescriptorSet* out_descriptorSets);  // out
 
+    // vkAllocateMemory() -> VkDeviceMemory
+    VkDeviceMemory AllocateMemory(VkDevice device,
+                                  VkMemoryRequirements memRequirements,
+                                  VkMemoryPropertyFlags memProperties);
+
+    // vkCreateBuffer()
+    void CreateBuffer(VkDevice device,
+                      VkDeviceSize size,
+                      VkBuffer* pBuffer,  // out
+                      VkDeviceMemory* pBufferMemory,  // out
+                      VkBufferUsageFlags usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                      VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 
 struct Image
@@ -223,15 +268,7 @@ public:
 
     static VkPipelineLayout CreatePipelineLayout(int numSetLayouts, VkDescriptorSetLayout* pSetLayouts);
 
-    static VkDeviceMemory AllocateMemory(VkMemoryRequirements memRequirements,
-                                         VkMemoryPropertyFlags memProperties);
 
-
-    static void CreateBuffer(VkDeviceSize size,
-                             VkBuffer& buffer,
-                             VkDeviceMemory& bufferMemory,
-                             VkBufferUsageFlags usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                             VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     static void CreateImage(int texWidth, int texHeight,
                             VkImage& image,
