@@ -1307,50 +1307,6 @@ void vkh::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 
 
 
-VkCommandBuffer vkh::BeginCommandBuffer_Onetime()
-{
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = g_CommandPool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer cmdbuf;
-    vkAllocateCommandBuffers(g_Device, &allocInfo, &cmdbuf);
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    vkBeginCommandBuffer(cmdbuf, &beginInfo);
-
-    return cmdbuf;
-}
-
-void vkh::EndCommandBuffer_Onetime(VkCommandBuffer cmdbuf)
-{
-    vkEndCommandBuffer(cmdbuf);
-
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &cmdbuf;
-
-    vkQueueSubmit(g_GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(g_GraphicsQueue);
-
-    vkFreeCommandBuffers(g_Device, g_CommandPool, 1, &cmdbuf);
-}
-
- void vkh::SubmitCommandBuffer_Onetime(const std::function<void(VkCommandBuffer)>& fn_record)
-{
-    VkCommandBuffer cmdbuf = BeginCommandBuffer_Onetime();
-
-    fn_record(cmdbuf);
-
-    EndCommandBuffer_Onetime(cmdbuf);
-}
-
 void vkh::QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, VkSemaphore signal, VkFence fence)
 {
     VkSubmitInfo submitInfo{};

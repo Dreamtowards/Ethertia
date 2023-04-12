@@ -318,14 +318,13 @@ public:
     static void CreateDepthTextureImage(int w, int h, VkImage& depthImage, VkDeviceMemory& depthImageMemory, VkImageView& depthImageView);
 
 
-// Static buffer. (high effective read on GPU, but cannot visible/modify from CPU)
+    // Static buffer. (high effective read on GPU, but cannot visible/modify from CPU)
     static void CreateVertexBuffer(const void* in_data, size_t size,
                                    VkBuffer& out_buffer, VkDeviceMemory& out_bufferMemory, bool bufferUsageIndexBuffer = false);
 
 
     static void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
-    static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
 
 
@@ -333,15 +332,6 @@ public:
 
 
 
-
-
-
-
-    static VkCommandBuffer BeginCommandBuffer_Onetime();
-
-    static void EndCommandBuffer_Onetime(VkCommandBuffer cmdbuf);
-
-    static void SubmitCommandBuffer_Onetime(const std::function<void(VkCommandBuffer)>& fn_record);
 
 
     static void QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, VkSemaphore signal, VkFence fence);
