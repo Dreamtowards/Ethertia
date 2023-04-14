@@ -11,6 +11,8 @@
 #include <functional>
 #include <stdexcept>
 
+#include "vkx.h"
+
 
 class VulkanIntl
 {
@@ -23,8 +25,6 @@ public:
 
     static void RequestRecreateSwapchain();
 
-    // on Graphics Queue., alloc CommandBuffer from main-thread CommandPool.
-    static void SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record);
 
     struct State
     {

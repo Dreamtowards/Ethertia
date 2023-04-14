@@ -20,8 +20,11 @@ public:
     }
 DECL_RegistryId(m_Name);
 
-    ImGuiKey key() {
+    ImGuiKey key() const {
         return m_Key;
+    }
+    const char* keyName() const {
+        return ImGui::GetKeyName(key());
     }
 
 

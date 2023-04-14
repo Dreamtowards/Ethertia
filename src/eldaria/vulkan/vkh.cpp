@@ -1283,15 +1283,14 @@ void vkh::CreateDepthTextureImage(int w, int h, VkImage& depthImage, VkDeviceMem
 
 void vkh::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
-    VkCommandBuffer cmdbuf = BeginCommandBuffer_Onetime();
-
-    VkBufferCopy copyRegion{};
-    copyRegion.size = size;
-    copyRegion.srcOffset = 0;
-    copyRegion.dstOffset = 0;
-    vkCmdCopyBuffer(cmdbuf, srcBuffer, dstBuffer, 1, &copyRegion);
-
-    EndCommandBuffer_Onetime(cmdbuf);
+    vkx::SubmitCommandBuffer([&](VkCommandBuffer cmdbuf)
+    {
+        VkBufferCopy copyRegion{};
+        copyRegion.size = size;
+        copyRegion.srcOffset = 0;
+        copyRegion.dstOffset = 0;
+        vkCmdCopyBuffer(cmdbuf, srcBuffer, dstBuffer, 1, &copyRegion);
+    });
 }
 
 

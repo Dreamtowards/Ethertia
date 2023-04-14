@@ -154,7 +154,7 @@ void Imgui::Init(GLFWwindow* glfwWindow)
     InitStyle();
 
 
-    VulkanIntl::SubmitOnetimeCommandBuffer([](VkCommandBuffer cmdbuf)
+    vkx::SubmitCommandBuffer([](VkCommandBuffer cmdbuf)
     {
         ImGui_ImplVulkan_CreateFontsTexture(cmdbuf);
     });

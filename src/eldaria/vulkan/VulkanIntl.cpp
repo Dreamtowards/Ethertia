@@ -143,6 +143,20 @@ public:
         delete g_TestModel;
 
 
+        vkDestroyPipelineLayout(g_Device, g_Deferred_Compose.m_PipelineLayout, nullptr);
+        vkDestroyPipeline(g_Device, g_Deferred_Compose.m_Pipeline, nullptr);
+
+        vkDestroyDescriptorSetLayout(g_Device, g_Deferred_Compose.m_DescSetLayout, nullptr);
+        vkDestroyRenderPass(g_Device, g_Deferred_Gbuffer.m_RenderPass, nullptr);
+        vkDestroyPipeline(g_Device, g_Deferred_Gbuffer.m_Pipeline, nullptr);
+        vkDestroyFramebuffer(g_Device, g_Deferred_Gbuffer.m_Framebuffer, nullptr);
+        delete g_Deferred_Gbuffer.gPosition.m_Img;
+        delete g_Deferred_Gbuffer.gNormal.m_Img;
+        delete g_Deferred_Gbuffer.gAlbedo.m_Img;
+        delete g_Deferred_Gbuffer.gDepth.m_Img;
+
+
+
         vkDestroyDescriptorSetLayout(g_Device, g_DescriptorSetLayout, nullptr);
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
             g_UniformBuffers[i].Destroy(g_Device);
@@ -336,6 +350,7 @@ public:
 
         VkPipelineLayout m_PipelineLayout;
         VkDescriptorSet m_DescSet;
+        VkDescriptorSetLayout m_DescSetLayout;
 
     } g_Deferred_Compose;
 
@@ -521,6 +536,7 @@ public:
         g_Deferred_Compose.m_PipelineLayout = pipelineLayout;
         g_Deferred_Compose.m_DescSet =
                 CreateGCompose_DescSets(descriptorSetLayout);
+        g_Deferred_Compose.m_DescSetLayout = descriptorSetLayout;
 
         //  Compose Pipeline
 
@@ -1030,11 +1046,6 @@ void VulkanIntl::RequestRecreateSwapchain() {
 
 
 
-
-void VulkanIntl::SubmitOnetimeCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record)
-{
-    vkh::SubmitCommandBuffer_Onetime(fn_record);
-}
 
 VkImageView VulkanIntl::getTestImgView() {
     return VulkanIntl_Impl::g_Deferred_Gbuffer.gPosition.m_Img->m_ImageView;

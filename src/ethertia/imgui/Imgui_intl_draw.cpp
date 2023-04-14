@@ -217,6 +217,8 @@ static void _MenuSystem()
     }
 }
 
+#include <ethertia/init/KeyBinding.h>
+
 static void ShowMainMenuBar()
 {
     if (ImGui::BeginMenuBar())
@@ -332,6 +334,7 @@ static void ShowMainMenuBar()
         if (ImGui::BeginMenu("View"))
         {
             ImGui::Checkbox("Viewport", &Settings::w_Viewport);
+            ImGui::Checkbox("Full Viewport", &Settings::w_Viewport_Full);
             ImGui::Checkbox("Entity List", &Settings::w_EntityList);
             ImGui::Checkbox("Entity Inspect", &Settings::w_EntityInsp);
             ImGui::Checkbox("Shader Inspect", &Settings::w_ShaderInsp);
@@ -339,14 +342,12 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("Profiler", &Settings::w_Profiler);
 
             ImGui::Separator();
-            ImGui::Checkbox("NodeEditor", &w_NodeEditor);
+            ImGui::Checkbox("Settings", &Settings::w_Settings);
+            ImGui::Checkbox("Toolbar", &Settings::w_Toolbar);
 
+            ImGui::Checkbox("NodeEditor", &w_NodeEditor);
             ImGui::Checkbox("TitleScreen", &w_TitleScreen);
             ImGui::Checkbox("Singleplayer", &w_Singleplayer);
-            ImGui::Checkbox("Settings", &Settings::w_Settings);
-
-            ImGui::Checkbox("Full Viewport", &Settings::w_Viewport_Full);
-
             ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
 
 
@@ -356,59 +357,18 @@ static void ShowMainMenuBar()
             if (ImGui::MenuItem("HUD", "F1", &ShowHUD)) {
 
             }
-            if (ImGui::MenuItem("Save Screenshot", "F2")) {
+            if (ImGui::MenuItem("Save Screenshot", KeyBindings::KEY_SCREENSHOT.keyName())) {
                 Controls::saveScreenshot();
             }
-            if (ImGui::MenuItem("Fullscreen", "F11", Ethertia::getWindow().isFullscreen())) {
+            if (ImGui::MenuItem("Fullscreen", KeyBindings::KEY_FULLSCREEN.keyName(), Ethertia::getWindow().isFullscreen())) {
                 Ethertia::getWindow().toggleFullscreen();
             }
-            if (ImGui::MenuItem("Controlling Game", ".", Ethertia::isIngame())) {
+            if (ImGui::MenuItem("Controlling Game", KeyBindings::KEY_ESC.keyName(), Ethertia::isIngame())) {
                 Ethertia::isIngame() = !Ethertia::isIngame();
             }
 
             ImGui::EndMenu();
         }
-
-
-//        {
-//            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
-//            ImGui::SameLine(ImGui::GetWindowWidth() - 100);
-
-//            if (ImGui::BeginCombo("cTmp", "Ethertia | Debug")) {
-//                ImGui::Selectable("Ethertia", true);
-//                ImGui::Selectable("DedicatedServer", false);
-//                ImGui::EndCombo();
-//            }
-
-//            float sz = 14;
-//
-//            ImGui::ImageButton("gPP", LazyLoadTex("gui/icon/play-prev.png")->pTexId(), {sz,sz});
-//
-//            if (ImGui::ImageButton("gPlayPause",
-//                                   Ethertia::isIngame() ? LazyLoadTex("gui/icon/pause28.png")->pTexId() :
-//                                   LazyLoadTex("gui/icon/play28.png")->pTexId(), {sz, sz})) {
-//                Ethertia::isIngame() = !Ethertia::isIngame();
-//            }
-//
-//            ImGui::ImageButton("gSettings", LazyLoadTex("gui/icon/cogs28.png")->pTexId(), {sz,sz});
-//            ImGui::ImageButton("gSettings2", LazyLoadTex("gui/icon/books.png")->pTexId(), {sz,sz});
-//
-//            ImGui::PopStyleVar();
-//        }
-
-//        using Dbg = DebugStat;
-//        if (Dbg::dbg_ChunkProvideState) {
-//            ImGui::Text("ChunkProviding[%s]", Dbg::dbg_ChunkProvideState);
-//        }
-//        if (Dbg::dbg_ChunksSaving) {
-//            ImGui::Text("ChunkSaving... (%i)", Dbg::dbg_ChunksSaving);
-//        }
-//        if (Dbg::dbg_NumChunksMeshInvalid) {
-//            ImGui::Text("ChunkMeshing... (%i)", Dbg::dbg_NumChunksMeshInvalid);
-//        }
-
-//        ImGui::SameLine(ImGui::GetWindowWidth()-90);
-//        ImGui::SmallButton("Profile");
 
         ImGui::EndMenuBar();
     }
