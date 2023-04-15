@@ -67,7 +67,7 @@ public:
 
 //    inline static VkCommandPool g_CommandPool = nullptr;
     inline static std::vector<VkCommandBuffer> g_CommandBuffers;
-    inline static VkDescriptorPool g_DescriptorPool = nullptr;
+//    inline static VkDescriptorPool g_DescriptorPool = nullptr;
 
     inline static std::vector<VkSemaphore> g_SemaphoreImageAcquired;  // for each InflightFrame   ImageAcquired, RenderComplete
     inline static std::vector<VkSemaphore> g_SemaphoreRenderComplete;
@@ -94,7 +94,7 @@ public:
 
 
 
-        CreateDescriptorPool();
+//        CreateDescriptorPool();
         CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
 
@@ -165,9 +165,6 @@ public:
             vkDestroySemaphore(device, g_SemaphoreRenderComplete[i], nullptr);
             vkDestroyFence(device, g_InflightFence[i], nullptr);
         }
-
-        vkDestroyDescriptorPool(device, g_DescriptorPool, nullptr);
-
 
         delete g_Inst;
     }
@@ -705,23 +702,23 @@ public:
     }
 
 
-    static void CreateDescriptorPool()
-    {
-        VkDescriptorPoolSize pool_sizes[] = {
-                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 100},
-                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 100}
-        };
-
-        VkDescriptorPoolCreateInfo poolInfo{};
-        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        poolInfo.poolSizeCount = std::size(pool_sizes);
-        poolInfo.pPoolSizes = pool_sizes;
-        poolInfo.maxSets = 100;
-
-        if (vkCreateDescriptorPool(vkx::ctx().Device, &poolInfo, nullptr, &g_DescriptorPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor pool.");
-        }
-    }
+//    static void CreateDescriptorPool()
+//    {
+//        VkDescriptorPoolSize pool_sizes[] = {
+//                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 100},
+//                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 100}
+//        };
+//
+//        VkDescriptorPoolCreateInfo poolInfo{};
+//        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+//        poolInfo.poolSizeCount = std::size(pool_sizes);
+//        poolInfo.pPoolSizes = pool_sizes;
+//        poolInfo.maxSets = 100;
+//
+//        if (vkCreateDescriptorPool(vkx::ctx().Device, &poolInfo, nullptr, &g_DescriptorPool) != VK_SUCCESS) {
+//            throw std::runtime_error("failed to create descriptor pool.");
+//        }
+//    }
 
     static VkDescriptorSet CreateGCompose_DescSets(VkDescriptorSetLayout descriptorSetLayout)
     {
@@ -729,7 +726,7 @@ public:
         VkSampler sampler = vkx::ctx().ImageSampler;
 
         VkDescriptorSet descriptorSet;
-        vl::AllocateDescriptorSets(device, g_DescriptorPool, 1, &descriptorSetLayout, &descriptorSet);
+        vl::AllocateDescriptorSets(device, vkx::ctx().DescriptorPool, 1, &descriptorSetLayout, &descriptorSet);
 
         vkx::DescriptorWrites dwrites{descriptorSet};
         dwrites.UniformBuffer(g_UniformBuffers[0]->buffer(), sizeof(UniformBufferObject));
@@ -750,7 +747,7 @@ public:
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_INFLIGHT, g_DescriptorSetLayout);
 
         g_DescriptorSets.resize(MAX_FRAMES_INFLIGHT);
-        vl::AllocateDescriptorSets(device, g_DescriptorPool, MAX_FRAMES_INFLIGHT, layouts.data(), g_DescriptorSets.data());
+        vl::AllocateDescriptorSets(device, vkx::ctx().DescriptorPool, MAX_FRAMES_INFLIGHT, layouts.data(), g_DescriptorSets.data());
 
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i)
         {

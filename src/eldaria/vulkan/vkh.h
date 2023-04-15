@@ -132,6 +132,7 @@ namespace vkx
         VkCommandPool CommandPool = nullptr;
 
         VkSampler ImageSampler = nullptr;  // default sampler.
+        VkDescriptorPool DescriptorPool = nullptr;
 
         VkRenderPass _RenderPass = nullptr;  // external. main render pass.
     };

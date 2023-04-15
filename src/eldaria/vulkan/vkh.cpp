@@ -801,13 +801,14 @@ static VkInstance CreateInstance(bool enableValidationLayer)
 
 
     // VkInstance Layers
-    VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo;
+    VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo{};
     if (enableValidationLayer) {
         CheckValidationLayersSupport(g_ValidationLayers);
 
         instInfo.enabledLayerCount = g_ValidationLayers.size();
         instInfo.ppEnabledLayerNames = g_ValidationLayers.data();
 
+        debugMessengerInfo.flags = 0;
         debugMessengerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
         debugMessengerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         debugMessengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
@@ -1129,6 +1130,35 @@ void vkx::CreateSwapchain(VkDevice device, VkPhysicalDevice physDevice, VkSurfac
 
 
 
+static VkDescriptorPool CreateDescriptorPool_(VkDevice device)
+{
+    // tho kinda oversize.
+    VkDescriptorPoolSize pool_sizes[] =
+            {
+                    { VK_DESCRIPTOR_TYPE_SAMPLER,               1000 },
+                    { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,1000 },
+                    { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,         1000 },
+                    { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,         1000 },
+                    { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,  1000 },
+                    { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,  1000 },
+                    { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,        1000 },
+                    { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,        1000 },
+                    { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,1000 },
+                    { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,1000 },
+                    { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,      1000 }
+            };
+
+    VkDescriptorPoolCreateInfo pool_info = {};
+    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    pool_info.maxSets = 1000;
+    pool_info.poolSizeCount = std::size(pool_sizes);
+    pool_info.pPoolSizes = pool_sizes;
+
+    VkDescriptorPool descriptorPool;
+    VK_CHECK(vkCreateDescriptorPool(device, &pool_info, nullptr, &descriptorPool));
+    return descriptorPool;
+}
 
 
 
@@ -1137,9 +1167,10 @@ vkx::Instance::~Instance()
 {
     VkDevice device = Device;
 
+    vkDestroyDescriptorPool(device, DescriptorPool, nullptr);
     vkDestroySampler(device, ImageSampler, nullptr);
-
     vkDestroyCommandPool(device, CommandPool, nullptr);
+
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(Inst, SurfaceKHR, nullptr);
 
@@ -1153,7 +1184,6 @@ vkx::Instance::~Instance()
 vkx::Instance::Instance(GLFWwindow* glfwWindow, bool enableValidationLayer)
 {
     vkx::ctx(this);
-
     m_EnabledValidationLayer=enableValidationLayer;
 
     Inst = CreateInstance(enableValidationLayer);
@@ -1164,10 +1194,10 @@ vkx::Instance::Instance(GLFWwindow* glfwWindow, bool enableValidationLayer)
     QueueFamilyIndices queueFamily = findQueueFamilies(PhysDevice, SurfaceKHR);
     Device = CreateLogicalDevice(PhysDevice, queueFamily, &GraphicsQueue, &PresentQueue);
 
+
     CommandPool = CreateCommandPool(Device, queueFamily.m_GraphicsFamily);
-
     ImageSampler = vkx::CreateImageSampler();
-
+    DescriptorPool = CreateDescriptorPool_(Device);
 
 }
 
