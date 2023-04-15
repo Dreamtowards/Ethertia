@@ -445,7 +445,6 @@ static void CheckValidationLayersSupport(const std::vector<const char*>& validat
     }
 }
 
-inline static bool g_EnableValidationLayer = true;
 inline static VkDebugUtilsMessengerEXT g_DebugMessengerEXT = nullptr;
 inline static std::vector<const char*> g_ValidationLayers = {
         "VK_LAYER_KHRONOS_validation"
@@ -476,6 +475,253 @@ static void extDestroyDebugMessenger(VkInstance instance, VkDebugUtilsMessengerE
         func(instance, debugMessenger, pAllocator);
     }
 }
+
+VkInstance vkx::CreateInstance(bool enableValidationLayer)
+{
+    VkInstanceCreateInfo instInfo{};
+    instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+
+    // Optional Info.
+    VkApplicationInfo vkaInfo{
+        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+        .pNext = nullptr,
+        .pApplicationName = "N/A",
+        .applicationVersion = VK_MAKE_VERSION(0, 0, 1),
+        .pEngineName = "No Engine",
+        .engineVersion = VK_MAKE_VERSION(0, 0, 1),
+        .apiVersion = VK_API_VERSION_1_0
+    };
+    instInfo.pApplicationInfo = &vkaInfo;
+
+
+    // VkInstance Extensions.
+    std::vector<const char*> extensionsRequired;
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    for (int i = 0; i < glfwExtensionCount; ++i) {
+        extensionsRequired.push_back(glfwExtensions[i]);
+    }
+
+#ifdef __APPLE__
+    // for prevents VK_ERROR_INCOMPATIBLE_DRIVER err on MacOS MoltenVK sdk.
+    extensionsRequired.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    instInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+    // for supports VK_KHR_portability_subset logical-device-extension on MacOS.
+    extensionsRequired.push_back("VK_KHR_get_physical_device_properties2");
+#endif
+
+    if (enableValidationLayer) {
+        extensionsRequired.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
+    instInfo.enabledExtensionCount = extensionsRequired.size();
+    instInfo.ppEnabledExtensionNames = extensionsRequired.data();
+
+
+    //    {   // Verbose
+    //        uint32_t vkExtensionCount = 0;
+    //        vkEnumerateInstanceExtensionProperties(nullptr, &vkExtensionCount, nullptr);
+    //
+    //        VkExtensionProperties vkExtProps[vkExtensionCount];
+    //        vkEnumerateInstanceExtensionProperties(nullptr, &vkExtensionCount, vkExtProps);
+    //
+    //        Log::info("{} VkInstance Extension supported: \1", vkExtensionCount);
+    //        for (int i = 0; i < vkExtensionCount; ++i) {
+    //            std::cout << vkExtProps[i].extensionName << ", ";
+    //        }
+    //        std::cout << "\n";
+
+    //        Log::info("VkInstance Extensions: \1");
+    //        for (auto & i : extensionsRequired) {
+    //            std::cout << i << ", ";
+    //        }
+    //        std::cout << "\n";
+    //    }
+
+
+    // VkInstance Layers
+    VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo;
+    if (enableValidationLayer) {
+        CheckValidationLayersSupport(g_ValidationLayers);
+
+        instInfo.enabledLayerCount = g_ValidationLayers.size();
+        instInfo.ppEnabledLayerNames = g_ValidationLayers.data();
+
+        debugMessengerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        debugMessengerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        debugMessengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        debugMessengerInfo.pfnUserCallback = debugMessengerCallback;
+        debugMessengerInfo.pUserData = nullptr; // Optional
+        instInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugMessengerInfo;
+    } else {
+        instInfo.enabledLayerCount = 0;
+        instInfo.pNext = nullptr;
+    }
+
+
+    VkInstance instance;
+    VkResult err = vkCreateInstance(&instInfo, nullptr, &instance);
+    if (err) {
+        throw std::runtime_error(Strings::fmt("failed to create vulkan instance. ", err));
+    }
+
+    if (enableValidationLayer) {
+        // Setup EXT DebugMessenger
+        auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+        if (func != nullptr) {
+            VK_CHECK(func(instance, &debugMessengerInfo, nullptr, &g_DebugMessengerEXT));
+        } else {
+            throw std::runtime_error("ext DebugMessenger not present.");
+        }
+    }
+    return instance;
+}
+
+VkSurfaceKHR CreateSurface(VkInstance instance, GLFWwindow* glfwWindow)
+{
+    VkSurfaceKHR surfaceKHR;
+    if (glfwCreateWindowSurface(instance, glfwWindow, nullptr, &surfaceKHR) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface via glfw.");
+    }
+    return surfaceKHR;
+}
+
+static VkPhysicalDevice PickPhysicalDevice(VkInstance vkInst)
+{
+    uint32_t gpu_count = 0;
+    vkEnumeratePhysicalDevices(vkInst, &gpu_count, nullptr);
+
+    Log::info("GPUs: ", gpu_count);
+    assert(gpu_count && "failed to find GPU with vulkan support.");
+
+    std::vector<VkPhysicalDevice> gpus(gpu_count);
+    vkEnumeratePhysicalDevices(vkInst, &gpu_count, gpus.data());
+
+    VkPhysicalDevice dev = gpus[0];
+    for (const auto& physGPU : gpus)
+    {
+        VkPhysicalDeviceProperties deviceProperties;
+        vkGetPhysicalDeviceProperties(physGPU, &deviceProperties);
+
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceFeatures(physGPU, &deviceFeatures);
+
+        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+            dev = physGPU;
+            break;
+        }
+    }
+    return dev;
+}
+
+static VkDevice CreateLogicalDevice(VkPhysicalDevice physDevice, const QueueFamilyIndices& queueFamily, VkQueue* out_GraphicsQueue, VkQueue* out_PresentQueue)
+{
+    VkDeviceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+    // Queue Family
+    float queuePriority = 1.0f;  // 0.0-1.0
+
+    std::set<uint32_t> uniqQueueFamilyIdx = {queueFamily.m_GraphicsFamily, queueFamily.m_PresentFamily};
+    std::vector<VkDeviceQueueCreateInfo> arrQueueCreateInfo;
+    for (uint32_t queueFamilyIdx : uniqQueueFamilyIdx) {
+        VkDeviceQueueCreateInfo queueCreateInfo = {};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+
+        queueCreateInfo.queueFamilyIndex = queueFamilyIdx;
+        queueCreateInfo.queueCount = 1;
+        arrQueueCreateInfo.push_back(queueCreateInfo);
+    }
+
+    createInfo.pQueueCreateInfos = arrQueueCreateInfo.data();
+    createInfo.queueCreateInfoCount = arrQueueCreateInfo.size();
+
+    // Device Features
+    VkPhysicalDeviceFeatures deviceFeatures{};
+    vkGetPhysicalDeviceFeatures(physDevice, &deviceFeatures);
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    // Device Extensions  (needs check is supported?)
+    std::vector<const char*> deviceExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+#ifdef __APPLE__
+            "VK_KHR_portability_subset"
+#endif
+    };
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    createInfo.enabledExtensionCount = deviceExtensions.size();
+
+    // VK_KHR_swapchain
+    VkDevice device;
+    if (vkCreateDevice(physDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create logical device.");
+    }
+
+    // Get Queue by the way.
+    vkGetDeviceQueue(device, queueFamily.m_GraphicsFamily, 0, out_GraphicsQueue);
+    vkGetDeviceQueue(device, queueFamily.m_PresentFamily, 0, out_PresentQueue);
+
+    return device;
+}
+
+static VkCommandPool CreateCommandPool(VkDevice device, uint32_t queueFamily)
+{
+    VkCommandPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolInfo.queueFamilyIndex = queueFamily;
+
+    VkCommandPool commandPool;
+    VK_CHECK_MSG(vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool),
+                 "failed to create command pool.");
+    return commandPool;
+}
+
+
+
+
+vkx::Instance::~Instance()
+{
+    vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+    vkDestroyDevice(m_Device, nullptr);
+    vkDestroySurfaceKHR(m_Instance, m_SurfaceKHR, nullptr);
+
+    if (m_EnabledValidationLayer) {
+        extDestroyDebugMessenger(m_Instance, g_DebugMessengerEXT, nullptr);
+    }
+    vkDestroyInstance(m_Instance, nullptr);
+}
+
+
+vkx::Instance* vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
+{
+    vkx::Instance* inst = new vkx::Instance();
+    inst->m_EnabledValidationLayer=enableValidationLayer;
+
+    VkInstance vkInst = vkx::CreateInstance(enableValidationLayer);
+    inst->m_Instance = vkInst;
+    inst->m_SurfaceKHR = CreateSurface(inst->m_Instance, glfwWindow);
+
+    inst->m_PhysDevice = PickPhysicalDevice(vkInst);
+    QueueFamilyIndices queueFamily = vkh::findQueueFamilies(inst->m_PhysDevice, inst->m_SurfaceKHR);
+    inst->m_Device = CreateLogicalDevice(inst->m_PhysDevice, queueFamily,
+                                         &inst->m_GraphicsQueue, &inst->m_PresentQueue);
+
+    inst->m_CommandPool = CreateCommandPool(inst->m_Device, queueFamily.m_GraphicsFamily);
+
+
+
+
+    return inst;
+}
+
+
+
+
 
 
 
@@ -539,126 +785,6 @@ static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities,
     extent.height = std::clamp(extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
     return extent;
 }
-
-
-
-
-
-
-VkInstance vkh::CreateInstance()
-{
-    VkInstanceCreateInfo instInfo{};
-    instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-
-    // Optional Info.
-    VkApplicationInfo vkaInfo{
-        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-        .pNext = nullptr,
-        .pApplicationName = "N/A",
-        .applicationVersion = VK_MAKE_VERSION(0, 0, 1),
-        .pEngineName = "No Engine",
-        .engineVersion = VK_MAKE_VERSION(0, 0, 1),
-        .apiVersion = VK_API_VERSION_1_0
-    };
-    instInfo.pApplicationInfo = &vkaInfo;
-
-
-    // VkInstance Extensions.
-    std::vector<const char*> extensionsRequired;
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    for (int i = 0; i < glfwExtensionCount; ++i) {
-        extensionsRequired.push_back(glfwExtensions[i]);
-    }
-
-#ifdef __APPLE__
-        // for prevents VK_ERROR_INCOMPATIBLE_DRIVER err on MacOS MoltenVK sdk.
-        extensionsRequired.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-        instInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-
-        // for supports VK_KHR_portability_subset logical-device-extension on MacOS.
-        extensionsRequired.push_back("VK_KHR_get_physical_device_properties2");
-#endif
-
-        if (g_EnableValidationLayer) {
-            extensionsRequired.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        }
-
-        instInfo.enabledExtensionCount = extensionsRequired.size();
-        instInfo.ppEnabledExtensionNames = extensionsRequired.data();
-
-
-        //    {   // Verbose
-        //        uint32_t vkExtensionCount = 0;
-        //        vkEnumerateInstanceExtensionProperties(nullptr, &vkExtensionCount, nullptr);
-        //
-        //        VkExtensionProperties vkExtProps[vkExtensionCount];
-        //        vkEnumerateInstanceExtensionProperties(nullptr, &vkExtensionCount, vkExtProps);
-        //
-        //        Log::info("{} VkInstance Extension supported: \1", vkExtensionCount);
-        //        for (int i = 0; i < vkExtensionCount; ++i) {
-        //            std::cout << vkExtProps[i].extensionName << ", ";
-        //        }
-        //        std::cout << "\n";
-
-        //        Log::info("VkInstance Extensions: \1");
-        //        for (auto & i : extensionsRequired) {
-        //            std::cout << i << ", ";
-        //        }
-        //        std::cout << "\n";
-        //    }
-
-
-        // VkInstance Layers
-        VkDebugUtilsMessengerCreateInfoEXT debugMessengerInfo;
-        if (g_EnableValidationLayer) {
-            CheckValidationLayersSupport(g_ValidationLayers);
-
-            instInfo.enabledLayerCount = g_ValidationLayers.size();
-            instInfo.ppEnabledLayerNames = g_ValidationLayers.data();
-
-            debugMessengerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-            debugMessengerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-            debugMessengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-            debugMessengerInfo.pfnUserCallback = debugMessengerCallback;
-            debugMessengerInfo.pUserData = nullptr; // Optional
-            instInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugMessengerInfo;
-        } else {
-            instInfo.enabledLayerCount = 0;
-            instInfo.pNext = nullptr;
-        }
-
-
-        VkInstance instance;
-        VkResult err = vkCreateInstance(&instInfo, nullptr, &instance);
-        if (err) {
-            throw std::runtime_error(Strings::fmt("failed to create vulkan instance. ", err));
-        }
-
-        if (g_EnableValidationLayer) {
-            // Setup EXT DebugMessenger
-            auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-            if (func != nullptr) {
-                VK_CHECK(func(instance, &debugMessengerInfo, nullptr, &g_DebugMessengerEXT));
-            } else {
-                throw std::runtime_error("ext DebugMessenger not present.");
-            }
-        }
-        return instance;
-    }
-
-
-void vkh::DestroyInstance(VkInstance instance)
-{
-    if (g_EnableValidationLayer) {
-        extDestroyDebugMessenger(instance, g_DebugMessengerEXT, nullptr);
-    }
-    vkDestroyInstance(instance, nullptr);
-}
-
-
-
 
 
 
@@ -805,13 +931,6 @@ void vkh::CreateSwapchain(VkPhysicalDevice physDevice, VkSurfaceKHR surfaceKHR, 
 //        Log::info("Device ", deviceProperties.deviceName);
 //        return score;
 //    }
-
-void vkh::CreateSurface(VkInstance instance, GLFWwindow* glfwWindow, VkSurfaceKHR& out_SurfaceKHR)
-{
-    if (glfwCreateWindowSurface(instance, glfwWindow, nullptr, &out_SurfaceKHR) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create window surface via glfw.");
-    }
-}
 
 
 

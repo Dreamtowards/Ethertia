@@ -19,8 +19,8 @@
 
 #include "VulkanIntl.h"
 
-#include <eldaria/vulkan/vkh.cpp>
 #include <eldaria/imgui/Imgui.h>
+#include <eldaria/vulkan/vkh.cpp>
 
 
 vkx::VertexBuffer* g_TestModel = nullptr;
@@ -41,16 +41,16 @@ class VulkanIntl_Impl
 {
 public:
 
-    inline static VkInstance        g_Instance  = nullptr;
-    inline static VkPhysicalDevice  g_PhysDevice= nullptr;
-    inline static VkDevice          g_Device    = nullptr;  // Logical Device
+//    inline static VkInstance        g_Instance  = nullptr;
+//    inline static VkPhysicalDevice  g_PhysDevice= nullptr;
+//    inline static VkDevice          g_Device    = nullptr;  // Logical Device
 
     inline static VkRenderPass      g_RenderPass = nullptr;
 
-    inline static VkQueue g_GraphicsQueue = nullptr;
-    inline static VkQueue g_PresentQueue = nullptr;  // Surface Present
+//    inline static VkQueue g_GraphicsQueue = nullptr;
+//    inline static VkQueue g_PresentQueue = nullptr;  // Surface Present
 
-    inline static VkSurfaceKHR          g_SurfaceKHR = nullptr;
+//    inline static VkSurfaceKHR          g_SurfaceKHR = nullptr;
     inline static VkSwapchainKHR        g_SwapchainKHR = nullptr;
     inline static std::vector<VkImage>  g_SwapchainImages;  // auto clean by vk swapchain
     inline static std::vector<VkImageView> g_SwapchainImageViews;
@@ -87,20 +87,17 @@ public:
 
 
 
+    inline static vkx::Instance* g_Inst = nullptr;
+
     static void Init(GLFWwindow* glfwWindow)
     {
-        g_Instance = vkh::CreateInstance();
-        vkh::CreateSurface(g_Instance, g_WindowHandle=glfwWindow, g_SurfaceKHR);
+        g_Inst = vkx::Init(glfwWindow);
 
-        PickPhysicalDevice();
-        CreateLogicalDevice();
+
 
         CreateDescriptorPool();
-        CreateCommandPool();
         CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
-        vkh::g_Device = g_Device; vkh::g_PhysDevice = g_PhysDevice;
-        vkh::g_GraphicsQueue = g_GraphicsQueue; vkh::g_CommandPool = g_CommandPool;
 
         g_TextureSampler = vkh::CreateTextureSampler();
 
@@ -174,98 +171,12 @@ public:
 
         vkDestroySampler(g_Device, g_TextureSampler, nullptr);
         vkDestroyDescriptorPool(g_Device, g_DescriptorPool, nullptr);
-        vkDestroyCommandPool(g_Device, g_CommandPool, nullptr);
-        vkDestroyDevice(g_Device, nullptr);
-        vkDestroySurfaceKHR(g_Instance, g_SurfaceKHR, nullptr);
 
-        vkh::DestroyInstance(g_Instance);
+
+        delete g_Inst;
     }
 
-    static void PickPhysicalDevice()
-    {
-        uint32_t gpu_count = 0;
-        vkEnumeratePhysicalDevices(g_Instance, &gpu_count, nullptr);
 
-        Log::info("GPUs: ", gpu_count);
-        assert(gpu_count && "failed to find GPU with vulkan support.");
-
-        std::vector<VkPhysicalDevice> gpus(gpu_count);
-        vkEnumeratePhysicalDevices(g_Instance, &gpu_count, gpus.data());
-
-        VkPhysicalDevice dev = gpus[0];
-        for (const auto& physGPU : gpus)
-        {
-            VkPhysicalDeviceProperties deviceProperties;
-            vkGetPhysicalDeviceProperties(physGPU, &deviceProperties);
-
-            VkPhysicalDeviceFeatures deviceFeatures;
-            vkGetPhysicalDeviceFeatures(physGPU, &deviceFeatures);
-
-            if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-                dev = physGPU;
-                break;
-            }
-        }
-        g_PhysDevice = dev;
-    }
-
-    static void CreateLogicalDevice()
-    {
-        VkDeviceCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-        // Queue Family
-        QueueFamilyIndices queueFamily = vkh::findQueueFamilies(g_PhysDevice, g_SurfaceKHR);
-        float queuePriority = 1.0f;  // 0.0-1.0
-
-        std::set<uint32_t> uniqQueueFamilyIdx = {queueFamily.m_GraphicsFamily, queueFamily.m_PresentFamily};
-        std::vector<VkDeviceQueueCreateInfo> arrQueueCreateInfo;
-        for (uint32_t queueFamilyIdx : uniqQueueFamilyIdx) {
-            VkDeviceQueueCreateInfo queueCreateInfo = {};
-            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            queueCreateInfo.pQueuePriorities = &queuePriority;
-
-            queueCreateInfo.queueFamilyIndex = queueFamilyIdx;
-            queueCreateInfo.queueCount = 1;
-            arrQueueCreateInfo.push_back(queueCreateInfo);
-        }
-
-        createInfo.pQueueCreateInfos = arrQueueCreateInfo.data();
-        createInfo.queueCreateInfoCount = arrQueueCreateInfo.size();
-
-        // Device Features
-        VkPhysicalDeviceFeatures deviceFeatures{};
-        vkGetPhysicalDeviceFeatures(g_PhysDevice, &deviceFeatures);
-        deviceFeatures.samplerAnisotropy = VK_TRUE;
-        createInfo.pEnabledFeatures = &deviceFeatures;
-
-        // Device Extensions  (needs check is supported?)
-        std::vector<const char*> deviceExtensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-#ifdef __APPLE__
-                "VK_KHR_portability_subset"
-#endif
-        };
-        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-        createInfo.enabledExtensionCount = deviceExtensions.size();
-
-//        // Device Validation Layer: already deprecated. ValidationLayer only belongs to VkInstance.
-//        if (g_EnableValidationLayer) {
-//            createInfo.ppEnabledLayerNames = g_ValidationLayers.data();
-//            createInfo.enabledLayerCount = g_ValidationLayers.size();
-//        } else {
-//            createInfo.enabledLayerCount = 0;
-//        }
-
-        // VK_KHR_swapchain
-        if (vkCreateDevice(g_PhysDevice, &createInfo, nullptr, &g_Device) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create logical device.");
-        }
-
-        // Get Queue by the way.
-        vkGetDeviceQueue(g_Device, queueFamily.m_GraphicsFamily, 0, &g_GraphicsQueue);
-        vkGetDeviceQueue(g_Device, queueFamily.m_PresentFamily, 0, &g_PresentQueue);
-    }
 
     static void CreateSwapchainAndImageViews()
     {
@@ -283,7 +194,7 @@ public:
             vkDestroyFramebuffer(g_Device, fb, nullptr);
         }
         for (auto imageview : g_SwapchainImageViews) {
-            vkDestroyImageView(g_Device, imageview, nullptr);
+            vkDestroyImageView(vkx::Def.Device, imageview, nullptr);
         }
         vkDestroySwapchainKHR(g_Device, g_SwapchainKHR, nullptr);
     }
@@ -712,20 +623,6 @@ public:
         }
     }
 
-
-    static void CreateCommandPool()
-    {
-        QueueFamilyIndices queueFamilyIndices = vkh::findQueueFamilies(g_PhysDevice, g_SurfaceKHR);
-
-        VkCommandPoolCreateInfo poolInfo{};
-        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        poolInfo.queueFamilyIndex = queueFamilyIndices.m_GraphicsFamily;
-
-        if (vkCreateCommandPool(g_Device, &poolInfo, nullptr, &g_CommandPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create command pool.");
-        }
-    }
 
 
     static void CreateCommandBuffers()

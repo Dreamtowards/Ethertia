@@ -14,16 +14,53 @@
 
 namespace vkx
 {
+
     class Instance
     {
+    public:
+        ~Instance();
+
         VkInstance m_Instance = nullptr;
+        VkSurfaceKHR m_SurfaceKHR = nullptr;
+        bool m_EnabledValidationLayer = true;
+
         VkPhysicalDevice m_PhysDevice = nullptr;
         VkDevice m_Device = nullptr;
+        VkQueue m_GraphicsQueue = nullptr;
+        VkQueue m_PresentQueue = nullptr;
 
-        bool m_EnabledValidationLayer = true;
+        VkCommandPool m_CommandPool = nullptr;
+
 
 
     };
+
+    struct InstanceInfo
+    {
+        VkInstance Instance;
+        VkSurfaceKHR SurfaceKHR;
+
+        VkPhysicalDevice PhysDevice;
+        VkDevice Device;
+        VkQueue GraphicsQueue;
+        VkQueue PresentQueue;
+
+        VkCommandPool CommandPool;
+    } Def;
+    void SetDef(vkx::Instance* inst) {
+        Def.Instance = inst->m_Instance;
+        Def.SurfaceKHR = inst->m_SurfaceKHR;
+        Def.PhysDevice = inst->m_PhysDevice;
+        Def.Device = inst->m_Device;
+        Def.GraphicsQueue = inst->m_GraphicsQueue;
+        Def.PresentQueue = inst->m_PresentQueue;
+    }
+
+    vkx::Instance& GetInst();
+
+    vkx::Instance* Init(GLFWwindow* glfwWindow, bool enableValidationLayer = true);
+
+    VkInstance CreateInstance(bool enableValidationLayer = true);
 
 
     class CommandBuffer
