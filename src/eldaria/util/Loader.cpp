@@ -117,8 +117,8 @@ vkx::VertexBuffer* Loader::loadVertexBuffer(const VertexData& vdata)
     VkBuffer vtxBuffer, idxBuffer;
     VkDeviceMemory vtxMemory, idxMemory;
 
-    vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), vtxBuffer, vtxMemory);
-    vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), idxBuffer,  idxMemory, true);
+    vkx::CreateStagedBuffer(vdata.vtx_data(), vdata.vtx_size(), &vtxBuffer, &vtxMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    vkx::CreateStagedBuffer(vdata.idx_data(), vdata.idx_size(), &idxBuffer, &idxMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
     int vcount = vdata.vertexCount();
     return new vkx::VertexBuffer(vtxBuffer, vtxMemory, idxBuffer, idxMemory, vcount);
@@ -129,8 +129,7 @@ vkx::Image* Loader::loadImage(const BitmapImage& bitmapImage)
     VkImage image;
     VkDeviceMemory imageMemory;
     VkImageView imageView;
-    vkx::CreateStagedImage(vkh::g_Device,
-                           bitmapImage.m_Width, bitmapImage.m_Height, bitmapImage.m_Pixels,
+    vkx::CreateStagedImage(bitmapImage.m_Width, bitmapImage.m_Height, bitmapImage.m_Pixels,
                            &image, &imageMemory, &imageView);
 
     return new vkx::Image(image, imageMemory, imageView);

@@ -12,55 +12,135 @@
 
 // vulkan helper
 
+// LowLevel Functional Encapsulate
+namespace vl
+{
+    // vkAllocateDescriptorSets() helper
+    void AllocateDescriptorSets(VkDevice device,
+                                VkDescriptorPool descriptorPool,
+                                int descriptorSetCount,
+                                VkDescriptorSetLayout* descriptorSetLayouts,
+                                VkDescriptorSet* out_descriptorSets);  // out
+
+    // vkCreateDescriptorSetLayout()
+    VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,
+                                                    std::initializer_list<VkDescriptorSetLayoutBinding> bindings);
+
+    VkPipelineLayout CreatePipelineLayout(VkDevice device,
+                                          int numSetLayouts, VkDescriptorSetLayout* pSetLayouts);
+
+    // vkCreateShaderModule()
+    VkPipelineShaderStageCreateInfo CreateShaderModuleStage(VkDevice device, VkShaderStageFlagBits stage, const void* data, size_t size);
+
+
+
+
+    // vkAllocateMemory() -> VkDeviceMemory
+    VkDeviceMemory AllocateMemory(VkDevice device,
+                                  VkMemoryRequirements memRequirements,
+                                  VkMemoryPropertyFlags memProperties);
+
+    // vkCreateBuffer()
+    void CreateBuffer(VkDevice device,
+                      VkDeviceSize size,
+                      VkBuffer* pBuffer,  // out
+                      VkDeviceMemory* pBufferMemory,  // out
+                      VkBufferUsageFlags usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                      VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    void CreateImage(VkDevice device,
+                     int imgWidth, int imgHeight,
+                     VkImage* pImage,  // out
+                     VkDeviceMemory* pImageMemory,  // out
+                     VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
+                     VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                     VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL);
+
+
+    VkImageView CreateImageView(VkDevice device,
+                                VkImage image,
+                                VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
+                                VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
+
+
+
+    VkFramebuffer CreateFramebuffer(VkDevice device,
+                                    int w, int h,
+                                    VkRenderPass renderPass,
+                                    int attchCount,
+                                    VkImageView* pAttach);
+
+
+
+    // Allocate & Record & Submit Onetime CommandBuffer
+    void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record,
+                             VkDevice device, VkCommandPool commandPool, VkQueue queue);
+
+    void QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, VkSemaphore signal, VkFence fence);
+
+    void CmdBeginRenderPass(VkCommandBuffer cmdbuf,
+                            VkRenderPass renderPass,
+                            VkFramebuffer framebuffer,
+                            VkExtent2D renderAreaExtent,
+                            int numClearValues,
+                            VkClearValue* pClearValues);
+
+    void CmdSetViewport(VkCommandBuffer cmdbuf,
+                        VkExtent2D wh,
+                        float x = 0, float y = 0,
+                        float minDepth = 0.0f, float maxDepth = 1.0f);
+
+    void CmdSetScissor(VkCommandBuffer cmdbuf,
+                       VkExtent2D extent,
+                       VkOffset2D offset = {0, 0});
+
+    void CmdBindVertexBuffer(VkCommandBuffer cmdbuf, VkBuffer vbuf);
+
+    void CmdBindIndexBuffer(VkCommandBuffer cmdbuf, VkBuffer idx_buf);
+
+    static void CmdBindGraphicsPipeline(VkCommandBuffer cmdbuf, VkPipeline graphicsPipeline);
+
+
+
+}
+
+
+
+
+
+// Global State
+// HighLevel Object-Oriented Encapsulate
 namespace vkx
 {
 
-    class Instance
+    struct Instance
     {
     public:
+        Instance(GLFWwindow* glfwWindow, bool enableValidationLayer = true);
         ~Instance();
 
-        VkInstance m_Instance = nullptr;
-        VkSurfaceKHR m_SurfaceKHR = nullptr;
+        VkInstance Inst = nullptr;
+        VkSurfaceKHR SurfaceKHR = nullptr;
         bool m_EnabledValidationLayer = true;
 
-        VkPhysicalDevice m_PhysDevice = nullptr;
-        VkDevice m_Device = nullptr;
-        VkQueue m_GraphicsQueue = nullptr;
-        VkQueue m_PresentQueue = nullptr;
+        VkPhysicalDevice PhysDevice = nullptr;
+        VkDevice Device = nullptr;
+        VkQueue GraphicsQueue = nullptr;
+        VkQueue PresentQueue = nullptr;
 
-        VkCommandPool m_CommandPool = nullptr;
-
-
+        VkCommandPool CommandPool = nullptr;
 
     };
 
-    struct InstanceInfo
-    {
-        VkInstance Instance;
-        VkSurfaceKHR SurfaceKHR;
-
-        VkPhysicalDevice PhysDevice;
-        VkDevice Device;
-        VkQueue GraphicsQueue;
-        VkQueue PresentQueue;
-
-        VkCommandPool CommandPool;
-    } Def;
-    void SetDef(vkx::Instance* inst) {
-        Def.Instance = inst->m_Instance;
-        Def.SurfaceKHR = inst->m_SurfaceKHR;
-        Def.PhysDevice = inst->m_PhysDevice;
-        Def.Device = inst->m_Device;
-        Def.GraphicsQueue = inst->m_GraphicsQueue;
-        Def.PresentQueue = inst->m_PresentQueue;
+    // The Default Instance;
+    static vkx::Instance* _DefaultInst = nullptr;
+    void ctx(vkx::Instance* inst) {
+        _DefaultInst = inst;
     }
-
-    vkx::Instance& GetInst();
-
-    vkx::Instance* Init(GLFWwindow* glfwWindow, bool enableValidationLayer = true);
-
-    VkInstance CreateInstance(bool enableValidationLayer = true);
+    vkx::Instance& ctx() {
+        return *_DefaultInst;
+    }
 
 
     class CommandBuffer
@@ -100,12 +180,6 @@ namespace vkx
 
     };
 
-    // Onetime CommandBuffer
-    void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record,
-                             VkDevice device, VkCommandPool commandPool, VkQueue queue);
-
-    // use Global Default device/cmdpool/queue.
-    void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record);
 
 
 
@@ -217,25 +291,6 @@ namespace vkx
         int vertexCount() const { return m_VertexCount; };
     };
 
-    class UniformBuffer
-    {
-        VkBuffer m_Buffer = nullptr;
-        VkDeviceMemory m_BufferMemory = nullptr;
-        void* m_BufferMapped = nullptr;  // 'Persistent Mapping' since vkMapMemory costs.
-
-//        VkDevice _devi;  // for vkDestroy..()
-//    public:
-//        UniformBuffer(VkDevice device, VkDeviceSize bufferSize);
-//        ~UniformBuffer();
-
-    public:
-        void Create(VkDevice device, VkDeviceSize bufferSize);
-        void Destroy(VkDevice device);
-        void MemCpy(void* src_ptr, size_t size);
-
-        VkBuffer buffer() { return m_Buffer; };
-    };
-
     struct Image
     {
         VkImage m_Image = nullptr;
@@ -248,119 +303,69 @@ namespace vkx
 
 
 
+    class UniformBuffer
+    {
+        VkBuffer m_Buffer = nullptr;
+        VkDeviceMemory m_BufferMemory = nullptr;
+        void* m_BufferMapped = nullptr;  // 'Persistent Mapping' since vkMapMemory costs.
+
+    public:
+        UniformBuffer(VkDeviceSize bufferSize);
+        ~UniformBuffer();
+
+        // cpy mem to the buffer.
+        void memcpy(void* src_ptr, size_t size);
+        VkBuffer buffer() { return m_Buffer; };
+    };
 
 
-    // ============ low level encapsulate ============
-
-    // vkAllocateDescriptorSets() helper
-    void AllocateDescriptorSets(VkDevice device,
-                                VkDescriptorPool descriptorPool,
-                                int descriptorSetCount,
-                                VkDescriptorSetLayout* descriptorSetLayouts,
-                                VkDescriptorSet* out_descriptorSets);  // out
-
-    // vkAllocateMemory() -> VkDeviceMemory
-    VkDeviceMemory AllocateMemory(VkDevice device,
-                                  VkMemoryRequirements memRequirements,
-                                  VkMemoryPropertyFlags memProperties);
-
-    // vkCreateBuffer()
-    void CreateBuffer(VkDevice device,
-                      VkDeviceSize size,
-                      VkBuffer* pBuffer,  // out
-                      VkDeviceMemory* pBufferMemory,  // out
-                      VkBufferUsageFlags usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                      VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    void CreateImage(VkDevice device,
-                     int imgWidth, int imgHeight,
-                     VkImage* pImage,  // out
-                     VkDeviceMemory* pImageMemory,  // out
-                     VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
-                     VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                     VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL);
 
 
-    void CreateStagedImage(VkDevice device,
-                           int w, int h,
+
+    // use Global Default device/cmdpool/queue.
+    void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record);
+
+    void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+
+    void CreateStagedImage(int w, int h,
                            void* pixels,  // 4 channel rgba8 pixels
                            VkImage* pImage,  // out
                            VkDeviceMemory* pImageMemory,  // out
                            VkImageView* pImageView);  // out
+
+
+    // Static buffer. (high effective read on GPU, but cannot visible/modify from CPU)
+    void CreateStagedBuffer(const void* bufferData, VkDeviceSize bufferSize,
+                            VkBuffer* out_buffer, VkDeviceMemory* out_bufferMemory,
+                            VkBufferUsageFlags usage);  // usage Vert: VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, Idx: VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+
+
+
+    void CreateSwapchain(VkDevice device, VkPhysicalDevice physDevice, VkSurfaceKHR surfaceKHR, GLFWwindow* glfwWindow,
+                         VkSwapchainKHR& out_SwapchainKHR, VkExtent2D& out_SwapchainExtent,
+                         VkFormat& out_SwapchainImageFormat, std::vector<VkImage>& out_SwapchainImages,
+                         std::vector<VkImageView>& out_SwapchainImageViews);
+
+
+    VkFormat findDepthFormat();
+
+    void CreateDepthImage(int w, int h, vkx::Image* img);
+
+
+    VkSampler CreateImageSampler();
+
 }
 
 
 
 
 
-struct QueueFamilyIndices {
-    uint32_t m_GraphicsFamily = -1;
-    uint32_t m_PresentFamily = -1;  //Surface Present.
-
-    bool isComplete() const {
-        return m_GraphicsFamily != -1 && m_PresentFamily != -1;
-    }
-};
-
-struct SwapchainSupportDetails
-{
-    VkSurfaceCapabilitiesKHR m_Capabilities{};
-    std::vector<VkSurfaceFormatKHR> m_Formats;
-    std::vector<VkPresentModeKHR> m_PresentModes;
-
-    bool isSwapChainAdequate() const {
-        return !m_Formats.empty() && !m_PresentModes.empty();
-    }
-};
 
 
 class vkh
 {
 public:
-    // needs manual set from Reals.
-    inline static VkDevice g_Device = nullptr;
-    inline static VkPhysicalDevice g_PhysDevice = nullptr;
-    inline static VkCommandPool g_CommandPool = nullptr;
-    inline static VkQueue       g_GraphicsQueue = nullptr;
-
-
-    [[nodiscard]]
-    static VkInstance CreateInstance();
-
-    static void DestroyInstance(VkInstance instance);
-
-    static VkImageView CreateImageView(VkImage image, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
-
-    static void CreateSwapchain(
-            VkPhysicalDevice physDevice,
-            VkSurfaceKHR surfaceKHR,
-            GLFWwindow* glfwWindow,
-            VkSwapchainKHR& out_SwapchainKHR,
-            VkExtent2D& out_SwapchainExtent,
-            VkFormat& out_SwapchainImageFormat,
-            std::vector<VkImage>& out_SwapchainImages,
-            std::vector<VkImageView>& out_SwapchainImageViews);
-
-    static void CreateSurface(VkInstance instance, GLFWwindow* glfwWindow, VkSurfaceKHR& out_SurfaceKHR);
-
-    static VkDescriptorSetLayout CreateDescriptorSetLayout(std::initializer_list<VkDescriptorSetLayoutBinding> bindings);
-
-    static VkPipelineLayout CreatePipelineLayout(int numSetLayouts, VkDescriptorSetLayout* pSetLayouts);
-
-
-
-    static VkSampler CreateTextureSampler();
-
-    static void CreateDepthTextureImage(int w, int h, VkImage& depthImage, VkDeviceMemory& depthImageMemory, VkImageView& depthImageView);
-
-
-    // Static buffer. (high effective read on GPU, but cannot visible/modify from CPU)
-    static void CreateVertexBuffer(const void* in_data, size_t size,
-                                   VkBuffer& out_buffer, VkDeviceMemory& out_bufferMemory, bool bufferUsageIndexBuffer = false);
-
-
-    static void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 
 
@@ -371,32 +376,6 @@ public:
 
 
 
-    static void QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, VkSemaphore signal, VkFence fence);
-
-
-
-
-    static void CmdBeginRenderPass(VkCommandBuffer cmdbuf,
-                                   VkRenderPass renderPass,
-                                   VkFramebuffer framebuffer,
-                                   VkExtent2D renderAreaExtent,
-                                   int numClearValues,
-                                   VkClearValue* pClearValues);
-
-    static void CmdSetViewport(VkCommandBuffer cmdbuf,
-                               VkExtent2D wh,
-                               float x = 0, float y = 0,
-                               float minDepth = 0.0f, float maxDepth = 1.0f);
-
-    static void CmdSetScissor(VkCommandBuffer cmdbuf,
-                              VkExtent2D extent,
-                              VkOffset2D offset = {0, 0});
-
-    static void CmdBindVertexBuffer(VkCommandBuffer cmdbuf, const VkBuffer vbuf);
-
-    static void CmdBindIndexBuffer(VkCommandBuffer cmdbuf, const VkBuffer idx_buf);
-
-    static void CmdBindGraphicsPipeline(VkCommandBuffer cmdbuf, VkPipeline graphicsPipeline);
 
 
 
@@ -405,9 +384,8 @@ public:
 
 
 
-    static VkFormat findDepthFormat();
 
-    static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice, VkSurfaceKHR surfaceKHR);
+
 
 
 
@@ -484,10 +462,6 @@ public:
             VkFormat format = VK_FORMAT_R16G16B16_SFLOAT,
             VkImageLayout finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    static VkFramebufferCreateInfo c_Framebuffer(int w, int h,
-                                                 VkRenderPass renderPass,
-                                                 int attchCount,
-                                                 VkImageView* pAttach);
 
     static VkDescriptorSetLayoutBinding c_DescriptorSetLayoutBinding(int bind,
                                                                      VkDescriptorType descType,

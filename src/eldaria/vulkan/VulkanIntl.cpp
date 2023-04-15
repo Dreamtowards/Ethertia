@@ -77,7 +77,7 @@ public:
     inline static const int MAX_FRAMES_INFLIGHT = 2;
     inline static int g_CurrentFrameInflight = 0;
 
-    inline static std::vector<vkx::UniformBuffer> g_UniformBuffers;  // for each InflightFrame
+    inline static std::vector<vkx::UniformBuffer*> g_UniformBuffers;  // for each InflightFrame
 
     inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each InflightFrame
 
@@ -91,7 +91,7 @@ public:
 
     static void Init(GLFWwindow* glfwWindow)
     {
-        g_Inst = vkx::Init(glfwWindow);
+        g_Inst = new vkx::Instance(glfwWindow);
 
 
 
@@ -99,7 +99,7 @@ public:
         CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
 
-        g_TextureSampler = vkh::CreateTextureSampler();
+        g_TextureSampler = vkx::CreateImageSampler();
 
         CreateSwapchainAndImageViews();
         CreateRenderPass();     // depend: Swapchain format
@@ -109,7 +109,8 @@ public:
 
         CreateDescriptorSetLayout();
 
-        g_PipelineLayout = vkh::CreatePipelineLayout(1, &g_DescriptorSetLayout);
+
+        g_PipelineLayout = vl::CreatePipelineLayout(vkx::ctx().Device, 1, &g_DescriptorSetLayout);
 //        CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
 
         {
@@ -119,9 +120,6 @@ public:
 
             VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
             g_TestModel = Loader::loadVertexBuffer(vdata);
-//            g_TestModel.m_VertexCount = vdata.vertexCount();
-//            vkh::CreateVertexBuffer(vdata.vtx_data(), vdata.vtx_size(), g_TestModel.m_VertexBuffer, g_TestModel.m_VertexBufferMemory);
-//            vkh::CreateVertexBuffer(vdata.idx_data(), vdata.idx_size(), g_TestModel.m_IndexBuffer, g_TestModel.m_IndexBufferMemory, true);
         }
 
         CreateUniformBuffers();
@@ -139,14 +137,15 @@ public:
         delete g_TextureImage;
         delete g_TestModel;
 
+        VkDevice device = vkx::ctx().Device;
 
-        vkDestroyPipelineLayout(g_Device, g_Deferred_Compose.m_PipelineLayout, nullptr);
-        vkDestroyPipeline(g_Device, g_Deferred_Compose.m_Pipeline, nullptr);
+        vkDestroyPipelineLayout(device, g_Deferred_Compose.m_PipelineLayout, nullptr);
+        vkDestroyPipeline(device, g_Deferred_Compose.m_Pipeline, nullptr);
 
-        vkDestroyDescriptorSetLayout(g_Device, g_Deferred_Compose.m_DescSetLayout, nullptr);
-        vkDestroyRenderPass(g_Device, g_Deferred_Gbuffer.m_RenderPass, nullptr);
-        vkDestroyPipeline(g_Device, g_Deferred_Gbuffer.m_Pipeline, nullptr);
-        vkDestroyFramebuffer(g_Device, g_Deferred_Gbuffer.m_Framebuffer, nullptr);
+        vkDestroyDescriptorSetLayout(device, g_Deferred_Compose.m_DescSetLayout, nullptr);
+        vkDestroyRenderPass(device, g_Deferred_Gbuffer.m_RenderPass, nullptr);
+        vkDestroyPipeline(device, g_Deferred_Gbuffer.m_Pipeline, nullptr);
+        vkDestroyFramebuffer(device, g_Deferred_Gbuffer.m_Framebuffer, nullptr);
         delete g_Deferred_Gbuffer.gPosition.m_Img;
         delete g_Deferred_Gbuffer.gNormal.m_Img;
         delete g_Deferred_Gbuffer.gAlbedo.m_Img;
@@ -154,23 +153,23 @@ public:
 
 
 
-        vkDestroyDescriptorSetLayout(g_Device, g_DescriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(device, g_DescriptorSetLayout, nullptr);
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
-            g_UniformBuffers[i].Destroy(g_Device);
+            delete g_UniformBuffers[i];
         }
 
-        vkDestroyPipeline(g_Device, g_GraphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(g_Device, g_PipelineLayout, nullptr);
-        vkDestroyRenderPass(g_Device, g_RenderPass, nullptr);
+        vkDestroyPipeline(device, g_GraphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(device, g_PipelineLayout, nullptr);
+        vkDestroyRenderPass(device, g_RenderPass, nullptr);
 
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
-            vkDestroySemaphore(g_Device, g_SemaphoreImageAcquired[i], nullptr);
-            vkDestroySemaphore(g_Device, g_SemaphoreRenderComplete[i], nullptr);
-            vkDestroyFence(g_Device, g_InflightFence[i], nullptr);
+            vkDestroySemaphore(device, g_SemaphoreImageAcquired[i], nullptr);
+            vkDestroySemaphore(device, g_SemaphoreRenderComplete[i], nullptr);
+            vkDestroyFence(device, g_InflightFence[i], nullptr);
         }
 
-        vkDestroySampler(g_Device, g_TextureSampler, nullptr);
-        vkDestroyDescriptorPool(g_Device, g_DescriptorPool, nullptr);
+        vkDestroySampler(device, g_TextureSampler, nullptr);
+        vkDestroyDescriptorPool(device, g_DescriptorPool, nullptr);
 
 
         delete g_Inst;
@@ -180,7 +179,7 @@ public:
 
     static void CreateSwapchainAndImageViews()
     {
-        vkh::CreateSwapchain(g_PhysDevice, g_SurfaceKHR, g_WindowHandle,
+        vkx::CreateSwapchain(vkx::ctx().PhysDevice, vkx::ctx().SurfaceKHR, g_WindowHandle,
                              g_SwapchainKHR,
                              g_SwapchainExtent, g_SwapchainImageFormat,
                              g_SwapchainImages, g_SwapchainImageViews);
@@ -189,14 +188,15 @@ public:
     static void DestroySwapchain()
     {
         delete g_DepthImage;
+        VkDevice device = vkx::ctx().Device;
 
         for (auto fb : g_SwapchainFramebuffers) {
-            vkDestroyFramebuffer(g_Device, fb, nullptr);
+            vkDestroyFramebuffer(device, fb, nullptr);
         }
         for (auto imageview : g_SwapchainImageViews) {
-            vkDestroyImageView(vkx::Def.Device, imageview, nullptr);
+            vkDestroyImageView(device, imageview, nullptr);
         }
-        vkDestroySwapchainKHR(g_Device, g_SwapchainKHR, nullptr);
+        vkDestroySwapchainKHR(device, g_SwapchainKHR, nullptr);
     }
 
     static void RecreateSwapchain()
@@ -208,7 +208,7 @@ public:
             glfwWaitEvents();
         }
 
-        vkDeviceWaitIdle(g_Device);
+        vkDeviceWaitIdle(vkx::ctx().Device);
         DestroySwapchain();
         Log::info("RecreateSwapchain");
 
@@ -220,8 +220,7 @@ public:
     static void CreateDepthTexture()
     {
         g_DepthImage = new vkx::Image(0,0,0);
-        vkh::CreateDepthTextureImage(g_SwapchainExtent.width, g_SwapchainExtent.height,
-                                     g_DepthImage->m_Image, g_DepthImage->m_ImageMemory, g_DepthImage->m_ImageView);
+        vkx::CreateDepthImage(g_SwapchainExtent.width, g_SwapchainExtent.height, g_DepthImage);
     }
 
 
@@ -273,13 +272,13 @@ public:
     static FramebufferAttachment CreateFramebufferAttachment(int w, int h, VkFormat format, bool depth = false)
     {
         FramebufferAttachment out{};
-
+        VkDevice device = vkx::ctx().Device;
 
         out.m_Img = new vkx::Image(0,0,0);
-        vkx::CreateImage(g_Device, w, h, &out.m_Img->m_Image, &out.m_Img->m_ImageMemory, format,
+        vl::CreateImage(device, w, h, &out.m_Img->m_Image, &out.m_Img->m_ImageMemory, format,
                     depth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
-        out.m_Img->m_ImageView = vkh::CreateImageView(out.m_Img->m_Image, format,
+        out.m_Img->m_ImageView = vl::CreateImageView(device, out.m_Img->m_Image, format,
                     depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
 
         out.m_Desc = vkh::c_AttachmentDescription(format,
@@ -296,13 +295,15 @@ public:
     // 4. Create Gbuffer Pipeline
     static void InitDeferredRendering()
     {
+        VkDevice device = vkx::ctx().Device;
+
         // Gbuffer Attachments
         int attach_size = 1024;
         VkFormat rgbFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
         g_Deferred_Gbuffer.gPosition = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gNormal   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
         g_Deferred_Gbuffer.gAlbedo   = CreateFramebufferAttachment(attach_size,attach_size, rgbFormat);
-        g_Deferred_Gbuffer.gDepth    = CreateFramebufferAttachment(attach_size,attach_size, vkh::findDepthFormat(), true);
+        g_Deferred_Gbuffer.gDepth    = CreateFramebufferAttachment(attach_size,attach_size, vkx::findDepthFormat(), true);
 
         VkAttachmentDescription attachmentDesc[] = {
                 g_Deferred_Gbuffer.gPosition.m_Desc,
@@ -359,7 +360,7 @@ public:
         renderPassInfo.dependencyCount = 1;//std::size(dependencies);
         renderPassInfo.pDependencies = &dependency;
 
-        VK_CHECK(vkCreateRenderPass(g_Device, &renderPassInfo, nullptr, &g_Deferred_Gbuffer.m_RenderPass));
+        VK_CHECK(vkCreateRenderPass(device, &renderPassInfo, nullptr, &g_Deferred_Gbuffer.m_RenderPass));
 
         // Gbuffer Framebuffer
 
@@ -369,12 +370,11 @@ public:
                 g_Deferred_Gbuffer.gAlbedo.m_Img->m_ImageView,
                 g_Deferred_Gbuffer.gDepth.m_Img->m_ImageView,
         };
-        VkFramebufferCreateInfo framebufferInfo =
-                vkh::c_Framebuffer(attach_size,attach_size, g_Deferred_Gbuffer.m_RenderPass,
-                                   std::size(attachmentViews), attachmentViews);
 
-        VK_CHECK(vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_Deferred_Gbuffer.m_Framebuffer));
-
+        g_Deferred_Gbuffer.m_Framebuffer = vl::CreateFramebuffer(device,
+                                                                 attach_size, attach_size,
+                                                                 g_Deferred_Gbuffer.m_RenderPass,
+                                                                 std::size(attachmentViews), attachmentViews);
 
 
         // Gbuffer Pipeline
@@ -418,7 +418,7 @@ public:
         pipelineInfo.renderPass = g_Deferred_Gbuffer.m_RenderPass;
         pipelineInfo.subpass = 0;
 
-        VK_CHECK(vkCreateGraphicsPipelines(g_Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Gbuffer.m_Pipeline));
+        VK_CHECK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Gbuffer.m_Pipeline));
 
         vkh::DestroyShaderModules(shaderStages);  // right here. before next load another.
 
@@ -429,7 +429,7 @@ public:
 
 
 
-        VkDescriptorSetLayout descriptorSetLayout = vkh::CreateDescriptorSetLayout({
+        VkDescriptorSetLayout descriptorSetLayout = vl::CreateDescriptorSetLayout(device, {
                 // binding 0: vsh uniform
                 vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
                 // 1: fsh uniform
@@ -442,7 +442,7 @@ public:
                 vkh::c_DescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
         });
 
-        VkPipelineLayout pipelineLayout = vkh::CreatePipelineLayout(1, &descriptorSetLayout);
+        VkPipelineLayout pipelineLayout = vl::CreatePipelineLayout(device, 1, &descriptorSetLayout);
 
         g_Deferred_Compose.m_PipelineLayout = pipelineLayout;
         g_Deferred_Compose.m_DescSet =
@@ -468,7 +468,7 @@ public:
 
 
 
-        VK_CHECK(vkCreateGraphicsPipelines(g_Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Compose.m_Pipeline));
+        VK_CHECK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Compose.m_Pipeline));
 
 
 
@@ -515,7 +515,7 @@ public:
 
         VkAttachmentDescription attachmentsDesc[] = {
                 vkh::c_AttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
-                vkh::c_AttachmentDescription(vkh::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
+                vkh::c_AttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
         };
 
         VkRenderPassCreateInfo renderPassInfo{};
@@ -527,7 +527,7 @@ public:
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(g_Device, &renderPassInfo, nullptr, &g_RenderPass) != VK_SUCCESS) {
+        if (vkCreateRenderPass(vkx::ctx().Device, &renderPassInfo, nullptr, &g_RenderPass) != VK_SUCCESS) {
             throw std::runtime_error("failed to create render pass.");
         }
 
@@ -573,7 +573,7 @@ public:
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-        if (vkCreateGraphicsPipelines(g_Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_GraphicsPipeline) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines(vkx::ctx().Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_GraphicsPipeline) != VK_SUCCESS) {
             throw std::runtime_error("failed to create graphics pipeline.");
         }
 
@@ -613,13 +613,9 @@ public:
         {
             std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImage->m_ImageView };
 
-            VkFramebufferCreateInfo framebufferInfo =
-                    vkh::c_Framebuffer(g_SwapchainExtent.width, g_SwapchainExtent.height,
-                                       g_RenderPass, attachments.size(), attachments.data());
-
-            if (vkCreateFramebuffer(g_Device, &framebufferInfo, nullptr, &g_SwapchainFramebuffers[i]) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create framebuffer!");
-            }
+            g_SwapchainFramebuffers[i] = vl::CreateFramebuffer(vkx::ctx().Device,
+                                                               g_SwapchainExtent.width, g_SwapchainExtent.height,
+                                                               g_RenderPass, attachments.size(), attachments.data());
         }
     }
 
@@ -636,7 +632,7 @@ public:
         allocInfo.commandBufferCount = g_CommandBuffers.size();
 
         VK_CHECK_MSG(
-                vkAllocateCommandBuffers(g_Device, &allocInfo, g_CommandBuffers.data()),
+                vkAllocateCommandBuffers(vkx::ctx().Device, &allocInfo, g_CommandBuffers.data()),
                 "failed to allocate command buffers!");
     }
 
@@ -655,11 +651,12 @@ public:
         g_SemaphoreRenderComplete.resize(MAX_FRAMES_INFLIGHT);
         g_InflightFence.resize(MAX_FRAMES_INFLIGHT);
 
+        VkDevice device = vkx::ctx().Device;
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i)
         {
-            VK_CHECK(vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]));
-            VK_CHECK(vkCreateSemaphore(g_Device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]));
-            VK_CHECK(vkCreateFence(g_Device, &fenceInfo, nullptr, &g_InflightFence[i]));
+            VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]));
+            VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]));
+            VK_CHECK(vkCreateFence(device, &fenceInfo, nullptr, &g_InflightFence[i]));
         }
     }
 
@@ -674,7 +671,7 @@ public:
 
     static void CreateDescriptorSetLayout()
     {
-        g_DescriptorSetLayout = vkh::CreateDescriptorSetLayout({
+        g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(vkx::ctx().Device, {
             vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
             vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
         });
@@ -688,9 +685,7 @@ public:
 
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i)
         {
-            vkx::UniformBuffer& ub = g_UniformBuffers[i];
-            ub.Create(g_Device, bufferSize);
-
+            g_UniformBuffers[i] = new vkx::UniformBuffer(bufferSize);
         }
     }
 
@@ -709,7 +704,7 @@ public:
 
         ubo.proj[1][1] *= -1;
 
-        g_UniformBuffers[currframe].MemCpy(&ubo, sizeof(ubo));
+        g_UniformBuffers[currframe]->memcpy(&ubo, sizeof(ubo));
     }
 
 
@@ -726,43 +721,47 @@ public:
         poolInfo.pPoolSizes = pool_sizes;
         poolInfo.maxSets = 100;
 
-        if (vkCreateDescriptorPool(g_Device, &poolInfo, nullptr, &g_DescriptorPool) != VK_SUCCESS) {
+        if (vkCreateDescriptorPool(vkx::ctx().Device, &poolInfo, nullptr, &g_DescriptorPool) != VK_SUCCESS) {
             throw std::runtime_error("failed to create descriptor pool.");
         }
     }
 
     static VkDescriptorSet CreateGCompose_DescSets(VkDescriptorSetLayout descriptorSetLayout)
     {
+        VkDevice device = vkx::ctx().Device;
+
         VkDescriptorSet descriptorSet;
-        vkx::AllocateDescriptorSets(g_Device, g_DescriptorPool, 1, &descriptorSetLayout, &descriptorSet);
+        vl::AllocateDescriptorSets(device, g_DescriptorPool, 1, &descriptorSetLayout, &descriptorSet);
 
         vkx::DescriptorWrites dwrites{descriptorSet};
-        dwrites.UniformBuffer(g_UniformBuffers[0].buffer(), sizeof(UniformBufferObject));
-        dwrites.UniformBuffer(g_UniformBuffers[0].buffer(), sizeof(UniformBufferObject));
+        dwrites.UniformBuffer(g_UniformBuffers[0]->buffer(), sizeof(UniformBufferObject));
+        dwrites.UniformBuffer(g_UniformBuffers[0]->buffer(), sizeof(UniformBufferObject));
         dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gPosition.m_Img->m_ImageView, g_TextureSampler);
         dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gNormal.m_Img->m_ImageView, g_TextureSampler);
         dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gAlbedo.m_Img->m_ImageView, g_TextureSampler);
 
-        dwrites.WriteDescriptorSets(g_Device);
+        dwrites.WriteDescriptorSets(device);
 
         return descriptorSet;
     }
 
     static void CreateDescriptorSets()
     {
+        VkDevice device = vkx::ctx().Device;
+
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_INFLIGHT, g_DescriptorSetLayout);
 
         g_DescriptorSets.resize(MAX_FRAMES_INFLIGHT);
-        vkx::AllocateDescriptorSets(g_Device, g_DescriptorPool, MAX_FRAMES_INFLIGHT, layouts.data(), g_DescriptorSets.data());
+        vl::AllocateDescriptorSets(device, g_DescriptorPool, MAX_FRAMES_INFLIGHT, layouts.data(), g_DescriptorSets.data());
 
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i)
         {
             vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
-            writes.UniformBuffer(g_UniformBuffers[i].buffer(), sizeof(UniformBufferObject));
+            writes.UniformBuffer(g_UniformBuffers[i]->buffer(), sizeof(UniformBufferObject));
             writes.CombinedImageSampler(g_TextureImage->m_ImageView, g_TextureSampler);
 
-            writes.WriteDescriptorSets(g_Device);
+            writes.WriteDescriptorSets(device);
         }
     }
 
@@ -862,13 +861,14 @@ public:
 
     static void DrawFrameIntl()
     {
+        VkDevice device = vkx::ctx().Device;
         const int currframe = g_CurrentFrameInflight;
 
-        vkWaitForFences(g_Device, 1, &g_InflightFence[currframe], VK_TRUE, UINT64_MAX);
+        vkWaitForFences(device, 1, &g_InflightFence[currframe], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIdx;
-        vkAcquireNextImageKHR(g_Device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe], nullptr, &imageIdx);
-        vkResetFences(g_Device, 1, &g_InflightFence[currframe]);
+        vkAcquireNextImageKHR(device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe], nullptr, &imageIdx);
+        vkResetFences(device, 1, &g_InflightFence[currframe]);
         vkResetCommandBuffer(g_CommandBuffers[currframe], 0);
 
         UpdateUniformBuffer(currframe);
@@ -876,7 +876,7 @@ public:
         RecordCommandBuffer(g_CommandBuffers[currframe], imageIdx);
 
 
-        vkh::QueueSubmit(g_GraphicsQueue, g_CommandBuffers[currframe],
+        vl::QueueSubmit(vkx::ctx().GraphicsQueue, g_CommandBuffers[currframe],
                          g_SemaphoreImageAcquired[currframe], g_SemaphoreRenderComplete[currframe],
                          g_InflightFence[currframe]);
 
@@ -888,7 +888,7 @@ public:
         presentInfo.pSwapchains = &g_SwapchainKHR;
         presentInfo.pImageIndices = &imageIdx;
 
-        vkQueuePresentKHR(g_PresentQueue, &presentInfo);
+        vkQueuePresentKHR(vkx::ctx().PresentQueue, &presentInfo);
         if (g_RecreateSwapchainRequested) {
             g_RecreateSwapchainRequested = false;
             RecreateSwapchain();
@@ -948,23 +948,3 @@ VkImageView VulkanIntl::getTestImgView() {
     return VulkanIntl_Impl::g_Deferred_Gbuffer.gPosition.m_Img->m_ImageView;
 }
 
-
-
-
-VulkanIntl::State& VulkanIntl::GetState(bool init)
-{
-    static VulkanIntl::State vk;
-    if (init) {
-#define ASSIGN_VK_STATE(varname) vk.varname = VulkanIntl_Impl::varname;
-
-        ASSIGN_VK_STATE(g_Instance);
-        ASSIGN_VK_STATE(g_PhysDevice);
-        ASSIGN_VK_STATE(g_Device);
-        ASSIGN_VK_STATE(g_GraphicsQueue);
-        ASSIGN_VK_STATE(g_PresentQueue);
-        ASSIGN_VK_STATE(g_RenderPass);
-        ASSIGN_VK_STATE(g_CommandPool);
-        ASSIGN_VK_STATE(g_TextureSampler);
-    }
-    return vk;
-}
