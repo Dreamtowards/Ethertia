@@ -1135,8 +1135,12 @@ void vkx::CreateSwapchain(VkDevice device, VkPhysicalDevice physDevice, VkSurfac
 
 vkx::Instance::~Instance()
 {
-    vkDestroyCommandPool(Device, CommandPool, nullptr);
-    vkDestroyDevice(Device, nullptr);
+    VkDevice device = Device;
+
+    vkDestroySampler(device, ImageSampler, nullptr);
+
+    vkDestroyCommandPool(device, CommandPool, nullptr);
+    vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(Inst, SurfaceKHR, nullptr);
 
     if (m_EnabledValidationLayer) {
@@ -1148,6 +1152,8 @@ vkx::Instance::~Instance()
 
 vkx::Instance::Instance(GLFWwindow* glfwWindow, bool enableValidationLayer)
 {
+    vkx::ctx(this);
+
     m_EnabledValidationLayer=enableValidationLayer;
 
     Inst = CreateInstance(enableValidationLayer);
@@ -1160,10 +1166,20 @@ vkx::Instance::Instance(GLFWwindow* glfwWindow, bool enableValidationLayer)
 
     CommandPool = CreateCommandPool(Device, queueFamily.m_GraphicsFamily);
 
-    vkx::ctx(this);
+    ImageSampler = vkx::CreateImageSampler();
+
+
 }
 
 
+// The Default Instance;
+static vkx::Instance* _DefaultInst = nullptr;
+void vkx::ctx(vkx::Instance* inst) {
+    _DefaultInst = inst;
+}
+vkx::Instance& vkx::ctx() {
+    return *_DefaultInst;
+}
 
 
 
@@ -1236,10 +1252,13 @@ vkx::Instance::Instance(GLFWwindow* glfwWindow, bool enableValidationLayer)
 
 void vkh::LoadShaderStages_H(VkPipelineShaderStageCreateInfo* dst, const std::string& spv_filename_pat)
 {
-    dst[0] = LoadShaderStage(VK_SHADER_STAGE_VERTEX_BIT,
-                             Loader::fileResolve(Strings::fmt(spv_filename_pat, "vert")));
-    dst[1] = LoadShaderStage(VK_SHADER_STAGE_FRAGMENT_BIT,
-                             Loader::fileResolve(Strings::fmt(spv_filename_pat, "frag")));
+    VkDevice device = vkx::ctx().Device;
+
+    auto src_vsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "vert")));
+    dst[0] = vl::CreateShaderModuleStage(device, VK_SHADER_STAGE_VERTEX_BIT, src_vsh.data(), src_vsh.size());
+
+    auto src_fsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "frag")));
+    dst[1] = vl::CreateShaderModuleStage(device, VK_SHADER_STAGE_FRAGMENT_BIT, src_fsh.data(), src_fsh.size());
 }
 
 void vkh::DestroyShaderModules(VkPipelineShaderStageCreateInfo *dst)

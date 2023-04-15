@@ -48,7 +48,7 @@ static void Init()
 
 static void Destroy()
 {
-    vkDeviceWaitIdle(VulkanIntl::vkDevice());
+    vkDeviceWaitIdle(vkx::ctx().Device);
 
     Imgui::Destroy();
 

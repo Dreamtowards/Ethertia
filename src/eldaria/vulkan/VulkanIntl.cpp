@@ -65,10 +65,9 @@ public:
     inline static VkPipelineLayout  g_PipelineLayout = nullptr;
     inline static VkPipeline        g_GraphicsPipeline = nullptr;
 
-    inline static VkCommandPool g_CommandPool = nullptr;
+//    inline static VkCommandPool g_CommandPool = nullptr;
     inline static std::vector<VkCommandBuffer> g_CommandBuffers;
     inline static VkDescriptorPool g_DescriptorPool = nullptr;
-    inline static VkSampler g_TextureSampler = nullptr;
 
     inline static std::vector<VkSemaphore> g_SemaphoreImageAcquired;  // for each InflightFrame   ImageAcquired, RenderComplete
     inline static std::vector<VkSemaphore> g_SemaphoreRenderComplete;
@@ -91,7 +90,7 @@ public:
 
     static void Init(GLFWwindow* glfwWindow)
     {
-        g_Inst = new vkx::Instance(glfwWindow);
+        g_Inst = new vkx::Instance(glfwWindow, true);
 
 
 
@@ -99,7 +98,6 @@ public:
         CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
 
-        g_TextureSampler = vkx::CreateImageSampler();
 
         CreateSwapchainAndImageViews();
         CreateRenderPass();     // depend: Swapchain format
@@ -168,7 +166,6 @@ public:
             vkDestroyFence(device, g_InflightFence[i], nullptr);
         }
 
-        vkDestroySampler(device, g_TextureSampler, nullptr);
         vkDestroyDescriptorPool(device, g_DescriptorPool, nullptr);
 
 
@@ -179,7 +176,7 @@ public:
 
     static void CreateSwapchainAndImageViews()
     {
-        vkx::CreateSwapchain(vkx::ctx().PhysDevice, vkx::ctx().SurfaceKHR, g_WindowHandle,
+        vkx::CreateSwapchain(vkx::ctx().Device, vkx::ctx().PhysDevice, vkx::ctx().SurfaceKHR, g_WindowHandle,
                              g_SwapchainKHR,
                              g_SwapchainExtent, g_SwapchainImageFormat,
                              g_SwapchainImages, g_SwapchainImageViews);
@@ -627,7 +624,7 @@ public:
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = g_CommandPool;
+        allocInfo.commandPool = vkx::ctx().CommandPool;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = g_CommandBuffers.size();
 
@@ -729,6 +726,7 @@ public:
     static VkDescriptorSet CreateGCompose_DescSets(VkDescriptorSetLayout descriptorSetLayout)
     {
         VkDevice device = vkx::ctx().Device;
+        VkSampler sampler = vkx::ctx().ImageSampler;
 
         VkDescriptorSet descriptorSet;
         vl::AllocateDescriptorSets(device, g_DescriptorPool, 1, &descriptorSetLayout, &descriptorSet);
@@ -736,9 +734,9 @@ public:
         vkx::DescriptorWrites dwrites{descriptorSet};
         dwrites.UniformBuffer(g_UniformBuffers[0]->buffer(), sizeof(UniformBufferObject));
         dwrites.UniformBuffer(g_UniformBuffers[0]->buffer(), sizeof(UniformBufferObject));
-        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gPosition.m_Img->m_ImageView, g_TextureSampler);
-        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gNormal.m_Img->m_ImageView, g_TextureSampler);
-        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gAlbedo.m_Img->m_ImageView, g_TextureSampler);
+        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gPosition.m_Img->m_ImageView, sampler);
+        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gNormal.m_Img->m_ImageView, sampler);
+        dwrites.CombinedImageSampler(g_Deferred_Gbuffer.gAlbedo.m_Img->m_ImageView, sampler);
 
         dwrites.WriteDescriptorSets(device);
 
@@ -759,7 +757,7 @@ public:
             vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
             writes.UniformBuffer(g_UniformBuffers[i]->buffer(), sizeof(UniformBufferObject));
-            writes.CombinedImageSampler(g_TextureImage->m_ImageView, g_TextureSampler);
+            writes.CombinedImageSampler(g_TextureImage->m_ImageView, vkx::ctx().ImageSampler);
 
             writes.WriteDescriptorSets(device);
         }
@@ -924,7 +922,7 @@ void VulkanIntl::Init(GLFWwindow* glfwWindow)
 {
     VulkanIntl_Impl::Init(glfwWindow);
 
-    VulkanIntl::GetState(true);  // init state sync.
+    vkx::ctx()._RenderPass = VulkanIntl_Impl::g_RenderPass;
 }
 
 void VulkanIntl::Destroy() {

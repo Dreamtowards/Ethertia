@@ -129,16 +129,16 @@ void Imgui::Init(GLFWwindow* glfwWindow)
     pool_info.poolSizeCount = std::size(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
 
-    auto& vk = VulkanIntl::GetState();
+    vkx::Instance& inst = vkx::ctx();
 
-    VK_CHECK(vkCreateDescriptorPool(vk.g_Device, &pool_info, nullptr, &g_DescriptorPool_Imgui));
+    VK_CHECK(vkCreateDescriptorPool(inst.Device, &pool_info, nullptr, &g_DescriptorPool_Imgui));
 
 
     ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = vk.g_Instance;
-    init_info.PhysicalDevice = vk.g_PhysDevice;
-    init_info.Device = vk.g_Device;
-    init_info.Queue = vk.g_GraphicsQueue;
+    init_info.Instance = inst.Inst;
+    init_info.PhysicalDevice = inst.PhysDevice;
+    init_info.Device = inst.Device;
+    init_info.Queue = inst.GraphicsQueue;
     init_info.DescriptorPool = g_DescriptorPool_Imgui;
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
@@ -148,7 +148,7 @@ void Imgui::Init(GLFWwindow* glfwWindow)
     //init_info.PipelineCache = g_PipelineCache;
     //init_info.Subpass = 0;
     //init_info.Allocator = g_Allocator;
-    ImGui_ImplVulkan_Init(&init_info, vk.g_RenderPass);
+    ImGui_ImplVulkan_Init(&init_info, vkx::ctx()._RenderPass);
 
 
     InitStyle();
@@ -165,8 +165,8 @@ void Imgui::Init(GLFWwindow* glfwWindow)
 void Imgui::Destroy()
 {
     // wait vulkan idle
-
-    vkDestroyDescriptorPool(VulkanIntl::GetState().g_Device, g_DescriptorPool_Imgui, nullptr);
+    VkDevice device = vkx::ctx().Device;
+    vkDestroyDescriptorPool(device, g_DescriptorPool_Imgui, nullptr);
 
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -191,7 +191,7 @@ static void ShowViewport()
 //    ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
 //    ImGuis::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
-    static void* texId = ImGui_ImplVulkan_AddTexture(VulkanIntl::GetState().g_TextureSampler,
+    static void* texId = ImGui_ImplVulkan_AddTexture(vkx::ctx().ImageSampler,
                                                      VulkanIntl::getTestImgView(),
                                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     ImGui::Image(texId, ImGui::GetContentRegionAvail());

@@ -131,16 +131,13 @@ namespace vkx
 
         VkCommandPool CommandPool = nullptr;
 
+        VkSampler ImageSampler = nullptr;  // default sampler.
+
+        VkRenderPass _RenderPass = nullptr;  // external. main render pass.
     };
 
-    // The Default Instance;
-    static vkx::Instance* _DefaultInst = nullptr;
-    void ctx(vkx::Instance* inst) {
-        _DefaultInst = inst;
-    }
-    vkx::Instance& ctx() {
-        return *_DefaultInst;
-    }
+    void ctx(vkx::Instance* inst);
+    vkx::Instance& ctx();
 
 
     class CommandBuffer
@@ -395,11 +392,6 @@ public:
 
 
 
-
-    // load .spv file data, vkCreateShaderModule
-    static VkShaderModule LoadShaderModule(const void* data, size_t size);
-
-    static VkPipelineShaderStageCreateInfo LoadShaderStage(VkShaderStageFlagBits stage, const std::string& spv_filename);
 
     static void LoadShaderStages_H(VkPipelineShaderStageCreateInfo* dst, const std::string& spv_filename_pat);
 

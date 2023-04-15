@@ -26,27 +26,6 @@ public:
     static void RequestRecreateSwapchain();
 
 
-    struct State
-    {
-        VkInstance          g_Instance;
-        VkPhysicalDevice    g_PhysDevice;
-        VkDevice            g_Device;
-        VkQueue             g_GraphicsQueue;
-        VkQueue             g_PresentQueue;
-
-        VkRenderPass        g_RenderPass;
-
-        VkCommandPool       g_CommandPool;
-
-        VkSampler           g_TextureSampler;
-    };
-    static State& GetState(bool init = false);
-
-
-    // helper func. since g_Device be needed frequently.
-    static VkDevice vkDevice() {
-        return GetState().g_Device;
-    }
 
     static VkImageView getTestImgView();
 };
