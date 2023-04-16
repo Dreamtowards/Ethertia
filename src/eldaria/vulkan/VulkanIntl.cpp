@@ -86,15 +86,11 @@ public:
 
 
 
-    inline static vkx::Instance* g_Inst = nullptr;
 
     static void Init(GLFWwindow* glfwWindow)
     {
-        g_Inst = new vkx::Instance(glfwWindow, true);
+        vkx::Init(glfwWindow, true);
 
-
-
-//        CreateDescriptorPool();
         CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
 
@@ -104,9 +100,7 @@ public:
         CreateDepthTexture();
         CreateFramebuffers();   // depend: DepthTexture, RenderPass
 
-
         CreateDescriptorSetLayout();
-
 
         g_PipelineLayout = vl::CreatePipelineLayout(vkx::ctx().Device, 1, &g_DescriptorSetLayout);
 //        CreateGraphicsPipeline();  // depend: RenderPass, DescriptorSetLayout
@@ -166,7 +160,7 @@ public:
             vkDestroyFence(device, g_InflightFence[i], nullptr);
         }
 
-        delete g_Inst;
+        vkx::Destroy();
     }
 
 

@@ -117,8 +117,8 @@ namespace vkx
     struct Instance
     {
     public:
-        Instance(GLFWwindow* glfwWindow, bool enableValidationLayer = true);
-        ~Instance();
+//        Instance(GLFWwindow* glfwWindow, bool enableValidationLayer = true);
+//        ~Instance();
 
         VkInstance Inst = nullptr;
         VkSurfaceKHR SurfaceKHR = nullptr;
@@ -139,6 +139,14 @@ namespace vkx
 
     void ctx(vkx::Instance* inst);
     vkx::Instance& ctx();
+
+
+    void Init(GLFWwindow* glfwWindow, bool enableValidationLayer);
+
+    void Destroy();
+
+
+
 
 
     class CommandBuffer

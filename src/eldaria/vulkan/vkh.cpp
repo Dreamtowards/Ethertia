@@ -1163,43 +1163,47 @@ static VkDescriptorPool CreateDescriptorPool_(VkDevice device)
 
 
 
-vkx::Instance::~Instance()
-{
-    VkDevice device = Device;
 
-    vkDestroyDescriptorPool(device, DescriptorPool, nullptr);
-    vkDestroySampler(device, ImageSampler, nullptr);
-    vkDestroyCommandPool(device, CommandPool, nullptr);
+void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
+{
+    vkx::Instance* inst = new vkx::Instance();
+    vkx::ctx(inst);
+    vkx::Instance& i = *inst;
+    i.m_EnabledValidationLayer=enableValidationLayer;
+
+    i.Inst = CreateInstance(enableValidationLayer);
+    i.SurfaceKHR = CreateSurface(i.Inst, glfwWindow);
+
+    i.PhysDevice = PickPhysicalDevice(i.Inst);
+
+    QueueFamilyIndices queueFamily = findQueueFamilies(i.PhysDevice, i.SurfaceKHR);
+    i.Device = CreateLogicalDevice(i.PhysDevice, queueFamily, &i.GraphicsQueue, &i.PresentQueue);
+
+
+    i.CommandPool = CreateCommandPool(i.Device, queueFamily.m_GraphicsFamily);
+    i.ImageSampler = vkx::CreateImageSampler();
+    i.DescriptorPool = CreateDescriptorPool_(i.Device);
+
+}
+
+void vkx::Destroy()
+{
+    vkx::Instance& vk = vkx::ctx();
+    VkDevice device = vk.Device;
+
+    vkDestroyDescriptorPool(device, vk.DescriptorPool, nullptr);
+    vkDestroySampler(device, vk.ImageSampler, nullptr);
+    vkDestroyCommandPool(device, vk.CommandPool, nullptr);
 
     vkDestroyDevice(device, nullptr);
-    vkDestroySurfaceKHR(Inst, SurfaceKHR, nullptr);
+    vkDestroySurfaceKHR(vk.Inst, vk.SurfaceKHR, nullptr);
 
-    if (m_EnabledValidationLayer) {
-        extDestroyDebugMessenger(Inst, g_DebugMessengerEXT, nullptr);
+    if (vk.m_EnabledValidationLayer) {
+        extDestroyDebugMessenger(vk.Inst, g_DebugMessengerEXT, nullptr);
     }
-    vkDestroyInstance(Inst, nullptr);
+    vkDestroyInstance(vk.Inst, nullptr);
 }
 
-
-vkx::Instance::Instance(GLFWwindow* glfwWindow, bool enableValidationLayer)
-{
-    vkx::ctx(this);
-    m_EnabledValidationLayer=enableValidationLayer;
-
-    Inst = CreateInstance(enableValidationLayer);
-    SurfaceKHR = CreateSurface(Inst, glfwWindow);
-
-    PhysDevice = PickPhysicalDevice(Inst);
-
-    QueueFamilyIndices queueFamily = findQueueFamilies(PhysDevice, SurfaceKHR);
-    Device = CreateLogicalDevice(PhysDevice, queueFamily, &GraphicsQueue, &PresentQueue);
-
-
-    CommandPool = CreateCommandPool(Device, queueFamily.m_GraphicsFamily);
-    ImageSampler = vkx::CreateImageSampler();
-    DescriptorPool = CreateDescriptorPool_(Device);
-
-}
 
 
 // The Default Instance;
