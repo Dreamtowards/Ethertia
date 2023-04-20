@@ -86,7 +86,11 @@ static void Init()
     ShaderProgram::loadAll();
     RenderEngine::init();
     AudioEngine::init();
+    ClientConnectionProc::initPackets();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target(), std::endian::native == std::endian::big ? "big" : "little");
+
+    Imgui::Init();
+    Recipes::init();
 
     // Materials & Items
     Materials::registerMaterialItems();  // before items tex load.
@@ -94,16 +98,8 @@ static void Init()
     MaterialMeshes::load();
     ItemTextures::load();
 
-    Recipes::init();
-
     Sounds::load();
 
-
-    // Network
-    ClientConnectionProc::initPackets();
-
-    // Client Controls.
-    Controls::initConsoleThread();
 
     g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
     g_Player->position() = {10, 10, 10};
@@ -116,10 +112,7 @@ static void Init()
     ChunkGenProc::initThread();
     Ethertia::getAsyncScheduler().initThread();
     Ethertia::getScheduler().m_ThreadId = std::this_thread::get_id();
-
-
-
-    Imgui::Init();
+    Controls::initConsoleThread();
 
 
 

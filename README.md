@@ -34,7 +34,7 @@ _Screenshots:_
 - [About](run/assets/docs/zh-cn/about-ethertia.md)
 
 
-### **Sub Systems**
+### **Systems**
 
 - [Terrain & Voxel]()
 - [Entity]()

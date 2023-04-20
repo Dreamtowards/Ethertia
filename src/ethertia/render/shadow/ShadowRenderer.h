@@ -29,7 +29,7 @@ public:
         });
     }
 
-    static void renderDepthMap(const std::vector<Entity*>& entities, glm::vec3 shadowDir)
+    static void renderDepthMap(const std::vector<Entity*>& entities, glm::vec3 shadowDir, bool onlyClear = false)
     {
         assert(glIsEnabled(GL_DEPTH_TEST));
 
@@ -37,6 +37,8 @@ public:
 
         RenderCommand::Clear();
 
+        if (onlyClear)
+            return;
 
         glm::vec3 shadowPos = Ethertia::getCamera().position;
         glm::mat4 matView = glm::lookAt(shadowPos, shadowPos+shadowDir, glm::vec3{0,1,0});

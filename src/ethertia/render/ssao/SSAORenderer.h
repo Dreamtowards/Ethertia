@@ -74,11 +74,14 @@ public:
 
     }
 
-    static void renderSSAO(Texture* gPositionDepth, Texture* gNormal)
+    static void renderSSAO(Texture* gPositionDepth, Texture* gNormal, bool onlyClear = false)
     {
         auto _ap = fboSSAO->BeginFramebuffer_Scoped();
 
         RenderCommand::Clear();
+
+        if (onlyClear)
+            return;
 
         gPositionDepth->BindTexture(0);
         gNormal       ->BindTexture(1);

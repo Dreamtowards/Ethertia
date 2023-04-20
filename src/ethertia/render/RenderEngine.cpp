@@ -162,7 +162,7 @@ static void renderWorldCompose(World* world)
 
 
         float dayBrightness = 1.0 - abs(daytime-0.5) * 2.0;
-        dayBrightness = 0.1 + dayBrightness * 0.8;
+        dayBrightness = 0.4 + dayBrightness * 0.6;
         glm::vec3 SunColor = Dbg::dbg_WorldSunColor * dayBrightness * Dbg::dbg_WorldSunColorBrightnessMul;
         sunLight.color = SunColor;
 
@@ -250,26 +250,22 @@ void RenderEngine::RenderWorld()
 
     float CurrTime = Ethertia::getPreciseTime();
     static float s_LastTimeRenderShadowDepthMap = 0;
-    if (Settings::g_ShadowMapping && (s_LastTimeRenderShadowDepthMap + Settings::gInterval_ShadowDepthMap) <= CurrTime)
+    if ((s_LastTimeRenderShadowDepthMap + Settings::gInterval_ShadowDepthMap) <= CurrTime)
     {
         PROFILE("ShadowDepthMap");
 
         s_LastTimeRenderShadowDepthMap = CurrTime;
-        ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()));
+        ShadowRenderer::renderDepthMap(world->m_Entities, SunlightDir(world->getDayTime()), !Settings::g_ShadowMapping);
     }
 
-    if (Settings::g_SSAO)
     {
         PROFILE("SSAO");
 
-        SSAORenderer::renderSSAO(GeometryRenderer::fboGbuffer->texColor[0], GeometryRenderer::fboGbuffer->texColor[1]);
+        SSAORenderer::renderSSAO(GeometryRenderer::fboGbuffer->texColor[0], GeometryRenderer::fboGbuffer->texColor[1], !Settings::g_SSAO);
     }
 
 
     renderWorldCompose(world);
-
-
-//    Gui::drawRect(0, 0, Gui::maxWidth(), Gui::maxHeight(), ComposeRenderer::fboCompose->texColor[0]);
 
 
 //    static Model* model = Loader::loadModel(100, {
