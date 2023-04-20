@@ -221,7 +221,6 @@ static void RunMainLoop()
         }
         {
             PROFILE("GUI");
-            //renderGUI();
             Imgui::RenderGUI();
         }
     }
