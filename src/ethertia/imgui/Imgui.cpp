@@ -117,9 +117,9 @@ void Imgui::Init()
     // Set Before Backend/Impl Init.
     io.ConfigFlags |=
             ImGuiConfigFlags_DockingEnable |           // Enable Docking.
-            ImGuiConfigFlags_ViewportsEnable |         // Multiple Windows/Viewports
+//            ImGuiConfigFlags_ViewportsEnable;        // Multiple Windows/Viewports
 //            ImGuiConfigFlags_DpiEnableScaleFonts |
-            ImGuiConfigFlags_DpiEnableScaleViewports;
+//            ImGuiConfigFlags_DpiEnableScaleViewports;
 //    io.ConfigViewportsNoDecoration = false;
 //    io.ConfigViewportsNoTaskBarIcon = true;
 //    ImGui::GetMainViewport()->DpiScale = 4;
@@ -222,11 +222,10 @@ void Imgui::RenderGUI()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
 
-        // GUI Scale. Imgui::GlobalScale
-        float invScale = 1.0f / Imgui::GlobalScale;
-        ImGui_ImplGlfw_MousePosWindowScale = invScale;
-        ImGui::GetMainViewport()->Size = ImGui::GetIO().DisplaySize * invScale;
-        ImGui::GetIO().DisplayFramebufferScale *= Imgui::GlobalScale;  // set to ImGui::GetDrawData().DisplayFramebufferScale
+        ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GlobalScale;
+
+        ImGui::GetMainViewport()->Size /= Imgui::GlobalScale;
+        ImGui::GetIO().DisplayFramebufferScale *= Imgui::GlobalScale;
     }
 
     {
