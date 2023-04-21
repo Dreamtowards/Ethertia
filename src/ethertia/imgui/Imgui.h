@@ -14,6 +14,8 @@
 class Imgui
 {
 public:
+    inline static float GlobalScale = 1.0f;
+
     inline static std::vector<std::string> g_MessageBox;
     inline static glm::vec4 wViewportXYWH;
 

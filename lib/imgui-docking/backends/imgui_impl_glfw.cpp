@@ -413,6 +413,9 @@ void ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y)
     if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
         return;
 
+    x *= ImGui_ImplGlfw_MousePosWindowScale;
+    y *= ImGui_ImplGlfw_MousePosWindowScale;
+
     ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {

@@ -40,31 +40,27 @@ static void InitStyle()
     fontConf.RasterizerMultiply = 1.6f;
     io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
+    ImGuiStyle& styl = ImGui::GetStyle();
+    styl.GrabMinSize = 7;
+    styl.FrameBorderSize = 0;
+    styl.WindowMenuButtonPosition = ImGuiDir_Right;
+    styl.SeparatorTextBorderSize = 2;
+    styl.DisplaySafeAreaPadding = {0, 0};
+    styl.FramePadding = {8, 2};
 
-    // Enable Docking.
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.GrabMinSize = 7;
-    style.FrameBorderSize = 0;
-    style.WindowMenuButtonPosition = ImGuiDir_Right;
-    style.SeparatorTextBorderSize = 2;
-    style.DisplaySafeAreaPadding = {0, 0};
-    style.FramePadding = {8, 2};
-
-    style.ScrollbarSize = 10;
-    style.ScrollbarRounding = 2;
-    style.TabRounding = 2;
+    styl.ScrollbarSize = 10;
+    styl.ScrollbarRounding = 2;
+    styl.TabRounding = 2;
 
     for (int i = 0; i < ImGuiCol_COUNT; ++i)
     {
-        ImVec4& col = style.Colors[i];
+        ImVec4& col = styl.Colors[i];
         float f = std::max(Colors::luminance({col.x, col.y, col.z}), 0.06f);
         //(col.x + col.y + col.z) / 3.0f;
         col = ImVec4(f,f,f,col.w);
     }
 
-    auto& Col = style.Colors;
+    auto& Col = styl.Colors;
 
     Col[ImGuiCol_CheckMark] =
     Col[ImGuiCol_SliderGrab] =
@@ -114,13 +110,28 @@ void Imgui::Init()
     ImGui::CreateContext();
 
     ImGui::StyleColorsDark();
+    InitStyle();
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    // Set Before Backend/Impl Init.
+    io.ConfigFlags |=
+            ImGuiConfigFlags_DockingEnable |           // Enable Docking.
+            ImGuiConfigFlags_ViewportsEnable |         // Multiple Windows/Viewports
+//            ImGuiConfigFlags_DpiEnableScaleFonts |
+            ImGuiConfigFlags_DpiEnableScaleViewports;
+//    io.ConfigViewportsNoDecoration = false;
+//    io.ConfigViewportsNoTaskBarIcon = true;
+//    ImGui::GetMainViewport()->DpiScale = 4;
+
     ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
     ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
-    InitStyle();
 
+    // ImNodes
     ImNodes::CreateContext();
     ImNodes::GetIO().EmulateThreeButtonMouse.Modifier = &ImGui::GetIO().KeyShift;
+
 
 }
 
@@ -210,6 +221,12 @@ void Imgui::RenderGUI()
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
+
+        // GUI Scale. Imgui::GlobalScale
+        float invScale = 1.0f / Imgui::GlobalScale;
+        ImGui_ImplGlfw_MousePosWindowScale = invScale;
+        ImGui::GetMainViewport()->Size = ImGui::GetIO().DisplaySize * invScale;
+        ImGui::GetIO().DisplayFramebufferScale *= Imgui::GlobalScale;  // set to ImGui::GetDrawData().DisplayFramebufferScale
     }
 
     {
@@ -223,5 +240,14 @@ void Imgui::RenderGUI()
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
+    // Update Multiple Windows/Viewports
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
     }
 }

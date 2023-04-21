@@ -86,7 +86,7 @@ static void Init()
     ShaderProgram::loadAll();
     RenderEngine::init();
     AudioEngine::init();
-    ClientConnectionProc::initPackets();
+    ClientConnectionProc::initPackets();  // NetworkSystem::init();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target(), std::endian::native == std::endian::big ? "big" : "little");
 
     Imgui::Init();

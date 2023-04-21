@@ -1031,7 +1031,7 @@ static void ShowSettingsWindow()
     if (ImGui::RadioButton("Profile", currp==Profile)) { currp=Profile; }
     if (ImGui::RadioButton("Current World", currp==CurrentWorld)) { currp=CurrentWorld; }
     ImGui::Separator();
-    if (ImGui::RadioButton("Graphics", currp==Graphics)) { currp=Graphics; }
+    if (ImGui::RadioButton("Rendering & Graphics", currp==Graphics)) { currp=Graphics; }
     if (ImGui::RadioButton("Music & Sounds", currp==Audio)) { currp=Audio; }
     if (ImGui::RadioButton("Controls", currp==Controls)) { currp=Controls; }
     if (ImGui::RadioButton("Language", currp==Language)) { currp=Language; }
@@ -1109,6 +1109,8 @@ static void ShowSettingsWindow()
 //            ImGui::SeparatorText("Bloom");
 //            ImGui::Checkbox("Bloom", &Settings::g_SSAO);
 
+
+
             ImGui::SeparatorText("General");
 
             ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
@@ -1117,9 +1119,23 @@ static void ShowSettingsWindow()
 
             ImGui::Checkbox("Vsync", &Settings::s_Vsync);
 
-            if (Settings::g_SSAO) ImGui::BeginDisabled();
+            if (Settings::s_Vsync) ImGui::BeginDisabled();
             ImGui::SliderInt("FPS Limit", &Settings::s_FpsCap, 0, 2000);
-            if (Settings::g_SSAO) ImGui::EndDisabled();
+            if (Settings::s_Vsync) ImGui::EndDisabled();
+
+
+            static float s_SlidingGuiScale = 0;
+            float _gui_scale = Imgui::GlobalScale;
+            if (ImGui::SliderFloat("GUI Scale", &_gui_scale, 0.5f, 4.0f))
+            {
+                s_SlidingGuiScale = _gui_scale;
+            }
+            else if (s_SlidingGuiScale != 0)
+            {
+                Imgui::GlobalScale = s_SlidingGuiScale;
+                s_SlidingGuiScale = 0;
+            }
+
 
             ImGui::SliderFloat("Chunk Load Distance", &Settings::s_ViewDistance, 0, 12);
 
