@@ -182,7 +182,7 @@ public:
     static void loadAll()
     {
         BENCHMARK_TIMER;
-        Log::info("Loading all shader programs... ({})\1", ShaderProgram::REGISTRY.size());
+        Log::info("Loading all {} shader programs...\1", ShaderProgram::REGISTRY.size());
         for (auto& it : ShaderProgram::REGISTRY) {
             it.second->reload_sources_by_filenames();
         }

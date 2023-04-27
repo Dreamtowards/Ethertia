@@ -7,6 +7,7 @@
 
 #include <ethertia/network/Network.h>
 #include <ethertia/network/packet/Packet.h>
+#include <
 
 // Client NetworkSystem
 
@@ -20,9 +21,14 @@ public:
 
     static void init()
     {
+        BENCHMARK_TIMER;
+        Log::info("Initializing NetworkSystem and Packets.\1");
+
         Network::Init();
 
         m_NetworkHost = Network::newClient();
+
+        // ClientConnectionProc::initPackets();
     }
 
     static void deinit()

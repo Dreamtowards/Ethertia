@@ -86,7 +86,7 @@ static void Init()
     ShaderProgram::loadAll();
     RenderEngine::init();
     AudioEngine::init();
-    ClientConnectionProc::initPackets();  // NetworkSystem::init();
+    NetworkSystem::init();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target(), std::endian::native == std::endian::big ? "big" : "little");
 
 
@@ -197,8 +197,7 @@ static void RunMainLoop()
     {
         PROFILE("Input");
 
-        window.resetDeltas();
-        glfwPollEvents();
+        window.PollEvents();
         Controls::handleInput();
     }
 
@@ -229,66 +228,7 @@ static void RunMainLoop()
     }
 }
 
-//void Ethertia::renderGUI()
-//{
-//    GuiRoot* rootGUI = Ethertia::getRootGUI();
-//
-//    rootGUI->onLayout();
-//
-//    rootGUI->updateHovers(Ethertia::getWindow()->getMousePos());
-//
-//    glDisable(GL_DEPTH_TEST);
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    glDisable(GL_CULL_FACE);
-//
-//    GuiInventory::HOVER_ITEM = nullptr;
-//
-//    rootGUI->onDraw();
-//
-//    GuiInventory::doDrawHoveredItem();
-//    GuiInventory::doDrawPickingItem();
-//
-////    Gui::drawRect(0, Gui::maxHeight()-300, 300, 300, {
-////        .tex = ShadowRenderer::fboDepthMap->texDepth,
-////        .channel_mode = Gui::DrawRectArgs::C_RGB
-////    });
-//
-//    HitCursor& cur = Ethertia::getHitCursor();
-//    if (cur.cell_breaking_time)
-//    {
-//        float fullBreakingTime = cur.cell->mtl->m_Hardness;
-//        float t = cur.cell_breaking_time / fullBreakingTime;
-//        Gui::drawString(64, 256, Strings::fmt("{}/{}s", Mth::floor_dn(cur.cell_breaking_time, 1), fullBreakingTime));
-//        Gui::drawRect(64, 256+16, 120,   4, Colors::BLACK80);
-//        Gui::drawRect(64, 256+16, 120*t, 4, Colors::GREEN_DARK);
-//    }
-//
-//    {
-////        float x = Gui::maxWidth() - 64;
-////        float y = Gui::maxHeight() - 64 - 40;
-////        if (World::dbg_ChunkProvideState) {
-////            Gui::drawString(x, y, World::dbg_ChunkProvideState == 1 ? "Generating Chunk.." : "Loading Chunk..",
-////                            Colors::GRAY, 16, {-1, -1});
-////        }
-////        if (World::dbg_SavingChunks) {
-////            Gui::drawString(x, y+16, Strings::fmt("Saving chunks... ({})", World::dbg_SavingChunks),
-////                            Colors::GREEN_DARK, 16, {-1, -1});
-////        }
-////        if (ChunkMeshProc::dbg_NumChunksMeshInvalid > 0) {
-////            Gui::drawString(x, y+32, Strings::fmt("Meshing chunks... ({})", ChunkMeshProc::dbg_NumChunksMeshInvalid),
-////                            Colors::GRAY_DARK, 16, {-1, -1});
-////        }
-//    }
-//
-//    if (!WorldEdit::selection.empty()) {
-//        AABB& s = WorldEdit::selection;
-//        RenderEngine::drawLineBox(s.min, s.size(), Colors::GREEN);
-//    }
-//
-//    glEnable(GL_DEPTH_TEST);
-//
-//}
+
 
 
 //void Ethertia::runTick()

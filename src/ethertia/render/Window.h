@@ -201,6 +201,12 @@ public:
         scrollDY = 0;
     }
 
+    void PollEvents()
+    {
+        resetDeltas();
+        glfwPollEvents();
+    }
+
     void setVSync(bool vsync) {
         glfwSwapInterval(vsync ? 1 : 0);
     }

@@ -16,21 +16,11 @@ class ClientConnectionProc
 {
 public:
 
-    static void initPackets() {
-        BENCHMARK_TIMER;
-        Log::info("NetworkSystem and Packets initializing.\1");
-
-        NetworkSystem::init();
-
+    static void initPackets()
+    {
         _InitPacketIds();
 
         INIT_PACKET_PROC(PacketChat, ClientConnectionProc::handlePacket);
-
-
-    }
-
-    static void nil(CPacketLogin& p) {
-
     }
 
     static void handlePacket(const PacketChat& packet) {
