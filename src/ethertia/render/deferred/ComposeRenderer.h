@@ -15,7 +15,7 @@ class ComposeRenderer
 {
 public:
 
-    inline static ShaderProgram* shaderCompose = ShaderProgram::decl("shaders/deferred/compose.{}");
+    DECL_SHADER(shaderCompose, ShaderProgram::decl("shaders/deferred/compose.{}"));
 
     // Deferred Rendering Compose FBO
     inline static Framebuffer* fboCompose = nullptr;

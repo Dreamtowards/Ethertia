@@ -14,7 +14,7 @@ class AnimRenderer
 {
 public:
 
-    DECL_SHADER(SHADER, "shaders/anim/anim.{}");
+    DECL_SHADER(SHADER, ShaderProgram::decl("shaders/anim/anim.{}"));
 
 
     // Model VertexData Attribs

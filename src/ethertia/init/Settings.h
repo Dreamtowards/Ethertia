@@ -19,6 +19,9 @@ public:
 
     inline static std::vector<std::string> MODS;
 
+    // Resource Packs. locate assets file by Loader::fileAssets() ordered.   // fixme: might conflict with mods?
+    inline static std::vector<std::string> ASSETS;
+
 
     static void loadSettings();
 

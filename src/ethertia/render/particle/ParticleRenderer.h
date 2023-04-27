@@ -14,7 +14,7 @@
 class ParticleRenderer
 {
 public:
-    DECL_SHADER(SHADER, "shaders/particle/particle.{}");
+    DECL_SHADER(SHADER, ShaderProgram::decl("shaders/particle/particle.{}"));
 
     inline static std::vector<Particle*> m_Particles;
 

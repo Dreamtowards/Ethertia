@@ -7,7 +7,7 @@
 
 class SkyboxRenderer
 {
-    DECL_SHADER(SHADER, "shaders/sky/skybox.{}");
+    DECL_SHADER(SHADER, ShaderProgram::decl("shaders/sky/skybox.{}"));
 
     inline static VertexArrays* vao_Skybox = nullptr;
 

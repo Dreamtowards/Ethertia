@@ -86,5 +86,5 @@ void ShaderProgram::setViewProjection(bool view)
 }
 
 void ShaderProgram::reload_sources_by_filenames() {
-    Loader::loadShaderProgram(this, m_SourceLocation);
+    Loader::loadShaderProgram(this, m_SourceLocation, m_HaveGeomShader);
 }

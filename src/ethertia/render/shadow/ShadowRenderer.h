@@ -13,7 +13,7 @@
 class ShadowRenderer
 {
 public:
-    DECL_SHADER(SHADER, "shaders/shadow/shadow.{}");
+    DECL_SHADER(SHADER, ShaderProgram::decl("shaders/shadow/shadow.{}"));
 
     inline static glm::mat4 matShadowSpace;
 

@@ -17,7 +17,7 @@
 #include <ethertia/util/Strings.h>
 #include <ethertia/util/BenchmarkTimer.h>
 
-#define DECL_SHADER(varname, srcpath) inline static ShaderProgram* varname = ShaderProgram::decl(srcpath);
+#define DECL_SHADER(varname, decl) inline static ShaderProgram* varname = decl;
 
 
 class ShaderProgram
@@ -166,21 +166,23 @@ public:
 
     // tmeporary. shader source file location. use as shader id.
     std::string m_SourceLocation;
+    bool m_HaveGeomShader = false;
 
 
 
     inline static std::map<std::string, ShaderProgram*> REGISTRY;
-    static ShaderProgram* decl(const std::string& pat)
+    static ShaderProgram* decl(const std::string& pat, bool gsh = false)
     {
         ShaderProgram* p = new ShaderProgram();
         p->m_SourceLocation = pat;
+        p->m_HaveGeomShader = gsh;
         REGISTRY[pat] = p;
         return p;
     }
     static void loadAll()
     {
         BENCHMARK_TIMER;
-        Log::info("Loading shader programs... ({})\1", ShaderProgram::REGISTRY.size());
+        Log::info("Loading all shader programs... ({})\1", ShaderProgram::REGISTRY.size());
         for (auto& it : ShaderProgram::REGISTRY) {
             it.second->reload_sources_by_filenames();
         }

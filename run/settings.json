@@ -1,21 +1,24 @@
 {
-  "assets": "./assets/",
+  "assets": [
+    "assets/",
+    "resourcepacks/Clarity/"
+  ],
   "display_height": 1005,
   "display_width": 1653,
-  "fov": 87.46499633789063,
+  "fov": 66.48100280761719,
   "fullscreen": false,
   "graphics.shadow": true,
-  "graphics.ssao": true,
+  "graphics.ssao": false,
   "mods": [],
   "mtl_resolution": 256,
   "simd_level": "SSE3",
   "view_distance": 4.84499979019165,
   "vsync": true,
   "window.console": true,
-  "window.entity_insp": true,
-  "window.entity_list": true,
+  "window.entity_insp": false,
+  "window.entity_list": false,
   "window.settings": true,
   "window.shader_insp": true,
-  "window.toolbar": true,
+  "window.toolbar": false,
   "window.viewport": true
 }

@@ -80,8 +80,6 @@ public:
         std::string m_Filename;  // optional. debug tag.
     };
 
-    inline static std::string ASSETS = "assets/";
-
 
 
     ////////////////// FILE & ASSETS //////////////////
@@ -92,9 +90,7 @@ public:
 
 
     // produce real filename by resolve asset-path.
-    inline static std::string fileAssets(const std::string& p) {
-        return ASSETS + p;
-    }
+    static std::string fileAssets(const std::string& p);
 
     // lead with "./" or "/": normal relative/absolute path
     // otherwise: assets file.
@@ -109,7 +105,7 @@ public:
         return loadFile(fileAssets(p));
     }
 
-    static bool fileExists(std::string_view path);
+    static bool fileExists(const std::filesystem::path& path);
 
     // mkdirs for the file's parent dir
     static const std::string& fileMkdirs(const std::string& filename);
@@ -169,14 +165,11 @@ public:
 
 
 
-    static void loadShaderProgram(ShaderProgram* p, const std::string& uri)
+    static void loadShaderProgram(ShaderProgram* p, const std::string& uri, bool gsh = false)
     {
-        std::string gsh_path = Loader::fileResolve(Strings::fmt(uri, "gsh"));
-        bool geo = Loader::fileExists(gsh_path);
-
         p->load((char*)Loader::loadAssets(Strings::fmt(uri, "vsh")).data(),
-                          (char*)Loader::loadAssets(Strings::fmt(uri, "fsh")).data(),
-                          (char*)(geo ? Loader::loadFile(gsh_path).data() : nullptr));
+                (char*)Loader::loadAssets(Strings::fmt(uri, "fsh")).data(),
+                (char*)(gsh ? Loader::loadAssets(Strings::fmt(uri, "gsh")).data() : nullptr));
     }
 
 

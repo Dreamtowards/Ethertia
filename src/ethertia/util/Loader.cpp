@@ -15,6 +15,7 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <stb/stb_image_resize.h>
 
+#include <ethertia/init/Settings.h>
 
 
 Loader::DataBlock Loader::loadFile(const std::string& path)
@@ -35,8 +36,23 @@ Loader::DataBlock Loader::loadFile(const std::string& path)
 }
 
 
-bool Loader::fileExists(std::string_view path) {
+bool Loader::fileExists(const std::filesystem::path& path) {
     return std::filesystem::exists(path);
+}
+
+std::string Loader::fileAssets(const std::string& p)
+{
+    // fixme: use cpp20 ranges  | std::views::reverse
+    for (auto it = Settings::ASSETS.rbegin(); it != Settings::ASSETS.rend(); ++it)
+    {
+        const std::string& basepath = *it;
+//        std::filesystem::path path = std::filesystem::relative(basepath + p);
+        std::string path = basepath + p;
+
+        if (Loader::fileExists(path))
+            return path;
+    }
+    throw std::runtime_error(Strings::fmt("failed to locate assets file: {}", p));
 }
 
 const std::string & Loader::fileMkdirs(const std::string &filename)

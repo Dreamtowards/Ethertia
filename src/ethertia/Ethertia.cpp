@@ -89,17 +89,16 @@ static void Init()
     ClientConnectionProc::initPackets();  // NetworkSystem::init();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target(), std::endian::native == std::endian::big ? "big" : "little");
 
-    Imgui::Init();
-    Recipes::init();
 
     // Materials & Items
     Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::load();
     MaterialMeshes::load();
     ItemTextures::load();
-
     Sounds::load();
 
+    Imgui::Init();
+    Recipes::init();  // after mtl-items register.
 
     g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
     g_Player->position() = {10, 10, 10};

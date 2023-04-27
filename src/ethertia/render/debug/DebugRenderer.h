@@ -13,7 +13,7 @@ public:
         return _INST;
     }
 
-    DECL_SHADER(SHADER_DEBUG_NORM, "shaders/debug/norm.{}");
+    DECL_SHADER(SHADER_DEBUG_NORM, ShaderProgram::decl("shaders/debug/norm.{}"));
 
     // limitLen+Pos: Only show partial (sphere) at pos with radius len
     void renderDebugGeo(VertexArrays* vao, glm::vec3 pos, glm::mat3 rot, float limitLen = 0, glm::vec3 limitPos = {}) {
@@ -37,7 +37,7 @@ public:
     }
 
 
-    DECL_SHADER(SHADER_DEBUG_MODEL, "shaders/debug/model.{}");
+    DECL_SHADER(SHADER_DEBUG_MODEL, ShaderProgram::decl("shaders/debug/model.{}"));
 
 
     void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false) {

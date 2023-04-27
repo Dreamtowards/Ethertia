@@ -37,8 +37,8 @@ void Settings::loadSettings() {  using nlohmann::json;
     set_ifexists(settings, "display_height", &displayHeight);
     set_ifexists(settings, "vsync",          &s_Vsync);
 
-    set_ifexists(settings, "assets",         &Loader::ASSETS);
-    set_ifexists(settings, "mods", &MODS);
+    set_ifexists(settings, "assets",         &Settings::ASSETS);
+    set_ifexists(settings, "mods",           &MODS);
 
 
     std::string simdLevel;
@@ -70,7 +70,7 @@ void Settings::saveSettings()  {  using nlohmann::json;
     json settings = json::object({
         {"view_distance",  s_ViewDistance},
         {"fov",            Ethertia::getCamera().fov},
-        {"assets",         Loader::ASSETS},
+        {"assets",         Settings::ASSETS},
         {"display_width",  Ethertia::getWindow().getWidth()},
         {"display_height", Ethertia::getWindow().getHeight()},
         {"vsync",          s_Vsync},

@@ -14,7 +14,7 @@
 class SSAORenderer
 {
 public:
-    DECL_SHADER(SHADER, "shaders/ssao/ssao.{}");
+    DECL_SHADER(SHADER, ShaderProgram::decl("shaders/ssao/ssao.{}"));
 
     inline static Framebuffer* fboSSAO = nullptr;
 
