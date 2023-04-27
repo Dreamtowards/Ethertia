@@ -9,8 +9,9 @@
 Window::Window(int _w, int _h, const char *_title) : width(_w), height(_h)
 {
     BENCHMARK_TIMER;
+    if (!glfwInit())
+        throw std::runtime_error("failed to init glfw.");
 
-    glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -29,7 +30,7 @@ Window::Window(int _w, int _h, const char *_title) : width(_w), height(_h)
     if (!m_WindowHandle) {
         const char* err_str;
         int err = glfwGetError(&err_str);
-        throw std::runtime_error(Strings::fmt("Failed to init GLFW window. Err {}. ({})", err, err_str));
+        throw std::runtime_error(Strings::fmt("failed to init glfw window: {}. ({})", err, err_str));
     }
 
     centralize();
