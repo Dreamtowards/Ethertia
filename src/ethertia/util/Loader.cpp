@@ -17,6 +17,8 @@
 
 #include <ethertia/init/Settings.h>
 
+// #define DATA_INFO 1
+
 
 Loader::DataBlock Loader::loadFile(const std::string& path)
 {
@@ -76,14 +78,17 @@ const std::string & Loader::fileMkdirs(const std::string &filename)
 Loader::DataBlock::DataBlock(void* data, size_t size, const std::string& filename)
         : m_Data(data), m_Size(size), m_Filename(filename)
 {
+#ifdef DATA_INFO
     Log::info("New DataBlock: {} of {} bytes", m_Filename, size);
+#endif
 }
 
 Loader::DataBlock::~DataBlock()
 {
     std::free(m_Data);
-
+#ifdef DATA_INFO
     Log::info("Delete DataBlock: {}", m_Filename);
+#endif
 }
 
 const void* Loader::DataBlock::data() const {
