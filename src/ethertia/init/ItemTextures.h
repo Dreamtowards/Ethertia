@@ -38,7 +38,7 @@ public:
                 std::string loc;
                 if (item->hasComponent<ItemComponentMaterial>()) {
                     loc = Strings::fmt("material/{}/view.png", id);
-                    if (!Loader::fileExists(Loader::fileAssets(loc))) {
+                    if (Loader::fileAssets(loc).empty()) {  // if Not Found
                         loc = Strings::fmt("material/{}/diff.png", id);
                     }
                 } else {

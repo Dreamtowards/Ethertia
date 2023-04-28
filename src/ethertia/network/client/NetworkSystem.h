@@ -7,7 +7,6 @@
 
 #include <ethertia/network/Network.h>
 #include <ethertia/network/packet/Packet.h>
-#include <
 
 // Client NetworkSystem
 

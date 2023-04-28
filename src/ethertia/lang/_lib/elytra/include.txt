@@ -1,0 +1,9 @@
+
+
+./main.et
+./lib/std/stdio.et
+./lib/stdx/glfw/GLFW.et
+./lib/stdx/opengl/GL.et
+
+
+# ./lib/std*.et

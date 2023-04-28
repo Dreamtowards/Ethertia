@@ -1,0 +1,38 @@
+
+namespace std::mth;
+
+class vec3
+{
+    f32 x;
+    f32 y;
+    f32 z;
+}
+
+fn cos(f64 a) -> f64
+{
+    return std::intl::call("cos", a);
+}
+
+f64 sin(f64 a)
+{
+
+}
+
+fn abs<T>(T v) -> T
+{
+    return v < 0 ? -v : v;
+}
+
+T min<T>(T a, T b)
+{
+    return a < b ? a : b;
+}
+
+T max<T>(T a, T b)
+{
+    return a < b ? b : a;
+}
+
+
+
+// floor, ceil

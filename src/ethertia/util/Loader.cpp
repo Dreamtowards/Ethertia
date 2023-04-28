@@ -44,17 +44,14 @@ bool Loader::fileExists(const std::filesystem::path& path) {
 
 std::string Loader::fileAssets(const std::string& p)
 {
-    // fixme: use cpp20 ranges  | std::views::reverse
-    for (auto it = Settings::ASSETS.rbegin(); it != Settings::ASSETS.rend(); ++it)
+    for (const std::string& basepath : Settings::ASSETS)
     {
-        const std::string& basepath = *it;
-//        std::filesystem::path path = std::filesystem::relative(basepath + p);
         std::string path = basepath + p;
-
         if (Loader::fileExists(path))
             return path;
     }
-    throw std::runtime_error(Strings::fmt("failed to locate assets file: {}", p));
+    return "";
+    //throw std::runtime_error(Strings::fmt("failed to locate assets file: {}", p));
 }
 
 const std::string & Loader::fileMkdirs(const std::string &filename)

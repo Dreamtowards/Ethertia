@@ -90,6 +90,7 @@ public:
 
 
     // produce real filename by resolve asset-path.
+    // return empty string if cannot locate the assets file.
     static std::string fileAssets(const std::string& p);
 
     // lead with "./" or "/": normal relative/absolute path

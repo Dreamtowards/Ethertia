@@ -1,0 +1,8 @@
+
+
+class GL {
+
+    void glBindTexture();
+
+
+}

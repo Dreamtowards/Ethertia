@@ -1,11 +1,11 @@
 {
   "assets": [
-    "assets/",
-    "resourcepacks/Clarity/"
+    "resourcepacks/Clarity/",
+    "assets/"
   ],
   "display_height": 1005,
   "display_width": 1653,
-  "fov": 66.48100280761719,
+  "fov": 68.0,
   "fullscreen": false,
   "graphics.shadow": true,
   "graphics.ssao": false,

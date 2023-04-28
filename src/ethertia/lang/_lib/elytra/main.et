@@ -1,0 +1,163 @@
+
+// operator i32 _(string lhs, string rhs) { }
+//using std::math::vec3;
+
+
+namespace ethertia;
+
+//using ethertia::render::Window;
+//using ethertia::util::Timer;
+
+
+class Ethertia
+{
+
+    var running: bool = false;
+
+    //RenderEngine renderEngine;
+    //AudioEngine audioEngine;
+
+//    static Camera camera;
+    static Window window;
+    //Timer timer;
+    //Scheduler scheduler;  // or Executor? executor feels not intuitive.
+
+    //World world;
+    //GuiRoot rootGUI;
+
+
+    fn init()
+    {
+
+        running = true;
+        window.initWindow();
+        //renderEngine.init();
+
+        //Init::init();
+
+    }
+
+    fn run_tick() -> i32
+    {
+
+    }
+
+    fn renderGUI()
+    {
+
+    }
+
+    void runMainLoop() {
+
+        // timer.update(Ethertia::getPreciseTime());
+
+        // scheduler.processTasks();
+
+        // while (timer.tickpoll())
+        // {
+        //     runTick();
+        // }
+
+        // handle();
+        // {
+        //     renderEngine.renderWorld(&world);
+
+        //     renderGUI();
+        // }
+
+        window.updateWindow();
+    }
+
+    void destroy() {
+
+        stdx::glfw::glfwTerminate();
+
+    }
+
+    void run()
+    {
+        init();
+
+        while (running)
+        {
+            runMainLoop();
+        }
+
+        destroy();
+    }
+
+
+
+    void shutdown() {
+        running = false;
+    }
+    bool isIngame() {
+        return false;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+/*
+@deprecated("some", some: 100, args: 100)
+void main<T, u8 N>() {
+
+    vec3(z: 100);
+    var int i;
+    i = 3 + 1;
+}
+
+template<T>
+void log(string* patt) {
+
+}
+
+template<typename T, int N>
+class vec {
+    T[N] v;
+}
+
+class vec<T, int N> {
+    T[N] v;
+}
+
+
+
+
+
+[[deprecated("some")]]
+
+class iterable<E> {
+
+    iterator iterator();
+
+}
+class iterator<E> {
+
+    E get<T=>(instance);
+
+    void next();
+
+    bool has();
+
+}
+
+class array_list<E> : iterable {
+
+    class iterator : std::iterator {
+
+        E get(this) {
+
+        }
+
+    }
+}
+
+*/

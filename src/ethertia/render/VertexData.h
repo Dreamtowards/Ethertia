@@ -9,7 +9,6 @@
 #include <vector>
 
 
-
 // an "interleaved vertex data" structure. (more compact, higher memory access efficiency. compare to 'separate vertex data' struct)
 // unlike VertexBuffer which just a handle/pointer to a block of memory in GPU. (it's data in GPU).
 
