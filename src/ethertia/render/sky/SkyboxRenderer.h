@@ -59,7 +59,7 @@ public:
                 -1.0f, -1.0f,  1.0f,
                 1.0f, -1.0f,  1.0f
         };
-        vao_Skybox = Loader::loadVertexBuffer(36, skyboxVertices, {3});
+        vao_Skybox = Loader::loadVertexBuffer(36, {3}, skyboxVertices);
     }
 
     static void render(Texture* cubemap, glm::vec3 rotAxis, float angle, glm::vec4 colMul = {1,1,1,1}) {

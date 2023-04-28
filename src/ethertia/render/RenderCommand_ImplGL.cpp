@@ -43,7 +43,7 @@ void RenderCommand::DrawFullQuad() {
                 -1,-1,   0,0,
                 -1,1,    0,1
         };
-        _Quad = Loader::loadVertexBuffer(4, _VTX, {2, 2});
+        _Quad = Loader::loadVertexBuffer(4, {2, 2}, _VTX);
     }
     glBindVertexArray(_Quad->vaoId);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

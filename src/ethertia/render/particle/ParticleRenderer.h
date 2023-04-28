@@ -30,7 +30,7 @@ public:
                     -0.5, -0.5, 0,   0, 0, // LB
                     -0.5,  0.5, 0,   0, 1, // LT
             };
-            M_PLANE_C_STRIP = Loader::loadVertexBuffer(4, vtx, {3,2});
+            M_PLANE_C_STRIP = Loader::loadVertexBuffer(4, {3,2}, vtx);
         }
     }
 

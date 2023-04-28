@@ -269,7 +269,8 @@ void Loader::savePNG(const std::string& filename, const BitmapImage& img)
 //}
 #include <ethertia/render/RenderCommand.h>
 
-VertexArrays* Loader::loadVertexBuffer(size_t vcount, float* data, std::initializer_list<int> sizes)
+VertexArrays* Loader::loadVertexBuffer(size_t vcount, std::initializer_list<int> sizes,
+                                       float* vtx_data, size_t vtx_size, uint32_t* idx_data)
 {
     assert(sizes.size() > 0);
 
@@ -282,9 +283,18 @@ VertexArrays* Loader::loadVertexBuffer(size_t vcount, float* data, std::initiali
     for (int s : sizes) { _scalars += s; }
     int stride = _scalars * sizeof(float);
 
+    if (idx_data)
+    {
+        glGenBuffers(1, &vao->eboId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao->eboId);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * vcount, idx_data, GL_STATIC_DRAW);
+    } else {
+        vtx_size = stride*vcount;
+    }
+
     glGenBuffers(1, &vao->vboId);
     glBindBuffer(GL_ARRAY_BUFFER, vao->vboId);
-    glBufferData(GL_ARRAY_BUFFER, stride*vcount, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vtx_size, vtx_data, GL_STATIC_DRAW);
 
     int i = 0;
     _scalars = 0;
@@ -299,27 +309,7 @@ VertexArrays* Loader::loadVertexBuffer(size_t vcount, float* data, std::initiali
 
 VertexArrays* Loader::loadVertexBuffer(const VertexData* vtx)
 {
-    VertexArrays* vao = new VertexArrays();
-    vao->vertexCount = vtx->vertexCount();
-    glGenVertexArrays(1, &vao->vaoId);
-    glBindVertexArray(vao->vaoId);
-
-    if (vtx->isIndexed())
-    {
-        glGenBuffers(1, &vao->eboId);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao->eboId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, vtx->idx_size(), vtx->idx_data(), GL_STATIC_DRAW);
-    }
-
-    glGenBuffers(1, &vao->vboId);
-    glBindBuffer(GL_ARRAY_BUFFER, vao->vboId);
-    glBufferData(GL_ARRAY_BUFFER, vtx->size(), vtx->data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, VertexData::Vertex::stride(), (void*)0);                   glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, false, VertexData::Vertex::stride(), (void*)(3*sizeof(float)));   glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, false, VertexData::Vertex::stride(), (void*)(5*sizeof(float)));   glEnableVertexAttribArray(2);
-
-    return vao;
+    return Loader::loadVertexBuffer(vtx->vertexCount(), {3,2,3}, (float*)vtx->data(), vtx->size(), (uint32_t*)vtx->idx_data());
 }
 
 Texture* Loader::loadTexture(const BitmapImage& img)

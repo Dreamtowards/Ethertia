@@ -156,7 +156,8 @@ public:
     /////////////// OpenGL VAO, VBO ///////////////
 
     // VertexCount, {{VertLen, VertData}}
-    static VertexArrays* loadVertexBuffer(size_t vcount, float* data, std::initializer_list<int> sizes);
+    static VertexArrays* loadVertexBuffer(size_t vcount, std::initializer_list<int> sizes,
+                                          float* vtx_data, size_t vtx_size = 0, uint32_t* idx_data = nullptr);
 
     // load to GPU. interleaved vertex data.
     static VertexArrays* loadVertexBuffer(const VertexData* vtx);

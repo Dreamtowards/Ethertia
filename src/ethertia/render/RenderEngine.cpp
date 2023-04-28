@@ -38,8 +38,6 @@ void RenderEngine::init()
     Log::info("RenderEngine initializing.\1");
 
 
-
-
     std::cout << " renderers[";
 //    GuiRenderer::init();        std::cout << "gui, ";
 //    FontRenderer::init();       std::cout << "font, ";
