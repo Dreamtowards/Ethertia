@@ -74,7 +74,7 @@ static void Init()
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::loadSettings();
     NoiseGen::initSIMD();
-    Loader::checkWorkingDirectory();
+    if (!Loader::fileExists("./assets")) { throw std::runtime_error("default assets directory not found. make sure you are in valid working directory."); }
 
     for (const std::string& modpath : Settings::MODS) {
         ModLoader::loadMod(modpath);

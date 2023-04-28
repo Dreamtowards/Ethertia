@@ -23,22 +23,14 @@ public:
     static void init()
     {
         {
-            float pos[] = {
-                     0.5, -0.5, 0,  // RB
-                     0.5,  0.5, 0,  // RT
-                    -0.5, -0.5, 0,  // LB
-                    -0.5,  0.5, 0,  // LT
+            // vec3 pos, vec2 uv;
+            float vtx[] = {
+                     0.5, -0.5, 0,   1, 0, // RB
+                     0.5,  0.5, 0,   1, 1, // RT
+                    -0.5, -0.5, 0,   0, 0, // LB
+                    -0.5,  0.5, 0,   0, 1, // LT
             };
-            float tex[] = {
-                    1, 0,
-                    1, 1,
-                    0, 0,
-                    0, 1,
-            };
-            M_PLANE_C_STRIP = Loader::loadModel(4, {
-                    {3, pos},
-                    {2, tex}
-            });
+            M_PLANE_C_STRIP = Loader::loadVertexBuffer(4, vtx, {3,2});
         }
     }
 

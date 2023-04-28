@@ -9,6 +9,8 @@
 #include <ethertia/item/Item.h>
 #include <ethertia/item/ItemStack.h>
 
+#include <ethertia/render/VertexData.h>
+
 class Material
 {
 public:
@@ -26,7 +28,7 @@ public:
     int m_TexId = 0;
 
     bool m_CustomMesh = false;
-    void* m_VertexBuffer = nullptr;
+    VertexData* m_VertexBuffer = nullptr;
 
     // vegetable another chunk mesh. NoCollision, Render WavingVertex, Render NoFaceCulling.
     bool m_IsVegetable = false;

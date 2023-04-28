@@ -59,10 +59,6 @@
 
 
 
-
-#include "ethertia/entity/component/EntityDrivingSeat.h"
-#include "ethertia/entity/component/EntityPropeller .h"
-
 static enum SettingsPanel {
     Profile,
     CurrentWorld,
@@ -681,14 +677,14 @@ static void ShowEntities()
             {
                 CreateEntityToWorld(new EntityHelicopter());
             }
-            if (ImGui::MenuItem("DrivingSeat"))
-            {
-                CreateEntityToWorld(new EntityDrivingSeat());
-            }
-            if (ImGui::MenuItem("Propeller"))
-            {
-                CreateEntityToWorld(new EntityPropeller());
-            }
+//            if (ImGui::MenuItem("DrivingSeat"))
+//            {
+//                CreateEntityToWorld(new EntityDrivingSeat());
+//            }
+//            if (ImGui::MenuItem("Propeller"))
+//            {
+//                CreateEntityToWorld(new EntityPropeller());
+//            }
             ImGui::EndMenu();
         }
         if (ImGui::MenuItem("Light")) {
@@ -1557,6 +1553,11 @@ void Imgui::RenderAABB(glm::vec3 min, glm::vec3 max, ImU32 col, float tk)
     RenderWorldLine(p0, p4, col, tk); RenderWorldLine(p1, p5, col, tk); RenderWorldLine(p2, p6, col, tk); RenderWorldLine(p3, p7, col, tk);  // Z
 }
 
+void Imgui::RenderAABB(const AABB& aabb, glm::vec4 c)
+{
+    Imgui::RenderAABB(aabb.min, aabb.max, ImGui::GetColorU32({c.x, c.y, c.z, c.w}));
+}
+
 static void ShowDockspaceAndMainMenubar()
 {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -1828,12 +1829,12 @@ static void DrawViewportDebugs()
         if (dbg_AllEntityAABB) {
             for (Entity* e : world->m_Entities) {
                 if (Ethertia::getCamera().testFrustum(e->getAABB()))
-                    RenderEngine::drawLineBox(e->getAABB(), Colors::RED);
+                    Imgui::RenderAABB(e->getAABB(), Colors::RED);
             }
         }
         if (dbg_AllChunkAABB) {
             world->forLoadedChunks([&](Chunk* chunk){
-                RenderEngine::drawLineBox(chunk->position, glm::vec3{16.0f}, Colors::RED);
+                Imgui::RenderAABB({chunk->position, chunk->position + glm::vec3{16.0f}}, Colors::RED);
             });
         }
     }
@@ -2116,7 +2117,7 @@ static void RenderWindows()
     if (Settings::w_EntityInsp) {
         ShowEntityInsp();
         if (Imgui::g_InspEntity) {
-            RenderEngine::drawLineBox(Imgui::g_InspEntity->getAABB(), Colors::YELLOW);
+            Imgui::RenderAABB(Imgui::g_InspEntity->getAABB(), Colors::YELLOW);
         }
     }
     if (Settings::w_ShaderInsp) {

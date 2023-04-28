@@ -8,11 +8,10 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <cassert>
 
-#include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>
-#include <cassert>
 
 
 class EventBus

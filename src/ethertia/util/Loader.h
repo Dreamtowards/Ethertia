@@ -19,6 +19,7 @@
 #include <ethertia/render/Texture.h>
 #include <ethertia/render/VertexArrays.h>
 #include <ethertia/render/ShaderProgram.h>
+#include <ethertia/render/VertexData.h>
 
 #include <ethertia/util/BitmapImage.h>
 #include <ethertia/render/VertexBuffer.h>
@@ -28,9 +29,13 @@
 #define DECL_Inst(T) static T* Inst() { static T* INST = new T(); return INST; }
 
 
-class Loader {
-
+class Loader
+{
 public:
+
+
+    ////////////////// FILE & ASSETS //////////////////
+
     struct DataBlock
     {
         const void* data() const;
@@ -46,66 +51,45 @@ public:
     };
 
 
-
-    ////////////////// FILE & ASSETS //////////////////
-
-
-    // load entire file. filename could be absolute-path or relative-path.
+    // load entire file.
     static DataBlock loadFile(const std::string& filename);
 
-
-    // locate real filename of an asset-path.
+    // locate a real filename of an assets-path.
     // return empty string if cannot locate the assets file.
     static std::string fileAssets(const std::string& p);
 
-    // lead with "./" or "/": normal relative/absolute path
-    // otherwise: assets file.
-    inline static std::string fileResolve(const std::string& p) {
-        if (p.starts_with('.') || p.starts_with('/'))
-            return p;
-        else
-            return fileAssets(p);
-    }
+    // a quick utility func of `loadFile(fileAssets(p));`
+    static DataBlock loadAssets(const std::string& p);
 
-    static DataBlock loadAssets(const std::string& p) {
-        return loadFile(fileAssets(p));
-    }
+    // experimental.
+    // locate a real filename of: an actual-path leading with './', '/', 'C:/' OR an assets-path
+    static std::string fileResolve(const std::string& p);
+
 
     static bool fileExists(const std::filesystem::path& path);
 
     // mkdirs for the "dir/" or a file's parent dir "dir/somefile"
     static const std::string& fileMkdirs(const std::string& filename);
 
-    // Recursive check all file size.
-    static size_t calcDirectorySize(const std::string& dir);
+    // !Heavy IO Cost. recursive calc all file size.
+    static size_t dirSize(const std::string& dir);
 
-    static void checkWorkingDirectory() {
-        if (!fileExists("./assets")) {
-            throw std::runtime_error("default assets directory not found. make sure you are in valid working directory.");
-        }
-    }
+
+
 
 
 
     ///////////////// OBJ /////////////////
 
-    // arg: filepath
-    static VertexBuffer* loadOBJ(const std::string& filename);
 
+    // internal absolute filename. load indexed unique vertices. backend: tiny_obj_loader.
+    static VertexData* loadOBJ_(const char* filename);
+
+    static VertexData* loadOBJ(const std::string& uri) { return Loader::loadOBJ_(Loader::fileResolve(uri).c_str()); }
+
+    // quick save for debug, no compression.
     static void saveOBJ(const std::string& filename, size_t verts, const float* pos, const float* uv =nullptr, const float* norm =nullptr);
 
-
-
-    ////////////////// SOUNDS: OGG, WAV //////////////////
-
-    // return: PCM data, 16 bit.
-    static int16_t* loadOGG(const DataBlock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate);
-
-    // load to OpenAL buffer.
-    static AudioBuffer* loadOGG(const DataBlock& data);
-
-    // PCM, 16-bit sample, 1-channel
-    static void saveWAV(const void* pcm, size_t size, std::ostream& dst, int samplePerSec = 44100);
 
 
 
@@ -113,20 +97,50 @@ public:
 
     //////////// PNG ////////////
 
-    static BitmapImage loadPNG(const void* data, size_t len);
-    //static BitmapImage loadPNG(const char* filename);
+
+    // internal. stbi_load(filename). load file directly might optimizer than stbi_load_from_memory.
+    static BitmapImage loadPNG_(const char* filename);
+
+    static BitmapImage loadPNG(const std::string& uri) { return Loader::loadPNG_(Loader::fileResolve(uri).c_str()); }
 
 
-    static BitmapImage loadPNG(const DataBlock& m) { return loadPNG(m.data(), m.size()); }
+    // stbi_load_from_memory().
+    // static BitmapImage loadPNG(const void* data, size_t len);
 
-    static BitmapImage loadPNG(const std::string uri) { return loadPNG(Loader::loadFile(Loader::fileResolve(uri))); }
-
-    static void savePNG(const BitmapImage& img, const std::string& filename);
-
-
+    // helper func of load_from_memory. allows simply loadPNG(loadFile());
+    // static BitmapImage loadPNG(const DataBlock& m) { return loadPNG(m.data(), m.size()); }
 
 
-#ifndef LOADER_NO_OPENGL
+
+    static void savePNG(const std::string& filename, const BitmapImage& img);
+
+
+
+
+    ////////////////// SOUNDS: OGG, WAV //////////////////
+
+
+    // return: PCM data, 16 bit.
+    // @out_len: num of samples of pcm data. len*sizeof(int16_t)==size_bytes.
+    // @out_channels: 1 or 2. (mono or stereo)
+    static int16_t* loadOGG(const DataBlock& data, size_t* out_len, int* out_channels, int* dst_sampleRate);
+
+    // load to OpenAL buffer.
+    static AudioBuffer* loadOGG(const DataBlock& data);
+
+
+    // PCM, 16-bit sample, 1-channel
+    static void saveWAV(std::ostream& out, const void* pcm, size_t size, int samplePerSec = 44100);
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -142,13 +156,11 @@ public:
     /////////////// OpenGL VAO, VBO ///////////////
 
     // VertexCount, {{VertLen, VertData}}
-    static VertexArrays* loadModel(size_t vcount, const std::vector<std::pair<int, float*>>& vdats);
+    static VertexArrays* loadVertexBuffer(size_t vcount, float* data, std::initializer_list<int> sizes);
 
-    static VertexArrays* loadModel(const VertexBuffer* vbuf);
+    // load to GPU. interleaved vertex data.
+    static VertexArrays* loadVertexBuffer(const VertexData* vtx);
 
-    static VertexArrays* loadModel(size_t vcount, std::initializer_list<std::pair<int, float*>> vdats) {
-        return loadModel(vcount, std::vector(vdats));
-    }
 
     // load CPU VertexData to GPU VertexBuffer.
     // use Compact
@@ -187,19 +199,21 @@ public:
     }
 
 
-#endif
 
 
 
 
-    ////////// SYSTEM //////////
+
+
+
+
+
+    ///////////// OS /////////////
 
 
     static void showMessageBox(const char* title, const char* message);
 
     static const char* showInputBox(const char* title, const char* message, const char* def);
-
-    static glm::vec3 openColorPick();
 
     static const char* openFileDialog(const char* title = nullptr,
                                const char* defpath = nullptr,
@@ -209,18 +223,23 @@ public:
 
     static const char* openFolderDialog(const char* title = "", const char* defpath = "");
 
+    static glm::vec3 openColorPick();
 
 
-    // File, Folder, URL
+
+    // open File, Folder, URL
     static void openURL(const std::string& url);
 
-    // WINDOWS / DARWIN / LINUX / nullptr
-    static const char* sysname();
 
     // macOS:   darwin-x64  | darwin-arm64
     // Windows: windows-x64 | windows-arm64
-    // Linux:   linux-x64
+    // Linux:   linux-x64   | linux-arm64
     static std::string sys_target();
+
+
+    // deprecated: no where used.
+    // windows / darwin / linux
+    // static const char* sys_name();
 
     // deprecated: no where used. it's originally used for locating mod's binary program.
     // macOS:   lib<Name>.dylib
@@ -229,6 +248,7 @@ public:
 
 
 
+    ////////////// Misc //////////////
 
 
     static std::vector<std::complex<float>> fft_1d(const std::vector<std::complex<float>>& data);

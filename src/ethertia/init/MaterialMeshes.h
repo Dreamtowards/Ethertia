@@ -12,10 +12,10 @@ class MaterialMeshes
 {
 public:
 
-    inline static const VertexBuffer* CAPSULE = nullptr;
-    inline static const VertexBuffer* STOOL = nullptr;
-    inline static const VertexBuffer* CASH_REGISTER = nullptr;
-    inline static const VertexBuffer* SHORT_GRASS = nullptr;
+    inline static const VertexData* CAPSULE = nullptr;
+    inline static const VertexData* STOOL = nullptr;
+    inline static const VertexData* CASH_REGISTER = nullptr;
+    inline static const VertexData* SHORT_GRASS = nullptr;
 
 
 

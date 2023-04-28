@@ -7,16 +7,11 @@
 
 class VertexArrays
 {
-    VertexArrays() = default;
 public:
-    int vaoId = 0;
-    int vboId[8] = {};
+    GLuint vaoId = 0;
+    GLuint vboId = 0;
+    GLuint eboId = 0;
     size_t vertexCount = 0;
-
-    static VertexArrays* GenVertexArrays();
-    ~VertexArrays();
-
-    void BindVertexArrays();
 };
 
 #endif //ETHERTIA_VERTEXARRAYS_H

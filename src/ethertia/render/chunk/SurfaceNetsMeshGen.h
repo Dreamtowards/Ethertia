@@ -70,19 +70,7 @@ public:
         ) * denom);
     }
 
-    static VertexBuffer* contouring(Chunk* chunk, VertexBuffer* vbuf) {
-
-//        for (int rx = 0; rx < 16; ++rx) {
-//            for (int ry = 0; ry < 16; ++ry) {
-//                for (int rz = 0; rz < 16; ++rz) {
-//                    vec3 rp(rx, ry, rz);
-//                    //vec3 fp = featurepoint(rp, chunk);
-//                    //fpTable[rx][ry][rz] = fp;
-//                    chunk->getCell(rp).fp.x = Mth::Inf;  // invalidate fp.
-//                }
-//            }
-//        }
-
+    static void contouring(Chunk* chunk, VertexData* vtx) {
 
         for (int rx = 0; rx < 16; ++rx) {
             for (int ry = 0; ry < 16; ++ry) {
@@ -112,12 +100,8 @@ public:
                                 }
 
                                 assert(!_hasnan(fp));
-                                vec3 p = quadp + fp;
+                                vec3 pos = quadp + fp;
 
-                                vbuf->addpos(p);
-
-
-                                vbuf->addnorm(-c.norm);
 
                                 // determine the MtlId of 8 corners. use Nearest Positive Density Corner.
                                 float min_dist = Mth::Inf;
@@ -132,18 +116,16 @@ public:
 //                                assert(MtlId != 0);
                                 ASSERT_WARN(mtl != 0, "MtlId == 0 Cell.");
 
-                                vbuf->add_uv_mtl_pure(mtl ? mtl->m_TexId : 0);
+                                int mtlId = mtl ? mtl->m_TexId : 0;
+                                static const int PURE_MTL_UV_MARK = 1000;
 
+                                vtx->m_Vertices.emplace_back(pos, glm::vec2(mtlId, PURE_MTL_UV_MARK), -c.norm);
                             }
                         }
                     }
                 }
             }
         }
-
-
-
-        return vbuf;
     }
 
     // Naive SurfaceNets Method of Evaluate FeaturePoint.

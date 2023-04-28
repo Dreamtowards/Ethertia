@@ -9,15 +9,18 @@
 
 
 
-const void* VertexData::data() const
-{
+const void* VertexData::data() const {
     return m_Vertices.data();
 }
+size_t VertexData::size() const {
+    return sizeof(m_Vertices[0]) * m_Vertices.size();
+}
 
-size_t VertexData::size() const
-{
-    static_assert(sizeof(VertexData::Vertex) == sizeof(m_Vertices[0]));
-    return sizeof(VertexData::Vertex) * m_Vertices.size();
+const void* VertexData::idx_data() const {
+    return m_Indices.data();
+}
+size_t VertexData::idx_size() const {
+    return sizeof(m_Indices[0]) * m_Indices.size();
 }
 
 size_t VertexData::vertexCount() const
@@ -30,6 +33,21 @@ bool VertexData::isIndexed() const
     return !m_Indices.empty();
 }
 
+const VertexData::Vertex& VertexData::vert(int i) const
+{
+    return isIndexed() ? m_Vertices[m_Indices[i]] : m_Vertices[i];
+}
+
+
+void VertexData::addVert(const Vertex& vert)
+{
+    if (isIndexed())
+    {
+        m_Indices.push_back(m_Vertices.size());
+    }
+
+    m_Vertices.emplace_back(vert);
+}
 
 
 
@@ -37,6 +55,8 @@ bool VertexData::isIndexed() const
 
 
 #include <ethertia/util/Log.h>
+
+
 
 VertexData::VertexData()
 {
@@ -48,6 +68,8 @@ VertexData::~VertexData()
 }
 
 
+VertexData::Vertex::Vertex(const glm::vec3& pos, const glm::vec2& tex, const glm::vec3& norm) :
+        pos(pos), tex(tex), norm(norm) {}
 
 
 
@@ -60,18 +82,21 @@ VertexData::~VertexData()
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-namespace std {
-    template<> struct hash<VertexData::Vertex> {
-        size_t operator()(VertexData::Vertex const& vertex) const {
-            return ((hash<glm::vec3>()(vertex.pos) ^
-                    (hash<glm::vec2>()(vertex.tex)  << 1)) >> 1) ^
-                    (hash<glm::vec3>()(vertex.norm) << 1);
-        }
-    };
+size_t std::hash<VertexData::Vertex>::operator()(const VertexData::Vertex &vertex) const
+{
+    return ((hash<glm::vec3>()(vertex.pos) ^
+            (hash<glm::vec2>()(vertex.tex)  << 1)) >> 1) ^
+            (hash<glm::vec3>()(vertex.norm) << 1);
 }
 
 bool VertexData::Vertex::operator==(const Vertex& o) const {
     return pos == o.pos && tex == o.tex && norm == o.norm;
+}
+
+size_t VertexData::Vertex::stride()
+{
+    static_assert(sizeof(VertexData::Vertex) == 32);  // sizeof(float) * 8, {vec3 pos, vec2 uv, vec3 norm}
+    return sizeof(VertexData::Vertex);
 }
 
 

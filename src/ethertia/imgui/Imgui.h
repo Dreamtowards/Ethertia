@@ -9,6 +9,7 @@
 #include <imgui.h>
 
 #include <ethertia/entity/Entity.h>
+#include <ethertia/util/AABB.h>
 
 
 class Imgui
@@ -43,6 +44,8 @@ public:
     static void RenderWorldLine(glm::vec3 p0, glm::vec3 p1, ImU32 col = ImGui::GetColorU32({1,1,1,1}), float thickness = 1.0f);
 
     static void RenderAABB(glm::vec3 min, glm::vec3 max, ImU32 col, float tk = 1.0f);
+
+    static void RenderAABB(const AABB& aabb, glm::vec4 col);
 };
 
 #endif //ETHERTIA_IMGUIS_H

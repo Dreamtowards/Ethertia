@@ -20,9 +20,9 @@ public:
             Ethertia::getWorld()->addEntity(entity);
             entity->position() = player->position();
 
-            const VertexBuffer& vbuf = *MaterialMeshes::STOOL;
-            entity->setMesh(EntityMesh::createMeshShape(vbuf.vertexCount(), vbuf.positions.data()));
-            entity->updateModel(Loader::loadModel(&vbuf));
+            const VertexData* vtx = MaterialMeshes::STOOL;
+            entity->setMesh(EntityMesh::CreateMeshShape(vtx));
+            entity->updateModel(Loader::loadVertexBuffer(vtx));
 
             _SendMessage("EntityMesh created.");
         }
@@ -44,9 +44,9 @@ public:
 
                 EntityMesh* eMesh = (EntityMesh*)target;
 
-                VertexBuffer* vbuf = Loader::loadOBJ(path.c_str());
-                eMesh->updateModel(Loader::loadModel(vbuf));
-                eMesh->setMesh(EntityMesh::createMeshShape(vbuf->vertexCount(), vbuf->positions.data()));
+                VertexData* vtx = Loader::loadOBJ(path.c_str());
+                eMesh->updateModel(Loader::loadVertexBuffer(vtx));
+                eMesh->setMesh(EntityMesh::CreateMeshShape(vtx));
 
                 _SendMessage("Mesh updated.");
             }
@@ -59,13 +59,12 @@ public:
                 }
 
                 EntityMesh* entity = (EntityMesh*)Ethertia::getHitCursor().hitEntity;
-                entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(Loader::loadFile(path)));
+                entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(path));
 
                 _SendMessage("Texture updated.");
             }
             else if (args[1] == "delete")
             {
-
                 Ethertia::getWorld()->removeEntity(target);
 
                 _SendMessage("Entity deleted.");

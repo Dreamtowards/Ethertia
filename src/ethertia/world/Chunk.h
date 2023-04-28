@@ -8,7 +8,6 @@
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/AABB.h>
-#include <ethertia/util/UnifiedTypes.h>
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/world/Cell.h>
 

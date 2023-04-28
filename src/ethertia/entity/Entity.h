@@ -168,15 +168,31 @@ public:
 ////        initRigidbody(mass, createHullShape(vbuf.vertexCount(), vbuf.positions.data()));
 ////    }
 //
-    static btConvexHullShape* createHullShape(size_t vertexCount, const float* position) {
+    static btConvexHullShape* CreateHullShape(const VertexData* vtx)
+    {
         btConvexHullShape* hull = new btConvexHullShape();
-        for (int i = 0; i < vertexCount; ++i) {
-            const float* p = &position[i*3];
-            hull->addPoint(btVector3(p[0], p[1], p[2]), false);
+        for (const VertexData::Vertex& vert : vtx->m_Vertices)
+        {
+            hull->addPoint(Mth::btVec3(vert.pos), false);
         }
         hull->recalcLocalAabb();
         return hull;
     }
+
+    static btBvhTriangleMeshShape* CreateMeshShape(const VertexData* vtx)
+    {
+        btTriangleMesh* mesh = new btTriangleMesh();
+        for (int i = 0; i < vtx->vertexCount(); i += 3)
+        {
+            mesh->addTriangle(
+                    Mth::btVec3(vtx->vert(i).pos),
+                    Mth::btVec3(vtx->vert(i+1).pos),
+                    Mth::btVec3(vtx->vert(i+2).pos)
+            );
+        }
+        return new btBvhTriangleMeshShape(mesh, false);
+    }
+
 };
 
 #endif //ETHERTIA_ENTITY_H

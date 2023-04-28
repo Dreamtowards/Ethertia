@@ -76,11 +76,10 @@ public:
         chunk->m_MeshingState = Chunk::MESHING;  // May Already Been Deleted.
 
         // todo: ObjectPool Priority(reserved size, hot-ness) Stack
-        g_VertBufPool.m_Cap = 10;  // keep memory hot.
+//        g_VertBufPool.m_Cap = 10;  // keep memory hot.
 
-        VertexBuffer* vbufTerrain = g_VertBufPool.acquire();
-
-        VertexBuffer* vbufVegetable = g_VertBufPool.acquire();
+        VertexData* vtxTerrain = new VertexData();
+        VertexData* vtxVegetable = new VertexData();
 
 
         {
@@ -90,12 +89,12 @@ public:
 
             {
                 PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Iso");
-                SurfaceNetsMeshGen::contouring(chunk, vbufTerrain);
+                SurfaceNetsMeshGen::contouring(chunk, vtxTerrain);
             }
 
             {
                 PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Vegetable");
-                BlockyMeshGen::gen(chunk, vbufVegetable, true);
+                BlockyMeshGen::gen(chunk, vtxVegetable, true);
             }
 
 // CNS BUG: 在区块Unloaded后，可能其Mesh刚刚开始。结果采集到被删除的区块 造成错误
@@ -105,15 +104,16 @@ public:
         {
             PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Norm");
 
-            checkNonNaN(vbufTerrain->positions.data(), vbufTerrain->vertexCount()*3);
+//            checkNonNaN((float*)vtxTerrain->data(), vtxTerrain->vertexCount() * 8);
 
-            assert(vbufTerrain->normals.size() == vbufTerrain->vertexCount() * 3);
+//            assert(vbufTerrain->normals.size() == vbufTerrain->vertexCount() * 3);
 //            vbufTerrain->normals.resize(vbufTerrain->vertexCount() * 3);
 //            VertexProcess::othonorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->normals.data());
 //            VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
 
-            vbufVegetable->normals.resize(vbufVegetable->vertexCount() * 3);
-            VertexProcess::set_all_vec3(vbufVegetable->normals.data(), vbufVegetable->vertexCount(), {0,1,0});
+            for (auto& vert : vtxVegetable->m_Vertices) {
+                vert.norm = {0,1,0};
+            }
         }
 
         {
@@ -121,7 +121,7 @@ public:
 
             // CNS. 在 Norm生成之后。因为这里会自带Norm 不需要别人处理。
 
-            BlockyMeshGen::gen(chunk, vbufTerrain, false);
+            BlockyMeshGen::gen(chunk, vtxTerrain, false);
         }
 
 
@@ -131,23 +131,23 @@ public:
         {
             PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "Bvh");
 
-            if (vbufTerrain->vertexCount()) {
-                meshTerrain = EntityMesh::createMeshShape(vbufTerrain->vertexCount(), vbufTerrain->positions.data());
+            if (vtxTerrain->vertexCount()) {
+                meshTerrain = EntityMesh::CreateMeshShape(vtxTerrain);
             }
-            if (vbufVegetable->vertexCount()) {
-                meshVegetable = EntityMesh::createMeshShape(vbufVegetable->vertexCount(), vbufVegetable->positions.data());
+            if (vtxVegetable->vertexCount()) {
+                meshVegetable = EntityMesh::CreateMeshShape(vtxVegetable);
             }
         }
 
         // Dont upload/to be render if Current and Previous Mesh is Empty.
-        Ethertia::getScheduler().addTask([chunk, vbufTerrain, vbufVegetable, meshTerrain, meshVegetable]() {
+        Ethertia::getScheduler().addTask([chunk, vtxTerrain, vtxVegetable, meshTerrain, meshVegetable]() {
 
             if (Ethertia::getWorld() && chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);
-                chunk->m_MeshTerrain->updateModel(Loader::loadModel(vbufTerrain));
+                chunk->m_MeshTerrain->updateModel(Loader::loadVertexBuffer(vtxTerrain));
 
                 chunk->m_MeshVegetable->setMesh(meshVegetable);
-                chunk->m_MeshVegetable->updateModel(Loader::loadModel(vbufVegetable));
+                chunk->m_MeshVegetable->updateModel(Loader::loadVertexBuffer(vtxVegetable));
 
             } else {
                 delete meshTerrain;
@@ -156,10 +156,12 @@ public:
             ++chunk->dbg_MeshCounter;
 
             chunk->m_MeshingState = Chunk::MESH_VALID;  // must clear MESHING state for delete chunk (unloadChunk)
-            vbufTerrain->clear();
-            vbufVegetable->clear();
-            g_VertBufPool.restore(vbufTerrain);
-            g_VertBufPool.restore(vbufVegetable);
+//            vbufTerrain->clear();
+//            vbufVegetable->clear();
+//            g_VertBufPool.restore(vbufTerrain);
+//            g_VertBufPool.restore(vbufVegetable);
+            delete vtxTerrain;
+            delete vtxVegetable;
         }, -1 - (int)dist2ChunkCam(chunk));
         // priority <= -1: after addEntity() to the world.
     }

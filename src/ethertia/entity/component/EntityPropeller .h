@@ -15,13 +15,13 @@ class EntityPropeller : public Entity
 public:
     EntityPropeller()
     {
-        static VertexBuffer* M_Propeller = Loader::loadOBJ("material/propeller/propeller.obj");
-        static VertexArrays* M_Hel = Loader::loadModel(M_Propeller);
+        static VertexData* M_Propeller = Loader::loadOBJ("material/propeller/propeller.obj");
+        static VertexArrays* M_Hel = Loader::loadVertexBuffer(M_Propeller);
 
         m_DiffuseMap = Texture::WHITE;
 
         m_Model = M_Hel;
-        initRigidbody(1, createHullShape(M_Hel->vertexCount, M_Propeller->positions.data()));
+        initRigidbody(1, CreateHullShape(M_Propeller));
         m_Rigidbody->setFriction(0.8);
 
     }

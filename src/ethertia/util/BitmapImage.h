@@ -12,12 +12,12 @@
 
 class BitmapImage
 {
-    std::uint32_t* pixels;
+    uint32_t* pixels;
     int width;
     int height;
 
 public:
-    BitmapImage(int w, int h, std::uint32_t* pxs) {
+    BitmapImage(int w, int h, void* pxs) {
         resize(w, h, pxs);
     }
     BitmapImage(int w, int h) {
@@ -30,10 +30,10 @@ public:
     BitmapImage(const BitmapImage& cpy) = delete;
     BitmapImage(const BitmapImage&& cpy) = delete;
 
-    void resize(int w, int h, std::uint32_t* pxs) {
+    void resize(int w, int h, void* pxs) {
         width = w;
         height = h;
-        pixels = pxs;
+        pixels = (uint32_t*)pxs;
     }
 
     static void resizeTo(const BitmapImage& src, BitmapImage& dst)

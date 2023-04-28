@@ -32,11 +32,11 @@ public:
     }
 
 
-    static void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false);
-
-    static void drawLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color);
-
-    static void drawLineBox(const AABB& aabb, glm::vec4 color);
+//    static void drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat = true, bool boxOutline = false);
+//
+//    static void drawLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color);
+//
+//    static void drawLineBox(const AABB& aabb, glm::vec4 color);
 
 };
 

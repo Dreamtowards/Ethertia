@@ -35,9 +35,9 @@ public:
 //    Entity* m_RidingOn = nullptr;
 
 
-    EntityPlayer() {
-
-        m_Model = Loader::loadModel(MaterialMeshes::CAPSULE);
+    EntityPlayer()
+    {
+        m_Model = Loader::loadVertexBuffer(MaterialMeshes::CAPSULE);
 
         auto* shapeCapsule = new btCapsuleShape(0.5, 2);
 

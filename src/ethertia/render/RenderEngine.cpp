@@ -30,6 +30,8 @@
 // RenderEngine is static/singleton. shouldn't instantiate.
 // Don't use OOP except it's necessary.
 
+#include <ethertia/imgui/Imgui.h>
+#include <ethertia/util/CoreUtil.h>
 
 void RenderEngine::init()
 {
@@ -42,10 +44,10 @@ void RenderEngine::init()
     std::cout << " renderers[";
 //    GuiRenderer::init();        std::cout << "gui, ";
 //    FontRenderer::init();       std::cout << "font, ";
-    GeometryRenderer::init();     std::cout << "geometry";
-    ComposeRenderer::init();
-    SkyboxRenderer::init();
-    ParticleRenderer::init();
+    GeometryRenderer::init();   std::cout << "geometry";
+    ComposeRenderer::init();    std::cout << "deferred";
+    SkyboxRenderer::init();     std::cout << "skybox";
+    ParticleRenderer::init();   std::cout << "particle";
     //SkyGradientRenderer::init();
 
     SSAORenderer::init();
@@ -69,7 +71,6 @@ void RenderEngine::deinit()
 {
     // todo: deinit renderers.
 }
-
 
 static void renderWorldGeometry(World* world) {
 
@@ -118,7 +119,7 @@ static void renderWorldGeometry(World* world) {
         // Debug: draw Every Entity AABB.
         if (Dbg::dbg_RenderedEntityAABB) {
             AABB aabb = entity->getAABB();
-            RenderEngine::drawLineBox(aabb.min, aabb.max-aabb.min, Colors::RED);
+            Imgui::RenderAABB(aabb.min, aabb.max, ImGui::GetColorU32(et::force_cast<ImVec4>(Colors::RED)));
         }
     }
 
@@ -281,23 +282,3 @@ void RenderEngine::RenderWorld()
 }
 
 
-void RenderEngine::drawLine(glm::vec3 pos, glm::vec3 dir, glm::vec4 color, bool viewMat, bool boxOutline) {
-    DebugRenderer::Inst().drawLine(pos, dir, color, viewMat, boxOutline);
-}
-
-void RenderEngine:: drawLineBox(glm::vec3 min, glm::vec3 size, glm::vec4 color) {
-    DebugRenderer::Inst().drawLine(min, size, color, true, true);
-}
-
-void RenderEngine::drawLineBox(const AABB& aabb, glm::vec4 color) {
-    RenderEngine::drawLineBox(aabb.min, aabb.max-aabb.min, color);
-}
-
-
-
-//    Get World Ray from Screen Pixel.
-//        Window* _wd = Ethertia::getWindow();
-//        RenderEngine* _rde = Ethertia::getRenderEngine();
-//        glm::vec3 ray = Mth::worldRay(_wd->getMouseX(), _wd->getMouseY(), _wd->getWidth(), _wd->getHeight(), _rde->projectionMatrix, _rde->viewMatrix);
-//
-//        Log::info("ray {}", glm::to_string(ray));

@@ -15,7 +15,7 @@ class BlockyMeshGen
 {
 public:
 
-    static void gen(Chunk* chunk, VertexBuffer* vbuf, bool genVegetable)
+    static void gen(Chunk* chunk, VertexData* vtx, bool genVegetable)
     {
         using glm::vec3;
 
@@ -38,7 +38,7 @@ public:
 
                         else if (mtl == Materials::WATER)
                         {
-                            putCube(vbuf, rp, chunk, mtl);
+                            putCube(vtx, rp, chunk, mtl);
                         }
                         else if (mtl->m_CustomMesh)
                         {
@@ -52,7 +52,7 @@ public:
 //                                }
 //                            }
 
-                            putOBJ(*vbuf, gp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);
+                            putOBJ(vtx, gp, *chunk, texId, *(VertexData*)mtl->m_VertexBuffer);
                         }
                     }
                     else
@@ -62,11 +62,11 @@ public:
 
                         if (mtl->m_CustomMesh)
                         {
-                            putOBJ(*vbuf, rp, *chunk, texId, *(VertexBuffer*)mtl->m_VertexBuffer);
+                            putOBJ(vtx, rp, *chunk, texId, *(VertexData*)mtl->m_VertexBuffer);
                         }
                         else if (c.exp_meta == 1)
                         {
-                            putCube(vbuf, rp, chunk, mtl);
+                            putCube(vtx, rp, chunk, mtl);
                         }
                     }
 
@@ -76,12 +76,22 @@ public:
 
     }
 
-    static void putOBJ(VertexBuffer& vbuf, glm::vec3 rp, Chunk& chunk, int mtlId, const VertexBuffer& obj_vbuf)
+    static void putOBJ(VertexData* vtx, glm::vec3 rp, Chunk& chunk, int mtlId, const VertexData& obj_vtx)
     {
+        glm::vec2 uvMul = MaterialTextures::uv_mul();
+        glm::vec2 uvAdd = MaterialTextures::uv_add(mtlId);
+        uvAdd.x += mtlId;  // set mtl id.
 
-        vbuf.add_vbuf(obj_vbuf, rp + glm::vec3(0.5, 0.0, 0.5), mtlId,
-                      MaterialTextures::uv_add(mtlId), MaterialTextures::uv_mul());
+        rp += glm::vec3(0.5, 0.0, 0.5);  // offset to cell horiz center.
 
+        vtx->m_Vertices.reserve(vtx->m_Vertices.size() + obj_vtx.m_Vertices.size());
+
+        for (auto& vert : obj_vtx)
+        {
+            vtx->addVert({vert.pos + rp,
+                          vert.tex * uvMul + uvAdd,
+                          vert.norm});
+        }
     }
 
 
@@ -126,7 +136,7 @@ public:
     };
 
 
-    static void putCube(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, const Material* mtl) {
+    static void putCube(VertexData* vtx, glm::vec3 rpos, Chunk* chunk, const Material* mtl) {
 
         for (int i = 0; i < 6; ++i) {
             glm::vec3 dir = _CubeFaceDir(i);
@@ -135,25 +145,23 @@ public:
 
             if (!neib.isOpaqueCube() && !(mtl == Materials::WATER && mtl==neib.mtl))  // and not same mtl e.g. water
             {
-                putCubeFace(vbuf, i, rpos, mtl->m_TexId);
+                putCubeFace(vtx, i, rpos, mtl->m_TexId);
             }
         }
     }
 
-    static void putCubeFace(VertexBuffer* vbuf, int face, glm::vec3 rpos, int mtlId) {
+    static void putCubeFace(VertexData* vtx, int face, glm::vec3 rpos, int mtlId) {
         for (int i = 0; i < 6; ++i)  // 6 verts
         {
             int bas = face*18 + i*3;  // 18 = 6vec * 3scalar
-            vbuf->addpos(CUBE_POS[bas]+rpos.x, CUBE_POS[bas+1]+rpos.y, CUBE_POS[bas+2]+rpos.z);
-            vbuf->addnorm(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
+            glm::vec3 pos (CUBE_POS[bas]+rpos.x, CUBE_POS[bas+1]+rpos.y, CUBE_POS[bas+2]+rpos.z);
+            glm::vec3 norm(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
 
-            // put uv
-            bas = face*12 + i*2 ;  // 12=6vec*2f
-            glm::vec2 uv(CUBE_UV[bas], CUBE_UV[bas+1]);
-//            uv = MaterialTextures::uv_to_atlas_region(uv, mtlId);
-//            vbuf->adduv(uv.x, uv.y);
-//            vbuf->set_uv_mtl(mtlId);
-            vbuf->add_uv_mtl_pure(mtlId);
+            //bas = face*12 + i*2 ;  // 12=6vec*2f
+            //glm::vec2 uv(CUBE_UV[bas], CUBE_UV[bas+1]);
+            glm::vec2 uv{mtlId, 1000};
+
+            vtx->addVert({pos, uv, norm});
         }
     }
 

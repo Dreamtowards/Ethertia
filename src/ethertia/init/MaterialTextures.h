@@ -58,7 +58,7 @@ public:
     static bool loadMtlTex_ResizeTo(std::string_view mtl, std::string_view textype, BitmapImage& dst_resized) {
         std::string path = Loader::fileAssets(Strings::fmt("material/{}/{}.png", mtl, textype));
         if (Loader::fileExists(path)) {
-            BitmapImage src = Loader::loadPNG(Loader::loadFile(path));
+            BitmapImage src = Loader::loadPNG_(path.c_str());
             BitmapImage::resizeTo(src, dst_resized);
             return true;
         } else {
@@ -134,7 +134,7 @@ public:
             }
 
             // save cached atlas.
-            Loader::savePNG(atlas, cache_file);
+            Loader::savePNG(cache_file, atlas);
 
             return Loader::loadTexture(atlas);
         }

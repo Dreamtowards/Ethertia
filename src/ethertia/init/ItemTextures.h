@@ -45,9 +45,9 @@ public:
                     loc = Strings::fmt("item/{}/view.png", id);
                 }
 
-                if (Loader::fileExists(Loader::fileAssets(loc)))
+                if (!Loader::fileAssets(loc).empty())
                 {
-                    BitmapImage img = Loader::loadPNG(Loader::loadAssets(loc));
+                    BitmapImage img = Loader::loadPNG(loc);
                     BitmapImage::resizeTo(img, resized);
                     atlas.setPixels(i*ITEM_RESOLUTION, 0, resized);
                 }
@@ -58,7 +58,7 @@ public:
                 i++;
             }
 
-            Loader::savePNG(atlas, cache_file);
+            Loader::savePNG(cache_file, atlas);
 
             return Loader::loadTexture(atlas);
         }

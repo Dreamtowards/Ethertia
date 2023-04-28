@@ -16,13 +16,13 @@ class EntityDrivingSeat : public Entity
 public:
     EntityDrivingSeat()
     {
-        static VertexBuffer* M_DrivingSeat = Loader::loadOBJ("material/driving_seat/driving_seat.obj");
-        static VertexArrays* M_Hel = Loader::loadModel(M_DrivingSeat);
+        static VertexData* M_DrivingSeat = Loader::loadOBJ("material/driving_seat/driving_seat.obj");
+        static VertexArrays* M_Hel = Loader::loadVertexBuffer(M_DrivingSeat);
 
         m_DiffuseMap = Texture::WHITE;
 
         m_Model = M_Hel;
-        initRigidbody(1, createHullShape(M_Hel->vertexCount, M_DrivingSeat->positions.data()));
+        initRigidbody(1, CreateHullShape(M_DrivingSeat));
         m_Rigidbody->setFriction(0.8);
     }
 

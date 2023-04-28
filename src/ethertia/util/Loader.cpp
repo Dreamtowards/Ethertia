@@ -2,22 +2,11 @@
 // Created by Dreamtowards on 2023/2/1.
 //
 
-#include <ethertia/util/Loader.h>
-#include <ethertia/util/OBJLoader.h>
+#include "Loader.h"
 
-#include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb/stb_image_write.h>
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include <stb/stb_image_resize.h>
-
-#include <ethertia/init/Settings.h>
 
 // #define DATA_INFO 1
+
 
 
 Loader::DataBlock Loader::loadFile(const std::string& path)
@@ -43,6 +32,8 @@ bool Loader::fileExists(const std::filesystem::path& path)
     return std::filesystem::exists(path);
 }
 
+#include <ethertia/init/Settings.h>
+
 std::string Loader::fileAssets(const std::string& p)
 {
     for (const std::string& basepath : Settings::ASSETS)
@@ -55,6 +46,21 @@ std::string Loader::fileAssets(const std::string& p)
     //throw std::runtime_error(Strings::fmt("failed to locate assets file: {}", p));
 }
 
+std::string Loader::fileResolve(const std::string& p)
+{
+    if (p.starts_with('.') || p.starts_with('/') || (p.find(':') == 1))
+        return p;
+    else
+        return fileAssets(p);
+}
+
+Loader::DataBlock Loader::loadAssets(const std::string& p)
+{
+    return loadFile(fileAssets(p));
+}
+
+
+
 const std::string& Loader::fileMkdirs(const std::string& filename)
 {
     // mkdirs for parents of the file.
@@ -65,6 +71,19 @@ const std::string& Loader::fileMkdirs(const std::string& filename)
     return filename;
 }
 
+
+
+size_t Loader::dirSize(const std::string& dir)
+{
+    size_t sumSize = 0;
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(dir))
+    {
+        if (!entry.is_directory()) {
+            sumSize += entry.file_size();
+        }
+    }
+    return sumSize;
+}
 
 
 
@@ -106,15 +125,113 @@ size_t Loader::DataBlock::size() const {
 
 
 
-BitmapImage Loader::loadPNG(const void* data, size_t len)
-{
-    int width, height, channels;
-    void* pixels = stbi_load_from_memory((unsigned char*)data, len, &width, &height, &channels, 4);
 
-    return BitmapImage(width, height, (unsigned int*)pixels);
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader/tiny_obj_loader.h>
+
+
+
+// Arrays vs Indexed compare for viking_room.obj (Single Vertex is vec3+vec2+vec3 8*f32 = 32 bytes, Index is uint32 = 4 bytes)
+// (arrays: 11484 vert *32 = 367,488 bytes) dbg-run 18ms
+// (indexed: 4725 unique vert *32 = 151,200 bytes (=x0.41) + 11484 indices * 4 = 45,936 bytes  =  197,136 bytes (=x0.54)) dbg-run 21ms
+
+VertexData* Loader::loadOBJ_(const char* filename)
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+
+    std::string err;
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename)) {
+        throw std::runtime_error(err);
+    }
+    // else if (!err.empty()) { Log::warn("Warn loading .OBJ '{}': {}", filename, err); }
+
+    VertexData* vtx = new VertexData();
+    vtx->m_Filename = filename;
+
+    std::unordered_map<VertexData::Vertex, uint32_t> unique_verts;
+
+    for (tinyobj::shape_t& shape : shapes)
+    {
+        vtx->m_Vertices.reserve(vtx->m_Vertices.size() + shape.mesh.indices.size());
+
+        for (tinyobj::index_t& index : shape.mesh.indices)
+        {
+            glm::vec3 pos = *reinterpret_cast<glm::vec3*>(&attrib.vertices[3*index.vertex_index]);
+            glm::vec2 tex = *reinterpret_cast<glm::vec2*>(&attrib.texcoords[2*index.texcoord_index]);
+            glm::vec3 norm = *reinterpret_cast<glm::vec3*>(&attrib.normals[3*index.normal_index]);
+            VertexData::Vertex vert = {pos, tex, norm};
+
+            // for vulkan y 0=top, while wavefront obj y 0=bottom (opengl like)
+            tex.y = 1.0f - tex.y;
+
+            if (unique_verts.find(vert) == unique_verts.end())
+            {
+                unique_verts[vert] = vtx->m_Vertices.size();
+                vtx->m_Vertices.push_back(vert);
+            }
+            vtx->m_Indices.push_back(unique_verts[vert]);
+        }
+    }
+    return vtx;
 }
 
-void Loader::savePNG(const BitmapImage& img, const std::string& filename)
+
+
+#include <ethertia/util/OBJLoader.h>
+
+void Loader::saveOBJ(const std::string& filename, size_t verts, const float* pos, const float* uv, const float* norm)
+{
+    std::stringstream ss;
+    OBJLoader::saveOBJ(ss, verts, pos, uv, norm);
+
+    Loader::fileMkdirs(filename);
+    std::ofstream fs(filename);
+    fs << ss.str();
+    fs.close();
+}
+
+
+
+
+
+
+
+
+
+
+#include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb/stb_image_write.h>
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <stb/stb_image_resize.h>
+
+
+
+
+BitmapImage Loader::loadPNG_(const char* filename)
+{
+    int w, h, channels;
+    void* pixels = stbi_load(filename, &w, &h, &channels, 4);
+
+    return BitmapImage(w, h, pixels);
+}
+
+//BitmapImage Loader::loadPNG(const void* data, size_t len)
+//{
+//    int w, h, channels;
+//    void* pixels = stbi_load_from_memory((unsigned char*)data, len, &w, &h, &channels, 4);
+//
+//    return BitmapImage(w, h, pixels);
+//}
+
+void Loader::savePNG(const std::string& filename, const BitmapImage& img)
 {
     Loader::fileMkdirs(filename);
     if (!stbi_write_png(filename.c_str(), img.getWidth(), img.getHeight(), 4, img.getPixels(), 0)) {
@@ -145,38 +262,53 @@ void Loader::savePNG(const BitmapImage& img, const std::string& filename)
 //    // glEnableVertexAttribArray(0);  // default enabled.
 //}
 
-VertexArrays* Loader::loadModel(size_t vcount, const std::vector<std::pair<int, float *>> &vdats)
+VertexArrays* Loader::loadVertexBuffer(size_t vcount, float* data, std::initializer_list<int> sizes)
 {
-    VertexArrays* vao = VertexArrays::GenVertexArrays();
-    vao->BindVertexArrays();
+    VertexArrays* vao = new VertexArrays();
     vao->vertexCount = vcount;
+    glGenVertexArrays(1, &vao->vboId);
+    glBindVertexArray(vao->vaoId);
+
+    int _scalars = 0;
+    for (int s : sizes) { _scalars += s; }
+    const int stride = _scalars * sizeof(float);
+
+    glGenBuffers(1, &vao->vboId);
+    glBindBuffer(GL_ARRAY_BUFFER, vao->vboId);
+    glBufferData(GL_ARRAY_BUFFER, stride*vcount, data, GL_STATIC_DRAW);
 
     int i = 0;
-    for (auto vd : vdats) {
-        int vlen = vd.first;
-        float* vdat = vd.second;
-
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vlen*vcount, vdat, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(i, vlen, GL_FLOAT, false, 0, nullptr);
+    for (int s : sizes) {
+        glVertexAttribPointer(i, s, GL_FLOAT, false, stride, (void*)(i*sizeof(float)));
         glEnableVertexAttribArray(i);
-        vao->vboId[i] = vbo;
-        i++;
+        ++i;
     }
     return vao;
 }
 
-VertexArrays* Loader::loadModel(const VertexBuffer* vbuf)
+VertexArrays* Loader::loadVertexBuffer(const VertexData* vtx)
 {
-    std::vector<std::pair<int, float*>> ls;
-    ls.emplace_back(3, (float*)vbuf->positions.data());
-    ls.emplace_back(2, (float*)vbuf->textureCoords.data());
-    ls.emplace_back(3, (float*)vbuf->normals.data());
+    VertexArrays* vao = new VertexArrays();
+    vao->vertexCount = vtx->vertexCount();
+    glGenVertexArrays(1, &vao->vboId);
+    glBindVertexArray(vao->vaoId);
 
-    return loadModel(vbuf->vertexCount(), ls);
+    if (vtx->isIndexed())
+    {
+        glGenBuffers(1, &vao->eboId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao->eboId);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, vtx->idx_size(), vtx->idx_data(), GL_STATIC_DRAW);
+    }
+
+    glGenBuffers(1, &vao->vboId);
+    glBindBuffer(GL_ARRAY_BUFFER, vao->vboId);
+    glBufferData(GL_ARRAY_BUFFER, vtx->size(), vtx->data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, VertexData::Vertex::stride(), (void*)0);                   glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, false, VertexData::Vertex::stride(), (void*)(3*sizeof(float)));   glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, false, VertexData::Vertex::stride(), (void*)(5*sizeof(float)));   glEnableVertexAttribArray(2);
+
+    return vao;
 }
 
 Texture* Loader::loadTexture(const BitmapImage& img)
@@ -263,95 +395,16 @@ Texture* Loader::loadCubeMap(const BitmapImage* imgs)  {
 
 
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader/tiny_obj_loader.h>
-
-
-#include <nlohmann/json.hpp>
-
-
-void Loader::saveOBJ(const std::string &filename, size_t verts, const float *pos, const float *uv, const float *norm)  {
-    std::stringstream ss;
-    OBJLoader::saveOBJ(ss, verts, pos, uv, norm);
-
-    Loader::fileMkdirs(filename);
-    std::ofstream fs(filename);
-    fs << ss.str();
-    fs.close();
-}
-
-
-// tiny_obj_loader: 2-5 times faster than util::OBJLoader. especially in little. 6.6MB obj 2times faster: 1.9s/0.9s, 632KB obj 4.3 times faster.
-static void loadOBJ_Tiny(const char *filename, VertexBuffer &vbuf) {
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string err;
-    bool succ = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename);
-    if (!succ) {
-        throw std::runtime_error(Strings::fmt("failed load obj tiny: ", err));
-    }
-
-    for (tinyobj::shape_t& shape : shapes)
-    {
-        tinyobj::mesh_t& mesh = shape.mesh;
-        size_t idx_offset = 0;
-
-        vbuf.reserve(vbuf.vertexCount() + mesh.indices.size());
-
-        for (int face_i = 0; face_i < mesh.num_face_vertices.size(); ++face_i)
-        {
-            int face_verts = mesh.num_face_vertices[face_i];
-            for (int fvi = 0; fvi < face_verts; ++fvi)
-            {
-                tinyobj::index_t idx = mesh.indices[idx_offset + fvi];
-
-                int ip = 3*idx.vertex_index;
-                tinyobj::real_t px = attrib.vertices[ip],
-                        py = attrib.vertices[ip+1],
-                        pz = attrib.vertices[ip+2];
-                vbuf.addpos(px,py,pz);
-
-                if (idx.normal_index >= 0) {
-                    int in = 3*idx.normal_index;
-                    tinyobj::real_t nx = attrib.normals[in],
-                            ny = attrib.normals[in+1],
-                            nz = attrib.normals[in+2];
-                    vbuf.addnorm(nx,ny,nz);
-                }
-
-                if (idx.texcoord_index >= 0) {
-                    int it = 2*idx.texcoord_index;
-                    tinyobj::real_t tx = attrib.texcoords[it],
-                            ty = attrib.texcoords[it+1];
-                    vbuf.adduv(tx,ty);
-                }
-            }
-            idx_offset += face_verts;
-
-            // mesh.material_ids[face_i];
-        }
-    }
-}
-
-VertexBuffer* Loader::loadOBJ(const std::string& filepath)  {
-    VertexBuffer* vbuf = new VertexBuffer();
-    loadOBJ_Tiny(Loader::fileResolve(filepath).c_str(), *vbuf);
-    return vbuf;
-}
-
 
 #include <stb/stb_vorbis.c>
 
 
 int16_t* Loader::loadOGG(const DataBlock& data, size_t* dst_len, int* dst_channels, int* dst_sampleRate) {
-    int channels = 0;
-    int sample_rate = 0;
+    int channels, sample_rate;
     int16_t* pcm = nullptr;
     int len = stb_vorbis_decode_memory((unsigned char*)data.data(), data.size(), &channels, &sample_rate, &pcm);
-    if (len == -1)
-        throw std::runtime_error("failed decode ogg.");
-    assert(pcm);
+    if (len == -1 || pcm == nullptr)
+        throw std::runtime_error("failed to decode ogg.");
 
     // Log::info("Load ogg, pcm size {}, freq {}, cnls {}", Strings::size_str(len), sample_rate, channels);
     assert(channels == 2 || channels == 1);
@@ -375,6 +428,53 @@ AudioBuffer* Loader::loadOGG(const DataBlock& data) {
     buf->buffer_data(format, pcm, len, sampleRate);
     return buf;
 }
+
+
+void Loader::saveWAV(std::ostream& out, const void* pcm, size_t size, int samplePerSec)
+{
+    // endianness problem. may cause wrong on big-endian system.
+    struct WAV_HEADER {
+        /* RIFF Chunk Descriptor */
+        uint8_t RIFF[4] = {'R', 'I', 'F', 'F'}; // RIFF Header Magic header
+        uint32_t ChunkSize;                     // RIFF Chunk Size
+        uint8_t WAVE[4] = {'W', 'A', 'V', 'E'}; // WAVE Header
+        /* "fmt" sub-chunk */
+        uint8_t fmt[4] = {'f', 'm', 't', ' '}; // FMT header
+        uint32_t Subchunk1Size = 16;           // Size of the fmt chunk
+        uint16_t AudioFormat = 1; // Audio format 1=PCM,6=mulaw,7=alaw,     257=IBM
+        // Mu-Law, 258=IBM A-Law, 259=ADPCM
+        uint16_t NumOfChan = 1;   // Number of channels 1=Mono 2=Sterio
+        uint32_t SamplesPerSec = 16000;   // Sampling Frequency in Hz
+        uint32_t bytesPerSec = 16000 * 2; // bytes per second
+        uint16_t blockAlign = 2;          // 2=16-bit mono, 4=16-bit stereo
+        uint16_t bitsPerSample = 16;      // Number of bits per sample
+        /* "data" sub-chunk */
+        uint8_t Subchunk2ID[4] = {'d', 'a', 't', 'a'}; // "data"  string
+        uint32_t Subchunk2Size;                        // Sampled data length
+    };
+    static_assert(sizeof(WAV_HEADER) == 44);
+
+    WAV_HEADER hdr;
+    hdr.ChunkSize = size + sizeof(WAV_HEADER) - 8;
+    hdr.Subchunk2Size = size;
+
+    hdr.SamplesPerSec = samplePerSec;
+    hdr.bytesPerSec = samplePerSec * 2;  // 16bit sample.
+
+    out.write(reinterpret_cast<const char*>(&hdr), sizeof(WAV_HEADER));
+
+    out.write((char*)pcm, size);
+}
+
+
+
+
+
+
+
+
+
+
 
 
 #include <dj-fft/dj_fft.h>
@@ -429,25 +529,12 @@ void Loader::openURL(const std::string &url)
 #elif __unix__
     cmd = "xdg-open ";  // linux
 #else
-        static_assert(false);  // Not supported OS yet.
+    static_assert(false);  // Not supported OS yet.
 #endif
     std::system(std::string(cmd + url).c_str());
 }
 
 
-
-const char* Loader::sysname()
-{
-#if _WIN32
-    return "WINDOWS";
-#elif __APPLE__
-    return "DARWIN";
-#elif __linux
-    return "LINUX";
-#else
-        static_assert(false);
-#endif
-}
 
 // https://stackoverflow.com/questions/152016/detecting-cpu-architecture-compile-time
 std::string Loader::sys_target()
@@ -462,10 +549,27 @@ std::string Loader::sys_target()
     return "windows-arm64";
 #elif defined(__linux) && (defined(__amd64))
     return "linux-x64";
+#elif defined(__linux) && defined(__aarch64__)
+    return "linux-arm64";
 #else
         static_assert(false);
 #endif
 }
+
+
+
+//const char* Loader::sysname()
+//{
+//#if _WIN32
+//    return "windows";
+//#elif __APPLE__
+//    return "darwin";
+//#elif __linux
+//    return "linux";
+//#else
+//    static_assert(false);
+//#endif
+//}
 
 //std::string Loader::sys_libname(const std::string& name)  {
 //#if __APPLE__
@@ -480,58 +584,8 @@ std::string Loader::sys_target()
 //}
 
 
-size_t Loader::calcDirectorySize(const std::string& dir)
-{
-    size_t sumSize = 0;
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(dir))
-    {
-        if (!entry.is_directory()) {
-            sumSize += entry.file_size();
-        }
-    }
-    return sumSize;
-}
 
 
 
 
 
-
-
-
-
-void Loader::saveWAV(const void* pcm, size_t size, std::ostream& dst, int samplePerSec)
-{
-    // endianness problem. may cause wrong on big-endian system.
-    struct WAV_HEADER {
-        /* RIFF Chunk Descriptor */
-        uint8_t RIFF[4] = {'R', 'I', 'F', 'F'}; // RIFF Header Magic header
-        uint32_t ChunkSize;                     // RIFF Chunk Size
-        uint8_t WAVE[4] = {'W', 'A', 'V', 'E'}; // WAVE Header
-        /* "fmt" sub-chunk */
-        uint8_t fmt[4] = {'f', 'm', 't', ' '}; // FMT header
-        uint32_t Subchunk1Size = 16;           // Size of the fmt chunk
-        uint16_t AudioFormat = 1; // Audio format 1=PCM,6=mulaw,7=alaw,     257=IBM
-        // Mu-Law, 258=IBM A-Law, 259=ADPCM
-        uint16_t NumOfChan = 1;   // Number of channels 1=Mono 2=Sterio
-        uint32_t SamplesPerSec = 16000;   // Sampling Frequency in Hz
-        uint32_t bytesPerSec = 16000 * 2; // bytes per second
-        uint16_t blockAlign = 2;          // 2=16-bit mono, 4=16-bit stereo
-        uint16_t bitsPerSample = 16;      // Number of bits per sample
-        /* "data" sub-chunk */
-        uint8_t Subchunk2ID[4] = {'d', 'a', 't', 'a'}; // "data"  string
-        uint32_t Subchunk2Size;                        // Sampled data length
-    };
-    static_assert(sizeof(WAV_HEADER) == 44);
-
-    WAV_HEADER hdr;
-    hdr.ChunkSize = size + sizeof(WAV_HEADER) - 8;
-    hdr.Subchunk2Size = size;
-
-    hdr.SamplesPerSec = samplePerSec;
-    hdr.bytesPerSec = samplePerSec * 2;  // 16bit sample.
-
-    dst.write(reinterpret_cast<const char*>(&hdr), sizeof(WAV_HEADER));
-
-    dst.write((char*)pcm, size);
-}

@@ -458,7 +458,7 @@ void Controls::saveScreenshot()
         BitmapImage fine_img(img->getWidth(), img->getHeight());
         img->getVerticalFlippedPixels(fine_img.getPixels());
 
-        Loader::savePNG(fine_img, path);
+        Loader::savePNG(path, fine_img);
         delete img;
     });
 }
