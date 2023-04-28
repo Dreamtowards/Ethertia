@@ -31,7 +31,6 @@
 // Don't use OOP except it's necessary.
 
 #include <ethertia/imgui/Imgui.h>
-#include <ethertia/util/CoreUtil.h>
 
 void RenderEngine::init()
 {
@@ -44,10 +43,10 @@ void RenderEngine::init()
     std::cout << " renderers[";
 //    GuiRenderer::init();        std::cout << "gui, ";
 //    FontRenderer::init();       std::cout << "font, ";
-    GeometryRenderer::init();   std::cout << "geometry";
-    ComposeRenderer::init();    std::cout << "deferred";
-    SkyboxRenderer::init();     std::cout << "skybox";
-    ParticleRenderer::init();   std::cout << "particle";
+    GeometryRenderer::init();   std::cout << "geometry ";
+    ComposeRenderer::init();    std::cout << "deferred ";
+    SkyboxRenderer::init();     std::cout << "skybox ";
+    ParticleRenderer::init();   std::cout << "particle ";
     //SkyGradientRenderer::init();
 
     SSAORenderer::init();
@@ -119,7 +118,7 @@ static void renderWorldGeometry(World* world) {
         // Debug: draw Every Entity AABB.
         if (Dbg::dbg_RenderedEntityAABB) {
             AABB aabb = entity->getAABB();
-            Imgui::RenderAABB(aabb.min, aabb.max, ImGui::GetColorU32(et::force_cast<ImVec4>(Colors::RED)));
+            Imgui::RenderAABB(aabb, Colors::RED);
         }
     }
 

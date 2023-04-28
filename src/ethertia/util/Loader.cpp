@@ -175,6 +175,12 @@ VertexData* Loader::loadOBJ_(const char* filename)
             vtx->m_Indices.push_back(unique_verts[vert]);
         }
     }
+//#ifdef DATA_INFO
+    Log::info("Load OBJ {} of {} vertexCount, {} unique vertices ({}% +{}% idx)",
+              filename, vtx->vertexCount(), vtx->m_Vertices.size(),
+              (float)vtx->m_Vertices.size()/vtx->vertexCount(),
+              (float)vtx->m_Indices.size()/vtx->vertexCount()/8.0f);
+//#endif
     return vtx;
 }
 
@@ -261,27 +267,32 @@ void Loader::savePNG(const std::string& filename, const BitmapImage& img)
 //     glVertexAttribPointer(i, vlen, GL_FLOAT, false, 0, nullptr);
 //    // glEnableVertexAttribArray(0);  // default enabled.
 //}
+#include <ethertia/render/RenderCommand.h>
 
 VertexArrays* Loader::loadVertexBuffer(size_t vcount, float* data, std::initializer_list<int> sizes)
 {
+    assert(sizes.size() > 0);
+
     VertexArrays* vao = new VertexArrays();
     vao->vertexCount = vcount;
-    glGenVertexArrays(1, &vao->vboId);
+    glGenVertexArrays(1, &vao->vaoId);
     glBindVertexArray(vao->vaoId);
 
     int _scalars = 0;
     for (int s : sizes) { _scalars += s; }
-    const int stride = _scalars * sizeof(float);
+    int stride = _scalars * sizeof(float);
 
     glGenBuffers(1, &vao->vboId);
     glBindBuffer(GL_ARRAY_BUFFER, vao->vboId);
     glBufferData(GL_ARRAY_BUFFER, stride*vcount, data, GL_STATIC_DRAW);
 
     int i = 0;
+    _scalars = 0;
     for (int s : sizes) {
-        glVertexAttribPointer(i, s, GL_FLOAT, false, stride, (void*)(i*sizeof(float)));
+        glVertexAttribPointer(i, s, GL_FLOAT, GL_FALSE, stride, (void*)(_scalars*sizeof(float)));
         glEnableVertexAttribArray(i);
         ++i;
+        _scalars += s;
     }
     return vao;
 }
@@ -290,7 +301,7 @@ VertexArrays* Loader::loadVertexBuffer(const VertexData* vtx)
 {
     VertexArrays* vao = new VertexArrays();
     vao->vertexCount = vtx->vertexCount();
-    glGenVertexArrays(1, &vao->vboId);
+    glGenVertexArrays(1, &vao->vaoId);
     glBindVertexArray(vao->vaoId);
 
     if (vtx->isIndexed())

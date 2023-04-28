@@ -58,10 +58,8 @@ void VertexData::addVert(const Vertex& vert)
 
 
 
-VertexData::VertexData()
-{
-    Log::info("New VertexData");
-}
+VertexData::VertexData() {}
+
 VertexData::~VertexData()
 {
     Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
