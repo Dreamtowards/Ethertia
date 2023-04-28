@@ -7,6 +7,9 @@
 
 
 #include <vector>
+#include <string>
+
+#include <glm/glm.hpp>
 
 
 // an "interleaved vertex data" structure. (more compact, higher memory access efficiency. compare to 'separate vertex data' struct)
@@ -20,9 +23,11 @@ public:
         glm::vec3 pos;
         glm::vec2 tex;
         glm::vec3 norm;
+
+        bool operator==(const Vertex& o) const;
     };
 
-    VertexData(const std::string& _filename);
+    VertexData();
     ~VertexData();
 
     const void* data() const;
@@ -36,6 +41,7 @@ public:
 
     std::vector<Vertex> m_Vertices;
     std::vector<int> m_Indices;  // if empty, means vertices are not indexed.
+
 
 
 

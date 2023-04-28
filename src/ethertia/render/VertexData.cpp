@@ -3,9 +3,10 @@
 //
 
 
+
 #include "VertexData.h"
 
-#include <unordered_map>
+
 
 
 const void* VertexData::data() const
@@ -15,6 +16,7 @@ const void* VertexData::data() const
 
 size_t VertexData::size() const
 {
+    static_assert(sizeof(VertexData::Vertex) == sizeof(m_Vertices[0]));
     return sizeof(VertexData::Vertex) * m_Vertices.size();
 }
 
@@ -30,6 +32,47 @@ bool VertexData::isIndexed() const
 
 
 
+
+
+
+
+#include <ethertia/util/Log.h>
+
+VertexData::VertexData()
+{
+    Log::info("New VertexData");
+}
+VertexData::~VertexData()
+{
+    Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
+}
+
+
+
+
+
+
+
+
+
+#include <unordered_map>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
+namespace std {
+    template<> struct hash<VertexData::Vertex> {
+        size_t operator()(VertexData::Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^
+                    (hash<glm::vec2>()(vertex.tex)  << 1)) >> 1) ^
+                    (hash<glm::vec3>()(vertex.norm) << 1);
+        }
+    };
+}
+
+bool VertexData::Vertex::operator==(const Vertex& o) const {
+    return pos == o.pos && tex == o.tex && norm == o.norm;
+}
 
 
 VertexData* VertexData::makeIndexed(const VertexData* nonIndexed)

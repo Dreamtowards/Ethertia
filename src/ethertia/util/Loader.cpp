@@ -38,7 +38,8 @@ Loader::DataBlock Loader::loadFile(const std::string& path)
 }
 
 
-bool Loader::fileExists(const std::filesystem::path& path) {
+bool Loader::fileExists(const std::filesystem::path& path)
+{
     return std::filesystem::exists(path);
 }
 
@@ -54,7 +55,7 @@ std::string Loader::fileAssets(const std::string& p)
     //throw std::runtime_error(Strings::fmt("failed to locate assets file: {}", p));
 }
 
-const std::string & Loader::fileMkdirs(const std::string &filename)
+const std::string& Loader::fileMkdirs(const std::string& filename)
 {
     // mkdirs for parents of the file.
     int _dir = filename.rfind('/');
@@ -96,16 +97,6 @@ size_t Loader::DataBlock::size() const {
 }
 
 
-
-
-VertexData::VertexData(const std::string& _filename) : m_Filename(_filename)
-{
-    Log::info("New VertexData: {}", m_Filename);
-}
-VertexData::~VertexData()
-{
-    Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
-}
 
 
 

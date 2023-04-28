@@ -92,6 +92,7 @@ add_executable(Ethertia
         src/ethertia/render/RenderEngine.cpp
         src/ethertia/render/ShaderProgram.cpp
         src/ethertia/render/RenderCommand_ImplGL.cpp
+        src/ethertia/render/VertexData.cpp
         src/ethertia/item/ItemComponents.cpp
         src/ethertia/world/World.cpp
 

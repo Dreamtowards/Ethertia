@@ -27,41 +27,6 @@
 // Dup with GuiCommon.h
 #define DECL_Inst(T) static T* Inst() { static T* INST = new T(); return INST; }
 
-// Assets Location
-class AssetId
-{
-public:
-    AssetId(const std::string& uri) : m_URI(uri) {}
-
-private:
-    std::string m_URI = nullptr;
-
-//    operator std::string() {
-//        return
-//    }
-};
-
-class VertexData
-{
-public:
-    struct Vertex {
-        glm::vec3 pos;
-        glm::vec2 tex;
-        glm::vec3 norm;
-    };
-
-    VertexData(const std::string& _filename);
-    ~VertexData();
-
-    const void* data() const { return m_Vertices.data(); }
-    size_t size() const { return sizeof(m_Vertices[0]) * m_Vertices.size(); }
-
-    size_t vertexCount() const { return m_Vertices.size(); }
-
-    std::vector<Vertex> m_Vertices;
-    std::string m_Filename;  // optional. debug tag.
-};
-
 
 class Loader {
 
@@ -89,7 +54,7 @@ public:
     static DataBlock loadFile(const std::string& filename);
 
 
-    // produce real filename by resolve asset-path.
+    // locate real filename of an asset-path.
     // return empty string if cannot locate the assets file.
     static std::string fileAssets(const std::string& p);
 
@@ -108,7 +73,7 @@ public:
 
     static bool fileExists(const std::filesystem::path& path);
 
-    // mkdirs for the file's parent dir
+    // mkdirs for the "dir/" or a file's parent dir "dir/somefile"
     static const std::string& fileMkdirs(const std::string& filename);
 
     // Recursive check all file size.
