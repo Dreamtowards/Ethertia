@@ -208,8 +208,6 @@ void Loader::saveOBJ(const std::string& filename, size_t verts, const float* pos
 
 
 
-#include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -245,29 +243,6 @@ void Loader::savePNG(const std::string& filename, const BitmapImage& img)
     }
 }
 
-
-//// @s
-//VertexArrays* loadVertexBuffer(size_t vcount, const void* vertices_data, const std::vector<int>& strides, const void* indices_data)
-//{
-//    GLuint vaoId;
-//    glGenVertexArrays(1, &vaoId);
-//    glBindVertexArray(vaoId);
-//
-//    size_t vertices_data_size = 0;
-//    for (int i = 0; i < ; ++i) {
-//
-//    }
-//
-//    GLuint vboId;
-//    glGenBuffers(1, &vboId);
-//    glBindBuffer(GL_ARRAY_BUFFER, vboId);
-//    glBufferData(GL_ARRAY_BUFFER, vertices_data_size, vertices_data, GL_STATIC_DRAW);
-//
-//
-//     glVertexAttribPointer(i, vlen, GL_FLOAT, false, 0, nullptr);
-//    // glEnableVertexAttribArray(0);  // default enabled.
-//}
-#include <ethertia/render/RenderCommand.h>
 
 VertexArrays* Loader::loadVertexBuffer(size_t vcount, std::initializer_list<int> sizes,
                                        float* vtx_data, size_t vtx_size, uint32_t* idx_data)

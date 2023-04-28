@@ -67,7 +67,6 @@ static enum SettingsPanel {
     Controls,
     Language,
     Mods,
-    Shaders,
     ResourcePacks,
     Credits,
     Misc
@@ -1027,13 +1026,12 @@ static void ShowSettingsWindow()
     if (ImGui::RadioButton("Profile", currp==Profile)) { currp=Profile; }
     if (ImGui::RadioButton("Current World", currp==CurrentWorld)) { currp=CurrentWorld; }
     ImGui::Separator();
-    if (ImGui::RadioButton("Rendering & Graphics", currp==Graphics)) { currp=Graphics; }
+    if (ImGui::RadioButton("Graphics", currp==Graphics)) { currp=Graphics; }
     if (ImGui::RadioButton("Music & Sounds", currp==Audio)) { currp=Audio; }
     if (ImGui::RadioButton("Controls", currp==Controls)) { currp=Controls; }
     if (ImGui::RadioButton("Language", currp==Language)) { currp=Language; }
     ImGui::Separator();
     if (ImGui::RadioButton("Mods", currp==Mods)) { currp=Mods; }
-    if (ImGui::RadioButton("Shaders", currp==Shaders)) { currp=Shaders; }
     if (ImGui::RadioButton("Resource Packs", currp==ResourcePacks)) { currp=ResourcePacks; }
     ImGui::Separator();
     if (ImGui::RadioButton("Credits", currp==Credits)) { currp=Credits; }
@@ -1288,15 +1286,18 @@ static void ShowSettingsWindow()
             // 由于Native-Mod的权限极大，在强大和高效能的同时，也可能会有恶意Mod损害您的电脑.
             // 开启Mod官方验证将会只启用通过官方验证的Mod
         }
-        else if (currp==Shaders)
-        {
-
-        }
         else if (currp==ResourcePacks)
         {
             if (ImGui::Button("Open ResourcePacks folder")) {
                 Loader::openURL("./resourcepacks");
             }
+
+            ImGui::BeginChild("AssetsList", {0, 200});
+            for (auto& path : Settings::ASSETS) {
+                ImGui::Selectable(path.c_str(), false);
+            }
+            ImGui::EndChild();
+
         }
         else if (currp==Credits)
         {
