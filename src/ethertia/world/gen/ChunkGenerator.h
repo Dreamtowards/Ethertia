@@ -7,6 +7,8 @@
 
 #include <glm/vec3.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <cmath>
+#include <algorithm>
 
 #include <FastNoise/FastNoise.h>
 #include <ethertia/world/gen/NoiseGen.h>
@@ -98,6 +100,56 @@ public:
         return chunk;
     }
 
+    Chunk* generateIslandChunk(glm::vec3 chunkpos, World* world)
+    {
+        Chunk* chunk = new Chunk(chunkpos, world);
+        uint64_t seed = world->getSeed();
+
+        auto fnFrac = NoiseGen::NewFractalFBM();
+        fnFrac->SetSource(NoiseGen::Perlin());
+        fnFrac->SetOctaveCount(6);
+
+        float noiseVal[16 * 16 * 16];  // chunkpos is Block Coordinate,,
+        fnFrac->GenUniformGrid3D(noiseVal, chunkpos.x, chunkpos.y, chunkpos.z, 16, 16, 16, 1 / 200.0f, seed);
+
+        const int layerNum = 4;
+        float noiseTerrHeight[16 * layerNum * 16];
+        fnFrac->GenUniformGrid3D(noiseTerrHeight, chunkpos.x, chunkpos.y, chunkpos.z, 16, layerNum, 16, 1 / 5.0f, seed);
+
+        float islandMap[16 * 16];
+        for (int rx = 0; rx < 16; ++rx) {
+            for (int rz = 0; rz < 16; ++rz) {
+                float minHeight = 1e9;
+                for (int ry = 0; ry < layerNum; ++ry) {
+                    minHeight = std::min(minHeight, noiseTerrHeight[NoiseGen::Idx3(rx,ry,rz)]);
+                }
+                islandMap[NoiseGen::IdxXZ(rx, rz)] = minHeight;
+            }
+        }
+
+        const float base_height = 30;
+
+        for (int ry = 0; ry < 16; ++ry) {
+            for (int rx = 0; rx < 16; ++rx) {
+                for (int rz = 0; rz < 16; ++rz) {
+                    float x = chunkpos.x + rx,
+                            y = chunkpos.y + ry,
+                            z = chunkpos.z + rz;
+
+                    float terr2d = islandMap[NoiseGen::IdxXZ(rx, rz)];// - terrRg.min;
+                    float noise3d = noiseVal[NoiseGen::Idx3(rx,ry,rz)];
+                    float density = noise3d - (y + base_height) / 50.0f;
+
+                    if (density < 0.001 && y < 30) {
+                        density = terr2d;
+                    }
+
+                    chunk->setCell(rx,ry,rz, Cell(Materials::STONE, density));
+                }
+            }
+        }
+        return chunk;
+    }
 
 };
 

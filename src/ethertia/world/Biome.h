@@ -87,7 +87,8 @@ class Biomes {
             TAIGA {"taiga",  5.2,  0.3},
             FOREST{"forest", 17.0, 0.4},
             DESERT{"desert", 24.0, 0.1},
-            JUNGLE{"jungle", 21.0, 0.8};
+            JUNGLE{"jungle", 21.0, 0.8},
+            ISLAND{"island", 21.0, 0.8};
 
     // Plains, Savanna, Birch, Swamp, Cherry Blossom Forest,
     // Orchard, Meadow, Prairie
@@ -102,6 +103,7 @@ public:
         else if (bio == &Biomes::FOREST) return Colors::GREEN;
         else if (bio == &Biomes::JUNGLE) return Colors::GREEN_DARK;
         else if (bio == &Biomes::DESERT) return Colors::YELLOW;
+        else if (bio == &Biomes::ISLAND) return Colors::BLUE;
         else return Colors::RED;
     }
 

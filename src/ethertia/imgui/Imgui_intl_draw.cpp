@@ -83,6 +83,7 @@ static enum SettingsPanel {
 static bool
         w_ImGuiDemo = false,
         w_NewWorld = false,
+        w_WorldGenNodeEditor = false,
         w_NodeEditor = false,
         w_TitleScreen = false,
         w_Singleplayer = false;
@@ -341,6 +342,7 @@ static void ShowMainMenuBar()
             ImGui::Checkbox("Toolbar", &Settings::w_Toolbar);
 
             ImGui::Checkbox("NodeEditor", &w_NodeEditor);
+            ImGui::Checkbox("WorldGenNodeEditor", &w_WorldGenNodeEditor);
             ImGui::Checkbox("TitleScreen", &w_TitleScreen);
             ImGui::Checkbox("Singleplayer", &w_Singleplayer);
             ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
@@ -799,6 +801,11 @@ static void ShowEntities()
     ImGui::End();
 }
 
+void ShowWorldGenNodeEditor()
+{
+    ImGui::Begin("WorldGenNodeEdit", &w_WorldGenNodeEditor);
+    ImGui::End();
+}
 
 void ShowNodeEditor()
 {
@@ -2143,8 +2150,8 @@ static void RenderWindows()
 
     if (w_NodeEditor)
         ShowNodeEditor();
-
-
+    if (w_WorldGenNodeEditor)
+        ShowWorldGenNodeEditor();
     if (w_TitleScreen) {
         ShowTitleScreenWindow();
     }
