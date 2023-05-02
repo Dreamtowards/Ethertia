@@ -801,9 +801,184 @@ static void ShowEntities()
     ImGui::End();
 }
 
+#include <FastNoise/FastNoise.h>
+#include <FastNoise/Metadata.h>
+#include <ethertia/world/gen/NoiseGen.h>
+
+
+void generatePreviewNoise(FastNoise::NodeData* nodeData,
+                      int nodeId,
+                      std::unordered_map<FastNoise::NodeData*, int>& fastNoiseNode2id,
+                      std::unordered_map<int, std::array<float, 256 * 256>>& id2previewNoiseData,
+                      std::vector<std::pair<int, int>>& links,
+                      float mNodeFrequency,
+                      int mNodeSeed)
+{
+    auto generator = FastNoise::NewFromEncodedNodeTree(FastNoise::Metadata::SerialiseNodeData(nodeData, true).c_str(), NoiseGen::g_SIMDLevel);
+    if (generator)
+    {
+        auto genRGB = FastNoise::New<FastNoise::ConvertRGBA8>(NoiseGen::g_SIMDLevel);
+        genRGB->SetSource(generator);
+
+        if (!id2previewNoiseData.contains(nodeId))
+        {
+            std::array<float, 256 * 256> newArray{};
+            newArray.fill(0.0f);
+            id2previewNoiseData[nodeId] = newArray;
+        }
+
+        genRGB->GenUniformGrid2D(id2previewNoiseData[nodeId].data(), 256 / -2, 256 / -2, 256, 256, mNodeFrequency, mNodeSeed);
+
+        // Update linked nodes
+        int startOutputAttributeId = (nodeId << 8) | (( 1 << 8 ) - 1);
+        for (auto linkage : links)
+        {
+            if (linkage.first == startOutputAttributeId)
+            {
+                int targetNodeId = (int)((unsigned int)linkage.second >> 8);
+                FastNoise::NodeData* targetNodeData;
+                for (auto& node : fastNoiseNode2id)
+                {
+                    if (node.second == targetNodeId)
+                    {
+                        targetNodeData = node.first;
+                        generatePreviewNoise(targetNodeData, nodeId, fastNoiseNode2id, id2previewNoiseData, links, mNodeFrequency, mNodeSeed);
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
 void ShowWorldGenNodeEditor()
 {
     ImGui::Begin("WorldGenNodeEdit", &w_WorldGenNodeEditor);
+    ImNodes::BeginNodeEditor();
+
+    static std::vector<std::pair<int, int>> links;
+
+    static std::unordered_map<FastNoise::NodeData*, int> fastNoiseNode2id;
+    static int newNodeId = 1;
+    static std::unordered_map<int, std::array<float, 256 * 256>> id2previewNoiseData;
+
+    // Add Node
+    if (ImGui::IsWindowFocused() && ImNodes::IsEditorHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+    {
+        ImGui::OpenPopup("Add Node");
+    }
+    if (ImGui::BeginPopup("Add Node"))
+    {
+        ImVec2 mContextStartPos = ImGui::GetMousePosOnOpeningCurrentPopup();
+        for (const FastNoise::Metadata* metadata : FastNoise::Metadata::GetAll())
+        {
+            if (ImGui::MenuItem(FastNoise::Metadata::FormatMetadataNodeName(metadata).c_str()))
+            {
+                auto* nodeData = new FastNoise::NodeData(metadata);
+                auto newNode = fastNoiseNode2id.try_emplace(nodeData, newNodeId++);
+                ImNodes::SetNodeScreenSpacePos(newNode.first->second, mContextStartPos);
+            }
+        }
+        ImGui::EndPopup();
+    }
+
+    // Node Attribute
+    for (auto& node : fastNoiseNode2id)
+    {
+        ImNodes::BeginNode(node.second);
+
+        ImNodes::BeginNodeTitleBar();
+        ImGui::Text(FastNoise::Metadata::FormatMetadataNodeName(node.first->metadata).c_str());
+        ImNodes::EndNodeTitleBar();
+
+        // AttributeBitCount = 8
+        // 当倒数第AttributeBitCount位为0时，代表input，为1时，代表output
+        int startInputAttributeId = node.second << 8;
+        int startOutputAttributeId = startInputAttributeId | (( 1 << 8 ) - 1);
+        auto& nodeMetadata = node.first->metadata;
+        auto& nodeData = node.first;
+
+        // Input attribute
+        for(auto& memberNode : nodeMetadata->memberNodeLookups)
+        {
+            ImNodes::BeginInputAttribute(startInputAttributeId++);
+            ImGui::TextUnformatted(FastNoise::Metadata::FormatMetadataMemberName(memberNode).c_str());
+            ImNodes::EndInputAttribute();
+        }
+        for( size_t i = 0; i < nodeMetadata->memberHybrids.size(); i++ )
+        {
+            ImNodes::BeginInputAttribute(startInputAttributeId++ );
+            ImNodes::EndInputAttribute();
+        }
+
+        // Output attribute
+        ImNodes::BeginOutputAttribute(startOutputAttributeId, ImNodesPinShape_QuadFilled);
+        ImNodes::EndOutputAttribute();
+
+        // Static attribute
+        for( size_t i = 0; i < nodeMetadata->memberVariables.size(); i++ )
+        {
+            ImNodes::BeginStaticAttribute(0);
+
+            auto& nodeVar = nodeMetadata->memberVariables[i];
+            std::string formatName = FastNoise::Metadata::FormatMetadataMemberName(nodeVar);
+
+            switch(nodeVar.type)
+            {
+                case FastNoise::Metadata::MemberVariable::EFloat:
+                {
+                    if( ImGui::DragFloat( formatName.c_str(), &nodeData->variables[i].f, 0.02f, nodeVar.valueMin.f, nodeVar.valueMax.f ) )
+                    {
+
+                    }
+                }
+                    break;
+                case FastNoise::Metadata::MemberVariable::EInt:
+                {
+                    if( ImGui::DragInt( formatName.c_str(), &nodeData->variables[i].i, 0.2f, nodeVar.valueMin.i, nodeVar.valueMax.i ) )
+                    {
+
+                    }
+                }
+                    break;
+                case FastNoise::Metadata::MemberVariable::EEnum:
+                {
+                    if( ImGui::Combo( formatName.c_str(), &nodeData->variables[i].i, nodeVar.enumNames.data(), (int)nodeVar.enumNames.size() ))
+                    {
+
+                    }
+                }
+                    break;
+            }
+
+            ImNodes::EndStaticAttribute();
+        }
+
+        ImNodes::EndNode();
+    }
+    // Links
+    int i = 0;
+    for (auto& lk : links)
+    {
+        ImNodes::Link(++i, lk.first, lk.second);
+    }
+    ImNodes::EndNodeEditor();
+    // Add links
+    int attr_beg, attr_end;
+    if (ImNodes::IsLinkCreated(&attr_beg, &attr_end)) {
+        links.emplace_back(attr_beg, attr_end);
+        int targetNodeId = (int)((unsigned int)attr_end >> 8);
+        for (auto& node : fastNoiseNode2id)
+        {
+            if (node.second == targetNodeId)
+            {
+                auto* targetNodeData = node.first;
+                generatePreviewNoise(targetNodeData, targetNodeId, fastNoiseNode2id, id2previewNoiseData, links, 0.05, 123);
+                break;
+            }
+        }
+    }
     ImGui::End();
 }
 
@@ -811,52 +986,52 @@ void ShowNodeEditor()
 {
     ImGui::Begin("NodeEdit", &w_NodeEditor);
 
-    // id of Attrib/Pin
-    static std::vector<std::pair<int, int>> g_Links;
-
-    ImNodes::BeginNodeEditor();
-
-    for (int i = 0; i < 4; ++i) {
-        ImNodes::BeginNode(i);
-
-        ImNodes::BeginNodeTitleBar();
-        ImGui::Text("Title");
-        ImNodes::EndNodeTitleBar();
-
-        ImNodes::BeginInputAttribute(i*5+1);
-
-        ImGui::Text("Input3");
-
-        ImNodes::EndInputAttribute();
-
-        ImNodes::BeginOutputAttribute(i*5+2, ImNodesPinShape_Triangle);
-        static bool bl;
-        ImGui::Checkbox("SthCheck", &bl);
-        ImNodes::EndOutputAttribute();
-
-        ImNodes::BeginStaticAttribute(i*5+3);
-        ImGui::Text("Static");
-        ImNodes::EndStaticAttribute();
-
-        ImNodes::EndNode();
-    }
-
-    {
-        int i = 0;
-        for (auto& lk : g_Links) {
-            ImNodes::Link(++i, lk.first, lk.second);
-        }
-    }
-    ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_BottomLeft);  // call before ImNodes::EndNodeEditor();
-    ImNodes::EndNodeEditor();
-
-    {
-        int attr_beg, attr_end;
-        if (ImNodes::IsLinkCreated(&attr_beg, &attr_end)) {  // call after ImNodes::EndNodeEditor();
-            g_Links.emplace_back(attr_beg, attr_end);
-        }
-    }
-
+//    // id of Attrib/Pin
+//    static std::vector<std::pair<int, int>> g_Links;
+//
+//    ImNodes::BeginNodeEditor();
+//
+//    for (int i = 0; i < 4; ++i) {
+//        ImNodes::BeginNode(i);
+//
+//        ImNodes::BeginNodeTitleBar();
+//        ImGui::Text("Title");
+//        ImNodes::EndNodeTitleBar();
+//
+//        ImNodes::BeginInputAttribute(i*5+1);
+//
+//        ImGui::Text("Input3");
+//
+//        ImNodes::EndInputAttribute();
+//
+//        ImNodes::BeginOutputAttribute(i*5+2, ImNodesPinShape_Triangle);
+//        static bool bl;
+//        ImGui::Checkbox("SthCheck", &bl);
+//        ImNodes::EndOutputAttribute();
+//
+//        ImNodes::BeginStaticAttribute(i*5+3);
+//        ImGui::Text("Static");
+//        ImNodes::EndStaticAttribute();
+//
+//        ImNodes::EndNode();
+//    }
+//
+//    {
+//        int i = 0;
+//        for (auto& lk : g_Links) {
+//            ImNodes::Link(++i, lk.first, lk.second);
+//        }
+//    }
+//    ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_BottomLeft);  // call before ImNodes::EndNodeEditor();
+//    ImNodes::EndNodeEditor();
+//
+//    {
+//        int attr_beg, attr_end;
+//        if (ImNodes::IsLinkCreated(&attr_beg, &attr_end)) {  // call after ImNodes::EndNodeEditor();
+//            g_Links.emplace_back(attr_beg, attr_end);
+//        }
+//    }
+//
 
     ImGui::End();
 }
