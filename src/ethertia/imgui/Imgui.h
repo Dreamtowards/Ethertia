@@ -26,9 +26,13 @@ public:
     static void Init();
     static void Destroy();
 
-    static void RenderGUI();
+    static void RenderGUI(VkCommandBuffer cmdbuf);
+    static void NewFrame();
 
-    static void Image(GLuint texId, ImVec2 size, glm::vec4 color = {1,1,1,1});
+    static void RenderWindows();
+
+
+    static void Image(void* texId, ImVec2 size, glm::vec4 color = {1,1,1,1});
     static ImVec2 GetWindowContentSize();
 
     // align: {0,0}=LeftTop, {1,1}=RightBottom, {0.5,0.5}=Center, etc.

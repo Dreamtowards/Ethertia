@@ -193,7 +193,7 @@ static void ShowViewport()
 //    ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
 //    ImGuis::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
-    static void* texId = ImGui_ImplVulkan_AddTexture(vkx::ctx().ImageSampler,
+    static VkDescriptorSet texId = ImGui_ImplVulkan_AddTexture(vkx::ctx().ImageSampler,
                                                      VulkanIntl::getTestImgView(),
                                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     ImGui::Image(texId, ImGui::GetContentRegionAvail());

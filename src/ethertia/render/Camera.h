@@ -40,7 +40,8 @@ public:
     /// value is Seconds to the actual Destination Rotation., 0 accidentally means non-smooth.
     float m_Smoothness = 0.0f;
 
-    void updateMovement(float dt, float mDX, float mDY, bool rotZ, float dScroll) {
+    void updateMovement(float dt, float mDX, float mDY, bool rotZ)
+    {
         float mx = mDX / 200;
         float my = mDY / 200;
         float mz = 0;

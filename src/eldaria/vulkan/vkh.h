@@ -7,10 +7,24 @@
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
+
 #include <vector>
 #include <functional>
+#include <span>
 
-// vulkan helper
+
+
+static void _vk_check_result(VkResult rs)
+{
+    if (rs != VK_SUCCESS)
+        throw std::runtime_error("[vulkan] Error: VkResult = ");
+}
+#define VK_CHECK(rs) _vk_check_result(rs)
+
+#define VK_CHECK_MSG(rs, msg) _vk_check_result(rs)
+
+
+
 
 // LowLevel Functional Encapsulate
 namespace vl
@@ -23,14 +37,78 @@ namespace vl
                                 VkDescriptorSet* out_descriptorSets);  // out
 
     // vkCreateDescriptorSetLayout()
+    VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device, int numBindings, const VkDescriptorSetLayoutBinding* pBindings);
+
     VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,
-                                                    std::initializer_list<VkDescriptorSetLayoutBinding> bindings);
+                                                    std::initializer_list<std::pair<VkDescriptorType, VkShaderStageFlags>> bindings);
 
     VkPipelineLayout CreatePipelineLayout(VkDevice device,
                                           int numSetLayouts, VkDescriptorSetLayout* pSetLayouts);
 
     // vkCreateShaderModule()
-    VkPipelineShaderStageCreateInfo CreateShaderModuleStage(VkDevice device, VkShaderStageFlagBits stage, const void* data, size_t size);
+    VkPipelineShaderStageCreateInfo CreateShaderModule_PipelineStageInfo(VkDevice device, VkShaderStageFlagBits stage, const void* data, size_t size);
+
+
+
+
+
+
+    // ?pipelineCache ?multiplePipelineCreate?
+    void CreatePipelines(VkDevice device,
+                         VkPipelineCache pipelineCache,
+                         uint32_t createCount,
+                         VkPipeline* pPipelines,
+                         const VkGraphicsPipelineCreateInfo* pPipelineInfos);
+
+    VkGraphicsPipelineCreateInfo IGraphicsPipeline(
+        std::span<const VkPipelineShaderStageCreateInfo> shaderStages,
+        const VkPipelineVertexInputStateCreateInfo&      vertexInputState,
+        const VkPipelineInputAssemblyStateCreateInfo&    inputAssemblyState,
+        const VkPipelineTessellationStateCreateInfo*     pTessellationState,
+        const VkPipelineViewportStateCreateInfo&         viewportState,
+        const VkPipelineRasterizationStateCreateInfo&    rasterizationState,
+        const VkPipelineMultisampleStateCreateInfo&      multisampleState,
+        const VkPipelineDepthStencilStateCreateInfo&     depthStencilState,
+        const VkPipelineColorBlendStateCreateInfo&       colorBlendState,
+        const VkPipelineDynamicStateCreateInfo&          dynamicState,
+        VkPipelineLayout                                 layout,
+        VkRenderPass                                     renderPass,
+        uint32_t                                         subpass = 0,
+        VkPipeline                                       basePipelineHandle = VK_NULL_HANDLE,
+        int32_t                                          basePipelineIndex = 0);
+
+
+    VkPipelineVertexInputStateCreateInfo IPipelineVertexInputState(
+            std::initializer_list<VkFormat> attribsFormats,
+            uint32_t attribBinding,  // always = 0;
+            VkVertexInputBindingDescription* out_bindingDesc,  // need to be persistent until pipeline created.
+            std::vector<VkVertexInputAttributeDescription>* out_attribsDesc);  // same persistent.
+
+    VkPipelineInputAssemblyStateCreateInfo IPipelineInputAssemblyState(
+            VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+
+    // Default: pViewport and pScissors as nullptr remained to Pipeline DynamicState
+    VkPipelineViewportStateCreateInfo IPipelineViewportState(
+            uint32_t viewportCount = 1, const VkViewport* pViewports = nullptr,
+            uint32_t scissorsCount = 1, const VkRect2D* pScissors = nullptr);
+
+    VkPipelineRasterizationStateCreateInfo IPipelineRasterizationState(
+            VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL,
+            VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT,
+            VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE);
+
+    VkPipelineMultisampleStateCreateInfo IPipelineMultisampleState();
+
+    VkPipelineDepthStencilStateCreateInfo IPipelineDepthStencilState();
+
+    VkPipelineColorBlendStateCreateInfo IPipelineColorBlendState(
+            std::span<VkPipelineColorBlendAttachmentState> attachments);
+
+    VkPipelineDynamicStateCreateInfo IPipelineDynamicState(
+            std::span<const VkDynamicState> dynamicStates);
+
+
+//    VkPipeline CreateGraphicsPipeline(VkDevice device);
 
 
 
@@ -71,13 +149,40 @@ namespace vl
                                     int attchCount,
                                     VkImageView* pAttach);
 
+    // vkCreateRenderPass()
+    VkRenderPass CreateRenderPass(VkDevice device,
+                                  std::span<VkAttachmentDescription> attachments,
+                                  std::span<VkSubpassDescription> subpasses,
+                                  std::span<VkSubpassDependency> dependencies);
+
+
+
+
+
+
+
+    // vkAllocateCommandBuffers()
+    void AllocateCommandBuffers(VkDevice device,
+                                VkCommandPool commandPool,
+                                int cmdbufCount,
+                                VkCommandBuffer* out_cmdbufs,
+                                VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
 
 
     // Allocate & Record & Submit Onetime CommandBuffer
     void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record,
                              VkDevice device, VkCommandPool commandPool, VkQueue queue);
 
-    void QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, VkSemaphore signal, VkFence fence);
+    void QueueSubmit(VkQueue queue,
+                     VkCommandBuffer cmdbuf,
+                     VkSemaphore wait,
+                     VkSemaphore signal,
+                     VkFence fence);
+
+    void QueuePresentKHR(VkQueue presentQueue,
+                         int numWaitSemaphores, const VkSemaphore* pSemaphores,
+                         int numSwapchains, const VkSwapchainKHR* pSwapchains, const uint32_t* pImageIndices);
 
     void CmdBeginRenderPass(VkCommandBuffer cmdbuf,
                             VkRenderPass renderPass,
@@ -99,7 +204,7 @@ namespace vl
 
     void CmdBindIndexBuffer(VkCommandBuffer cmdbuf, VkBuffer idx_buf);
 
-    static void CmdBindGraphicsPipeline(VkCommandBuffer cmdbuf, VkPipeline graphicsPipeline);
+    void CmdBindGraphicsPipeline(VkCommandBuffer cmdbuf, VkPipeline graphicsPipeline);
 
 
 
@@ -303,7 +408,10 @@ namespace vkx
         VkDeviceMemory m_ImageMemory = nullptr;
         VkImageView m_ImageView = nullptr;
 
-        Image(VkImage image, VkDeviceMemory imageMemory, VkImageView imageView);
+        int width;
+        int height;
+
+        Image(VkImage image, VkDeviceMemory imageMemory, VkImageView imageView, int width, int height);
         ~Image();
     };
 
@@ -372,30 +480,6 @@ namespace vkx
 class vkh
 {
 public:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

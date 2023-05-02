@@ -3,6 +3,17 @@
 //
 
 
+#include "vkx.h"
+
+
+#include <ethertia/util/Strings.h>
+#include <ethertia/util/Log.h>
+#include <ethertia/util/Collections.h>
+
+#include <ethertia/util/Loader.h>
+
+
+
 ///////////////   vl:: Vulkan Low Level Encapsulate   ///////////////
 
 
@@ -20,7 +31,7 @@ void vl::AllocateDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool
 }
 
 
-VkPipelineShaderStageCreateInfo vl::CreateShaderModuleStage(VkDevice device, VkShaderStageFlagBits stage, const void* data, size_t size)
+VkPipelineShaderStageCreateInfo vl::CreateShaderModule_PipelineStageInfo(VkDevice device, VkShaderStageFlagBits stage, const void* data, size_t size)
 {
     VkShaderModuleCreateInfo moduleInfo{};
     moduleInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -40,18 +51,227 @@ VkPipelineShaderStageCreateInfo vl::CreateShaderModuleStage(VkDevice device, VkS
     return stageInfo;
 }
 
+void vl::CreatePipelines(VkDevice device,
+                              VkPipelineCache pipelineCache,
+                              uint32_t createCount,
+                              VkPipeline* pPipeline,
+                              const VkGraphicsPipelineCreateInfo *pPipelineInfo)
+{
+    VK_CHECK_MSG(vkCreateGraphicsPipelines(device, pipelineCache, createCount, pPipelineInfo, nullptr, pPipeline),
+                 "failed to create pipeline.");
+}
 
-VkDescriptorSetLayout vl::CreateDescriptorSetLayout(VkDevice device, std::initializer_list<VkDescriptorSetLayoutBinding> bindings)
+VkGraphicsPipelineCreateInfo vl::IGraphicsPipeline(
+        std::span<const VkPipelineShaderStageCreateInfo> shaderStages,
+        const VkPipelineVertexInputStateCreateInfo&      vertexInputState,
+        const VkPipelineInputAssemblyStateCreateInfo&    inputAssemblyState,
+        const VkPipelineTessellationStateCreateInfo*     pTessellationState,
+        const VkPipelineViewportStateCreateInfo&         viewportState,
+        const VkPipelineRasterizationStateCreateInfo&    rasterizationState,
+        const VkPipelineMultisampleStateCreateInfo&      multisampleState,
+        const VkPipelineDepthStencilStateCreateInfo&     depthStencilState,
+        const VkPipelineColorBlendStateCreateInfo&       colorBlendState,
+        const VkPipelineDynamicStateCreateInfo&          dynamicState,
+        VkPipelineLayout layout,
+        VkRenderPass renderPass,
+        uint32_t subpass,
+        VkPipeline basePipelineHandle,
+        int32_t basePipelineIndex)
+{
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = shaderStages.size();
+    pipelineInfo.pStages = shaderStages.data();
+    pipelineInfo.pVertexInputState = &vertexInputState;
+    pipelineInfo.pInputAssemblyState = &inputAssemblyState;
+    pipelineInfo.pTessellationState = pTessellationState;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizationState;
+    pipelineInfo.pMultisampleState = &multisampleState;
+    pipelineInfo.pDepthStencilState = &depthStencilState;
+    pipelineInfo.pColorBlendState = &colorBlendState;
+    pipelineInfo.pDynamicState = &dynamicState;
+    pipelineInfo.layout = layout;
+    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.subpass = subpass;
+    pipelineInfo.basePipelineHandle = basePipelineHandle;
+    pipelineInfo.basePipelineIndex = basePipelineIndex;
+    return pipelineInfo;
+}
+
+static int FormatSize(VkFormat format) {
+    switch (format) {
+        case VK_FORMAT_R32_SFLOAT:          return 4;
+        case VK_FORMAT_R32G32_SFLOAT:       return 8;
+        case VK_FORMAT_R32G32B32_SFLOAT:    return 12;
+        case VK_FORMAT_R32G32B32A32_SFLOAT: return 16;
+
+        case VK_FORMAT_R16_SFLOAT:          return 2;
+        case VK_FORMAT_R16G16_SFLOAT:       return 4;
+        case VK_FORMAT_R16G16B16_SFLOAT:    return 6;
+        case VK_FORMAT_R16G16B16A16_SFLOAT: return 8;
+        default: throw std::runtime_error("Unsupported format");
+    }
+}
+
+VkPipelineVertexInputStateCreateInfo vl::IPipelineVertexInputState(
+        std::initializer_list<VkFormat> attribsFormats,
+        uint32_t attribBinding,
+        VkVertexInputBindingDescription *out_bindingDesc,
+        std::vector<VkVertexInputAttributeDescription> *out_attribsDesc)
+{
+    std::vector<VkVertexInputAttributeDescription>& attribsDesc = *out_attribsDesc;
+    attribsDesc.resize(attribsFormats.size());
+    uint32_t i = 0;
+    uint32_t offset = 0;
+    for (VkFormat attrib_format : attribsFormats)
+    {
+        attribsDesc[i] = VkVertexInputAttributeDescription{
+                .location = i,
+                .binding = attribBinding,
+                .format = attrib_format,
+                .offset = offset
+        };
+        offset += FormatSize(attrib_format);
+        ++i;
+    }
+
+    VkVertexInputBindingDescription& bindingDesc = *out_bindingDesc;
+    bindingDesc = {};
+    bindingDesc.binding = attribBinding;
+    bindingDesc.stride = offset;
+    bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    VkPipelineVertexInputStateCreateInfo vertexInputState{};
+    vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputState.vertexBindingDescriptionCount = 1;
+    vertexInputState.pVertexBindingDescriptions = &bindingDesc;
+    vertexInputState.vertexAttributeDescriptionCount = attribsDesc.size();
+    vertexInputState.pVertexAttributeDescriptions = attribsDesc.data();
+
+    return vertexInputState;
+}
+
+
+VkPipelineInputAssemblyStateCreateInfo vl::IPipelineInputAssemblyState(VkPrimitiveTopology topology)
+{
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssembly.topology = topology;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+    return inputAssembly;
+}
+
+VkPipelineViewportStateCreateInfo vl::IPipelineViewportState(
+        uint32_t viewportCount, const VkViewport *pViewports,
+        uint32_t scissorsCount, const VkRect2D *pScissors)
+{
+    VkPipelineViewportStateCreateInfo viewportState{};
+    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportState.viewportCount = viewportCount;
+    viewportState.pViewports = pViewports;
+    viewportState.scissorCount = scissorsCount;
+    viewportState.pScissors = pScissors;
+    return viewportState;
+}
+
+VkPipelineRasterizationStateCreateInfo vl::IPipelineRasterizationState(VkPolygonMode polygonMode,
+                                                                       VkCullModeFlags cullMode,
+                                                                       VkFrontFace frontFace)
+{
+    VkPipelineRasterizationStateCreateInfo rasterizer{};
+    rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizer.polygonMode = polygonMode;
+    rasterizer.cullMode = cullMode;
+    rasterizer.frontFace = frontFace;
+    rasterizer.depthBiasEnable = VK_FALSE;
+    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    rasterizer.lineWidth = 1.0f;
+    return rasterizer;
+}
+
+VkPipelineMultisampleStateCreateInfo vl::IPipelineMultisampleState()
+{
+    VkPipelineMultisampleStateCreateInfo multisampling{};
+    multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.sampleShadingEnable = VK_FALSE;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    return multisampling;
+}
+
+VkPipelineDepthStencilStateCreateInfo vl::IPipelineDepthStencilState()
+{
+    VkPipelineDepthStencilStateCreateInfo depthStencil{};
+    depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthWriteEnable = VK_TRUE;
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+    depthStencil.depthBoundsTestEnable = VK_FALSE;
+    depthStencil.minDepthBounds = 0.0f; // Optional
+    depthStencil.maxDepthBounds = 1.0f; // Optional
+    depthStencil.stencilTestEnable = VK_FALSE;
+    depthStencil.front = {}; // Optional
+    depthStencil.back = {}; // Optional
+    return depthStencil;
+}
+
+
+VkPipelineColorBlendStateCreateInfo vl::IPipelineColorBlendState(
+        std::span<VkPipelineColorBlendAttachmentState> attachments)
+{
+    VkPipelineColorBlendStateCreateInfo colorBlending{};
+    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlending.logicOpEnable = VK_FALSE;
+    colorBlending.logicOp = VK_LOGIC_OP_COPY;
+    colorBlending.attachmentCount = attachments.size();
+    colorBlending.pAttachments = attachments.data();
+    return colorBlending;
+}
+
+
+VkPipelineDynamicStateCreateInfo vl::IPipelineDynamicState(std::span<const VkDynamicState> dynamicStates)
+{
+    VkPipelineDynamicStateCreateInfo dynamicState{};
+    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicState.dynamicStateCount = dynamicStates.size();
+    dynamicState.pDynamicStates = dynamicStates.data();
+    return dynamicState;
+}
+
+
+
+
+VkDescriptorSetLayout vl::CreateDescriptorSetLayout(VkDevice device, int numBindings, const VkDescriptorSetLayoutBinding* pBindings)
 {
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = bindings.size();
-    layoutInfo.pBindings = bindings.begin();
+    layoutInfo.bindingCount = numBindings;
+    layoutInfo.pBindings = pBindings;
 
     VkDescriptorSetLayout descriptorSetLayout;
     VK_CHECK_MSG(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout),
                  "failed to create descriptor set layout.");
     return descriptorSetLayout;
+}
+
+VkDescriptorSetLayout vl::CreateDescriptorSetLayout(VkDevice device,
+                                                    std::initializer_list<std::pair<VkDescriptorType, VkShaderStageFlags>> bindings_info)
+{
+    std::vector<VkDescriptorSetLayoutBinding> bindings{bindings_info.size()};
+
+    uint32_t i = 0;
+    for (auto& bind_info : bindings_info) {
+        bindings[i] = {
+            .binding = i,
+            .descriptorType = bind_info.first,
+            .descriptorCount = 1,
+            .stageFlags = bind_info.second,
+            .pImmutableSamplers = nullptr
+        };
+        ++i;
+    }
+    return vl::CreateDescriptorSetLayout(device, bindings.size(), bindings.data());
 }
 
 VkPipelineLayout vl::CreatePipelineLayout(VkDevice device, int numSetLayouts, VkDescriptorSetLayout* pSetLayouts)
@@ -120,26 +340,52 @@ VkFramebuffer vl::CreateFramebuffer(VkDevice device, int w, int h, VkRenderPass 
 }
 
 
+VkRenderPass vl::CreateRenderPass(VkDevice device,
+                                  std::span<VkAttachmentDescription> attachments,
+                                  std::span<VkSubpassDescription> subpasses,
+                                  std::span<VkSubpassDependency> dependencies)
+{
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = attachments.size();
+    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.subpassCount = subpasses.size();
+    renderPassInfo.pSubpasses = subpasses.data();
+    renderPassInfo.dependencyCount = dependencies.size();
+    renderPassInfo.pDependencies = dependencies.data();
+
+    VkRenderPass renderPass;
+    VK_CHECK_MSG(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass),
+                 "failed to create render pass.");
+    return renderPass;
+}
+
+
 
 // ================== Command Buffer ==================
 
+void vl::AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool,
+                                int cmdbufCount, VkCommandBuffer* out_cmdbufs, VkCommandBufferLevel level)
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = level;
+    allocInfo.commandBufferCount = cmdbufCount;
+
+    VK_CHECK_MSG(vkAllocateCommandBuffers(device, &allocInfo, out_cmdbufs),
+            "failed to allocate command buffers.");
+}
 
 void vl::SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record,
                              VkDevice device, VkCommandPool commandPool, VkQueue queue)
 {
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
-    allocInfo.commandBufferCount = 1;
-
     VkCommandBuffer cmdbuf;
-    vkAllocateCommandBuffers(device, &allocInfo, &cmdbuf);
+    vl::AllocateCommandBuffers(device, commandPool, 1, &cmdbuf, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
     vkBeginCommandBuffer(cmdbuf, &beginInfo);
 
     fn_record(cmdbuf);
@@ -177,6 +423,22 @@ void vl::QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, Vk
     VK_CHECK_MSG(vkQueueSubmit(queue, 1, &submitInfo, fence),
                  "failed to submit draw command buffer.");
 }
+
+void vl::QueuePresentKHR(VkQueue presentQueue,
+                         int numWaitSemaphores, const VkSemaphore* pSemaphores,
+                         int numSwapchains, const VkSwapchainKHR* pSwapchains, const uint32_t* pImageIndices)
+{
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = numWaitSemaphores;
+    presentInfo.pWaitSemaphores = pSemaphores;
+    presentInfo.swapchainCount = numSwapchains;
+    presentInfo.pSwapchains = pSwapchains;
+    presentInfo.pImageIndices = pImageIndices;
+
+    VK_CHECK(vkQueuePresentKHR(presentQueue, &presentInfo));
+}
+
 
 // no: when pClearValues=nullptr, color/depthStencil will be {0,0,0,1}, {1, 0}
 void vl::CmdBeginRenderPass(VkCommandBuffer cmdbuf,
@@ -350,8 +612,8 @@ void vl::CreateImage(VkDevice device, int imgWidth, int imgHeight, VkImage* pIma
 
 
 
-vkx::Image::Image(VkImage image, VkDeviceMemory imageMemory, VkImageView imageView)
-        : m_Image(image), m_ImageMemory(imageMemory), m_ImageView(imageView) {}
+vkx::Image::Image(VkImage image, VkDeviceMemory imageMemory, VkImageView imageView, int w, int h)
+        : m_Image(image), m_ImageMemory(imageMemory), m_ImageView(imageView), width(w), height(h) {}
 vkx::Image::~Image()
 {
     VkDevice device = vkx::ctx().Device;
@@ -645,12 +907,14 @@ VkFormat vkx::findDepthFormat() {
             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
     );
 }
+
 void vkx::CreateDepthImage(int w, int h, vkx::Image* depthImage)
 {
     VkDevice device = vkx::ctx().Device;
-
     VkFormat depthFormat = findDepthFormat();
 
+    depthImage->width = w;
+    depthImage->height = h;
     vl::CreateImage(device, w,h, &depthImage->m_Image, &depthImage->m_ImageMemory,
                     depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 
@@ -917,6 +1181,7 @@ static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice, VkS
     return queueFamilyIdxs;
 }
 
+#include <set>
 
 static VkDevice CreateLogicalDevice(VkPhysicalDevice physDevice, const QueueFamilyIndices& queueFamily, VkQueue* out_GraphicsQueue, VkQueue* out_PresentQueue)
 {
@@ -1289,10 +1554,10 @@ void vkh::LoadShaderStages_H(VkPipelineShaderStageCreateInfo* dst, const std::st
     VkDevice device = vkx::ctx().Device;
 
     auto src_vsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "vert")));
-    dst[0] = vl::CreateShaderModuleStage(device, VK_SHADER_STAGE_VERTEX_BIT, src_vsh.data(), src_vsh.size());
+    dst[0] = vl::CreateShaderModule_PipelineStageInfo(device, VK_SHADER_STAGE_VERTEX_BIT, src_vsh.data(), src_vsh.size());
 
     auto src_fsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "frag")));
-    dst[1] = vl::CreateShaderModuleStage(device, VK_SHADER_STAGE_FRAGMENT_BIT, src_fsh.data(), src_fsh.size());
+    dst[1] = vl::CreateShaderModule_PipelineStageInfo(device, VK_SHADER_STAGE_FRAGMENT_BIT, src_fsh.data(), src_fsh.size());
 }
 
 void vkh::DestroyShaderModules(VkPipelineShaderStageCreateInfo *dst)
@@ -1331,20 +1596,6 @@ VkPipelineVertexInputStateCreateInfo vkh::c_PipelineVertexInputState(int numVert
 
 
 
-static int FormatSize(VkFormat format) {
-    switch (format) {
-        case VK_FORMAT_R32_SFLOAT:          return 4;
-        case VK_FORMAT_R32G32_SFLOAT:       return 8;
-        case VK_FORMAT_R32G32B32_SFLOAT:    return 12;
-        case VK_FORMAT_R32G32B32A32_SFLOAT: return 16;
-
-        case VK_FORMAT_R16_SFLOAT:          return 2;
-        case VK_FORMAT_R16G16_SFLOAT:       return 4;
-        case VK_FORMAT_R16G16B16_SFLOAT:    return 6;
-        case VK_FORMAT_R16G16B16A16_SFLOAT: return 8;
-        default: throw std::runtime_error("Unsupported format");
-    }
-}
 
 VkPipelineVertexInputStateCreateInfo vkh::c_PipelineVertexInputState_H(std::initializer_list<VkFormat> attribs, int binding)
 {

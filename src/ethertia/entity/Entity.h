@@ -5,20 +5,19 @@
 #ifndef ETHERTIA_ENTITY_H
 #define ETHERTIA_ENTITY_H
 
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
 #include <ethertia/util/AABB.h>
 #include <ethertia/world/World.h>
-
 #include <ethertia/entity/component/EntityComponent.h>
-#include <ethertia/render/Texture.h>
-#include <ethertia/render/VertexBuffer.h>
-#include <ethertia/util/Loader.h>
 
+//#include <ethertia/render/Texture.h>
+//#include <ethertia/render/VertexBuffer.h>
+#include <ethertia/util/Loader.h>
 #include <ethertia/render/RenderEngine.h>
 
 class Entity
@@ -29,8 +28,8 @@ public:
 
     btRigidBody* m_Rigidbody = nullptr;
 
-    VertexArrays* m_Model = nullptr;
-    Texture* m_DiffuseMap = nullptr;
+    vkx::VertexBuffer* m_Model = nullptr;
+    vkx::Image* m_DiffuseMap = nullptr;
 //    std::vector<EntityComponent*> m_Components;
 
 

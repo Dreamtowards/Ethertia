@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_vulkan.h>
 
 #include <imguizmo/ImGuizmo.h>
 #include <imgui-knobs/imgui-knobs.h>
@@ -25,10 +25,10 @@
 
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/world/Chunk.h>
-#include <ethertia/render/ssao/SSAORenderer.h>
-#include <ethertia/render/shadow/ShadowRenderer.h>
-#include <ethertia/render/debug/DebugRenderer.h>
-#include <ethertia/render/deferred/GeometryRenderer.h>
+//#include <ethertia/render/ssao/SSAORenderer.h>
+//#include <ethertia/render/shadow/ShadowRenderer.h>
+//#include <ethertia/render/debug/DebugRenderer.h>
+//#include <ethertia/render/deferred/GeometryRenderer.h>
 
 static void InitStyle()
 {
@@ -124,9 +124,27 @@ void Imgui::Init()
 //    io.ConfigViewportsNoTaskBarIcon = true;
 //    ImGui::GetMainViewport()->DpiScale = 4;
 
-    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
-    ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
+//    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
+//    ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
+    ImGui_ImplGlfw_InitForVulkan(Ethertia::getWindow().m_WindowHandle, true);
+
+
+    ImGui_ImplVulkan_InitInfo init_info = {};
+    init_info.Instance = vkx::ctx().Inst;
+    init_info.PhysicalDevice = vkx::ctx().PhysDevice;
+    init_info.Device = vkx::ctx().Device;
+    init_info.Queue = vkx::ctx().GraphicsQueue;
+    init_info.DescriptorPool = vkx::ctx().DescriptorPool;
+    init_info.MinImageCount = 3;
+    init_info.ImageCount = 3;
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.CheckVkResultFn = _vk_check_result;
+    //init_info.QueueFamily = g_QueueFamily;
+    //init_info.PipelineCache = g_PipelineCache;
+    //init_info.Subpass = 0;
+    //init_info.Allocator = g_Allocator;
+    ImGui_ImplVulkan_Init(&init_info, vkx::ctx()._RenderPass);
 
     // ImNodes
     ImNodes::CreateContext();
@@ -139,7 +157,7 @@ void Imgui::Destroy()
 {
     ImNodes::DestroyContext();
 
-    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
@@ -147,14 +165,28 @@ void Imgui::Destroy()
 
 
 
+static VkDescriptorSet pTexDesc(VkImageView imageView)
+{
+    static std::unordered_map<VkImageView, VkDescriptorSet> _cache;
+
+    auto it = _cache.find(imageView);
+    if (it == _cache.end()) {
+        _cache[imageView] = ImGui_ImplVulkan_AddTexture(vkx::ctx().ImageSampler,
+                                                        imageView,
+                                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    }
+    return it->second;
+}
+
 
 
 
 // texId: 0=white
-void Imgui::Image(GLuint texId, ImVec2 size, glm::vec4 color) {
+void Imgui::Image(void* texId, ImVec2 size, glm::vec4 color) {
 //    assert(false);
-    if (texId == 0)
-        texId = Texture::WHITE->texId;
+    if (texId == 0) {
+        texId = pTexDesc(RenderEngine::TEX_WHITE->m_ImageView);
+    }
     ImGui::Image((void*)(intptr_t)texId,
                  {size.x, size.y},
                  {0, 1}, {1, 0},
@@ -212,33 +244,28 @@ static ImGuiKey GetPressedKey()
 
 #include "Imgui_intl_draw.cpp"
 
-
-void Imgui::RenderGUI()
+void Imgui::NewFrame()
 {
-    {
-        PROFILE("NewFrame");
+    PROFILE("NewFrame");
 
-        ImGui_ImplGlfw_NewFrame();
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui::NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui_ImplVulkan_NewFrame();
+    ImGui::NewFrame();
 
-        ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GlobalScale;
+    ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GlobalScale;
 
-        ImGui::GetMainViewport()->Size /= Imgui::GlobalScale;
-        ImGui::GetIO().DisplayFramebufferScale *= Imgui::GlobalScale;
-    }
+    ImGui::GetMainViewport()->Size /= Imgui::GlobalScale;
+    ImGui::GetIO().DisplayFramebufferScale *= Imgui::GlobalScale;
+}
 
-    {
-        PROFILE("Proc");
 
-        RenderWindows();
-    }
-
+void Imgui::RenderGUI(VkCommandBuffer cmdbuf)
+{
     {
         PROFILE("Render");
 
         ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdbuf);
     }
 
     // Update Multiple Windows/Viewports

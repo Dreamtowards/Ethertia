@@ -42,9 +42,9 @@ public:
         m_World->m_DynamicsWorld->addRigidBody(m_Rigidbody);
     }
 
-    void updateModel(VertexArrays* vao) {
+    void updateModel(vkx::VertexBuffer* vtxbuf) {
         delete m_Model;
-        m_Model = vao;
+        m_Model = vtxbuf;
     }
 
 //    void setMesh_Model(float* pos, Model* new_model) {

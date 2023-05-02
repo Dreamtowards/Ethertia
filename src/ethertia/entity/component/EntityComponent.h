@@ -26,37 +26,37 @@ public:
     glm::vec3 scale;
 };
 
-class ChunkProxyComponent
-{
+//class ChunkProxyComponent
+//{
+//
+//};
+//
+//class PlayerComponent
+//{
+//
+//};
 
-};
+//class NoCullingFaceComponent
+//{
+//
+//};
 
-class PlayerComponent
-{
-
-};
-
-class NoCullingFaceComponent
-{
-
-};
-
-class MeshComponent : public Entt::Component
-{
-    VertexArrays* m_VAO = nullptr;
-    Texture* m_DiffuseMap = nullptr;
-
-public:
-    MeshComponent(VertexArrays* mVao, Texture* mDiffuseMap) : m_VAO(mVao), m_DiffuseMap(mDiffuseMap) {}
-
-    void onRender();
-
-    void onLoad();
-
-    void onUnload();
-
-
-};
+//class MeshComponent : public Entt::Component
+//{
+//    VertexArrays* m_VAO = nullptr;
+//    Texture* m_DiffuseMap = nullptr;
+//
+//public:
+//    MeshComponent(VertexArrays* mVao, Texture* mDiffuseMap) : m_VAO(mVao), m_DiffuseMap(mDiffuseMap) {}
+//
+//    void onRender();
+//
+//    void onLoad();
+//
+//    void onUnload();
+//
+//
+//};
 
 
 

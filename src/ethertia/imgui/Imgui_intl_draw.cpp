@@ -92,15 +92,15 @@ static bool
         dbg_AllChunkAABB = false,
         dbg_Gbuffer = false;
 
-static ShaderProgram* g_InspShaderProgram = nullptr;
+//static ShaderProgram* g_InspShaderProgram = nullptr;
 
 
 
-static Texture* LazyLoadTex(const std::string& p) {
-    static std::map<std::string, Texture*> _Cache;
+static vkx::Image* LazyLoadTex(const std::string& p) {
+    static std::map<std::string, vkx::Image*> _Cache;
     auto& it = _Cache[p];
     if (!it) {
-        it = Loader::loadTexture(p);
+        it = Loader::loadImage(p);
     }
     return it;
 }
@@ -403,71 +403,71 @@ void ShowNewWorldWindow()
 static void ShowShaderProgramInsp()
 {
     ImGui::Begin("ShaderProgram", &Settings::w_Settings);
-
-
-    ShaderProgram* shader = g_InspShaderProgram;
-    if (ImGui::BeginCombo("###Shaders", shader ? shader->m_SourceLocation.c_str() : nullptr))
-    {
-        for (auto& it : ShaderProgram::REGISTRY)
-        {
-            if (ImGui::Selectable(it.first.c_str(), g_InspShaderProgram == it.second)) {
-                g_InspShaderProgram = it.second;
-            }
-        }
-        ImGui::EndCombo();
-    }
-    ImGui::SameLine();
-    ImGui::Button("+");
-
-    ImGui::Separator();
-
-    if (!shader) {
-        ImGui::TextDisabled("No ShaderProgram selected.");
-        ImGui::End();
-        return;
-    }
-
-    if (ImGui::Button("Reload Shader")) {
-        shader->reload_sources_by_filenames();
-        Log::info("Shader {} reloaded.", shader->m_SourceLocation);
-    }
-    ImGui::SameLine();
-    ImGui::Text("#%i",(int)shader->m_ProgramId);
-
-    ImGui::TextDisabled("%i Uniforms:", (int)shader->m_Uniforms.size());
-    for (auto& it : shader->m_Uniforms)
-    {
-        auto& unif = it.second;
-        const char* name = it.first;
-        if (!unif.value_ptr) {
-            ImGui::TextDisabled("uniform %s has no lvalue", name);
-            continue;
-        }
-        switch (unif.type)
-        {
-            case ShaderProgram::Uniform::INT:
-                ImGui::DragInt(name, (int*)unif.value_ptr, -100, 100);
-                break;
-            case ShaderProgram::Uniform::FLOAT:
-                ImGui::DragFloat(name, (float*)unif.value_ptr, -100, 100);
-                break;
-            case ShaderProgram::Uniform::VEC3:
-                ImGui::DragFloat3(name, (float*)unif.value_ptr, -100, 100);
-                break;
-            case ShaderProgram::Uniform::VEC4:
-                ImGui::DragFloat4(name, (float*)unif.value_ptr, -100, 100);
-                break;
-            case ShaderProgram::Uniform::MAT3:
-                ImGui::Text("Mat3");
-                break;
-            case ShaderProgram::Uniform::MAT4:
-                ImGui::Text("Mat4");
-                break;
-            default:
-                ImGui::Text("Unknown Uniform Type");
-                break;
-        }
-    }
+//
+//
+//    ShaderProgram* shader = g_InspShaderProgram;
+//    if (ImGui::BeginCombo("###Shaders", shader ? shader->m_SourceLocation.c_str() : nullptr))
+//    {
+//        for (auto& it : ShaderProgram::REGISTRY)
+//        {
+//            if (ImGui::Selectable(it.first.c_str(), g_InspShaderProgram == it.second)) {
+//                g_InspShaderProgram = it.second;
+//            }
+//        }
+//        ImGui::EndCombo();
+//    }
+//    ImGui::SameLine();
+//    ImGui::Button("+");
+//
+//    ImGui::Separator();
+//
+//    if (!shader) {
+//        ImGui::TextDisabled("No ShaderProgram selected.");
+//        ImGui::End();
+//        return;
+//    }
+//
+//    if (ImGui::Button("Reload Shader")) {
+//        shader->reload_sources_by_filenames();
+//        Log::info("Shader {} reloaded.", shader->m_SourceLocation);
+//    }
+//    ImGui::SameLine();
+//    ImGui::Text("#%i",(int)shader->m_ProgramId);
+//
+//    ImGui::TextDisabled("%i Uniforms:", (int)shader->m_Uniforms.size());
+//    for (auto& it : shader->m_Uniforms)
+//    {
+//        auto& unif = it.second;
+//        const char* name = it.first;
+//        if (!unif.value_ptr) {
+//            ImGui::TextDisabled("uniform %s has no lvalue", name);
+//            continue;
+//        }
+//        switch (unif.type)
+//        {
+//            case ShaderProgram::Uniform::INT:
+//                ImGui::DragInt(name, (int*)unif.value_ptr, -100, 100);
+//                break;
+//            case ShaderProgram::Uniform::FLOAT:
+//                ImGui::DragFloat(name, (float*)unif.value_ptr, -100, 100);
+//                break;
+//            case ShaderProgram::Uniform::VEC3:
+//                ImGui::DragFloat3(name, (float*)unif.value_ptr, -100, 100);
+//                break;
+//            case ShaderProgram::Uniform::VEC4:
+//                ImGui::DragFloat4(name, (float*)unif.value_ptr, -100, 100);
+//                break;
+//            case ShaderProgram::Uniform::MAT3:
+//                ImGui::Text("Mat3");
+//                break;
+//            case ShaderProgram::Uniform::MAT4:
+//                ImGui::Text("Mat4");
+//                break;
+//            default:
+//                ImGui::Text("Unknown Uniform Type");
+//                break;
+//        }
+//    }
 
     ImGui::End();
 }
@@ -567,12 +567,12 @@ static void ShowEntityInsp()
         }
     }
 
-    if (ImGui::CollapsingHeader("Diffuse Map")) {
-        if (entity->m_DiffuseMap)
-        {
-            ImGui::Image((void*)(intptr_t)entity->m_DiffuseMap->texId, {64, 64});
-        }
-    }
+//    if (ImGui::CollapsingHeader("Diffuse Map")) {
+//        if (entity->m_DiffuseMap)
+//        {
+//            ImGui::Image((void*)(intptr_t)entity->m_DiffuseMap->texId, {64, 64});
+//        }
+//    }
 
 
 
@@ -592,7 +592,7 @@ static void ItemImage(const Item* item, float size = 40, ImDrawList* dl = ImGui:
     ImVec2 uvMin = {i/n, 1};
     ImVec2 uvSize = {1.0f/n, -1};
     ImVec2 min = ImGui::GetCursorScreenPos();
-    dl->AddImage(ItemTextures::ITEM_ATLAS->pTexId(), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
+    dl->AddImage(pTexDesc(ItemTextures::ITEM_ATLAS->m_ImageView), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
     ImGui::Dummy({size, size});
 }
 
@@ -1136,9 +1136,9 @@ static void ShowSettingsWindow()
 
             ImGui::SeparatorText("Terrain Material Blending");
 
-            ImGui::DragFloat("Texture Scale", &GeometryRenderer::u_MaterialTextureScale, 0.1f);
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip("Material Texture Sampling Scale (inv)");
+//            ImGui::DragFloat("Texture Scale", &GeometryRenderer::u_MaterialTextureScale, 0.1f);
+//            if (ImGui::IsItemHovered())
+//                ImGui::SetTooltip("Material Texture Sampling Scale (inv)");
 
 
             ImGui::DragInt("Texture Resolution", &MaterialTextures::TEX_RESOLUTION, 16, 2048);
@@ -1309,8 +1309,6 @@ static void ShowSettingsWindow()
 
             ImGui::SeparatorText("Links");
             ImGui::SmallButton("ethertia.com");
-
-
         }
     }
     ImGui::EndChild();
@@ -1606,75 +1604,75 @@ static void ShowToolbar()
     ImGui::Begin("MASH", nullptr,
                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
 
-#define _TOOLBAR_BTN(id) ImGui::ImageButton(id, LazyLoadTex(id)->pTexId(), {40, 40}, {0,1}, {1,0})
-
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {1, 0});
-//    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
-
-    _TOOLBAR_BTN("gui/geo/sel.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/mov.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/mov-all.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/rot.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/scl.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/bnd.png");
-    ImGui::SameLine();
-
-    ImGui::Dummy({4, 0});
-    ImGui::SameLine();
-
-    _TOOLBAR_BTN("gui/geo/sel-rect.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/sel-cir.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/sel-cus.png");
-    ImGui::SameLine();
-
-    ImGui::Dummy({4, 0});
-    ImGui::SameLine();
-
-    _TOOLBAR_BTN("gui/geo/g-cube.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/g-sph.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/g-col.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/g-tor.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/g-cone.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/g-plane.png");
-    ImGui::SameLine();
-
-    ImGui::Dummy({4, 0});
-    ImGui::SameLine();
-
-    _TOOLBAR_BTN("gui/geo/grab.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/brush.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/pencil.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/fill.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/erase.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/pik.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/fing.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/stamp.png");
-    ImGui::SameLine();
-    _TOOLBAR_BTN("gui/geo/cpy.png");
-    ImGui::SameLine();
-
-
-    ImGui::PopStyleVar(2);
+//#define _TOOLBAR_BTN(id) ImGui::ImageButton(id, LazyLoadTex(id)->pTexId(), {40, 40}, {0,1}, {1,0})
+//
+//    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
+//    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {1, 0});
+////    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+//
+//    _TOOLBAR_BTN("gui/geo/sel.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/mov.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/mov-all.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/rot.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/scl.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/bnd.png");
+//    ImGui::SameLine();
+//
+//    ImGui::Dummy({4, 0});
+//    ImGui::SameLine();
+//
+//    _TOOLBAR_BTN("gui/geo/sel-rect.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/sel-cir.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/sel-cus.png");
+//    ImGui::SameLine();
+//
+//    ImGui::Dummy({4, 0});
+//    ImGui::SameLine();
+//
+//    _TOOLBAR_BTN("gui/geo/g-cube.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/g-sph.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/g-col.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/g-tor.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/g-cone.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/g-plane.png");
+//    ImGui::SameLine();
+//
+//    ImGui::Dummy({4, 0});
+//    ImGui::SameLine();
+//
+//    _TOOLBAR_BTN("gui/geo/grab.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/brush.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/pencil.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/fill.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/erase.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/pik.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/fing.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/stamp.png");
+//    ImGui::SameLine();
+//    _TOOLBAR_BTN("gui/geo/cpy.png");
+//    ImGui::SameLine();
+//
+//
+//    ImGui::PopStyleVar(2);
 
     ImGui::End();
 }
@@ -1950,7 +1948,8 @@ static void ShowGameViewport()
     ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
     Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
-    Imgui::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
+    // Viewport Texture
+//    Imgui::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
     ImGui::SetCursorPos({0,0});
     ImGui::InvisibleButton("PreventsGameWindowMove", size);
 
@@ -1960,6 +1959,7 @@ static void ShowGameViewport()
     ImGuizmo::SetDrawlist();
     auto& vp = Ethertia::getViewport();
     ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
+
 
 
     DrawViewportDebugs();
@@ -2095,7 +2095,7 @@ static void ShowConsole()
 
 
 
-static void RenderWindows()
+void Imgui::RenderWindows()
 {
     ShowDockspaceAndMainMenubar();
 

@@ -427,8 +427,10 @@ void Controls::handleInput()
 //    }
 //    RenderEngine::fov += smFov.delta;
 
+
     float dt = Ethertia::getDelta();
-    camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z), window.getDScroll());
+    camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z));
+
 
     if (KeyBindings::KEY_G_CAM_DIST.isKeyDown())
         camera.len += window.getDScroll();

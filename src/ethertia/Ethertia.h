@@ -5,8 +5,7 @@
 #ifndef ETHERTIA_ETHERTIA_H
 #define ETHERTIA_ETHERTIA_H
 
-#include <glad/glad.h>
-#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
 #include <stdexcept>
 
 #include <ethertia/render/Camera.h>
@@ -26,7 +25,6 @@
 class World;
 class WorldInfo;
 class EntityPlayer;
-class GuiRoot;
 class Window;
 
 class Ethertia
@@ -108,9 +106,6 @@ public:
             return _Inst;
         }
     };
-
-
-
 
 
 };

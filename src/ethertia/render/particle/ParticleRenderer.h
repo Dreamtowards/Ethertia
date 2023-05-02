@@ -8,8 +8,6 @@
 #include <vector>
 
 #include <ethertia/render/particle/Particle.h>
-#include <ethertia/render/ShaderProgram.h>
-#include <ethertia/render/GlState.h>
 
 class ParticleRenderer
 {
@@ -18,7 +16,7 @@ public:
 
     inline static std::vector<Particle*> m_Particles;
 
-    inline static VertexArrays* M_PLANE_C_STRIP = nullptr;
+    inline static vkx::VertexBuffer* M_PLANE_C_STRIP = nullptr;
 
     static void init()
     {
@@ -70,7 +68,7 @@ public:
         render(p.texture, p.position, p.size, p.uv_pos(), glm::vec2(1.0f / p.tex_grids));
     }
 
-    static void render(Texture* tex, glm::vec3 position, float size, glm::vec2 uvPos = {0,0}, glm::vec2 uvSize = {1,1})
+    static void render(vkx::Image* tex, glm::vec3 position, float size, glm::vec2 uvPos = {0,0}, glm::vec2 uvSize = {1,1})
     {
 
         glActiveTexture(GL_TEXTURE0);
@@ -100,8 +98,8 @@ public:
 
         GlState::blendMode(GlState::ADD);
 
-        static Texture* TEX_SUN = Loader::loadTexture("misc/sky/sun.png");
-        static Texture* TEX_MOON = Loader::loadTexture("misc/sky/moon.png");
+        static vkx::Image* TEX_SUN = Loader::loadImage("misc/sky/sun.png");
+        static vkx::Image* TEX_MOON = Loader::loadImage("misc/sky/moon.png");
 
         using glm::vec3;
         vec3 relSunPos = Mth::rot_dir(dayTime * 2*Mth::PI, vec3(0, 0, 1), vec3(0, -1, 0)) * 300.0f;

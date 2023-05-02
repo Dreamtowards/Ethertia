@@ -11,6 +11,7 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 
+
 class Framebuffer
 {
 private:

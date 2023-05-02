@@ -26,11 +26,10 @@ public:
     {
         // 这是零时做的资源加载
         static VertexData* M_Helicopter = Loader::loadOBJ("material/helicopter/oka.obj");
-        static VertexArrays* M_Hel = Loader::loadVertexBuffer(M_Helicopter);
 
-        m_DiffuseMap = Texture::WHITE;
+//        m_DiffuseMap = Texture::WHITE;
 
-        m_Model = M_Hel;
+        m_Model = Loader::loadVertexBuffer(M_Helicopter);;
         initRigidbody(1000, CreateHullShape(M_Helicopter));
         m_Rigidbody->setFriction(0.8);
 

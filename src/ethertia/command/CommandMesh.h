@@ -59,7 +59,7 @@ public:
                 }
 
                 EntityMesh* entity = (EntityMesh*)Ethertia::getHitCursor().hitEntity;
-                entity->m_DiffuseMap = Loader::loadTexture(Loader::loadPNG(path));
+                entity->m_DiffuseMap = Loader::loadImage(Loader::loadPNG(path));
 
                 _SendMessage("Texture updated.");
             }

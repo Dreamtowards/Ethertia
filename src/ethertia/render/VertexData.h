@@ -38,6 +38,9 @@ public:
     const void* data() const;  // vtx_data
     size_t size() const;       // vtx_size
 
+    const void* vtx_data() const;
+    size_t vtx_size() const;
+
     const void* idx_data() const;
     size_t idx_size() const;
 

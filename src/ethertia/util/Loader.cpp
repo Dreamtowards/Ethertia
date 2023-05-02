@@ -123,13 +123,10 @@ size_t Loader::DataBlock::size() const {
 
 
 
-
-
-
-
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader/tiny_obj_loader.h>
 
+#include <unordered_map>
 
 
 // Arrays vs Indexed compare for viking_room.obj (Single Vertex is vec3+vec2+vec3 8*f32 = 32 bytes, Index is uint32 = 4 bytes)
@@ -244,129 +241,189 @@ void Loader::savePNG(const std::string& filename, const BitmapImage& img)
 }
 
 
-VertexArrays* Loader::loadVertexBuffer(size_t vcount, std::initializer_list<int> sizes,
-                                       float* vtx_data, size_t vtx_size, uint32_t* idx_data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// for OpenGL.
+//VertexArrays* Loader::loadVertexBuffer(size_t vcount, std::initializer_list<int> sizes,
+//                                       float* vtx_data, size_t vtx_size, uint32_t* idx_data)
+//{
+//    assert(sizes.size() > 0);
+//
+//    VertexArrays* vao = new VertexArrays();
+//    vao->vertexCount = vcount;
+//    glGenVertexArrays(1, &vao->vaoId);
+//    glBindVertexArray(vao->vaoId);
+//
+//    int _scalars = 0;
+//    for (int s : sizes) { _scalars += s; }
+//    int stride = _scalars * sizeof(float);
+//
+//    if (idx_data)
+//    {
+//        glGenBuffers(1, &vao->eboId);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao->eboId);
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * vcount, idx_data, GL_STATIC_DRAW);
+//    } else {
+//        vtx_size = stride*vcount;
+//    }
+//
+//    glGenBuffers(1, &vao->vboId);
+//    glBindBuffer(GL_ARRAY_BUFFER, vao->vboId);
+//    glBufferData(GL_ARRAY_BUFFER, vtx_size, vtx_data, GL_STATIC_DRAW);
+//
+//    int i = 0;
+//    _scalars = 0;
+//    for (int s : sizes) {
+//        glVertexAttribPointer(i, s, GL_FLOAT, GL_FALSE, stride, (void*)(_scalars*sizeof(float)));
+//        glEnableVertexAttribArray(i);
+//        ++i;
+//        _scalars += s;
+//    }
+//    return vao;
+//}
+//
+//VertexArrays* Loader::loadVertexBuffer(const VertexData* vtx)
+//{
+//    return Loader::loadVertexBuffer(vtx->vertexCount(), {3,2,3}, (float*)vtx->data(), vtx->size(), (uint32_t*)vtx->idx_data());
+//}
+
+
+
+
+vkx::VertexBuffer* Loader::loadVertexBuffer(const VertexData* vtx)
 {
-    assert(sizes.size() > 0);
+    VkBuffer vtxBuffer, idxBuffer;
+    VkDeviceMemory vtxMemory, idxMemory;
 
-    VertexArrays* vao = new VertexArrays();
-    vao->vertexCount = vcount;
-    glGenVertexArrays(1, &vao->vaoId);
-    glBindVertexArray(vao->vaoId);
+    vkx::CreateStagedBuffer(vtx->vtx_data(), vtx->vtx_size(), &vtxBuffer, &vtxMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    vkx::CreateStagedBuffer(vtx->idx_data(), vtx->idx_size(), &idxBuffer, &idxMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
 
-    int _scalars = 0;
-    for (int s : sizes) { _scalars += s; }
-    int stride = _scalars * sizeof(float);
-
-    if (idx_data)
-    {
-        glGenBuffers(1, &vao->eboId);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao->eboId);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * vcount, idx_data, GL_STATIC_DRAW);
-    } else {
-        vtx_size = stride*vcount;
-    }
-
-    glGenBuffers(1, &vao->vboId);
-    glBindBuffer(GL_ARRAY_BUFFER, vao->vboId);
-    glBufferData(GL_ARRAY_BUFFER, vtx_size, vtx_data, GL_STATIC_DRAW);
-
-    int i = 0;
-    _scalars = 0;
-    for (int s : sizes) {
-        glVertexAttribPointer(i, s, GL_FLOAT, GL_FALSE, stride, (void*)(_scalars*sizeof(float)));
-        glEnableVertexAttribArray(i);
-        ++i;
-        _scalars += s;
-    }
-    return vao;
+    int vcount = vtx->vertexCount();
+    return new vkx::VertexBuffer(vtxBuffer, vtxMemory, idxBuffer, idxMemory, vcount);
 }
 
-VertexArrays* Loader::loadVertexBuffer(const VertexData* vtx)
+
+
+
+vkx::Image* Loader::loadImage(const BitmapImage& img)
 {
-    return Loader::loadVertexBuffer(vtx->vertexCount(), {3,2,3}, (float*)vtx->data(), vtx->size(), (uint32_t*)vtx->idx_data());
-}
+    VkImage image;
+    VkDeviceMemory imageMemory;
+    VkImageView imageView;
+    vkx::CreateStagedImage(img.getWidth(), img.getHeight(), img.getPixels(),
+                           &image, &imageMemory, &imageView);
 
-Texture* Loader::loadTexture(const BitmapImage& img)
-{
-    std::unique_ptr<std::uint32_t> pixels(new uint32_t[img.getWidth() * img.getHeight()]);
-    img.getVerticalFlippedPixels(pixels.get());
-
-    return Loader::loadTexture(img.getWidth(), img.getHeight(), pixels.get());
-}
-
-Texture* Loader::loadTexture(int w, int h, void* pixels_VertFlip, int intlfmt, int fmt, int type)
-{
-    auto* tex = Texture::GenTexture(w,h, GL_TEXTURE_2D);
-    tex->BindTexture();
-
-    glTexImage2D(GL_TEXTURE_2D, 0, intlfmt, w, h, 0, fmt, type, pixels_VertFlip);
-    // glTexSubImage2D();
-
-
-    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
-//        if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
-//            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 if use TextureFilterAnisotropic
-//            float amount = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
-//            glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
-//            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
-//         }
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    return tex;
+    return new vkx::Image(image, imageMemory, imageView, img.getWidth(), img.getHeight());
 }
 
 
-Texture* Loader::loadCubeMap_3x2(const std::string &filepath) {
-    BitmapImage comp = Loader::loadPNG(filepath);
-    int size = comp.getHeight() / 2;
-    assert(std::abs(comp.getWidth() - size*3) < 3 && "Expect 3x2 grid image.");
 
-    BitmapImage imgs[] = {{size,size},{size,size},{size,size},
-                          {size,size},{size,size},{size,size}};
 
-    comp.get_pixels_to(2*size, size, imgs[0]);  // +X Right
-    comp.get_pixels_to(0, size, imgs[1]);  // -X Left
-    comp.get_pixels_to(size, 0, imgs[2]);  // +Y Top
-    comp.get_pixels_to(0, 0, imgs[3]);  // -Y Bottom
-    comp.get_pixels_to(size, size, imgs[4]);  // +Z Front (GL)
-    comp.get_pixels_to(2*size, 0, imgs[5]);  // -Z Back (GL)
 
-    return loadCubeMap(imgs);
-}
 
-Texture* Loader::loadCubeMap(const BitmapImage* imgs)  {
-    int w = imgs[0].getWidth();
-    int h = imgs[0].getHeight();
 
-    Texture* tex = Texture::GenTexture(w,h,GL_TEXTURE_CUBE_MAP);
-    tex->BindTexture();
 
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    for (int i = 0; i < 6; ++i) {
-        const BitmapImage& img = imgs[i];
-        assert(img.getWidth() == w && img.getHeight() == h);
+//Texture* Loader::loadTexture(const BitmapImage& img)
+//{
+//    std::unique_ptr<std::uint32_t> pixels(new uint32_t[img.getWidth() * img.getHeight()]);
+//    img.getVerticalFlippedPixels(pixels.get());
+//
+//    return Loader::loadTexture(img.getWidth(), img.getHeight(), pixels.get());
+//}
+//
+//Texture* Loader::loadTexture(int w, int h, void* pixels_VertFlip, int intlfmt, int fmt, int type)
+//{
+//    auto* tex = Texture::GenTexture(w,h, GL_TEXTURE_2D);
+//    tex->BindTexture();
+//
+//    glTexImage2D(GL_TEXTURE_2D, 0, intlfmt, w, h, 0, fmt, type, pixels_VertFlip);
+//    // glTexSubImage2D();
+//
+//
+//    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
+////        if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+////            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 if use TextureFilterAnisotropic
+////            float amount = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
+////            glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
+////            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
+////         }
+//
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
+//
+//    glGenerateMipmap(GL_TEXTURE_2D);
+//
+//    return tex;
+//}
 
-        // flipped y.
-        void* pixels = img.getPixels();
 
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                     0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    }
+//Texture* Loader::loadCubeMap_3x2(const std::string &filepath) {
+//    BitmapImage comp = Loader::loadPNG(filepath);
+//    int size = comp.getHeight() / 2;
+//    assert(std::abs(comp.getWidth() - size*3) < 3 && "Expect 3x2 grid image.");
+//
+//    BitmapImage imgs[] = {{size,size},{size,size},{size,size},
+//                          {size,size},{size,size},{size,size}};
+//
+//    comp.get_pixels_to(2*size, size, imgs[0]);  // +X Right
+//    comp.get_pixels_to(0, size, imgs[1]);  // -X Left
+//    comp.get_pixels_to(size, 0, imgs[2]);  // +Y Top
+//    comp.get_pixels_to(0, 0, imgs[3]);  // -Y Bottom
+//    comp.get_pixels_to(size, size, imgs[4]);  // +Z Front (GL)
+//    comp.get_pixels_to(2*size, 0, imgs[5]);  // -Z Back (GL)
+//
+//    return loadCubeMap(imgs);
+//}
+//
+//Texture* Loader::loadCubeMap(const BitmapImage* imgs)  {
+//    int w = imgs[0].getWidth();
+//    int h = imgs[0].getHeight();
+//
+//    Texture* tex = Texture::GenTexture(w,h,GL_TEXTURE_CUBE_MAP);
+//    tex->BindTexture();
+//
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//
+//    for (int i = 0; i < 6; ++i) {
+//        const BitmapImage& img = imgs[i];
+//        assert(img.getWidth() == w && img.getHeight() == h);
+//
+//        // flipped y.
+//        void* pixels = img.getPixels();
+//
+//        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+//                     0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+//    }
+//
+//    return tex;
+//}
 
-    return tex;
-}
+
+
+
+
+
+
 
 
 
@@ -451,14 +508,6 @@ void Loader::saveWAV(std::ostream& out, const void* pcm, size_t size, int sample
 
 
 
-
-
-#include <dj-fft/dj_fft.h>
-
-std::vector<std::complex<float>> Loader::fft_1d(const std::vector<std::complex<float>>& freq)
-{
-    return dj::fft1d(freq, dj::fft_dir::DIR_FWD);
-}
 
 
 
@@ -565,3 +614,18 @@ std::string Loader::sys_target()
 
 
 
+
+
+
+
+
+
+
+
+
+#include <dj-fft/dj_fft.h>
+
+std::vector<std::complex<float>> Loader::fft_1d(const std::vector<std::complex<float>>& freq)
+{
+    return dj::fft1d(freq, dj::fft_dir::DIR_FWD);
+}

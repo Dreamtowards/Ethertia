@@ -4,10 +4,10 @@
     "assets/"
   ],
   "display_height": 1005,
-  "display_width": 1653,
+  "display_width": 1452,
   "fov": 68.0,
   "fullscreen": false,
-  "graphics.shadow": true,
+  "graphics.shadow": false,
   "graphics.ssao": false,
   "mods": [],
   "mtl_resolution": 256,

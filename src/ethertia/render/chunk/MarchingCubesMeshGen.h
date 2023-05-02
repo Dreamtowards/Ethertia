@@ -293,8 +293,8 @@ public:
              {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
 
 
-    static VertexBuffer* genMesh(Chunk* chunk) {
-        VertexBuffer* vbuf = new VertexBuffer();
+    static VertexData* genMesh(Chunk* chunk) {
+        VertexData* vtx = new VertexData();
         using glm::vec3;
 
         for (int rx = 0; rx < 16; ++rx) {

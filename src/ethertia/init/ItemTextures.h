@@ -6,7 +6,6 @@
 #define ETHERTIA_ITEMTEXTURES_H
 
 #include <ethertia/item/Item.h>
-#include <ethertia/render/Texture.h>
 #include <ethertia/item/Items.h>
 
 class ItemTextures
@@ -14,13 +13,13 @@ class ItemTextures
 public:
     inline static const int ITEM_RESOLUTION = 128;
 
-    inline static Texture* ITEM_ATLAS = nullptr;
+    inline static vkx::Image* ITEM_ATLAS = nullptr;
 
-    static Texture* makeAtlas(const std::string& cache_file) {
+    static vkx::Image* makeAtlas(const std::string& cache_file) {
 
         if (Loader::fileExists(cache_file)) {
             std::cout << "loading from cache '" << cache_file << "'";
-            return Loader::loadTexture(cache_file);
+            return Loader::loadImage(cache_file);
         } else {
             std::cout << "cache not found. start baking.";
 
@@ -60,7 +59,7 @@ public:
 
             Loader::savePNG(cache_file, atlas);
 
-            return Loader::loadTexture(atlas);
+            return Loader::loadImage(atlas);
         }
     }
 

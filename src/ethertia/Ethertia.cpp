@@ -4,8 +4,6 @@
 
 #include <ethertia/render/RenderEngine.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/render/chunk/MarchingCubesMeshGen.h>
-#include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include <ethertia/world/World.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Timer.h>
@@ -24,7 +22,6 @@
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/init/ItemTextures.h>
-#include <ethertia/item/Items.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
 #include <ethertia/vr/OpenVR.h>
@@ -33,7 +30,6 @@
 
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/world/Biome.h>
-#include <ethertia/render/deferred/GeometryRenderer.h>
 
 
 static void Init();
@@ -83,7 +79,7 @@ static void Init()
 
     Ethertia::isRunning() = true;
     g_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
-    ShaderProgram::loadAll();
+//    ShaderProgram::loadAll();
     RenderEngine::init();
     AudioEngine::init();
     NetworkSystem::init();
@@ -101,7 +97,7 @@ static void Init()
     Recipes::init();  // after mtl-items register.
 
     g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
-    g_Player->position() = {10, 10, 10};
+    g_Player->position() = {0, 10, 0};
     g_Player->switchGamemode(Gamemode::CREATIVE);
     g_Player->setFlying(true);
 
@@ -200,20 +196,15 @@ static void RunMainLoop()
         window.PollEvents();
         Controls::handleInput();
     }
+    {
+        PROFILE("ProcGUI");
+
+        Imgui::RenderWindows();
+    }
 
     {
         PROFILE("Render");
-        RenderCommand::Clear();
-
-        if (world)
-        {
-            PROFILE("World");
-            RenderEngine::RenderWorld();
-        }
-        {
-            PROFILE("GUI");
-            Imgui::RenderGUI();
-        }
+        RenderEngine::Render();
     }
 
     {
@@ -323,8 +314,6 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     }
 
     std::vector<std::string> args = Strings::splitSpaces(cmdline);
-    int argc = args.size();
-    EntityPlayer* player = Ethertia::getPlayer();
 
     std::string cmd = args[0].substr(1);  // sub the leading '/'
 
@@ -408,22 +397,22 @@ float Scheduler::_intl_program_time() {
 
 void Entity::onRender()
 {
-    GeometryRenderer::render(
-            m_Model, position(), getRotation(), m_DiffuseMap);
+//    GeometryRenderer::render(
+//            m_Model, position(), getRotation(), m_DiffuseMap);
 }
 
 void EntityMesh::onRender()
 {
-    bool isFoliage = !m_FaceCulling;  if (isFoliage && Dbg::dbg_NoVegetable) return;
-
-    if (isFoliage)
-        glDisable(GL_CULL_FACE);
-
-    GeometryRenderer::render(
-            m_Model, position(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
-
-    if (isFoliage)
-        glEnable(GL_CULL_FACE);  // set back
+//    bool isFoliage = !m_FaceCulling;  if (isFoliage && Dbg::dbg_NoVegetable) return;
+//
+//    if (isFoliage)
+//        glDisable(GL_CULL_FACE);
+//
+////    GeometryRenderer::render(
+////            m_Model, position(), getRotation(), m_DiffuseMap, isFoliage ? 0.1 : 0.0);
+//
+//    if (isFoliage)
+//        glEnable(GL_CULL_FACE);  // set back
 }
 
 

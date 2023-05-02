@@ -14,16 +14,19 @@
 #include <complex>
 
 #include <nbt/nbt_tags.h>
-#include <glad/glad.h>
+//#include <glad/glad.h>
 
-#include <ethertia/render/Texture.h>
-#include <ethertia/render/VertexArrays.h>
-#include <ethertia/render/ShaderProgram.h>
+//#include <ethertia/render/Texture.h>
+//#include <ethertia/render/VertexArrays.h>
+//#include <ethertia/render/ShaderProgram.h>
+//#include <ethertia/render/VertexBuffer.h>
+
 #include <ethertia/render/VertexData.h>
-
 #include <ethertia/util/BitmapImage.h>
-#include <ethertia/render/VertexBuffer.h>
 #include <ethertia/audio/AudioEngine.h>
+
+#include <eldaria/vulkan/vkx.h>
+
 
 // Dup with GuiCommon.h
 #define DECL_Inst(T) static T* Inst() { static T* INST = new T(); return INST; }
@@ -145,59 +148,52 @@ public:
 
 
 
-    static void loadShaderProgram(ShaderProgram* p, const std::string& uri, bool gsh = false)
-    {
-        p->load((char*)Loader::loadAssets(Strings::fmt(uri, "vsh")).data(),
-                (char*)Loader::loadAssets(Strings::fmt(uri, "fsh")).data(),
-                (char*)(gsh ? Loader::loadAssets(Strings::fmt(uri, "gsh")).data() : nullptr));
-    }
+//    static void loadShaderProgram(ShaderProgram* p, const std::string& uri, bool gsh = false)
+//    {
+//        p->load((char*)Loader::loadAssets(Strings::fmt(uri, "vsh")).data(),
+//                (char*)Loader::loadAssets(Strings::fmt(uri, "fsh")).data(),
+//                (char*)(gsh ? Loader::loadAssets(Strings::fmt(uri, "gsh")).data() : nullptr));
+//    }
 
-
-    /////////////// OpenGL VAO, VBO ///////////////
-
-    // VertexCount, {{VertLen, VertData}}
-    static VertexArrays* loadVertexBuffer(size_t vcount, std::initializer_list<int> sizes,
-                                          float* vtx_data, size_t vtx_size = 0, uint32_t* idx_data = nullptr);
 
     // load to GPU. interleaved vertex data.
-    static VertexArrays* loadVertexBuffer(const VertexData* vtx);
+    static vkx::VertexBuffer* loadVertexBuffer(const VertexData* vtx);
 
 
-    // load CPU VertexData to GPU VertexBuffer.
-    // use Compact
-//    static VertexArrays* loadVertexBuffer(size_t vcount, const void* data, std::vector<int> strides);
 
-    ////////////////// OpenGL Texture: 2D, CubeMap //////////////////
+
 
     /// pixels_VertFlip: need y/vertical flipped pixels. cause of GL feature.
-    static Texture* loadTexture(int w, int h, void* pixels_VertFlip,
-                                int intlfmt = GL_RGBA, int fmt = GL_RGBA, int type = GL_UNSIGNED_BYTE);
-
-    static Texture* loadTexture(const BitmapImage& img);
-
-    static Texture* loadTexture(const std::string& filepath) {
-        return Loader::loadTexture(Loader::loadPNG(filepath));
-    }
+//    static vkx::Image* loadTexture(int w, int h, void* pixels_VertFlip,
+//                                int intlfmt = GL_RGBA, int fmt = GL_RGBA, int type = GL_UNSIGNED_BYTE);
 
 
-    // imgs order: Right, Left, Top, Bottom, Front, Back.
-    static Texture* loadCubeMap(const BitmapImage imgs[]);
+    static vkx::Image* loadImage(const BitmapImage& img);
 
-    // a 3x2 grid png. first row: bottom, top, back, second row: left front, right
-    static Texture* loadCubeMap_3x2(const std::string& filepath);
+    static vkx::Image* loadImage(const std::string& filepath) { return Loader::loadImage(Loader::loadPNG(filepath)); }
 
-    // filepath: a pattern e.g. "skybox-{}.png", the {} would be replaced with "right/left/top/bottom/front/back".
-    static Texture* loadCubeMap_6(const std::string& filepath) {
-        BitmapImage imgs[] = {
-                Loader::loadPNG(Strings::fmt(filepath, "right")),
-                Loader::loadPNG(Strings::fmt(filepath, "left")),
-                Loader::loadPNG(Strings::fmt(filepath, "top")),
-                Loader::loadPNG(Strings::fmt(filepath, "bottom")),
-                Loader::loadPNG(Strings::fmt(filepath, "front")),
-                Loader::loadPNG(Strings::fmt(filepath, "back")),
-        };
-        return loadCubeMap(imgs);
-    }
+
+//    // imgs order: Right, Left, Top, Bottom, Front, Back.
+//    static Texture* loadCubeMap(const BitmapImage imgs[]);
+//
+//    // a 3x2 grid png. first row: bottom, top, back, second row: left front, right
+//    static Texture* loadCubeMap_3x2(const std::string& filepath);
+//
+//    // filepath: a pattern e.g. "skybox-{}.png", the {} would be replaced with "right/left/top/bottom/front/back".
+//    static Texture* loadCubeMap_6(const std::string& filepath) {
+//        BitmapImage imgs[] = {
+//                Loader::loadPNG(Strings::fmt(filepath, "right")),
+//                Loader::loadPNG(Strings::fmt(filepath, "left")),
+//                Loader::loadPNG(Strings::fmt(filepath, "top")),
+//                Loader::loadPNG(Strings::fmt(filepath, "bottom")),
+//                Loader::loadPNG(Strings::fmt(filepath, "front")),
+//                Loader::loadPNG(Strings::fmt(filepath, "back")),
+//        };
+//        return loadCubeMap(imgs);
+//    }
+
+
+
 
 
 

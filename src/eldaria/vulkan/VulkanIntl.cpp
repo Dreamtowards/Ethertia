@@ -544,6 +544,8 @@ public:
         VkPipelineShaderStageCreateInfo shaderStages[2];
         vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
 
+//        vkx::PipelineCreator newPipeline;
+
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipelineInfo.stageCount = std::size(shaderStages);
@@ -737,7 +739,6 @@ public:
     static void CreateDescriptorSets()
     {
         VkDevice device = vkx::ctx().Device;
-
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_INFLIGHT, g_DescriptorSetLayout);
 
         g_DescriptorSets.resize(MAX_FRAMES_INFLIGHT);

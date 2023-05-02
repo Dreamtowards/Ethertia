@@ -50,6 +50,15 @@ if(WIN32)
 endif()
 
 
+if (APPLE)
+    # VK_ICD_FILENAMES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json
+    link_directories(lib/vulkan/bin/darwin-x64)
+    link_libraries(vulkan.1.3.236)
+elseif(WIN32)
+    link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
+endif ()
+
+
 include_directories(src)
 include_directories(lib)
 include_directories(lib/glfw/include)
@@ -77,8 +86,8 @@ add_executable(Ethertia
         lib/imgui-docking/imgui_tables.cpp
         lib/imgui-docking/imgui_demo.cpp
         lib/imgui-docking/backends/imgui_impl_glfw.cpp
-#        lib/imgui-docking/backends/imgui_impl_vulkan.cpp
-        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
+        lib/imgui-docking/backends/imgui_impl_vulkan.cpp
+#        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
 
         lib/imguizmo/ImGuizmo.cpp
         lib/imgui-knobs/imgui-knobs.cpp
@@ -90,11 +99,12 @@ add_executable(Ethertia
         src/ethertia/init/Settings.cpp
         src/ethertia/render/Window.cpp
         src/ethertia/render/RenderEngine.cpp
-        src/ethertia/render/ShaderProgram.cpp
-        src/ethertia/render/RenderCommand_ImplGL.cpp
+#        src/ethertia/render/ShaderProgram.cpp
+#        src/ethertia/render/RenderCommand_ImplGL.cpp
         src/ethertia/render/VertexData.cpp
         src/ethertia/item/ItemComponents.cpp
         src/ethertia/world/World.cpp
+        src/eldaria/vulkan/vkh.cpp
 
         src/ethertia/Ethertia.cpp
         )
@@ -164,6 +174,10 @@ else()
 endif()
 
 
+include_directories(lib/vulkan/include)
+
+
+
 #set(NBT_BUILD_SHARED ON)  # required for build shared-library.
 set(NBT_BUILD_TESTS OFF)
 add_subdirectory(lib/nbt)
@@ -187,15 +201,6 @@ target_link_libraries(Ethertia nbt++)
 #VK_DRIVER_FILES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json    # a.k.a. VK_ICD_FILENAMES, installable client drivers.
 #VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d           # for validation layer.
 
-include_directories(lib/vulkan/include)
-
-if (APPLE)
-    target_link_directories(Eldaria PUBLIC lib/vulkan/bin/darwin-x64)
-    target_link_libraries(Eldaria vulkan.1.3.236)
-elseif(WIN32)
-    #
-    target_link_libraries(Eldaria "${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
-endif ()
 
 
 #set(VULKAN_SDK "E:/_Dev/VulkanSDK/1.3.243.0")

@@ -5,7 +5,7 @@
 #ifndef ETHERTIA_TEXTURE_H
 #define ETHERTIA_TEXTURE_H
 
-#include <glad/glad.h>
+//#include <glad/glad.h>
 
 #include <ethertia/util/BitmapImage.h>
 

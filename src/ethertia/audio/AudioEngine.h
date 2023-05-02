@@ -10,6 +10,7 @@
 #include <AL/alext.h>
 
 #include <ethertia/util/Log.h>
+#include <ethertia/util/BenchmarkTimer.h>
 
 #include <ethertia/audio/AudioBuffer.h>
 #include <ethertia/audio/AudioSource.h>

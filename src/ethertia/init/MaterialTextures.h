@@ -26,9 +26,9 @@ public:
     // 128  non-realistic
     inline static int TEX_RESOLUTION = 256;
 
-    inline static Texture* ATLAS_DIFFUSE = nullptr;
-    inline static Texture* ATLAS_NORM    = nullptr;
-    inline static Texture* ATLAS_DRAM    = nullptr;  // DRAM: Disp, Rough, AO, Metal
+    inline static vkx::Image* ATLAS_DIFFUSE = nullptr;
+    inline static vkx::Image* ATLAS_NORM    = nullptr;
+    inline static vkx::Image* ATLAS_DRAM    = nullptr;  // DRAM: Disp, Rough, AO, Metal
 
 
     static void load()
@@ -76,12 +76,12 @@ public:
      * @param textype could be: diff/disp/norm/ao/rough
      * @param px needed resolution in pixel
      */
-    static Texture* makeAtlas(std::string_view textype, int px, const std::string& cache_file, bool composeDRAM = false) {
+    static vkx::Image* makeAtlas(std::string_view textype, int px, const std::string& cache_file, bool composeDRAM = false) {
         BENCHMARK_TIMER;
 
         if (Loader::fileExists(cache_file))
         {
-            Texture* t = Loader::loadTexture(cache_file);
+            vkx::Image* t = Loader::loadImage(cache_file);
             Log::info(" *{} loaded cached atlas from '{}'. (x{})\1", textype, cache_file, t->height);
             return t;
         }
@@ -136,7 +136,7 @@ public:
             // save cached atlas.
             Loader::savePNG(cache_file, atlas);
 
-            return Loader::loadTexture(atlas);
+            return Loader::loadImage(atlas);
         }
     }
 

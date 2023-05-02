@@ -16,6 +16,13 @@ size_t VertexData::size() const {
     return sizeof(m_Vertices[0]) * m_Vertices.size();
 }
 
+const void* VertexData::vtx_data() const {
+    return m_Vertices.data();
+}
+size_t VertexData::vtx_size() const {
+    return sizeof(m_Vertices[0]) * m_Vertices.size();
+}
+
 const void* VertexData::idx_data() const {
     return m_Indices.data();
 }

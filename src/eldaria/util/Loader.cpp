@@ -132,7 +132,7 @@ vkx::Image* Loader::loadImage(const BitmapImage& bitmapImage)
     vkx::CreateStagedImage(bitmapImage.m_Width, bitmapImage.m_Height, bitmapImage.m_Pixels,
                            &image, &imageMemory, &imageView);
 
-    return new vkx::Image(image, imageMemory, imageView);
+    return new vkx::Image(image, imageMemory, imageView, bitmapImage.m_Width, bitmapImage.m_Height);
 }
 
 
