@@ -15,9 +15,9 @@ Loader::DataBlock Loader::loadFile(const std::string& path)
     if (!file.is_open()) {
         throw std::runtime_error(Strings::fmt("Failed to open file: ", path));
     }
-    size_t filesize = (size_t)file.tellg() + 1;  // +1: we add '\0' at the end. for string load.
-    char* data = new char[filesize];
-    data[filesize-1] = '\0';
+    size_t filesize = (size_t)file.tellg();
+    char* data = new char[filesize + 1];  // +1: add an extra '\0' at the end. for c_string format compatible.
+    data[filesize] = '\0';  // set last extra byte to '\0'.
 
     file.seekg(0);
     file.read(data, filesize);
@@ -305,11 +305,16 @@ void Loader::savePNG(const std::string& filename, const BitmapImage& img)
 
 vkx::VertexBuffer* Loader::loadVertexBuffer(const VertexData* vtx)
 {
-    VkBuffer vtxBuffer, idxBuffer;
-    VkDeviceMemory vtxMemory, idxMemory;
-
+    VkBuffer vtxBuffer;
+    VkDeviceMemory vtxMemory;
     vkx::CreateStagedBuffer(vtx->vtx_data(), vtx->vtx_size(), &vtxBuffer, &vtxMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-    vkx::CreateStagedBuffer(vtx->idx_data(), vtx->idx_size(), &idxBuffer, &idxMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+    VkBuffer idxBuffer = nullptr;
+    VkDeviceMemory idxMemory = nullptr;
+    if (vtx->isIndexed())
+    {
+        vkx::CreateStagedBuffer(vtx->idx_data(), vtx->idx_size(), &idxBuffer, &idxMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+    }
 
     int vcount = vtx->vertexCount();
     return new vkx::VertexBuffer(vtxBuffer, vtxMemory, idxBuffer, idxMemory, vcount);

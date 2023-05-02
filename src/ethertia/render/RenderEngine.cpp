@@ -303,6 +303,8 @@ void RenderEngine::init()
 
 
     CreateRenderPass();     // depend: Swapchain format
+    vkx::ctx()._RenderPass = g_RenderPass;
+
     CreateDepthTexture();
     CreateFramebuffers();   // depend: DepthTexture, RenderPass
 
@@ -323,6 +325,8 @@ void RenderEngine::init()
 
         std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
+        VkPipelineColorBlendAttachmentState colorBlendAttachment = vkh::c_PipelineColorBlendAttachmentState();
+
         VkGraphicsPipelineCreateInfo pipelineInfo =
                 vl::IGraphicsPipeline(
                         {shaderStages, 2},
@@ -335,7 +339,7 @@ void RenderEngine::init()
                         vl::IPipelineRasterizationState(),
                         vl::IPipelineMultisampleState(),
                         vl::IPipelineDepthStencilState(),
-                        vl::IPipelineColorBlendState({}),
+                        vl::IPipelineColorBlendState({&colorBlendAttachment, 1}),
                         vl::IPipelineDynamicState({dynamicStates.data(), (int)dynamicStates.size()}),
                         g_PipelineLayout,
                         g_RenderPass);
@@ -390,13 +394,13 @@ static void RecordCommandBuffer(VkCommandBuffer cmdbuf, VkFramebuffer framebuffe
     cmd.CmdBeginRenderPass(g_RenderPass, framebuffer_MainRenderPass, g_SwapchainExtent, 2, clearValues);
 
     cmd.CmdBindGraphicsPipeline(g_GraphicsPipeline);
-//    cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
+////    cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
     cmd.CmdSetViewport(g_SwapchainExtent);
     cmd.CmdSetScissor(g_SwapchainExtent);
-
-    cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentInflightFrame]);
-
-    cmd.CmdDrawIndexed(6);
+//
+//    cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentInflightFrame]);
+//
+//    cmd.CmdDrawIndexed(6);
 
     {
         PROFILE("GUI");

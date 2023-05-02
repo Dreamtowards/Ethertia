@@ -195,6 +195,7 @@ static void RunMainLoop()
 
         window.PollEvents();
         Controls::handleInput();
+        Imgui::NewFrame();
     }
     {
         PROFILE("ProcGUI");
@@ -209,8 +210,8 @@ static void RunMainLoop()
 
     {
         PROFILE("SwapBuffer");
-        window.setVSync(Settings::s_Vsync);
-        window.swapBuffers();
+//        window.setVSync(Settings::s_Vsync);
+//        window.swapBuffers();
         Dbg::_fps_frame(Ethertia::getPreciseTime());
 
         AudioEngine::checkAlError("Frame");

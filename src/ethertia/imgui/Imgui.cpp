@@ -146,6 +146,14 @@ void Imgui::Init()
     //init_info.Allocator = g_Allocator;
     ImGui_ImplVulkan_Init(&init_info, vkx::ctx()._RenderPass);
 
+
+    vkx::SubmitCommandBuffer([](VkCommandBuffer cmdbuf)
+    {
+        ImGui_ImplVulkan_CreateFontsTexture(cmdbuf);
+    });
+    ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+
     // ImNodes
     ImNodes::CreateContext();
     ImNodes::GetIO().EmulateThreeButtonMouse.Modifier = &ImGui::GetIO().KeyShift;
@@ -175,7 +183,7 @@ static VkDescriptorSet pTexDesc(VkImageView imageView)
                                                         imageView,
                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     }
-    return it->second;
+    return _cache[imageView];
 }
 
 
@@ -246,7 +254,7 @@ static ImGuiKey GetPressedKey()
 
 void Imgui::NewFrame()
 {
-    PROFILE("NewFrame");
+    PROFILE("ImGuiNewFrame");
 
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplVulkan_NewFrame();
