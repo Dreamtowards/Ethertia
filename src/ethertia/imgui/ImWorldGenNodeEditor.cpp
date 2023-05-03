@@ -173,10 +173,6 @@ void WorldGenNodeEditor::ShowWorldGenNodeEditor(bool& w_WorldGenNodeEditor) {
 
         ImGui::Image((void*)(intptr_t)(node.second.noiseTexture), ImVec2((float)Node::NoiseSize, (float)Node::NoiseSize));
 
-        if( ImGui::IsItemClicked( ImGuiMouseButton_Left ) )
-        {
-            ChangeSelectedNode( node.first );
-        }
         ImNodes::EndOutputAttribute();
 
         ImNodes::EndNode();
@@ -413,11 +409,6 @@ WorldGenNodeEditor::Node& WorldGenNodeEditor::AddNode(ImVec2 startPos, const Fas
 
     ImNodes::SetNodeScreenSpacePos(newNode.first->second.nodeId, startPos);
 
-    if( mNodes.size() == 1 )
-    {
-        ChangeSelectedNode( nodeData );
-    }
-
     return newNode.first->second;
 }
 
@@ -471,18 +462,6 @@ WorldGenNodeEditor::Node* WorldGenNodeEditor::FindNodeFromId(int id)
     }
 
     return nullptr;
-}
-
-void WorldGenNodeEditor::ChangeSelectedNode(FastNoise::NodeData* newId)
-{
-    mSelectedNode = newId;
-
-    FastNoise::SmartNode<> generator = GenerateSelectedPreview();
-
-    if(generator)
-    {
-//        mMeshNoisePreview.ReGenerate( generator );
-    }
 }
 
 int WorldGenNodeEditor::GetFreeNodeId()
@@ -545,38 +524,7 @@ void WorldGenNodeEditor::Node::GeneratePreview(bool nodeTreeChanged)
             }
         }
     }
-
-    if( nodeTreeChanged )
-    {
-        if( editor.mSelectedNode == data.get() )
-        {
-            editor.ChangeSelectedNode( data.get() );
-        }
-
-        // Save nodes to ini
-        ImGuiExtra::MarkSettingsDirty();
-    }
-}
-
-FastNoise::SmartNode<> WorldGenNodeEditor::GenerateSelectedPreview()
-{
-    auto find = mNodes.find( mSelectedNode );
-
-    FastNoise::SmartNode<> generator;
-
-    if( find != mNodes.end() )
-    {
-        generator = FastNoise::NewFromEncodedNodeTree( find->second.serialised.c_str(), mActualSIMDLevel );
-
-        if( generator )
-        {
-            mActualSIMDLevel = generator->GetSIMDLevel();
-        }
-    }
-
-//    mNoiseTexture.ReGenerate( generator );
-
-    return generator;
+    
 }
 
 FastNoise::NodeData*& WorldGenNodeEditor::Node::GetNodeLink( int attributeId )

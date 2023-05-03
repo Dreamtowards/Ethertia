@@ -141,10 +141,8 @@ namespace ImWorldGenNodeEditor
 
         Node& AddNode( ImVec2 startPos, const FastNoise::Metadata* metadata, bool generatePreview = true );
         bool AddNodeFromEncodedString( const char* string, ImVec2 nodePos );
-        FastNoise::SmartNode<> GenerateSelectedPreview();
         Node* FindNodeFromId( int id );
         int GetFreeNodeId();
-        void ChangeSelectedNode( FastNoise::NodeData* newId );
         void SetupSettingsHandlers();
 
         void DoHelp();
