@@ -95,7 +95,7 @@ public:
         CreateSyncObjects_Semaphores_Fences();
 
 
-        CreateSwapchainAndImageViews();
+        vkx::CreateSwapchain();
         CreateRenderPass();     // depend: Swapchain format
         CreateDepthTexture();
         CreateFramebuffers();   // depend: DepthTexture, RenderPass
@@ -165,15 +165,6 @@ public:
     }
 
 
-
-    static void CreateSwapchainAndImageViews()
-    {
-        vkx::CreateSwapchain(vkx::ctx().Device, vkx::ctx().PhysDevice, vkx::ctx().SurfaceKHR, g_WindowHandle,
-                             g_SwapchainKHR,
-                             g_SwapchainExtent, g_SwapchainImageFormat,
-                             g_SwapchainImages, g_SwapchainImageViews);
-    }
-
     static void DestroySwapchain()
     {
         VkDevice device = vkx::ctx().Device;
@@ -200,7 +191,7 @@ public:
         DestroySwapchain();
         Log::info("RecreateSwapchain");
 
-        CreateSwapchainAndImageViews();
+        vkx::CreateSwapchain();
         CreateDepthTexture();
         CreateFramebuffers();
     }
@@ -268,7 +259,7 @@ public:
         out.m_Img->m_ImageView = vl::CreateImageView(device, out.m_Img->m_Image, format,
                     depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
 
-        out.m_Desc = vkh::c_AttachmentDescription(format,
+        out.m_Desc = vl::IAttachmentDescription(format,
                     depth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         return out;
@@ -513,8 +504,8 @@ public:
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
         VkAttachmentDescription attachmentsDesc[] = {
-                vkh::c_AttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
-                vkh::c_AttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
+                vl::IAttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
+                vl::IAttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
         };
 
         VkRenderPassCreateInfo renderPassInfo{};

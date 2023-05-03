@@ -144,7 +144,7 @@ void Imgui::Init()
     //init_info.PipelineCache = g_PipelineCache;
     //init_info.Subpass = 0;
     //init_info.Allocator = g_Allocator;
-    ImGui_ImplVulkan_Init(&init_info, vkx::ctx()._RenderPass);
+    ImGui_ImplVulkan_Init(&init_info, vkx::ctx().MainRenderPass);
 
 
     vkx::SubmitCommandBuffer([](VkCommandBuffer cmdbuf)

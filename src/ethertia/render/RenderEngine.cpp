@@ -5,25 +5,11 @@
 #include "RenderEngine.h"
 
 
-#include <ethertia/world/World.h>
-//#include <ethertia/render/deferred/GeometryRenderer.h>
-//#include <ethertia/render/deferred/ComposeRenderer.h>
-//#include <ethertia/render/sky/SkyGradientRenderer.h>
-//#include <ethertia/render/sky/SkyboxRenderer.h>
-//#include <ethertia/render/gui/GuiRenderer.h>
-//#include <ethertia/render/gui/FontRenderer.h>
-//#include <ethertia/render/debug/DebugRenderer.h>
-//#include <ethertia/render/particle/ParticleRenderer.h>
-//#include <ethertia/render/ssao/SSAORenderer.h>
-//#include <ethertia/render/shadow/ShadowRenderer.h>
-//#include <ethertia/render/anim/AnimRenderer.h>
-//#include <ethertia/render/RenderCommand.h>
-
 #include <ethertia/render/Window.h>
-#include <ethertia/entity/EntityDroppedItem.h>
 #include <ethertia/init/ItemTextures.h>
-#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/init/Settings.h>
+#include <ethertia/entity/EntityDroppedItem.h>
+#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/init/DebugStat.h>
 
 
@@ -31,15 +17,7 @@
 // Don't use OOP except it's necessary.
 
 #include <ethertia/imgui/Imgui.h>
-//
-//void RenderEngine::init()
-//{
-//    BENCHMARK_TIMER;
-//    Log::info("RenderEngine initializing.\1");
-//
-//    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
-//
-//
+
 //    std::cout << " renderers[";
 ////    GuiRenderer::init();        std::cout << "gui, ";
 ////    FontRenderer::init();       std::cout << "font, ";
@@ -52,26 +30,6 @@
 ////    SSAORenderer::init();
 ////    ShadowRenderer::init();
 //
-//    std::cout << "]";
-//
-//    {
-//        BitmapImage img(1, 1, new uint32_t[1]{(uint32_t)~0});
-//        TEX_WHITE = Loader::loadImage(img);
-//
-//        TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
-//    }
-//
-//
-////    RenderCommand::CheckError("End of RenderEngine Init");
-//
-//}
-
-void RenderEngine::deinit()
-{
-    // todo: deinit renderers.
-}
-
-
 
 static const int MAX_INFLIGHT_FRAMES = 2;
 static int g_CurrentInflightFrame = 0;
@@ -83,17 +41,6 @@ static std::vector<VkSemaphore> g_SemaphoreRenderComplete;
 static std::vector<VkFence>     g_InflightFence;
 
 
-static VkSwapchainKHR        g_SwapchainKHR = nullptr;
-static std::vector<VkImage>  g_SwapchainImages;  // auto clean by vk swapchain
-static std::vector<VkImageView> g_SwapchainImageViews;
-static VkExtent2D            g_SwapchainExtent = {};
-static VkFormat              g_SwapchainImageFormat = {};
-static std::vector<VkFramebuffer> g_SwapchainFramebuffers;  // for each Swapchain Image.
-
-static VkRenderPass g_RenderPass;
-
-static vkx::Image* g_DepthImage = new vkx::Image(0,0,0,0,0);
-
 
 static VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
 static VkPipelineLayout g_PipelineLayout = nullptr;
@@ -102,7 +49,6 @@ static VkPipeline g_GraphicsPipeline = nullptr;
 static std::vector<vkx::UniformBuffer*> g_UniformBuffers;  // for each InflightFrame
 static std::vector<VkDescriptorSet> g_DescriptorSets;
 
-static bool g_RecreateSwapchainRequested = false;
 
 
 
@@ -152,90 +98,13 @@ static void CreateSyncObjects()
 
 
 
-static void CreateDepthTexture()
-{
-    vkx::CreateDepthImage(g_SwapchainExtent.width, g_SwapchainExtent.height, g_DepthImage);
-}
 
 
 
-static void CreateFramebuffers()
-{
-    g_SwapchainFramebuffers.resize(g_SwapchainImageViews.size());
-
-    for (size_t i = 0; i < g_SwapchainImageViews.size(); i++)
-    {
-        std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImage->m_ImageView };
-
-        g_SwapchainFramebuffers[i] = vl::CreateFramebuffer(vkx::ctx().Device,
-                                                           g_SwapchainExtent.width, g_SwapchainExtent.height,
-                                                           g_RenderPass, attachments.size(), attachments.data());
-    }
-}
 
 
-static void CreateSwapchain()
-{
-    vkx::CreateSwapchain(vkx::ctx().Device, vkx::ctx().PhysDevice, vkx::ctx().SurfaceKHR, Ethertia::getWindow().m_WindowHandle,
-                         g_SwapchainKHR,
-                         g_SwapchainExtent, g_SwapchainImageFormat,
-                         g_SwapchainImages, g_SwapchainImageViews);
-}
-
-static void DestroySwapchain()
-{
-    VkDevice device = vkx::ctx().Device;
-
-    for (auto fb : g_SwapchainFramebuffers) {
-        vkDestroyFramebuffer(device, fb, nullptr);
-    }
-    for (auto imageview : g_SwapchainImageViews) {
-        vkDestroyImageView(device, imageview, nullptr);
-    }
-    vkDestroySwapchainKHR(device, g_SwapchainKHR, nullptr);
-}
-
-static void RecreateSwapchain()
-{
-    vkDeviceWaitIdle(vkx::ctx().Device);
-    DestroySwapchain();
-    Log::info("RecreateSwapchain");
-
-    CreateSwapchain();
-    CreateDepthTexture();
-    CreateFramebuffers();
-}
 
 
-static void CreateRenderPass()
-{
-    VkAttachmentDescription attachmentsDesc[] = {
-            vl::IAttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
-            vl::IAttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
-    };
-
-    VkAttachmentReference colorAttachmentRef = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
-    VkAttachmentReference depthAttachmentRef = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
-
-    VkSubpassDescription subpass{};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-    VkSubpassDependency dependency{};
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
-    dependency.srcAccessMask = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-    g_RenderPass = vl::CreateRenderPass(vkx::ctx().Device,
-                         {attachmentsDesc, std::size(attachmentsDesc)},
-                         {&subpass, 1},
-                         {&dependency, 1});
-}
 
 
 static void CreateDescriptorSetLayout()
@@ -287,10 +156,15 @@ void RenderEngine::init()
     vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
 
 
+
     CreateCommandBuffers();
     CreateSyncObjects();
 
-    CreateSwapchain();
+
+    CreateDescriptorSetLayout();
+
+    g_PipelineLayout = vl::CreatePipelineLayout(vkx::ctx().Device, 1, &g_DescriptorSetLayout);
+
 
     {
         BitmapImage img(1, 1, new uint32_t[1]{(uint32_t)~0});
@@ -299,19 +173,9 @@ void RenderEngine::init()
         TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
     }
 
-
-    CreateRenderPass();     // depend: Swapchain format
-    vkx::ctx()._RenderPass = g_RenderPass;
-
-    CreateDepthTexture();
-    CreateFramebuffers();   // depend: DepthTexture, RenderPass
-
-    CreateDescriptorSetLayout();
-
-    g_PipelineLayout = vl::CreatePipelineLayout(vkx::ctx().Device, 1, &g_DescriptorSetLayout);
-
     CreateUniformBuffers();
     CreateDescriptorSets();
+
 
     {
         g_GraphicsPipeline =
@@ -325,11 +189,20 @@ void RenderEngine::init()
                 1,
                 {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
                 g_PipelineLayout,
-                g_RenderPass);
+                vkx::ctx().MainRenderPass);
     }
 
 
+
+
 }
+
+
+void RenderEngine::deinit()
+{
+    // todo: deinit renderers.
+}
+
 
 
 
@@ -371,12 +244,12 @@ static void RecordCommandBuffer(VkCommandBuffer cmdbuf, VkFramebuffer framebuffe
     // Main
     clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
     clearValues[1].depthStencil = {1.0f, 0};
-    cmd.CmdBeginRenderPass(g_RenderPass, framebuffer_MainRenderPass, g_SwapchainExtent, 2, clearValues);
+    cmd.CmdBeginRenderPass(vkx::ctx().MainRenderPass, framebuffer_MainRenderPass, vkx::ctx().SwapchainExtent, 2, clearValues);
 
     cmd.CmdBindGraphicsPipeline(g_GraphicsPipeline);
 ////    cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
-    cmd.CmdSetViewport(g_SwapchainExtent);
-    cmd.CmdSetScissor(g_SwapchainExtent);
+    cmd.CmdSetViewport(vkx::ctx().SwapchainExtent);
+    cmd.CmdSetScissor(vkx::ctx().SwapchainExtent);
 //
 //    cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentInflightFrame]);
 //
@@ -404,7 +277,7 @@ void UpdateUniformBuffer(int frameIdx)
 
     ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(glm::radians(45.0f), g_SwapchainExtent.width / (float) g_SwapchainExtent.height, 0.1f, 10.0f);
+    ubo.proj = glm::perspective(glm::radians(45.0f), vkx::ctx().SwapchainExtent.width / (float) vkx::ctx().SwapchainExtent.height, 0.1f, 10.0f);
 
     ubo.proj[1][1] *= -1;
 
@@ -420,13 +293,13 @@ void RenderEngine::Render()
     vkWaitForFences(device, 1, &g_InflightFence[frameIdx], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIdx;
-    vkAcquireNextImageKHR(device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
+    vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
     vkResetFences(device, 1, &g_InflightFence[frameIdx]);
     vkResetCommandBuffer(cmdbuf, 0);
 
     UpdateUniformBuffer(frameIdx);
 
-    RecordCommandBuffer(cmdbuf, g_SwapchainFramebuffers[imageIdx]);
+    RecordCommandBuffer(cmdbuf, vkx::ctx().SwapchainFramebuffers[imageIdx]);
 
 
     vl::QueueSubmit(vkx::ctx().GraphicsQueue, cmdbuf,
@@ -436,11 +309,11 @@ void RenderEngine::Render()
     VkResult vkr =
     vl::QueuePresentKHR(vkx::ctx().PresentQueue,
                         1, &g_SemaphoreRenderComplete[frameIdx],
-                        1, &g_SwapchainKHR, &imageIdx);
+                        1, &vkx::ctx().SwapchainKHR, &imageIdx);
 
     if (vkr == VK_SUBOPTIMAL_KHR)
     {
-        RecreateSwapchain();
+        vkx::RecreateSwapchain();
     }
 
     vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.

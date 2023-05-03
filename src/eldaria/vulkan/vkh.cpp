@@ -1061,7 +1061,11 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugMessengerCallback( VkDebugUtilsMessag
     else if (messageType == VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) MSG_TYPE = "PERFORMANCE";
 
     if (messageSeverity != VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-    std::cerr << Strings::fmt("VkLayer[{}][{}]: ", MSG_SERV, MSG_TYPE) << pCallbackData->pMessage << std::endl;
+    {
+        std::cerr << Strings::fmt("VkLayer[{}][{}]: ", MSG_SERV, MSG_TYPE) << pCallbackData->pMessage << std::endl;
+
+        std::cerr.flush();
+    }
 
     return VK_FALSE;
 }
@@ -1400,10 +1404,17 @@ static VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities,
     return extent;
 }
 
-void vkx::CreateSwapchain(VkDevice device, VkPhysicalDevice physDevice, VkSurfaceKHR surfaceKHR, GLFWwindow *glfwWindow,
-                     VkSwapchainKHR &out_SwapchainKHR, VkExtent2D &out_SwapchainExtent,
-                     VkFormat &out_SwapchainImageFormat, std::vector<VkImage> &out_SwapchainImages,
-                     std::vector<VkImageView> &out_SwapchainImageViews)
+
+static
+void CreateSwapchain(GLFWwindow* glfwWindow             = vkx::ctx().WindowHandle,
+                     VkDevice device                    = vkx::ctx().Device,
+                     VkPhysicalDevice physDevice        = vkx::ctx().PhysDevice,
+                     VkSurfaceKHR surfaceKHR            = vkx::ctx().SurfaceKHR,
+                     VkSwapchainKHR& out_SwapchainKHR   = vkx::ctx().SwapchainKHR,
+                     VkExtent2D& out_SwapchainExtent    = vkx::ctx().SwapchainExtent,
+                     VkFormat& out_SwapchainImageFormat = vkx::ctx().SwapchainImageFormat,
+                     std::vector<VkImage>& out_SwapchainImages          = vkx::ctx().SwapchainImages,
+                     std::vector<VkImageView>& out_SwapchainImageViews  = vkx::ctx().SwapchainImageViews)
 {
     SwapchainSupportDetails swapchainDetails = querySwapchainSupport(physDevice, surfaceKHR);
 
@@ -1470,6 +1481,26 @@ void vkx::CreateSwapchain(VkDevice device, VkPhysicalDevice physDevice, VkSurfac
 
 
 
+static void DestroySwapchain_(
+        VkDevice device                                           = vkx::ctx().Device,
+        const std::vector<VkFramebuffer>& swapchainFramebuffers   = vkx::ctx().SwapchainFramebuffers,
+        const std::vector<VkImageView>& swapchainImageViews       = vkx::ctx().SwapchainImageViews,
+        vkx::Image* swapchainDepthImage                           = vkx::ctx().SwapchainDepthImage,
+        VkSwapchainKHR swapchainKHR                               = vkx::ctx().SwapchainKHR)
+{
+    delete swapchainDepthImage;
+
+    for (auto fb : swapchainFramebuffers) {
+        vkDestroyFramebuffer(device, fb, nullptr);
+    }
+    for (auto imageview : swapchainImageViews) {
+        vkDestroyImageView(device, imageview, nullptr);
+    }
+    vkDestroySwapchainKHR(device, swapchainKHR, nullptr);
+}
+
+
+
 static VkDescriptorPool CreateDescriptorPool_(VkDevice device)
 {
     // tho kinda oversize.
@@ -1501,7 +1532,78 @@ static VkDescriptorPool CreateDescriptorPool_(VkDevice device)
 }
 
 
+static VkRenderPass CreateMainRenderPass(
+        VkDevice device = vkx::ctx().Device,
+        VkFormat swapchainImageFormat = vkx::ctx().SwapchainImageFormat)
+{
 
+
+    VkAttachmentDescription attachmentsDesc[] = {
+            vl::IAttachmentDescription(swapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
+            vl::IAttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
+    };
+
+    VkAttachmentReference colorAttachmentRef = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+    VkAttachmentReference depthAttachmentRef = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+    VkSubpassDependency dependency{};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcAccessMask = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+    return vl::CreateRenderPass(
+            device,
+            {attachmentsDesc, std::size(attachmentsDesc)},
+            {&subpass, 1},
+            {&dependency, 1});
+}
+
+static void CreateSwapchainDepthImage(int width     = vkx::ctx().SwapchainExtent.width,
+                                      int height    = vkx::ctx().SwapchainExtent.height)
+{
+    vkx::Image* depthImage = vkx::ctx().SwapchainDepthImage = new vkx::Image(0,0,0,0,0);
+    vkx::CreateDepthImage(width, height, depthImage);
+}
+
+static void CreateSwapchainFramebuffers(
+        VkDevice device                                     = vkx::ctx().Device,
+        VkRenderPass renderPass                             = vkx::ctx().MainRenderPass,
+        VkExtent2D swapchainExtent                          = vkx::ctx().SwapchainExtent,
+        VkImageView depthImageView                          = vkx::ctx().SwapchainDepthImage->m_ImageView,
+        const std::vector<VkImageView>& swapchainImageViews = vkx::ctx().SwapchainImageViews,
+        std::vector<VkFramebuffer>& out_swapchainFramebuffers = vkx::ctx().SwapchainFramebuffers)
+{
+    out_swapchainFramebuffers.resize(swapchainImageViews.size());
+
+    for (size_t i = 0; i < swapchainImageViews.size(); i++)
+    {
+        std::array<VkImageView, 2> attachments = { swapchainImageViews[i], depthImageView };
+
+        out_swapchainFramebuffers[i] = vl::CreateFramebuffer(device,
+                                                             swapchainExtent.width, swapchainExtent.height,
+                                                             renderPass,
+                                                             attachments.size(), attachments.data());
+    }
+}
+
+void vkx::RecreateSwapchain()
+{
+    vkDeviceWaitIdle(vkx::ctx().Device);
+    DestroySwapchain_();
+
+    CreateSwapchain();
+    CreateSwapchainDepthImage();
+    CreateSwapchainFramebuffers();
+}
 
 
 void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
@@ -1510,19 +1612,38 @@ void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
     vkx::ctx(inst);
     vkx::Instance& i = *inst;
     i.m_EnabledValidationLayer=enableValidationLayer;
+    i.WindowHandle = glfwWindow;
 
-    i.Inst = CreateInstance(enableValidationLayer);
-    i.SurfaceKHR = CreateSurface(i.Inst, glfwWindow);
+    i.Inst =
+    CreateInstance(enableValidationLayer);
+    i.SurfaceKHR =
+    CreateSurface(i.Inst, glfwWindow);
 
-    i.PhysDevice = PickPhysicalDevice(i.Inst);
+    i.PhysDevice =
+    PickPhysicalDevice(i.Inst);
 
     QueueFamilyIndices queueFamily = findQueueFamilies(i.PhysDevice, i.SurfaceKHR);
-    i.Device = CreateLogicalDevice(i.PhysDevice, queueFamily, &i.GraphicsQueue, &i.PresentQueue);
+    i.Device =
+    CreateLogicalDevice(i.PhysDevice, queueFamily, &i.GraphicsQueue, &i.PresentQueue);
 
 
-    i.CommandPool = CreateCommandPool(i.Device, queueFamily.m_GraphicsFamily);
-    i.ImageSampler = vkx::CreateImageSampler();
-    i.DescriptorPool = CreateDescriptorPool_(i.Device);
+    i.CommandPool =
+    CreateCommandPool(i.Device, queueFamily.m_GraphicsFamily);
+    i.ImageSampler =
+    vkx::CreateImageSampler();
+    i.DescriptorPool =
+    CreateDescriptorPool_(i.Device);
+    
+    // Swapchain
+    {
+        CreateSwapchain();
+
+        i.MainRenderPass =
+                CreateMainRenderPass();     // depend: Swapchain format
+
+        CreateSwapchainDepthImage();
+        CreateSwapchainFramebuffers();   // depend: DepthTexture, RenderPass
+    }
 
 }
 
@@ -1530,6 +1651,9 @@ void vkx::Destroy()
 {
     vkx::Instance& vk = vkx::ctx();
     VkDevice device = vk.Device;
+
+    vkDestroyRenderPass(device, vk.MainRenderPass, nullptr);
+    DestroySwapchain_();
 
     vkDestroyDescriptorPool(device, vk.DescriptorPool, nullptr);
     vkDestroySampler(device, vk.ImageSampler, nullptr);

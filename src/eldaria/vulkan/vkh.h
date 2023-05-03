@@ -219,6 +219,7 @@ namespace vl
 // HighLevel Object-Oriented Encapsulate
 namespace vkx
 {
+    class Image;
 
     struct Instance
     {
@@ -229,6 +230,7 @@ namespace vkx
         VkInstance Inst = nullptr;
         VkSurfaceKHR SurfaceKHR = nullptr;
         bool m_EnabledValidationLayer = true;
+        GLFWwindow* WindowHandle = nullptr;
 
         VkPhysicalDevice PhysDevice = nullptr;
         VkDevice Device = nullptr;
@@ -240,7 +242,19 @@ namespace vkx
         VkSampler ImageSampler = nullptr;  // default sampler.
         VkDescriptorPool DescriptorPool = nullptr;
 
-        VkRenderPass _RenderPass = nullptr;  // external. main render pass.
+        // Swapchain
+        VkSwapchainKHR              SwapchainKHR = nullptr;
+        std::vector<VkImage>        SwapchainImages;  // auto clean by vk swapchain
+        std::vector<VkImageView>    SwapchainImageViews;
+        VkExtent2D                  SwapchainExtent = {};
+        VkFormat                    SwapchainImageFormat = {};
+        std::vector<VkFramebuffer>  SwapchainFramebuffers;  // for each Swapchain Image.
+
+        vkx::Image*                 SwapchainDepthImage = nullptr;
+
+
+
+        VkRenderPass MainRenderPass = nullptr;  // external. main render pass.
     };
 
     void ctx(vkx::Instance* inst);
@@ -250,6 +264,8 @@ namespace vkx
     void Init(GLFWwindow* glfwWindow, bool enableValidationLayer);
 
     void Destroy();
+
+
 
 
 
@@ -470,10 +486,8 @@ namespace vkx
 
 
 
-    void CreateSwapchain(VkDevice device, VkPhysicalDevice physDevice, VkSurfaceKHR surfaceKHR, GLFWwindow* glfwWindow,
-                         VkSwapchainKHR& out_SwapchainKHR, VkExtent2D& out_SwapchainExtent,
-                         VkFormat& out_SwapchainImageFormat, std::vector<VkImage>& out_SwapchainImages,
-                         std::vector<VkImageView>& out_SwapchainImageViews);
+
+    void RecreateSwapchain();
 
 
     VkFormat findDepthFormat();
@@ -482,6 +496,16 @@ namespace vkx
 
 
     VkSampler CreateImageSampler();
+
+
+
+
+
+
+
+
+
+
 
 }
 
