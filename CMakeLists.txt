@@ -118,9 +118,12 @@ add_executable(Eldaria
         lib/imgui-docking/imgui_demo.cpp
         lib/imgui-docking/backends/imgui_impl_glfw.cpp
         lib/imgui-docking/backends/imgui_impl_vulkan.cpp
+        lib/tinyfd/tinyfiledialogs.c
 
         src/eldaria/Eldaria.cpp
         src/eldaria/util/Loader.cpp
+        src/ethertia/util/Loader.cpp
+        src/ethertia/render/VertexData.cpp
         src/eldaria/vulkan/VulkanIntl.cpp
         src/eldaria/imgui/Imgui.cpp)
 

@@ -317,35 +317,47 @@ void RenderEngine::init()
 
     {
 
-        VkPipelineShaderStageCreateInfo shaderStages[2];
-        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
+//        VkPipelineShaderStageCreateInfo shaderStages[2];
+//        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
+//
+//        VkVertexInputBindingDescription vertexInputBindingDescription;
+//        std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescription;
+//
+//        std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+//
+//        VkPipelineColorBlendAttachmentState colorBlendAttachment = vkh::c_PipelineColorBlendAttachmentState();
+//
+//        VkGraphicsPipelineCreateInfo pipelineInfo =
+//                vl::IGraphicsPipeline(
+//                        {shaderStages, 2},
+//                        vl::IPipelineVertexInputState(
+//                                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT }, 0,
+//                                &vertexInputBindingDescription, &vertexInputAttributeDescription),
+//                        vl::IPipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
+//                        nullptr,
+//                        vl::IPipelineViewportState(),
+//                        vl::IPipelineRasterizationState(),
+//                        vl::IPipelineMultisampleState(),
+//                        vl::IPipelineDepthStencilState(),
+//                        vl::IPipelineColorBlendState({&colorBlendAttachment, 1}),
+//                        vl::IPipelineDynamicState({dynamicStates.data(), (int)dynamicStates.size()}),
+//                        g_PipelineLayout,
+//                        g_RenderPass);
+//
+//        vl::CreateGraphicsPipelines(vkx::ctx().Device, VK_NULL_HANDLE, 1, &g_GraphicsPipeline,
+//                   &pipelineInfo);
 
-        VkVertexInputBindingDescription vertexInputBindingDescription;
-        std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescription;
-
-        std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
-
-        VkPipelineColorBlendAttachmentState colorBlendAttachment = vkh::c_PipelineColorBlendAttachmentState();
-
-        VkGraphicsPipelineCreateInfo pipelineInfo =
-                vl::IGraphicsPipeline(
-                        {shaderStages, 2},
-                        vl::IPipelineVertexInputState(
-                                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT }, 0,
-                                &vertexInputBindingDescription, &vertexInputAttributeDescription),
-                        vl::IPipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
-                        nullptr,
-                        vl::IPipelineViewportState(),
-                        vl::IPipelineRasterizationState(),
-                        vl::IPipelineMultisampleState(),
-                        vl::IPipelineDepthStencilState(),
-                        vl::IPipelineColorBlendState({&colorBlendAttachment, 1}),
-                        vl::IPipelineDynamicState({dynamicStates.data(), (int)dynamicStates.size()}),
-                        g_PipelineLayout,
-                        g_RenderPass);
-
-        vl::CreatePipelines(vkx::ctx().Device, VK_NULL_HANDLE, 1, &g_GraphicsPipeline,
-                   &pipelineInfo);
+        g_GraphicsPipeline =
+        vkx::CreateGraphicsPipeline(
+                {
+                    Loader::loadAssets("shaders-vk/spv/def_gbuffer/vert.spv"),
+                    Loader::loadAssets("shaders-vk/spv/def_gbuffer/frag.spv")
+                },
+                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT },
+                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
+                g_PipelineLayout,
+                g_RenderPass);
     }
 
 

@@ -10,7 +10,6 @@
 #include <ethertia/util/Log.h>
 #include <ethertia/util/Collections.h>
 
-#include <ethertia/util/Loader.h>
 
 
 
@@ -31,12 +30,12 @@ void vl::AllocateDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool
 }
 
 
-VkPipelineShaderStageCreateInfo vl::CreateShaderModule_PipelineStageInfo(VkDevice device, VkShaderStageFlagBits stage, const void* data, size_t size)
+VkPipelineShaderStageCreateInfo vl::CreateShaderModule_IPipelineShaderStage(VkDevice device, VkShaderStageFlagBits stage, std::span<const char> code)
 {
     VkShaderModuleCreateInfo moduleInfo{};
     moduleInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    moduleInfo.codeSize = size;
-    moduleInfo.pCode = reinterpret_cast<const uint32_t*>(data);
+    moduleInfo.codeSize = code.size();
+    moduleInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
     VkShaderModule shaderModule;
     VK_CHECK_MSG(vkCreateShaderModule(device, &moduleInfo, nullptr, &shaderModule),
@@ -51,7 +50,7 @@ VkPipelineShaderStageCreateInfo vl::CreateShaderModule_PipelineStageInfo(VkDevic
     return stageInfo;
 }
 
-void vl::CreatePipelines(VkDevice device,
+void vl::CreateGraphicsPipelines(VkDevice device,
                               VkPipelineCache pipelineCache,
                               uint32_t createCount,
                               VkPipeline* pPipeline,
@@ -144,7 +143,7 @@ VkPipelineVertexInputStateCreateInfo vl::IPipelineVertexInputState(
 
     VkPipelineVertexInputStateCreateInfo vertexInputState{};
     vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputState.vertexBindingDescriptionCount = 1;
+    vertexInputState.vertexBindingDescriptionCount = attribsFormats.size() ? 1 : 0;  // if no attribs info, this is an empty vertex input, so set 0.
     vertexInputState.pVertexBindingDescriptions = &bindingDesc;
     vertexInputState.vertexAttributeDescriptionCount = attribsDesc.size();
     vertexInputState.pVertexAttributeDescriptions = attribsDesc.data();
@@ -733,6 +732,59 @@ void vkx::CommandBuffer::CmdBindDescriptorSets(VkPipelineLayout pipelineLayout, 
     vkCmdBindDescriptorSets(m_CommandBuffer, ePipelineBindPoint, pipelineLayout, 0, descriptorSetCount,
                             pDescriptorSets, 0, nullptr);
 }
+
+
+
+
+
+VkPipeline vkx::CreateGraphicsPipeline(std::array<std::span<const char>, 2> shaderStagesSources,
+                                       std::initializer_list<VkFormat> vertexInputAttribsFormats,
+                                       VkPrimitiveTopology topology,
+                                       int numColorBlendAttachments,
+                                       std::initializer_list<VkDynamicState> dynamicStates,
+                                       VkPipelineLayout pipelineLayout,
+                                       VkRenderPass renderPass)
+{
+    VkDevice device = vkx::ctx().Device;
+
+    VkPipelineShaderStageCreateInfo shaderStages[2];
+    shaderStages[0] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_VERTEX_BIT, shaderStagesSources[0]);
+    shaderStages[1] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_FRAGMENT_BIT, shaderStagesSources[1]);
+
+    VkVertexInputBindingDescription vertexInputBindingDescription;
+    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescription;
+
+    VkPipelineColorBlendAttachmentState colorBlendAttachment = vkh::c_PipelineColorBlendAttachmentState();
+    std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachs;
+    colorBlendAttachs.resize(numColorBlendAttachments);
+    for (int i = 0; i < numColorBlendAttachments; ++i) {
+        colorBlendAttachs[i] = colorBlendAttachment;
+    }
+
+    VkGraphicsPipelineCreateInfo pipelineInfo =
+            vl::IGraphicsPipeline(
+                    {shaderStages, 2},
+                    vl::IPipelineVertexInputState(vertexInputAttribsFormats, 0, &vertexInputBindingDescription, &vertexInputAttributeDescription),
+                    vl::IPipelineInputAssemblyState(topology),  // VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
+                    nullptr,
+                    vl::IPipelineViewportState(),
+                    vl::IPipelineRasterizationState(),
+                    vl::IPipelineMultisampleState(),
+                    vl::IPipelineDepthStencilState(),
+                    vl::IPipelineColorBlendState({colorBlendAttachs.data(), (int)colorBlendAttachs.size()}),
+                    vl::IPipelineDynamicState({dynamicStates.begin(), (int)dynamicStates.size()}),
+                    pipelineLayout,
+                    renderPass);
+
+    VkPipeline pipeline;
+    vl::CreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline, &pipelineInfo);
+
+    vkDestroyShaderModule(device, shaderStages[0].module, nullptr);
+    vkDestroyShaderModule(device, shaderStages[1].module, nullptr);
+
+    return pipeline;
+}
+
 
 
 
@@ -1549,23 +1601,23 @@ vkx::Instance& vkx::ctx() {
 
 
 
-void vkh::LoadShaderStages_H(VkPipelineShaderStageCreateInfo* dst, const std::string& spv_filename_pat)
-{
-    VkDevice device = vkx::ctx().Device;
-
-    auto src_vsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "vert")));
-    dst[0] = vl::CreateShaderModule_PipelineStageInfo(device, VK_SHADER_STAGE_VERTEX_BIT, src_vsh.data(), src_vsh.size());
-
-    auto src_fsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "frag")));
-    dst[1] = vl::CreateShaderModule_PipelineStageInfo(device, VK_SHADER_STAGE_FRAGMENT_BIT, src_fsh.data(), src_fsh.size());
-}
-
-void vkh::DestroyShaderModules(VkPipelineShaderStageCreateInfo *dst)
-{
-    VkDevice device = vkx::ctx().Device;
-    vkDestroyShaderModule(device, dst[0].module, nullptr);
-    vkDestroyShaderModule(device, dst[1].module, nullptr);
-}
+//void vkh::LoadShaderStages_H(VkPipelineShaderStageCreateInfo* dst, const std::string& spv_filename_pat)
+//{
+//    VkDevice device = vkx::ctx().Device;
+//
+//    auto src_vsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "vert")));
+//    dst[0] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_VERTEX_BIT, src_vsh);
+//
+//    auto src_fsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "frag")));
+//    dst[1] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_FRAGMENT_BIT, src_fsh);
+//}
+//
+//void vkh::DestroyShaderModules(VkPipelineShaderStageCreateInfo *dst)
+//{
+//    VkDevice device = vkx::ctx().Device;
+//    vkDestroyShaderModule(device, dst[0].module, nullptr);
+//    vkDestroyShaderModule(device, dst[1].module, nullptr);
+//}
 
 
 

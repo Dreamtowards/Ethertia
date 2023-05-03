@@ -8,7 +8,7 @@
 #include <chrono>
 #include <array>
 
-#include <eldaria/util/Loader.h>
+#include <ethertia/util/Loader.h>
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>
 
@@ -80,7 +80,7 @@ public:
 
     inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each InflightFrame
 
-    inline static vkx::Image* g_DepthImage;
+    inline static vkx::Image* g_DepthImage = new vkx::Image(0,0,0, 0,0);;
     inline static vkx::Image* g_TextureImage;
 
 
@@ -110,8 +110,8 @@ public:
 
             g_TextureImage = Loader::loadImage(bitmapImage);
 
-            VertexData vdata = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
-            g_TestModel = Loader::loadVertexBuffer(vdata);
+            VertexData* vtx = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");
+            g_TestModel = Loader::loadVertexBuffer(vtx);
         }
 
         CreateUniformBuffers();
@@ -126,6 +126,7 @@ public:
     {
         DestroySwapchain();
 
+        delete g_DepthImage;
         delete g_TextureImage;
         delete g_TestModel;
 
@@ -175,7 +176,6 @@ public:
 
     static void DestroySwapchain()
     {
-        delete g_DepthImage;
         VkDevice device = vkx::ctx().Device;
 
         for (auto fb : g_SwapchainFramebuffers) {
@@ -207,7 +207,6 @@ public:
 
     static void CreateDepthTexture()
     {
-        g_DepthImage = new vkx::Image(0,0,0);
         vkx::CreateDepthImage(g_SwapchainExtent.width, g_SwapchainExtent.height, g_DepthImage);
     }
 
@@ -262,7 +261,7 @@ public:
         FramebufferAttachment out{};
         VkDevice device = vkx::ctx().Device;
 
-        out.m_Img = new vkx::Image(0,0,0);
+        out.m_Img = new vkx::Image(0,0,0,0,0);
         vl::CreateImage(device, w, h, &out.m_Img->m_Image, &out.m_Img->m_ImageMemory, format,
                     depth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
@@ -317,21 +316,6 @@ public:
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
         VkSubpassDependency dependency{};
-//            dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-//            dependency.dstSubpass = 0;
-//            dependency.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-//            dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//            dependency.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-//            dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-//            dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-//
-//            dependencies[1].srcSubpass = 0;
-//            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-//            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-//            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-//            dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-//            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         dependency.dstSubpass = 0;
         dependency.srcAccessMask = 0;
@@ -339,16 +323,11 @@ public:
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-        VkRenderPassCreateInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = std::size(attachmentDesc);
-        renderPassInfo.pAttachments = attachmentDesc;
-        renderPassInfo.subpassCount = 1;
-        renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 1;//std::size(dependencies);
-        renderPassInfo.pDependencies = &dependency;
-
-        VK_CHECK(vkCreateRenderPass(device, &renderPassInfo, nullptr, &g_Deferred_Gbuffer.m_RenderPass));
+        g_Deferred_Gbuffer.m_RenderPass =
+        vl::CreateRenderPass(device,
+                             {attachmentDesc, std::size(attachmentDesc)},
+                             {&subpass, 1},
+                             {&dependency, 1});
 
         // Gbuffer Framebuffer
 
@@ -366,50 +345,68 @@ public:
 
 
         // Gbuffer Pipeline
+//
+//        VkPipelineVertexInputStateCreateInfo vertexInputState = vkh::c_PipelineVertexInputState_H({
+//            VK_FORMAT_R32G32B32_SFLOAT, // in_pos
+//            VK_FORMAT_R32G32_SFLOAT,    // in_tex
+//            VK_FORMAT_R32G32B32_SFLOAT  // in_norm
+//        });
+//        VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkh::c_PipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+//        VkPipelineViewportStateCreateInfo viewportState = vkh::c_PipelineViewportState(1, 1);
+//        VkPipelineRasterizationStateCreateInfo rasterizer = vkh::c_PipelineRasterizationState();  // VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE
+//        VkPipelineMultisampleStateCreateInfo multisampling = vkh::c_PipelineMultisampleState();
+//        VkPipelineDepthStencilStateCreateInfo depthStencil = vkh::c_PipelineDepthStencilState();
+//        VkPipelineDynamicStateCreateInfo dynamicState = vkh::c_PipelineDynamicState_H_ViewportScissor();
+//
+//        // for gPosition, gNormal, gAlbedo, if no, as color mask = 0x0, black will be render.
+//        VkPipelineColorBlendAttachmentState colorBlendAttachments[] = {
+//                vkh::c_PipelineColorBlendAttachmentState(),
+//                vkh::c_PipelineColorBlendAttachmentState(),
+//                vkh::c_PipelineColorBlendAttachmentState()
+//        };
+//        VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(3, colorBlendAttachments);
+//
+//        VkPipelineShaderStageCreateInfo shaderStages[2];
+//        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
+//
+//        VkGraphicsPipelineCreateInfo pipelineInfo{};
+//        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+//        pipelineInfo.stageCount = std::size(shaderStages);
+//        pipelineInfo.pStages = shaderStages;
+//        pipelineInfo.pVertexInputState = &vertexInputState;
+//        pipelineInfo.pInputAssemblyState = &inputAssembly;
+//        pipelineInfo.pViewportState = &viewportState;
+//        pipelineInfo.pRasterizationState = &rasterizer;
+//        pipelineInfo.pMultisampleState = &multisampling;
+//        pipelineInfo.pColorBlendState = &colorBlending;
+//        pipelineInfo.pDynamicState = &dynamicState;
+//        pipelineInfo.pDepthStencilState = &depthStencil;
+//        pipelineInfo.layout = g_PipelineLayout;
+//        pipelineInfo.renderPass = g_Deferred_Gbuffer.m_RenderPass;
+//        pipelineInfo.subpass = 0;
+//
+////        vl::CreateGraphicsPipelines();
+//        VK_CHECK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Gbuffer.m_Pipeline));
+//
+//        vkh::DestroyShaderModules(shaderStages);  // right here. before next load another.
 
-        VkPipelineVertexInputStateCreateInfo vertexInputState = vkh::c_PipelineVertexInputState_H({
-            VK_FORMAT_R32G32B32_SFLOAT, // in_pos
-            VK_FORMAT_R32G32_SFLOAT,    // in_tex
-            VK_FORMAT_R32G32B32_SFLOAT  // in_norm
-        });
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkh::c_PipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-        VkPipelineViewportStateCreateInfo viewportState = vkh::c_PipelineViewportState(1, 1);
-        VkPipelineRasterizationStateCreateInfo rasterizer = vkh::c_PipelineRasterizationState();  // VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE
-        VkPipelineMultisampleStateCreateInfo multisampling = vkh::c_PipelineMultisampleState();
-        VkPipelineDepthStencilStateCreateInfo depthStencil = vkh::c_PipelineDepthStencilState();
-        VkPipelineDynamicStateCreateInfo dynamicState = vkh::c_PipelineDynamicState_H_ViewportScissor();
 
-        // for gPosition, gNormal, gAlbedo, if no, as color mask = 0x0, black will be render.
-        VkPipelineColorBlendAttachmentState colorBlendAttachments[] = {
-                vkh::c_PipelineColorBlendAttachmentState(),
-                vkh::c_PipelineColorBlendAttachmentState(),
-                vkh::c_PipelineColorBlendAttachmentState()
-        };
-        VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(3, colorBlendAttachments);
-
-        VkPipelineShaderStageCreateInfo shaderStages[2];
-        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
-
-        VkGraphicsPipelineCreateInfo pipelineInfo{};
-        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = std::size(shaderStages);
-        pipelineInfo.pStages = shaderStages;
-        pipelineInfo.pVertexInputState = &vertexInputState;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
-        pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pColorBlendState = &colorBlending;
-        pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.pDepthStencilState = &depthStencil;
-        pipelineInfo.layout = g_PipelineLayout;
-        pipelineInfo.renderPass = g_Deferred_Gbuffer.m_RenderPass;
-        pipelineInfo.subpass = 0;
-
-        VK_CHECK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Gbuffer.m_Pipeline));
-
-        vkh::DestroyShaderModules(shaderStages);  // right here. before next load another.
-
+        g_Deferred_Gbuffer.m_Pipeline =
+        vkx::CreateGraphicsPipeline(
+                {
+                    Loader::loadAssets("shaders-vk/spv/def_gbuffer/vert.spv"),
+                    Loader::loadAssets("shaders-vk/spv/def_gbuffer/frag.spv")
+                },
+                {
+                    VK_FORMAT_R32G32B32_SFLOAT, // in_pos
+                    VK_FORMAT_R32G32_SFLOAT,    // in_tex
+                    VK_FORMAT_R32G32B32_SFLOAT  // in_norm
+                },
+                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                3,
+                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
+                g_PipelineLayout,
+                g_Deferred_Gbuffer.m_RenderPass);
 
 
 
@@ -419,15 +416,15 @@ public:
 
         VkDescriptorSetLayout descriptorSetLayout = vl::CreateDescriptorSetLayout(device, {
                 // binding 0: vsh uniform
-                vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
                 // 1: fsh uniform
-                vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT},
                 // 2: fsh gPosition
-                vkh::c_DescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
                 // 3: fsh gNormal
-                vkh::c_DescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
                 // 4: fsh gAlbedo
-                vkh::c_DescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT),
+                { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
         });
 
         VkPipelineLayout pipelineLayout = vl::CreatePipelineLayout(device, 1, &descriptorSetLayout);
@@ -440,27 +437,41 @@ public:
         //  Compose Pipeline
 
 
-        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_compose/{}.spv");
+//        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_compose/{}.spv");
+//
+//        pipelineInfo.stageCount = std::size(shaderStages);
+//        pipelineInfo.pStages = shaderStages;
+//
+//        VkPipelineVertexInputStateCreateInfo emptyVertexInputState = vkh::c_PipelineVertexInputState();
+//        pipelineInfo.pVertexInputState = &emptyVertexInputState;
+//
+//        colorBlending = vkh::c_PipelineColorBlendState(1, colorBlendAttachments);
+//        pipelineInfo.pColorBlendState = &colorBlending;
+//
+//        pipelineInfo.renderPass = g_RenderPass;
+//        pipelineInfo.layout = pipelineLayout;
+//
+//
+//
+//        VK_CHECK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Compose.m_Pipeline));
+//
+//
+//
+//        vkh::DestroyShaderModules(shaderStages);
 
-        pipelineInfo.stageCount = std::size(shaderStages);
-        pipelineInfo.pStages = shaderStages;
 
-        VkPipelineVertexInputStateCreateInfo emptyVertexInputState = vkh::c_PipelineVertexInputState();
-        pipelineInfo.pVertexInputState = &emptyVertexInputState;
-
-        colorBlending = vkh::c_PipelineColorBlendState(1, colorBlendAttachments);
-        pipelineInfo.pColorBlendState = &colorBlending;
-
-        pipelineInfo.renderPass = g_RenderPass;
-        pipelineInfo.layout = pipelineLayout;
-
-
-
-        VK_CHECK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_Deferred_Compose.m_Pipeline));
-
-
-
-        vkh::DestroyShaderModules(shaderStages);
+        g_Deferred_Compose.m_Pipeline =
+        vkx::CreateGraphicsPipeline(
+                {
+                        Loader::loadAssets("shaders-vk/spv/def_compose/vert.spv"),
+                        Loader::loadAssets("shaders-vk/spv/def_compose/frag.spv")
+                },
+                {},  // empty
+                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                1,
+                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
+                pipelineLayout,
+                g_RenderPass);
 
     }
 
@@ -525,50 +536,50 @@ public:
 
 
 
-    static void CreateGraphicsPipeline()
-    {
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkh::c_PipelineVertexInputState_H(
-                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT });
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkh::c_PipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-        VkPipelineViewportStateCreateInfo viewportState = vkh::c_PipelineViewportState(1, 1);
-        VkPipelineRasterizationStateCreateInfo rasterizer = vkh::c_PipelineRasterizationState(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
-        VkPipelineMultisampleStateCreateInfo multisampling = vkh::c_PipelineMultisampleState();
-        VkPipelineDepthStencilStateCreateInfo depthStencil = vkh::c_PipelineDepthStencilState();
-        VkPipelineDynamicStateCreateInfo dynamicState = vkh::c_PipelineDynamicState_H_ViewportScissor();
-
-        VkPipelineColorBlendAttachmentState colorBlendAttachment = vkh::c_PipelineColorBlendAttachmentState();
-        VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(1, &colorBlendAttachment);
-
-
-        VkPipelineShaderStageCreateInfo shaderStages[2];
-        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
-
-//        vkx::PipelineCreator newPipeline;
-
-        VkGraphicsPipelineCreateInfo pipelineInfo{};
-        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = std::size(shaderStages);
-        pipelineInfo.pStages = shaderStages;
-        pipelineInfo.pVertexInputState = &vertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &inputAssembly;
-        pipelineInfo.pViewportState = &viewportState;
-        pipelineInfo.pRasterizationState = &rasterizer;
-        pipelineInfo.pMultisampleState = &multisampling;
-        pipelineInfo.pColorBlendState = &colorBlending;
-        pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.pDepthStencilState = &depthStencil;
-        pipelineInfo.layout = g_PipelineLayout;
-        pipelineInfo.renderPass = g_RenderPass;
-        pipelineInfo.subpass = 0;
-        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-        if (vkCreateGraphicsPipelines(vkx::ctx().Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_GraphicsPipeline) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create graphics pipeline.");
-        }
-
-        vkh::DestroyShaderModules(shaderStages);
-    }
+//    static void CreateGraphicsPipeline()
+//    {
+//        VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkh::c_PipelineVertexInputState_H(
+//                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT });
+//
+//        VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkh::c_PipelineInputAssemblyState(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+//        VkPipelineViewportStateCreateInfo viewportState = vkh::c_PipelineViewportState(1, 1);
+//        VkPipelineRasterizationStateCreateInfo rasterizer = vkh::c_PipelineRasterizationState(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
+//        VkPipelineMultisampleStateCreateInfo multisampling = vkh::c_PipelineMultisampleState();
+//        VkPipelineDepthStencilStateCreateInfo depthStencil = vkh::c_PipelineDepthStencilState();
+//        VkPipelineDynamicStateCreateInfo dynamicState = vkh::c_PipelineDynamicState_H_ViewportScissor();
+//
+//        VkPipelineColorBlendAttachmentState colorBlendAttachment = vkh::c_PipelineColorBlendAttachmentState();
+//        VkPipelineColorBlendStateCreateInfo colorBlending = vkh::c_PipelineColorBlendState(1, &colorBlendAttachment);
+//
+//
+//        VkPipelineShaderStageCreateInfo shaderStages[2];
+//        vkh::LoadShaderStages_H(shaderStages, "shaders-vk/spv/def_gbuffer/{}.spv");
+//
+////        vkx::PipelineCreator newPipeline;
+//
+//        VkGraphicsPipelineCreateInfo pipelineInfo{};
+//        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+//        pipelineInfo.stageCount = std::size(shaderStages);
+//        pipelineInfo.pStages = shaderStages;
+//        pipelineInfo.pVertexInputState = &vertexInputInfo;
+//        pipelineInfo.pInputAssemblyState = &inputAssembly;
+//        pipelineInfo.pViewportState = &viewportState;
+//        pipelineInfo.pRasterizationState = &rasterizer;
+//        pipelineInfo.pMultisampleState = &multisampling;
+//        pipelineInfo.pColorBlendState = &colorBlending;
+//        pipelineInfo.pDynamicState = &dynamicState;
+//        pipelineInfo.pDepthStencilState = &depthStencil;
+//        pipelineInfo.layout = g_PipelineLayout;
+//        pipelineInfo.renderPass = g_RenderPass;
+//        pipelineInfo.subpass = 0;
+//        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+//
+//        if (vkCreateGraphicsPipelines(vkx::ctx().Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_GraphicsPipeline) != VK_SUCCESS) {
+//            throw std::runtime_error("failed to create graphics pipeline.");
+//        }
+//
+//        vkh::DestroyShaderModules(shaderStages);
+//    }
 
 
 
@@ -662,8 +673,8 @@ public:
     static void CreateDescriptorSetLayout()
     {
         g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(vkx::ctx().Device, {
-            vkh::c_DescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT),
-            vkh::c_DescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
         });
     }
 

@@ -12,8 +12,9 @@
 #include <filesystem>
 #include <span>
 #include <complex>
+#include <span>
 
-#include <nbt/nbt_tags.h>
+//#include <nbt/nbt_tags.h>
 //#include <glad/glad.h>
 
 //#include <ethertia/render/Texture.h>
@@ -46,6 +47,8 @@ public:
 
         DataBlock(void* data, size_t size, const std::string& filename);
         ~DataBlock();
+
+        operator std::span<const char>() const;
 
     private:
         void*       m_Data;

@@ -46,15 +46,15 @@ namespace vl
                                           int numSetLayouts, VkDescriptorSetLayout* pSetLayouts);
 
     // vkCreateShaderModule()
-    VkPipelineShaderStageCreateInfo CreateShaderModule_PipelineStageInfo(VkDevice device, VkShaderStageFlagBits stage, const void* data, size_t size);
+    VkPipelineShaderStageCreateInfo CreateShaderModule_IPipelineShaderStage(
+            VkDevice device, VkShaderStageFlagBits stage, std::span<const char> code);
 
 
 
 
 
 
-    // ?pipelineCache ?multiplePipelineCreate?
-    void CreatePipelines(VkDevice device,
+    void CreateGraphicsPipelines(VkDevice device,
                          VkPipelineCache pipelineCache,
                          uint32_t createCount,
                          VkPipeline* pPipelines,
@@ -436,6 +436,19 @@ namespace vkx
 
 
 
+    VkPipeline CreateGraphicsPipeline(
+            std::array<std::span<const char>, 2> shaderStagesSources,
+            std::initializer_list<VkFormat> vertexInputAttribsFormats,
+            VkPrimitiveTopology topology,
+            int numColorBlendAttachments,
+            std::initializer_list<VkDynamicState> dynamicStates,
+            VkPipelineLayout pipelineLayout,
+            VkRenderPass renderPass);
+
+
+
+
+
     // use Global Default device/cmdpool/queue.
     void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record);
 
@@ -486,9 +499,9 @@ public:
 
 
 
-    static void LoadShaderStages_H(VkPipelineShaderStageCreateInfo* dst, const std::string& spv_filename_pat);
-
-    static void DestroyShaderModules(VkPipelineShaderStageCreateInfo* dst);
+//    static void LoadShaderStages_H(VkPipelineShaderStageCreateInfo* dst, const std::string& spv_filename_pat);
+//
+//    static void DestroyShaderModules(VkPipelineShaderStageCreateInfo* dst);
 
 
 

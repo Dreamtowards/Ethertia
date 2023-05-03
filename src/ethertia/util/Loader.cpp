@@ -92,6 +92,9 @@ size_t Loader::dirSize(const std::string& dir)
 
 
 
+
+
+
 Loader::DataBlock::DataBlock(void* data, size_t size, const std::string& filename)
         : m_Data(data), m_Size(size), m_Filename(filename)
 {
@@ -114,6 +117,12 @@ const void* Loader::DataBlock::data() const {
 size_t Loader::DataBlock::size() const {
     return m_Size;
 }
+
+Loader::DataBlock::operator std::span<const char>() const
+{
+    return std::span<const char>((const char*)data(), (int)size());
+}
+
 
 
 
