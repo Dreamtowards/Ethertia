@@ -210,8 +210,8 @@ static void RecreateSwapchain()
 static void CreateRenderPass()
 {
     VkAttachmentDescription attachmentsDesc[] = {
-            vkh::c_AttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
-            vkh::c_AttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
+            vl::IAttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
+            vl::IAttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
     };
 
     VkAttachmentReference colorAttachmentRef = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
@@ -277,14 +277,6 @@ static void CreateDescriptorSets()
     }
 }
 
-
-//std::array<std::span<const char>, 2> loadAssets_mul(const std::string& pat)
-//{
-//    return {
-//        Loader::loadAssets(Strings::fmt(pat, "vert")),
-//        Loader::loadAssets(Strings::fmt(pat, "frag"))
-//    };
-//}
 
 
 void RenderEngine::init()

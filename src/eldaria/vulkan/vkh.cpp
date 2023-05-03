@@ -361,6 +361,22 @@ VkRenderPass vl::CreateRenderPass(VkDevice device,
 
 
 
+VkAttachmentDescription vl::IAttachmentDescription(VkFormat format, VkImageLayout finalLayout)
+{
+    VkAttachmentDescription d{};
+    d.format = format;
+    d.samples = VK_SAMPLE_COUNT_1_BIT;
+    d.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    d.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    d.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    d.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    d.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    d.finalLayout = finalLayout;  // VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL / VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+    return d;
+}
+
+
+
 // ================== Command Buffer ==================
 
 void vl::AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool,
@@ -1593,238 +1609,6 @@ vkx::Instance& vkx::ctx() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//void vkh::LoadShaderStages_H(VkPipelineShaderStageCreateInfo* dst, const std::string& spv_filename_pat)
-//{
-//    VkDevice device = vkx::ctx().Device;
-//
-//    auto src_vsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "vert")));
-//    dst[0] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_VERTEX_BIT, src_vsh);
-//
-//    auto src_fsh = Loader::loadFile(Loader::fileResolve(Strings::fmt(spv_filename_pat, "frag")));
-//    dst[1] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_FRAGMENT_BIT, src_fsh);
-//}
-//
-//void vkh::DestroyShaderModules(VkPipelineShaderStageCreateInfo *dst)
-//{
-//    VkDevice device = vkx::ctx().Device;
-//    vkDestroyShaderModule(device, dst[0].module, nullptr);
-//    vkDestroyShaderModule(device, dst[1].module, nullptr);
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//VkPipelineVertexInputStateCreateInfo vkh::c_PipelineVertexInputState(int numVertBinding,
-//                                                                     VkVertexInputBindingDescription *pVertBinding,
-//                                                                     int numVertAttr,
-//                                                                     VkVertexInputAttributeDescription *pVertAttr)
-//{
-//    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-//    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-//    vertexInputInfo.vertexBindingDescriptionCount = numVertBinding;
-//    vertexInputInfo.pVertexBindingDescriptions = pVertBinding;
-//    vertexInputInfo.vertexAttributeDescriptionCount = numVertAttr;
-//    vertexInputInfo.pVertexAttributeDescriptions = pVertAttr;
-//    return vertexInputInfo;
-//}
-//
-//
-//
-//
-//VkPipelineVertexInputStateCreateInfo vkh::c_PipelineVertexInputState_H(std::initializer_list<VkFormat> attribs, int binding)
-//{
-//    static std::vector<VkVertexInputAttributeDescription> _attrDesc{};
-//    _attrDesc.clear();
-//    int i = 0;
-//    int offset = 0;
-//    for (auto& attr_format : attribs) {
-//        VkVertexInputAttributeDescription d{};
-//        d.binding = binding;
-//        d.location = i;
-//        d.format = attr_format;
-//        d.offset = offset;
-//        _attrDesc.push_back(d);
-//        ++i;
-//        offset += FormatSize(attr_format);
-//    }
-//    static VkVertexInputBindingDescription _bindingDesc{};
-//    _bindingDesc.binding = binding;
-//    _bindingDesc.stride = offset;
-//    _bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-//    return c_PipelineVertexInputState(1, &_bindingDesc, _attrDesc.size(), _attrDesc.data());
-//}
-//
-//VkPipelineInputAssemblyStateCreateInfo vkh::c_PipelineInputAssemblyState(VkPrimitiveTopology topology)
-//{
-//    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-//    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-//    inputAssembly.topology = topology;
-//    inputAssembly.primitiveRestartEnable = VK_FALSE;
-//    return inputAssembly;
-//}
-//
-//VkPipelineRasterizationStateCreateInfo vkh::c_PipelineRasterizationState(VkPolygonMode polygonMode,
-//                                                                         VkCullModeFlags cullMode,
-//                                                                         VkFrontFace frontFace)
-//{
-//    VkPipelineRasterizationStateCreateInfo rasterizer{};
-//    rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-//    rasterizer.polygonMode = polygonMode;
-//    rasterizer.cullMode = cullMode;
-//    rasterizer.frontFace = frontFace;
-//    rasterizer.depthBiasEnable = VK_FALSE;
-//    rasterizer.depthClampEnable = VK_FALSE;
-//    rasterizer.rasterizerDiscardEnable = VK_FALSE;
-//    rasterizer.lineWidth = 1.0f;
-//    return rasterizer;
-//}
-//
-//VkPipelineViewportStateCreateInfo vkh::c_PipelineViewportState(int viewportCount, int scissorCount)
-//{
-//    VkPipelineViewportStateCreateInfo viewportState{};
-//    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-//    viewportState.viewportCount = viewportCount;
-//    viewportState.scissorCount = scissorCount;
-//    return viewportState;
-//}
-//
-//VkPipelineDepthStencilStateCreateInfo vkh::c_PipelineDepthStencilState()
-//{
-//    VkPipelineDepthStencilStateCreateInfo depthStencil{};
-//    depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-//    depthStencil.depthTestEnable = VK_TRUE;
-//    depthStencil.depthWriteEnable = VK_TRUE;
-//    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-//    depthStencil.depthBoundsTestEnable = VK_FALSE;
-//    depthStencil.minDepthBounds = 0.0f; // Optional
-//    depthStencil.maxDepthBounds = 1.0f; // Optional
-//    depthStencil.stencilTestEnable = VK_FALSE;
-//    depthStencil.front = {}; // Optional
-//    depthStencil.back = {}; // Optional
-//    return depthStencil;
-//}
-//
-//VkPipelineMultisampleStateCreateInfo vkh::c_PipelineMultisampleState()
-//{
-//    VkPipelineMultisampleStateCreateInfo multisampling{};
-//    multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-//    multisampling.sampleShadingEnable = VK_FALSE;
-//    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-//    return multisampling;
-//}
-//
-//VkPipelineDynamicStateCreateInfo vkh::c_PipelineDynamicState(int numStates, VkDynamicState *pStates)
-//{
-//    VkPipelineDynamicStateCreateInfo dynamicState{};
-//    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-//    dynamicState.dynamicStateCount = numStates;
-//    dynamicState.pDynamicStates = pStates;
-//    return dynamicState;
-//}
-//
-//VkPipelineDynamicStateCreateInfo vkh::c_PipelineDynamicState_H_ViewportScissor() {
-//    static std::vector<VkDynamicState> _dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-//    return c_PipelineDynamicState(_dynamicStates.size(), _dynamicStates.data());
-//}
-//
-//
-//
-//VkPipelineColorBlendStateCreateInfo vkh::c_PipelineColorBlendState(int numAttach,
-//                                                                   VkPipelineColorBlendAttachmentState *pAttach)
-//{
-//    VkPipelineColorBlendStateCreateInfo colorBlending{};
-//    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-//    colorBlending.logicOpEnable = VK_FALSE;
-//    colorBlending.logicOp = VK_LOGIC_OP_COPY;
-//    colorBlending.attachmentCount = numAttach;
-//    colorBlending.pAttachments = pAttach;
-//    return colorBlending;
-//}
-
-VkAttachmentDescription vkh::c_AttachmentDescription(VkFormat format, VkImageLayout finalLayout)
-{
-    VkAttachmentDescription d{};
-    d.format = format;
-    d.samples = VK_SAMPLE_COUNT_1_BIT;
-    d.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    d.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    d.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    d.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    d.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    d.finalLayout = finalLayout;  // VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL / VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-    return d;
-}
-
-
-//
-//
-//// (0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-//VkDescriptorSetLayoutBinding vkh::c_DescriptorSetLayoutBinding(int bind, VkDescriptorType descType,
-//                                                               VkShaderStageFlags shaderStageFlags)
-//{
-//    VkDescriptorSetLayoutBinding binding{};
-//    binding.binding = bind;
-//    binding.descriptorType = descType;
-//    binding.descriptorCount = 1;
-//    binding.stageFlags = shaderStageFlags;
-//    return binding;
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//        static VkPipelineLayoutCreateInfo c_PipelineLayout(int numSetLayouts, VkDescriptorSetLayout* pSetLayouts)
-//        {
-//            VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-//            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-//            pipelineLayoutInfo.pushConstantRangeCount = 0;
-//            pipelineLayoutInfo.pPushConstantRanges = nullptr;
-//            pipelineLayoutInfo.setLayoutCount = numSetLayouts;
-//            pipelineLayoutInfo.pSetLayouts = pSetLayouts;
-//            return pipelineLayoutInfo;
-//        }
 
 
 
