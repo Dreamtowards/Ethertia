@@ -85,6 +85,7 @@ add_executable(Ethertia
         lib/imgui-imnodes/imnodes.cpp
 
         src/ethertia/imgui/Imgui.cpp
+        src/ethertia/imgui/ImWorldGenNodeEditor.cpp
         src/ethertia/util/Loader.cpp
         src/ethertia/init/Controls.cpp
         src/ethertia/init/Settings.cpp

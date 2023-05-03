@@ -12,6 +12,7 @@
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
+#include <ethertia/imgui/ImWorldGenNodeEditor.h>
 
 #include <nlohmann/json.hpp>
 
@@ -44,6 +45,7 @@ void Settings::loadSettings() {  using nlohmann::json;
     std::string simdLevel;
     set_ifexists(settings, "simd_level", &simdLevel);
     NoiseGen::g_SIMDLevel = NoiseGen::FastSIMD_ofLevelName(simdLevel);
+    ImWorldGenNodeEditor::WorldGenNodeEditor::mActualSIMDLevel = NoiseGen::FastSIMD_ofLevelName(simdLevel);
 
     set_ifexists(settings, "mtl_resolution", &MaterialTextures::TEX_RESOLUTION);
 

@@ -804,6 +804,7 @@ static void ShowEntities()
 #include <FastNoise/FastNoise.h>
 #include <FastNoise/Metadata.h>
 #include <ethertia/world/gen/NoiseGen.h>
+#include "ImWorldGenNodeEditor.h"
 
 
 void generatePreviewNoise(FastNoise::NodeData* nodeData,
@@ -852,9 +853,11 @@ void generatePreviewNoise(FastNoise::NodeData* nodeData,
     }
 }
 
+using namespace ImWorldGenNodeEditor;
+
 void ShowWorldGenNodeEditor()
 {
-    ImGui::Begin("WorldGenNodeEdit", &w_WorldGenNodeEditor);
+/*    ImGui::Begin("WorldGenNodeEdit", &w_WorldGenNodeEditor);
     ImNodes::BeginNodeEditor();
 
     static std::vector<std::pair<int, int>> links;
@@ -980,6 +983,9 @@ void ShowWorldGenNodeEditor()
         }
     }
     ImGui::End();
+    */
+    static WorldGenNodeEditor worldGenNodeEditor;
+    worldGenNodeEditor.ShowWorldGenNodeEditor(w_WorldGenNodeEditor);
 }
 
 void ShowNodeEditor()
