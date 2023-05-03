@@ -510,46 +510,40 @@ public:
 
     // ============ CreateInfo of VkPipeline ============
 
-    // Thread unsafe!
-    static VkPipelineVertexInputStateCreateInfo c_PipelineVertexInputState(
-            int numVertBinding = 0,
-            VkVertexInputBindingDescription* pVertBinding = nullptr,
-            int numVertAttr = 0,
-            VkVertexInputAttributeDescription* pVertAttr = nullptr);
-
-    static VkPipelineVertexInputStateCreateInfo c_PipelineVertexInputState_H(
-            std::initializer_list<VkFormat> attribs, int binding = 0);
-
-    static VkPipelineInputAssemblyStateCreateInfo c_PipelineInputAssemblyState(
-            VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-
-    static VkPipelineRasterizationStateCreateInfo c_PipelineRasterizationState(
-            VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL,
-            VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT,
-            VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE);
-
-    static VkPipelineViewportStateCreateInfo c_PipelineViewportState(
-            int viewportCount = 1, int scissorCount = 1);
-
-    static VkPipelineDepthStencilStateCreateInfo c_PipelineDepthStencilState();
-
-    static VkPipelineMultisampleStateCreateInfo c_PipelineMultisampleState();
-
-    static VkPipelineDynamicStateCreateInfo c_PipelineDynamicState(
-            int numStates = 0, VkDynamicState* pStates = nullptr);
-
-    static VkPipelineDynamicStateCreateInfo c_PipelineDynamicState_H_ViewportScissor();
-
-    static VkPipelineColorBlendAttachmentState c_PipelineColorBlendAttachmentState();
-
-    static VkPipelineColorBlendStateCreateInfo c_PipelineColorBlendState(
-            int numAttach, VkPipelineColorBlendAttachmentState* pAttach);
-
-
-
-
-
-
+//    // Thread unsafe!
+//    static VkPipelineVertexInputStateCreateInfo c_PipelineVertexInputState(
+//            int numVertBinding = 0,
+//            VkVertexInputBindingDescription* pVertBinding = nullptr,
+//            int numVertAttr = 0,
+//            VkVertexInputAttributeDescription* pVertAttr = nullptr);
+//
+//    static VkPipelineVertexInputStateCreateInfo c_PipelineVertexInputState_H(
+//            std::initializer_list<VkFormat> attribs, int binding = 0);
+//
+//    static VkPipelineInputAssemblyStateCreateInfo c_PipelineInputAssemblyState(
+//            VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+//
+//    static VkPipelineRasterizationStateCreateInfo c_PipelineRasterizationState(
+//            VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL,
+//            VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT,
+//            VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE);
+//
+//    static VkPipelineViewportStateCreateInfo c_PipelineViewportState(
+//            int viewportCount = 1, int scissorCount = 1);
+//
+//    static VkPipelineDepthStencilStateCreateInfo c_PipelineDepthStencilState();
+//
+//    static VkPipelineMultisampleStateCreateInfo c_PipelineMultisampleState();
+//
+//    static VkPipelineDynamicStateCreateInfo c_PipelineDynamicState(
+//            int numStates = 0, VkDynamicState* pStates = nullptr);
+//
+//    static VkPipelineDynamicStateCreateInfo c_PipelineDynamicState_H_ViewportScissor();
+//
+//    static VkPipelineColorBlendAttachmentState c_PipelineColorBlendAttachmentState();
+//
+//    static VkPipelineColorBlendStateCreateInfo c_PipelineColorBlendState(
+//            int numAttach, VkPipelineColorBlendAttachmentState* pAttach);
 
 
 
@@ -561,9 +555,9 @@ public:
             VkImageLayout finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 
-    static VkDescriptorSetLayoutBinding c_DescriptorSetLayoutBinding(int bind,
-                                                                     VkDescriptorType descType,
-                                                                     VkShaderStageFlags shaderStageFlags);
+//    static VkDescriptorSetLayoutBinding c_DescriptorSetLayoutBinding(int bind,
+//                                                                     VkDescriptorType descType,
+//                                                                     VkShaderStageFlags shaderStageFlags);
 };
 
 #endif //ETHERTIA_VKH_H
