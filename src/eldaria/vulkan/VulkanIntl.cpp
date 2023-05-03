@@ -45,18 +45,18 @@ public:
 //    inline static VkPhysicalDevice  g_PhysDevice= nullptr;
 //    inline static VkDevice          g_Device    = nullptr;  // Logical Device
 
-    inline static VkRenderPass      g_RenderPass = nullptr;
+//    inline static VkRenderPass      g_RenderPass = nullptr;
 
 //    inline static VkQueue g_GraphicsQueue = nullptr;
 //    inline static VkQueue g_PresentQueue = nullptr;  // Surface Present
 
 //    inline static VkSurfaceKHR          g_SurfaceKHR = nullptr;
-    inline static VkSwapchainKHR        g_SwapchainKHR = nullptr;
-    inline static std::vector<VkImage>  g_SwapchainImages;  // auto clean by vk swapchain
-    inline static std::vector<VkImageView> g_SwapchainImageViews;
-    inline static VkExtent2D            g_SwapchainExtent = {};
-    inline static VkFormat              g_SwapchainImageFormat = {};
-    inline static std::vector<VkFramebuffer> g_SwapchainFramebuffers;  // for each Swapchain Image.
+//    inline static VkSwapchainKHR        g_SwapchainKHR = nullptr;
+//    inline static std::vector<VkImage>  g_SwapchainImages;  // auto clean by vk swapchain
+//    inline static std::vector<VkImageView> g_SwapchainImageViews;
+//    inline static VkExtent2D            g_SwapchainExtent = {};
+//    inline static VkFormat              g_SwapchainImageFormat = {};
+//    inline static std::vector<VkFramebuffer> g_SwapchainFramebuffers;  // for each Swapchain Image.
 
     inline static bool g_RecreateSwapchainRequested = false;  // when Window/Framebuffer resized.
     inline static GLFWwindow* g_WindowHandle = nullptr;
@@ -80,7 +80,7 @@ public:
 
     inline static std::vector<VkDescriptorSet> g_DescriptorSets;  // for each InflightFrame
 
-    inline static vkx::Image* g_DepthImage = new vkx::Image(0,0,0, 0,0);;
+//    inline static vkx::Image* g_DepthImage = new vkx::Image(0,0,0, 0,0);;
     inline static vkx::Image* g_TextureImage;
 
 
@@ -94,11 +94,10 @@ public:
         CreateCommandBuffers();
         CreateSyncObjects_Semaphores_Fences();
 
-
-        vkx::CreateSwapchain();
-        CreateRenderPass();     // depend: Swapchain format
-        CreateDepthTexture();
-        CreateFramebuffers();   // depend: DepthTexture, RenderPass
+//        vkx::CreateSwapchain();
+//        CreateRenderPass();     // depend: Swapchain format
+//        CreateDepthTexture();
+//        CreateFramebuffers();   // depend: DepthTexture, RenderPass
 
         CreateDescriptorSetLayout();
 
@@ -124,9 +123,9 @@ public:
 
     static void Destroy()
     {
-        DestroySwapchain();
+//        DestroySwapchain();
 
-        delete g_DepthImage;
+//        delete g_DepthImage;
         delete g_TextureImage;
         delete g_TestModel;
 
@@ -153,7 +152,6 @@ public:
 
         vkDestroyPipeline(device, g_GraphicsPipeline, nullptr);
         vkDestroyPipelineLayout(device, g_PipelineLayout, nullptr);
-        vkDestroyRenderPass(device, g_RenderPass, nullptr);
 
         for (int i = 0; i < MAX_FRAMES_INFLIGHT; ++i) {
             vkDestroySemaphore(device, g_SemaphoreImageAcquired[i], nullptr);
@@ -165,41 +163,41 @@ public:
     }
 
 
-    static void DestroySwapchain()
-    {
-        VkDevice device = vkx::ctx().Device;
-
-        for (auto fb : g_SwapchainFramebuffers) {
-            vkDestroyFramebuffer(device, fb, nullptr);
-        }
-        for (auto imageview : g_SwapchainImageViews) {
-            vkDestroyImageView(device, imageview, nullptr);
-        }
-        vkDestroySwapchainKHR(device, g_SwapchainKHR, nullptr);
-    }
-
-    static void RecreateSwapchain()
-    {
-        int w, h;
-        glfwGetFramebufferSize(g_WindowHandle, &w, &h);
-        while (w==0 || h==0) {
-            glfwGetFramebufferSize(g_WindowHandle, &w, &h);
-            glfwWaitEvents();
-        }
-
-        vkDeviceWaitIdle(vkx::ctx().Device);
-        DestroySwapchain();
-        Log::info("RecreateSwapchain");
-
-        vkx::CreateSwapchain();
-        CreateDepthTexture();
-        CreateFramebuffers();
-    }
-
-    static void CreateDepthTexture()
-    {
-        vkx::CreateDepthImage(g_SwapchainExtent.width, g_SwapchainExtent.height, g_DepthImage);
-    }
+//    static void DestroySwapchain()
+//    {
+//        VkDevice device = vkx::ctx().Device;
+//
+//        for (auto fb : g_SwapchainFramebuffers) {
+//            vkDestroyFramebuffer(device, fb, nullptr);
+//        }
+//        for (auto imageview : g_SwapchainImageViews) {
+//            vkDestroyImageView(device, imageview, nullptr);
+//        }
+//        vkDestroySwapchainKHR(device, g_SwapchainKHR, nullptr);
+//    }
+//
+//    static void RecreateSwapchain()
+//    {
+//        int w, h;
+//        glfwGetFramebufferSize(g_WindowHandle, &w, &h);
+//        while (w==0 || h==0) {
+//            glfwGetFramebufferSize(g_WindowHandle, &w, &h);
+//            glfwWaitEvents();
+//        }
+//
+//        vkDeviceWaitIdle(vkx::ctx().Device);
+//        DestroySwapchain();
+//        Log::info("RecreateSwapchain");
+//
+//        vkx::CreateSwapchain();
+//        CreateDepthTexture();
+//        CreateFramebuffers();
+//    }
+//
+//    static void CreateDepthTexture()
+//    {
+//        vkx::CreateDepthImage(g_SwapchainExtent.width, g_SwapchainExtent.height, g_DepthImage);
+//    }
 
 
 
@@ -462,7 +460,7 @@ public:
                 1,
                 {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
                 pipelineLayout,
-                g_RenderPass);
+                vkx::ctx().MainRenderPass);
 
     }
 
@@ -483,45 +481,45 @@ public:
 
 
 
-    static void CreateRenderPass()
-    {
-        VkAttachmentReference colorAttachmentRef = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
-        VkAttachmentReference depthAttachmentRef = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
-
-        VkSubpassDescription subpass{};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &colorAttachmentRef;
-        subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-
-        VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcAccessMask = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-        VkAttachmentDescription attachmentsDesc[] = {
-                vl::IAttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
-                vl::IAttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
-        };
-
-        VkRenderPassCreateInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = std::size(attachmentsDesc);
-        renderPassInfo.pAttachments = attachmentsDesc;
-        renderPassInfo.subpassCount = 1;
-        renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 1;
-        renderPassInfo.pDependencies = &dependency;
-
-        if (vkCreateRenderPass(vkx::ctx().Device, &renderPassInfo, nullptr, &g_RenderPass) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create render pass.");
-        }
-
-    }
+//    static void CreateRenderPass()
+//    {
+//        VkAttachmentReference colorAttachmentRef = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+//        VkAttachmentReference depthAttachmentRef = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+//
+//        VkSubpassDescription subpass{};
+//        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+//        subpass.colorAttachmentCount = 1;
+//        subpass.pColorAttachments = &colorAttachmentRef;
+//        subpass.pDepthStencilAttachment = &depthAttachmentRef;
+//
+//
+//        VkSubpassDependency dependency{};
+//        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+//        dependency.dstSubpass = 0;
+//        dependency.srcAccessMask = 0;
+//        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+//        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+//        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+//
+//        VkAttachmentDescription attachmentsDesc[] = {
+//                vl::IAttachmentDescription(g_SwapchainImageFormat, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
+//                vl::IAttachmentDescription(vkx::findDepthFormat(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) // .storeOp: VK_ATTACHMENT_STORE_OP_DONT_CARE
+//        };
+//
+//        VkRenderPassCreateInfo renderPassInfo{};
+//        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+//        renderPassInfo.attachmentCount = std::size(attachmentsDesc);
+//        renderPassInfo.pAttachments = attachmentsDesc;
+//        renderPassInfo.subpassCount = 1;
+//        renderPassInfo.pSubpasses = &subpass;
+//        renderPassInfo.dependencyCount = 1;
+//        renderPassInfo.pDependencies = &dependency;
+//
+//        if (vkCreateRenderPass(vkx::ctx().Device, &renderPassInfo, nullptr, &g_RenderPass) != VK_SUCCESS) {
+//            throw std::runtime_error("failed to create render pass.");
+//        }
+//
+//    }
 
 
 
@@ -597,19 +595,19 @@ public:
 
 
 
-    static void CreateFramebuffers()
-    {
-        g_SwapchainFramebuffers.resize(g_SwapchainImageViews.size());
-
-        for (size_t i = 0; i < g_SwapchainImageViews.size(); i++)
-        {
-            std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImage->m_ImageView };
-
-            g_SwapchainFramebuffers[i] = vl::CreateFramebuffer(vkx::ctx().Device,
-                                                               g_SwapchainExtent.width, g_SwapchainExtent.height,
-                                                               g_RenderPass, attachments.size(), attachments.data());
-        }
-    }
+//    static void CreateFramebuffers()
+//    {
+//        g_SwapchainFramebuffers.resize(g_SwapchainImageViews.size());
+//
+//        for (size_t i = 0; i < g_SwapchainImageViews.size(); i++)
+//        {
+//            std::array<VkImageView, 2> attachments = { g_SwapchainImageViews[i], g_DepthImage->m_ImageView };
+//
+//            g_SwapchainFramebuffers[i] = vl::CreateFramebuffer(vkx::ctx().Device,
+//                                                               g_SwapchainExtent.width, g_SwapchainExtent.height,
+//                                                               g_RenderPass, attachments.size(), attachments.data());
+//        }
+//    }
 
 
 
@@ -692,7 +690,7 @@ public:
 
         ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), g_SwapchainExtent.width / (float) g_SwapchainExtent.height, 0.1f, 10.0f);
+        ubo.proj = glm::perspective(glm::radians(45.0f), vkx::ctx().SwapchainExtent.width / (float) vkx::ctx().SwapchainExtent.height, 0.1f, 10.0f);
 
         ubo.proj[1][1] *= -1;
 
@@ -830,13 +828,13 @@ public:
         // Main
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
-        cmd.CmdBeginRenderPass(g_RenderPass, g_SwapchainFramebuffers[imageIdx], g_SwapchainExtent,
+        cmd.CmdBeginRenderPass(vkx::ctx().MainRenderPass, vkx::ctx().SwapchainFramebuffers[imageIdx], vkx::ctx().SwapchainExtent,
                                2, clearValues);
 
 //        cmd.CmdBindGraphicsPipeline(g_GraphicsPipeline);
         cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
-        cmd.CmdSetViewport(g_SwapchainExtent);
-        cmd.CmdSetScissor(g_SwapchainExtent);
+        cmd.CmdSetViewport(vkx::ctx().SwapchainExtent);
+        cmd.CmdSetScissor(vkx::ctx().SwapchainExtent);
 
         cmd.CmdBindDescriptorSets(g_Deferred_Compose.m_PipelineLayout, &g_Deferred_Compose.m_DescSet);
 
@@ -859,7 +857,7 @@ public:
         vkWaitForFences(device, 1, &g_InflightFence[currframe], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIdx;
-        vkAcquireNextImageKHR(device, g_SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe], nullptr, &imageIdx);
+        vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[currframe], nullptr, &imageIdx);
         vkResetFences(device, 1, &g_InflightFence[currframe]);
         vkResetCommandBuffer(g_CommandBuffers[currframe], 0);
 
@@ -877,13 +875,13 @@ public:
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &g_SemaphoreRenderComplete[currframe];
         presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &g_SwapchainKHR;
+        presentInfo.pSwapchains = &vkx::ctx().SwapchainKHR;
         presentInfo.pImageIndices = &imageIdx;
 
         vkQueuePresentKHR(vkx::ctx().PresentQueue, &presentInfo);
         if (g_RecreateSwapchainRequested) {
             g_RecreateSwapchainRequested = false;
-            RecreateSwapchain();
+            vkx::RecreateSwapchain();
         }
 
 //         vkQueueWaitIdle(g_PresentQueue);  // BigWaste on GPU.
@@ -916,7 +914,6 @@ void VulkanIntl::Init(GLFWwindow* glfwWindow)
 {
     VulkanIntl_Impl::Init(glfwWindow);
 
-    vkx::ctx()._RenderPass = VulkanIntl_Impl::g_RenderPass;
 }
 
 void VulkanIntl::Destroy() {

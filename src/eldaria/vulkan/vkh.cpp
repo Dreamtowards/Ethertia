@@ -1611,7 +1611,7 @@ void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
     vkx::Instance* inst = new vkx::Instance();
     vkx::ctx(inst);
     vkx::Instance& i = *inst;
-    i.m_EnabledValidationLayer=enableValidationLayer;
+    i.m_EnabledValidationLayer = enableValidationLayer;
     i.WindowHandle = glfwWindow;
 
     i.Inst =
@@ -1633,18 +1633,17 @@ void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
     vkx::CreateImageSampler();
     i.DescriptorPool =
     CreateDescriptorPool_(i.Device);
-    
+
     // Swapchain
     {
         CreateSwapchain();
 
         i.MainRenderPass =
-                CreateMainRenderPass();     // depend: Swapchain format
+            CreateMainRenderPass();     // depend: Swapchain format
 
         CreateSwapchainDepthImage();
         CreateSwapchainFramebuffers();   // depend: DepthTexture, RenderPass
     }
-
 }
 
 void vkx::Destroy()

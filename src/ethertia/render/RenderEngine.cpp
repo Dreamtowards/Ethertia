@@ -156,7 +156,6 @@ void RenderEngine::init()
     vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
 
 
-
     CreateCommandBuffers();
     CreateSyncObjects();
 
