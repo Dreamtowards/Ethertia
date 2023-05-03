@@ -439,7 +439,7 @@ void vl::QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, Vk
                  "failed to submit draw command buffer.");
 }
 
-void vl::QueuePresentKHR(VkQueue presentQueue,
+VkResult vl::QueuePresentKHR(VkQueue presentQueue,
                          int numWaitSemaphores, const VkSemaphore* pSemaphores,
                          int numSwapchains, const VkSwapchainKHR* pSwapchains, const uint32_t* pImageIndices)
 {
@@ -451,7 +451,8 @@ void vl::QueuePresentKHR(VkQueue presentQueue,
     presentInfo.pSwapchains = pSwapchains;
     presentInfo.pImageIndices = pImageIndices;
 
-    VK_CHECK(vkQueuePresentKHR(presentQueue, &presentInfo));
+    //VK_CHECK
+    return vkQueuePresentKHR(presentQueue, &presentInfo);
 }
 
 
@@ -774,20 +775,19 @@ VkPipeline vkx::CreateGraphicsPipeline(std::array<std::span<const char>, 2> shad
     shaderStages[0] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_VERTEX_BIT, shaderStagesSources[0]);
     shaderStages[1] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_FRAGMENT_BIT, shaderStagesSources[1]);
 
-    VkVertexInputBindingDescription vertexInputBindingDescription;
-    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescription;
+    VkVertexInputBindingDescription _vertexInputBindingDescription;
+    std::vector<VkVertexInputAttributeDescription> _vertexInputAttributeDescription;
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = _IPipelineColorBlendAttachmentState();
     std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachs;
     colorBlendAttachs.resize(numColorBlendAttachments);
     for (int i = 0; i < numColorBlendAttachments; ++i) {
-        colorBlendAttachs[i] = colorBlendAttachment;
+        colorBlendAttachs[i] = _IPipelineColorBlendAttachmentState();
     }
 
     VkGraphicsPipelineCreateInfo pipelineInfo =
             vl::IGraphicsPipeline(
                     {shaderStages, 2},
-                    vl::IPipelineVertexInputState(vertexInputAttribsFormats, 0, &vertexInputBindingDescription, &vertexInputAttributeDescription),
+                    vl::IPipelineVertexInputState(vertexInputAttribsFormats, 0, &_vertexInputBindingDescription, &_vertexInputAttributeDescription),
                     vl::IPipelineInputAssemblyState(topology),  // VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
                     nullptr,
                     vl::IPipelineViewportState(),

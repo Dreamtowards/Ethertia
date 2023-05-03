@@ -108,8 +108,6 @@ namespace vl
             std::span<const VkDynamicState> dynamicStates);
 
 
-//    VkPipeline CreateGraphicsPipeline(VkDevice device);
-
 
 
 
@@ -183,9 +181,9 @@ namespace vl
                      VkSemaphore signal,
                      VkFence fence);
 
-    void QueuePresentKHR(VkQueue presentQueue,
-                         int numWaitSemaphores, const VkSemaphore* pSemaphores,
-                         int numSwapchains, const VkSwapchainKHR* pSwapchains, const uint32_t* pImageIndices);
+    VkResult QueuePresentKHR(VkQueue presentQueue,
+                             int numWaitSemaphores, const VkSemaphore* pSemaphores,
+                             int numSwapchains, const VkSwapchainKHR* pSwapchains, const uint32_t* pImageIndices);
 
     void CmdBeginRenderPass(VkCommandBuffer cmdbuf,
                             VkRenderPass renderPass,

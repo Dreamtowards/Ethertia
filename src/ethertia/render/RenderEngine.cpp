@@ -433,18 +433,17 @@ void RenderEngine::Render()
                     g_SemaphoreImageAcquired[frameIdx], g_SemaphoreRenderComplete[frameIdx],
                     g_InflightFence[frameIdx]);
 
+    VkResult vkr =
     vl::QueuePresentKHR(vkx::ctx().PresentQueue,
                         1, &g_SemaphoreRenderComplete[frameIdx],
                         1, &g_SwapchainKHR, &imageIdx);
 
-
-
-    if (g_RecreateSwapchainRequested) {
-        g_RecreateSwapchainRequested = false;
+    if (vkr == VK_SUBOPTIMAL_KHR)
+    {
         RecreateSwapchain();
     }
 
-//         vkQueueWaitIdle(g_PresentQueue);  // BigWaste on GPU.
+    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
 
     g_CurrentInflightFrame = (g_CurrentInflightFrame + 1) % MAX_INFLIGHT_FRAMES;
 }
