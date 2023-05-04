@@ -9,6 +9,7 @@
 
 using namespace ImWorldGenNodeEditor;
 
+// Bravo! btw how about the Strings::fmt("sth {} and {}", 1, 2)? (ethertia/util/Strings.h)  [Noter::Dreamtowards on 2023-05-05]
 template<typename... Args>
 std::string string_format( const char* format, Args... args )
 {

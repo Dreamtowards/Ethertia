@@ -10,7 +10,12 @@
 #include <FastNoise/Metadata.h>
 #include <imgui_internal.h>
 #include <imgui.h>
-#include <GL/gl.h>
+
+#include <unordered_map>
+#include <array>
+
+// if need include OpenGL, better try include GLFW or glad which is cross-platform. (GL/gl.h is not supported on Mac computers at default.)
+// #include <GL/gl.h>
 
 namespace ImGuiExtra
 {

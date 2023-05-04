@@ -821,7 +821,8 @@ void generatePreviewNoise(FastNoise::NodeData* nodeData,
         auto genRGB = FastNoise::New<FastNoise::ConvertRGBA8>(NoiseGen::g_SIMDLevel);
         genRGB->SetSource(generator);
 
-        if (!id2previewNoiseData.contains(nodeId))
+        // .contains() func do not exists on my computer.. (Verbo @Dreamtowards, 230505)
+        if (id2previewNoiseData.find(nodeId) == id2previewNoiseData.end())
         {
             std::array<float, 256 * 256> newArray{};
             newArray.fill(0.0f);
