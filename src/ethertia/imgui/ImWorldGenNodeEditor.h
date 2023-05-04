@@ -63,7 +63,6 @@ namespace ImWorldGenNodeEditor
     public:
         WorldGenNodeEditor();
         void ShowWorldGenNodeEditor(bool& w_WorldGenNodeEditor);
-        static const char* GetSIMDLevelName(FastSIMD::eLevel lvl);
         inline static FastSIMD::eLevel mActualSIMDLevel = FastSIMD::Level_Null;
 
     private:
@@ -103,7 +102,7 @@ namespace ImWorldGenNodeEditor
             const int nodeId;
             static const int NoiseSize = 256;
             GLuint noiseTexture;
-            float mNodeFrequency = 1 / 200.0f;
+            float mNodeFrequency = 1 / 100.0f;
             int mNodeSeed = 1337;
 
         };

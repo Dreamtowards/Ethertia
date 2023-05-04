@@ -461,7 +461,7 @@ WorldGenNodeEditor::Node* WorldGenNodeEditor::FindNodeFromId(int id)
         return &find->second;
     }
 
-    return nullptr;
+    return nullptr; 
 }
 
 int WorldGenNodeEditor::GetFreeNodeId()
@@ -480,36 +480,44 @@ int WorldGenNodeEditor::GetFreeNodeId()
 void WorldGenNodeEditor::Node::GeneratePreview(bool nodeTreeChanged)
 {
     static float noiseData[NoiseSize * NoiseSize];
-    static std::array<uint8_t, NoiseSize * NoiseSize> imageData;
+    static std::array<uint8_t, NoiseSize * NoiseSize * 3> imageData;
 
     serialised = FastNoise::Metadata::SerialiseNodeData( data.get(), true );
     auto generator = FastNoise::NewFromEncodedNodeTree( serialised.c_str(), WorldGenNodeEditor::mActualSIMDLevel );
 
-    if( generator )
+    if (nodeTreeChanged)
     {
-        auto genRGB = FastNoise::New<FastNoise::ConvertRGBA8>(WorldGenNodeEditor::mActualSIMDLevel);
-        genRGB->SetSource(generator);
-        genRGB->GenUniformGrid2D(noiseData,
-                                0, 0,
-                                Node::NoiseSize, Node::NoiseSize,
-                                mNodeFrequency, mNodeSeed );
-    }
-    else
-    {
-        std::fill(std::begin(noiseData), std::end(noiseData), 0.0f);
-        serialised.clear();
+        if( generator )
+        {
+//        auto genRGB = FastNoise::New<FastNoise::ConvertRGBA8>(WorldGenNodeEditor::mActualSIMDLevel);
+            generator->GenUniformGrid2D(noiseData,
+                                        0, 0,
+                                        Node::NoiseSize, Node::NoiseSize,
+                                        mNodeFrequency, mNodeSeed );
+//        genRGB->SetSource(generator);
+//        genRGB->GenUniformGrid2D(noiseData,
+//                                0, 0,
+//                                Node::NoiseSize, Node::NoiseSize,
+//                                mNodeFrequency, mNodeSeed );
+        }
+        else
+        {
+            std::fill(std::begin(noiseData), std::end(noiseData), 0.0f);
+            serialised.clear();
+        }
+
+        for (int i = 0; i < NoiseSize * NoiseSize; ++i) {
+            float value = std::round( ((noiseData[i] + 1.0f) / 2.0f) * 255.0f);
+            imageData[i * 3] =  static_cast<uint8_t>(value);
+            imageData[i * 3 + 1] = static_cast<uint8_t>(value); // 绿色通道
+            imageData[i * 3 + 2] = static_cast<uint8_t>(value); // 蓝色通道
+        }
+        glBindTexture(GL_TEXTURE_2D, noiseTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, NoiseSize, NoiseSize, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData.data());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
-
-    for (int i = 0; i < NoiseSize * NoiseSize; ++i) {
-        float value = (noiseData[i] + 1.0f) / 2.0f;
-        imageData[i] =  static_cast<uint8_t>(value * 255.0f);
-    }
-
-    glBindTexture(GL_TEXTURE_2D, noiseTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, NoiseSize, NoiseSize, 0, GL_RED, GL_UNSIGNED_BYTE, imageData.data());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 //    ImageView2D noiseImage( PixelFormat::RGBA8Unorm, { NoiseSize, NoiseSize }, noiseData );
 
 //    noiseTexture.setStorage( 1, GL::TextureFormat::RGBA8, noiseImage.size() ).setSubImage( 0, {}, noiseImage );
