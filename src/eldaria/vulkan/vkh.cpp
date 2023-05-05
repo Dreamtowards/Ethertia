@@ -1772,6 +1772,24 @@ void vkx::EndFrame(VkCommandBuffer cmdbuf)
 
 
 
+void vkx::BeginMainRenderPass(VkCommandBuffer cmdbuf)
+{
+    VkClearValue clearValues[2]{};
+    vkx::CommandBuffer cmd{cmdbuf};
+
+    clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+    clearValues[1].depthStencil = {1.0f, 0};
+    cmd.CmdBeginRenderPass(vkx::ctx().MainRenderPass, vkx::ctx().SwapchainFramebuffers[vkx::CurrentSwapchainImage],
+                           vkx::ctx().SwapchainExtent, 2, clearValues);
+    cmd.CmdSetViewport(vkx::ctx().SwapchainExtent);
+    cmd.CmdSetScissor(vkx::ctx().SwapchainExtent);
+}
+
+void vkx::EndMainRenderPass(VkCommandBuffer cmdbuf)
+{
+    vkCmdEndRenderPass(cmdbuf);
+}
+
 
 
 

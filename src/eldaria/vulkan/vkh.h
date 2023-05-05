@@ -281,8 +281,8 @@ namespace vkx
     void EndFrame(VkCommandBuffer cmdbuf);
 
 
-    void BeginMainRenderPass();
-    void EndMainRenderPass();
+    void BeginMainRenderPass(VkCommandBuffer cmdbuf);
+    void EndMainRenderPass(VkCommandBuffer cmdbuf);
 
 
 

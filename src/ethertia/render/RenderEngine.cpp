@@ -250,83 +250,23 @@ static void RecordCommandBuffer(VkCommandBuffer cmdbuf)
 
 void RenderEngine::Render()
 {
-//    auto& g = vkx::ctx();
-//    VkDevice device = vkx::ctx().Device;
-//    const int frameIdx = vkx::CurrentInflightFrame;
-//    VkCommandBuffer cmdbuf = g.CommandBuffers[frameIdx];
-//
-//    vkWaitForFences(device, 1, &g.CommandBuffersFences[frameIdx], VK_TRUE, UINT64_MAX);
-//
-//    uint32_t imageIdx;
-//    vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, g.SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
-//    vkResetFences(device, 1, &g.CommandBuffersFences[frameIdx]);
-//    vkResetCommandBuffer(cmdbuf, 0);
-//    vkx::CurrentSwapchainImage = imageIdx;
-//
-//
-//    RecordCommandBuffer(cmdbuf);
-//
-//
-//    vl::QueueSubmit(vkx::ctx().GraphicsQueue, cmdbuf,
-//                    g_SemaphoreImageAcquired[frameIdx], g_SemaphoreRenderComplete[frameIdx],
-//                    g_InflightFence[frameIdx]);
-//
-//    VkResult vkr =
-//            vl::QueuePresentKHR(vkx::ctx().PresentQueue,
-//                                1, &g_SemaphoreRenderComplete[frameIdx],
-//                                1, &vkx::ctx().SwapchainKHR, &imageIdx);
-//
-//    if (vkr == VK_SUBOPTIMAL_KHR)
-//    {
-//        vkx::RecreateSwapchain();
-//    }
-//
-//    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
-//
-//    g_CurrentInflightFrame = (g_CurrentInflightFrame + 1) % MAX_INFLIGHT_FRAMES;
-
-
-
-
-//    auto& i = vkx::ctx();
-//    VkDevice device = i.Device;
-//    const int frameIdx = vkx::CurrentInflightFrame;
-//    VkCommandBuffer cmdbuf = i.CommandBuffers[frameIdx];
-//
-//    vkWaitForFences(device, 1, &i.CommandBuffersFences[frameIdx], VK_TRUE, UINT64_MAX);
-//
-//    uint32_t imageIdx;
-//    vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, i.SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
-//    vkx::CurrentSwapchainImage = imageIdx;
-//
-//    vkResetFences(device, 1, &i.CommandBuffersFences[frameIdx]);
-//    vkResetCommandBuffer(cmdbuf, 0);
-
-//    UpdateUniformBuffer(frameIdx);
-
     VkCommandBuffer cmdbuf;
     vkx::BeginFrame(&cmdbuf);
 
-//    vl::BeginCommandBuffer(cmdbuf, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
-    RecordCommandBuffer(cmdbuf);
-//    VK_CHECK(vkEndCommandBuffer(cmdbuf));
+    // RecordCommandBuffer(cmdbuf);
+
+
+    vkx::BeginMainRenderPass(cmdbuf);
+
+    {
+        PROFILE("GUI");
+
+        Imgui::RenderGUI(cmdbuf);
+    }
+
+    vkx::EndMainRenderPass(cmdbuf);
 
     vkx::EndFrame(cmdbuf);
-
-//    vl::QueueSubmit(vkx::ctx().GraphicsQueue, cmdbuf,
-//                    i.SemaphoreImageAcquired[frameIdx], i.SemaphoreRenderComplete[frameIdx],
-//                    i.CommandBuffersFences[frameIdx]);
-//    VkResult vkr =
-//            vl::QueuePresentKHR(vkx::ctx().PresentQueue,
-//                                1, &i.SemaphoreRenderComplete[frameIdx],
-//                                1, &vkx::ctx().SwapchainKHR, &imageIdx);
-//
-//    if (vkr == VK_SUBOPTIMAL_KHR) {
-//        vkx::RecreateSwapchain();
-//    }
-////    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
-//
-//    vkx::CurrentInflightFrame = (vkx::CurrentInflightFrame + 1) % vkx::INFLIGHT_FRAMES;
 }
 
 
