@@ -32,6 +32,9 @@
 //
 
 
+
+#define _uniform_align alignas(16)
+
 namespace RendererGbuffer
 {
     VkPipeline g_Pipeline;
@@ -40,143 +43,48 @@ namespace RendererGbuffer
     VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
     VkPipelineLayout g_PipelineLayout = nullptr;
 
-};
+    static vkx::UniformBuffer* g_UniformBuffers[vkx::INFLIGHT_FRAMES];
+    static VkDescriptorSet g_DescriptorSets[vkx::INFLIGHT_FRAMES];
 
-
-
-static int g_CurrentInflightFrame = 0;
-
-static VkCommandBuffer g_InflightCommandBuffers[vkx::INFLIGHT_FRAMES];
-
-static VkSemaphore g_SemaphoreImageAcquired[vkx::INFLIGHT_FRAMES];
-static VkSemaphore g_SemaphoreRenderComplete[vkx::INFLIGHT_FRAMES];
-static VkFence     g_InflightFence[vkx::INFLIGHT_FRAMES];
-
-
-static VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
-static VkPipelineLayout g_PipelineLayout = nullptr;
-
-static vkx::UniformBuffer* g_UniformBuffers[vkx::INFLIGHT_FRAMES];
-static VkDescriptorSet g_DescriptorSets[vkx::INFLIGHT_FRAMES];
-
-
-
-
-#define DECL_unif alignas(16)
-
-struct UniformBufferObject
-{
-    DECL_unif glm::mat4 model;
-    DECL_unif glm::mat4 view;
-    DECL_unif glm::mat4 proj;
-};
-
-
-
-static void CreateCommandBuffers()
-{
-    vl::AllocateCommandBuffers(vkx::ctx().Device, vkx::ctx().CommandPool,
-                               std::size(g_InflightCommandBuffers), g_InflightCommandBuffers,
-                               VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-}
-
-
-
-static void CreateSyncObjects()
-{
-    VkSemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkFenceCreateInfo fenceInfo{};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    VkDevice device = vkx::ctx().Device;
-    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
+    struct UniformBufferObject
     {
-        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]));
-        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]));
-        VK_CHECK(vkCreateFence(device, &fenceInfo, nullptr, &g_InflightFence[i]));
-    }
-}
+        _uniform_align glm::mat4 model;
+        _uniform_align glm::mat4 view;
+        _uniform_align glm::mat4 proj;
+    };
 
-
-
-
-
-
-
-
-
-
-
-
-static void CreateDescriptorSetLayout()
-{
-    g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(vkx::ctx().Device, {
-            {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
-            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
-    });
-}
-
-
-static void CreateUniformBuffers()
-{
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
+    void init()
     {
-        g_UniformBuffers[i] = new vkx::UniformBuffer(bufferSize);
-    }
-}
+        VkDevice device = vkx::ctx().Device;
 
-static void CreateDescriptorSets()
-{
-    VkDevice device = vkx::ctx().Device;
-    std::vector<VkDescriptorSetLayout> layouts(vkx::INFLIGHT_FRAMES, g_DescriptorSetLayout);
+        // Uniform Buffers
+        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+        for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
+        {
+            g_UniformBuffers[i] = new vkx::UniformBuffer(bufferSize);
+        }
 
-    vl::AllocateDescriptorSets(device, vkx::ctx().DescriptorPool, vkx::INFLIGHT_FRAMES, layouts.data(), g_DescriptorSets);
+        g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(device, {
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
+        });
 
-    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
-    {
-        vkx::DescriptorWrites writes{g_DescriptorSets[i]};
+        g_PipelineLayout = vl::CreatePipelineLayout(vkx::ctx().Device, 1, &g_DescriptorSetLayout);
 
-        writes.UniformBuffer(g_UniformBuffers[i]->buffer(), sizeof(UniformBufferObject));
-        writes.CombinedImageSampler(RenderEngine::TEX_UVMAP->m_ImageView, vkx::ctx().ImageSampler);
+        // DescriptorSet
 
-        writes.WriteDescriptorSets(device);
-    }
-}
+        std::vector<VkDescriptorSetLayout> layouts(vkx::INFLIGHT_FRAMES, g_DescriptorSetLayout);
+        vl::AllocateDescriptorSets(device, vkx::ctx().DescriptorPool, vkx::INFLIGHT_FRAMES, layouts.data(), g_DescriptorSets);
 
+        for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
+        {
+            vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
+            writes.UniformBuffer(g_UniformBuffers[i]->buffer(), sizeof(UniformBufferObject));
+            writes.CombinedImageSampler(RenderEngine::TEX_UVMAP->m_ImageView, vkx::ctx().ImageSampler);
 
-void RenderEngine::init()
-{
-    BENCHMARK_TIMER;
-    Log::info("RenderEngine initializing.\1");
-
-    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
-
-
-    CreateCommandBuffers();
-    CreateSyncObjects();
-
-
-    CreateDescriptorSetLayout();
-    g_PipelineLayout = vl::CreatePipelineLayout(vkx::ctx().Device, 1, &g_DescriptorSetLayout);
-
-
-    {
-        BitmapImage img(1, 1, new uint32_t[1]{(uint32_t)~0});
-        TEX_WHITE = Loader::loadImage(img);
-
-        TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
-    }
-
-    CreateUniformBuffers();
-    CreateDescriptorSets();
-
-
+            writes.WriteDescriptorSets(device);
+        }
 //    {
 //        g_GraphicsPipeline =
 //        vkx::CreateGraphicsPipeline(
@@ -192,25 +100,98 @@ void RenderEngine::init()
 //                vkx::ctx().MainRenderPass);
 //    }
 
+    }
+
+    void deinit()
+    {
+        for (int i = 0; i < std::size(g_UniformBuffers); ++i) {
+            delete g_UniformBuffers[i];
+        }
+    }
+
+
+    void UpdateUniformBuffer(int frameIdx)
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        UniformBufferObject ubo{};
+
+        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), vkx::ctx().SwapchainExtent.width / (float) vkx::ctx().SwapchainExtent.height, 0.1f, 10.0f);
+
+        ubo.proj[1][1] *= -1;
+
+        g_UniformBuffers[frameIdx]->memcpy(&ubo, sizeof(ubo));
+    }
+
+};
 
 
 
+//static VkSemaphore g_SemaphoreImageAcquired[vkx::INFLIGHT_FRAMES];
+//static VkSemaphore g_SemaphoreRenderComplete[vkx::INFLIGHT_FRAMES];
+//static VkFence     g_InflightFence[vkx::INFLIGHT_FRAMES];
+//
+//
+//
+//
+//static void CreateSyncObjects()
+//{
+//    VkSemaphoreCreateInfo semaphoreInfo{};
+//    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+//
+//    VkFenceCreateInfo fenceInfo{};
+//    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+//    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+//
+//    VkDevice device = vkx::ctx().Device;
+//    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
+//    {
+//        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]));
+//        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]));
+//        VK_CHECK(vkCreateFence(device, &fenceInfo, nullptr, &g_InflightFence[i]));
+//    }
+//}
+//
+
+
+
+void RenderEngine::init()
+{
+    BENCHMARK_TIMER;
+    Log::info("RenderEngine initializing.\1");
+
+    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
+
+    {
+        BitmapImage img(1, 1, new uint32_t[1]{(uint32_t)~0});
+        TEX_WHITE = Loader::loadImage(img);
+        TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
+    }
 }
 
 
 void RenderEngine::deinit()
 {
-    // todo: deinit renderers.
+    vkDeviceWaitIdle(vkx::ctx().Device);  // blocking.
+
+    delete TEX_WHITE;
+    delete TEX_UVMAP;
+
+    vkx::Destroy();
 }
 
 
 
 
-static void RecordCommandBuffer(VkCommandBuffer cmdbuf, VkFramebuffer framebuffer_MainRenderPass)
+static void RecordCommandBuffer(VkCommandBuffer cmdbuf)
 {
 
     vkx::CommandBuffer cmd{cmdbuf};
-    cmd.BeginCommandBuffer(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 
     // Deferred :: Gbuffer
 
@@ -244,7 +225,8 @@ static void RecordCommandBuffer(VkCommandBuffer cmdbuf, VkFramebuffer framebuffe
     // Main
     clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
     clearValues[1].depthStencil = {1.0f, 0};
-    cmd.CmdBeginRenderPass(vkx::ctx().MainRenderPass, framebuffer_MainRenderPass, vkx::ctx().SwapchainExtent, 2, clearValues);
+    cmd.CmdBeginRenderPass(vkx::ctx().MainRenderPass, vkx::ctx().SwapchainFramebuffers[vkx::CurrentSwapchainImage],
+                           vkx::ctx().SwapchainExtent, 2, clearValues);
     cmd.CmdSetViewport(vkx::ctx().SwapchainExtent);
     cmd.CmdSetScissor(vkx::ctx().SwapchainExtent);
 
@@ -263,62 +245,88 @@ static void RecordCommandBuffer(VkCommandBuffer cmdbuf, VkFramebuffer framebuffe
 
     cmd.CmdEndRenderPass();
 
-    cmd.EndCommandBuffer();
 }
 
-void UpdateUniformBuffer(int frameIdx)
-{
-    static auto startTime = std::chrono::high_resolution_clock::now();
-
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-    UniformBufferObject ubo{};
-
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(glm::radians(45.0f), vkx::ctx().SwapchainExtent.width / (float) vkx::ctx().SwapchainExtent.height, 0.1f, 10.0f);
-
-    ubo.proj[1][1] *= -1;
-
-    g_UniformBuffers[frameIdx]->memcpy(&ubo, sizeof(ubo));
-}
 
 void RenderEngine::Render()
 {
-    VkDevice device = vkx::ctx().Device;
-    const int frameIdx = g_CurrentInflightFrame;
-    VkCommandBuffer cmdbuf = g_InflightCommandBuffers[frameIdx];
+//    auto& g = vkx::ctx();
+//    VkDevice device = vkx::ctx().Device;
+//    const int frameIdx = vkx::CurrentInflightFrame;
+//    VkCommandBuffer cmdbuf = g.CommandBuffers[frameIdx];
+//
+//    vkWaitForFences(device, 1, &g.CommandBuffersFences[frameIdx], VK_TRUE, UINT64_MAX);
+//
+//    uint32_t imageIdx;
+//    vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, g.SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
+//    vkResetFences(device, 1, &g.CommandBuffersFences[frameIdx]);
+//    vkResetCommandBuffer(cmdbuf, 0);
+//    vkx::CurrentSwapchainImage = imageIdx;
+//
+//
+//    RecordCommandBuffer(cmdbuf);
+//
+//
+//    vl::QueueSubmit(vkx::ctx().GraphicsQueue, cmdbuf,
+//                    g_SemaphoreImageAcquired[frameIdx], g_SemaphoreRenderComplete[frameIdx],
+//                    g_InflightFence[frameIdx]);
+//
+//    VkResult vkr =
+//            vl::QueuePresentKHR(vkx::ctx().PresentQueue,
+//                                1, &g_SemaphoreRenderComplete[frameIdx],
+//                                1, &vkx::ctx().SwapchainKHR, &imageIdx);
+//
+//    if (vkr == VK_SUBOPTIMAL_KHR)
+//    {
+//        vkx::RecreateSwapchain();
+//    }
+//
+//    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
+//
+//    g_CurrentInflightFrame = (g_CurrentInflightFrame + 1) % MAX_INFLIGHT_FRAMES;
 
-    vkWaitForFences(device, 1, &g_InflightFence[frameIdx], VK_TRUE, UINT64_MAX);
-
-    uint32_t imageIdx;
-    vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, g_SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
-    vkResetFences(device, 1, &g_InflightFence[frameIdx]);
-    vkResetCommandBuffer(cmdbuf, 0);
-
-    UpdateUniformBuffer(frameIdx);
-
-    RecordCommandBuffer(cmdbuf, vkx::ctx().SwapchainFramebuffers[imageIdx]);
 
 
-    vl::QueueSubmit(vkx::ctx().GraphicsQueue, cmdbuf,
-                    g_SemaphoreImageAcquired[frameIdx], g_SemaphoreRenderComplete[frameIdx],
-                    g_InflightFence[frameIdx]);
 
-    VkResult vkr =
-    vl::QueuePresentKHR(vkx::ctx().PresentQueue,
-                        1, &g_SemaphoreRenderComplete[frameIdx],
-                        1, &vkx::ctx().SwapchainKHR, &imageIdx);
+//    auto& i = vkx::ctx();
+//    VkDevice device = i.Device;
+//    const int frameIdx = vkx::CurrentInflightFrame;
+//    VkCommandBuffer cmdbuf = i.CommandBuffers[frameIdx];
+//
+//    vkWaitForFences(device, 1, &i.CommandBuffersFences[frameIdx], VK_TRUE, UINT64_MAX);
+//
+//    uint32_t imageIdx;
+//    vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, i.SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
+//    vkx::CurrentSwapchainImage = imageIdx;
+//
+//    vkResetFences(device, 1, &i.CommandBuffersFences[frameIdx]);
+//    vkResetCommandBuffer(cmdbuf, 0);
 
-    if (vkr == VK_SUBOPTIMAL_KHR)
-    {
-        vkx::RecreateSwapchain();
-    }
+//    UpdateUniformBuffer(frameIdx);
 
-    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
+    VkCommandBuffer cmdbuf;
+    vkx::BeginFrame(&cmdbuf);
 
-    g_CurrentInflightFrame = (g_CurrentInflightFrame + 1) % vkx::INFLIGHT_FRAMES;
+//    vl::BeginCommandBuffer(cmdbuf, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+    RecordCommandBuffer(cmdbuf);
+//    VK_CHECK(vkEndCommandBuffer(cmdbuf));
+
+    vkx::EndFrame(cmdbuf);
+
+//    vl::QueueSubmit(vkx::ctx().GraphicsQueue, cmdbuf,
+//                    i.SemaphoreImageAcquired[frameIdx], i.SemaphoreRenderComplete[frameIdx],
+//                    i.CommandBuffersFences[frameIdx]);
+//    VkResult vkr =
+//            vl::QueuePresentKHR(vkx::ctx().PresentQueue,
+//                                1, &i.SemaphoreRenderComplete[frameIdx],
+//                                1, &vkx::ctx().SwapchainKHR, &imageIdx);
+//
+//    if (vkr == VK_SUBOPTIMAL_KHR) {
+//        vkx::RecreateSwapchain();
+//    }
+////    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
+//
+//    vkx::CurrentInflightFrame = (vkx::CurrentInflightFrame + 1) % vkx::INFLIGHT_FRAMES;
 }
 
 

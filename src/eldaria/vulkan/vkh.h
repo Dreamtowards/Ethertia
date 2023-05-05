@@ -169,7 +169,8 @@ namespace vl
                                 VkCommandBuffer* out_cmdbufs,
                                 VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-
+    // vkBeginCommandBuffer()
+    void BeginCommandBuffer(VkCommandBuffer cmdbuf, VkCommandBufferUsageFlags usageFlags);
 
     // Allocate & Record & Submit Onetime CommandBuffer
     void SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record,
@@ -222,6 +223,8 @@ namespace vkx
     class Image;
 
     const int INFLIGHT_FRAMES = 2;
+    inline uint32_t CurrentInflightFrame = 0;   // index
+    inline uint32_t CurrentSwapchainImage = 0;  // index
 
     struct Instance
     {
@@ -246,14 +249,19 @@ namespace vkx
 
         // Swapchain
         VkSwapchainKHR              SwapchainKHR = nullptr;
-        std::vector<VkImage>        SwapchainImages;  // auto clean by vk swapchain
-        std::vector<VkImageView>    SwapchainImageViews;
         VkExtent2D                  SwapchainExtent = {};
         VkFormat                    SwapchainImageFormat = {};
+        std::vector<VkImage>        SwapchainImages;        // num: swapchain imageCount (always. 2-3). auto destroy by VkSwapchainKHR.
+        std::vector<VkImageView>    SwapchainImageViews;
         std::vector<VkFramebuffer>  SwapchainFramebuffers;  // for each Swapchain Image.
-
         vkx::Image*                 SwapchainDepthImage = nullptr;
 
+
+        VkCommandBuffer CommandBuffers[vkx::INFLIGHT_FRAMES];
+
+        VkFence         CommandBuffersFences[vkx::INFLIGHT_FRAMES];
+        VkSemaphore     SemaphoreImageAcquired[vkx::INFLIGHT_FRAMES];
+        VkSemaphore     SemaphoreRenderComplete[vkx::INFLIGHT_FRAMES];
 
 
         VkRenderPass MainRenderPass = nullptr;  // external. main render pass.
@@ -268,6 +276,13 @@ namespace vkx
     void Destroy();
 
 
+    void BeginFrame(VkCommandBuffer* out_cmdbuf);
+
+    void EndFrame(VkCommandBuffer cmdbuf);
+
+
+    void BeginMainRenderPass();
+    void EndMainRenderPass();
 
 
 

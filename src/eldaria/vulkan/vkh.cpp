@@ -392,16 +392,21 @@ void vl::AllocateCommandBuffers(VkDevice device, VkCommandPool commandPool,
             "failed to allocate command buffers.");
 }
 
+void vl::BeginCommandBuffer(VkCommandBuffer cmdbuf, VkCommandBufferUsageFlags usageFlags)
+{
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = usageFlags;
+    VK_CHECK(vkBeginCommandBuffer(cmdbuf, &beginInfo));
+}
+
 void vl::SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_record,
                              VkDevice device, VkCommandPool commandPool, VkQueue queue)
 {
     VkCommandBuffer cmdbuf;
     vl::AllocateCommandBuffers(device, commandPool, 1, &cmdbuf, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    vkBeginCommandBuffer(cmdbuf, &beginInfo);
+    vl::BeginCommandBuffer(cmdbuf, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
     fn_record(cmdbuf);
 
@@ -691,10 +696,7 @@ void vkx::UniformBuffer::memcpy(void* src_ptr, size_t size)
 
 void vkx::CommandBuffer::BeginCommandBuffer(VkCommandBufferUsageFlags usage)
 {
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = usage;
-    VK_CHECK(vkBeginCommandBuffer(m_CommandBuffer, &beginInfo));
+    vl::BeginCommandBuffer(m_CommandBuffer, usage);
 }
 
 void vkx::CommandBuffer::EndCommandBuffer()
@@ -1599,11 +1601,34 @@ void vkx::RecreateSwapchain()
 {
     vkDeviceWaitIdle(vkx::ctx().Device);
     DestroySwapchain_();
+    Log::info("RecreateSwapchain");
 
     CreateSwapchain();
     CreateSwapchainDepthImage();
     CreateSwapchainFramebuffers();
 }
+
+
+
+static void CreateSyncObjects()
+{
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    VkDevice device = vkx::ctx().Device;
+    auto& g = vkx::ctx();
+    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
+    {
+        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g.SemaphoreImageAcquired[i]));
+        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g.SemaphoreRenderComplete[i]));
+        VK_CHECK(vkCreateFence(device, &fenceInfo, nullptr, &g.CommandBuffersFences[i]));
+    }
+}
+
 
 
 void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
@@ -1644,27 +1669,39 @@ void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
         CreateSwapchainDepthImage();
         CreateSwapchainFramebuffers();   // depend: DepthTexture, RenderPass
     }
+
+    // CommandBuffers
+    vl::AllocateCommandBuffers(i.Device, i.CommandPool, vkx::INFLIGHT_FRAMES, i.CommandBuffers,VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+    CreateSyncObjects();
 }
 
 void vkx::Destroy()
 {
-    vkx::Instance& vk = vkx::ctx();
-    VkDevice device = vk.Device;
+    auto& g = vkx::ctx();
+    VkDevice device = g.Device;
+    vkDeviceWaitIdle(device);  // blocking.
 
-    vkDestroyRenderPass(device, vk.MainRenderPass, nullptr);
+    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i) {
+        vkDestroyFence(device, g.CommandBuffersFences[i], nullptr);
+        vkDestroySemaphore(device, g.SemaphoreImageAcquired[i], nullptr);
+        vkDestroySemaphore(device, g.SemaphoreRenderComplete[i], nullptr);
+    }
+
+    vkDestroyRenderPass(device, g.MainRenderPass, nullptr);
     DestroySwapchain_();
 
-    vkDestroyDescriptorPool(device, vk.DescriptorPool, nullptr);
-    vkDestroySampler(device, vk.ImageSampler, nullptr);
-    vkDestroyCommandPool(device, vk.CommandPool, nullptr);
+    vkDestroyDescriptorPool(device, g.DescriptorPool, nullptr);
+    vkDestroySampler(device, g.ImageSampler, nullptr);
+    vkDestroyCommandPool(device, g.CommandPool, nullptr);
 
     vkDestroyDevice(device, nullptr);
-    vkDestroySurfaceKHR(vk.Inst, vk.SurfaceKHR, nullptr);
+    vkDestroySurfaceKHR(g.Inst, g.SurfaceKHR, nullptr);
 
-    if (vk.m_EnabledValidationLayer) {
-        extDestroyDebugMessenger(vk.Inst, g_DebugMessengerEXT, nullptr);
+    if (g.m_EnabledValidationLayer) {
+        extDestroyDebugMessenger(g.Inst, g_DebugMessengerEXT, nullptr);
     }
-    vkDestroyInstance(vk.Inst, nullptr);
+    vkDestroyInstance(g.Inst, nullptr);
 }
 
 
@@ -1672,6 +1709,7 @@ void vkx::Destroy()
 // The Default Instance;
 static vkx::Instance* _DefaultInst = nullptr;
 void vkx::ctx(vkx::Instance* inst) {
+    assert(_DefaultInst == nullptr);
     _DefaultInst = inst;
 }
 vkx::Instance& vkx::ctx() {
@@ -1681,11 +1719,56 @@ vkx::Instance& vkx::ctx() {
 
 
 
+void vkx::BeginFrame(VkCommandBuffer* out_cmdbuf)
+{
+    auto& g = vkx::ctx();
+    VkDevice device = g.Device;
+    const int frameIdx = vkx::CurrentInflightFrame;
+    VkCommandBuffer cmdbuf = g.CommandBuffers[frameIdx];
+
+    // blocking until the CommandBuffer has finished executing
+    vkWaitForFences(device, 1, &g.CommandBuffersFences[frameIdx], VK_TRUE, UINT64_MAX);
+
+    // acquire swapchain image, and signal SemaphoreImageAcquired[i] when acquired. (when the presentation engine is finished using the image)
+    uint32_t imageIdx;
+    vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, g.SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
+    vkx::CurrentSwapchainImage = imageIdx;
+
+    vkResetFences(device, 1, &g.CommandBuffersFences[frameIdx]);  // reset the fence to the unsignaled state
+    vkResetCommandBuffer(cmdbuf, 0);
+
+    vl::BeginCommandBuffer(cmdbuf, VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+
+    *out_cmdbuf = cmdbuf;
+}
 
 
 
+void vkx::EndFrame(VkCommandBuffer cmdbuf)
+{
+    VK_CHECK(vkEndCommandBuffer(cmdbuf));
 
+    auto& g = vkx::ctx();
+    uint32_t frameIdx = vkx::CurrentInflightFrame;
+    uint32_t imageIdx = vkx::CurrentSwapchainImage;
 
+    // submit the CommandBuffer.
+    vl::QueueSubmit(g.GraphicsQueue, cmdbuf,
+                    g.SemaphoreImageAcquired[frameIdx], g.SemaphoreRenderComplete[frameIdx],
+                    g.CommandBuffersFences[frameIdx]);
+
+    VkResult vkr =
+    vl::QueuePresentKHR(g.PresentQueue,
+                        1, &g.SemaphoreRenderComplete[frameIdx],
+                        1, &vkx::ctx().SwapchainKHR, &imageIdx);
+
+    if (vkr == VK_SUBOPTIMAL_KHR) {
+        vkx::RecreateSwapchain();
+    }
+//    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
+
+    vkx::CurrentInflightFrame = (vkx::CurrentInflightFrame + 1) % vkx::INFLIGHT_FRAMES;
+}
 
 
 
