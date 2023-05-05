@@ -1684,7 +1684,7 @@ void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
         CreateSwapchain();
 
         i.MainRenderPass =
-            CreateMainRenderPass();     // depend: Swapchain format
+        CreateMainRenderPass();     // depend: Swapchain format
 
         CreateSwapchainDepthImage();
         CreateSwapchainFramebuffers();   // depend: DepthTexture, RenderPass

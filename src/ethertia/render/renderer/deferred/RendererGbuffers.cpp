@@ -156,6 +156,11 @@ namespace RendererGbuffer
         for (int i = 0; i < std::size(g_UniformBuffers); ++i) {
             delete g_UniformBuffers[i];
         }
+
+        delete gPosition.Image;
+        delete gNormal.Image;
+        delete gAlbedo.Image;
+        delete gDepth.Image;
     }
 
 
@@ -179,6 +184,7 @@ namespace RendererGbuffer
 
     void RecordCommands(VkCommandBuffer cmdbuf)
     {
+        UpdateUniformBuffer(vkx::CurrentInflightFrame);
 
         vkx::CommandBuffer cmd{cmdbuf};
         int frameIdx = vkx::CurrentInflightFrame;
@@ -186,7 +192,7 @@ namespace RendererGbuffer
         // Deferred :: Gbuffer
 
         VkClearValue clearValues[4]{};
-        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gPosition
+        clearValues[0].color = {0.0f, 0.0f, 0.2f, 1.0f};  // gPosition
         clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gNormal
         clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gAlbedo
         clearValues[3].depthStencil = {1.0f, 0};
