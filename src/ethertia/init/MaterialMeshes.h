@@ -5,7 +5,6 @@
 #ifndef ETHERTIA_MATERIALMESHES_H
 #define ETHERTIA_MATERIALMESHES_H
 
-#include <ethertia/render/VertexBuffer.h>
 #include <ethertia/util/Loader.h>
 
 class MaterialMeshes

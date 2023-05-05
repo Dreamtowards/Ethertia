@@ -66,8 +66,6 @@ public:
         }
     }
 
-    inline static ObjectPool<VertexBuffer> g_VertBufPool;
-
     static void meshChunk_Upload(Chunk* chunk) {
         //BENCHMARK_TIMER_VAL(&ChunkProcStat::MESH.time);  ChunkProcStat::MESH.num++;
 

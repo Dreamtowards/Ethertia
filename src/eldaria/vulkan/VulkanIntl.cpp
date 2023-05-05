@@ -106,7 +106,6 @@ public:
 
         {
             BitmapImage bitmapImage = Loader::loadPNG("./assets/entity/viking_room/viking_room.png");
-
             g_TextureImage = Loader::loadImage(bitmapImage);
 
             VertexData* vtx = Loader::loadOBJ("./assets/entity/viking_room/viking_room.obj");

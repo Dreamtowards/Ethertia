@@ -170,75 +170,74 @@ public:
         return glm::vec3(CUBE_NORM[bas], CUBE_NORM[bas+1], CUBE_NORM[bas+2]);
     }
 
-    static void putFace(VertexBuffer* vbuf, glm::vec3 rpos, glm::mat4 trans, int mtlId) {
-        using glm::vec3;
-        using glm::vec2;
-        for (int i = 0; i < 6; ++i) {  // 6 vertices
-            // Pos
-            float* _p = &CUBE_POS_CENT[i*3];  //CUBE_POS_CENT
-            vec3 p = vec3(_p[0], _p[1], _p[2]);
-            p = trans * glm::vec4(p, 1.0f);
-            vbuf->addpos(rpos.x + p.x, rpos.y + p.y, rpos.z + p.z);
-
-            // Norm
-            float* _n = &CUBE_NORM[i*3];
-            vec3 n = vec3(_n[0], _n[1], _n[2]);
-            n = trans * glm::vec4(n, 0.0f);
-            n = glm::normalize(n);
-            vbuf->addnorm(n.x, n.y, n.z);
-
-            // UV
-            float* _u = &CUBE_UV[i*2];
-            vec2 uv = vec2(_u[0], _u[1]);
-            uv = MaterialTextures::uv_to_atlas_region(uv, mtlId);
-            vbuf->adduv(uv.x, uv.y);
-            vbuf->set_uv_mtl(mtlId);
-        }
-
-    }
-
-
-    static void putLeaves(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, int mtlId) {
-
-        float deg45 = Mth::PI / 4.0f;
-
-        float s = 1.5f;
-
-        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
-                                         Mth::matEulerAngles(glm::vec3(0.0f, deg45, 0.0f)),
-                                         glm::vec3(1.5f, 1.0f, 1.5f)*s), mtlId);
-        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
-                                         Mth::matEulerAngles(glm::vec3(0.0f, -deg45, 0.0f)),
-                                         glm::vec3(1.5f, 1.0f, 1.5f)*s), mtlId);
-        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
-                                         Mth::matEulerAngles(glm::vec3(0, Mth::PI_2, deg45)),
-                                         glm::vec3(1.0f, 1.5f, 1.0f)*s), mtlId);
-        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
-                                                       Mth::matEulerAngles(glm::vec3(0, Mth::PI_2, -deg45)),
-                                                       glm::vec3(1.0f, 1.5f, 1.0f)*s), mtlId);
-    }
+//    static void putFace(VertexBuffer* vbuf, glm::vec3 rpos, glm::mat4 trans, int mtlId) {
+//        using glm::vec3;
+//        using glm::vec2;
+//        for (int i = 0; i < 6; ++i) {  // 6 vertices
+//            // Pos
+//            float* _p = &CUBE_POS_CENT[i*3];  //CUBE_POS_CENT
+//            vec3 p = vec3(_p[0], _p[1], _p[2]);
+//            p = trans * glm::vec4(p, 1.0f);
+//            vbuf->addpos(rpos.x + p.x, rpos.y + p.y, rpos.z + p.z);
+//
+//            // Norm
+//            float* _n = &CUBE_NORM[i*3];
+//            vec3 n = vec3(_n[0], _n[1], _n[2]);
+//            n = trans * glm::vec4(n, 0.0f);
+//            n = glm::normalize(n);
+//            vbuf->addnorm(n.x, n.y, n.z);
+//
+//            // UV
+//            float* _u = &CUBE_UV[i*2];
+//            vec2 uv = vec2(_u[0], _u[1]);
+//            uv = MaterialTextures::uv_to_atlas_region(uv, mtlId);
+//            vbuf->adduv(uv.x, uv.y);
+//            vbuf->set_uv_mtl(mtlId);
+//        }
+//    }
 
 
-
-
-    static void putTallgrassStarMesh(VertexBuffer* vbuf, glm::vec3 pos, int mtlId) {
-
-        float s = 1.2f;
-
-        glm::vec3 off(0, 0.7, 0);
-
-        float nv3 = Mth::PI / 3.0f;
-        putFace(vbuf, pos, Mth::matModel(off,
-                                         Mth::matEulerAngles(glm::vec3(0.0f, 0, 0.0f)),
-                                         glm::vec3(1)*s), mtlId);
-        putFace(vbuf, pos, Mth::matModel(off,
-                                         Mth::matEulerAngles(glm::vec3(0.0f, nv3, 0.0f)),
-                                         glm::vec3(1)*s), mtlId);
-        putFace(vbuf, pos, Mth::matModel(off,
-                                         Mth::matEulerAngles(glm::vec3(0.0f, nv3*2, 0.0f)),
-                                         glm::vec3(1)*s), mtlId);
-
-    }
+//    static void putLeaves(VertexBuffer* vbuf, glm::vec3 rpos, Chunk* chunk, int mtlId) {
+//
+//        float deg45 = Mth::PI / 4.0f;
+//
+//        float s = 1.5f;
+//
+//        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+//                                         Mth::matEulerAngles(glm::vec3(0.0f, deg45, 0.0f)),
+//                                         glm::vec3(1.5f, 1.0f, 1.5f)*s), mtlId);
+//        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+//                                         Mth::matEulerAngles(glm::vec3(0.0f, -deg45, 0.0f)),
+//                                         glm::vec3(1.5f, 1.0f, 1.5f)*s), mtlId);
+//        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+//                                         Mth::matEulerAngles(glm::vec3(0, Mth::PI_2, deg45)),
+//                                         glm::vec3(1.0f, 1.5f, 1.0f)*s), mtlId);
+//        putFace(vbuf, rpos,Mth::matModel(glm::vec3(0.5f, 0.5f, 0.5f),
+//                                                       Mth::matEulerAngles(glm::vec3(0, Mth::PI_2, -deg45)),
+//                                                       glm::vec3(1.0f, 1.5f, 1.0f)*s), mtlId);
+//    }
+//
+//
+//
+//
+//    static void putTallgrassStarMesh(VertexBuffer* vbuf, glm::vec3 pos, int mtlId) {
+//
+//        float s = 1.2f;
+//
+//        glm::vec3 off(0, 0.7, 0);
+//
+//        float nv3 = Mth::PI / 3.0f;
+//        putFace(vbuf, pos, Mth::matModel(off,
+//                                         Mth::matEulerAngles(glm::vec3(0.0f, 0, 0.0f)),
+//                                         glm::vec3(1)*s), mtlId);
+//        putFace(vbuf, pos, Mth::matModel(off,
+//                                         Mth::matEulerAngles(glm::vec3(0.0f, nv3, 0.0f)),
+//                                         glm::vec3(1)*s), mtlId);
+//        putFace(vbuf, pos, Mth::matModel(off,
+//                                         Mth::matEulerAngles(glm::vec3(0.0f, nv3*2, 0.0f)),
+//                                         glm::vec3(1)*s), mtlId);
+//
+//    }
 
 //    static void genGrasses(VertexBuffer* vbuf, const std::vector<glm::vec3>& grass_fp) {
 //
