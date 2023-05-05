@@ -18,7 +18,6 @@ class GeometryRenderer
 public:
     DECL_SHADER(SHADER, ShaderProgram::decl("shaders/deferred/gbuffer.{}", true));
 
-    inline static Framebuffer* fboGbuffer = nullptr;   // Geometry Buffer FBO, enable MRT (Mutliple Render Targets)
 
     inline static float u_MaterialTextureScale = 3.5;
 

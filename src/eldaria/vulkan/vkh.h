@@ -221,6 +221,8 @@ namespace vkx
 {
     class Image;
 
+    const int INFLIGHT_FRAMES = 2;
+
     struct Instance
     {
     public:

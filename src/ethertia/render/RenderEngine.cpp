@@ -31,23 +31,33 @@
 ////    ShadowRenderer::init();
 //
 
-static const int MAX_INFLIGHT_FRAMES = 2;
+
+namespace RendererGbuffer
+{
+    VkPipeline g_Pipeline;
+    VkRenderPass g_RenderPass;
+
+    VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
+    VkPipelineLayout g_PipelineLayout = nullptr;
+
+};
+
+
+
 static int g_CurrentInflightFrame = 0;
 
-static std::vector<VkCommandBuffer> g_InflightCommandBuffers;
+static VkCommandBuffer g_InflightCommandBuffers[vkx::INFLIGHT_FRAMES];
 
-static std::vector<VkSemaphore> g_SemaphoreImageAcquired;  // for each InflightFrame   ImageAcquired, RenderComplete
-static std::vector<VkSemaphore> g_SemaphoreRenderComplete;
-static std::vector<VkFence>     g_InflightFence;
-
+static VkSemaphore g_SemaphoreImageAcquired[vkx::INFLIGHT_FRAMES];
+static VkSemaphore g_SemaphoreRenderComplete[vkx::INFLIGHT_FRAMES];
+static VkFence     g_InflightFence[vkx::INFLIGHT_FRAMES];
 
 
 static VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
 static VkPipelineLayout g_PipelineLayout = nullptr;
-static VkPipeline g_GraphicsPipeline = nullptr;
 
-static std::vector<vkx::UniformBuffer*> g_UniformBuffers;  // for each InflightFrame
-static std::vector<VkDescriptorSet> g_DescriptorSets;
+static vkx::UniformBuffer* g_UniformBuffers[vkx::INFLIGHT_FRAMES];
+static VkDescriptorSet g_DescriptorSets[vkx::INFLIGHT_FRAMES];
 
 
 
@@ -65,10 +75,8 @@ struct UniformBufferObject
 
 static void CreateCommandBuffers()
 {
-    g_InflightCommandBuffers.resize(MAX_INFLIGHT_FRAMES);
-
     vl::AllocateCommandBuffers(vkx::ctx().Device, vkx::ctx().CommandPool,
-                               g_InflightCommandBuffers.size(), g_InflightCommandBuffers.data(),
+                               std::size(g_InflightCommandBuffers), g_InflightCommandBuffers,
                                VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 }
 
@@ -83,12 +91,8 @@ static void CreateSyncObjects()
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    g_SemaphoreImageAcquired.resize(MAX_INFLIGHT_FRAMES);
-    g_SemaphoreRenderComplete.resize(MAX_INFLIGHT_FRAMES);
-    g_InflightFence.resize(MAX_INFLIGHT_FRAMES);
-
     VkDevice device = vkx::ctx().Device;
-    for (int i = 0; i < MAX_INFLIGHT_FRAMES; ++i)
+    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
     {
         VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]));
         VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]));
@@ -119,9 +123,8 @@ static void CreateDescriptorSetLayout()
 static void CreateUniformBuffers()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-    g_UniformBuffers.resize(MAX_INFLIGHT_FRAMES);
 
-    for (int i = 0; i < MAX_INFLIGHT_FRAMES; ++i)
+    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
     {
         g_UniformBuffers[i] = new vkx::UniformBuffer(bufferSize);
     }
@@ -130,12 +133,11 @@ static void CreateUniformBuffers()
 static void CreateDescriptorSets()
 {
     VkDevice device = vkx::ctx().Device;
-    std::vector<VkDescriptorSetLayout> layouts(MAX_INFLIGHT_FRAMES, g_DescriptorSetLayout);
+    std::vector<VkDescriptorSetLayout> layouts(vkx::INFLIGHT_FRAMES, g_DescriptorSetLayout);
 
-    g_DescriptorSets.resize(MAX_INFLIGHT_FRAMES);
-    vl::AllocateDescriptorSets(device, vkx::ctx().DescriptorPool, MAX_INFLIGHT_FRAMES, layouts.data(), g_DescriptorSets.data());
+    vl::AllocateDescriptorSets(device, vkx::ctx().DescriptorPool, vkx::INFLIGHT_FRAMES, layouts.data(), g_DescriptorSets);
 
-    for (int i = 0; i < MAX_INFLIGHT_FRAMES; ++i)
+    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
     {
         vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
@@ -161,7 +163,6 @@ void RenderEngine::init()
 
 
     CreateDescriptorSetLayout();
-
     g_PipelineLayout = vl::CreatePipelineLayout(vkx::ctx().Device, 1, &g_DescriptorSetLayout);
 
 
@@ -176,20 +177,20 @@ void RenderEngine::init()
     CreateDescriptorSets();
 
 
-    {
-        g_GraphicsPipeline =
-        vkx::CreateGraphicsPipeline(
-                {
-                        Loader::loadAssets("shaders-vk/spv/def_gbuffer/vert.spv"),
-                        Loader::loadAssets("shaders-vk/spv/def_gbuffer/frag.spv")
-                },
-                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT },
-                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                1,
-                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
-                g_PipelineLayout,
-                vkx::ctx().MainRenderPass);
-    }
+//    {
+//        g_GraphicsPipeline =
+//        vkx::CreateGraphicsPipeline(
+//                {
+//                        Loader::loadAssets("shaders-vk/spv/def_gbuffer/vert.spv"),
+//                        Loader::loadAssets("shaders-vk/spv/def_gbuffer/frag.spv")
+//                },
+//                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT },
+//                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+//                1,
+//                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
+//                g_PipelineLayout,
+//                vkx::ctx().MainRenderPass);
+//    }
 
 
 
@@ -244,11 +245,11 @@ static void RecordCommandBuffer(VkCommandBuffer cmdbuf, VkFramebuffer framebuffe
     clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
     clearValues[1].depthStencil = {1.0f, 0};
     cmd.CmdBeginRenderPass(vkx::ctx().MainRenderPass, framebuffer_MainRenderPass, vkx::ctx().SwapchainExtent, 2, clearValues);
-
-    cmd.CmdBindGraphicsPipeline(g_GraphicsPipeline);
-////    cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
     cmd.CmdSetViewport(vkx::ctx().SwapchainExtent);
     cmd.CmdSetScissor(vkx::ctx().SwapchainExtent);
+
+//    cmd.CmdBindGraphicsPipeline(g_GraphicsPipeline);
+////    cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
 //
 //    cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentInflightFrame]);
 //
@@ -317,7 +318,7 @@ void RenderEngine::Render()
 
     vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
 
-    g_CurrentInflightFrame = (g_CurrentInflightFrame + 1) % MAX_INFLIGHT_FRAMES;
+    g_CurrentInflightFrame = (g_CurrentInflightFrame + 1) % vkx::INFLIGHT_FRAMES;
 }
 
 
