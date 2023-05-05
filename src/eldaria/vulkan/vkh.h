@@ -144,14 +144,22 @@ namespace vl
     VkFramebuffer CreateFramebuffer(VkDevice device,
                                     int w, int h,
                                     VkRenderPass renderPass,
-                                    int attchCount,
-                                    VkImageView* pAttach);
+                                    std::span<const VkImageView> attachments);
 
     // vkCreateRenderPass()
     VkRenderPass CreateRenderPass(VkDevice device,
-                                  std::span<VkAttachmentDescription> attachments,
+                                  std::span<const VkAttachmentDescription> attachments,
                                   std::span<VkSubpassDescription> subpasses,
                                   std::span<VkSubpassDependency> dependencies);
+
+    VkRenderPass CreateRenderPass(VkDevice device,
+                                  std::initializer_list<VkAttachmentDescription> attachments,
+                                  std::span<VkSubpassDescription> subpasses,
+                                  std::span<VkSubpassDependency> dependencies = {nullptr, (int)0});
+
+    VkSubpassDescription IGraphicsSubpass(
+            std::span<const VkAttachmentReference> colorAttachmentRefs,
+            const VkAttachmentReference* pDepthStencilAttachment = nullptr);
 
     VkAttachmentDescription IAttachmentDescription(
             VkFormat format = VK_FORMAT_R16G16B16_SFLOAT,

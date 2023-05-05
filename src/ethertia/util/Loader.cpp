@@ -227,6 +227,7 @@ void Loader::saveOBJ(const std::string& filename, size_t verts, const float* pos
 
 BitmapImage Loader::loadPNG_(const char* filename)
 {
+    // stbi_set_flip_vertically_on_load(true);
     int w, h, channels;
     void* pixels = stbi_load(filename, &w, &h, &channels, 4);
 

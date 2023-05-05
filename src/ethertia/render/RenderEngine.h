@@ -37,6 +37,8 @@ public:
 
     inline static vkx::Image* TEX_WHITE = nullptr;
     inline static vkx::Image* TEX_UVMAP = nullptr;
+
+    inline static VkImageView g_ComposeView = nullptr;
 };
 
 #endif //ETHERTIA_RENDERENGINE_H

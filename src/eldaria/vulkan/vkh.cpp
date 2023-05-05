@@ -321,16 +321,15 @@ VkImageView vl::CreateImageView(VkDevice device, VkImage image, VkFormat format,
 
 
 
-VkFramebuffer vl::CreateFramebuffer(VkDevice device, int w, int h, VkRenderPass renderPass, int attchCount,
-                                    VkImageView *pAttach)
+VkFramebuffer vl::CreateFramebuffer(VkDevice device, int w, int h, VkRenderPass renderPass, std::span<const VkImageView> attachments)
 {
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.width = w;
     framebufferInfo.height = h;
     framebufferInfo.renderPass = renderPass;
-    framebufferInfo.attachmentCount = attchCount;
-    framebufferInfo.pAttachments = pAttach;
+    framebufferInfo.attachmentCount = attachments.size();
+    framebufferInfo.pAttachments = attachments.data();
     framebufferInfo.layers = 1;
 
     VkFramebuffer framebuffer;
@@ -340,7 +339,7 @@ VkFramebuffer vl::CreateFramebuffer(VkDevice device, int w, int h, VkRenderPass 
 
 
 VkRenderPass vl::CreateRenderPass(VkDevice device,
-                                  std::span<VkAttachmentDescription> attachments,
+                                  std::span<const VkAttachmentDescription> attachments,
                                   std::span<VkSubpassDescription> subpasses,
                                   std::span<VkSubpassDependency> dependencies)
 {
@@ -359,6 +358,27 @@ VkRenderPass vl::CreateRenderPass(VkDevice device,
     return renderPass;
 }
 
+VkRenderPass vl::CreateRenderPass(VkDevice device,
+                                  std::initializer_list<VkAttachmentDescription> attachments,
+                                  std::span<VkSubpassDescription> subpasses,
+                                  std::span<VkSubpassDependency> dependencies)
+{
+
+    return vl::CreateRenderPass(device, {attachments.begin(), (int)attachments.size()}, subpasses, dependencies);
+}
+
+VkSubpassDescription vl::IGraphicsSubpass(
+        std::span<const VkAttachmentReference> colorAttachmentRefs,
+        const VkAttachmentReference* pDepthStencilAttachment)
+{
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = colorAttachmentRefs.size();
+    subpass.pColorAttachments = colorAttachmentRefs.data();
+
+    subpass.pDepthStencilAttachment = pDepthStencilAttachment;
+    return subpass;
+}
 
 
 VkAttachmentDescription vl::IAttachmentDescription(VkFormat format, VkImageLayout finalLayout)
@@ -1593,7 +1613,7 @@ static void CreateSwapchainFramebuffers(
         out_swapchainFramebuffers[i] = vl::CreateFramebuffer(device,
                                                              swapchainExtent.width, swapchainExtent.height,
                                                              renderPass,
-                                                             attachments.size(), attachments.data());
+                                                             attachments);
     }
 }
 
@@ -1731,7 +1751,7 @@ void vkx::BeginFrame(VkCommandBuffer* out_cmdbuf)
 
     // acquire swapchain image, and signal SemaphoreImageAcquired[i] when acquired. (when the presentation engine is finished using the image)
     uint32_t imageIdx;
-    vkAcquireNextImageKHR(device, vkx::ctx().SwapchainKHR, UINT64_MAX, g.SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
+    vkAcquireNextImageKHR(device, g.SwapchainKHR, UINT64_MAX, g.SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
     vkx::CurrentSwapchainImage = imageIdx;
 
     vkResetFences(device, 1, &g.CommandBuffersFences[frameIdx]);  // reset the fence to the unsignaled state
@@ -1760,7 +1780,7 @@ void vkx::EndFrame(VkCommandBuffer cmdbuf)
     VkResult vkr =
     vl::QueuePresentKHR(g.PresentQueue,
                         1, &g.SemaphoreRenderComplete[frameIdx],
-                        1, &vkx::ctx().SwapchainKHR, &imageIdx);
+                        1, &g.SwapchainKHR, &imageIdx);
 
     if (vkr == VK_SUBOPTIMAL_KHR) {
         vkx::RecreateSwapchain();

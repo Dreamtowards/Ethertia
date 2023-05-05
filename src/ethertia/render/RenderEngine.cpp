@@ -35,128 +35,7 @@
 
 #define _uniform_align alignas(16)
 
-namespace RendererGbuffer
-{
-    VkPipeline g_Pipeline;
-    VkRenderPass g_RenderPass;
-
-    VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
-    VkPipelineLayout g_PipelineLayout = nullptr;
-
-    static vkx::UniformBuffer* g_UniformBuffers[vkx::INFLIGHT_FRAMES];
-    static VkDescriptorSet g_DescriptorSets[vkx::INFLIGHT_FRAMES];
-
-    struct UniformBufferObject
-    {
-        _uniform_align glm::mat4 model;
-        _uniform_align glm::mat4 view;
-        _uniform_align glm::mat4 proj;
-    };
-
-    void init()
-    {
-        VkDevice device = vkx::ctx().Device;
-
-        // Uniform Buffers
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-        for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
-        {
-            g_UniformBuffers[i] = new vkx::UniformBuffer(bufferSize);
-        }
-
-        g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(device, {
-                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
-                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
-        });
-
-        g_PipelineLayout = vl::CreatePipelineLayout(vkx::ctx().Device, 1, &g_DescriptorSetLayout);
-
-        // DescriptorSet
-
-        std::vector<VkDescriptorSetLayout> layouts(vkx::INFLIGHT_FRAMES, g_DescriptorSetLayout);
-        vl::AllocateDescriptorSets(device, vkx::ctx().DescriptorPool, vkx::INFLIGHT_FRAMES, layouts.data(), g_DescriptorSets);
-
-        for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
-        {
-            vkx::DescriptorWrites writes{g_DescriptorSets[i]};
-
-            writes.UniformBuffer(g_UniformBuffers[i]->buffer(), sizeof(UniformBufferObject));
-            writes.CombinedImageSampler(RenderEngine::TEX_UVMAP->m_ImageView, vkx::ctx().ImageSampler);
-
-            writes.WriteDescriptorSets(device);
-        }
-//    {
-//        g_GraphicsPipeline =
-//        vkx::CreateGraphicsPipeline(
-//                {
-//                        Loader::loadAssets("shaders-vk/spv/def_gbuffer/vert.spv"),
-//                        Loader::loadAssets("shaders-vk/spv/def_gbuffer/frag.spv")
-//                },
-//                { VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT },
-//                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-//                1,
-//                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
-//                g_PipelineLayout,
-//                vkx::ctx().MainRenderPass);
-//    }
-
-    }
-
-    void deinit()
-    {
-        for (int i = 0; i < std::size(g_UniformBuffers); ++i) {
-            delete g_UniformBuffers[i];
-        }
-    }
-
-
-    void UpdateUniformBuffer(int frameIdx)
-    {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-        UniformBufferObject ubo{};
-
-        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), vkx::ctx().SwapchainExtent.width / (float) vkx::ctx().SwapchainExtent.height, 0.1f, 10.0f);
-
-        ubo.proj[1][1] *= -1;
-
-        g_UniformBuffers[frameIdx]->memcpy(&ubo, sizeof(ubo));
-    }
-
-};
-
-
-
-//static VkSemaphore g_SemaphoreImageAcquired[vkx::INFLIGHT_FRAMES];
-//static VkSemaphore g_SemaphoreRenderComplete[vkx::INFLIGHT_FRAMES];
-//static VkFence     g_InflightFence[vkx::INFLIGHT_FRAMES];
-//
-//
-//
-//
-//static void CreateSyncObjects()
-//{
-//    VkSemaphoreCreateInfo semaphoreInfo{};
-//    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-//
-//    VkFenceCreateInfo fenceInfo{};
-//    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-//    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-//
-//    VkDevice device = vkx::ctx().Device;
-//    for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
-//    {
-//        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreImageAcquired[i]));
-//        VK_CHECK(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &g_SemaphoreRenderComplete[i]));
-//        VK_CHECK(vkCreateFence(device, &fenceInfo, nullptr, &g_InflightFence[i]));
-//    }
-//}
-//
+#include "renderer/deferred/RendererGbuffers.cpp"
 
 
 
@@ -172,12 +51,17 @@ void RenderEngine::init()
         TEX_WHITE = Loader::loadImage(img);
         TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
     }
+
+    RendererGbuffer::init();
+    g_ComposeView = RendererGbuffer::gPosition.Image->m_ImageView;
 }
 
 
 void RenderEngine::deinit()
 {
     vkDeviceWaitIdle(vkx::ctx().Device);  // blocking.
+
+    RendererGbuffer::deinit();
 
     delete TEX_WHITE;
     delete TEX_UVMAP;
@@ -187,87 +71,32 @@ void RenderEngine::deinit()
 
 
 
-
-static void RecordCommandBuffer(VkCommandBuffer cmdbuf)
-{
-
-    vkx::CommandBuffer cmd{cmdbuf};
-
-    // Deferred :: Gbuffer
-
-    VkClearValue clearValues[4]{};
-//    clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gPosition
-//    clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gNormal
-//    clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gAlbedo
-//    clearValues[3].depthStencil = {1.0f, 0};
-//    VkExtent2D gbufferExtent = {1024, 1024};
-//    cmd.CmdBeginRenderPass(g_Deferred_Gbuffer.m_RenderPass, g_Deferred_Gbuffer.m_Framebuffer, gbufferExtent,
-//                           4, clearValues);
-//
-//    cmd.CmdBindGraphicsPipeline(g_Deferred_Gbuffer.m_Pipeline);
-//    cmd.CmdSetViewport(gbufferExtent);
-//    cmd.CmdSetScissor(gbufferExtent);
-//
-//    cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentFrameInflight]);
-//
-//    cmd.CmdBindVertexBuffer(g_TestModel->vtxbuffer());
-//    cmd.CmdBindIndexBuffer(g_TestModel->idxbuffer());
-//    cmd.CmdDrawIndexed(g_TestModel->vertexCount());
-//
-//    cmd.CmdEndRenderPass();
-
-
-
-    // Deferred :: Compose
-
-
-
-    // Main
-    clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
-    clearValues[1].depthStencil = {1.0f, 0};
-    cmd.CmdBeginRenderPass(vkx::ctx().MainRenderPass, vkx::ctx().SwapchainFramebuffers[vkx::CurrentSwapchainImage],
-                           vkx::ctx().SwapchainExtent, 2, clearValues);
-    cmd.CmdSetViewport(vkx::ctx().SwapchainExtent);
-    cmd.CmdSetScissor(vkx::ctx().SwapchainExtent);
-
-//    cmd.CmdBindGraphicsPipeline(g_GraphicsPipeline);
-////    cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
-//
-//    cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentInflightFrame]);
-//
-//    cmd.CmdDrawIndexed(6);
-
-    {
-        PROFILE("GUI");
-
-        Imgui::RenderGUI(cmdbuf);
-    }
-
-    cmd.CmdEndRenderPass();
-
-}
-
-
 void RenderEngine::Render()
 {
     VkCommandBuffer cmdbuf;
     vkx::BeginFrame(&cmdbuf);
 
-    // RecordCommandBuffer(cmdbuf);
-
+    RendererGbuffer::RecordCommands(cmdbuf);
 
     vkx::BeginMainRenderPass(cmdbuf);
-
     {
         PROFILE("GUI");
 
         Imgui::RenderGUI(cmdbuf);
     }
-
     vkx::EndMainRenderPass(cmdbuf);
 
     vkx::EndFrame(cmdbuf);
 }
+
+
+
+
+
+
+
+
+
 
 
 

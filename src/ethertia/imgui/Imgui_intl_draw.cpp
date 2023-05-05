@@ -589,8 +589,8 @@ static void ItemImage(const Item* item, float size = 40, ImDrawList* dl = ImGui:
 {
     float n = Item::REGISTRY.size();
     float i = Item::REGISTRY.getOrderId(item);
-    ImVec2 uvMin = {i/n, 1};
-    ImVec2 uvSize = {1.0f/n, -1};
+    ImVec2 uvMin = {i/n, 0};
+    ImVec2 uvSize = {1.0f/n, 1};
     ImVec2 min = ImGui::GetCursorScreenPos();
     dl->AddImage(pTexDesc(ItemTextures::ITEM_ATLAS->m_ImageView), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
     ImGui::Dummy({size, size});
@@ -1949,7 +1949,7 @@ static void ShowGameViewport()
     Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
     // Viewport Texture
-//    Imgui::Image(ComposeRenderer::fboCompose->texColor[0]->texId, size);
+    ImGui::Image(pTexDesc(RenderEngine::TEX_UVMAP->m_ImageView), size);
     ImGui::SetCursorPos({0,0});
     ImGui::InvisibleButton("PreventsGameWindowMove", size);
 
