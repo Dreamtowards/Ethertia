@@ -15,14 +15,14 @@ layout(set = 0, binding = 0) uniform UBO_T {
     // mat4 matModel;
 } ubo;
 
-//layout(push_constant) uniform PushConstant_T {
-//    mat4 matModel;
-//} pushconstant;
+layout(push_constant) uniform PushConstant_T {
+    mat4 matModel;
+} pushconstant;
 
 
 void main()
 {
-    mat4 matModel = mat4(1); // pushconstant.matModel
+    mat4 matModel = pushconstant.matModel;
 
     vec4 worldpos = matModel * vec4(in_pos, 1);
     gl_Position = ubo.matProjection * ubo.matView * worldpos;

@@ -76,7 +76,7 @@ void RenderEngine::Render()
 //    World* world = Ethertia::getWorld();
 //    if (world)
 //    {
-////        RendererGbuffer::RecordCommands(cmdbuf, world->m_Entities);
+    RendererGbuffer::RecordCommands(cmdbuf, {});
 //    }
 
     vkx::BeginMainRenderPass(cmdbuf);

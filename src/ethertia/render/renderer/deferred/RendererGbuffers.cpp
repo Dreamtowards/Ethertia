@@ -85,8 +85,8 @@ namespace RendererGbuffer
         });
         g_PipelineLayout =
         vl::CreatePipelineLayout(device,
-                 {{g_DescriptorSetLayout}});//,
-//                 {{vl::IPushConstantRange(VK_SHADER_STAGE_VERTEX_BIT, sizeof(PushConstant_T))}});
+                 {{g_DescriptorSetLayout}},
+                 {{vl::IPushConstantRange(VK_SHADER_STAGE_VERTEX_BIT, sizeof(PushConstant_T))}});
 
         // DescriptorSet
 
@@ -215,22 +215,22 @@ namespace RendererGbuffer
 
         cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[frameIdx]);
 
-//        PushConstant_T pushConstant{};
-//
-//        glm::vec3 SomePos[] = {
-//                {0, 0, 0},
-//                {2, 0, 0}
-//        };
+        PushConstant_T pushConstant{};
 
-//        for (glm::vec3& pos : SomePos)//(Entity* entity : entities)
-//        {
-//            pushConstant.matModel = Mth::matModel(pos);//, entity->getRotation(), {1,1,1});
-//            cmd.CmdPushConstants(g_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, &pushConstant, sizeof(pushConstant));
+        glm::vec3 SomePos[] = {
+                {0, 0, 0},
+                {2, 0, 0}
+        };
+
+        for (glm::vec3& pos : SomePos)//(Entity* entity : entities)
+        {
+            pushConstant.matModel = Mth::matModel(pos);//, entity->getRotation(), {1,1,1});
+            cmd.CmdPushConstants(g_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, &pushConstant, sizeof(pushConstant));
 
             cmd.CmdBindVertexBuffer(g_TestModel->vtxbuffer());
             cmd.CmdBindIndexBuffer(g_TestModel->idxbuffer());
             cmd.CmdDrawIndexed(g_TestModel->vertexCount());
-//        }
+        }
 
         cmd.CmdEndRenderPass();
     }
