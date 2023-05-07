@@ -43,7 +43,10 @@ namespace vl
                                                     std::initializer_list<std::pair<VkDescriptorType, VkShaderStageFlags>> bindings);
 
     VkPipelineLayout CreatePipelineLayout(VkDevice device,
-                                          int numSetLayouts, VkDescriptorSetLayout* pSetLayouts);
+                                          std::span<const VkDescriptorSetLayout> descriptorSetLayouts,
+                                          std::span<const VkPushConstantRange> pushConstantRanges = {});
+
+    VkPushConstantRange IPushConstantRange(VkShaderStageFlags shaderStageFlags, uint32_t size, uint32_t offset = 0);
 
     // vkCreateShaderModule()
     VkPipelineShaderStageCreateInfo CreateShaderModule_IPipelineShaderStage(
@@ -328,6 +331,11 @@ namespace vkx
                                    const VkDescriptorSet* pDescriptorSets,
                                    int descriptorSetCount = 1,
                                    VkPipelineBindPoint ePipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS);
+
+        void CmdPushConstants(VkPipelineLayout pipelineLayout,
+                              VkShaderStageFlags shaderStageFlags,
+                              const void* pValues,
+                              uint32_t size, uint32_t offset = 0);
 
         void CmdDrawIndexed(uint32_t vertex_count);
 

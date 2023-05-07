@@ -46,11 +46,8 @@ void RenderEngine::init()
 
     vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
 
-    {
-        BitmapImage img(1, 1, new uint32_t[1]{(uint32_t)~0});
-        TEX_WHITE = Loader::loadImage(img);
-        TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
-    }
+    TEX_WHITE = Loader::loadImage(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
+    TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
 
     RendererGbuffer::init();
     g_ComposeView = RendererGbuffer::gPosition.Image->m_ImageView;
@@ -76,7 +73,11 @@ void RenderEngine::Render()
     VkCommandBuffer cmdbuf;
     vkx::BeginFrame(&cmdbuf);
 
-    RendererGbuffer::RecordCommands(cmdbuf);
+//    World* world = Ethertia::getWorld();
+//    if (world)
+//    {
+////        RendererGbuffer::RecordCommands(cmdbuf, world->m_Entities);
+//    }
 
     vkx::BeginMainRenderPass(cmdbuf);
     {

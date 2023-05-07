@@ -273,14 +273,16 @@ VkDescriptorSetLayout vl::CreateDescriptorSetLayout(VkDevice device,
     return vl::CreateDescriptorSetLayout(device, bindings.size(), bindings.data());
 }
 
-VkPipelineLayout vl::CreatePipelineLayout(VkDevice device, int numSetLayouts, VkDescriptorSetLayout* pSetLayouts)
+VkPipelineLayout vl::CreatePipelineLayout(VkDevice device,
+                                          std::span<const VkDescriptorSetLayout> descriptorSetLayouts,
+                                          std::span<const VkPushConstantRange> pushConstantRanges)
 {
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
-    pipelineLayoutInfo.setLayoutCount = numSetLayouts;
-    pipelineLayoutInfo.pSetLayouts = pSetLayouts;
+    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.size();
+    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
+    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
     VkPipelineLayout pipelineLayout;
     VK_CHECK_MSG(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout),
@@ -288,6 +290,14 @@ VkPipelineLayout vl::CreatePipelineLayout(VkDevice device, int numSetLayouts, Vk
     return pipelineLayout;
 }
 
+VkPushConstantRange vl::IPushConstantRange(VkShaderStageFlags shaderStageFlags, uint32_t size, uint32_t offset)
+{
+    VkPushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = shaderStageFlags;
+    pushConstantRange.offset = offset;
+    pushConstantRange.size = size;
+    return pushConstantRange;
+}
 
 
 
@@ -772,6 +782,11 @@ void vkx::CommandBuffer::CmdBindDescriptorSets(VkPipelineLayout pipelineLayout, 
                             pDescriptorSets, 0, nullptr);
 }
 
+void vkx::CommandBuffer::CmdPushConstants(VkPipelineLayout pipelineLayout, VkShaderStageFlags shaderStageFlags,
+                                          const void *pValues, uint32_t size, uint32_t offset)
+{
+    vkCmdPushConstants(m_CommandBuffer, pipelineLayout, shaderStageFlags, offset, size, pValues);
+}
 
 
 

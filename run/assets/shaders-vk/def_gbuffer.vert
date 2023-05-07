@@ -9,20 +9,26 @@ layout(location = 0) out vec3 WorldPos;
 layout(location = 1) out vec2 TexCoord;
 layout(location = 2) out vec3 WorldNorm;
 
-layout(set = 0, binding = 0) uniform UBO {
-    mat4 matModel;
-    mat4 matView;
+layout(set = 0, binding = 0) uniform UBO_T {
     mat4 matProjection;
+    mat4 matView;
+    // mat4 matModel;
 } ubo;
+
+//layout(push_constant) uniform PushConstant_T {
+//    mat4 matModel;
+//} pushconstant;
 
 
 void main()
 {
-    vec4 worldpos = ubo.matModel * vec4(in_pos, 1);
+    mat4 matModel = mat4(1); // pushconstant.matModel
+
+    vec4 worldpos = matModel * vec4(in_pos, 1);
     gl_Position = ubo.matProjection * ubo.matView * worldpos;
 
 
     WorldPos = worldpos.xyz;
     TexCoord = in_tex;
-    WorldNorm = normalize(mat3(ubo.matModel) * in_norm);
+    WorldNorm = normalize(mat3(matModel) * in_norm);
 }

@@ -5,9 +5,9 @@
 
 namespace RendererGbuffer
 {
-    VkPipeline      g_Pipeline;
     VkRenderPass    g_RenderPass;
     VkFramebuffer   g_Framebuffer;
+    VkPipeline      g_Pipeline;
 
     struct FramebufferAttachment   // aka RenderTarget
     {
@@ -25,6 +25,7 @@ namespace RendererGbuffer
 
             out.Image->m_ImageView =
                     vl::CreateImageView(device, out.Image->m_Image, format, depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+
 
             out.AttachmentDescription =
                     vl::IAttachmentDescription(format, depth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -50,9 +51,14 @@ namespace RendererGbuffer
 
     struct UniformBufferObject
     {
-        _uniform_align glm::mat4 model;
-        _uniform_align glm::mat4 view;
-        _uniform_align glm::mat4 proj;
+        _uniform_align glm::mat4 matProjection;
+        _uniform_align glm::mat4 matView;
+        // _uniform_align glm::mat4 matModel;
+    };
+
+    struct PushConstant_T
+    {
+        glm::mat4 matModel;
     };
 
     void init()
@@ -77,7 +83,10 @@ namespace RendererGbuffer
                 {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
         });
-        g_PipelineLayout = vl::CreatePipelineLayout(device, 1, &g_DescriptorSetLayout);
+        g_PipelineLayout =
+        vl::CreatePipelineLayout(device,
+                 {{g_DescriptorSetLayout}});//,
+//                 {{vl::IPushConstantRange(VK_SHADER_STAGE_VERTEX_BIT, sizeof(PushConstant_T))}});
 
         // DescriptorSet
 
@@ -114,15 +123,14 @@ namespace RendererGbuffer
                     &attachmentRefs[3]);
 
             g_RenderPass =
-                    vl::CreateRenderPass(device, {
-                                                 gPosition.AttachmentDescription,
-                                                 gNormal.AttachmentDescription,
-                                                 gAlbedo.AttachmentDescription,
-                                                 gDepth.AttachmentDescription
-                                         },
-                                         {&subpass, 1});
+            vl::CreateRenderPass(device, {
+                                         gPosition.AttachmentDescription,
+                                         gNormal.AttachmentDescription,
+                                         gAlbedo.AttachmentDescription,
+                                         gDepth.AttachmentDescription
+                                 },
+                                 {&subpass, 1});
         }
-
 
         g_Framebuffer =
         vl::CreateFramebuffer(device, attach_size, attach_size,
@@ -161,28 +169,29 @@ namespace RendererGbuffer
         delete gNormal.Image;
         delete gAlbedo.Image;
         delete gDepth.Image;
+
     }
 
 
     void UpdateUniformBuffer(int frameIdx)
     {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+//        static auto startTime = std::chrono::high_resolution_clock::now();
+//        auto currentTime = std::chrono::high_resolution_clock::now();
+//        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
         UniformBufferObject ubo{};
 
-        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), vkx::ctx().SwapchainExtent.width / (float) vkx::ctx().SwapchainExtent.height, 0.1f, 10.0f);
+        ubo.matProjection = glm::perspective(glm::radians(70.0f), Ethertia::getViewport().getAspectRatio(), 0.1f, 100.0f);
+        ubo.matView = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
-        ubo.proj[1][1] *= -1;
+//        ubo.matModel = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        ubo.matProjection[1][1] *= -1;
 
         g_UniformBuffers[frameIdx]->memcpy(&ubo, sizeof(ubo));
     }
 
-    void RecordCommands(VkCommandBuffer cmdbuf)
+    void RecordCommands(VkCommandBuffer cmdbuf, const std::vector<Entity*>& entities)
     {
         UpdateUniformBuffer(vkx::CurrentInflightFrame);
 
@@ -192,7 +201,7 @@ namespace RendererGbuffer
         // Deferred :: Gbuffer
 
         VkClearValue clearValues[4]{};
-        clearValues[0].color = {0.0f, 0.0f, 0.2f, 1.0f};  // gPosition
+        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gPosition
         clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gNormal
         clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gAlbedo
         clearValues[3].depthStencil = {1.0f, 0};
@@ -206,20 +215,48 @@ namespace RendererGbuffer
 
         cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[frameIdx]);
 
-        cmd.CmdBindVertexBuffer(g_TestModel->vtxbuffer());
-        cmd.CmdBindIndexBuffer(g_TestModel->idxbuffer());
-        cmd.CmdDrawIndexed(g_TestModel->vertexCount());
+//        PushConstant_T pushConstant{};
+//
+//        glm::vec3 SomePos[] = {
+//                {0, 0, 0},
+//                {2, 0, 0}
+//        };
+
+//        for (glm::vec3& pos : SomePos)//(Entity* entity : entities)
+//        {
+//            pushConstant.matModel = Mth::matModel(pos);//, entity->getRotation(), {1,1,1});
+//            cmd.CmdPushConstants(g_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, &pushConstant, sizeof(pushConstant));
+
+            cmd.CmdBindVertexBuffer(g_TestModel->vtxbuffer());
+            cmd.CmdBindIndexBuffer(g_TestModel->idxbuffer());
+            cmd.CmdDrawIndexed(g_TestModel->vertexCount());
+//        }
 
         cmd.CmdEndRenderPass();
-
-
-
-        // Deferred :: Compose
-
-//    cmd.CmdBindGraphicsPipeline(g_Deferred_Compose.m_Pipeline);
-//    cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[g_CurrentInflightFrame]);
-//    cmd.CmdDrawIndexed(6);
-
     }
 
 };
+
+
+namespace RendererCompose
+{
+    VkRenderPass g_RenderPass = nullptr;
+    VkFramebuffer g_Framebuffer = nullptr;
+    VkPipeline g_Pipeline = nullptr;
+    VkPipelineLayout g_PipelineLayout = nullptr;
+
+    VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
+    VkDescriptorSet g_DescriptorSet[vkx::INFLIGHT_FRAMES];
+
+    void RecordCommands(VkCommandBuffer cmdbuf)
+    {
+        vkx::CommandBuffer cmd{cmdbuf};
+        int frameIdx = vkx::CurrentInflightFrame;
+
+
+
+        cmd.CmdBindGraphicsPipeline(g_Pipeline);
+        cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSet[frameIdx]);
+        cmd.CmdDrawIndexed(6);
+    }
+}
