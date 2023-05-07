@@ -339,6 +339,8 @@ namespace vkx
 
         void CmdDrawIndexed(uint32_t vertex_count);
 
+        void CmdDraw(uint32_t vertex_count);
+
     };
 
 
@@ -446,10 +448,12 @@ namespace vkx
                      int vertexCount);
         ~VertexBuffer();
 
-        VkBuffer vtxbuffer() { return m_VertexBuffer; }
-        VkBuffer idxbuffer() { return m_IndexBuffer; }
+        VkBuffer vtxbuffer() const { return m_VertexBuffer; }
+        VkBuffer idxbuffer() const { return m_IndexBuffer; }
 
-        int vertexCount() const { return m_VertexCount; };
+        bool isIndexed() const { return idxbuffer() != nullptr; }
+
+        uint32_t vertexCount() const { return m_VertexCount; };
     };
 
     struct Image

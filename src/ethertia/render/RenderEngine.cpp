@@ -73,11 +73,11 @@ void RenderEngine::Render()
     VkCommandBuffer cmdbuf;
     vkx::BeginFrame(&cmdbuf);
 
-//    World* world = Ethertia::getWorld();
-//    if (world)
-//    {
-    RendererGbuffer::RecordCommands(cmdbuf, {});
-//    }
+    World* world = Ethertia::getWorld();
+    if (world)
+    {
+        RendererGbuffer::RecordCommands(cmdbuf, world->m_Entities);
+    }
 
     vkx::BeginMainRenderPass(cmdbuf);
     {

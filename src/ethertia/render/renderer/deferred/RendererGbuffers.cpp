@@ -170,22 +170,24 @@ namespace RendererGbuffer
         delete gAlbedo.Image;
         delete gDepth.Image;
 
+        delete g_TestImage;
+        delete g_TestModel;
+
     }
 
 
     void UpdateUniformBuffer(int frameIdx)
     {
-//        static auto startTime = std::chrono::high_resolution_clock::now();
-//        auto currentTime = std::chrono::high_resolution_clock::now();
-//        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+        Camera& cam = Ethertia::getCamera();
 
         UniformBufferObject ubo{};
 
-        ubo.matProjection = glm::perspective(glm::radians(70.0f), Ethertia::getViewport().getAspectRatio(), 0.1f, 100.0f);
-        ubo.matView = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.matProjection = cam.matProjection;
+        ubo.matView = cam.matView;
 
-//        ubo.matModel = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
+        // GLM was originally designed for OpenGL, where the Y coordinate of the clip coordinates is inverted.
+        // The easiest way to compensate for that is to flip the sign on the scaling factor of the Y axis in
+        // the projection matrix. If you don't do this, then the image will be rendered upside down.
         ubo.matProjection[1][1] *= -1;
 
         g_UniformBuffers[frameIdx]->memcpy(&ubo, sizeof(ubo));
@@ -217,19 +219,37 @@ namespace RendererGbuffer
 
         PushConstant_T pushConstant{};
 
-        glm::vec3 SomePos[] = {
-                {0, 0, 0},
-                {2, 0, 0}
-        };
-
-        for (glm::vec3& pos : SomePos)//(Entity* entity : entities)
+        Dbg::dbg_NumEntityRendered = 0;
+        for (Entity* entity : entities)
         {
-            pushConstant.matModel = Mth::matModel(pos);//, entity->getRotation(), {1,1,1});
+            vkx::VertexBuffer* vtxbuf = entity->m_Model;
+
+            if (vtxbuf == nullptr) continue;
+            assert(vtxbuf->vertexCount() > 0);
+            // Frustum Culling
+            if (!Ethertia::getCamera().testFrustum(entity->getAABB()))
+                continue;
+            if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera().len == 0)
+                continue;
+
+
+            pushConstant.matModel = Mth::matModel(entity->position());//, entity->getRotation(), {1,1,1});
             cmd.CmdPushConstants(g_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, &pushConstant, sizeof(pushConstant));
 
-            cmd.CmdBindVertexBuffer(g_TestModel->vtxbuffer());
-            cmd.CmdBindIndexBuffer(g_TestModel->idxbuffer());
-            cmd.CmdDrawIndexed(g_TestModel->vertexCount());
+            cmd.CmdBindVertexBuffer(vtxbuf->vtxbuffer());
+            if (vtxbuf->isIndexed()) {
+                cmd.CmdBindIndexBuffer(vtxbuf->idxbuffer());
+                cmd.CmdDrawIndexed(vtxbuf->vertexCount());
+            } else {
+                cmd.CmdDraw(vtxbuf->vertexCount());
+            }
+
+
+            ++Dbg::dbg_NumEntityRendered;
+            // Debug: draw Every Entity AABB.
+            if (Dbg::dbg_RenderedEntityAABB) {
+                Imgui::RenderAABB(entity->getAABB(), Colors::RED);
+            }
         }
 
         cmd.CmdEndRenderPass();

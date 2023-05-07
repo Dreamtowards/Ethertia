@@ -51,6 +51,13 @@ public:
         Log::info("Material Texture Atlases all loaded/generated.\1");
     }
 
+    static void clean()
+    {
+        delete ATLAS_DIFFUSE;
+        delete ATLAS_NORM;
+        delete ATLAS_DRAM;
+    }
+
 
     // 我在思考 Mtl 不一定要等于/对应一个 MtlTex
     // 我们可以有很多 Mtl 的轮廓 各种装饰模型 复用MtlTex

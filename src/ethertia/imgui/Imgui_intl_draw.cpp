@@ -1949,7 +1949,11 @@ static void ShowGameViewport()
     Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
     // Viewport Texture
-    ImGui::Image(pTexDesc(RenderEngine::g_ComposeView), size);
+    VkImageView vptex = RenderEngine::g_ComposeView;
+    if (vptex)
+    {
+        ImGui::Image(pTexDesc(vptex), size);
+    }
     ImGui::SetCursorPos({0,0});
     ImGui::InvisibleButton("PreventsGameWindowMove", size);
 

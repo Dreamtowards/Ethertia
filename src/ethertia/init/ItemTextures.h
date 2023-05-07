@@ -73,6 +73,11 @@ public:
         
     }
 
+    static void clean()
+    {
+        delete ITEM_ATLAS;
+    }
+
 };
 
 #endif //ETHERTIA_ITEMTEXTURES_H

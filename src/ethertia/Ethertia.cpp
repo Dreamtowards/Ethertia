@@ -140,6 +140,9 @@ static void Destroy()
 
     NetworkSystem::deinit();
 
+    MaterialTextures::clean();
+    ItemTextures::clean();
+
     RenderEngine::deinit();
     AudioEngine::deinit();
 

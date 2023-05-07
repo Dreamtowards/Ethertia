@@ -775,6 +775,11 @@ void vkx::CommandBuffer::CmdDrawIndexed(uint32_t vertex_count)
     vkCmdDrawIndexed(m_CommandBuffer, vertex_count, 1, 0, 0, 0);
 }
 
+void vkx::CommandBuffer::CmdDraw(uint32_t vertex_count)
+{
+    vkCmdDraw(m_CommandBuffer, vertex_count, 1, 0, 0);
+}
+
 void vkx::CommandBuffer::CmdBindDescriptorSets(VkPipelineLayout pipelineLayout, const VkDescriptorSet* pDescriptorSets,
                                                int descriptorSetCount, VkPipelineBindPoint ePipelineBindPoint)
 {
@@ -1717,14 +1722,15 @@ void vkx::Destroy()
     VkDevice device = g.Device;
     vkDeviceWaitIdle(device);  // blocking.
 
+    // Destroy SyncObjects
     for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i) {
         vkDestroyFence(device, g.CommandBuffersFences[i], nullptr);
         vkDestroySemaphore(device, g.SemaphoreImageAcquired[i], nullptr);
         vkDestroySemaphore(device, g.SemaphoreRenderComplete[i], nullptr);
     }
 
-    vkDestroyRenderPass(device, g.MainRenderPass, nullptr);
     DestroySwapchain_();
+    vkDestroyRenderPass(device, g.MainRenderPass, nullptr);
 
     vkDestroyDescriptorPool(device, g.DescriptorPool, nullptr);
     vkDestroySampler(device, g.ImageSampler, nullptr);
