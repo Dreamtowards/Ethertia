@@ -121,8 +121,8 @@ Chunk* World::provideChunk(glm::vec3 p)  {
         PROFILE_X(Dbg::dbgProf_ChunkGen, "Gen");
 
         DebugStat::dbg_ChunkProvideState = "gen";
-        chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
-//        chunk = m_ChunkGenerator->generateIslandChunk(chunkpos, this);
+//        chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
+        chunk = m_ChunkGenerator->generateNodeEditorChunk(chunkpos, this);
         DebugStat::dbg_ChunkProvideState = nullptr;
     }
 

@@ -68,6 +68,7 @@ namespace ImWorldGenNodeEditor
     public:
         WorldGenNodeEditor();
         void ShowWorldGenNodeEditor(bool& w_WorldGenNodeEditor);
+        std::string getGeneratorString() { return mExportNodeString; }
         inline static FastSIMD::eLevel mActualSIMDLevel = FastSIMD::Level_Null;
 
     private:
@@ -78,6 +79,7 @@ namespace ImWorldGenNodeEditor
             ~Node()
             {
                 glDeleteTextures(1, &noiseTexture);
+                //FIXME: Memory leaks are not checked
             }
             void GeneratePreview(bool nodeTreeChanged = true);
             FastNoise::NodeData*& GetNodeLink( int attributeId );
@@ -158,11 +160,13 @@ namespace ImWorldGenNodeEditor
         ImVec2 mContextStartPos;
         std::vector<std::unique_ptr<MetadataMenu>> mContextMetadata;
         std::string mImportNodeString;
+        std::string mExportNodeString;
         bool mImportNodeModal = false;
 
         FastNoise::NodeData* mSelectedNode = nullptr;
 
         FastSIMD::eLevel mMaxSIMDLevel = FastSIMD::CPUMaxSIMDLevel();
+        int mWorldGenLinkId = 0;
     };
 
 }

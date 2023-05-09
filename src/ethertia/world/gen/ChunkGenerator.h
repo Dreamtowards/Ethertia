@@ -19,12 +19,13 @@
 #include <ethertia/util/Log.h>
 
 
+
 class ChunkGenerator
 {
 
 public:
     using vec3 = glm::vec3;
-
+    std::string generatorString = "";
 
     ChunkGenerator() {
 
@@ -150,6 +151,51 @@ public:
         }
         return chunk;
     }
+
+    Chunk* generateNodeEditorChunk(glm::vec3 chunkpos, World* world) {
+        auto generator = FastNoise::NewFromEncodedNodeTree(generatorString.c_str(), NoiseGen::g_SIMDLevel);
+        Chunk* chunk = new Chunk(chunkpos, world);
+        uint64_t seed = world->getSeed();
+
+        if (!generator)
+        {
+            return generateChunk(chunkpos, world);
+        }
+
+        float noiseVal[16 * 16 * 16];  // chunkpos is Block Coordinate,,
+        generator->GenUniformGrid3D(noiseVal, chunkpos.x, chunkpos.y, chunkpos.z, 16, 16, 16, 1 / 200.0f, seed);
+
+        float noiseTerrHeight[16*16];
+        generator->GenUniformGrid2D(noiseTerrHeight, chunkpos.x, chunkpos.z, 16, 16, 1 / 400.0f, seed);
+
+        for (int rx = 0; rx < 16; ++rx) {
+            for (int ry = 0; ry < 16; ++ry) {
+                for (int rz = 0; rz < 16; ++rz) {  // rz*256+ry*16+rx
+                    float x = chunkpos.x + rx,
+                            y = chunkpos.y + ry,
+                            z = chunkpos.z + rz;
+
+                    float terr2d = noiseTerrHeight[NoiseGen::IdxXZ(rx, rz)];// - terrRg.min;
+                    float noise3d = noiseVal[NoiseGen::Idx3(rx,ry,rz)];
+
+                    float f = terr2d - y/50.0f;
+                    f += noise3d * 18;
+
+                    Material* mtl = 0;
+                    if (f > 0) {
+                        mtl = Materials::STONE;
+                    } else if (y < 0) {
+                        mtl = Materials::WATER;
+                    }
+
+                    chunk->setCell(rx,ry,rz, Cell(mtl, f));
+                }
+            }
+        }
+
+        return chunk;
+    }
+
 
 };
 

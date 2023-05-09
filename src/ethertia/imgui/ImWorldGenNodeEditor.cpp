@@ -4,8 +4,11 @@
 #include <glad/glad.h>
 #include "ImWorldGenNodeEditor.h"
 #include "imgui_internal.h"
+#include <ethertia/Ethertia.h>
 #include <imgui-imnodes/imnodes.h>
 #include <cstring>
+#include <ethertia/world/World.h>
+#include <ethertia/world/gen/ChunkGenerator.h>
 
 using namespace ImWorldGenNodeEditor;
 
@@ -58,9 +61,17 @@ void WorldGenNodeEditor::ShowWorldGenNodeEditor(bool& w_WorldGenNodeEditor) {
     if (ImGui::BeginPopup("Add Node"))
     {
         mContextStartPos = ImGui::GetMousePosOnOpeningCurrentPopup();
-        if(auto newMetadata = mContextMetadata.front()->DrawUI())
+        if (auto newMetadata = mContextMetadata.front()->DrawUI())
         {
             AddNode(mContextStartPos, newMetadata);
+        }
+        if (ImGui::BeginMenu("World Gen"))
+        {
+            if (ImGui::MenuItem("Chunk Generator"))
+            {
+                ImNodes::SetNodeScreenSpacePos(1, mContextStartPos);
+            }
+            ImGui::EndMenu();
         }
         ImGui::EndPopup();
     }
@@ -178,6 +189,29 @@ void WorldGenNodeEditor::ShowWorldGenNodeEditor(bool& w_WorldGenNodeEditor) {
 
         ImNodes::EndNode();
     }
+    // Render non FastNoise node
+    ImNodes::BeginNode(1);
+    ImNodes::BeginNodeTitleBar();
+    ImGui::TextUnformatted("Chunk Generator");
+    ImNodes::EndNodeTitleBar();
+
+    ImNodes::BeginInputAttribute(1 << 8);
+    ImGui::TextUnformatted("Noise Source");
+    ImNodes::EndInputAttribute();
+
+    ImNodes::BeginStaticAttribute(0);
+    if (ImGui::Button("Regenerate world"))
+    {
+        if (mWorldGenLinkId != 0 && Ethertia::getWorld() && Ethertia::getWorld()->m_ChunkGenerator)
+        {
+            mExportNodeString = FastNoise::Metadata::SerialiseNodeData(FindNodeFromId(mWorldGenLinkId >> 8)->data.get(), true);
+            Ethertia::getWorld()->m_ChunkGenerator->generatorString = mExportNodeString;
+            // TODO: Automatically regenerate chunks
+        }
+    }
+    ImNodes::EndStaticAttribute();
+
+    ImNodes::EndNode();
     // Render links
     for(auto& node : mNodes)
     {
@@ -191,6 +225,10 @@ void WorldGenNodeEditor::ShowWorldGenNodeEditor(bool& w_WorldGenNodeEditor) {
             }
             attributeId++;
         }
+    }
+    if (mWorldGenLinkId != 0)
+    {
+        ImNodes::Link((1 << 8), mWorldGenLinkId, (1 << 8));
     }
 
     ImNodes::EndNodeEditor();
@@ -213,6 +251,10 @@ void WorldGenNodeEditor::ShowWorldGenNodeEditor(bool& w_WorldGenNodeEditor) {
                 link = startNode->data.get();
                 endNode->GeneratePreview();
             }
+        }
+        if (endNodeId == 1 && startNode && (!createdFromSnap || mWorldGenLinkId == 0))
+        {
+            mWorldGenLinkId = startAttr;
         }
     }
 
@@ -258,6 +300,10 @@ void WorldGenNodeEditor::ShowWorldGenNodeEditor(bool& w_WorldGenNodeEditor) {
             {
                 node.second.GeneratePreview();
             }
+        }
+        if (deleteID == (1 << 8))
+        {
+            mWorldGenLinkId = 0;
         }
     }
 
@@ -467,11 +513,11 @@ WorldGenNodeEditor::Node* WorldGenNodeEditor::FindNodeFromId(int id)
 
 int WorldGenNodeEditor::GetFreeNodeId()
 {
-    static int newNodeId = 0;
+    static int newNodeId = 1;// id 1 is reserved as chunk generator
 
     do
     {
-        newNodeId = std::max( 1, ( newNodeId + 1 ) & ( INT_MAX >> Node::AttributeBitCount ) );
+        newNodeId = std::max( 2, ( newNodeId + 1 ) & ( INT_MAX >> Node::AttributeBitCount ) );
 
     } while( FindNodeFromId( newNodeId ) );
 
