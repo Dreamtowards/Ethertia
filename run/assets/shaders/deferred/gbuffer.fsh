@@ -91,7 +91,7 @@ void main()
     } else {
 
         vec3 blend = pow(abs(Norm), vec3(6));  // more pow leads more [sharp at norm, mixing at tex]
-        blend = blend / (blend.x + blend.y + blend.z);
+             blend = blend / (blend.x + blend.y + blend.z);
 
         int FragMtlId = 0;
 #ifdef OPT

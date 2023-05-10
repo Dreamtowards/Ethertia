@@ -49,14 +49,20 @@ void RenderEngine::init()
     TEX_WHITE = Loader::loadImage(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
     TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
 
+    Materials::registerMaterialItems();  // before items tex load.
+    MaterialTextures::load();
+
     RendererGbuffer::init();
-    g_ComposeView = RendererGbuffer::gPosition.Image->m_ImageView;
+    g_ComposeView = RendererGbuffer::gAlbedo.Image->m_ImageView;
 }
 
 
 void RenderEngine::deinit()
 {
     vkDeviceWaitIdle(vkx::ctx().Device);  // blocking.
+
+    MaterialTextures::clean();
+    ItemTextures::clean();
 
     RendererGbuffer::deinit();
 

@@ -87,8 +87,6 @@ static void Init()
 
 
     // Materials & Items
-    Materials::registerMaterialItems();  // before items tex load.
-    MaterialTextures::load();
     MaterialMeshes::load();
     ItemTextures::load();
     Sounds::load();
@@ -139,9 +137,6 @@ static void Destroy()
     }
 
     NetworkSystem::deinit();
-
-    MaterialTextures::clean();
-    ItemTextures::clean();
 
     RenderEngine::deinit();
     AudioEngine::deinit();

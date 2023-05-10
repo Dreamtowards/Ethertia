@@ -2,6 +2,7 @@
 // Created by Dreamtowards on 2023/5/5.
 //
 
+#include <ethertia/init/MaterialTextures.h>
 
 namespace RendererGbuffer
 {
@@ -80,8 +81,10 @@ namespace RendererGbuffer
         }
 
         g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(device, {
-                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
-                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},            // vert UBO
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // frag diffuseMap
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // frag normMap
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}   // frag dramMap (Disp, Rough, AO, Metal)
         });
         g_PipelineLayout =
         vl::CreatePipelineLayout(device,
@@ -98,7 +101,9 @@ namespace RendererGbuffer
             vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
             writes.UniformBuffer(g_UniformBuffers[i]->buffer(), sizeof(UniformBufferObject));
-            writes.CombinedImageSampler(g_TestImage->m_ImageView, vkx::ctx().ImageSampler);
+            writes.CombinedImageSampler(MaterialTextures::ATLAS_DIFFUSE->m_ImageView, vkx::ctx().ImageSampler);
+            writes.CombinedImageSampler(MaterialTextures::ATLAS_NORM->m_ImageView, vkx::ctx().ImageSampler);
+            writes.CombinedImageSampler(MaterialTextures::ATLAS_DRAM->m_ImageView, vkx::ctx().ImageSampler);
 
             writes.WriteDescriptorSets(device);
         }
@@ -141,21 +146,26 @@ namespace RendererGbuffer
                                                             gDepth.Image->m_ImageView}});
 
 
+
+
         g_Pipeline =
-        vkx::CreateGraphicsPipeline({
-                                            Loader::loadAssets("shaders-vk/spv/def_gbuffer/vert.spv"),
-                                            Loader::loadAssets("shaders-vk/spv/def_gbuffer/frag.spv")
-                                    },
-                                    {
-                                            VK_FORMAT_R32G32B32_SFLOAT,
-                                            VK_FORMAT_R32G32_SFLOAT,
-                                            VK_FORMAT_R32G32B32_SFLOAT
-                                    },
-                                    VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                                    3,
-                                    {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
-                                    g_PipelineLayout,
-                                    g_RenderPass);
+        vkx::CreateGraphicsPipeline(
+                {{
+                         {Loader::loadAssets("shaders-vk/spv/def_gbuffer/vert.spv"), VK_SHADER_STAGE_VERTEX_BIT},
+                         {Loader::loadAssets("shaders-vk/spv/def_gbuffer/frag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT},
+//                         {Loader::loadAssets("shaders-vk/spv/def_gbuffer/tesc.spv"), VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
+//                         {Loader::loadAssets("shaders-vk/spv/def_gbuffer/tese.spv"), VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT}
+                 }},
+                {
+                        VK_FORMAT_R32G32B32_SFLOAT,
+                        VK_FORMAT_R32G32_SFLOAT,
+                        VK_FORMAT_R32G32B32_SFLOAT
+                },
+                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                3,
+                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
+                g_PipelineLayout,
+                g_RenderPass);
 
     }
 
@@ -208,8 +218,7 @@ namespace RendererGbuffer
         clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gAlbedo
         clearValues[3].depthStencil = {1.0f, 0};
         VkExtent2D renderExtent = {1024, 1024};
-        cmd.CmdBeginRenderPass(g_RenderPass, g_Framebuffer, renderExtent,
-                               4, clearValues);
+        cmd.CmdBeginRenderPass(g_RenderPass, g_Framebuffer, renderExtent, {clearValues, 4});
 
         cmd.CmdBindGraphicsPipeline(g_Pipeline);
         cmd.CmdSetViewport(renderExtent);

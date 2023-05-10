@@ -496,10 +496,8 @@ void vl::CmdBeginRenderPass(VkCommandBuffer cmdbuf,
                             VkRenderPass renderPass,
                             VkFramebuffer framebuffer,
                             VkExtent2D renderAreaExtent,
-                            int numClearValues,
-                            VkClearValue* pClearValues)
+                            std::span<const VkClearValue> clearValues)
 {
-
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderPass;
@@ -507,8 +505,8 @@ void vl::CmdBeginRenderPass(VkCommandBuffer cmdbuf,
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = renderAreaExtent;
 
-    renderPassInfo.clearValueCount = numClearValues;
-    renderPassInfo.pClearValues = pClearValues;
+    renderPassInfo.clearValueCount = clearValues.size();
+    renderPassInfo.pClearValues = clearValues.data();
 
     vkCmdBeginRenderPass(cmdbuf, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
@@ -736,9 +734,9 @@ void vkx::CommandBuffer::EndCommandBuffer()
 
 // no: when pClearValues=nullptr, color/depthStencil will be {0,0,0,1}, {1, 0}
 void vkx::CommandBuffer::CmdBeginRenderPass(VkRenderPass renderPass, VkFramebuffer framebuffer,
-        VkExtent2D renderAreaExtent, int numClearValues, VkClearValue* pClearValues)
+        VkExtent2D renderAreaExtent, std::span<const VkClearValue> clearValues)
 {
-    vl::CmdBeginRenderPass(m_CommandBuffer, renderPass, framebuffer, renderAreaExtent, numClearValues, pClearValues);
+    vl::CmdBeginRenderPass(m_CommandBuffer, renderPass, framebuffer, renderAreaExtent, clearValues);
 }
 void vkx::CommandBuffer::CmdEndRenderPass()
 {
@@ -803,7 +801,7 @@ VkPipelineColorBlendAttachmentState _IPipelineColorBlendAttachmentState()
     return colorBlendAttachment;
 }
 
-VkPipeline vkx::CreateGraphicsPipeline(std::array<std::span<const char>, 2> shaderStagesSources,
+VkPipeline vkx::CreateGraphicsPipeline(std::span<const std::pair<std::span<const char>, VkShaderStageFlagBits>> shaderStagesSources,
                                        std::initializer_list<VkFormat> vertexInputAttribsFormats,
                                        VkPrimitiveTopology topology,
                                        int numColorBlendAttachments,
@@ -813,22 +811,22 @@ VkPipeline vkx::CreateGraphicsPipeline(std::array<std::span<const char>, 2> shad
 {
     VkDevice device = vkx::ctx().Device;
 
-    VkPipelineShaderStageCreateInfo shaderStages[2];
-    shaderStages[0] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_VERTEX_BIT, shaderStagesSources[0]);
-    shaderStages[1] = vl::CreateShaderModule_IPipelineShaderStage(device, VK_SHADER_STAGE_FRAGMENT_BIT, shaderStagesSources[1]);
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages(shaderStagesSources.size());
+    for (int i = 0; i < shaderStagesSources.size(); ++i) {
+        shaderStages[i] = vl::CreateShaderModule_IPipelineShaderStage(device, shaderStagesSources[i].second, shaderStagesSources[i].first);
+    }
 
     VkVertexInputBindingDescription _vertexInputBindingDescription;
     std::vector<VkVertexInputAttributeDescription> _vertexInputAttributeDescription;
 
-    std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachs;
-    colorBlendAttachs.resize(numColorBlendAttachments);
+    std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachs(numColorBlendAttachments);
     for (int i = 0; i < numColorBlendAttachments; ++i) {
         colorBlendAttachs[i] = _IPipelineColorBlendAttachmentState();
     }
 
     VkGraphicsPipelineCreateInfo pipelineInfo =
             vl::IGraphicsPipeline(
-                    {shaderStages, 2},
+                    shaderStages,
                     vl::IPipelineVertexInputState(vertexInputAttribsFormats, 0, &_vertexInputBindingDescription, &_vertexInputAttributeDescription),
                     vl::IPipelineInputAssemblyState(topology),  // VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
                     nullptr,
@@ -844,8 +842,9 @@ VkPipeline vkx::CreateGraphicsPipeline(std::array<std::span<const char>, 2> shad
     VkPipeline pipeline;
     vl::CreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline, &pipelineInfo);
 
-    vkDestroyShaderModule(device, shaderStages[0].module, nullptr);
-    vkDestroyShaderModule(device, shaderStages[1].module, nullptr);
+    for (auto& stage : shaderStages) {
+        vkDestroyShaderModule(device, stage.module, nullptr);
+    }
 
     return pipeline;
 }
@@ -1821,7 +1820,7 @@ void vkx::BeginMainRenderPass(VkCommandBuffer cmdbuf)
     clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
     clearValues[1].depthStencil = {1.0f, 0};
     cmd.CmdBeginRenderPass(vkx::ctx().MainRenderPass, vkx::ctx().SwapchainFramebuffers[vkx::CurrentSwapchainImage],
-                           vkx::ctx().SwapchainExtent, 2, clearValues);
+                           vkx::ctx().SwapchainExtent, {clearValues, 2});
     cmd.CmdSetViewport(vkx::ctx().SwapchainExtent);
     cmd.CmdSetScissor(vkx::ctx().SwapchainExtent);
 }

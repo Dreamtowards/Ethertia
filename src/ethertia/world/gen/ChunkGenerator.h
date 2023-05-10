@@ -82,6 +82,8 @@ public:
 //                        }
 //                    }
 
+//                    f = x + y + z;
+
 
                     Material* mtl = 0;
                     if (f > 0) {

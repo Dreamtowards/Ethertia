@@ -201,8 +201,7 @@ namespace vl
                             VkRenderPass renderPass,
                             VkFramebuffer framebuffer,
                             VkExtent2D renderAreaExtent,
-                            int numClearValues,
-                            VkClearValue* pClearValues);
+                            std::span<const VkClearValue> clearValues);
 
     void CmdSetViewport(VkCommandBuffer cmdbuf,
                         VkExtent2D wh,
@@ -310,8 +309,7 @@ namespace vkx
         void CmdBeginRenderPass(VkRenderPass renderPass,
                                 VkFramebuffer framebuffer,
                                 VkExtent2D renderAreaExtent,
-                                int numClearValues,
-                                VkClearValue* pClearValues);
+                                std::span<const VkClearValue> clearValues);
         void CmdEndRenderPass();
 
         void CmdSetViewport(VkExtent2D wh,
@@ -491,7 +489,7 @@ namespace vkx
 
 
     VkPipeline CreateGraphicsPipeline(
-            std::array<std::span<const char>, 2> shaderStagesSources,
+            std::span<const std::pair<std::span<const char>, VkShaderStageFlagBits>> shaderStagesSources,
             std::initializer_list<VkFormat> vertexInputAttribsFormats,
             VkPrimitiveTopology topology,
             int numColorBlendAttachments,

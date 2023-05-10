@@ -1949,10 +1949,9 @@ static void ShowGameViewport()
     Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
 
     // Viewport Texture
-    VkImageView vptex = RenderEngine::g_ComposeView;
-    if (vptex)
+    if (Ethertia::getWorld())
     {
-        ImGui::Image(pTexDesc(vptex), size);
+        ImGui::Image(pTexDesc(RenderEngine::g_ComposeView), size);
     }
     ImGui::SetCursorPos({0,0});
     ImGui::InvisibleButton("PreventsGameWindowMove", size);
