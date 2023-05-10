@@ -39,8 +39,8 @@ void main()
     // int prim_vi = gl_VertexIndex % 3;
     // vs_out.BaryCoord = vec3(prim_vi==0, prim_vi==1, prim_vi==2);
 
-    int  MtlId   = int(floor(in_tex.x));
-    bool PureMTL =     floor(in_tex.y) == -1;
+    float MtlId   = floor(in_tex.x);
+    bool  PureMTL = floor(in_tex.y) == -1;
     vs_out.MtlId = MtlId + (PureMTL ? 0.5 : 0);
 
 }
