@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(triangles, equal_spacing, ccw) in;
+layout(triangles, equal_spacing, cw) in;  // our VertexData is CCW-FrontFace, CullBack. however there need to be set 'cw' for Correct. why.
 
 layout(location = 0) in struct TC_Out
 {
@@ -22,8 +22,6 @@ layout(location = 0) out struct TE_Out
 
 void main()
 {
-    // Since TessEval's layout=triangles -> BaryCoord; (layout=quads -> UV.)
-
 #define bary_lerp(arr, ATTR) gl_TessCoord.x * arr[0].ATTR + gl_TessCoord.y * arr[1].ATTR + gl_TessCoord.z * arr[2].ATTR
 
     te_out.WorldPos  = bary_lerp(te_in, WorldPos);

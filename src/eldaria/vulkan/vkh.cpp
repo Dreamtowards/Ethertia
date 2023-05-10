@@ -161,6 +161,15 @@ VkPipelineInputAssemblyStateCreateInfo vl::IPipelineInputAssemblyState(VkPrimiti
     return inputAssembly;
 }
 
+VkPipelineTessellationStateCreateInfo vl::IPipelineTessellationState(uint32_t patchControlPoints)
+{
+    VkPipelineTessellationStateCreateInfo tessellationState{};
+    tessellationState.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+    tessellationState.patchControlPoints = patchControlPoints;
+
+    return tessellationState;
+}
+
 VkPipelineViewportStateCreateInfo vl::IPipelineViewportState(
         uint32_t viewportCount, const VkViewport *pViewports,
         uint32_t scissorsCount, const VkRect2D *pScissors)
@@ -807,7 +816,8 @@ VkPipeline vkx::CreateGraphicsPipeline(std::span<const std::pair<std::span<const
                                        int numColorBlendAttachments,
                                        std::initializer_list<VkDynamicState> dynamicStates,
                                        VkPipelineLayout pipelineLayout,
-                                       VkRenderPass renderPass)
+                                       VkRenderPass renderPass,
+                                       uint32_t tessControlPoints)
 {
     VkDevice device = vkx::ctx().Device;
 
@@ -824,14 +834,16 @@ VkPipeline vkx::CreateGraphicsPipeline(std::span<const std::pair<std::span<const
         colorBlendAttachs[i] = _IPipelineColorBlendAttachmentState();
     }
 
+    VkPipelineTessellationStateCreateInfo pTessState = vl::IPipelineTessellationState(tessControlPoints);
+
     VkGraphicsPipelineCreateInfo pipelineInfo =
             vl::IGraphicsPipeline(
                     shaderStages,
                     vl::IPipelineVertexInputState(vertexInputAttribsFormats, 0, &_vertexInputBindingDescription, &_vertexInputAttributeDescription),
                     vl::IPipelineInputAssemblyState(topology),  // VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
-                    nullptr,
+                    tessControlPoints > 0 ? &pTessState : nullptr,
                     vl::IPipelineViewportState(),
-                    vl::IPipelineRasterizationState(),
+                    vl::IPipelineRasterizationState(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE),
                     vl::IPipelineMultisampleState(),
                     vl::IPipelineDepthStencilState(),
                     vl::IPipelineColorBlendState({colorBlendAttachs.data(), (int)colorBlendAttachs.size()}),

@@ -10,7 +10,6 @@ layout(location = 0) out struct VS_Out
     vec3 WorldPos;
     vec2 TexCoord;
     vec3 WorldNorm;
-    vec3 BaryCoord;
     float MtlId;
 } vs_out;
 
@@ -37,8 +36,8 @@ void main()
     vs_out.WorldNorm = normalize(mat3(matModel) * in_norm);
 
     // Barycentric Coordinate of the triangle, for material blend.
-    int prim_vi = gl_VertexIndex % 3;
-    vs_out.BaryCoord = vec3(prim_vi==0, prim_vi==1, prim_vi==2);
+    // int prim_vi = gl_VertexIndex % 3;
+    // vs_out.BaryCoord = vec3(prim_vi==0, prim_vi==1, prim_vi==2);
 
     int  MtlId   = int(floor(in_tex.x));
     bool PureMTL =     floor(in_tex.y) == -1;

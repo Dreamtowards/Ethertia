@@ -153,19 +153,20 @@ namespace RendererGbuffer
                 {{
                          {Loader::loadAssets("shaders-vk/spv/def_gbuffer/vert.spv"), VK_SHADER_STAGE_VERTEX_BIT},
                          {Loader::loadAssets("shaders-vk/spv/def_gbuffer/frag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT},
-//                         {Loader::loadAssets("shaders-vk/spv/def_gbuffer/tesc.spv"), VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
-//                         {Loader::loadAssets("shaders-vk/spv/def_gbuffer/tese.spv"), VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT}
+                         {Loader::loadAssets("shaders-vk/spv/def_gbuffer/tesc.spv"), VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
+                         {Loader::loadAssets("shaders-vk/spv/def_gbuffer/tese.spv"), VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT}
                  }},
                 {
                         VK_FORMAT_R32G32B32_SFLOAT,
                         VK_FORMAT_R32G32_SFLOAT,
                         VK_FORMAT_R32G32B32_SFLOAT
                 },
-                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                VK_PRIMITIVE_TOPOLOGY_PATCH_LIST,
                 3,
                 {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
                 g_PipelineLayout,
-                g_RenderPass);
+                g_RenderPass,
+                3);
 
     }
 

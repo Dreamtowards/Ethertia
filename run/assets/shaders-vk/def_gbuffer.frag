@@ -1,13 +1,13 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in struct VS_Out
+layout(location = 0) in struct TE_Out
 {
     vec3 WorldPos;
     vec2 TexCoord;
     vec3 WorldNorm;
     vec3 BaryCoord;
-    float MtlId;
+    vec3 MtlIds;
 } fs_in;
 
 layout(location = 0) out vec4 gPosition;

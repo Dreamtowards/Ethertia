@@ -90,6 +90,8 @@ namespace vl
     VkPipelineInputAssemblyStateCreateInfo IPipelineInputAssemblyState(
             VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
+    VkPipelineTessellationStateCreateInfo IPipelineTessellationState(uint32_t patchControlPoints);
+
     // Default: pViewport and pScissors as nullptr remained to Pipeline DynamicState
     VkPipelineViewportStateCreateInfo IPipelineViewportState(
             uint32_t viewportCount = 1, const VkViewport* pViewports = nullptr,
@@ -495,7 +497,8 @@ namespace vkx
             int numColorBlendAttachments,
             std::initializer_list<VkDynamicState> dynamicStates,
             VkPipelineLayout pipelineLayout,
-            VkRenderPass renderPass);
+            VkRenderPass renderPass,
+            uint32_t tessControlPoints = 0);  // 0: tess state nullptr.
 
 
 
