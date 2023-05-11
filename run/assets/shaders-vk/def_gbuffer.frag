@@ -44,11 +44,12 @@ vec3 TriplanarSample(sampler2D tex, int MtlTexId, vec3 FragWorldPos, vec3 blend)
 void main()
 {
     vec3 Albedo = vec3(0);
-    vec3 WorldPos = fs_in.WorldPos;
-    vec2 TexCoord = fs_in.TexCoord;
-    vec3 Norm = fs_in.WorldNorm;
-    vec3 BaryCoord = fs_in.BaryCoord;
-    vec3 MtlIds = fs_in.MtlIds;
+    vec3 WorldPos   = fs_in.WorldPos;
+    vec2 TexCoord   = fs_in.TexCoord;
+    vec3 Norm       = fs_in.WorldNorm;
+    vec3 BaryCoord  = fs_in.BaryCoord;
+    vec3 MtlIds     = fs_in.MtlIds;
+
     int BaryIdx = MaxIdx(BaryCoord.xyz);
 
 
@@ -72,9 +73,9 @@ void main()
 
     // Gbuffer Output
     gPosition.xyz = WorldPos;
-    gPosition.w = 0.9;
+    gPosition.w = 1;
     gNormal.xyz = Norm;
-    gNormal.w = 0.9;
+    gNormal.w = 1;
     gAlbedo.xyz = Albedo;  // BaryCoord
-    gAlbedo.w = 0.9;
+    gAlbedo.w = 1;
 }

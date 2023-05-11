@@ -359,7 +359,7 @@ VkFramebuffer vl::CreateFramebuffer(VkDevice device, int w, int h, VkRenderPass 
 
 VkRenderPass vl::CreateRenderPass(VkDevice device,
                                   std::span<const VkAttachmentDescription> attachments,
-                                  std::span<VkSubpassDescription> subpasses,
+                                  std::span<const VkSubpassDescription> subpasses,
                                   std::span<VkSubpassDependency> dependencies)
 {
     VkRenderPassCreateInfo renderPassInfo{};
@@ -375,15 +375,6 @@ VkRenderPass vl::CreateRenderPass(VkDevice device,
     VK_CHECK_MSG(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass),
                  "failed to create render pass.");
     return renderPass;
-}
-
-VkRenderPass vl::CreateRenderPass(VkDevice device,
-                                  std::initializer_list<VkAttachmentDescription> attachments,
-                                  std::span<VkSubpassDescription> subpasses,
-                                  std::span<VkSubpassDependency> dependencies)
-{
-
-    return vl::CreateRenderPass(device, {attachments.begin(), (int)attachments.size()}, subpasses, dependencies);
 }
 
 VkSubpassDescription vl::IGraphicsSubpass(
@@ -1894,18 +1885,18 @@ void vkx::EndMainRenderPass(VkCommandBuffer cmdbuf)
 
 
 
-VkSampler vkx::CreateImageSampler()
+VkSampler vkx::CreateImageSampler(VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode addressModeUVW)
 {
     VkDevice device = vkx::ctx().Device;
     VkPhysicalDevice physDevice = vkx::ctx().PhysDevice;
 
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = VK_FILTER_LINEAR;
-    samplerInfo.minFilter = VK_FILTER_LINEAR;
-    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.magFilter = magFilter;
+    samplerInfo.minFilter = minFilter;
+    samplerInfo.addressModeU = addressModeUVW;
+    samplerInfo.addressModeV = addressModeUVW;
+    samplerInfo.addressModeW = addressModeUVW;
 
     VkPhysicalDeviceProperties properties{};  // todo optim.
     vkGetPhysicalDeviceProperties(physDevice, &properties);

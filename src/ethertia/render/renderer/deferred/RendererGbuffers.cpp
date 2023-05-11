@@ -108,7 +108,7 @@ namespace RendererGbuffer
             writes.WriteDescriptorSets(device);
         }
 
-        int attach_size = 1024;
+        int attach_size = 512;
         // RenderPass
         {
             VkFormat rgbFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
@@ -123,18 +123,19 @@ namespace RendererGbuffer
                     {2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gAlbedo
                     {3, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL}  // gDepth
             };
-            VkSubpassDescription subpass = vl::IGraphicsSubpass(
-                    {&attachmentRefs[0], 3},
-                    &attachmentRefs[3]);
 
             g_RenderPass =
-            vl::CreateRenderPass(device, {
+            vl::CreateRenderPass(device, {{
                                          gPosition.AttachmentDescription,
                                          gNormal.AttachmentDescription,
                                          gAlbedo.AttachmentDescription,
                                          gDepth.AttachmentDescription
-                                 },
-                                 {&subpass, 1});
+                                 }},
+                                 {{
+                                     vl::IGraphicsSubpass(
+                                         {&attachmentRefs[0], 3},
+                                         &attachmentRefs[3])
+                                 }});
         }
 
         g_Framebuffer =
@@ -218,7 +219,7 @@ namespace RendererGbuffer
         clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gNormal
         clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gAlbedo
         clearValues[3].depthStencil = {1.0f, 0};
-        VkExtent2D renderExtent = {1024, 1024};
+        VkExtent2D renderExtent = {512, 512};
         cmd.CmdBeginRenderPass(g_RenderPass, g_Framebuffer, renderExtent, {clearValues, 4});
 
         cmd.CmdBindGraphicsPipeline(g_Pipeline);

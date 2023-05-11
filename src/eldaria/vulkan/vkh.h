@@ -154,13 +154,13 @@ namespace vl
     // vkCreateRenderPass()
     VkRenderPass CreateRenderPass(VkDevice device,
                                   std::span<const VkAttachmentDescription> attachments,
-                                  std::span<VkSubpassDescription> subpasses,
-                                  std::span<VkSubpassDependency> dependencies);
+                                  std::span<const VkSubpassDescription> subpasses,
+                                  std::span<VkSubpassDependency> dependencies = {});
 
-    VkRenderPass CreateRenderPass(VkDevice device,
-                                  std::initializer_list<VkAttachmentDescription> attachments,
-                                  std::span<VkSubpassDescription> subpasses,
-                                  std::span<VkSubpassDependency> dependencies = {nullptr, (int)0});
+//    VkRenderPass CreateRenderPass(VkDevice device,
+//                                  std::initializer_list<VkAttachmentDescription> attachments,
+//                                  std::span<VkSubpassDescription> subpasses,
+//                                  std::span<VkSubpassDependency> dependencies = {nullptr, (int)0});
 
     VkSubpassDescription IGraphicsSubpass(
             std::span<const VkAttachmentReference> colorAttachmentRefs,
@@ -256,7 +256,7 @@ namespace vkx
 
         VkCommandPool CommandPool = nullptr;
 
-        VkSampler ImageSampler = nullptr;  // default sampler.
+        VkSampler ImageSampler = nullptr;  // default sampler. VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT
         VkDescriptorPool DescriptorPool = nullptr;
 
         // Swapchain
@@ -533,7 +533,9 @@ namespace vkx
     void CreateDepthImage(int w, int h, vkx::Image* img);
 
 
-    VkSampler CreateImageSampler();
+    VkSampler CreateImageSampler(VkFilter magFilter = VK_FILTER_NEAREST,
+                                 VkFilter minFilter = VK_FILTER_NEAREST,
+                                 VkSamplerAddressMode addressModeUVW = VK_SAMPLER_ADDRESS_MODE_REPEAT);
 
 
 

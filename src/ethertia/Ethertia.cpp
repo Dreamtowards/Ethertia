@@ -138,10 +138,10 @@ static void Destroy()
 
     NetworkSystem::deinit();
 
+    Imgui::Destroy();
+
     RenderEngine::deinit();
     AudioEngine::deinit();
-
-    Imgui::Destroy();
 
     glfwTerminate();
 }
