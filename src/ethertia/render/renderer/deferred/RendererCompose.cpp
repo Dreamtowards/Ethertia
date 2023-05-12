@@ -19,6 +19,8 @@ namespace RendererCompose
     vkx::FramebufferAttachment g_FramebufferAttachmentColor;
     vkx::FramebufferAttachment g_FramebufferAttachmentDepth;
 
+    VkExtent2D g_AttachmentSize = {512, 512};
+
     struct UBO
     {
 
@@ -26,7 +28,6 @@ namespace RendererCompose
 
     void init(VkImageView gPosition, VkImageView gNormal, VkImageView gAlbedo)
     {
-
         VkDevice device = vkx::ctx().Device;
 
         for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i) {
@@ -59,49 +60,41 @@ namespace RendererCompose
             writes.WriteDescriptorSets(device);
         }
 
-        int attach_size = 512;
         // RenderPass
-        {
-            g_FramebufferAttachmentColor = vkx::FramebufferAttachment::Create(attach_size,attach_size, VK_FORMAT_R16G16B16A16_SFLOAT);
-            g_FramebufferAttachmentDepth = vkx::FramebufferAttachment::Create(attach_size,attach_size, vkx::findDepthFormat(),true);
+        g_FramebufferAttachmentColor = vkx::FramebufferAttachment::Create(g_AttachmentSize, VK_FORMAT_R8G8B8A8_UNORM);  // ?SRGB
+        g_FramebufferAttachmentDepth = vkx::FramebufferAttachment::Create(g_AttachmentSize, vkx::findDepthFormat(),true);
 
-            VkAttachmentReference attachmentRefs[] = {
-                    {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // compose
-                    {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL}  // depth
-            };
-
-            g_RenderPass =
-            vl::CreateRenderPass(device,
-                                 {{
-                                    g_FramebufferAttachmentColor.AttachmentDescription,
-                                    g_FramebufferAttachmentDepth.AttachmentDescription
-                                 }},
-                                 {{
-                                          vl::IGraphicsSubpass(
-                                                  {{ attachmentRefs[0] }},
-                                                  &attachmentRefs[1])
-                                  }});
-        }
+        g_RenderPass =
+        vl::CreateRenderPass(device,{{
+                                g_FramebufferAttachmentColor.AttachmentDescription,
+                                g_FramebufferAttachmentDepth.AttachmentDescription
+                             }},{{
+                             vl::IGraphicsSubpass(
+                                     {{
+                                          {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL}
+                                     }},
+                                     {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL})
+                             }});
 
         g_Framebuffer =
-                vl::CreateFramebuffer(device, attach_size, attach_size,
-                                      g_RenderPass,{{
-                                          g_FramebufferAttachmentColor.Image->m_ImageView,
-                                          g_FramebufferAttachmentDepth.Image->m_ImageView
-                                        }});
+        vl::CreateFramebuffer(device, g_AttachmentSize,
+                              g_RenderPass,{{
+                                  g_FramebufferAttachmentColor.Image->m_ImageView,
+                                  g_FramebufferAttachmentDepth.Image->m_ImageView
+                                }});
 
         g_Pipeline =
-                vkx::CreateGraphicsPipeline(
-                        {{
-                                 {Loader::loadAssets("shaders-vk/spv/def_compose/vert.spv"), VK_SHADER_STAGE_VERTEX_BIT},
-                                 {Loader::loadAssets("shaders-vk/spv/def_compose/frag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT},
-                         }},
-                        {},
-                        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                        1,
-                        {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
-                        g_PipelineLayout,
-                        g_RenderPass);
+        vkx::CreateGraphicsPipeline(
+                {{
+                         {Loader::loadAssets("shaders-vk/spv/def_compose/vert.spv"), VK_SHADER_STAGE_VERTEX_BIT},
+                         {Loader::loadAssets("shaders-vk/spv/def_compose/frag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT},
+                 }},
+                {},
+                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                1,
+                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
+                g_PipelineLayout,
+                g_RenderPass);
     }
 
     void RecordCommands(VkCommandBuffer cmdbuf)
@@ -112,7 +105,7 @@ namespace RendererCompose
         VkClearValue clearValues[2]{};
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
-        VkExtent2D renderExtent = {512, 512};
+        VkExtent2D renderExtent = g_AttachmentSize;
         cmd.CmdBeginRenderPass(g_RenderPass, g_Framebuffer, renderExtent, {clearValues, 2});
 
         cmd.CmdBindGraphicsPipeline(g_Pipeline);

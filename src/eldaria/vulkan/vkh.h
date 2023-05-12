@@ -147,7 +147,7 @@ namespace vl
 
 
     VkFramebuffer CreateFramebuffer(VkDevice device,
-                                    int w, int h,
+                                    VkExtent2D wh,
                                     VkRenderPass renderPass,
                                     std::span<const VkImageView> attachments);
 
@@ -164,7 +164,7 @@ namespace vl
 
     VkSubpassDescription IGraphicsSubpass(
             std::span<const VkAttachmentReference> colorAttachmentRefs,
-            const VkAttachmentReference* pDepthStencilAttachment = nullptr);
+            const VkAttachmentReference& depthStencilAttachment = {});
 
     VkAttachmentDescription IAttachmentDescription(
             VkFormat format = VK_FORMAT_R16G16B16_SFLOAT,
@@ -442,7 +442,7 @@ namespace vkx
         vkx::Image* Image;
         VkAttachmentDescription AttachmentDescription;
 
-        static FramebufferAttachment Create(int w, int h, VkFormat format, bool depth = false);
+        static FramebufferAttachment Create(VkExtent2D wh, VkFormat format, bool depth = false);
     };
 
 

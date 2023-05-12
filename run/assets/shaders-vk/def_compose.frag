@@ -16,6 +16,18 @@ layout(set = 0, binding = 4) uniform sampler2D gDRAM;
 
 void main()
 {
+    // Read Gbuffer
+    vec4  _PosDep  = texture(gPosition, TexCoord);
+    vec3  WorldPos = _PosDep.xyz;
+    float Depth    = _PosDep.w;
+
+    vec3 WorldNorm = texture(gNormal, TexCoord).xyz;
+    vec3 Albedo = texture(gAlbdeo, TexCoord).xyz;
+
+    vec4 _DRAM = texture(gDRAM, TexCoord);
+    float DispHeight = _DRAM.x;  // DisplacementMap
+    float Roughness = _DRAM.y;
+    float AO = _DRAM.z;
 
     FragColor.rgb = texture(gAlbdeo, TexCoord).rgb;
     FragColor.a = 1;

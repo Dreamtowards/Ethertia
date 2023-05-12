@@ -10,34 +10,11 @@ namespace RendererGbuffer
     VkFramebuffer   g_Framebuffer;
     VkPipeline      g_Pipeline;
 
-    struct FramebufferAttachment   // aka RenderTarget
-    {
-        vkx::Image* Image;
-        VkAttachmentDescription AttachmentDescription;
-
-        static FramebufferAttachment Create(int w, int h, VkFormat format, bool depth = false)
-        {
-            FramebufferAttachment out{};
-            out.Image = new vkx::Image(0,0,0,0,0);
-            VkDevice device = vkx::ctx().Device;
-
-            vl::CreateImage(device, w, h, &out.Image->m_Image, &out.Image->m_ImageMemory, format,
-                            depth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
-
-            out.Image->m_ImageView =
-                    vl::CreateImageView(device, out.Image->m_Image, format, depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
-
-
-            out.AttachmentDescription =
-                    vl::IAttachmentDescription(format, depth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-            return out;
-        }
-    };
-    FramebufferAttachment gPosition;
-    FramebufferAttachment gNormal;
-    FramebufferAttachment gAlbedo;
-    FramebufferAttachment gDepth;
+    VkExtent2D g_AttachmentSize = {512, 512};
+    vkx::FramebufferAttachment gPosition;
+    vkx::FramebufferAttachment gNormal;
+    vkx::FramebufferAttachment gAlbedo;
+    vkx::FramebufferAttachment gDepth;
 
     VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
     VkPipelineLayout g_PipelineLayout = nullptr;
@@ -106,21 +83,13 @@ namespace RendererGbuffer
             writes.WriteDescriptorSets(device);
         }
 
-        int attach_size = 512;
         // RenderPass
         {
             VkFormat rgbFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
-            gPosition = FramebufferAttachment::Create(attach_size,attach_size, rgbFormat);
-            gNormal   = FramebufferAttachment::Create(attach_size,attach_size, rgbFormat);
-            gAlbedo   = FramebufferAttachment::Create(attach_size,attach_size, rgbFormat);
-            gDepth    = FramebufferAttachment::Create(attach_size,attach_size, vkx::findDepthFormat(), true);
-
-            VkAttachmentReference attachmentRefs[] = {
-                    {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gPosition
-                    {1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gNormal
-                    {2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gAlbedo
-                    {3, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL}  // gDepth
-            };
+            gPosition = vkx::FramebufferAttachment::Create(g_AttachmentSize, rgbFormat);
+            gNormal   = vkx::FramebufferAttachment::Create(g_AttachmentSize, rgbFormat);
+            gAlbedo   = vkx::FramebufferAttachment::Create(g_AttachmentSize, rgbFormat);
+            gDepth    = vkx::FramebufferAttachment::Create(g_AttachmentSize, vkx::findDepthFormat(), true);
 
             g_RenderPass =
             vl::CreateRenderPass(device, {{
@@ -128,16 +97,18 @@ namespace RendererGbuffer
                                          gNormal.AttachmentDescription,
                                          gAlbedo.AttachmentDescription,
                                          gDepth.AttachmentDescription
-                                 }},
-                                 {{
-                                     vl::IGraphicsSubpass(
-                                         {&attachmentRefs[0], 3},
-                                         &attachmentRefs[3])
-                                 }});
+                                 }},{{vl::IGraphicsSubpass(
+                                         {{
+                                                  {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gPosition
+                                                  {1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gNormal
+                                                  {2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL},  // gAlbedo
+                                         }},
+                                         {3, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL}  // gDepth
+                                 )}});
         }
 
         g_Framebuffer =
-        vl::CreateFramebuffer(device, attach_size, attach_size,
+        vl::CreateFramebuffer(device, g_AttachmentSize,
                               g_RenderPass,{{
                                                             gPosition.Image->m_ImageView,
                                                             gNormal.Image->m_ImageView,
@@ -214,7 +185,7 @@ namespace RendererGbuffer
         clearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gNormal
         clearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f};  // gAlbedo
         clearValues[3].depthStencil = {1.0f, 0};
-        VkExtent2D renderExtent = {512, 512};
+        VkExtent2D renderExtent = g_AttachmentSize;
         cmd.CmdBeginRenderPass(g_RenderPass, g_Framebuffer, renderExtent, {clearValues, 4});
 
         cmd.CmdBindGraphicsPipeline(g_Pipeline);

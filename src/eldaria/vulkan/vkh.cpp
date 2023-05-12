@@ -340,12 +340,12 @@ VkImageView vl::CreateImageView(VkDevice device, VkImage image, VkFormat format,
 
 
 
-VkFramebuffer vl::CreateFramebuffer(VkDevice device, int w, int h, VkRenderPass renderPass, std::span<const VkImageView> attachments)
+VkFramebuffer vl::CreateFramebuffer(VkDevice device, VkExtent2D wh, VkRenderPass renderPass, std::span<const VkImageView> attachments)
 {
     VkFramebufferCreateInfo framebufferInfo{};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.width = w;
-    framebufferInfo.height = h;
+    framebufferInfo.width = wh.width;
+    framebufferInfo.height = wh.height;
     framebufferInfo.renderPass = renderPass;
     framebufferInfo.attachmentCount = attachments.size();
     framebufferInfo.pAttachments = attachments.data();
@@ -379,14 +379,18 @@ VkRenderPass vl::CreateRenderPass(VkDevice device,
 
 VkSubpassDescription vl::IGraphicsSubpass(
         std::span<const VkAttachmentReference> colorAttachmentRefs,
-        const VkAttachmentReference* pDepthStencilAttachment)
+        const VkAttachmentReference& depthStencilAttachment)
 {
     VkSubpassDescription subpass{};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = colorAttachmentRefs.size();
     subpass.pColorAttachments = colorAttachmentRefs.data();
 
-    subpass.pDepthStencilAttachment = pDepthStencilAttachment;
+    if (depthStencilAttachment.layout) {  // valid
+        subpass.pDepthStencilAttachment = &depthStencilAttachment;
+    } else {
+        subpass.pDepthStencilAttachment = nullptr;
+    }
     return subpass;
 }
 
@@ -722,13 +726,13 @@ void vkx::UniformBuffer::memcpy(void* src_ptr, size_t size)
 
 
 
-vkx::FramebufferAttachment vkx::FramebufferAttachment::Create(int w, int h, VkFormat format, bool depth)
+vkx::FramebufferAttachment vkx::FramebufferAttachment::Create(VkExtent2D wh, VkFormat format, bool depth)
 {
     FramebufferAttachment out{};
     out.Image = new vkx::Image(0,0,0,0,0);
     VkDevice device = vkx::ctx().Device;
 
-    vl::CreateImage(device, w, h, &out.Image->m_Image, &out.Image->m_ImageMemory, format,
+    vl::CreateImage(device, wh.width, wh.height, &out.Image->m_Image, &out.Image->m_ImageMemory, format,
                     depth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
     out.Image->m_ImageView =
@@ -995,6 +999,7 @@ void vkx::CreateStagedImage(int imgWidth, int imgHeight, void* pixels,
 {
     VkDevice device = vkx::ctx().Device;
     VkDeviceSize imageSize = imgWidth * imgHeight * 4;
+    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -1010,21 +1015,21 @@ void vkx::CreateStagedImage(int imgWidth, int imgHeight, void* pixels,
 
     vl::CreateImage(device, imgWidth, imgHeight,
                     out_image, out_imageMemory,
-                    VK_FORMAT_R8G8B8A8_SRGB,
+                    format,
                     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    TransitionImageLayout(*out_image, VK_FORMAT_R8G8B8A8_SRGB,
+    TransitionImageLayout(*out_image, format,
                           VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
     CopyBufferToImage(stagingBuffer, *out_image, imgWidth, imgHeight);
 
-    TransitionImageLayout(*out_image, VK_FORMAT_R8G8B8A8_SRGB,
+    TransitionImageLayout(*out_image, format,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    *out_imageView = vl::CreateImageView(device, *out_image, VK_FORMAT_R8G8B8A8_SRGB);
+    *out_imageView = vl::CreateImageView(device, *out_image, format);
 }
 
 
@@ -1654,12 +1659,8 @@ static void CreateSwapchainFramebuffers(
 
     for (size_t i = 0; i < swapchainImageViews.size(); i++)
     {
-        std::array<VkImageView, 2> attachments = { swapchainImageViews[i], depthImageView };
-
-        out_swapchainFramebuffers[i] = vl::CreateFramebuffer(device,
-                                                             swapchainExtent.width, swapchainExtent.height,
-                                                             renderPass,
-                                                             attachments);
+        out_swapchainFramebuffers[i] = vl::CreateFramebuffer(device,swapchainExtent, renderPass,
+                                                             {{ swapchainImageViews[i], depthImageView }});
     }
 }
 
