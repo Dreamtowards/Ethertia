@@ -217,7 +217,7 @@ static void RunMainLoop()
     }
 
     {
-        PROFILE("SwapBuffer");
+        PROFILE("FpsCap");
 //        window.setVSync(Settings::s_Vsync);
 //        window.swapBuffers();
 

@@ -475,13 +475,13 @@ void vl::QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, Vk
 }
 
 VkResult vl::QueuePresentKHR(VkQueue presentQueue,
-                         int numWaitSemaphores, const VkSemaphore* pSemaphores,
-                         int numSwapchains, const VkSwapchainKHR* pSwapchains, const uint32_t* pImageIndices)
+                             std::span<const VkSemaphore> waitSemaphores,
+                             int numSwapchains, const VkSwapchainKHR* pSwapchains, const uint32_t* pImageIndices)
 {
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = numWaitSemaphores;
-    presentInfo.pWaitSemaphores = pSemaphores;
+    presentInfo.waitSemaphoreCount = waitSemaphores.size();
+    presentInfo.pWaitSemaphores = waitSemaphores.data();
     presentInfo.swapchainCount = numSwapchains;
     presentInfo.pSwapchains = pSwapchains;
     presentInfo.pImageIndices = pImageIndices;
@@ -1784,7 +1784,7 @@ vkx::Instance& vkx::ctx() {
 }
 
 
-
+#include <ethertia/Ethertia.h>
 
 void vkx::BeginFrame(VkCommandBuffer* out_cmdbuf)
 {
@@ -1793,13 +1793,19 @@ void vkx::BeginFrame(VkCommandBuffer* out_cmdbuf)
     const int frameIdx = vkx::CurrentInflightFrame;
     VkCommandBuffer cmdbuf = g.CommandBuffers[frameIdx];
 
+    {
+    PROFILE("WaitCmdBuf");
     // blocking until the CommandBuffer has finished executing
     vkWaitForFences(device, 1, &g.CommandBuffersFences[frameIdx], VK_TRUE, UINT64_MAX);
+    }
 
+    {
+    PROFILE("Acquire");
     // acquire swapchain image, and signal SemaphoreImageAcquired[i] when acquired. (when the presentation engine is finished using the image)
     uint32_t imageIdx;
     vkAcquireNextImageKHR(device, g.SwapchainKHR, UINT64_MAX, g.SemaphoreImageAcquired[frameIdx], nullptr, &imageIdx);
     vkx::CurrentSwapchainImage = imageIdx;
+    }
 
     vkResetFences(device, 1, &g.CommandBuffersFences[frameIdx]);  // reset the fence to the unsignaled state
     vkResetCommandBuffer(cmdbuf, 0);
@@ -1819,19 +1825,24 @@ void vkx::EndFrame(VkCommandBuffer cmdbuf)
     uint32_t frameIdx = vkx::CurrentInflightFrame;
     uint32_t imageIdx = vkx::CurrentSwapchainImage;
 
-    // submit the CommandBuffer.
+    {
+    PROFILE("SubmitQueue");
+    // Submit the CommandBuffer.
+    // Submission is VerySlow. try Batch Submit as much as possible, and Submit in another Thread
     vl::QueueSubmit(g.GraphicsQueue, cmdbuf,
                     g.SemaphoreImageAcquired[frameIdx], g.SemaphoreRenderComplete[frameIdx],
                     g.CommandBuffersFences[frameIdx]);
+    }
 
-    VkResult vkr =
-    vl::QueuePresentKHR(g.PresentQueue,
-                        1, &g.SemaphoreRenderComplete[frameIdx],
-                        1, &g.SwapchainKHR, &imageIdx);
-
-    if (vkr == VK_SUBOPTIMAL_KHR) {
+    {
+    PROFILE("Present");
+    if (vl::QueuePresentKHR(g.PresentQueue,{{g.SemaphoreRenderComplete[frameIdx]}},
+                            1, &g.SwapchainKHR, &imageIdx) == VK_SUBOPTIMAL_KHR)
+    {
         vkx::RecreateSwapchain();
     }
+    }
+
 //    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
 
     vkx::CurrentInflightFrame = (vkx::CurrentInflightFrame + 1) % vkx::INFLIGHT_FRAMES;

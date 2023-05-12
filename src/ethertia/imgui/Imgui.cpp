@@ -254,8 +254,6 @@ static ImGuiKey GetPressedKey()
 
 void Imgui::NewFrame()
 {
-    PROFILE("ImGuiNewFrame");
-
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();

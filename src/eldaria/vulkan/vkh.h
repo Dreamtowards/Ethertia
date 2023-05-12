@@ -196,7 +196,7 @@ namespace vl
                      VkFence fence);
 
     VkResult QueuePresentKHR(VkQueue presentQueue,
-                             int numWaitSemaphores, const VkSemaphore* pSemaphores,
+                             std::span<const VkSemaphore> waitSemaphores,
                              int numSwapchains, const VkSwapchainKHR* pSwapchains, const uint32_t* pImageIndices);
 
     void CmdBeginRenderPass(VkCommandBuffer cmdbuf,
