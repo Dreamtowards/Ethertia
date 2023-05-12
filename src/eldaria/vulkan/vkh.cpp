@@ -720,6 +720,30 @@ void vkx::UniformBuffer::memcpy(void* src_ptr, size_t size)
 
 
 
+
+
+vkx::FramebufferAttachment vkx::FramebufferAttachment::Create(int w, int h, VkFormat format, bool depth)
+{
+    FramebufferAttachment out{};
+    out.Image = new vkx::Image(0,0,0,0,0);
+    VkDevice device = vkx::ctx().Device;
+
+    vl::CreateImage(device, w, h, &out.Image->m_Image, &out.Image->m_ImageMemory, format,
+                    depth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+
+    out.Image->m_ImageView =
+            vl::CreateImageView(device, out.Image->m_Image, format, depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+
+
+    out.AttachmentDescription =
+            vl::IAttachmentDescription(format, depth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    return out;
+}
+
+
+
+
 // ============== CommandBuffer ==============
 
 void vkx::CommandBuffer::BeginCommandBuffer(VkCommandBufferUsageFlags usage)

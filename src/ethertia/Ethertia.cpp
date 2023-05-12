@@ -152,7 +152,8 @@ static void Destroy()
 static void RunMainLoop()
 {
     PROFILE("Frame");
-    Ethertia::getTimer().update(Ethertia::getPreciseTime());
+    double time_framebegin = Ethertia::getPreciseTime();
+    Ethertia::getTimer().update(time_framebegin);
     float dt = Ethertia::getDelta();
     World* world = Ethertia::getWorld();
     Window& window = Ethertia::getWindow();
@@ -191,9 +192,18 @@ static void RunMainLoop()
     {
         PROFILE("Input");
 
-        window.PollEvents();
-        Controls::handleInput();
-        Imgui::NewFrame();
+        {
+            PROFILE("PollEvents");
+            window.PollEvents();
+        }
+        {
+            PROFILE("HandleInputs");
+            Controls::handleInput();
+        }
+        {
+            PROFILE("ImGuiNewFrame");
+            Imgui::NewFrame();
+        }
     }
     {
         PROFILE("ProcGUI");
@@ -210,6 +220,15 @@ static void RunMainLoop()
         PROFILE("SwapBuffer");
 //        window.setVSync(Settings::s_Vsync);
 //        window.swapBuffers();
+
+        // Sync FPS.
+        if (Settings::s_FpsCap) {
+            const double till = time_framebegin + (1.0/Settings::s_FpsCap);
+            while (Ethertia::getPreciseTime() < till) {
+                Timer::sleep_for(1);
+            }
+        }
+
         Dbg::_fps_frame(Ethertia::getPreciseTime());
 
         AudioEngine::checkAlError("Frame");

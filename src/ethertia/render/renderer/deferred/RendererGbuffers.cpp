@@ -74,10 +74,8 @@ namespace RendererGbuffer
         VkDevice device = vkx::ctx().Device;
 
         // Uniform Buffers
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-        for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i)
-        {
-            g_UniformBuffers[i] = new vkx::UniformBuffer(bufferSize);
+        for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i) {
+            g_UniformBuffers[i] = new vkx::UniformBuffer(sizeof(UniformBufferObject));
         }
 
         g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(device, {
@@ -145,9 +143,6 @@ namespace RendererGbuffer
                                                             gNormal.Image->m_ImageView,
                                                             gAlbedo.Image->m_ImageView,
                                                             gDepth.Image->m_ImageView}});
-
-
-
 
         g_Pipeline =
         vkx::CreateGraphicsPipeline(
@@ -267,27 +262,3 @@ namespace RendererGbuffer
     }
 
 };
-
-
-namespace RendererCompose
-{
-    VkRenderPass g_RenderPass = nullptr;
-    VkFramebuffer g_Framebuffer = nullptr;
-    VkPipeline g_Pipeline = nullptr;
-    VkPipelineLayout g_PipelineLayout = nullptr;
-
-    VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
-    VkDescriptorSet g_DescriptorSet[vkx::INFLIGHT_FRAMES];
-
-    void RecordCommands(VkCommandBuffer cmdbuf)
-    {
-        vkx::CommandBuffer cmd{cmdbuf};
-        int frameIdx = vkx::CurrentInflightFrame;
-
-
-
-        cmd.CmdBindGraphicsPipeline(g_Pipeline);
-        cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSet[frameIdx]);
-        cmd.CmdDrawIndexed(6);
-    }
-}

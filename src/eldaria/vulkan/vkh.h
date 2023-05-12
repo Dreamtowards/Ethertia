@@ -427,8 +427,23 @@ namespace vkx
     };
 
 
+//    VkWriteDescriptorSet IWriteDescriptorCombinedImageSampler();
+//
+//    void UpdateDescriptorSets(VkDevice device,
+//                              std::span<const VkWriteDescriptorSet> writes,
+//                              std::span<const VkCopyDescriptorSet> copies = {})
+//{
+//    vkUpdateDescriptorSets(device, writes.size(), writes.data(), copies.size(), copies.data());
+//}
 
 
+    struct FramebufferAttachment   // aka RenderTarget
+    {
+        vkx::Image* Image;
+        VkAttachmentDescription AttachmentDescription;
+
+        static FramebufferAttachment Create(int w, int h, VkFormat format, bool depth = false);
+    };
 
 
     // created from Loader::loadVertexBuffer(const VertexData& vdata)

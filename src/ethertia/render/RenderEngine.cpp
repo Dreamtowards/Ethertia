@@ -36,7 +36,7 @@
 #define _uniform_align alignas(16)
 
 #include "renderer/deferred/RendererGbuffers.cpp"
-
+#include "renderer/deferred/RendererCompose.cpp"
 
 
 void RenderEngine::init()
@@ -53,7 +53,13 @@ void RenderEngine::init()
     MaterialTextures::load();
 
     RendererGbuffer::init();
-    g_ComposeView = RendererGbuffer::gAlbedo.Image->m_ImageView;
+
+    RendererCompose::init(RendererGbuffer::gPosition.Image->m_ImageView,
+                          RendererGbuffer::gNormal.Image->m_ImageView,
+                          RendererGbuffer::gAlbedo.Image->m_ImageView);
+
+    g_ComposeView = RendererCompose::g_FramebufferAttachmentColor.Image->m_ImageView;
+//            RendererGbuffer::gAlbedo.Image->m_ImageView;
 }
 
 
@@ -77,12 +83,22 @@ void RenderEngine::deinit()
 void RenderEngine::Render()
 {
     VkCommandBuffer cmdbuf;
-    vkx::BeginFrame(&cmdbuf);
+    {
+        PROFILE("BeginFrame");
+        vkx::BeginFrame(&cmdbuf);
+    }
 
     World* world = Ethertia::getWorld();
     if (world)
     {
-        RendererGbuffer::RecordCommands(cmdbuf, world->m_Entities);
+        {
+            PROFILE("CmdWorldGbuffer");
+            RendererGbuffer::RecordCommands(cmdbuf, world->m_Entities);
+        }
+        {
+            PROFILE("CmdWorldCompose");
+            RendererCompose::RecordCommands(cmdbuf);
+        }
     }
 
     vkx::BeginMainRenderPass(cmdbuf);
@@ -93,6 +109,7 @@ void RenderEngine::Render()
     }
     vkx::EndMainRenderPass(cmdbuf);
 
+    PROFILE("EndFrame");
     vkx::EndFrame(cmdbuf);
 }
 
