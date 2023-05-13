@@ -1264,7 +1264,7 @@ VkSurfaceKHR CreateSurface(VkInstance instance, GLFWwindow* glfwWindow)
     return surfaceKHR;
 }
 
-static VkPhysicalDevice PickPhysicalDevice(VkInstance vkInst)
+static VkPhysicalDevice PickPhysicalDevice(VkInstance vkInst, VkPhysicalDeviceProperties* out_pProps, VkPhysicalDeviceFeatures* out_pFeats)
 {
     uint32_t gpu_count = 0;
     vkEnumeratePhysicalDevices(vkInst, &gpu_count, nullptr);
@@ -1275,21 +1275,22 @@ static VkPhysicalDevice PickPhysicalDevice(VkInstance vkInst)
     std::vector<VkPhysicalDevice> gpus(gpu_count);
     vkEnumeratePhysicalDevices(vkInst, &gpu_count, gpus.data());
 
-    VkPhysicalDevice dev = gpus[0];
+    VkPhysicalDevice gpu = gpus[0];
+
     for (const auto& physGPU : gpus)
     {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(physGPU, &deviceProperties);
 
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceFeatures(physGPU, &deviceFeatures);
-
         if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-            dev = physGPU;
+            gpu = physGPU;
             break;
         }
     }
-    return dev;
+
+    vkGetPhysicalDeviceFeatures(gpu, out_pFeats);
+    vkGetPhysicalDeviceProperties(gpu, out_pProps);
+    return gpu;
 }
 
 
@@ -1712,7 +1713,7 @@ void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
     CreateSurface(i.Inst, glfwWindow);
 
     i.PhysDevice =
-    PickPhysicalDevice(i.Inst);
+    PickPhysicalDevice(i.Inst, &i.PhysDeviceProperties, &i.PhysDeviceFeatures);
 
     QueueFamilyIndices queueFamily = findQueueFamilies(i.PhysDevice, i.SurfaceKHR);
     i.Device =

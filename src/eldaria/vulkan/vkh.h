@@ -249,6 +249,8 @@ namespace vkx
         bool m_EnabledValidationLayer = true;
         GLFWwindow* WindowHandle = nullptr;
 
+        VkPhysicalDeviceProperties PhysDeviceProperties;
+        VkPhysicalDeviceFeatures PhysDeviceFeatures;
         VkPhysicalDevice PhysDevice = nullptr;
         VkDevice Device = nullptr;
         VkQueue GraphicsQueue = nullptr;

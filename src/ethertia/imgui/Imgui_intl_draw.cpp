@@ -1729,6 +1729,10 @@ static void ShowDebugTextOverlay()
             "ChunkProvide: {}\n"
             "ChunkMeshing: {}\n"
             "ChunkSaving:  {}\n"
+            "\n"
+            "SYS: {}, {} core, {} endian\n"
+            "CPU: {}\n"
+            "GPU: {}"
             ,
             Ethertia::getCamera().position, Ethertia::getCamera().len,
             meterPerSec, meterPerSec * 3.6f,
@@ -1745,8 +1749,13 @@ static void ShowDebugTextOverlay()
             Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
             DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
             DebugStat::dbg_NumChunksMeshInvalid,
-            DebugStat::dbg_ChunksSaving
+            DebugStat::dbg_ChunksSaving,
 
+            Loader::sys_target(),
+            std::thread::hardware_concurrency(),
+            std::endian::native == std::endian::big ? "big" : "little",
+            Loader::cpuid(),
+            vkx::ctx().PhysDeviceProperties.deviceName
     );
 
     auto& vp = Ethertia::getViewport();

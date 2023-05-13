@@ -239,6 +239,7 @@ public:
     // Windows: lib<Name>.dll
     // static std::string sys_libname(const std::string& name);
 
+    static const char* cpuid();
 
 
     ////////////// Misc //////////////
