@@ -73,6 +73,7 @@ include_directories(lib/yaml-cpp/include)
 include_directories(lib/nbt/include)
 include_directories(lib/openvr/headers)
 include_directories(lib/imgui-docking)
+include_directories(src/eldaria/vulkan)
 
 
 

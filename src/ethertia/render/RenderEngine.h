@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-#include <eldaria/vulkan/vkx.h>
+#include <vkx.h>
 
 //#include "Texture.h"
 //#include "VertexArrays.h"

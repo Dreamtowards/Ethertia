@@ -20,7 +20,7 @@ public:
 //        m_DiffuseMap = Texture::WHITE;
 
         static VertexData* M_DrivingSeat = Loader::loadOBJ("material/driving_seat/driving_seat.obj");
-        m_Model = Loader::loadVertexBuffer(M_DrivingSeat);
+        m_Model = Loader::loadVertexData(M_DrivingSeat);
         initRigidbody(1, CreateHullShape(M_DrivingSeat));
         m_Rigidbody->setFriction(0.8);
     }

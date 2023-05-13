@@ -19,7 +19,7 @@ public:
 
         if (Loader::fileExists(cache_file)) {
             std::cout << "loading from cache '" << cache_file << "'";
-            return Loader::loadImage(cache_file);
+            return Loader::loadTexture(cache_file);
         } else {
             std::cout << "cache not found. start baking.";
 
@@ -59,7 +59,7 @@ public:
 
             Loader::savePNG(cache_file, atlas);
 
-            return Loader::loadImage(atlas);
+            return Loader::loadTexture(atlas);
         }
     }
 

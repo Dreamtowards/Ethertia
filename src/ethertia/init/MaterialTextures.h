@@ -88,7 +88,7 @@ public:
 
         if (Loader::fileExists(cache_file))
         {
-            vkx::Image* t = Loader::loadImage(cache_file);
+            vkx::Image* t = Loader::loadTexture(cache_file);
             Log::info(" *{} loaded cached atlas from '{}'. (x{})\1", textype, cache_file, t->height);
             return t;
         }
@@ -143,7 +143,7 @@ public:
             // save cached atlas.
             Loader::savePNG(cache_file, atlas);
 
-            return Loader::loadImage(atlas);
+            return Loader::loadTexture(atlas);
         }
     }
 

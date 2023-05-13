@@ -45,8 +45,8 @@ void RenderEngine::init()
 
     vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
 
-    TEX_WHITE = Loader::loadImage(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
-    TEX_UVMAP = Loader::loadImage("misc/uvmap.png");
+    TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
+    TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");
 
     Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::load();

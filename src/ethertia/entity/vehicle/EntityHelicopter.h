@@ -29,7 +29,7 @@ public:
 
 //        m_DiffuseMap = Texture::WHITE;
 
-        m_Model = Loader::loadVertexBuffer(M_Helicopter);;
+        m_Model = Loader::loadVertexData(M_Helicopter);;
         initRigidbody(1000, CreateHullShape(M_Helicopter));
         m_Rigidbody->setFriction(0.8);
 

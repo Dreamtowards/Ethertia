@@ -22,7 +22,7 @@ public:
 
             const VertexData* vtx = MaterialMeshes::STOOL;
             entity->setMesh(EntityMesh::CreateMeshShape(vtx));
-            entity->updateModel(Loader::loadVertexBuffer(vtx));
+            entity->updateModel(Loader::loadVertexData(vtx));
 
             _SendMessage("EntityMesh created.");
         }
@@ -45,7 +45,7 @@ public:
                 EntityMesh* eMesh = (EntityMesh*)target;
 
                 VertexData* vtx = Loader::loadOBJ(path.c_str());
-                eMesh->updateModel(Loader::loadVertexBuffer(vtx));
+                eMesh->updateModel(Loader::loadVertexData(vtx));
                 eMesh->setMesh(EntityMesh::CreateMeshShape(vtx));
 
                 _SendMessage("Mesh updated.");
@@ -59,7 +59,7 @@ public:
                 }
 
                 EntityMesh* entity = (EntityMesh*)Ethertia::getHitCursor().hitEntity;
-                entity->m_DiffuseMap = Loader::loadImage(Loader::loadPNG(path));
+                entity->m_DiffuseMap = Loader::loadTexture(path);
 
                 _SendMessage("Texture updated.");
             }

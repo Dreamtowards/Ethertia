@@ -81,14 +81,13 @@ namespace RendererCompose
                               g_RenderPass,{{
                                   g_FramebufferAttachmentColor.Image->m_ImageView,
                                   g_FramebufferAttachmentDepth.Image->m_ImageView
-                                }});
+                              }});
 
         g_Pipeline =
-        vkx::CreateGraphicsPipeline(
-                {{
+        vkx::CreateGraphicsPipeline({{
                          {Loader::loadAssets("shaders-vk/spv/def_compose/vert.spv"), VK_SHADER_STAGE_VERTEX_BIT},
                          {Loader::loadAssets("shaders-vk/spv/def_compose/frag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT},
-                 }},
+                }},
                 {},
                 VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
                 1,

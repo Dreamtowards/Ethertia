@@ -14,19 +14,11 @@
 #include <complex>
 #include <span>
 
-//#include <nbt/nbt_tags.h>
-//#include <glad/glad.h>
-
-//#include <ethertia/render/Texture.h>
-//#include <ethertia/render/VertexArrays.h>
-//#include <ethertia/render/ShaderProgram.h>
-//#include <ethertia/render/VertexBuffer.h>
-
 #include <ethertia/render/VertexData.h>
 #include <ethertia/util/BitmapImage.h>
 #include <ethertia/audio/AudioEngine.h>
 
-#include <eldaria/vulkan/vkx.h>
+#include <vkx.h>
 
 
 // Dup with GuiCommon.h
@@ -160,7 +152,7 @@ public:
 
 
     // load to GPU. interleaved vertex data.
-    static vkx::VertexBuffer* loadVertexBuffer(const VertexData* vtx);
+    static vkx::VertexBuffer* loadVertexData(const VertexData* vtx);
 
 
 
@@ -171,9 +163,10 @@ public:
 //                                int intlfmt = GL_RGBA, int fmt = GL_RGBA, int type = GL_UNSIGNED_BYTE);
 
 
-    static vkx::Image* loadImage(const BitmapImage& img);
+    // Image ? Texture
+    static vkx::Image* loadTexture(const BitmapImage& img);
 
-    static vkx::Image* loadImage(const std::string& filepath) { return Loader::loadImage(Loader::loadPNG(filepath)); }
+    static vkx::Image* loadTexture(const std::string& filepath) { return Loader::loadTexture(Loader::loadPNG(filepath)); }
 
 
 //    // imgs order: Right, Left, Top, Bottom, Front, Back.

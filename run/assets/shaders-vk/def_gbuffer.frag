@@ -72,10 +72,10 @@ void main()
     }
 
     // Gbuffer Output
-    gPosition.xyz = WorldPos;
-    gPosition.w = 1;
+    gPosition.xyz   = WorldPos;
+    gPosition.w     = 1;
     gNormal.xyz = Norm;
-    gNormal.w = 1;
+    gNormal.w   = 1;
     gAlbedo.xyz = Albedo;  // BaryCoord
-    gAlbedo.w = 1;
+    gAlbedo.w   = 1;
 }

@@ -18,7 +18,7 @@ public:
 //        m_DiffuseMap = Texture::WHITE;
 
         static VertexData* M_Propeller = Loader::loadOBJ("material/propeller/propeller.obj");
-        m_Model = Loader::loadVertexBuffer(M_Propeller);
+        m_Model = Loader::loadVertexData(M_Propeller);
         initRigidbody(1, CreateHullShape(M_Propeller));
         m_Rigidbody->setFriction(0.8);
 

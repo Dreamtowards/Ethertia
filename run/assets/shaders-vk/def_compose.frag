@@ -18,10 +18,10 @@ void main()
 {
     // Read Gbuffer
     vec4  _PosDep  = texture(gPosition, TexCoord);
-    vec3  WorldPos = _PosDep.xyz;
+    vec3  FragPos = _PosDep.xyz;
     float Depth    = _PosDep.w;
 
-    vec3 WorldNorm = texture(gNormal, TexCoord).xyz;
+    vec3 FragNorm = texture(gNormal, TexCoord).xyz;
     vec3 Albedo = texture(gAlbdeo, TexCoord).xyz;
 
     vec4 _DRAM = texture(gDRAM, TexCoord);
@@ -29,6 +29,12 @@ void main()
     float Roughness = _DRAM.y;
     float AO = _DRAM.z;
 
-    FragColor.rgb = texture(gAlbdeo, TexCoord).rgb;
+    vec3 LightPos = vec3(0, 100, 0);
+    vec3 LightColor = vec3(1, 1, 1);
+
+    vec3 FragToLight = normalize(LightPos - FragPos);
+    Albedo *= LightColor * max(0.2, dot(FragNorm, FragToLight));
+
+    FragColor.rgb = Albedo;
     FragColor.a = 1;
 }

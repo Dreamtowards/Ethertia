@@ -142,10 +142,10 @@ public:
 
             if (Ethertia::getWorld() && chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);
-                chunk->m_MeshTerrain->updateModel(vtxTerrain->vertexCount() ? Loader::loadVertexBuffer(vtxTerrain) : nullptr);
+                chunk->m_MeshTerrain->updateModel(vtxTerrain->vertexCount() ? Loader::loadVertexData(vtxTerrain) : nullptr);
 
                 chunk->m_MeshVegetable->setMesh(meshVegetable);
-                chunk->m_MeshVegetable->updateModel(vtxVegetable->vertexCount() ? Loader::loadVertexBuffer(vtxVegetable) : nullptr);
+                chunk->m_MeshVegetable->updateModel(vtxVegetable->vertexCount() ? Loader::loadVertexData(vtxVegetable) : nullptr);
 
             } else {
                 delete meshTerrain;

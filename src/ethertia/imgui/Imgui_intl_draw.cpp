@@ -100,7 +100,7 @@ static vkx::Image* LazyLoadTex(const std::string& p) {
     static std::map<std::string, vkx::Image*> _Cache;
     auto& it = _Cache[p];
     if (!it) {
-        it = Loader::loadImage(p);
+        it = Loader::loadTexture(p);
     }
     return it;
 }

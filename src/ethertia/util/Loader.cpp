@@ -313,7 +313,7 @@ void Loader::savePNG(const std::string& filename, const BitmapImage& img)
 
 
 
-vkx::VertexBuffer* Loader::loadVertexBuffer(const VertexData* vtx)
+vkx::VertexBuffer* Loader::loadVertexData(const VertexData* vtx)
 {
     VkBuffer vtxBuffer;
     VkDeviceMemory vtxMemory;
@@ -333,7 +333,7 @@ vkx::VertexBuffer* Loader::loadVertexBuffer(const VertexData* vtx)
 
 
 
-vkx::Image* Loader::loadImage(const BitmapImage& img)
+vkx::Image* Loader::loadTexture(const BitmapImage& img)
 {
     VkImage image;
     VkDeviceMemory imageMemory;

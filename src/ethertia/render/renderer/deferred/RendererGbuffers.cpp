@@ -42,10 +42,10 @@ namespace RendererGbuffer
     void init()
     {
         VertexData* vtx = Loader::loadOBJ("entity/viking_room/viking_room.obj");
-        g_TestModel = Loader::loadVertexBuffer(vtx);
+        g_TestModel = Loader::loadVertexData(vtx);
 
         BitmapImage img = Loader::loadPNG("entity/viking_room/viking_room.png");
-        g_TestImage = Loader::loadImage(img);
+        g_TestImage = Loader::loadTexture(img);
 
 
         VkDevice device = vkx::ctx().Device;
