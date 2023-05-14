@@ -31,7 +31,6 @@ namespace RendererGbuffer
     {
         glm::mat4 matProjection;
         glm::mat4 matView;
-        // _uniform_align glm::mat4 matModel;
     };
 
     struct PushConstant_T

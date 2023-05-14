@@ -49,6 +49,14 @@ struct WorldInfo
         }
     }
 
+    struct WorldGenProperties
+    {
+        enum WorldType
+        {
+            SUPER_FLAT
+        };
+    };
+
 };
 
 class World
@@ -74,7 +82,6 @@ public:
 
     // Bullet Physics.
     btDynamicsWorld* m_DynamicsWorld = nullptr;
-
 
     WorldInfo m_WorldInfo;
 

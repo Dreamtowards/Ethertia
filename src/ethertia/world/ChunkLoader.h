@@ -233,14 +233,14 @@ public:
     }
     static const size_t CELL_SIZE = 1+4, CELLS_ALL_SIZE = 4096 * CELL_SIZE;
 
-    Chunk* loadChunk(glm::vec3 chunkpos, World* world) {  if (Dbg::dbg_NoChunkLoad) return nullptr;
-        auto tagChunk = getChunkData(chunkpos);
-        if (!tagChunk) return nullptr;
+    // chunk.position should be valid
+    bool loadChunk(Chunk* chunk) {  if (Dbg::dbg_NoChunkLoad) return false;
+        auto tagChunk = getChunkData(chunk->position);
+        if (!tagChunk) return false;
 
-        Chunk* chunk = new Chunk(chunkpos, world);
 
         // "SavedTime" not need to be load yet.
-        assert(NBT::vec3(tagChunk->at("ChunkPos")) == chunkpos);
+        assert(NBT::vec3(tagChunk->at("ChunkPos")) == chunk->position);
         chunk->m_CreatedTime = (int64_t)tagChunk->at("CreatedTime");
         chunk->m_InhabitedTime = (float)tagChunk->at("InhabitedTime");
         chunk->m_Populated = (int8_t)tagChunk->at("Populated") != 0;  // bugfix: notice nbt++ not supports bool. need manually use int8
@@ -280,7 +280,7 @@ public:
 //            }
         }
 
-        return chunk;
+        return true;
     }
 
     void saveChunk(Chunk* chunk) {  if (Dbg::dbg_NoChunkSave) return;

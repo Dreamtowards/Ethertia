@@ -5,6 +5,11 @@
 #include <ethertia/world/World.h>
 
 #include <ethertia/world/Chunk.h>
+#include <ethertia/world/ChunkLoader.h>
+#include <ethertia/world/gen/ChunkGenerator.h>
+#include <ethertia/world/gen/ChunkGeneratorFlat.h>
+#include <ethertia/world/gen/ChunkGeneratorOverworld.h>
+
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/entity/player/EntityPlayer.h>
@@ -15,8 +20,6 @@
 #include <ethertia/util/Scheduler.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/world/ChunkLoader.h>
-#include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/render/RenderEngine.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
 
@@ -34,7 +37,7 @@ World::World(const std::string& savedir, const WorldInfo* worldinfo)
         m_ChunkLoader->loadWorldInfo(m_WorldInfo);
     }
 
-    m_ChunkGenerator = new ChunkGenerator();
+    m_ChunkGenerator = new ChunkGeneratorFlat();
 
 
     // init Phys
@@ -109,21 +112,24 @@ Chunk* World::provideChunk(glm::vec3 p)  {
     if (chunk) return chunk;
     glm::vec3 chunkpos = Chunk::chunkpos(p);
 
+    chunk = new Chunk(chunkpos, this);
+
+    bool loaded;
     {
         PROFILE_X(Dbg::dbgProf_ChunkGen, "Load");  // not accurate. many times wouldn't load
 
-        DebugStat::dbg_ChunkProvideState = "load";
-        chunk = m_ChunkLoader->loadChunk(chunkpos, this);
-        DebugStat::dbg_ChunkProvideState = nullptr;
+        Dbg::dbg_ChunkProvideState = "load";
+        loaded = m_ChunkLoader->loadChunk(chunk);
+        Dbg::dbg_ChunkProvideState = nullptr;
     }
 
-    if (!chunk)
+    if (!loaded)
     {
         PROFILE_X(Dbg::dbgProf_ChunkGen, "Gen");
 
-        DebugStat::dbg_ChunkProvideState = "gen";
-        chunk = m_ChunkGenerator->generateChunk(chunkpos, this);
-        DebugStat::dbg_ChunkProvideState = nullptr;
+        Dbg::dbg_ChunkProvideState = "gen";
+        m_ChunkGenerator->GenerateChunk(chunk);
+        Dbg::dbg_ChunkProvideState = nullptr;
     }
 
     {
