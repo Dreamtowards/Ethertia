@@ -29,8 +29,8 @@ namespace RendererGbuffer
 
     struct UniformBufferObject
     {
-        _uniform_align glm::mat4 matProjection;
-        _uniform_align glm::mat4 matView;
+        glm::mat4 matProjection;
+        glm::mat4 matView;
         // _uniform_align glm::mat4 matModel;
     };
 
@@ -168,7 +168,7 @@ namespace RendererGbuffer
         // the projection matrix. If you don't do this, then the image will be rendered upside down.
         ubo.matProjection[1][1] *= -1;
 
-        g_UniformBuffers[frameIdx]->memcpy(&ubo, sizeof(ubo));
+        g_UniformBuffers[frameIdx]->update(&ubo, sizeof(ubo));
     }
 
     void RecordCommands(VkCommandBuffer cmdbuf, const std::vector<Entity*>& entities)

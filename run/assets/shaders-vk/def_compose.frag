@@ -5,18 +5,21 @@ layout(location = 0) in vec2 TexCoord;
 
 layout(location = 0) out vec4 FragColor;
 
-layout(set = 0, binding = 0) uniform UBO_T {
-    struct Light {
-        vec3 position;
-        vec3 color;
-        vec3 attenuation;
+struct Light {
+    vec3 position;
+    vec3 color;
+    vec3 attenuation;
 
-        vec3 direction;
-        vec2 coneAngle;  // xy: inner/outer cos
-    } lights[64];
-    int numLights;
+    vec3 direction;
+    vec2 coneAngle;  // xy: inner/outer cos
+};
+
+layout(set = 0, binding = 0) uniform UBO_T {
 
     vec3 CameraPos;  // WorldSpace
+
+    int lightsCount;
+    Light lights[64];
 
     // mat4 matShadowSpace;
     // float DayTime;
@@ -42,12 +45,45 @@ void main()
     float Roughness = _DRAM.y;
     float AO = _DRAM.z;
 
-    vec3 LightPos = vec3(0, 100, 0);
-    vec3 LightColor = vec3(1, 1, 1);
+    vec3 FragToCamera = normalize(ubo.CameraPos - FragPos);
 
-    vec3 FragToLight = normalize(LightPos - FragPos);
-    Albedo *= LightColor * max(0.2, dot(FragNorm, FragToLight));
+    // Lighting
 
-    FragColor.rgb = Albedo;
+    vec3 totalDiffuse = vec3(0);
+    vec3 totalSpecular = vec3(0);
+
+    float specularIntensity = (1.0 - Roughness) * 0.3;
+    float shininess = 128;
+
+    totalDiffuse += Albedo * 0.2;  // Ambient.
+
+    for (int i = 0; i < ubo.lightsCount; ++i)
+    {
+        Light light = ubo.lights[i];
+
+        // Diffuse
+        vec3 FragToLight = normalize(light.position - FragPos);
+        vec3 Diffuse = Albedo * light.color * max(0.24, dot(FragToLight, FragNorm));
+
+        // Specular
+        vec3 halfwayDir = normalize(FragToLight + FragToCamera);
+        vec3 Specular = light.color * specularIntensity * pow(max(dot(halfwayDir, FragNorm), 0.0), shininess);
+
+        // SpotLight
+        //        if (dot(-FragToLight, LightDir) > coneAngle) {
+        //            FragColor.rgb += LighColor * (1.0 / (distance * 0.3));
+        //        }
+
+        // Attenuation
+        float distance = length(light.position - FragPos);
+        float Atten = 1;//1.0 / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance*distance));
+
+        totalDiffuse  += Diffuse  * Atten;
+        totalSpecular += Specular * Atten;
+    }
+
+
+
+    FragColor.rgb = (totalDiffuse + totalSpecular);
     FragColor.a = 1;
 }

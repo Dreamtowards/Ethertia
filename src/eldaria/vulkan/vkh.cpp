@@ -716,7 +716,7 @@ vkx::UniformBuffer::~UniformBuffer()
     vkFreeMemory(device, m_BufferMemory, nullptr);
 }
 
-void vkx::UniformBuffer::memcpy(void* src_ptr, size_t size)
+void vkx::UniformBuffer::update(void* src_ptr, size_t size)
 {
     std::memcpy(m_BufferMapped, src_ptr, size);
 }

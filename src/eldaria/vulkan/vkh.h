@@ -499,7 +499,7 @@ namespace vkx
         ~UniformBuffer();
 
         // cpy mem to the buffer.
-        void memcpy(void* src_ptr, size_t size);
+        void update(void* src_ptr, size_t size);
         VkBuffer buffer() { return m_Buffer; };
     };
 

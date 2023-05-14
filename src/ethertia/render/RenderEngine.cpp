@@ -32,7 +32,7 @@
 //
 
 
-#define _uniform_align alignas(16)
+
 
 #include "renderer/deferred/RendererGbuffers.cpp"
 #include "renderer/deferred/RendererCompose.cpp"

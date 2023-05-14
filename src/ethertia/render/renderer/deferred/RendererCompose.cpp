@@ -21,8 +21,21 @@ namespace RendererCompose
 
     VkExtent2D g_AttachmentSize = {512, 512};
 
+    struct Light
+    {
+        alignas(16) glm::vec3 position;
+        alignas(16) glm::vec3 color;
+        alignas(16) glm::vec3 attenuation;
+
+        alignas(16) glm::vec3 direction;
+        glm::vec2 coneAngle;
+    };
     struct UBO
     {
+        alignas(16) glm::vec3 CameraPos;
+
+        uint32_t lightCount;
+        Light lights[64];
 
     };
 
@@ -35,7 +48,7 @@ namespace RendererCompose
         }
 
         g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(device, {
-                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},            // frag UBO
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT},          // frag UBO
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // gPosition
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // gNormal
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // gAlbedo
@@ -96,8 +109,31 @@ namespace RendererCompose
                 g_RenderPass);
     }
 
+    void UpdateUniforms()
+    {
+        UBO ubo;
+
+        ubo.CameraPos = Ethertia::getCamera().position;
+
+        ubo.lightCount = 1;
+//        for (int i = 0; i < 2; ++i) {
+//            ubo.lights[i] = {
+//                    .position = glm::vec3{10*i, 1, 0} + ubo.CameraPos,
+//                    .color = {0.5 * i, 1, 1},
+//            };
+//        }
+        ubo.lights[0] = {
+                .position = {0, 10, 0},
+                .color = {0.5, 1, 1},
+        };
+
+        g_UniformBuffers[vkx::CurrentInflightFrame]->update(&ubo, sizeof(ubo));
+    }
+
     void RecordCommands(VkCommandBuffer cmdbuf)
     {
+        UpdateUniforms();
+
         vkx::CommandBuffer cmd{cmdbuf};
         int frameIdx = vkx::CurrentInflightFrame;
 
