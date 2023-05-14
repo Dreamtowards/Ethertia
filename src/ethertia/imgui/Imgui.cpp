@@ -101,6 +101,8 @@ static void InitStyle()
 
 }
 
+
+
 void Imgui::Init()
 {
     BENCHMARK_TIMER;
@@ -172,6 +174,40 @@ void Imgui::Destroy()
 
 
 
+void Imgui::NewFrame()
+{
+    ImGui_ImplGlfw_NewFrame();
+    ImGui_ImplVulkan_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GlobalScale;
+
+    ImGui::GetMainViewport()->Size /= Imgui::GlobalScale;
+    ImGui::GetIO().DisplayFramebufferScale *= Imgui::GlobalScale;
+}
+
+
+void Imgui::RenderGUI(VkCommandBuffer cmdbuf)
+{
+    {
+        PROFILE("Render");
+
+        ImGui::Render();
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdbuf);
+    }
+
+    // Update Multiple Windows/Viewports
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
+    }
+}
+
+
+
 
 static VkDescriptorSet pTexDesc(VkImageView imageView)
 {
@@ -212,19 +248,6 @@ void Imgui::TextAlign(const char* text, ImVec2 align) {
     ImGui::Text("%s", text);
 }
 
-void Imgui::forWorldpoint(const glm::vec3 &worldpos, const std::function<void(glm::vec2)> &fn)
-{
-    glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getCamera().matView, Ethertia::getCamera().matProjection);
-
-    auto& vp = Ethertia::getViewport();
-    p.x = p.x * vp.width;
-    p.y = p.y * vp.height;
-
-    if (p.z > 0) {
-        fn(glm::vec2(p.x, p.y));
-    }
-}
-
 bool Imgui::CalcViewportWorldpos(glm::vec3 worldpos, glm::vec2& out_screenpos)
 {
     glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getCamera().matView, Ethertia::getCamera().matProjection);
@@ -252,34 +275,65 @@ static ImGuiKey GetPressedKey()
 
 #include "Imgui_intl_draw.cpp"
 
-void Imgui::NewFrame()
+
+
+void Imgui::RenderWindows()
 {
-    ImGui_ImplGlfw_NewFrame();
-    ImGui_ImplVulkan_NewFrame();
-    ImGui::NewFrame();
+    ShowDockspaceAndMainMenubar();
 
-    ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GlobalScale;
+    if (Settings::w_Toolbar)
+        ShowToolbar();
 
-    ImGui::GetMainViewport()->Size /= Imgui::GlobalScale;
-    ImGui::GetIO().DisplayFramebufferScale *= Imgui::GlobalScale;
-}
+    ShowPlayerInventory();
 
+    if (w_ImGuiDemo)
+        ImGui::ShowDemoWindow(&w_ImGuiDemo);
 
-void Imgui::RenderGUI(VkCommandBuffer cmdbuf)
-{
-    {
-        PROFILE("Render");
+    if (w_NewWorld)
+        ShowNewWorldWindow();
 
-        ImGui::Render();
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdbuf);
+    if (Settings::w_Profiler)
+        ShowProfilers();
+
+    if (Settings::w_EntityList)
+        ShowEntities();
+    if (Settings::w_EntityInsp) {
+        ShowEntityInsp();
+        if (Imgui::g_InspEntity) {
+            Imgui::RenderAABB(Imgui::g_InspEntity->getAABB(), Colors::YELLOW);
+        }
+    }
+    if (Settings::w_ShaderInsp) {
+        ShowShaderProgramInsp();
     }
 
-    // Update Multiple Windows/Viewports
-    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    if (Settings::w_Viewport)
     {
-        GLFWwindow* backup_current_context = glfwGetCurrentContext();
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-        glfwMakeContextCurrent(backup_current_context);
+        ShowGameViewport();
+    } else {
+        Imgui::wViewportXYWH = {Mth::Inf, 0, 0, 0};
     }
+
+    if (Settings::w_Console)
+        ShowConsole();
+
+    if (Settings::w_Settings) {
+        ShowSettingsWindow();
+    }
+
+
+
+    if (w_NodeEditor)
+        ShowNodeEditor();
+
+
+    if (w_TitleScreen) {
+        ShowTitleScreenWindow();
+    }
+    if (w_Singleplayer) {
+        ShowSingleplayerWindow();
+    }
+
+
 }
+

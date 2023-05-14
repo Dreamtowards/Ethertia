@@ -6,7 +6,20 @@ layout(location = 0) in vec2 TexCoord;
 layout(location = 0) out vec4 FragColor;
 
 layout(set = 0, binding = 0) uniform UBO_T {
-    vec4 sth;
+    struct Light {
+        vec3 position;
+        vec3 color;
+        vec3 attenuation;
+
+        vec3 direction;
+        vec2 coneAngle;  // xy: inner/outer cos
+    } lights[64];
+    int numLights;
+
+    vec3 CameraPos;  // WorldSpace
+
+    // mat4 matShadowSpace;
+    // float DayTime;
 } ubo;
 
 layout(set = 0, binding = 1) uniform sampler2D gPosition;
