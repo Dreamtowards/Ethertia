@@ -2,6 +2,8 @@
 // Created by Dreamtowards on 2023/5/5.
 //
 
+#include "RendererGbuffers.h"
+
 #include <ethertia/init/MaterialTextures.h>
 
 namespace RendererGbuffer
@@ -32,13 +34,8 @@ namespace RendererGbuffer
     {
         glm::mat4 matProjection;
         glm::mat4 matView;
-    };
+    } g_uboVert{};
 
-    struct UBO_Frag_T
-    {
-        uint32_t mtlTexCap;
-        float mtlTexScale = 3.5;
-    };
 
     struct PushConstant_T
     {
@@ -166,24 +163,21 @@ namespace RendererGbuffer
 
     void UpdateUniformBuffer(int frameIdx)
     {
-        UBO_Vert_T uboVert{};
 
         Camera& cam = Ethertia::getCamera();
-        uboVert.matProjection = cam.matProjection;
-        uboVert.matView = cam.matView;
+        g_uboVert.matProjection = cam.matProjection;
+        g_uboVert.matView = cam.matView;
 
         // GLM was originally designed for OpenGL, where the Y coordinate of the clip coordinates is inverted.
         // The easiest way to compensate for that is to flip the sign on the scaling factor of the Y axis in
         // the projection matrix. If you don't do this, then the image will be rendered upside down.
-        uboVert.matProjection[1][1] *= -1;
+        g_uboVert.matProjection[1][1] *= -1;
 
-        g_UniformBuffers_Vert[frameIdx]->update(&uboVert, sizeof(uboVert));
+        g_UniformBuffers_Vert[frameIdx]->update(&g_uboVert, sizeof(g_uboVert));
 
         // UBO Frag
-        UBO_Frag_T uboFrag{};
-        uboFrag.mtlTexCap = Material::REGISTRY.size();
-        uboFrag.mtlTexScale = 3.5f;
-        g_UniformBuffers_Frag[frameIdx]->update(&uboFrag, sizeof(uboFrag));
+        g_uboFrag.MtlTexCap = Material::REGISTRY.size();
+        g_UniformBuffers_Frag[frameIdx]->update(&g_uboFrag, sizeof(g_uboFrag));
     }
 
     void RecordCommands(VkCommandBuffer cmdbuf, const std::vector<Entity*>& entities)

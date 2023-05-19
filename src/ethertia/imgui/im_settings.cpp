@@ -291,6 +291,8 @@ static void ShowMainMenuBar()
 #include <ethertia/init/KeyBinding.h>
 #include <ethertia/world/ChunkLoader.h>
 
+#include <ethertia/render/renderer/deferred/RendererGbuffers.h>
+
 static void ShowSettingsWindow()
 {
     ImGui::Begin("Settings", &Settings::w_Settings);
@@ -385,14 +387,19 @@ static void ShowSettingsWindow()
             ImGui::SeparatorText("General");
 
             ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip("Field of View.\nNormal: 70\nQuark Pro: 90");
+            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Field of View.\nNormal: 70\nQuark Pro: 90");
 
-            ImGui::Checkbox("Vsync", &Settings::s_Vsync);
-
-            if (Settings::s_Vsync) ImGui::BeginDisabled();
-            ImGui::SliderInt("FPS Limit", &Settings::s_FpsCap, 0, 2000);
-            if (Settings::s_Vsync) ImGui::EndDisabled();
+//            ImGui::Checkbox("Vsync", &Settings::s_Vsync);
+//            if (Settings::s_Vsync) ImGui::BeginDisabled();
+            int fpsLimit = Settings::s_Vsync ? 0 : Settings::s_FpsCap;
+            ImGui::SliderInt("FPS Limit or Vsync", &fpsLimit, 0, 1000,
+                             fpsLimit ? Strings::fmt("{} FPS", fpsLimit).c_str() : "Vsync");
+            if (fpsLimit) {
+                Settings::s_FpsCap = fpsLimit;
+            } else {
+                Settings::s_Vsync = true;
+            }
+//            if (Settings::s_Vsync) ImGui::EndDisabled();
 
 
             static float s_SlidingGuiScale = 0;
@@ -407,20 +414,29 @@ static void ShowSettingsWindow()
                 s_SlidingGuiScale = 0;
             }
 
-
             ImGui::SliderFloat("Chunk Load Distance", &Settings::s_ViewDistance, 0, 12);
 
+            ImGui::Dummy({0, 18});
 
-            ImGui::SeparatorText("Terrain Material Blending");
+
+
+
+            ImGui::SeparatorText("Terrain Material Rendering");
 
 //            ImGui::DragFloat("Texture Scale", &GeometryRenderer::u_MaterialTextureScale, 0.1f);
 //            if (ImGui::IsItemHovered())
 //                ImGui::SetTooltip("Material Texture Sampling Scale (inv)");
 
+            ImGui::DragFloat("Texture Scale", &RendererGbuffer::g_uboFrag.MtlTexScale, 0.1);
+
+            ImGui::DragFloat("Texture Triplanar Blend Pow", &RendererGbuffer::g_uboFrag.MtlTriplanarBlendPow, 0.1);
+            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Higher = 'Sharper' Normal Vectors");
+
+            ImGui::DragFloat("Texture Heightmap Blend Pow", &RendererGbuffer::g_uboFrag.MtlHeightmapBlendPow, 0.1);
+            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Lower = More Intertexture at Material Blend");
 
             ImGui::DragInt("Texture Resolution", &MaterialTextures::TEX_RESOLUTION, 16, 2048);
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip("[Reload Required] for bake material texture atlas.");
+            if (ImGui::IsItemHovered()) ImGui::SetTooltip("[Reload Required] for bake material texture atlas.");
 
 
 
