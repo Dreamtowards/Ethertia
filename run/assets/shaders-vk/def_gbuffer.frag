@@ -54,26 +54,17 @@ mat3 TriplanarUVs(vec3 FragWorldPos, int MtlTexId)
 
 vec4 TriplanarSample(sampler2D tex, vec3 FragWorldPos, int MtlTexId, vec3 blend)
 {
-    float MtlCap = 38;
-    float MtlTexScale = 3.5;
-
-    vec3 p = FragWorldPos;
-    float texScale = 1 / MtlTexScale;  // 3.5;
-    float ReginPosX  = MtlTexId / MtlCap;
-    float ReginSizeX = 1.0 / MtlCap;
-    vec2 uvX = vec2(mod(texScale * p.z * ReginSizeX, ReginSizeX) + ReginPosX, texScale * p.y);
-    vec2 uvY = vec2(mod(texScale * p.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * p.z);
-    vec2 uvZ = vec2(mod(texScale * p.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * p.y);
-
+    mat3 uvXYZ = TriplanarUVs(FragWorldPos, MtlTexId);
+    
 #ifdef OPT
     return (
-        texture(tex, uvY)
+        texture(tex, uvXYZ[1].xy)
     ).rgba;
 #else
     return (
-        texture(tex, uvX) * blend.x +
-        texture(tex, uvY) * blend.y +
-        texture(tex, uvZ) * blend.z
+        texture(tex, uvXYZ[0].xy) * blend.x +
+        texture(tex, uvXYZ[1].xy) * blend.y +
+        texture(tex, uvXYZ[2].xy) * blend.z
     ).rgba;
 #endif
 }

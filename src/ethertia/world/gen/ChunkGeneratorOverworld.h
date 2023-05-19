@@ -39,7 +39,7 @@ class ChunkGeneratorOverworld : public ChunkGenerator
                     float terr2d = noiseTerrHeight[NoiseGen::IdxXZ(rx, rz)];// - terrRg.min;
                     float noise3d = noiseVal[NoiseGen::Idx3(rx,ry,rz)];
 
-                    float f = //terr2d
+                    float f = terr2d
                             - y/50.0f;
 
 //                    if (f > -0.2) {
@@ -48,7 +48,7 @@ class ChunkGeneratorOverworld : public ChunkGenerator
 //                            f = Mth::lerp(0.5f, f, add);
 //                        } else {
 
-//f += noise3d * 18;
+f += noise3d * 18;
 
 //                        }
 //                    }

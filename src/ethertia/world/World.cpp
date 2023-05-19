@@ -37,7 +37,8 @@ World::World(const std::string& savedir, const WorldInfo* worldinfo)
         m_ChunkLoader->loadWorldInfo(m_WorldInfo);
     }
 
-    m_ChunkGenerator = new ChunkGeneratorFlat();
+    m_ChunkGenerator =
+            new ChunkGeneratorOverworld();
 
 
     // init Phys
