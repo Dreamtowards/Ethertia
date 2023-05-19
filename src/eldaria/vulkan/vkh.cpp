@@ -1151,7 +1151,7 @@ static void extDestroyDebugMessenger(VkInstance instance, VkDebugUtilsMessengerE
     }
 }
 
-static VkInstance CreateInstance(bool enableValidationLayer)
+static VkInstance CreateInstance(bool enableValidationLayer, const std::vector<const char*>& extraExtensions)
 {
     VkInstanceCreateInfo instInfo{};
     instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -1190,6 +1190,9 @@ static VkInstance CreateInstance(bool enableValidationLayer)
     if (enableValidationLayer) {
         extensionsRequired.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
+
+    // add all extra exts.
+    extensionsRequired.insert(extensionsRequired.end(), extraExtensions.begin(), extraExtensions.end());
 
     instInfo.enabledExtensionCount = extensionsRequired.size();
     instInfo.ppEnabledExtensionNames = extensionsRequired.data();
@@ -1336,7 +1339,11 @@ static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice, VkS
 
 #include <set>
 
-static VkDevice CreateLogicalDevice(VkPhysicalDevice physDevice, const QueueFamilyIndices& queueFamily, VkQueue* out_GraphicsQueue, VkQueue* out_PresentQueue)
+static VkDevice CreateLogicalDevice(VkPhysicalDevice physDevice,
+                                    const QueueFamilyIndices& queueFamily,
+                                    VkQueue* out_GraphicsQueue,
+                                    VkQueue* out_PresentQueue,
+                                    const std::vector<const char*>& extraExtensions)
 {
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -1372,6 +1379,9 @@ static VkDevice CreateLogicalDevice(VkPhysicalDevice physDevice, const QueueFami
             "VK_KHR_portability_subset"
 #endif
     };
+
+    deviceExtensions.insert(deviceExtensions.end(), extraExtensions.begin(), extraExtensions.end());
+
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
     createInfo.enabledExtensionCount = deviceExtensions.size();
 
@@ -1699,16 +1709,17 @@ static void CreateSyncObjects()
 
 
 
-void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
+void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer, const std::vector<const char*>& extraExtensions)
 {
     vkx::Instance* inst = new vkx::Instance();
     vkx::ctx(inst);
     vkx::Instance& i = *inst;
     i.m_EnabledValidationLayer = enableValidationLayer;
     i.WindowHandle = glfwWindow;
+    // i.ExtraExtensions = extraExtensions;
 
     i.Inst =
-    CreateInstance(enableValidationLayer);
+    CreateInstance(enableValidationLayer, extraExtensions);
     i.SurfaceKHR =
     CreateSurface(i.Inst, glfwWindow);
 
@@ -1717,7 +1728,7 @@ void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer)
 
     QueueFamilyIndices queueFamily = findQueueFamilies(i.PhysDevice, i.SurfaceKHR);
     i.Device =
-    CreateLogicalDevice(i.PhysDevice, queueFamily, &i.GraphicsQueue, &i.PresentQueue);
+    CreateLogicalDevice(i.PhysDevice, queueFamily, &i.GraphicsQueue, &i.PresentQueue, extraExtensions);
 
 
     i.CommandPool =

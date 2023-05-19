@@ -6,6 +6,8 @@
 
 #include <ethertia/init/MaterialTextures.h>
 
+#include <ethertia/entity/EntityMesh.h>
+
 namespace RendererGbuffer
 {
     VkRenderPass    g_RenderPass;
@@ -26,8 +28,8 @@ namespace RendererGbuffer
     VkDescriptorSet g_DescriptorSets[vkx::INFLIGHT_FRAMES];
 
 
-    vkx::VertexBuffer* g_TestModel = nullptr;
-    vkx::Image* g_TestImage = nullptr;
+//    vkx::VertexBuffer* g_TestModel = nullptr;
+//    vkx::Image* g_TestImage = nullptr;
 
 
     struct UBO_Vert_T
@@ -44,11 +46,11 @@ namespace RendererGbuffer
 
     void init()
     {
-        VertexData* vtx = Loader::loadOBJ("entity/viking_room/viking_room.obj");
-        g_TestModel = Loader::loadVertexData(vtx);
-
-        BitmapImage img = Loader::loadPNG("entity/viking_room/viking_room.png");
-        g_TestImage = Loader::loadTexture(img);
+//        VertexData* vtx = Loader::loadOBJ("entity/viking_room/viking_room.obj");
+//        g_TestModel = Loader::loadVertexData(vtx);
+//
+//        BitmapImage img = Loader::loadPNG("entity/viking_room/viking_room.png");
+//        g_TestImage = Loader::loadTexture(img);
 
 
         VkDevice device = vkx::ctx().Device;
@@ -136,7 +138,7 @@ namespace RendererGbuffer
                 },
                 VK_PRIMITIVE_TOPOLOGY_PATCH_LIST,
                 3,
-                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
+                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR },
                 g_PipelineLayout,
                 g_RenderPass,
                 3);
@@ -155,8 +157,8 @@ namespace RendererGbuffer
         delete gAlbedo.Image;
         delete gDepth.Image;
 
-        delete g_TestImage;
-        delete g_TestModel;
+//        delete g_TestImage;
+//        delete g_TestModel;
 
     }
 
@@ -196,12 +198,12 @@ namespace RendererGbuffer
         clearValues[3].depthStencil = {1.0f, 0};
         VkExtent2D renderExtent = g_AttachmentSize;
         cmd.CmdBeginRenderPass(g_RenderPass, g_Framebuffer, renderExtent, {clearValues, 4});
-
-        cmd.CmdBindGraphicsPipeline(g_Pipeline);
-        cmd.CmdSetViewport(renderExtent);
-        cmd.CmdSetScissor(renderExtent);
+//        cmd.CmdSetViewport(renderExtent);
+//        cmd.CmdSetScissor(renderExtent);
 
         cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[frameIdx]);
+
+        cmd.CmdBindGraphicsPipeline(g_Pipeline);
 
         PushConstant_T pushConstant{};
 
@@ -217,6 +219,10 @@ namespace RendererGbuffer
                 continue;
             if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera().len == 0)
                 continue;
+
+//            EntityMesh* _eMesh = dynamic_cast<EntityMesh*>(entity);
+//            bool isFoliage = _eMesh && _eMesh->m_FaceCulling;
+//            vkCmdSetCullMode(cmdbuf, isFoliage ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
 
 
             pushConstant.matModel = Mth::matModel(entity->position());//, entity->getRotation(), {1,1,1});

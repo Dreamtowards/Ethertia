@@ -311,7 +311,7 @@ static void ShowSettingsWindow()
     if (ImGui::RadioButton("Language", currp==Language)) { currp=Language; }
     ImGui::Separator();
     if (ImGui::RadioButton("Mods", currp==Mods)) { currp=Mods; }
-    if (ImGui::RadioButton("Resource Packs", currp==ResourcePacks)) { currp=ResourcePacks; }
+    if (ImGui::RadioButton("Assets", currp==ResourcePacks)) { currp=ResourcePacks; }
     ImGui::Separator();
     if (ImGui::RadioButton("Credits", currp==Credits)) { currp=Credits; }
     if (ImGui::RadioButton("Misc", currp==Misc)) { currp=Misc; }

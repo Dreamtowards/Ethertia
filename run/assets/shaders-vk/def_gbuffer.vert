@@ -42,5 +42,4 @@ void main()
     float MtlId   = floor(in_tex.x);
     bool  PureMTL = floor(in_tex.y) == -1;
     vs_out.MtlId = MtlId + (PureMTL ? 0.5 : 0);
-
 }

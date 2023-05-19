@@ -248,6 +248,7 @@ namespace vkx
         VkSurfaceKHR SurfaceKHR = nullptr;
         bool m_EnabledValidationLayer = true;
         GLFWwindow* WindowHandle = nullptr;
+        // std::vector<const char*> ExtraExtensions;  // for Instance & Device
 
         VkPhysicalDeviceProperties PhysDeviceProperties;
         VkPhysicalDeviceFeatures PhysDeviceFeatures;
@@ -285,7 +286,7 @@ namespace vkx
     vkx::Instance& ctx();
 
 
-    void Init(GLFWwindow* glfwWindow, bool enableValidationLayer);
+    void Init(GLFWwindow* glfwWindow, bool enableValidationLayer, const std::vector<const char*>& extraExtensions = {});
 
     void Destroy();
 
