@@ -19,7 +19,8 @@ namespace RendererGbuffer
     VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
     VkPipelineLayout g_PipelineLayout = nullptr;
 
-    vkx::UniformBuffer* g_UniformBuffers[vkx::INFLIGHT_FRAMES];
+    vkx::UniformBuffer* g_UniformBuffers_Vert[vkx::INFLIGHT_FRAMES];
+    vkx::UniformBuffer* g_UniformBuffers_Frag[vkx::INFLIGHT_FRAMES];
     VkDescriptorSet g_DescriptorSets[vkx::INFLIGHT_FRAMES];
 
 
@@ -27,10 +28,16 @@ namespace RendererGbuffer
     vkx::Image* g_TestImage = nullptr;
 
 
-    struct UniformBufferObject
+    struct UBO_Vert_T
     {
         glm::mat4 matProjection;
         glm::mat4 matView;
+    };
+
+    struct UBO_Frag_T
+    {
+        uint32_t mtlTexCap;
+        float mtlTexScale = 3.5;
     };
 
     struct PushConstant_T
@@ -51,11 +58,13 @@ namespace RendererGbuffer
 
         // Uniform Buffers
         for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i) {
-            g_UniformBuffers[i] = new vkx::UniformBuffer(sizeof(UniformBufferObject));
+            g_UniformBuffers_Vert[i] = new vkx::UniformBuffer(sizeof(UBO_Vert_T));
+            g_UniformBuffers_Frag[i] = new vkx::UniformBuffer(sizeof(UBO_Frag_T));
         }
 
         g_DescriptorSetLayout = vl::CreateDescriptorSetLayout(device, {
                 {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},            // vert UBO
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT},          // frag UBO
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // frag diffuseMap
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // frag normMap
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}   // frag dramMap (Disp, Rough, AO, Metal)
@@ -74,7 +83,8 @@ namespace RendererGbuffer
         {
             vkx::DescriptorWrites writes{g_DescriptorSets[i]};
 
-            writes.UniformBuffer(g_UniformBuffers[i]->buffer(), sizeof(UniformBufferObject));
+            writes.UniformBuffer(g_UniformBuffers_Vert[i]->buffer(), sizeof(UBO_Vert_T));
+            writes.UniformBuffer(g_UniformBuffers_Frag[i]->buffer(), sizeof(UBO_Frag_T));
             writes.CombinedImageSampler(MaterialTextures::ATLAS_DIFFUSE->m_ImageView, vkx::ctx().ImageSampler);
             writes.CombinedImageSampler(MaterialTextures::ATLAS_NORM->m_ImageView, vkx::ctx().ImageSampler);
             writes.CombinedImageSampler(MaterialTextures::ATLAS_DRAM->m_ImageView, vkx::ctx().ImageSampler);
@@ -138,8 +148,9 @@ namespace RendererGbuffer
 
     void deinit()
     {
-        for (int i = 0; i < std::size(g_UniformBuffers); ++i) {
-            delete g_UniformBuffers[i];
+        for (int i = 0; i < std::size(g_UniformBuffers_Vert); ++i) {
+            delete g_UniformBuffers_Vert[i];
+            delete g_UniformBuffers_Frag[i];
         }
 
         delete gPosition.Image;
@@ -155,19 +166,24 @@ namespace RendererGbuffer
 
     void UpdateUniformBuffer(int frameIdx)
     {
+        UBO_Vert_T uboVert{};
+
         Camera& cam = Ethertia::getCamera();
-
-        UniformBufferObject ubo{};
-
-        ubo.matProjection = cam.matProjection;
-        ubo.matView = cam.matView;
+        uboVert.matProjection = cam.matProjection;
+        uboVert.matView = cam.matView;
 
         // GLM was originally designed for OpenGL, where the Y coordinate of the clip coordinates is inverted.
         // The easiest way to compensate for that is to flip the sign on the scaling factor of the Y axis in
         // the projection matrix. If you don't do this, then the image will be rendered upside down.
-        ubo.matProjection[1][1] *= -1;
+        uboVert.matProjection[1][1] *= -1;
 
-        g_UniformBuffers[frameIdx]->update(&ubo, sizeof(ubo));
+        g_UniformBuffers_Vert[frameIdx]->update(&uboVert, sizeof(uboVert));
+
+        // UBO Frag
+        UBO_Frag_T uboFrag{};
+        uboFrag.mtlTexCap = Material::REGISTRY.size();
+        uboFrag.mtlTexScale = 3.5f;
+        g_UniformBuffers_Frag[frameIdx]->update(&uboFrag, sizeof(uboFrag));
     }
 
     void RecordCommands(VkCommandBuffer cmdbuf, const std::vector<Entity*>& entities)

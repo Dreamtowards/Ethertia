@@ -13,7 +13,7 @@ layout(location = 0) out struct VS_Out
     float MtlId;
 } vs_out;
 
-layout(set = 0, binding = 0) uniform UniformBuffer_T {
+layout(set = 0, binding = 0) uniform UniformBufferVert_T {
     mat4 matProjection;
     mat4 matView;
 } ubo;

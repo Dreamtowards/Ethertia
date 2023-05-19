@@ -1,6 +1,8 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+//#define OPT
+
 layout(location = 0) in struct TE_Out
 {
     vec3 WorldPos;
@@ -14,18 +16,43 @@ layout(location = 0) out vec4 gPosition;
 layout(location = 1) out vec4 gNormal;
 layout(location = 2) out vec4 gAlbedo;
 
-layout(set = 0, binding = 1) uniform sampler2D diffuseSampler;
-layout(set = 0, binding = 2) uniform sampler2D normalSampler;
-layout(set = 0, binding = 3) uniform sampler2D dramSampler;  // Disp, Refl, AO, Metal
+layout(set = 0, binding = 1) uniform UniformBufferFrag_T {
+    int MtlTexCap;
+    float MtlTexScale;
+} ubo;
 
-int MaxIdx(vec3 v) {
+layout(set = 0, binding = 2) uniform sampler2D diffuseSampler;
+layout(set = 0, binding = 3) uniform sampler2D normalSampler;
+layout(set = 0, binding = 4) uniform sampler2D dramSampler;  // Disp, Refl, AO, Metal, +Emission? DRAM
+
+
+
+int MaxValIdx(vec3 v) {
     float a=v.x;
     float b=v.y;
     float c=v.z;
     return a > b ? (a > c ? 0 : 2) : (b > c ? 1 : 2);
 }
 
-vec3 TriplanarSample(sampler2D tex, int MtlTexId, vec3 FragWorldPos, vec3 blend)
+mat3 TriplanarUVs(vec3 FragWorldPos, int MtlTexId)
+{
+    float MtlCap = ubo.MtlTexCap;
+    float MtlTexScale = ubo.MtlTexScale;
+    vec3 p = FragWorldPos;
+    float texScale = 1 / MtlTexScale;  // 3.5;
+    float ReginPosX  = MtlTexId / MtlCap;
+    float ReginSizeX = 1.0 / MtlCap;
+    vec2 uvX = vec2(mod(texScale * p.z * ReginSizeX, ReginSizeX) + ReginPosX, texScale * p.y);
+    vec2 uvY = vec2(mod(texScale * p.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * p.z);
+    vec2 uvZ = vec2(mod(texScale * p.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * p.y);
+    return mat3(
+        uvX, 0,
+        uvY, 0,
+        uvZ, 0
+    );
+}
+
+vec4 TriplanarSample(sampler2D tex, vec3 FragWorldPos, int MtlTexId, vec3 blend)
 {
     float MtlCap = 38;
     float MtlTexScale = 3.5;
@@ -38,7 +65,17 @@ vec3 TriplanarSample(sampler2D tex, int MtlTexId, vec3 FragWorldPos, vec3 blend)
     vec2 uvY = vec2(mod(texScale * p.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * p.z);
     vec2 uvZ = vec2(mod(texScale * p.x * ReginSizeX, ReginSizeX) + ReginPosX, texScale * p.y);
 
-    return texture(tex, uvY).rgb;
+#ifdef OPT
+    return (
+        texture(tex, uvY)
+    ).rgba;
+#else
+    return (
+        texture(tex, uvX) * blend.x +
+        texture(tex, uvY) * blend.y +
+        texture(tex, uvZ) * blend.z
+    ).rgba;
+#endif
 }
 
 void main()
@@ -50,7 +87,7 @@ void main()
     vec3 BaryCoord  = fs_in.BaryCoord;
     vec3 MtlIds     = fs_in.MtlIds;
 
-    int BaryIdx = MaxIdx(BaryCoord.xyz);
+    int BaryIdx = MaxValIdx(BaryCoord.xyz);
 
 
     // when uv.y == 1000 (mtl magic number), means this vertex is a Pure MTL,
@@ -68,7 +105,7 @@ void main()
              blend = blend / (blend.x + blend.y + blend.z);
 
 
-        Albedo = TriplanarSample(diffuseSampler, int(MtlIds[BaryIdx]), WorldPos, blend);
+        Albedo = TriplanarSample(diffuseSampler, WorldPos, int(MtlIds[BaryIdx]), blend).rgb;
     }
 
     // Gbuffer Output
