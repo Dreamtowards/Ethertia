@@ -386,13 +386,15 @@ static void ShowSettingsWindow()
 
             ImGui::SeparatorText("General");
 
+            int s_ProfileIdx = 0;
+
+            ImGui::Combo("Profile", &s_ProfileIdx, "Custom", 1);
+
             ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
             if (ImGui::IsItemHovered()) ImGui::SetTooltip("Field of View.\nNormal: 70\nQuark Pro: 90");
 
-//            ImGui::Checkbox("Vsync", &Settings::s_Vsync);
-//            if (Settings::s_Vsync) ImGui::BeginDisabled();
             int fpsLimit = Settings::s_Vsync ? 0 : Settings::s_FpsCap;
-            ImGui::SliderInt("FPS Limit or Vsync", &fpsLimit, 0, 1000,
+            ImGui::SliderInt("Vsync or FPS Limit", &fpsLimit, 0, 1000,
                              fpsLimit ? Strings::fmt("{} FPS", fpsLimit).c_str() : "Vsync");
             if (fpsLimit != 0) {
                 Settings::s_FpsCap = fpsLimit;
@@ -400,29 +402,27 @@ static void ShowSettingsWindow()
             } else {
                 Settings::s_Vsync = true;
             }
-//            if (Settings::s_Vsync) ImGui::EndDisabled();
-
 
             static float s_SlidingGuiScale = 0;
             float _gui_scale = Imgui::GlobalScale;
-            if (ImGui::SliderFloat("GUI Scale", &_gui_scale, 0.5f, 4.0f))
-            {
+            if (ImGui::SliderFloat("GUI Scale", &_gui_scale, 0.5f, 4.0f)) {
                 s_SlidingGuiScale = _gui_scale;
-            }
-            else if (s_SlidingGuiScale != 0)
-            {
+            } else if (s_SlidingGuiScale != 0) {
                 Imgui::GlobalScale = s_SlidingGuiScale;
                 s_SlidingGuiScale = 0;
             }
 
             ImGui::SliderFloat("Chunk Load Distance", &Settings::s_ViewDistance, 0, 12);
 
-#define SeparateRenderSection ImGui::Dummy({0, 18})
+#define SeparateRenderSection ImGui::Dummy({0, 6})
+
+
 
             SeparateRenderSection;
+            ImGui::SeparatorText("Materials");
 
 
-            if (ImGui::CollapsingHeader("Terrain Material Rendering"))
+            if (ImGui::CollapsingHeader("Terrain Material"))
             {
                 ImGui::DragFloat("Texture Scale", &RendererGbuffer::g_uboFrag.MtlTexScale, 0.1);
 
@@ -442,12 +442,14 @@ static void ShowSettingsWindow()
             }
 
 
+            SeparateRenderSection;
+            ImGui::SeparatorText("Sky");
 
-            if (ImGui::CollapsingHeader("Volumetric Cloud"))
+            if (ImGui::CollapsingHeader("Atmosphere"))
             {
             }
 
-            if (ImGui::CollapsingHeader("Atmosphere"))
+            if (ImGui::CollapsingHeader("Volumetric Cloud"))
             {
             }
 
@@ -455,22 +457,89 @@ static void ShowSettingsWindow()
             {
             }
 
+            if (ImGui::CollapsingHeader("Aurora"))
+            {
+            }
+
+            if (ImGui::CollapsingHeader("Light Shafts"))
+            {
+            }
+
+            SeparateRenderSection;
+            ImGui::SeparatorText("Liquid");
+
+            if (ImGui::CollapsingHeader("SSR"))
+            {
+            }
+
+//            SeparateRenderSection;
+//            ImGui::SeparatorText("Lighting");
+
+            SeparateRenderSection;
+            ImGui::SeparatorText("Lighting");
+
+            if (ImGui::CollapsingHeader("Shadow Mapping"))
+            {
+                ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
+                
+                static int g_ShadowResolution = 1024;
+                ImGui::SliderInt("Shadow Depth Map Resolution", &g_ShadowResolution, 128, 2048);
+
+                ImGui::SliderInt("Shadow Distance", &g_ShadowResolution, 128, 2048);
+            }
+
+
+
+            SeparateRenderSection;
+            ImGui::SeparatorText("Post Processing");
+
 
             if (ImGui::CollapsingHeader("SSAO"))
             {
                 ImGui::Checkbox("SSAO", &Settings::g_SSAO);
             }
 
-            if (ImGui::CollapsingHeader("Shadow Mapping"))
-            {
-                ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
-                static int g_ShadowResolution = 1024;
-                ImGui::SliderInt("Shadow Depth Map Resolution", &g_ShadowResolution, 128, 2048);
-            }
-
             if (ImGui::CollapsingHeader("Bloom"))
             {
             }
+
+            if (ImGui::CollapsingHeader("Lens Flare"))
+            {
+            }
+            if (ImGui::CollapsingHeader("Dirty Lens"))
+            {
+            }
+
+            if (ImGui::CollapsingHeader("Depth of Field"))
+            {
+            }
+
+            if (ImGui::CollapsingHeader("Vignette"))
+            {
+            }
+
+            if (ImGui::CollapsingHeader("Chromatic Aberration"))
+            {
+            }
+
+            if (ImGui::CollapsingHeader("Anti-aliasing"))
+            {
+            }
+
+            if (ImGui::CollapsingHeader("Motion Blur"))
+            {
+            }
+
+
+
+            SeparateRenderSection;
+            ImGui::SeparatorText("Color");
+
+
+            if (ImGui::CollapsingHeader("Tonemap"))
+            {
+            }
+
 
 
 //            ImGui::SeparatorText("SSAO");
