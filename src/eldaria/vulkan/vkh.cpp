@@ -836,6 +836,7 @@ VkPipeline vkx::CreateGraphicsPipeline(std::span<const std::pair<std::span<const
                                        std::initializer_list<VkDynamicState> dynamicStates,
                                        VkPipelineLayout pipelineLayout,
                                        VkRenderPass renderPass,
+                                       VkCullModeFlagBits cullModeFlags,
                                        uint32_t tessControlPoints)
 {
     VkDevice device = vkx::ctx().Device;
@@ -862,7 +863,7 @@ VkPipeline vkx::CreateGraphicsPipeline(std::span<const std::pair<std::span<const
                     vl::IPipelineInputAssemblyState(topology),  // VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
                     tessControlPoints > 0 ? &pTessState : nullptr,
                     vl::IPipelineViewportState(),
-                    vl::IPipelineRasterizationState(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE),
+                    vl::IPipelineRasterizationState(VK_POLYGON_MODE_FILL, cullModeFlags, VK_FRONT_FACE_COUNTER_CLOCKWISE),
                     vl::IPipelineMultisampleState(),
                     vl::IPipelineDepthStencilState(),
                     vl::IPipelineColorBlendState({colorBlendAttachs.data(), (int)colorBlendAttachs.size()}),

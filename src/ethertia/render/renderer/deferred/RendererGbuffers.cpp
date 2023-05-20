@@ -138,9 +138,10 @@ namespace RendererGbuffer
                 },
                 VK_PRIMITIVE_TOPOLOGY_PATCH_LIST,
                 3,
-                {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR },
+                { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR },
                 g_PipelineLayout,
                 g_RenderPass,
+                VK_CULL_MODE_NONE,
                 3);
 
     }

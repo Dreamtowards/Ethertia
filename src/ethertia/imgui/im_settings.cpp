@@ -481,7 +481,7 @@ static void ShowSettingsWindow()
             if (ImGui::CollapsingHeader("Shadow Mapping"))
             {
                 ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
-                
+
                 static int g_ShadowResolution = 1024;
                 ImGui::SliderInt("Shadow Depth Map Resolution", &g_ShadowResolution, 128, 2048);
 

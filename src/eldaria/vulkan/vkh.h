@@ -516,6 +516,7 @@ namespace vkx
             std::initializer_list<VkDynamicState> dynamicStates,
             VkPipelineLayout pipelineLayout,
             VkRenderPass renderPass,
+            VkCullModeFlagBits cullModeFlags = VK_CULL_MODE_BACK_BIT,
             uint32_t tessControlPoints = 0);  // 0: tess state nullptr.
 
 
