@@ -22,13 +22,13 @@ layout(location = 0) out struct TE_Out
 
 void main()
 {
-#define bary_lerp(arr, ATTR) gl_TessCoord.x * arr[0].ATTR + gl_TessCoord.y * arr[1].ATTR + gl_TessCoord.z * arr[2].ATTR
+#define BaryLerp(arr, ATTR) (gl_TessCoord.x * arr[0].ATTR + gl_TessCoord.y * arr[1].ATTR + gl_TessCoord.z * arr[2].ATTR)
 
-    te_out.WorldPos  = bary_lerp(te_in, WorldPos);
-    te_out.TexCoord  = bary_lerp(te_in, TexCoord);
-    te_out.WorldNorm = bary_lerp(te_in, WorldNorm);
+    te_out.WorldPos  = BaryLerp(te_in, WorldPos);
+    te_out.TexCoord  = BaryLerp(te_in, TexCoord);
+    te_out.WorldNorm = BaryLerp(te_in, WorldNorm);
     te_out.BaryCoord = gl_TessCoord;
     te_out.MtlIds = vec3(te_in[0].MtlId, te_in[1].MtlId, te_in[2].MtlId);
 
-    gl_Position = bary_lerp(gl_in, gl_Position);
+    gl_Position = BaryLerp(gl_in, gl_Position);
 }

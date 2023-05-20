@@ -106,12 +106,17 @@ void main()
 
     // when uv.y == 1000 (mtl magic number), means this vertex is a Pure MTL,
     // then use Triplanar Mapping etc to generate Albedo, Normal.
-//    bool PureMTL = fract(MtlIds[BaryIdx]) == 0.5;
-//    if (!PureMTL) {
-//        // normal uv.
-//        Albedo = texture(diffuseSampler, vec2(TexCoord.x, 1.0 - TexCoord.y)).rgb;
-//    }
-//    else
+    bool PureMTL = fract(MtlIds[HighestBaryIdx]) == 0.5;
+    if (!PureMTL) {
+        // normal uv.
+        vec4 diff = texture(diffuseSampler, vec2(TexCoord.x, 1.0 - TexCoord.y)).rgba;
+        Albedo = diff.rgb;
+
+        if (diff.a < 0.5) {
+            discard;
+        }
+    }
+    else
     {
         // PureMTL. use Triplanar Mapping.
 
