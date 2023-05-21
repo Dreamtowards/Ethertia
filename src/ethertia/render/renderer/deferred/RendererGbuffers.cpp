@@ -27,9 +27,7 @@ namespace RendererGbuffer
     vkx::UniformBuffer* g_UniformBuffers_Frag[vkx::INFLIGHT_FRAMES];
     VkDescriptorSet g_DescriptorSets[vkx::INFLIGHT_FRAMES];
 
-
-//    vkx::VertexBuffer* g_TestModel = nullptr;
-//    vkx::Image* g_TestImage = nullptr;
+    VkPipeline      g_PipelineFoliage;
 
 
     struct UBO_Vert_T
@@ -46,13 +44,6 @@ namespace RendererGbuffer
 
     void init()
     {
-//        VertexData* vtx = Loader::loadOBJ("entity/viking_room/viking_room.obj");
-//        g_TestModel = Loader::loadVertexData(vtx);
-//
-//        BitmapImage img = Loader::loadPNG("entity/viking_room/viking_room.png");
-//        g_TestImage = Loader::loadTexture(img);
-
-
         VkDevice device = vkx::ctx().Device;
 
         // Uniform Buffers
@@ -158,15 +149,13 @@ namespace RendererGbuffer
         delete gAlbedo.Image;
         delete gDepth.Image;
 
-//        delete g_TestImage;
-//        delete g_TestModel;
 
     }
 
 
     void UpdateUniformBuffer(int frameIdx)
     {
-
+        // UBO Vert
         Camera& cam = Ethertia::getCamera();
         g_uboVert.matProjection = cam.matProjection;
         g_uboVert.matView = cam.matView;

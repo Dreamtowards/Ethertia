@@ -32,7 +32,11 @@ namespace RendererCompose
     };
     struct UBO
     {
-        alignas(16) glm::vec3 CameraPos;
+        glm::vec3 CameraPos;
+
+        alignas(16)
+        glm::mat4 invMatView;
+        glm::mat4 invMatProj;
 
         uint32_t lightCount;
         Light lights[64];
@@ -111,9 +115,16 @@ namespace RendererCompose
 
     void UpdateUniforms()
     {
-        UBO ubo;
+        Camera& cam = Ethertia::getCamera();
 
-        ubo.CameraPos = Ethertia::getCamera().position;
+        UBO ubo;
+        ubo.CameraPos = cam.position;
+
+        ubo.invMatView = glm::inverse(cam.matView);
+
+        ubo.invMatProj = cam.matProjection;
+        ubo.invMatProj[1][1] *= -1;
+        ubo.invMatProj = glm::inverse(ubo.invMatProj);
 
         ubo.lightCount = 1;
 //        for (int i = 0; i < 2; ++i) {

@@ -19,8 +19,8 @@ layout(set = 0, binding = 0) uniform UBO_T {
     vec3 CameraPos;  // WorldSpace
 
     // for calculate RayDir of Ray View2Frag in WorldSpace. especially for invalid-gbuffer area. for sky render.
-    //mat4 invMatView;
-    //mat4 invMatProj;
+    mat4 invMatView;
+    mat4 invMatProj;
 
     int lightsCount;
     Light lights[64];
@@ -34,6 +34,21 @@ layout(set = 0, binding = 2) uniform sampler2D gNormal;
 layout(set = 0, binding = 3) uniform sampler2D gAlbdeo;
 layout(set = 0, binding = 4) uniform sampler2D gDRAM;
 
+
+
+vec3 GetRayDir()
+{
+    vec2 ndc = vec2(TexCoord * 2.0 - 1.0);
+    vec4 rayClip = vec4(ndc.xy, -1.0, 1.0);
+
+    vec4 rayView = ubo.invMatProj * rayClip;
+    rayView = vec4(rayView.xy, -1.0, 0.0);
+
+    vec4 rayWorld = ubo.invMatView * rayView;
+    return normalize(vec3(rayWorld));
+}
+
+
 void main()
 {
     // Read Gbuffer
@@ -42,10 +57,11 @@ void main()
     float Depth    = _PosDep.w;
 
     vec3 CameraPos = ubo.CameraPos;
-    vec3 RayDir;
+    vec3 RayDir = GetRayDir();
 
     if (Depth == 1.0) {
-        FragColor = vec4(1);
+        float f = dot(vec3(0,1,0), RayDir);
+        FragColor = vec4(vec3(f), 1.0);
         return;
     }
 
