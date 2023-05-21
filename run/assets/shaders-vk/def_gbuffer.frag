@@ -112,7 +112,7 @@ void main()
         vec4 diff = texture(diffuseSampler, vec2(TexCoord.x, 1.0 - TexCoord.y)).rgba;
         Albedo = diff.rgb;
 
-        if (diff.a < 0.5) {
+        if (diff.a < 0.1) {
             discard;
         }
     }

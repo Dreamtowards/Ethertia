@@ -3,6 +3,11 @@
 //
 
 
+// Sun (Day) or Moon (Night).  Noon -> vec3(0, -1, 0)
+static glm::vec3 SunlightDir(float daytime) {
+    glm::vec3 d = Mth::rot_dir(daytime * 2*Mth::PI, glm::vec3(0, 0, 1), glm::vec3(0, -1, 0));
+    return d.y < 0 ? -d : d;
+}
 
 
 namespace RendererCompose
@@ -133,9 +138,18 @@ namespace RendererCompose
 //                    .color = {0.5 * i, 1, 1},
 //            };
 //        }
+
+        float DayTime = Ethertia::getWorld()->getDayTime();
+
+        float dayBrightness = 1.0 - abs(DayTime-0.5) * 2.0;
+        dayBrightness = 0.4 + dayBrightness * 0.6;
+
+        glm::vec3 SunPos = cam.position + SunlightDir(DayTime) * 100.0f;
+        glm::vec3 SunColor = Dbg::dbg_WorldSunColor * dayBrightness * Dbg::dbg_WorldSunColorBrightnessMul;
+
         ubo.lights[0] = {
-                .position = {0, 10, 0},
-                .color = {0.5, 1, 1},
+                .position = SunPos,
+                .color = SunColor,
         };
 
         g_UniformBuffers[vkx::CurrentInflightFrame]->update(&ubo, sizeof(ubo));

@@ -29,12 +29,6 @@ public:
 
 
 
-    // Sun (Day) or Moon (Night).  Noon -> vec3(0, -1, 0)
-    static glm::vec3 SunlightDir(float daytime) {
-        return -Mth::rot_dir(std::fmod((daytime-0.25f) * 2*Mth::PI, Mth::PI),
-                            glm::vec3(0, 0, 1), glm::vec3(1, 0, 0));
-    }
-
     inline static vkx::Image* TEX_WHITE = nullptr;
     inline static vkx::Image* TEX_UVMAP = nullptr;
 
