@@ -60,8 +60,9 @@ void main()
     vec3 RayDir = GetRayDir();
 
     if (Depth == 1.0) {
-        float f = dot(vec3(0,1,0), RayDir);
-        FragColor = vec4(vec3(f), 1.0);
+        float f = (dot(vec3(0,1,0), RayDir) + 1.0) / 2.0;
+        vec3 SkyColor = vec3(0, 0.6, 1);
+        FragColor = vec4(SkyColor * f, 1.0);
         return;
     }
 
@@ -80,8 +81,8 @@ void main()
     vec3 totalDiffuse = vec3(0);
     vec3 totalSpecular = vec3(0);
 
-    float specularIntensity = (1.0 - Roughness) * 0.3;
-    float shininess = 128;
+    float specularIntensity = (1.0 - Roughness);// * 0.3;
+    float shininess = 64;
 
     totalDiffuse += Albedo * 0.2;  // Ambient.
 
