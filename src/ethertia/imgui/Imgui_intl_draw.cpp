@@ -731,11 +731,6 @@ static void ShowGameViewport()
     ImGui::SetCursorPos({0,0});
     ImGui::InvisibleButton("PreventsGameWindowMove", size);
 
-//    if (Ethertia::getWorld()) {
-//        glm::vec3 SunPos = Ethertia::getCamera().position + SunlightDir(Ethertia::getWorld()->getDayTime()) * 100.0f;
-//        Imgui::RenderAABB({SunPos, SunPos+glm::vec3(10.0)}, Colors::RED);
-//    }
-
     ImGuizmo::BeginFrame();
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist();

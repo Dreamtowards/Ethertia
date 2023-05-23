@@ -245,7 +245,7 @@ BitmapImage Loader::loadPNG_(const char* filename)
 void Loader::savePNG(const std::string& filename, const BitmapImage& img)
 {
     Loader::fileMkdirs(filename);
-    if (!stbi_write_png(filename.c_str(), img.getWidth(), img.getHeight(), 4, img.getPixels(), 0)) {
+    if (!stbi_write_png(filename.c_str(), img.width(), img.height(), 4, img.pixels(), 0)) {
         throw std::runtime_error("Failed to write PNG. "+filename);
     }
 }
@@ -338,10 +338,10 @@ vkx::Image* Loader::loadTexture(const BitmapImage& img)
     VkImage image;
     VkDeviceMemory imageMemory;
     VkImageView imageView;
-    vkx::CreateStagedImage(img.getWidth(), img.getHeight(), img.getPixels(),
+    vkx::CreateStagedImage(img.width(), img.height(), img.pixels(),
                            &image, &imageMemory, &imageView);
 
-    return new vkx::Image(image, imageMemory, imageView, img.getWidth(), img.getHeight());
+    return new vkx::Image(image, imageMemory, imageView, img.width(), img.height());
 }
 
 

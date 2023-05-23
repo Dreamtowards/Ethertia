@@ -62,14 +62,16 @@ public:
     // 我在思考 Mtl 不一定要等于/对应一个 MtlTex
     // 我们可以有很多 Mtl 的轮廓 各种装饰模型 复用MtlTex
 
-    static bool loadMtlTex_ResizeTo(std::string_view mtl, std::string_view textype, BitmapImage& dst_resized) {
-        std::string path = Loader::fileAssets(Strings::fmt("material/{}/{}.png", mtl, textype));
-        if (Loader::fileExists(path)) {
+    static bool loadMtlTex_ResizeTo(std::string_view mtl, std::string_view textype, BitmapImage& dst_resized)
+    {
+        std::string asset = Strings::fmt("material/{}/{}.png", mtl, textype);
+        std::string path = Loader::fileAssets(asset);
+        if (!path.empty()) {
             BitmapImage src = Loader::loadPNG_(path.c_str());
-            BitmapImage::resizeTo(src, dst_resized);
+            BitmapImage::resize(src, dst_resized);
             return true;
         } else {
-            std::cerr << Strings::fmt(" missed '{}'.", path);
+            std::cerr << Strings::fmt(" missed '{}'.", asset);
 
             //      if (textype == "diff")  resized->fillPixels(0xFFFFFFFF);  // unit 1
             // else if (textype == "disp")  resized->fillPixels(0x808080FF);  // middle height
@@ -101,8 +103,8 @@ public:
             if (composeDRAM)
             {
                 BitmapImage resized_dram[2] = {  // 0: final resized composed DRAM
-                        BitmapImage(px, px),
-                        BitmapImage(px, px)
+                        BitmapImage(px, px),  // Disp
+                        BitmapImage(px, px)   // Rough
                 };
 
                 int i = 0;
@@ -115,11 +117,15 @@ public:
                     // BitmapImage img_ao = loadMtlTex(texName, "ao");
                     // BitmapImage img_metal = loadMtlTex(texName, "metal");
 
-                    BitmapImage& composed = resized_dram[0];
+                    BitmapImage& composed = resized_dram[0];  // reuse memory.
 
-                    composed.setPixels(0,0,resized_dram[1], 1);
+                    // Copy/Merge Channel 1.
+                    BitmapImage::CopyPixels(0,0,resized_dram[1],
+                                            0,0,composed, 1);
 
-                    atlas.setPixels(i*px, 0, composed);
+                    // Produce to the Atlas.
+                    BitmapImage::CopyPixels(0,0, composed,
+                                            i*px, 0, atlas);
                     ++i;
                 }
             }
@@ -134,7 +140,8 @@ public:
 
                     if (loadMtlTex_ResizeTo(id, textype, resized))
                     {
-                        atlas.setPixels(i * px, 0, resized);
+                        BitmapImage::CopyPixels(0,0,resized,
+                                                i*px, 0, atlas);
                     }
                     ++i;
                 }

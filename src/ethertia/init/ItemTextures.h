@@ -47,8 +47,10 @@ public:
                 if (!Loader::fileAssets(loc).empty())
                 {
                     BitmapImage img = Loader::loadPNG(loc);
-                    BitmapImage::resizeTo(img, resized);
-                    atlas.setPixels(i*ITEM_RESOLUTION, 0, resized);
+                    BitmapImage::resize(img, resized);
+
+                    BitmapImage::CopyPixels(0, 0, resized,
+                                            i*ITEM_RESOLUTION, 0, atlas);
                 }
                 else
                 {

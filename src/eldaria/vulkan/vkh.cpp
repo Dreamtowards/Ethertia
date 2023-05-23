@@ -614,23 +614,27 @@ void vl::CreateBuffer(VkDevice device, VkDeviceSize size, VkBuffer* pBuffer, VkD
 // ================== Image ==================
 
 void vl::CreateImage(VkDevice device, int imgWidth, int imgHeight, VkImage* pImage, VkDeviceMemory* pImageMemory, VkFormat format,
-                     VkImageUsageFlags usage, VkMemoryPropertyFlags memProperties, VkImageTiling tiling)
+                     VkImageUsageFlags usage, VkMemoryPropertyFlags memProperties, VkImageTiling tiling, bool creatingCubeMap)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
     imageInfo.extent.width  = imgWidth;
     imageInfo.extent.height = imgHeight;
-    imageInfo.format = format;
     imageInfo.extent.depth = 1;
+    imageInfo.format = format;
     imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
+    imageInfo.arrayLayers = creatingCubeMap ? 6 : 1;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage = usage | VK_IMAGE_USAGE_SAMPLED_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.tiling = tiling;
     imageInfo.flags = 0; // Optional
+
+    if (creatingCubeMap) {
+        imageInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+    }
 
     VK_CHECK_MSG(vkCreateImage(device, &imageInfo, nullptr, pImage), "failed to create image.");
 
@@ -915,7 +919,7 @@ static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, ui
         region.bufferImageHeight = 0;
         region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         region.imageSubresource.mipLevel = 0;
-        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.baseArrayLayer = 0;  // face_i
         region.imageSubresource.layerCount = 1;
         region.imageOffset = {0, 0, 0};
         region.imageExtent = { width, height, 1 };

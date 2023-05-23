@@ -12,109 +12,53 @@
 
 class BitmapImage
 {
-    uint32_t* pixels;
-    int width;
-    int height;
+    uint32_t* m_Pixels;  // pixel: u32 RGBA
+    int m_Width;
+    int m_Height;
 
 public:
-    BitmapImage(int w, int h, void* pxs) {
-        resize(w, h, pxs);
-    }
-    BitmapImage(int w, int h) {
-        resize(w, h, new uint32_t[w*h]);
-    }
-    ~BitmapImage() {
-        delete pixels;
-    }
+    BitmapImage(int w, int h);
+    BitmapImage(int w, int h, void* pxs);  // pixels in. e.g. quick load from stbi etc.
+    ~BitmapImage();
 
     BitmapImage(const BitmapImage& cpy) = delete;
     BitmapImage(const BitmapImage&& cpy) = delete;
 
-    void resize(int w, int h, void* pxs) {
-        width = w;
-        height = h;
-        pixels = (uint32_t*)pxs;
-    }
 
-    static void resizeTo(const BitmapImage& src, BitmapImage& dst)
-    {
-        int succ =
-        stbir_resize_uint8((const unsigned char*)src.pixels, src.getWidth(), src.getHeight(), 0,
-                           (      unsigned char*)dst.pixels, dst.getWidth(), dst.getHeight(), 0, 4);
-        assert(succ);
-    }
+    static void resize(const BitmapImage& src,
+                       BitmapImage& dst,
+                       bool nearestSample = false);  // true=NearestSample, false=STBIR_DEFAULT_FILTER_DOWNSAMPLE(STBIR_FILTER_MITCHELL) STBIR_DEFAULT_FILTER_UPSAMPLE(STBIR_FILTER_CATMULLROM)
 
-    const char* pixel_rgba(int x, int y) const {
-        return (const char*)&pixels[y*width+x];
-    }
-    char* pixel_rgba_intl(int x, int y) {
-        return (char*)&pixels[y*width+x];
-    }
 
-    std::uint32_t getPixel(int x, int y) const {
-        return pixels[y*width+x];
-    }
-    void setPixel(int x, int y, std::uint32_t rgba) {
-        pixels[y*width+x] = rgba;
-    }
+    static void CopyPixels(int srcX, int srcY, const BitmapImage& srcImg,
+                           int dstX, int dstY, BitmapImage& dstImg,
+                           int specChannel = -1);  // 0123: one of u8 RGBA, -1: u32 RGBA
 
-    // spec_channel: only one channel: -1: no. 0123 -> RGBA.
-    void setPixels(int x, int y, const BitmapImage& img, int spec_channel = -1) {
-        assert(x+img.getWidth() <= getWidth() && y+img.getHeight() <= getHeight());
-        for (int dx = 0; dx < img.getWidth(); ++dx) {
-            for (int dy = 0; dy < img.getHeight(); ++dy) {
-                if (spec_channel != -1) {
-                    char* pix = pixel_rgba_intl(x+dx, y+dy);
-                    pix[spec_channel] = img.pixel_rgba(dx,dy)[spec_channel];
-                } else {
-                    setPixel(x+dx, y+dy, img.getPixel(dx, dy));
-                }
+
+    int width() const { return m_Width; }
+    int height() const { return m_Height; }
+
+    std::uint32_t* pixels() { return m_Pixels; }
+    std::uint32_t* pixels() const { return m_Pixels; }
+
+    std::uint32_t& pixel(int x, int y) const { return m_Pixels[y*m_Width+x]; }
+
+    // pixel channel
+    char* pixel_(int x, int y) const { return (char*)&pixel(x,y); }
+
+
+    void fill(std::uint32_t rgba);
+
+    void fillAlpha(float a);
+
+    void getVerticalFlippedPixels(std::uint32_t* dst) const {  // for OpenGL internal, especially for Screenshot Dump.
+        for (int y = 0; y < m_Height; ++y) {
+            uint32_t bas = (m_Height-1-y) * m_Width;
+            for (int x = 0; x < m_Width; ++x) {
+                dst[y*m_Width+x] = m_Pixels[bas+x];
             }
         }
     }
-    void get_pixels_to(int x, int y, BitmapImage& dst)
-    {
-        assert(x+dst.getWidth() <= getWidth() && y+dst.getHeight() <= getHeight());
-
-        for (int dx = 0; dx < dst.getWidth(); ++dx) {
-            for (int dy = 0; dy < dst.getHeight(); ++dy) {
-
-                dst.setPixel(dx,dy, getPixel(x+dx, y+dy));
-            }
-        }
-    }
-
-    void fillPixels(std::uint32_t rgba) {
-        std::fill(pixels, pixels + width*height, rgba);
-    }
-    void fillAlpha(float a) {
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
-                char* pix = pixel_rgba_intl(x,y);
-
-                pix[3] = (char)(a * 255.0f);
-            }
-        }
-    }
-
-    std::uint32_t* getPixelsInternal() {
-        return pixels;
-    }
-    std::uint32_t* getPixels() const {
-        return pixels;
-    }
-    void getVerticalFlippedPixels(std::uint32_t* dst) const {  // for OpenGL internal
-        for (int y = 0; y < height; ++y) {
-            uint32_t bas = (height-1-y) * width;
-            for (int x = 0; x < width; ++x) {
-                dst[y*width+x] = pixels[bas+x];
-            }
-        }
-    }
-
-    int getWidth()  const { return width; }
-    int getHeight() const { return height; }
-
 };
 
 #endif //ETHERTIA_BITMAPIMAGE_H

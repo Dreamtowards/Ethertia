@@ -457,8 +457,8 @@ void Controls::saveScreenshot()
         BENCHMARK_TIMER;
 
         // vertical-flip image back to normal. due to GL feature.
-        BitmapImage fine_img(img->getWidth(), img->getHeight());
-        img->getVerticalFlippedPixels(fine_img.getPixels());
+        BitmapImage fine_img(img->width(), img->height());
+        img->getVerticalFlippedPixels(fine_img.pixels());
 
         Loader::savePNG(path, fine_img);
         delete img;
