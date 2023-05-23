@@ -13,6 +13,7 @@
 
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/Log.h>
+#include <ethertia/util/Timer.h>
 
 #define LOCK_GUARD(x) std::lock_guard<std::mutex> _guard(x);
 
