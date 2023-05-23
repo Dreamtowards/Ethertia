@@ -67,6 +67,7 @@ include_directories(lib/json/include)
 include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
 include_directories(lib/fastnoise2/include)
+include_directories(lib/glad45/include)
 include_directories(lib/entt/src)
 include_directories(lib/openal-soft/include)
 include_directories(lib/yaml-cpp/include)
@@ -78,7 +79,7 @@ include_directories(src/ethertia/render/vulkan)
 
 
 add_executable(Ethertia
-        lib/glad/glad.c
+        lib/glad45/src/glad.c
         lib/tinyfd/tinyfiledialogs.c
 
         lib/imgui-docking/imgui.cpp
@@ -113,22 +114,22 @@ add_executable(Ethertia
         )
 
 
-add_executable(Eldaria
-        lib/imgui-docking/imgui.cpp
-        lib/imgui-docking/imgui_draw.cpp
-        lib/imgui-docking/imgui_widgets.cpp
-        lib/imgui-docking/imgui_tables.cpp
-        lib/imgui-docking/imgui_demo.cpp
-        lib/imgui-docking/backends/imgui_impl_glfw.cpp
-        lib/imgui-docking/backends/imgui_impl_vulkan.cpp
-        lib/tinyfd/tinyfiledialogs.c
-
-        src/eldaria/Eldaria.cpp
-        src/eldaria/util/Loader.cpp
-        src/ethertia/util/Loader.cpp
-        src/ethertia/render/VertexData.cpp
-        src/eldaria/vulkan/VulkanIntl.cpp
-        src/eldaria/imgui/Imgui.cpp)
+#add_executable(Eldaria
+#        lib/imgui-docking/imgui.cpp
+#        lib/imgui-docking/imgui_draw.cpp
+#        lib/imgui-docking/imgui_widgets.cpp
+#        lib/imgui-docking/imgui_tables.cpp
+#        lib/imgui-docking/imgui_demo.cpp
+#        lib/imgui-docking/backends/imgui_impl_glfw.cpp
+#        lib/imgui-docking/backends/imgui_impl_vulkan.cpp
+#        lib/tinyfd/tinyfiledialogs.c
+#
+#        src/eldaria/Eldaria.cpp
+#        src/eldaria/util/Loader.cpp
+#        src/ethertia/util/Loader.cpp
+#        src/ethertia/render/VertexData.cpp
+#        src/eldaria/vulkan/VulkanIntl.cpp
+#        src/eldaria/imgui/Imgui.cpp)
 
 
 add_executable(DedicatedServer
@@ -165,17 +166,17 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 
 else()
     target_link_directories(Ethertia PUBLIC ${BIN_DIR})
-    target_link_directories(Eldaria PUBLIC ${BIN_DIR})
+#    target_link_directories(Eldaria PUBLIC ${BIN_DIR})
 
     target_link_libraries(Ethertia BulletDynamics BulletCollision LinearMath FastNoise)
 
     if (APPLE)
         target_link_libraries(Ethertia glfw.3 openal)
-        target_link_libraries(Eldaria glfw.3 openal)
+#        target_link_libraries(Eldaria glfw.3 openal)
     endif ()
     if(WIN32)
         target_link_libraries(Ethertia glfw3 OpenAL32)
-        target_link_libraries(Eldaria glfw3 OpenAL32)
+#        target_link_libraries(Eldaria glfw3 OpenAL32)
     endif()
 endif()
 

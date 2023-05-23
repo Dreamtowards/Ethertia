@@ -4,8 +4,7 @@
 
 #include <ethertia/render/Window.h>
 
-
-static void setup_glfw_callbacks(GLFWwindow* _win);
+#include <glad/glad.h>
 
 
 static void glfw_error_callback(int error, const char* description)
@@ -14,10 +13,8 @@ static void glfw_error_callback(int error, const char* description)
 }
 
 
-Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
+void Window::init()
 {
-    BENCHMARK_TIMER;
-
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         throw std::runtime_error("failed to init glfw.");
@@ -25,14 +22,26 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
     if (!glfwVulkanSupported())
         throw std::runtime_error("GLFW: Vulkan not supported.");
 
+}
+
+void Window::deinit()
+{
+    glfwTerminate();
+}
+
+
+
+static void setup_glfw_callbacks(GLFWwindow* _win);
+
+
+Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
+{
+    BENCHMARK_TIMER;
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
 
-//    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-//        throw std::runtime_error("Failed to init GLAD.");
-
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 //    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 //    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // Required on Mac OSX.
 //    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
@@ -52,14 +61,17 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
         throw std::runtime_error(Strings::fmt("failed to init glfw window: {}. ({})", err, err_str));
     }
 
+//    glfwMakeContextCurrent(m_WindowHandle);
+//    glfwSwapInterval(0);
+//
+//    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+//        throw std::runtime_error("Failed to init GLAD.");
+
 //    Log::info("Init GL_{}, {} | GLFW {}.\1",
 //              glGetString(GL_VERSION), glGetString(GL_RENDERER), //glGetString(GL_VENDOR),
 //              glfwGetVersionString());
 
     centralize();
-
-//    glfwMakeContextCurrent(m_WindowHandle);
-//    glfwSwapInterval(0);
 
     glfwSetWindowUserPointer(m_WindowHandle, this);
 
@@ -87,6 +99,62 @@ BitmapImage* Window::screenshot()
 //    img->fillAlpha(1.0);
 //    return img;
 }
+
+
+
+
+
+
+
+void Window::centralize()
+{
+    const GLFWvidmode* vmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    int w, h;
+    glfwGetWindowSize(m_WindowHandle, &w, &h);
+    glfwSetWindowPos(m_WindowHandle, (vmode->width - w) / 2, (vmode->height - h) / 2);
+}
+
+double Window::getPreciseTime()
+{
+    return glfwGetTime();
+}
+
+
+
+
+void Window::fullscreen(GLFWmonitor* monitor)
+{
+    m_Fullscreen = true;
+
+    const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
+    glfwSetWindowMonitor(m_WindowHandle, monitor, 0, 0, vmode->width, vmode->height, 0);
+}
+
+void Window::restoreFullscreen(int _w, int _h)
+{
+    m_Fullscreen = false;
+
+    glfwSetWindowMonitor(m_WindowHandle, nullptr, 0, 0, _w, _h, 0);
+    centralize();
+}
+
+bool Window::isFullscreen() const {
+    return m_Fullscreen;
+}
+
+void Window::toggleFullscreen()
+{
+    if (isFullscreen()) {
+        restoreFullscreen();
+    } else {
+        fullscreen();
+    }
+}
+
+
+
+
+
 
 
 

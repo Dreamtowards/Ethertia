@@ -78,6 +78,7 @@ static void Init()
     //OpenVR::init();
 
     Ethertia::isRunning() = true;
+    Window::init();
     g_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
 //    ShaderProgram::loadAll();
     RenderEngine::init();
@@ -143,7 +144,7 @@ static void Destroy()
     RenderEngine::deinit();
     AudioEngine::deinit();
 
-    glfwTerminate();
+    Window::deinit();
 }
 
 

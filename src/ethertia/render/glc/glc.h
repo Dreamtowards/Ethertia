@@ -5,7 +5,6 @@
 #ifndef ETHERTIA_GLC_H
 #define ETHERTIA_GLC_H
 
-#include <glad/glad.h>
 
 namespace glc
 {
