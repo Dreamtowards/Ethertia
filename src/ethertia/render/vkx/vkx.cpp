@@ -326,7 +326,7 @@ VkImageView vl::CreateImageView(VkDevice device, VkImage image, VkFormat format,
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = 1;  // except VR.
+    viewInfo.subresourceRange.layerCount = 1;  // except CubeMap=6 or VR.
     //viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
     //viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
     //viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -614,8 +614,10 @@ void vl::CreateBuffer(VkDevice device, VkDeviceSize size, VkBuffer* pBuffer, VkD
 // ================== Image ==================
 
 void vl::CreateImage(VkDevice device, int imgWidth, int imgHeight, VkImage* pImage, VkDeviceMemory* pImageMemory, VkFormat format,
-                     VkImageUsageFlags usage, VkMemoryPropertyFlags memProperties, VkImageTiling tiling, bool creatingCubeMap)
+                     VkImageUsageFlags usage, bool isCubeMap)
 {
+    const VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -624,7 +626,7 @@ void vl::CreateImage(VkDevice device, int imgWidth, int imgHeight, VkImage* pIma
     imageInfo.extent.depth = 1;
     imageInfo.format = format;
     imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = creatingCubeMap ? 6 : 1;
+    imageInfo.arrayLayers = isCubeMap ? 6 : 1;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage = usage | VK_IMAGE_USAGE_SAMPLED_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -632,7 +634,7 @@ void vl::CreateImage(VkDevice device, int imgWidth, int imgHeight, VkImage* pIma
     imageInfo.tiling = tiling;
     imageInfo.flags = 0; // Optional
 
-    if (creatingCubeMap) {
+    if (isCubeMap) {
         imageInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
     }
 
@@ -641,6 +643,7 @@ void vl::CreateImage(VkDevice device, int imgWidth, int imgHeight, VkImage* pIma
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(device, *pImage, &memRequirements);
 
+    const VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     *pImageMemory = vl::AllocateMemory(device, memRequirements, memProperties);
 
     VK_CHECK(vkBindImageMemory(device, *pImage, *pImageMemory, 0));
@@ -1021,12 +1024,12 @@ void vkx::CreateStagedImage(int imgWidth, int imgHeight, void* pixels,
     vl::CreateImage(device, imgWidth, imgHeight,
                     out_image, out_imageMemory,
                     format,
-                    VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+                    VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);  // CubeMap
 
     TransitionImageLayout(*out_image, format,
                           VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-    CopyBufferToImage(stagingBuffer, *out_image, imgWidth, imgHeight);
+    CopyBufferToImage(stagingBuffer, *out_image, imgWidth, imgHeight);  // CubeMap: multiple VkBufferImageCopy
 
     TransitionImageLayout(*out_image, format,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -1034,7 +1037,13 @@ void vkx::CreateStagedImage(int imgWidth, int imgHeight, void* pixels,
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    *out_imageView = vl::CreateImageView(device, *out_image, format);
+    *out_imageView = vl::CreateImageView(device, *out_image, format);  // CubeMap: layers 6
+}
+
+
+void vkx::CreateStagedCubemapImage(int w, int h, void** pPixels, vkx::Image* out_img)
+{
+
 }
 
 

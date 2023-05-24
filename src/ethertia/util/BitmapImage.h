@@ -51,14 +51,8 @@ public:
 
     void fillAlpha(float a);
 
-    void getVerticalFlippedPixels(std::uint32_t* dst) const {  // for OpenGL internal, especially for Screenshot Dump.
-        for (int y = 0; y < m_Height; ++y) {
-            uint32_t bas = (m_Height-1-y) * m_Width;
-            for (int x = 0; x < m_Width; ++x) {
-                dst[y*m_Width+x] = m_Pixels[bas+x];
-            }
-        }
-    }
+    // for OpenGL internal, especially for Screenshot Dump.
+    void flipY(std::uint32_t* dst) const;
 };
 
 #endif //ETHERTIA_BITMAPIMAGE_H

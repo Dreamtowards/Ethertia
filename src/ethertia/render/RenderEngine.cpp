@@ -1,6 +1,7 @@
 //
 // Created by Dreamtowards on 2022/8/22.
 //
+#include <glad/glad.h>
 
 #include "RenderEngine.h"
 
@@ -33,9 +34,68 @@
 
 
 
-
 #include "renderer/deferred/RendererGbuffers.cpp"
 #include "renderer/deferred/RendererCompose.cpp"
+
+std::set<std::string> getSupportedExtensions()
+{
+    uint32_t count = 0;
+    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
+
+    std::vector<VkExtensionProperties> extensionProperties(count);
+    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, extensionProperties.data()));
+
+    std::set<std::string> extensions;
+    for (auto & extension : extensionProperties) {
+        extensions.insert(extension.extensionName);
+        Log::info("Ext: ", extension.extensionName);
+    }
+    return extensions;
+}
+
+
+void gl_debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
+{
+    auto const src_str = [source]() {
+        switch (source) {
+            case GL_DEBUG_SOURCE_API: return "API";
+            case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW_SYSTEM";
+            case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER_COMPILER";
+            case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD_PARTY";
+            case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
+            case GL_DEBUG_SOURCE_OTHER: return "OTHER";
+        }
+    }();
+
+    auto const type_str = [type]() {
+        switch (type) {
+            case GL_DEBUG_TYPE_ERROR: return "ERROR";
+            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
+            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
+            case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
+            case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
+            case GL_DEBUG_TYPE_MARKER: return "MARKER";
+            case GL_DEBUG_TYPE_OTHER: return "OTHER";
+        }
+    }();
+
+    auto const severity_str = [severity]() {
+        switch (severity) {
+            case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
+            case GL_DEBUG_SEVERITY_LOW: return "LOW";
+            case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+            case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
+        }
+    }();
+
+    Log::info("glDebugMessage[{}][{}][{}/{}]: {}", src_str, type_str, severity_str, id, message);
+}
+
+void InitGlDebugMessage()
+{
+    glEnable(GL_DEBUG_OUTPUT);
+//    glDebugMessageCallback(gl_debug_message_callback, nullptr);
+}
 
 
 void RenderEngine::init()
@@ -43,7 +103,11 @@ void RenderEngine::init()
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing.\1");
 
-    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
+    InitGlDebugMessage();
+
+//    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
+
+//    getSupportedExtensions();
 
     TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
     TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");

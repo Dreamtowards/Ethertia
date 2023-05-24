@@ -78,3 +78,13 @@ void BitmapImage::fillAlpha(float a)
         }
     }
 }
+
+void BitmapImage::flipY(std::uint32_t *dst) const
+{
+    for (int y = 0; y < m_Height; ++y) {
+        uint32_t bas = (m_Height-1-y) * m_Width;
+        for (int x = 0; x < m_Width; ++x) {
+            dst[y*m_Width+x] = m_Pixels[bas+x];
+        }
+    }
+}

@@ -5,6 +5,8 @@
 #ifndef ETHERTIA_GLC_H
 #define ETHERTIA_GLC_H
 
+typedef uint32_t GLenum;
+typedef uint32_t GLuint;
 
 namespace glc
 {
@@ -17,6 +19,16 @@ namespace glc
         int width = 0;
         int height = 0;
     };
+
+    // glGenTextures() glBindTexture()
+    Texture* CreateTexture(GLenum target);
+
+    void TextureParameter(Texture* tex, GLenum pname, GLenum param);
+
+    void BindTextureUnit(int unit, Texture* tex);
+
+
+
 
     class VertexArrays
     {

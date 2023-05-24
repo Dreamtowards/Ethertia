@@ -135,9 +135,7 @@ namespace vl
                      VkDeviceMemory* pImageMemory,  // out
                      VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
                      VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                     VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL,
-                     bool creatingCubeMap = false);
+                     bool isCubeMap = false);
 
 
     VkImageView CreateImageView(VkDevice device,
@@ -535,6 +533,10 @@ namespace vkx
                            VkImage* pImage,  // out
                            VkDeviceMemory* pImageMemory,  // out
                            VkImageView* pImageView);  // out
+
+    void CreateStagedCubemapImage(int w, int h,
+                                  void** pPixels,
+                                  vkx::Image* out_img);
 
 
     // Static buffer. (high effective read on GPU, but cannot visible/modify from CPU)

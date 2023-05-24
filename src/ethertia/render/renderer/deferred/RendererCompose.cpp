@@ -14,17 +14,17 @@ namespace RendererCompose
 {
     VkRenderPass g_RenderPass = nullptr;
     VkFramebuffer g_Framebuffer = nullptr;
+
+    vkx::FramebufferAttachment g_FramebufferAttachmentColor;
+    vkx::FramebufferAttachment g_FramebufferAttachmentDepth;
+    VkExtent2D g_AttachmentSize = {512, 512};
+
     VkPipeline g_Pipeline = nullptr;
     VkPipelineLayout g_PipelineLayout = nullptr;
 
     VkDescriptorSetLayout g_DescriptorSetLayout = nullptr;
     VkDescriptorSet g_DescriptorSet[vkx::INFLIGHT_FRAMES];
     vkx::UniformBuffer* g_UniformBuffers[vkx::INFLIGHT_FRAMES];
-
-    vkx::FramebufferAttachment g_FramebufferAttachmentColor;
-    vkx::FramebufferAttachment g_FramebufferAttachmentDepth;
-
-    VkExtent2D g_AttachmentSize = {512, 512};
 
     struct Light
     {
@@ -37,11 +37,10 @@ namespace RendererCompose
     };
     struct UBO
     {
-        glm::vec3 CameraPos;
+        alignas(16) glm::vec3 CameraPos;
 
-        alignas(16)
-        glm::mat4 invMatView;
-        glm::mat4 invMatProj;
+        alignas(16) glm::mat4 invMatView;
+        alignas(16) glm::mat4 invMatProj;
 
         uint32_t lightCount;
         Light lights[64];

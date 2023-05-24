@@ -25,11 +25,10 @@ public:
     static double getPreciseTime();
 
     Window(int _w, int _h, const char* _title);
+    ~Window();
 
     bool isCloseRequested();
     bool isFramebufferResized();
-
-    BitmapImage* screenshot();
 
     void centralize();
 

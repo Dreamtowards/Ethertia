@@ -2,6 +2,8 @@
 // Created by Dreamtowards on 2023/2/1.
 //
 
+#include <glad/glad.h>
+
 #include "Loader.h"
 
 
@@ -331,6 +333,45 @@ vkx::VertexBuffer* Loader::loadVertexData(const VertexData* vtx)
 }
 
 
+// no-idx:  load(vc, {3,2,3}, vtx);
+// idx:     load(vc, {3,2,3}, vtx_data, vtx_size, idx_data);
+void loadVertexData(uint32_t vertexCount, std::initializer_list<int> attrib_sizes,
+                    float* vtx_data, uint32_t vtx_size = -1, uint32_t* idx_data = nullptr)
+{
+    GLuint vboId;
+    glCreateBuffers(1, &vboId);
+    glNamedBufferStorage(vboId, vtx_size, vtx_data, GL_DYNAMIC_STORAGE_BIT);
+
+    GLuint iboId;
+    if (idx_data) {
+        uint32_t idx_size = sizeof(uint32_t) * vertexCount;
+        glCreateBuffers(1, &iboId);
+        glNamedBufferStorage(iboId, idx_size, idx_data, GL_DYNAMIC_STORAGE_BIT);
+    }
+
+    GLuint vaoId;
+    glCreateVertexArrays(1, &vaoId);
+    int offset = 0;
+    int attrib  = 0;
+    for (int attrib_size : attrib_sizes)
+    {
+        glEnableVertexArrayAttrib(vaoId, attrib);
+
+        glVertexArrayAttribFormat(vaoId, attrib, attrib_size, GL_FLOAT, GL_FALSE, offset);
+
+        glVertexArrayAttribBinding(vaoId, attrib, 0);
+
+        offset += attrib_size;
+        ++attrib;
+    }
+
+    glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, offset);
+    glVertexArrayElementBuffer(vaoId, iboId);
+
+
+//    glVertexArrayAttribFormat(vaoId, 0, 3, GL_FLOAT, 0);
+}
+
 
 
 vkx::Image* Loader::loadTexture(const BitmapImage& img)
@@ -345,6 +386,48 @@ vkx::Image* Loader::loadTexture(const BitmapImage& img)
 }
 
 
+
+//GLuint loadTexture(const BitmapImage& img)
+//{
+//    GLuint texId;
+//    glCreateTextures(GL_TEXTURE_2D, 1, &texId);
+//
+//    glTextureParameteri(texId, GL_TEXTURE_WRAP_S, GL_REPEAT );
+//    glTextureParameteri(texId, GL_TEXTURE_WRAP_T, GL_REPEAT );
+//    glTextureParameteri(texId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//    glTextureParameteri(texId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//
+//    int width = img.width();
+//    int height = img.height();
+//    void* pixels = img.pixels();
+//    glTextureStorage2D(texId, 1, GL_RGBA8, width, height);
+//    glTextureSubImage2D(texId, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+//
+//    // glGenerateTextureMipmap(texId);
+//}
+//
+//GLuint loadCubeMap(const BitmapImage* imgs)
+//{
+//    GLuint texId;
+//    glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &texId);
+//
+//    glTextureParameteri(texId, GL_TEXTURE_WRAP_S, GL_REPEAT );
+//    glTextureParameteri(texId, GL_TEXTURE_WRAP_T, GL_REPEAT );
+//    glTextureParameteri(texId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//    glTextureParameteri(texId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//
+//    int width = imgs[0].width();
+//    int height = imgs[0].height();
+//    glTextureStorage2D(texId, 1, GL_RGBA8, width, height);
+//
+//    for (size_t face = 0; face < 6; ++face) {
+//        assert(imgs[face].width() == width && imgs[face].height() == height);
+//
+//        glTextureSubImage3D(texId, 0, 0, 0, face, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, imgs[face].pixels());
+//    }
+//
+//    // glGenerateTextureMipmap(texId);
+//}
 
 
 

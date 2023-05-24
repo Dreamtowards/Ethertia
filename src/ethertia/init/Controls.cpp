@@ -444,23 +444,24 @@ void Controls::handleInput()
 
 void Controls::saveScreenshot()
 {
-    BitmapImage* img = Ethertia::getWindow().screenshot();
-
-    std::string path = Strings::fmt("./screenshots/{}_{}.png", Strings::time_fmt(-1, "%Y-%m-%d_%H.%M.%S"), (Mth::frac(Ethertia::getPreciseTime())*1000.0f));
-    if (Loader::fileExists(path))
-        throw std::logic_error("File already existed.");
-
-    Log::info("Screenshot saving to '{}'.\1", path);
-    Ethertia::notifyMessage(Strings::fmt("Saved screenshot to '{}'.", path));
-
-    Ethertia::getAsyncScheduler().addTask([img, path]() {
-        BENCHMARK_TIMER;
-
-        // vertical-flip image back to normal. due to GL feature.
-        BitmapImage fine_img(img->width(), img->height());
-        img->getVerticalFlippedPixels(fine_img.pixels());
-
-        Loader::savePNG(path, fine_img);
-        delete img;
-    });
+    assert("NotSupported");
+//    BitmapImage* img = Ethertia::getWindow().screenshot();
+//
+//    std::string path = Strings::fmt("./screenshots/{}_{}.png", Strings::time_fmt(-1, "%Y-%m-%d_%H.%M.%S"), (Mth::frac(Ethertia::getPreciseTime())*1000.0f));
+//    if (Loader::fileExists(path))
+//        throw std::logic_error("File already existed.");
+//
+//    Log::info("Screenshot saving to '{}'.\1", path);
+//    Ethertia::notifyMessage(Strings::fmt("Saved screenshot to '{}'.", path));
+//
+//    Ethertia::getAsyncScheduler().addTask([img, path]() {
+//        BENCHMARK_TIMER;
+//
+//        // vertical-flip image back to normal. due to GL feature.
+//        BitmapImage fine_img(img->width(), img->height());
+//        img->getVerticalFlippedPixels(fine_img.pixels());
+//
+//        Loader::savePNG(path, fine_img);
+//        delete img;
+//    });
 }

@@ -144,6 +144,7 @@ static void Destroy()
     RenderEngine::deinit();
     AudioEngine::deinit();
 
+    delete g_Window;
     Window::deinit();
 }
 
