@@ -315,7 +315,7 @@ VkPushConstantRange vl::IPushConstantRange(VkShaderStageFlags shaderStageFlags, 
 
 
 
-VkImageView vl::CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+VkImageView vl::CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, bool cubemap)
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -326,7 +326,7 @@ VkImageView vl::CreateImageView(VkDevice device, VkImage image, VkFormat format,
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = 1;  // except CubeMap=6 or VR.
+    viewInfo.subresourceRange.layerCount = cubemap ? 6 : 1;  // except CubeMap=6 or VR.
     //viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
     //viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
     //viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -912,23 +912,29 @@ void vkx::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 
 
 
-static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height,
+                              int regionCount = 1, int regionOffsetSize = 0)  // for CubeMaps
 {
     vkx::SubmitCommandBuffer([&](VkCommandBuffer cmdbuf)
     {
-        VkBufferImageCopy region{};
-        region.bufferOffset = 0;
-        region.bufferRowLength = 0;
-        region.bufferImageHeight = 0;
-        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        region.imageSubresource.mipLevel = 0;
-        region.imageSubresource.baseArrayLayer = 0;  // face_i
-        region.imageSubresource.layerCount = 1;
-        region.imageOffset = {0, 0, 0};
-        region.imageExtent = { width, height, 1 };
+        std::vector<VkBufferImageCopy> regions(regionCount);
+        uint32_t offset = 0;
+        for (int i = 0; i < regionCount; ++i) {
+            VkBufferImageCopy& region = regions[i] = {};
+            region.bufferOffset = offset;
+            region.bufferRowLength = 0;
+            region.bufferImageHeight = 0;
+            region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            region.imageSubresource.mipLevel = 0;
+            region.imageSubresource.baseArrayLayer = i;  // face_i
+            region.imageSubresource.layerCount = 1;
+            region.imageOffset = {0, 0, 0};
+            region.imageExtent = { width, height, 1 };
+            offset += regionOffsetSize;
+        }
 
         vkCmdCopyBufferToImage(cmdbuf, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                               1,&region);
+                               regionCount, regions.data());
     });
 }
 
@@ -999,7 +1005,6 @@ static void TransitionImageLayout(VkImage image, VkFormat format,
 }
 
 
-
 void vkx::CreateStagedImage(int imgWidth, int imgHeight, void* pixels,
                             VkImage* out_image,
                             VkDeviceMemory* out_imageMemory,
@@ -1041,9 +1046,45 @@ void vkx::CreateStagedImage(int imgWidth, int imgHeight, void* pixels,
 }
 
 
-void vkx::CreateStagedCubemapImage(int w, int h, void** pPixels, vkx::Image* out_img)
+void vkx::CreateStagedCubemapImage(int imgWidth, int imgHeight,
+                                   void* pixels,
+                                   VkImage* out_pImage,  // out
+                                   VkDeviceMemory* out_pImageMemory,  // out
+                                   VkImageView* out_pImageView)
 {
+    VkDevice device = vkx::ctx().Device;
+    VkDeviceSize singleImageSize = imgWidth * imgHeight * 4;
+    VkDeviceSize totalImagesSize = singleImageSize * 6;
+    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
 
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    vl::CreateBuffer(device, totalImagesSize, &stagingBuffer, &stagingBufferMemory,
+                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    void* data;
+    vkMapMemory(device, stagingBufferMemory, 0, totalImagesSize, 0, &data);
+    memcpy(data, pixels, totalImagesSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    vl::CreateImage(device, imgWidth, imgHeight,
+                    out_pImage, out_pImageMemory,
+                    format, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                    true);  // CubeMap: 6 arrayLayers + CubeMapCompatible
+
+    TransitionImageLayout(*out_pImage, format,
+                          VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    CopyBufferToImage(stagingBuffer, *out_pImage, imgWidth, imgHeight, 6, singleImageSize);  // CubeMap: multiple VkBufferImageCopy
+
+    TransitionImageLayout(*out_pImage, format,
+                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+    *out_pImageView = vl::CreateImageView(device, *out_pImage, format, VK_IMAGE_ASPECT_COLOR_BIT, true);  // CubeMap: layers 6
 }
 
 

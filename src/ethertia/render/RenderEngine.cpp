@@ -93,8 +93,16 @@ void gl_debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum sev
 
 void InitGlDebugMessage()
 {
-    glEnable(GL_DEBUG_OUTPUT);
-//    glDebugMessageCallback(gl_debug_message_callback, nullptr);
+    int contextFlags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &contextFlags);
+
+    if (contextFlags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(gl_debug_message_callback, nullptr);
+    } else {
+        Log::warn("DebugOutput NotSupported");
+    }
 }
 
 

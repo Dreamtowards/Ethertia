@@ -141,7 +141,8 @@ namespace vl
     VkImageView CreateImageView(VkDevice device,
                                 VkImage image,
                                 VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
-                                VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
+                                VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT,
+                                bool cubemap = false);
 
 
 
@@ -535,8 +536,10 @@ namespace vkx
                            VkImageView* pImageView);  // out
 
     void CreateStagedCubemapImage(int w, int h,
-                                  void** pPixels,
-                                  vkx::Image* out_img);
+                                  void* pixels,
+                                  VkImage* pImage,  // out
+                                  VkDeviceMemory* pImageMemory,  // out
+                                  VkImageView* pImageView);  // out
 
 
     // Static buffer. (high effective read on GPU, but cannot visible/modify from CPU)

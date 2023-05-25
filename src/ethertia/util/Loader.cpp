@@ -333,24 +333,49 @@ vkx::VertexBuffer* Loader::loadVertexData(const VertexData* vtx)
 }
 
 
+class VertexArray
+{
+public:
+    GLuint vaoId = 0;
+    GLuint vboId = 0;
+    GLuint iboId = 0;  // if 0 means non-indexed
+    uint32_t vertexCount = 0;
+
+    VertexArray(GLuint vaoId, GLuint vboId, GLuint iboId, uint32_t vertexCount) : vaoId(vaoId), vboId(vboId),
+                                                                                  iboId(iboId),
+                                                                                  vertexCount(vertexCount) {}
+
+    bool indexed() const { return iboId != 0; }
+};
+
 // no-idx:  load(vc, {3,2,3}, vtx);
 // idx:     load(vc, {3,2,3}, vtx_data, vtx_size, idx_data);
-void loadVertexData(uint32_t vertexCount, std::initializer_list<int> attrib_sizes,
+VertexArray* loadVertexData(uint32_t vertexCount, std::initializer_list<int> attrib_sizes,
                     float* vtx_data, uint32_t vtx_size = -1, uint32_t* idx_data = nullptr)
 {
-    GLuint vboId;
-    glCreateBuffers(1, &vboId);
-    glNamedBufferStorage(vboId, vtx_size, vtx_data, GL_DYNAMIC_STORAGE_BIT);
-
-    GLuint iboId;
-    if (idx_data) {
-        uint32_t idx_size = sizeof(uint32_t) * vertexCount;
-        glCreateBuffers(1, &iboId);
-        glNamedBufferStorage(iboId, idx_size, idx_data, GL_DYNAMIC_STORAGE_BIT);
-    }
+    int stride = 0;
+    for (int s : attrib_sizes) { stride += s; }
 
     GLuint vaoId;
     glCreateVertexArrays(1, &vaoId);
+
+    GLuint iboId = 0;
+    if (idx_data) {
+        assert(vtx_size > 0);
+        uint32_t idx_size = sizeof(uint32_t) * vertexCount;
+        glCreateBuffers(1, &iboId);
+        glNamedBufferStorage(iboId, idx_size, idx_data, GL_DYNAMIC_STORAGE_BIT);
+        glVertexArrayElementBuffer(vaoId, iboId);
+    } else {
+        assert(vtx_size == -1);
+        vtx_size = stride * sizeof(float) * vertexCount;
+    }
+
+    GLuint vboId;
+    glCreateBuffers(1, &vboId);
+    glNamedBufferStorage(vboId, vtx_size, vtx_data, GL_DYNAMIC_STORAGE_BIT);
+    glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, stride);
+
     int offset = 0;
     int attrib  = 0;
     for (int attrib_size : attrib_sizes)
@@ -365,11 +390,7 @@ void loadVertexData(uint32_t vertexCount, std::initializer_list<int> attrib_size
         ++attrib;
     }
 
-    glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, offset);
-    glVertexArrayElementBuffer(vaoId, iboId);
-
-
-//    glVertexArrayAttribFormat(vaoId, 0, 3, GL_FLOAT, 0);
+    return new VertexArray(vaoId, vboId, iboId, vertexCount);
 }
 
 
@@ -383,6 +404,18 @@ vkx::Image* Loader::loadTexture(const BitmapImage& img)
                            &image, &imageMemory, &imageView);
 
     return new vkx::Image(image, imageMemory, imageView, img.width(), img.height());
+}
+
+vkx::Image* loadCubeMap(const BitmapImage* imgs)
+{
+    int w = imgs[0].width();
+    int h = imgs[0].height();
+    VkImage image;
+    VkDeviceMemory imageMemory;
+    VkImageView imageView;
+    void* pixels;
+
+    vkx::CreateStagedCubemapImage(w, h, )
 }
 
 
