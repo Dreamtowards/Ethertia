@@ -402,7 +402,7 @@ namespace vkx
             m_DescriptorWrites.push_back(write);
         }
 
-        void CombinedImageSampler(VkImageView imageView, VkSampler sampler)
+        void CombinedImageSampler(VkImageView imageView, VkSampler sampler = vkx::ctx().ImageSampler)
         {
             VkDescriptorImageInfo& imageInfo = m_ImageInfos.emplace_back();
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

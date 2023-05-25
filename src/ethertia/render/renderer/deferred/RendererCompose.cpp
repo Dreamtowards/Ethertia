@@ -26,6 +26,8 @@ namespace RendererCompose
     VkDescriptorSet g_DescriptorSet[vkx::INFLIGHT_FRAMES];
     vkx::UniformBuffer* g_UniformBuffers[vkx::INFLIGHT_FRAMES];
 
+    vkx::Image* gTestCubeMap;
+
     struct Light
     {
         alignas(16) glm::vec3 position;
@@ -49,6 +51,16 @@ namespace RendererCompose
 
     void init(VkImageView gPosition, VkImageView gNormal, VkImageView gAlbedo)
     {
+        BitmapImage imgs[6] = {
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/left.jpg"),
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/right.jpg"),
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/top.jpg"),
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/bottom.jpg"),
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/back.jpg"),
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/front.jpg")
+        };
+        gTestCubeMap = Loader::loadCubeMap(imgs);
+
         VkDevice device = vkx::ctx().Device;
 
         for (int i = 0; i < vkx::INFLIGHT_FRAMES; ++i) {
@@ -60,6 +72,7 @@ namespace RendererCompose
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // gPosition
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // gNormal
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},  // gAlbedo
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},   // gDRAM
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}   // gDRAM
         });
 
@@ -77,6 +90,7 @@ namespace RendererCompose
             writes.CombinedImageSampler(gNormal, vkx::ctx().ImageSampler);
             writes.CombinedImageSampler(gAlbedo, vkx::ctx().ImageSampler);
             writes.CombinedImageSampler(gAlbedo, vkx::ctx().ImageSampler);  // todo: DRAM
+            writes.CombinedImageSampler(gTestCubeMap->m_ImageView);
 
             writes.WriteDescriptorSets(device);
         }
@@ -115,6 +129,8 @@ namespace RendererCompose
                 {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
                 g_PipelineLayout,
                 g_RenderPass);
+
+
     }
 
     void UpdateUniforms()

@@ -333,6 +333,7 @@ vkx::VertexBuffer* Loader::loadVertexData(const VertexData* vtx)
 }
 
 
+
 class VertexArray
 {
 public:
@@ -341,9 +342,8 @@ public:
     GLuint iboId = 0;  // if 0 means non-indexed
     uint32_t vertexCount = 0;
 
-    VertexArray(GLuint vaoId, GLuint vboId, GLuint iboId, uint32_t vertexCount) : vaoId(vaoId), vboId(vboId),
-                                                                                  iboId(iboId),
-                                                                                  vertexCount(vertexCount) {}
+    VertexArray(GLuint vaoId, GLuint vboId, GLuint iboId, uint32_t vertexCount) :
+                vaoId(vaoId), vboId(vboId), iboId(iboId), vertexCount(vertexCount) {}
 
     bool indexed() const { return iboId != 0; }
 };
@@ -362,6 +362,7 @@ VertexArray* loadVertexData(uint32_t vertexCount, std::initializer_list<int> att
     GLuint iboId = 0;
     if (idx_data) {
         assert(vtx_size > 0);
+
         uint32_t idx_size = sizeof(uint32_t) * vertexCount;
         glCreateBuffers(1, &iboId);
         glNamedBufferStorage(iboId, idx_size, idx_data, GL_DYNAMIC_STORAGE_BIT);
@@ -406,16 +407,24 @@ vkx::Image* Loader::loadTexture(const BitmapImage& img)
     return new vkx::Image(image, imageMemory, imageView, img.width(), img.height());
 }
 
-vkx::Image* loadCubeMap(const BitmapImage* imgs)
+vkx::Image* Loader::loadCubeMap(const BitmapImage* imgs)
 {
     int w = imgs[0].width();
     int h = imgs[0].height();
     VkImage image;
     VkDeviceMemory imageMemory;
     VkImageView imageView;
-    void* pixels;
 
-    vkx::CreateStagedCubemapImage(w, h, )
+    int singleImageSize = w*h*4;
+    char* pixels = new char[6 * singleImageSize];
+    for (int i = 0; i < 6; ++i) {
+        assert(imgs[i].width() == w && imgs[i].height() == h);
+        std::memcpy(&pixels[i*singleImageSize], imgs[i].pixels(), singleImageSize);
+    }
+
+    vkx::CreateStagedCubemapImage(w, h, pixels, &image, &imageMemory, &imageView);
+
+    return new vkx::Image(image, imageMemory, imageView, w, h);
 }
 
 
@@ -425,8 +434,8 @@ vkx::Image* loadCubeMap(const BitmapImage* imgs)
 //    GLuint texId;
 //    glCreateTextures(GL_TEXTURE_2D, 1, &texId);
 //
-//    glTextureParameteri(texId, GL_TEXTURE_WRAP_S, GL_REPEAT );
-//    glTextureParameteri(texId, GL_TEXTURE_WRAP_T, GL_REPEAT );
+//    glTextureParameteri(texId, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTextureParameteri(texId, GL_TEXTURE_WRAP_T, GL_REPEAT);
 //    glTextureParameteri(texId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 //    glTextureParameteri(texId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 //

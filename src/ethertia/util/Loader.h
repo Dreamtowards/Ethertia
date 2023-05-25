@@ -169,6 +169,10 @@ public:
     static vkx::Image* loadTexture(const std::string& filepath) { return Loader::loadTexture(Loader::loadPNG(filepath)); }
 
 
+
+    static vkx::Image* loadCubeMap(const BitmapImage* imgs);
+
+
 //    // imgs order: Right, Left, Top, Bottom, Front, Back.
 //    static Texture* loadCubeMap(const BitmapImage imgs[]);
 //

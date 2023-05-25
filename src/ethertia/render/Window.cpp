@@ -38,21 +38,21 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
 {
     BENCHMARK_TIMER;
 
-//    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // Required on Mac OSX.
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
-
-    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
-    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-    glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // Required on Mac OSX.
+//    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+//
+//    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+//    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
+//    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+//    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+//    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+//    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+//    glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
     m_WindowHandle = glfwCreateWindow(_w, _h, _title, nullptr, nullptr);
     if (!m_WindowHandle) {
@@ -61,11 +61,11 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
         throw std::runtime_error(Strings::fmt("failed to init glfw window: {}. ({})", err, err_str));
     }
 
-    glfwMakeContextCurrent(m_WindowHandle);
-    glfwSwapInterval(0);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        throw std::runtime_error("Failed to init GLAD.");
+//    glfwMakeContextCurrent(m_WindowHandle);
+//    glfwSwapInterval(0);
+//
+//    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+//        throw std::runtime_error("Failed to init GLAD.");
 
 //    Log::info("Init GL_{}, {} | GLFW {}.\1",
 //              glGetString(GL_VERSION), glGetString(GL_RENDERER), //glGetString(GL_VENDOR),

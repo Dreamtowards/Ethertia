@@ -319,7 +319,7 @@ VkImageView vl::CreateImageView(VkDevice device, VkImage image, VkFormat format,
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.viewType = cubemap ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
     viewInfo.format = format;
     viewInfo.image = image;
     viewInfo.subresourceRange.aspectMask = aspectFlags;
@@ -942,7 +942,7 @@ static bool _hasStencilComponent(VkFormat format) {
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 static void TransitionImageLayout(VkImage image, VkFormat format,
-                                  VkImageLayout oldLayout, VkImageLayout newLayout)
+                                  VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t layerCount = 1)
 {
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -956,7 +956,7 @@ static void TransitionImageLayout(VkImage image, VkFormat format,
     barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
+    barrier.subresourceRange.layerCount = layerCount;
     if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
         barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
         if (_hasStencilComponent(format)) {
@@ -1074,12 +1074,12 @@ void vkx::CreateStagedCubemapImage(int imgWidth, int imgHeight,
                     true);  // CubeMap: 6 arrayLayers + CubeMapCompatible
 
     TransitionImageLayout(*out_pImage, format,
-                          VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                          VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 6);
 
     CopyBufferToImage(stagingBuffer, *out_pImage, imgWidth, imgHeight, 6, singleImageSize);  // CubeMap: multiple VkBufferImageCopy
 
     TransitionImageLayout(*out_pImage, format,
-                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 6);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);

@@ -33,6 +33,7 @@ layout(set = 0, binding = 1) uniform sampler2D gPosition;
 layout(set = 0, binding = 2) uniform sampler2D gNormal;
 layout(set = 0, binding = 3) uniform sampler2D gAlbdeo;
 layout(set = 0, binding = 4) uniform sampler2D gDRAM;
+layout(set = 0, binding = 5) uniform samplerCube testCubeMap;
 
 
 
@@ -63,6 +64,8 @@ void main()
         float f = (dot(vec3(0,1,0), RayDir) + 1.0) / 2.0;
         vec3 SkyColor = vec3(0, 0.6, 1);
         FragColor = vec4(SkyColor * f, 1.0);
+
+        FragColor = texture(testCubeMap, RayDir);
         return;
     }
 

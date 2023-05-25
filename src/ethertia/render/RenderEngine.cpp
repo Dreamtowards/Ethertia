@@ -111,9 +111,9 @@ void RenderEngine::init()
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing.\1");
 
-    InitGlDebugMessage();
+//    InitGlDebugMessage();
 
-//    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
+    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
 
 //    getSupportedExtensions();
 
