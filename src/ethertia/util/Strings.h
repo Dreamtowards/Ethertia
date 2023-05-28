@@ -5,9 +5,9 @@
 #ifndef ETHERTIA_STRINGS_H
 #define ETHERTIA_STRINGS_H
 
+#include <string>
 #include <algorithm>
 #include <vector>
-#include <string>
 #include <sstream>
 #include <iomanip>
 #include <cstring>
@@ -134,6 +134,20 @@ public:
     }
 
 
+    static std::string& toupper(std::string& str) {
+        for (auto& c : str) c = std::toupper(c);
+        return str;
+    }
+    static std::string toupper(const std::string& str_in) {
+        std::string str = str_in;
+        for (auto& c : str) c = std::toupper(c);
+        return str;
+    }
+
+    static std::string& tolower(std::string& str) {
+        for (auto& c : str) c = std::tolower(c);
+        return str;
+    }
 
 
 

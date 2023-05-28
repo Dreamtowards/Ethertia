@@ -20,7 +20,7 @@ public:
                   NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel),
                   NoiseGen::FastSIMD_LevelName(FastSIMD::CPUMaxSIMDLevel()));
 
-        std::cout << " if crash then, try downgrade SIMD_Level in 'settings.json'.\n";
+        std::cout << " if crash, try downgrade SIMD_Level in 'settings.json'.\n";
         std::cout.flush();
 
         {

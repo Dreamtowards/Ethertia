@@ -71,6 +71,11 @@ static void Init()
     Settings::loadSettings();
     NoiseGen::initSIMD();
     if (!Loader::fileExists("./assets")) { throw std::runtime_error("default assets directory not found. make sure you are in valid working directory."); }
+    Log::info("{}, hardware_concurrency {}x, endian {}, cpu {}",
+              Strings::toupper(Loader::sys_target()),
+              std::thread::hardware_concurrency(),
+              std::endian::native == std::endian::big ? "big" : "little",
+              Loader::cpuid());
 
     for (const std::string& modpath : Settings::MODS) {
         ModLoader::loadMod(modpath);
@@ -80,11 +85,9 @@ static void Init()
     Ethertia::isRunning() = true;
     Window::init();
     g_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
-//    ShaderProgram::loadAll();
     RenderEngine::init();
     AudioEngine::init();
     NetworkSystem::init();
-    Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target(), std::endian::native == std::endian::big ? "big" : "little");
 
 
     // Materials & Items

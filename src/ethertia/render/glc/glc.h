@@ -27,6 +27,7 @@ namespace glc
 
     void BindTextureUnit(int unit, Texture* tex);
 
+    const char* GetString_DebugEnum();
 
 
 

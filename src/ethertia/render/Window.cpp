@@ -6,11 +6,12 @@
 
 #include <glad/glad.h>
 
-
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
+
+static void setup_glfw_callbacks(GLFWwindow* _win);
 
 
 void Window::init()
@@ -22,6 +23,7 @@ void Window::init()
     if (!glfwVulkanSupported())
         throw std::runtime_error("GLFW: Vulkan not supported.");
 
+    Log::info("GLFW {}", glfwGetVersionString());
 }
 
 void Window::deinit()
@@ -31,28 +33,33 @@ void Window::deinit()
 
 
 
-static void setup_glfw_callbacks(GLFWwindow* _win);
-
 
 Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
 {
     BENCHMARK_TIMER;
 
+#ifdef VULKAN
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
+#endif
 
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // Required on Mac OSX.
-//    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
-//
-//    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-//    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
-//    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-//    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-//    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-//    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-//    glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+#ifdef GL
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);   // available since GL 4.3, glDebugMessageCallback.
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // Required on Mac OSX.
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+#endif
+
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+    glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+#endif
 
     m_WindowHandle = glfwCreateWindow(_w, _h, _title, nullptr, nullptr);
     if (!m_WindowHandle) {
@@ -61,15 +68,16 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
         throw std::runtime_error(Strings::fmt("failed to init glfw window: {}. ({})", err, err_str));
     }
 
-//    glfwMakeContextCurrent(m_WindowHandle);
-//    glfwSwapInterval(0);
-//
-//    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-//        throw std::runtime_error("Failed to init GLAD.");
 
-//    Log::info("Init GL_{}, {} | GLFW {}.\1",
-//              glGetString(GL_VERSION), glGetString(GL_RENDERER), //glGetString(GL_VENDOR),
-//              glfwGetVersionString());
+#ifdef GL
+    glfwMakeContextCurrent(m_WindowHandle);
+    glfwSwapInterval(0);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        throw std::runtime_error("Failed to init GLAD.");
+
+    Log::info("GL {}, {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
+#endif
 
     centralize();
 
@@ -79,6 +87,8 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
 
     glfwGetFramebufferSize(m_WindowHandle, &m_FramebufferWidth, &m_FramebufferHeight);
 
+
+    Log::info("Window initialized.\1");
 }
 
 Window::~Window()

@@ -184,10 +184,10 @@ VertexData* Loader::loadOBJ_(const char* filename)
         }
     }
 //#ifdef DATA_INFO
-    Log::info("Load OBJ {} of {} vertexCount, {} unique vertices ({}% +{}% idx)",
-              filename, vtx->vertexCount(), vtx->m_Vertices.size(),
-              (float)vtx->m_Vertices.size()/vtx->vertexCount(),
-              (float)vtx->m_Indices.size()/vtx->vertexCount()/8.0f);
+//    Log::info("Load OBJ {} of {} vertexCount, {} unique vertices ({}% +{}% idx)",
+//              filename, vtx->vertexCount(), vtx->m_Vertices.size(),
+//              (float)vtx->m_Vertices.size()/vtx->vertexCount(),
+//              (float)vtx->m_Indices.size()/vtx->vertexCount()/8.0f);
 //#endif
     return vtx;
 }
@@ -774,9 +774,8 @@ const char* Loader::cpuid()
     if (CPUBrandString[0])
         return CPUBrandString;
 
-#ifdef _WIN32
-    static_assert(false);
-#else
+#if defined(_WIN32) || defined(__APPLE__)
+
     unsigned int CPUInfo[4] = {0,0,0,0};
 
     __cpuid(0x80000000, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
@@ -796,6 +795,8 @@ const char* Loader::cpuid()
             memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
     }
     return CPUBrandString;
+#else
+    static_assert(false);
 #endif
 }
 

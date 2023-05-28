@@ -11,6 +11,11 @@
 #include <ethertia/util/Collections.h>
 
 
+void _vk_check_result(VkResult rs)
+{
+    if (rs != VK_SUCCESS)
+        throw std::runtime_error("[vulkan] Error: VkResult = ");
+}
 
 
 ///////////////   vl:: Vulkan Low Level Encapsulate   ///////////////
@@ -873,8 +878,8 @@ VkPipeline vkx::CreateGraphicsPipeline(std::span<const std::pair<std::span<const
                     vl::IPipelineRasterizationState(VK_POLYGON_MODE_FILL, cullModeFlags, VK_FRONT_FACE_COUNTER_CLOCKWISE),
                     vl::IPipelineMultisampleState(),
                     vl::IPipelineDepthStencilState(),
-                    vl::IPipelineColorBlendState({colorBlendAttachs.data(), (int)colorBlendAttachs.size()}),
-                    vl::IPipelineDynamicState({dynamicStates.begin(), (int)dynamicStates.size()}),
+                    vl::IPipelineColorBlendState(colorBlendAttachs),
+                    vl::IPipelineDynamicState(dynamicStates),
                     pipelineLayout,
                     renderPass);
 

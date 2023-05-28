@@ -55,41 +55,39 @@ std::set<std::string> getSupportedExtensions()
 }
 
 
+#ifdef GL
+static const char* GetGlDebugMessageEnum(GLenum src_type_serv) {
+    switch (src_type_serv) {
+        // GL_DEBUG_SOURCE_
+        case GL_DEBUG_SOURCE_API: return "API";
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW_SYSTEM";
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER_COMPILER";
+        case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD_PARTY";
+        case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
+        case GL_DEBUG_SOURCE_OTHER: return "OTHER";
+        // GL_DEBUG_TYPE_
+        case GL_DEBUG_TYPE_ERROR: return "ERROR";
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
+        case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
+        case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
+        case GL_DEBUG_TYPE_MARKER: return "MARKER";
+        case GL_DEBUG_TYPE_OTHER: return "OTHER";
+        // GL_DEBUG_SEVERITY_
+        case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
+        case GL_DEBUG_SEVERITY_LOW: return "LOW";
+        case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+        case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
+        default: return "UNKNOWN";
+    }
+}
+
 void gl_debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
 {
-    auto const src_str = [source]() {
-        switch (source) {
-            case GL_DEBUG_SOURCE_API: return "API";
-            case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW_SYSTEM";
-            case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER_COMPILER";
-            case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD_PARTY";
-            case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
-            case GL_DEBUG_SOURCE_OTHER: return "OTHER";
-        }
-    }();
-
-    auto const type_str = [type]() {
-        switch (type) {
-            case GL_DEBUG_TYPE_ERROR: return "ERROR";
-            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
-            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
-            case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
-            case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
-            case GL_DEBUG_TYPE_MARKER: return "MARKER";
-            case GL_DEBUG_TYPE_OTHER: return "OTHER";
-        }
-    }();
-
-    auto const severity_str = [severity]() {
-        switch (severity) {
-            case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
-            case GL_DEBUG_SEVERITY_LOW: return "LOW";
-            case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
-            case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
-        }
-    }();
-
-    Log::info("glDebugMessage[{}][{}][{}/{}]: {}", src_str, type_str, severity_str, id, message);
+    Log::info("glDebugMessageCallback[{}][{}][{}/{}]: {}",
+              GetGlDebugMessageEnum(source),
+              GetGlDebugMessageEnum(type),
+              GetGlDebugMessageEnum(severity), id, message);
 }
 
 void InitGlDebugMessage()
@@ -97,40 +95,55 @@ void InitGlDebugMessage()
     int contextFlags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &contextFlags);
 
-    if (contextFlags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+    if (contextFlags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(gl_debug_message_callback, nullptr);
-    } else {
-        Log::warn("DebugOutput NotSupported");
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        Log::info("glDebugMessageCallback Enabled.");
     }
+//    else
+//    {
+//        Log::warn("DebugOutput NotSupported");
+//    }
 }
-
+#endif
 
 void RenderEngine::init()
 {
     BENCHMARK_TIMER;
-    Log::info("RenderEngine initializing.\1");
+    Log::info("RenderEngine initializing..");
 
-//    InitGlDebugMessage();
+    glEnable(GL_TRUE);
+    Log::info("TRU");
 
-    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
+    InitGlDebugMessage();
 
+    glEnable(GL_TRUE);
+//    ShaderProgram::loadAll();
 
-    TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
-    TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");
+//    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);,
+//      Log::info("Vulkan {}, {}",
+//                vkx::ctx().PhysDeviceProperties.apiVersion,
+//                vkx::ctx().PhysDeviceProperties.deviceName);
 
-    Materials::registerMaterialItems();  // before items tex load.
-    MaterialTextures::load();
-
-    RendererGbuffer::init();
-
-    RendererCompose::init(RendererGbuffer::gPosition.Image->m_ImageView,
-                          RendererGbuffer::gNormal.Image->m_ImageView,
-                          RendererGbuffer::gAlbedo.Image->m_ImageView);
-
-    g_ComposeView = RendererCompose::g_FramebufferAttachmentColor.Image->m_ImageView;
+//    TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
+//    TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");
+//
+//    Materials::registerMaterialItems();  // before items tex load.
+//    MaterialTextures::load();
+//
+//    RendererGbuffer::init();
+//
+//    RendererCompose::init(RendererGbuffer::gPosition.Image->m_ImageView,
+//                          RendererGbuffer::gNormal.Image->m_ImageView,
+//                          RendererGbuffer::gAlbedo.Image->m_ImageView);
+//
+//    g_ComposeView = RendererCompose::g_FramebufferAttachmentColor.Image->m_ImageView;
 //            RendererGbuffer::gAlbedo.Image->m_ImageView;
+
+    Log::info("RenderEngine initialized.\1");
 }
 
 

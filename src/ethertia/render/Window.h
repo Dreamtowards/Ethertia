@@ -6,6 +6,7 @@
 #define ETHERTIA_WINDOW_H
 
 #include <stdexcept>
+
 #define GLFW_INCLUDE_NONE 1
 #include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
@@ -15,6 +16,9 @@
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/BitmapImage.h>
 
+
+#define GL
+//#define VULKAN
 
 
 class Window

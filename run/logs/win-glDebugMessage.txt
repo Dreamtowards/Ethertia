@@ -1,0 +1,18 @@
+E:\_Dev\Ethertia\run\bin\windows-x64\Ethertia.exe
+[2023-05-28.21:00:03.318.513][1/INFO]: Load Settings. in 3.914496ms.
+[2023-05-28.21:00:03.334.246][1/INFO]: Compiled SIMD Levels: SSE2/SSE3/SSSE3/SSE41/SSE42/AVX2/AVX512 :: SSE3 (CPU max: AVX2) if crash, try downgrade SIMD_Level in 'settings.json'.
+[2023-05-28.21:00:03.349.537][1/INFO]: WINDOWS-X64, hardware_concurrency 16x, endian little, cpu AMD Ryzen 7 5800 8-Core Processor
+[2023-05-28.21:00:04.101.813][1/INFO]: GLFW 3.3.8 Win32 WGL EGL OSMesa MinGW DLL
+[2023-05-28.21:00:04.470.56 ][1/INFO]: GL 4.6.0 NVIDIA 517.02, NVIDIA GeForce RTX 3060/PCIe/SSE2, NVIDIA Corporation
+[2023-05-28.21:00:04.486.047][1/INFO]: glDebugMessageCallback Enabled.
+ in 396.023296ms.
+[2023-05-28.21:00:04.518.019][1/INFO]: RenderEngine initializing..
+[2023-05-28.21:00:04.550.906][1/INFO]: RenderEngine initialized. in 33.368320ms.
+[2023-05-28.21:00:04.667.573][1/INFO]: AL 1.1 ALSOFT 1.22.2, OpenAL Soft on 扬声器 (Realtek(R) Audio) - Stereo (basic), Capt: OpenAL Soft on 耳机式麦克风 (Razer Kraken 7.1 V2). in 102.418432ms.
+[2023-05-28.21:00:04.675.88 ][1/INFO]: Initializing NetworkSystem and Packets. in 6.710016ms.
+[2023-05-28.21:00:04.691.877][1/INFO]: Loading material meshes... in 65.818624ms.
+[2023-05-28.21:10:07.858.419][1/INFO]: glDebugMessageCallback[API][ERROR][HIGH/1280]: GL_INVALID_ENUM error generated. <cap> enum is invalid; expected GL_ALPHA_TEST, GL_BLEND, GL_COLOR_MATERIAL, GL_CULL_FACE, GL_DEPTH_TEST, GL_DITHER, GL_FOG, etc. (136 others).
+
+Signal: SIGSEGV (Segmentation fault)
+
+Process finished with exit code 1
