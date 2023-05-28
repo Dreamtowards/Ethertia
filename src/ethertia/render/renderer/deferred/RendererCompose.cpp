@@ -51,14 +51,6 @@ namespace RendererCompose
 
     void init(VkImageView gPosition, VkImageView gNormal, VkImageView gAlbedo)
     {
-        BitmapImage imgs[6] = {
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/right.jpg"),
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/left.jpg"),
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/top.jpg"),
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/bottom.jpg"),
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/front.jpg"),
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/back.jpg")
-        };
         gTestCubeMap = Loader::loadCubeMap_3x2("misc/sky/cloud1.png");
 
         VkDevice device = vkx::ctx().Device;
@@ -86,10 +78,10 @@ namespace RendererCompose
             vkx::DescriptorWrites writes{g_DescriptorSet[i]};
 
             writes.UniformBuffer(g_UniformBuffers[i]->buffer(), sizeof(UBO));
-            writes.CombinedImageSampler(gPosition, vkx::ctx().ImageSampler);
-            writes.CombinedImageSampler(gNormal, vkx::ctx().ImageSampler);
-            writes.CombinedImageSampler(gAlbedo, vkx::ctx().ImageSampler);
-            writes.CombinedImageSampler(gAlbedo, vkx::ctx().ImageSampler);  // todo: DRAM
+            writes.CombinedImageSampler(gPosition);
+            writes.CombinedImageSampler(gNormal);
+            writes.CombinedImageSampler(gAlbedo);
+            writes.CombinedImageSampler(gAlbedo);  // todo: DRAM
             writes.CombinedImageSampler(gTestCubeMap->m_ImageView);
 
             writes.WriteDescriptorSets(device);

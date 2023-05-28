@@ -480,6 +480,7 @@ namespace vkx
         VkDeviceMemory m_ImageMemory = nullptr;
         VkImageView m_ImageView = nullptr;
 
+        VkFormat m_Format;
         int width;
         int height;
 
