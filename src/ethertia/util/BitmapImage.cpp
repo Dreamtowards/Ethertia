@@ -38,14 +38,17 @@ void BitmapImage::resize(const BitmapImage &src, BitmapImage &dst, bool nearestS
 
 void BitmapImage::CopyPixels(int srcX, int srcY, const BitmapImage& srcImg,
                              int dstX, int dstY, BitmapImage& dstImg,
+                             int cpyWidth, int cpyHeight,
                              int specChannel)
 {
-    assert(srcX <= srcImg.width() && srcY <= srcImg.height() && "Out of copy src image sample range");
-    assert(dstX+srcImg.width() <= dstImg.width() && dstY+srcImg.height() <= dstImg.height() && "Out of copy dest range");
+    if (cpyWidth == -1) cpyWidth = srcImg.width();
+    if (cpyHeight == -1) cpyHeight = srcImg.height();
+    assert(srcX+cpyWidth <= srcImg.width() && srcY+cpyHeight <= srcImg.height() && "Out of copy src image sample range");
+    assert(dstX+cpyWidth <= dstImg.width() && dstY+cpyHeight <= dstImg.height() && "Out of copy dest range");
 
-    for (int dx = 0; dx < srcImg.width(); ++dx)
+    for (int dx = 0; dx < cpyWidth; ++dx)
     {
-        for (int dy = 0; dy < srcImg.height(); ++dy)
+        for (int dy = 0; dy < cpyHeight; ++dy)
         {
             if (specChannel != -1) // copy only the channel.
             {

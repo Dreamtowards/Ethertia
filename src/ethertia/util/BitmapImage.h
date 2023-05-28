@@ -32,7 +32,8 @@ public:
 
     static void CopyPixels(int srcX, int srcY, const BitmapImage& srcImg,
                            int dstX, int dstY, BitmapImage& dstImg,
-                           int specChannel = -1);  // 0123: one of u8 RGBA, -1: u32 RGBA
+                           int cpyWidth = -1, int cpyHeight = -1,  // -1: Full srcImg size. width and height.
+                           int specChannel = -1);  // -1: u32 RGBA, 0/1/2/3: one of u8 R/G/B/A.
 
 
     int width() const { return m_Width; }

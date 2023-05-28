@@ -95,6 +95,7 @@ public:
 
     //////////// PNG ////////////
 
+    // todo: return BitmapImage* ptr. for more flexible
 
     // internal. stbi_load(filename). load file directly might optimizer than stbi_load_from_memory.
     static BitmapImage loadPNG_(const char* filename);
@@ -169,8 +170,18 @@ public:
     static vkx::Image* loadTexture(const std::string& filepath) { return Loader::loadTexture(Loader::loadPNG(filepath)); }
 
 
-
+    // @imgs 6 Images, order: +X Right, -X Left, +Y Top, -Y Bottom, +Z Front, -Z Back.
     static vkx::Image* loadCubeMap(const BitmapImage* imgs);
+
+    // in the @filename_pattern, "{}" will be replaced with:
+    inline static const char* CUBEMAP_PAT[] = {"right", "left", "top", "bottom", "front", "back"};
+
+    // load 6 individual image.
+    // @filename_pattern: e.g. "skybox-{}.png", the "{}" will be replaced with @patterns e.g. right/left/top/bottom/front/back.
+    static vkx::Image* loadCubeMap_6(const std::string& filename_pattern, const char** patterns = CUBEMAP_PAT);
+
+    // load a 3x2 grid image, first row: bottom, top, back, second row: left front, right
+    static vkx::Image* loadCubeMap_3x2(const std::string& filename);
 
 
 //    // imgs order: Right, Left, Top, Bottom, Front, Back.

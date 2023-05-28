@@ -36,6 +36,7 @@
 
 #include "renderer/deferred/RendererGbuffers.cpp"
 #include "renderer/deferred/RendererCompose.cpp"
+#include "renderer/RendererSkybox.cpp"
 
 std::set<std::string> getSupportedExtensions()
 {
@@ -115,7 +116,6 @@ void RenderEngine::init()
 
     vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
 
-//    getSupportedExtensions();
 
     TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
     TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");

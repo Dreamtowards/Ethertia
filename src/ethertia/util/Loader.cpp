@@ -268,7 +268,7 @@ void Loader::savePNG(const std::string& filename, const BitmapImage& img)
 
 
 
-// for OpenGL.
+// for OpenGL 3.
 //VertexArrays* Loader::loadVertexBuffer(size_t vcount, std::initializer_list<int> sizes,
 //                                       float* vtx_data, size_t vtx_size, uint32_t* idx_data)
 //{
@@ -396,6 +396,8 @@ VertexArray* loadVertexData(uint32_t vertexCount, std::initializer_list<int> att
 
 
 
+
+
 vkx::Image* Loader::loadTexture(const BitmapImage& img)
 {
     VkImage image;
@@ -427,6 +429,46 @@ vkx::Image* Loader::loadCubeMap(const BitmapImage* imgs)
     return new vkx::Image(image, imageMemory, imageView, w, h);
 }
 
+
+vkx::Image* Loader::loadCubeMap_6(const std::string& filename_pattern, const char** patterns)
+{
+    BitmapImage imgs[6] = {
+            Loader::loadPNG(Strings::fmt(filename_pattern, patterns[0])),  // todo use forloop.
+            Loader::loadPNG(Strings::fmt(filename_pattern, patterns[1])),
+            Loader::loadPNG(Strings::fmt(filename_pattern, patterns[2])),
+            Loader::loadPNG(Strings::fmt(filename_pattern, patterns[3])),
+            Loader::loadPNG(Strings::fmt(filename_pattern, patterns[4])),
+            Loader::loadPNG(Strings::fmt(filename_pattern, patterns[5]))
+    };
+    return Loader::loadCubeMap(imgs);
+}
+
+vkx::Image* Loader::loadCubeMap_3x2(const std::string& filename)
+{
+    BitmapImage comp = Loader::loadPNG(filename);
+    int gsize = comp.height() / 2;
+    assert(std::abs(comp.width() - gsize*3) <= 1 && "expect 3x2 grid image.");
+
+    BitmapImage imgs[6] = {{gsize, gsize}, {gsize, gsize}, {gsize, gsize},
+                           {gsize, gsize}, {gsize, gsize}, {gsize, gsize}};
+
+    glm::vec2 coords[6] = {
+            {2, 1},  // +X Right
+            {0, 1},  // -X Left
+            {1, 0},  // +Y Top
+            {0, 0},  // -Y Bottom
+            {1, 1},  // +Z Front
+            {2, 0}   // -Z Back
+    };
+
+    for (int i = 0; i < 6; ++i) {
+        BitmapImage::CopyPixels(coords[i].x*gsize, coords[i].y*gsize, comp,
+                                0, 0, imgs[i],
+                                gsize, gsize);
+    }
+
+    return Loader::loadCubeMap(imgs);
+}
 
 
 //GLuint loadTexture(const BitmapImage& img)

@@ -121,7 +121,8 @@ public:
 
                     // Copy/Merge Channel 1.
                     BitmapImage::CopyPixels(0,0,resized_dram[1],
-                                            0,0,composed, 1);
+                                            0,0,composed, -1, -1,
+                                            1);
 
                     // Produce to the Atlas.
                     BitmapImage::CopyPixels(0,0, composed,

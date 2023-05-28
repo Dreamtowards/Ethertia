@@ -52,14 +52,14 @@ namespace RendererCompose
     void init(VkImageView gPosition, VkImageView gNormal, VkImageView gAlbedo)
     {
         BitmapImage imgs[6] = {
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/left.jpg"),
                 Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/right.jpg"),
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/left.jpg"),
                 Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/top.jpg"),
                 Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/bottom.jpg"),
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/back.jpg"),
-                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/front.jpg")
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/front.jpg"),
+                Loader::loadPNG("/Users/dreamtowards/Documents/YouRepository/Ethertia/run/assets/misc/skybox/back.jpg")
         };
-        gTestCubeMap = Loader::loadCubeMap(imgs);
+        gTestCubeMap = Loader::loadCubeMap_3x2("misc/sky/cloud1.png");
 
         VkDevice device = vkx::ctx().Device;
 
