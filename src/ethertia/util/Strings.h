@@ -14,76 +14,29 @@
 #include <functional>
 #include <cmath>
 #include <cassert>
+#include <stdint.h>
 
 class Strings
 {
 public:
 
-    static std::string erase(std::string& str, char ch) {
-        str.erase(std::remove(str.begin(), str.end(), ch), str.end());
-        return str;
-    }
+    static std::string& erase(std::string& str, char ch);
 
-    static std::string join(const std::string& delimiter, const std::vector<std::string>& ls) {
-        return Strings::join(delimiter, [&](int i){ return ls[i]; }, ls.size());
-    }
-    static std::string join(const std::string& delimiter, const std::function<const std::string(int)>& fn, int n) {
-        std::stringstream ss;
-        for (int i = 0;i < n; ++i) {
-            if (ss.tellp() > 0)
-                ss << delimiter;
-            ss << fn(i);
-        }
-        return ss.str();
-    }
+    static std::string join(const std::string& delimiter, const std::function<std::string(int)>& fn, int n);
 
-    // epoch: -0 -> Now
-    static std::string time_fmt(std::time_t epoch_sec = -1, const char* _fmt = "%Y-%m-%d.%H:%M:%S") {
-        if (epoch_sec == -1) {
-            epoch_sec = std::time(nullptr);
-        }
-        struct tm* tm_info = std::localtime(&epoch_sec);
-        assert(tm_info);
+    static std::string join(const std::string& delimiter, const std::vector<std::string>& ls);
 
-        return Strings::str(std::put_time(tm_info, _fmt));
-    }
+    // epoch: -1 -> Now
+    static std::string time_fmt(std::time_t epoch_sec = -1, const char* _fmt = "%Y-%m-%d.%H:%M:%S");
 
-    static std::string hex(void* data, std::size_t len = 1, bool uppercase = false)
-    {
-        static char DIGIT[] = {
-                '0', '1', '2', '3', '4', '5', '6', '7',
-                '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-        };
-
-        std::stringstream ss;
-        for (int i = 0; i < len; ++i) {
-            std::uint8_t b = ((std::uint8_t*)data)[i];
-
-            int b0 = (b >> 4) & 0x0F;
-            int b1 = b & 0x0F;
-            ss << DIGIT[b0] << DIGIT[b1];
-        }
-        return ss.str();
-    }
+    static std::string hex(void* data, std::size_t len = 1, bool uppercase = false);
 
     inline static const size_t SIZE_KB = 1024,
                                SIZE_MB = SIZE_KB * 1024,
                                SIZE_GB = SIZE_MB * 1024,
                                SIZE_TB = SIZE_GB * 1024;
 
-    static std::string size_str(size_t bytes) {
-        if (bytes < SIZE_KB) {
-            return std::to_string(bytes) + " B";
-        } else if (bytes < SIZE_MB) {
-            return std::to_string((float)bytes / SIZE_KB) + " KB";
-        } else if (bytes < SIZE_GB) {
-            return std::to_string((float)bytes / SIZE_MB) + " MB";
-        } else if (bytes < SIZE_TB) {
-            return std::to_string((float)bytes / SIZE_GB) + " GB";
-        } else {
-            return std::to_string((float)bytes / SIZE_TB) + " TB";
-        }
-    }
+    static std::string size_str(size_t bytes);
 
 
     template<typename... ARGS>
