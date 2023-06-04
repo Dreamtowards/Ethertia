@@ -43,17 +43,27 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
 #endif
 
 #ifdef GL
+    // GL 4.5.
+    // 4.3: DebugMessage, ComputerShaders
+    // 4.5: DSA, SPIR-V
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+#else
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+#endif
+
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);   // available since GL 4.3, glDebugMessageCallback.
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // Required on Mac OSX.
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #endif
-
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
     glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
+
+
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);

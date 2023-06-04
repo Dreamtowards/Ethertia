@@ -75,6 +75,7 @@ include_directories(lib/nbt/include)
 include_directories(lib/openvr/headers)
 include_directories(lib/imgui-docking)
 include_directories(src/ethertia/render/vkx)
+include_directories(src/ethertia/render/glc)
 
 
 
@@ -109,7 +110,9 @@ add_executable(Ethertia
         src/ethertia/render/VertexData.cpp
         src/ethertia/item/ItemComponents.cpp
         src/ethertia/world/World.cpp
+
         src/ethertia/render/vkx/vkx.cpp
+        src/ethertia/render/glc/glc.cpp
 
         src/ethertia/Ethertia.cpp
         )

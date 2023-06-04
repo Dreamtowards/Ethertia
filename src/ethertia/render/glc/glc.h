@@ -5,6 +5,9 @@
 #ifndef ETHERTIA_GLC_H
 #define ETHERTIA_GLC_H
 
+#include <cstdint>
+#include <functional>
+
 typedef uint32_t GLenum;
 typedef uint32_t GLuint;
 
@@ -13,6 +16,7 @@ namespace glc
 
     class Texture
     {
+    public:
         GLuint textureId;
         GLuint target;
 
@@ -25,10 +29,34 @@ namespace glc
 
     void TextureParameter(Texture* tex, GLenum pname, GLenum param);
 
+    // glActiveTexture(); glBindTexture();
     void BindTextureUnit(int unit, Texture* tex);
 
-    const char* GetString_DebugEnum();
 
+
+
+
+    //////////////// glDebugMessage, GL 4.3+ ////////////////
+
+    const char* GetString_DebugMessageEnum(GLenum src_type_serv);
+
+    struct DebugMessageCallbackArgs
+    {
+        GLenum source;
+        GLenum type;
+        GLuint id;
+        GLenum severity;
+        size_t length;
+        const char* message;
+        const void* user_param;
+
+        const char* source_str;
+        const char* type_str;
+        const char* severity_str;
+    };
+
+    // return true: successfully setup. (valid debug context)
+    bool InitDebugMessageCallback(const std::function<void(const glc::DebugMessageCallbackArgs&)>& callback, bool sync = true);
 
 
     class VertexArrays

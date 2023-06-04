@@ -51,7 +51,7 @@ public:
 
         }
 
-        Log::info("AL {}, {} - {}, Capt: {}.\1",
+        Log::info("AL {}. {} - {}, Capt: {}.\1",
                   alGetString(AL_VERSION),
 //                  alcGetString(m_Device, ALC_DEVICE_SPECIFIER),
                   alcGetString(m_Device, ALC_ALL_DEVICES_SPECIFIER),  // actual device name.

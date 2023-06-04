@@ -5,6 +5,7 @@
 
 #include "RenderEngine.h"
 
+#include <glc.h>
 
 #include <ethertia/render/Window.h>
 #include <ethertia/init/ItemTextures.h>
@@ -56,38 +57,12 @@ std::set<std::string> getSupportedExtensions()
 
 
 #ifdef GL
-static const char* GetGlDebugMessageEnum(GLenum src_type_serv) {
-    switch (src_type_serv) {
-        // GL_DEBUG_SOURCE_
-        case GL_DEBUG_SOURCE_API: return "API";
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW_SYSTEM";
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER_COMPILER";
-        case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD_PARTY";
-        case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
-        case GL_DEBUG_SOURCE_OTHER: return "OTHER";
-        // GL_DEBUG_TYPE_
-        case GL_DEBUG_TYPE_ERROR: return "ERROR";
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
-        case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
-        case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
-        case GL_DEBUG_TYPE_MARKER: return "MARKER";
-        case GL_DEBUG_TYPE_OTHER: return "OTHER";
-        // GL_DEBUG_SEVERITY_
-        case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
-        case GL_DEBUG_SEVERITY_LOW: return "LOW";
-        case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
-        case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
-        default: return "UNKNOWN";
-    }
-}
-
 void gl_debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
 {
     Log::info("glDebugMessageCallback[{}][{}][{}/{}]: {}",
-              GetGlDebugMessageEnum(source),
-              GetGlDebugMessageEnum(type),
-              GetGlDebugMessageEnum(severity), id, message);
+              glc::GetString_DebugMessageEnum(source),
+              glc::GetString_DebugMessageEnum(type),
+              glc::GetString_DebugMessageEnum(severity), id, message);
 }
 
 void InitGlDebugMessage()
@@ -103,10 +78,6 @@ void InitGlDebugMessage()
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
         Log::info("glDebugMessageCallback Enabled.");
     }
-//    else
-//    {
-//        Log::warn("DebugOutput NotSupported");
-//    }
 }
 #endif
 
@@ -115,12 +86,16 @@ void RenderEngine::init()
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
 
-    glEnable(GL_TRUE);
-    Log::info("TRU");
+    glc::InitDebugMessageCallback([](glc::DebugMessageCallbackArgs args)
+    {
+        Log::info("glDebugMessageCallback[{}][{}][{}/{}]: {}",
+                  args.source_str,
+                  args.type_str,
+                  args.severity_str, args.id,
+                  args.message);
+    });
 
-    InitGlDebugMessage();
 
-    glEnable(GL_TRUE);
 //    ShaderProgram::loadAll();
 
 //    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);,
