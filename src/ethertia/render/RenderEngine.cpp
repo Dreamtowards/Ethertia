@@ -56,37 +56,12 @@ std::set<std::string> getSupportedExtensions()
 }
 
 
-#ifdef GL
-void gl_debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
-{
-    Log::info("glDebugMessageCallback[{}][{}][{}/{}]: {}",
-              glc::GetString_DebugMessageEnum(source),
-              glc::GetString_DebugMessageEnum(type),
-              glc::GetString_DebugMessageEnum(severity), id, message);
-}
-
-void InitGlDebugMessage()
-{
-    int contextFlags;
-    glGetIntegerv(GL_CONTEXT_FLAGS, &contextFlags);
-
-    if (contextFlags & GL_CONTEXT_FLAG_DEBUG_BIT)
-    {
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(gl_debug_message_callback, nullptr);
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-        Log::info("glDebugMessageCallback Enabled.");
-    }
-}
-#endif
-
 void RenderEngine::init()
 {
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
 
-    glc::InitDebugMessageCallback([](glc::DebugMessageCallbackArgs args)
+    glc::DebugMessageCallback([](glc::DebugMessageCallbackArgs args)
     {
         Log::info("glDebugMessageCallback[{}][{}][{}/{}]: {}",
                   args.source_str,

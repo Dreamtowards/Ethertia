@@ -56,7 +56,7 @@ namespace glc
     };
 
     // return true: successfully setup. (valid debug context)
-    bool InitDebugMessageCallback(const std::function<void(const glc::DebugMessageCallbackArgs&)>& callback, bool sync = true);
+    bool DebugMessageCallback(const std::function<void(const glc::DebugMessageCallbackArgs&)>& callback, bool sync = true);
 
 
     class VertexArrays

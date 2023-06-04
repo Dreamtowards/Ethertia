@@ -98,7 +98,7 @@ void callback_gl_debug_message(GLenum source, GLenum type, GLuint id, GLenum sev
     ((_IntlDebugMessageUserObj*)user_param)->callback(args);
 }
 
-bool glc::InitDebugMessageCallback(const std::function<void(const glc::DebugMessageCallbackArgs&)>& callback, bool sync)
+bool glc::DebugMessageCallback(const std::function<void(const glc::DebugMessageCallbackArgs&)>& callback, bool sync)
 {
     int contextFlags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &contextFlags);
