@@ -188,8 +188,8 @@ namespace RendererGbuffer
         clearValues[3].depthStencil = {1.0f, 0};
         VkExtent2D renderExtent = g_AttachmentSize;
         cmd.CmdBeginRenderPass(g_RenderPass, g_Framebuffer, renderExtent, {clearValues, 4});
-//        cmd.CmdSetViewport(renderExtent);
-//        cmd.CmdSetScissor(renderExtent);
+        cmd.CmdSetViewport(renderExtent);
+        cmd.CmdSetScissor(renderExtent);
 
         cmd.CmdBindDescriptorSets(g_PipelineLayout, &g_DescriptorSets[frameIdx]);
 

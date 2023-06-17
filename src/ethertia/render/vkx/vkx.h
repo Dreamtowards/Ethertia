@@ -234,6 +234,11 @@ namespace vkx
     inline uint32_t CurrentInflightFrame = 0;   // index
     inline uint32_t CurrentSwapchainImage = 0;  // index
 
+    struct DebugMessengerCallbackArgs
+    {
+
+    };
+
     struct Instance
     {
     public:
@@ -276,6 +281,8 @@ namespace vkx
 
 
         VkRenderPass MainRenderPass = nullptr;  // external. main render pass.
+
+        std::function<VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData>* DebugMessengerCallback = nullptr;
     };
 
     void ctx(vkx::Instance* inst);

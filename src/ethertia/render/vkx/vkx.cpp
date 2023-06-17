@@ -1171,7 +1171,11 @@ static void CheckValidationLayersSupport(const std::vector<const char*>& validat
             }
         }
         if (!found) {
-            throw std::runtime_error(Strings::fmt("required validation layer not available: {} of available {}", layerName, layerCount));
+            std::stringstream ss;
+            for (const auto& layerProperties : availableLayers) {
+                ss << layerProperties.layerName;
+            }
+            throw std::runtime_error(Strings::fmt("Required validation layer '{}' is not available. There {} available layers: {}", layerName, layerCount, ss.str()));
         }
     }
 }
@@ -1198,6 +1202,11 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugMessengerCallback( VkDebugUtilsMessag
         std::cerr << Strings::fmt("VkLayer[{}][{}]: ", MSG_SERV, MSG_TYPE) << pCallbackData->pMessage << std::endl;
 
         std::cerr.flush();
+    }
+
+    if (vkx::ctx().DebugMessengerCallback)
+    {
+        (*vkx::ctx().DebugMessengerCallback)(messageSeverity, messageType, pCallbackData);
     }
 
     return VK_FALSE;
@@ -2070,6 +2079,20 @@ void vkx::CreateStagedBuffer(const void* bufferData, VkDeviceSize bufferSize, Vk
 
 
 
+//std::set<std::string> getSupportedExtensions()
+//{
+//    uint32_t count = 0;
+//    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
+//
+//    std::vector<VkExtensionProperties> extensionProperties(count);
+//    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, extensionProperties.data()));
+//
+//    std::set<std::string> extensions;
+//    for (auto & extension : extensionProperties) {
+//        extensions.insert(extension.extensionName);
+//    }
+//    return extensions;
+//}
 
 
 
