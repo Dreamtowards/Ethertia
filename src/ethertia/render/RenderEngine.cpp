@@ -62,7 +62,10 @@ void RenderEngine::init()
 
 #ifdef VULKAN
 
-    vkx::ctx().CommandBuffers;
+
+    vkx::ctx().DebugMessengerCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData) {
+
+    };
 
     vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
     Log::info("Vulkan {}, {}",

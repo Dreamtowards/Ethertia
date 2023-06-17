@@ -1204,10 +1204,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugMessengerCallback( VkDebugUtilsMessag
         std::cerr.flush();
     }
 
-    if (vkx::ctx().DebugMessengerCallback)
-    {
-        (*vkx::ctx().DebugMessengerCallback)(messageSeverity, messageType, pCallbackData);
-    }
+    vkx::ctx().DebugMessengerCallback(messageSeverity, messageType, pCallbackData);
 
     return VK_FALSE;
 }
@@ -1780,9 +1777,7 @@ static void CreateSyncObjects()
 
 void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer, const std::vector<const char*>& extraExtensions)
 {
-    vkx::Instance* inst = new vkx::Instance();
-    vkx::ctx(inst);
-    vkx::Instance& i = *inst;
+    vkx::Instance& i = vkx::ctx();
     i.m_EnabledValidationLayer = enableValidationLayer;
     i.WindowHandle = glfwWindow;
     // i.ExtraExtensions = extraExtensions;
@@ -1856,13 +1851,14 @@ void vkx::Destroy()
 
 
 // The Default Instance;
-static vkx::Instance* _DefaultInst = nullptr;
-void vkx::ctx(vkx::Instance* inst) {
-    assert(_DefaultInst == nullptr);
-    _DefaultInst = inst;
-}
+//static vkx::Instance* _DefaultInst = nullptr;
+//void vkx::ctx(vkx::Instance* inst) {
+//    assert(_DefaultInst == nullptr);
+//    _DefaultInst = inst;
+//}
 vkx::Instance& vkx::ctx() {
-    return *_DefaultInst;
+    static vkx::Instance* inst = new vkx::Instance();
+    return *inst;
 }
 
 
