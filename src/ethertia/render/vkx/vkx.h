@@ -231,14 +231,13 @@ namespace vkx
     class Image;
 
     const int INFLIGHT_FRAMES = 2;
-    inline uint32_t CurrentInflightFrame = 0;   // index
+    inline uint32_t CurrentInflightFrame = 0;   // index  // ? why not put in vkx::ctx() ?
     inline uint32_t CurrentSwapchainImage = 0;  // index
+
 
     struct Instance
     {
     public:
-//        Instance(GLFWwindow* glfwWindow, bool enableValidationLayer = true);
-//        ~Instance();
 
         VkInstance Inst = nullptr;
         VkSurfaceKHR SurfaceKHR = nullptr;
@@ -276,9 +275,13 @@ namespace vkx
 
 
         VkRenderPass MainRenderPass = nullptr;  // external. main render pass.
+
+
+        std::function<void(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData)> DebugMessengerCallback
+            = [](auto, auto, auto){};
     };
 
-    void ctx(vkx::Instance* inst);
+//    void ctx(vkx::Instance* inst);
     vkx::Instance& ctx();
 
 

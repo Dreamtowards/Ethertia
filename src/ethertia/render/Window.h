@@ -17,8 +17,8 @@
 #include <ethertia/util/BitmapImage.h>
 
 
-#define GL
-//#define VULKAN
+//#define GL
+#define VULKAN
 
 
 class Window

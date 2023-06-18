@@ -1171,7 +1171,11 @@ static void CheckValidationLayersSupport(const std::vector<const char*>& validat
             }
         }
         if (!found) {
-            throw std::runtime_error(Strings::fmt("required validation layer not available: {} of available {}", layerName, layerCount));
+            std::stringstream ss;
+            for (const auto& layerProperties : availableLayers) {
+                ss << layerProperties.layerName;
+            }
+            throw std::runtime_error(Strings::fmt("Required validation layer '{}' is not available. There {} available layers: {}", layerName, layerCount, ss.str()));
         }
     }
 }
@@ -1199,6 +1203,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugMessengerCallback( VkDebugUtilsMessag
 
         std::cerr.flush();
     }
+
+    vkx::ctx().DebugMessengerCallback(messageSeverity, messageType, pCallbackData);
 
     return VK_FALSE;
 }
@@ -1771,9 +1777,7 @@ static void CreateSyncObjects()
 
 void vkx::Init(GLFWwindow* glfwWindow, bool enableValidationLayer, const std::vector<const char*>& extraExtensions)
 {
-    vkx::Instance* inst = new vkx::Instance();
-    vkx::ctx(inst);
-    vkx::Instance& i = *inst;
+    vkx::Instance& i = vkx::ctx();
     i.m_EnabledValidationLayer = enableValidationLayer;
     i.WindowHandle = glfwWindow;
     // i.ExtraExtensions = extraExtensions;
@@ -1847,13 +1851,14 @@ void vkx::Destroy()
 
 
 // The Default Instance;
-static vkx::Instance* _DefaultInst = nullptr;
-void vkx::ctx(vkx::Instance* inst) {
-    assert(_DefaultInst == nullptr);
-    _DefaultInst = inst;
-}
+//static vkx::Instance* _DefaultInst = nullptr;
+//void vkx::ctx(vkx::Instance* inst) {
+//    assert(_DefaultInst == nullptr);
+//    _DefaultInst = inst;
+//}
 vkx::Instance& vkx::ctx() {
-    return *_DefaultInst;
+    static vkx::Instance* inst = new vkx::Instance();
+    return *inst;
 }
 
 
@@ -2070,6 +2075,20 @@ void vkx::CreateStagedBuffer(const void* bufferData, VkDeviceSize bufferSize, Vk
 
 
 
+//std::set<std::string> getSupportedExtensions()
+//{
+//    uint32_t count = 0;
+//    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
+//
+//    std::vector<VkExtensionProperties> extensionProperties(count);
+//    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, extensionProperties.data()));
+//
+//    std::set<std::string> extensions;
+//    for (auto & extension : extensionProperties) {
+//        extensions.insert(extension.extensionName);
+//    }
+//    return extensions;
+//}
 
 
 

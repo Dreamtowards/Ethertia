@@ -39,21 +39,6 @@
 #include "renderer/deferred/RendererCompose.cpp"
 #include "renderer/RendererSkybox.cpp"
 
-std::set<std::string> getSupportedExtensions()
-{
-    uint32_t count = 0;
-    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
-
-    std::vector<VkExtensionProperties> extensionProperties(count);
-    VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, extensionProperties.data()));
-
-    std::set<std::string> extensions;
-    for (auto & extension : extensionProperties) {
-        extensions.insert(extension.extensionName);
-        Log::info("Ext: ", extension.extensionName);
-    }
-    return extensions;
-}
 
 
 void RenderEngine::init()
@@ -61,7 +46,8 @@ void RenderEngine::init()
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
 
-    glc::DebugMessageCallback([](glc::DebugMessageCallbackArgs args)
+#ifdef GL
+    glc::InitDebugMessageCallback([](glc::DebugMessageCallbackArgs args)
     {
         Log::info("glDebugMessageCallback[{}][{}][{}/{}]: {}",
                   args.source_str,
@@ -69,29 +55,38 @@ void RenderEngine::init()
                   args.severity_str, args.id,
                   args.message);
     });
+#endif
 
 
 //    ShaderProgram::loadAll();
 
-//    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);,
-//      Log::info("Vulkan {}, {}",
-//                vkx::ctx().PhysDeviceProperties.apiVersion,
-//                vkx::ctx().PhysDeviceProperties.deviceName);
+#ifdef VULKAN
 
-//    TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
-//    TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");
-//
-//    Materials::registerMaterialItems();  // before items tex load.
-//    MaterialTextures::load();
-//
-//    RendererGbuffer::init();
-//
-//    RendererCompose::init(RendererGbuffer::gPosition.Image->m_ImageView,
-//                          RendererGbuffer::gNormal.Image->m_ImageView,
-//                          RendererGbuffer::gAlbedo.Image->m_ImageView);
-//
-//    g_ComposeView = RendererCompose::g_FramebufferAttachmentColor.Image->m_ImageView;
-//            RendererGbuffer::gAlbedo.Image->m_ImageView;
+
+    vkx::ctx().DebugMessengerCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData) {
+
+    };
+
+    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
+    Log::info("Vulkan {}, {}",
+              vkx::ctx().PhysDeviceProperties.apiVersion,
+              vkx::ctx().PhysDeviceProperties.deviceName);
+
+    TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
+    TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");
+
+    Materials::registerMaterialItems();  // before items tex load.
+    MaterialTextures::load();
+
+    RendererGbuffer::init();
+
+    RendererCompose::init(RendererGbuffer::gPosition.Image->m_ImageView,
+                          RendererGbuffer::gNormal.Image->m_ImageView,
+                          RendererGbuffer::gAlbedo.Image->m_ImageView);
+
+    g_ComposeView = RendererCompose::g_FramebufferAttachmentColor.Image->m_ImageView;
+            // RendererGbuffer::gAlbedo.Image->m_ImageView;
+#endif
 
     Log::info("RenderEngine initialized.\1");
 }
