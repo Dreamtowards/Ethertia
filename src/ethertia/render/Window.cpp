@@ -78,7 +78,6 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
         throw std::runtime_error(Strings::fmt("failed to init glfw window: {}. ({})", err, err_str));
     }
 
-
 #ifdef GL
     glfwMakeContextCurrent(m_WindowHandle);
     glfwSwapInterval(0);

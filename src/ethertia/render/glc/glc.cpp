@@ -20,7 +20,7 @@ glc::Texture* glc::CreateTexture(GLenum target)
     return tex;
 }
 
-void glc::TextureParameter(Texture* tex, GLenum pname, GLenum param)
+void glc::TextureParameter(glc::Texture* tex, GLenum pname, GLenum param)
 {
     glTextureParameteri(tex->textureId, pname, param);
 }
@@ -112,4 +112,93 @@ bool glc::DebugMessageCallback(const std::function<void(const glc::DebugMessageC
         return true;
     }
     return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+glc::VertexArray* glc::loadVertexData(uint32_t vertexCount,
+                                      std::initializer_list<int> attrib_sizes,
+                                      float *vtx_data,
+                                      uint32_t vtx_size, uint32_t *idx_data)
+{
+    int stride = 0;
+    for (int s : attrib_sizes) { stride += s * sizeof(float); }
+
+//    /// GL 4.5 DSA
+//    GLuint vaoId;
+//    glCreateVertexArrays(1, &vaoId);
+//
+//    // Index Buffer
+//    GLuint iboId = 0;
+//    if (idx_data) {
+//        assert(vtx_size > 0);
+//        uint32_t idx_size = sizeof(uint32_t) * vertexCount;
+//        glCreateBuffers(1, &iboId);
+//        glNamedBufferStorage(iboId, idx_size, idx_data, GL_DYNAMIC_STORAGE_BIT);
+//        glVertexArrayElementBuffer(vaoId, iboId);
+//    } else {
+//        assert(vtx_size == -1);
+//        vtx_size = vertexCount * stride;
+//    }
+//
+//    // Vertex Buffer
+//    GLuint vboId;
+//    glCreateBuffers(1, &vboId);
+//    glNamedBufferStorage(vboId, vtx_size, vtx_data, GL_DYNAMIC_STORAGE_BIT);
+//    glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, stride / sizeof(float));
+//
+//    int offset = 0;
+//    int attrib  = 0;
+//    for (int attrib_size : attrib_sizes)
+//    {
+//        glEnableVertexArrayAttrib(vaoId, attrib);
+//        glVertexArrayAttribFormat(vaoId, attrib, attrib_size, GL_FLOAT, GL_FALSE, offset);
+//        glVertexArrayAttribBinding(vaoId, attrib, 0);
+//
+//        offset += attrib_size;
+//        ++attrib;
+//    }
+
+    // GL 3.3
+    GLuint vaoId;
+    glGenVertexArrays(1, &vaoId);
+    glBindVertexArray(vaoId);
+
+    GLuint iboId = 0;
+    if (idx_data) {
+        size_t idx_size = vertexCount * sizeof(uint32_t);
+        glGenBuffers(1, &iboId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, idx_size, idx_data, GL_STATIC_DRAW);
+    } else {
+        vtx_size = vertexCount * stride;
+    }
+
+    GLuint vboId;
+    glGenBuffers(1, &vboId);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
+    glBufferData(GL_ARRAY_BUFFER, vtx_size, vtx_data, GL_STATIC_DRAW);
+
+    int attr_idx = 0;
+    size_t attr_offset = 0;
+    for (int attrib_size : attrib_sizes) {
+        glVertexAttribPointer(attr_idx, attrib_size, GL_FLOAT, GL_FALSE, stride, (void*)attr_offset);
+        glEnableVertexAttribArray(attr_idx);
+        attr_offset += attrib_size * sizeof(float);
+        ++attr_idx;
+    }
+
+    return new VertexArray(vaoId, vboId, iboId, vertexCount);
 }

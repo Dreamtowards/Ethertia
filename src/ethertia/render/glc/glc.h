@@ -59,13 +59,30 @@ namespace glc
     bool DebugMessageCallback(const std::function<void(const glc::DebugMessageCallbackArgs&)>& callback, bool sync = true);
 
 
-    class VertexArrays
+    class VertexArray
     {
+    public:
         GLuint vaoId;
         GLuint vboId;       // interleaved vertex data
-        GLuint eboId = 0;   // optional, 0 if non indexed.
+        GLuint iboId = 0;   // optional, 0: non-indexed.
         uint32_t vertexCount = 0;
+
+        VertexArray(GLuint vaoId, GLuint vboId, GLuint iboId, uint32_t vertexCount) :
+                    vaoId(vaoId), vboId(vboId), iboId(iboId), vertexCount(vertexCount) {}
+
+        [[nodiscard]]
+        bool indexed() const { return iboId != 0; }
     };
+
+
+    // no-idx:  load(vc, {3,2,3}, vtx);
+    // idx:     load(vc, {3,2,3}, vtx_data, vtx_size, idx_data);
+    VertexArray* loadVertexData(uint32_t vertexCount, std::initializer_list<int> attrib_sizes, float* vtx_data,
+                                uint32_t vtx_size = -1, uint32_t* idx_data = nullptr);
+
+
+
+
 
     class ShaderProgram
     {

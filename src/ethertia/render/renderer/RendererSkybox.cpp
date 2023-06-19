@@ -20,7 +20,7 @@ namespace RendererSkybox
         float FadeOutBegin = 0;
         float FadeOutEnd = 0;
 
-        std::string CubeMapImage;
+        std::string CubeMapImageFilename;
 
         int BlendMode;
 
@@ -31,8 +31,12 @@ namespace RendererSkybox
 
     void loadConf()
     {
-        nlohmann::json skyConf = nlohmann::json::parse((std::span<const char>)Loader::loadFile("misc/sky/skybox.json"));
+        nlohmann::json skyConf = nlohmann::json::parse((std::span<const char>)Loader::loadAssets("misc/sky/skybox.json"));
 
+        for (nlohmann::json& skyInfo : skyConf)
+        {
+            Log::info("SkyFilename: ", skyInfo["source"]);
+        }
     }
 
 
@@ -40,6 +44,7 @@ namespace RendererSkybox
     {
 
 
+        loadConf();
 
 
     }
