@@ -84,8 +84,8 @@ void main()
     vec3 totalDiffuse = vec3(0);
     vec3 totalSpecular = vec3(0);
 
-    float specularIntensity = (1.0 - Roughness);// * 0.3;
-    float shininess = 64;
+    float specularIntensity = (1.0 - Roughness) * 0.3;
+    float shininess = 1024;
 
     totalDiffuse += Albedo * 0.2;  // Ambient.
 

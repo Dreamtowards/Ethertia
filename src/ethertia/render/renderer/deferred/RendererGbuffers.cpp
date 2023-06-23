@@ -14,7 +14,7 @@ namespace RendererGbuffer
     VkFramebuffer   g_Framebuffer;
     VkPipeline      g_Pipeline;
 
-    VkExtent2D g_AttachmentSize = {512, 512};
+    VkExtent2D g_AttachmentSize = {1280, 720};
     vkx::FramebufferAttachment gPosition;
     vkx::FramebufferAttachment gNormal;
     vkx::FramebufferAttachment gAlbedo;

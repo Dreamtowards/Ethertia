@@ -117,6 +117,11 @@ add_executable(Ethertia
         src/ethertia/Ethertia.cpp
         )
 
+add_executable(
+        Elytra
+        src/ethertia/lang/Elytra.cpp
+        )
+
 
 #add_executable(Eldaria
 #        lib/imgui-docking/imgui.cpp

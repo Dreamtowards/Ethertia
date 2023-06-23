@@ -43,9 +43,9 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
 #endif
 
 #ifdef GL
-    // GL 4.5.
-    // 4.3: DebugMessage, ComputerShaders
-    // 4.5: DSA, SPIR-V
+    // GL 4.0: Tessellation Shader
+    // GL 4.3: Compute Shader, DebugMessage
+    // GL 4.5: DSA, SPIR-V
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 
 #ifdef __APPLE__

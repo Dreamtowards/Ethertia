@@ -17,7 +17,7 @@ namespace RendererCompose
 
     vkx::FramebufferAttachment g_FramebufferAttachmentColor;
     vkx::FramebufferAttachment g_FramebufferAttachmentDepth;
-    VkExtent2D g_AttachmentSize = {512, 512};
+    VkExtent2D g_AttachmentSize = {1280, 720};
 
     VkPipeline g_Pipeline = nullptr;
     VkPipelineLayout g_PipelineLayout = nullptr;
