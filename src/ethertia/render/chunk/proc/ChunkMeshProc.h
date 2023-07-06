@@ -8,7 +8,6 @@
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
 #include <ethertia/render/chunk/BlockyMeshGen.h>
 
-#include <ethertia/util/ObjectPool.h>
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/init/Settings.h>
 

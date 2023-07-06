@@ -14,7 +14,6 @@
 #undef min
 #include <msgpack/msgpack.hpp>
 
-#include <ethertia/util/Endian.h>
 #include <ethertia/util/Collections.h>
 
 

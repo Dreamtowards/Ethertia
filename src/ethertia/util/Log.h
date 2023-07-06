@@ -47,7 +47,7 @@ public:
     template<typename... ARGS>
     static void info(const std::string& pat, ARGS... args)
     {
-        Log::_log(std::cout, "INFO", "main.cpp", pat, args...);
+        Log::_log(std::cout, "INFO", "", pat, args...);
     }
 
     template<typename... ARGS>
