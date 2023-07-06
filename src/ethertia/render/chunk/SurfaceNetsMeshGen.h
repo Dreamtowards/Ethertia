@@ -114,7 +114,7 @@ public:
                                     }
                                 }
 //                                assert(MtlId != 0);
-                                ASSERT_WARN(mtl != 0, "MtlId == 0 Cell.");
+                                if (mtl == 0) Log::warn("MtlId == 0 Cell.");
 
                                 int mtlId = mtl ? mtl->m_TexId : -1;
                                 static const int PURE_MTL_MAGICNUMBER = -1;

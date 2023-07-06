@@ -291,8 +291,6 @@ static void ShowMainMenuBar()
 #include <ethertia/init/KeyBinding.h>
 #include <ethertia/world/ChunkLoader.h>
 
-#include <ethertia/render/renderer/deferred/RendererGbuffers.h>
-
 static void ShowSettingsWindow()
 {
     ImGui::Begin("Settings", &Settings::w_Settings);
@@ -424,13 +422,13 @@ static void ShowSettingsWindow()
 
             if (ImGui::CollapsingHeader("Terrain Material"))
             {
-                ImGui::DragFloat("Texture Scale", &RendererGbuffer::g_uboFrag.MtlTexScale, 0.1);
-
-                ImGui::DragFloat("Texture Triplanar Blend Pow", &RendererGbuffer::g_uboFrag.MtlTriplanarBlendPow, 0.1);
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("Higher = 'Sharper' Normal Vectors");
-
-                ImGui::DragFloat("Texture Heightmap Blend Pow", &RendererGbuffer::g_uboFrag.MtlHeightmapBlendPow, 0.1);
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("Lower = More Intertexture at Material Blend");
+//                ImGui::DragFloat("Texture Scale", &RendererGbuffer::g_uboFrag.MtlTexScale, 0.1);
+//
+//                ImGui::DragFloat("Texture Triplanar Blend Pow", &RendererGbuffer::g_uboFrag.MtlTriplanarBlendPow, 0.1);
+//                if (ImGui::IsItemHovered()) ImGui::SetTooltip("Higher = 'Sharper' Normal Vectors");
+//
+//                ImGui::DragFloat("Texture Heightmap Blend Pow", &RendererGbuffer::g_uboFrag.MtlHeightmapBlendPow, 0.1);
+//                if (ImGui::IsItemHovered()) ImGui::SetTooltip("Lower = More Intertexture at Material Blend");
 
                 ImGui::DragInt("Texture Resolution", &MaterialTextures::TEX_RESOLUTION, 16, 2048);
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("[Reload Required] for bake material texture atlas."

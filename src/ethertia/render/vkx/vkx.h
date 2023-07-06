@@ -186,7 +186,7 @@ namespace vl
                              VkDevice device, VkCommandPool commandPool, VkQueue queue);
 
     void QueueSubmit(VkQueue queue,
-                     VkCommandBuffer cmdbuf,
+                     std::span<const VkCommandBuffer> cmdbufs,
                      VkSemaphore wait,
                      VkSemaphore signal,
                      VkFence fence);

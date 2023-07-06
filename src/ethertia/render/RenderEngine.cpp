@@ -35,8 +35,8 @@
 
 
 
-#include "renderer/deferred/RendererGbuffers.cpp"
-#include "renderer/deferred/RendererCompose.cpp"
+#include "renderer/RendererGbuffers.cpp"
+#include "renderer/RendererCompose.cpp"
 #include "renderer/RendererSkybox.cpp"
 
 

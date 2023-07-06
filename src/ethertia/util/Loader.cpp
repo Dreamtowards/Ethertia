@@ -6,6 +6,8 @@
 
 #include "Loader.h"
 
+#include <ethertia/util/Strings.h>
+
 
 // #define DATA_INFO 1
 

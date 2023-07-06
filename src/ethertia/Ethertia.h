@@ -15,6 +15,7 @@
 #include <ethertia/util/Scheduler.h>
 #include <ethertia/util/Registry.h>
 
+#include <ethertia/util/Strings.h>
 
 #include <cassert>
 #ifndef NDEBUG
@@ -27,12 +28,47 @@ class WorldInfo;
 class EntityPlayer;
 class Window;
 
+//namespace Ethertia
+//{
+//    /// @worldinfo is only required when creating a new world, at the same time @savedir should also be an empty or non-existing folder.
+//    /// @worldinfo 仅在创建新世界时需要, 同时 @savedir 也应该是空或不存在的文件夹 {CNS}
+//    void LoadWorld(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
+//
+//    void UnloadWorld();
+//
+//    void DispatchCommand(const std::string& cmd);
+//
+//    void NotifyMessage(const std::string& msg);
+//
+//    bool IsRunning();
+//    void Shutdown();
+//
+//    bool InMainThread();
+//
+//    // ClientSide Only
+//    World* GetWorld();
+//    EntityPlayer* GetPlayer();
+//    Window& GetWindow();
+//    Timer& GetTimer();
+//    Scheduler& GetScheduler();
+//    Scheduler& GetAsyncScheduler();
+//    HitCursor& GetHitCursor();
+//    Profiler& GetProfiler();
+//    Camera& GetCamera();
+//
+//
+//    float GetDelta();  /// (previous) frame delta time in seconds.
+//    float GetPreciseTime();  /// precise program-running-time in seconds. !not epoch timestamp.
+//
+//    bool IsIngame();  // is controlling game
+//
+//}
+
 class Ethertia
 {
 public:
     Ethertia() = delete;
 
-    // @worldinfo is only required when creating a new world, at the same time @savedir should also be an empty or non-existing folder.
     static void loadWorld(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
     static void unloadWorld();
 

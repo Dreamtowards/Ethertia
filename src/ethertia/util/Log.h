@@ -7,117 +7,28 @@
 
 #include <string>
 #include <iostream>
-#include <thread>
 #include <sstream>
-#include <cmath>
-#include <chrono>
-
-#include <glm/vec3.hpp>
 
 #include <ethertia/util/Strings.h>
 
-// +__FILE_NAME__+":" __LINE__ "/" __func__ "]"  Strings::fmt("[{}:{}#{}]", __FILE_NAME__, __LINE__, __func__)._cstr()
-//#define GetSourceLoc() Strings::fmt("[{}:{}@{}]", __FILE_NAME__, __LINE__, __func__).c_str()
-//#define Log(x) Log::_log(std::cout, "INFO", GetSourceLoc(), x)
-
-
-//template<typename T>
-//static std::string lstr(T v) {
-//    std::stringstream ss;
-//    ss << v;
-//    return ss.str();
-//}
-
-#define ASSERT_WARN(expr, msg) if (!(expr)) Log::warn(msg);
 
 class Log
 {
 public:
 
-//    template<typename OUT>
-//    static void log(OUT& out, const std::string& pat) {
-//        out << pat;
-//    }
-//
-//    template<typename OUT, typename A, typename... ARGS>
-//    static void log(OUT& out, const std::string& pat, A a, ARGS... args) {
-//        int beg = pat.find('{');
-//        int end = pat.find('}', beg);
-//        int padding = 0;
-//        if (beg != -1 && beg+1 != end) {
-//            std::string slen = pat.substr(beg+1, end-(beg+1));
-//            padding = std::stoi(slen);
-//        }
-//
-//        // pre
-//        out << (beg==-1? pat : pat.substr(0,beg));
-//        // val
-//        long vbeg = out.tellp();
-//        out << a;
-//        if (padding) {
-//            int vlen = (long)out.tellp() - vbeg;
-//            int pad = padding - vlen;
-//            for (int i = 0; i < pad; ++i) {
-//                out << ' ';
-//            }
-//        }
-//
-//        // post
-//        log(out, beg==-1? "" : pat.substr(end+1), args...);
-//    }
-//
-//
-//    template<typename T>
-//    static std::string str(T v) {
-//        std::stringstream ss;
-//        ss << v;
-//        return ss.str();
-//    }
-//    template<typename... ARGS>
-//    static std::string str(const std::string& pat, ARGS... args) {
-//        std::stringstream ss;
-//        log(ss, pat, args...);
-//        return ss.str();
-//    }
 
-/*
-Profile(
-  .url =
-);
- */
+    /// produce a "log_head" e.g. "[2023-07-06.13:44:03.623.765][0x7ff850a73640/INFO]: "
+    static void log_head(std::ostream& out, const char* _lv = "INFO", const char* _loc = "");
 
-
-    static void log_head(std::ostream& out, const char* _lv = "INFO", const char* _loc = "") {
-
-        double sec_micro = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        double sec_milli = sec_micro * 0.001;_loc="";
-
-        Strings::_fmt(out, "[{}.{7}][{}/{}]{}: ",
-                      Strings::time_fmt(-1, "%Y-%m-%d.%H:%M:%S"),
-                      std::fmod(sec_milli, 1000.0f),
-                      std::this_thread::get_id(), _lv,
-                      _loc
-        );
-//        out << "[" << std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S") << "." << (std::fmod(sec, 1000.0f)) << "]"
-//            << "["<<std::this_thread::get_id()<<"/INFO]: ";
-
-//        struct timeval tv{};
-//        gettimeofday(&tv, nullptr);
-//        struct tm* tm_info = localtime(&tv.tv_sec); // localtime(&tv.tv_sec);  std::gmtime(&time); auto time = std::time(nullptr);
-//        char strtime[40] = {};
-//        std::strftime(strtime, sizeof(strtime), "%F.%X", tm_info);
-//
-//        //  << tm_info->tm_zone << ":"
-//        out << "[" << strtime <<"."<< tv.tv_usec << "]"
-//            << "["<<std::this_thread::get_id()<<"/INFO]: ";
-    }
-
-    inline static std::mutex g_LockLog;
-
+    /// this function is global Synchronous. so wouldn't cause 'Log Tearing' when multiple thread logging at the same time.
+    /// @pat if last char is '\1', then '\n' will not be automatically add at the end. (and the '\1' also wouldn't be print out.)
+    ///      this is useful when u need append sth. e.g. BenchmarkTimer's time result.
+    /// @lv  level text in the 'log_head' e.g. "DEBUG/INFO/WARN/ERROR"
     template<typename... ARGS>
     static void _log(std::ostream& s, const char* _lv, const char* _loc, const std::string& pat, ARGS... args)
     {
-        std::lock_guard<std::mutex> _guard(g_LockLog);  // prevents multiple logging in same time. have performance issue.
+        static std::mutex g_LogLock;
+        std::lock_guard<std::mutex> _guard(g_LogLock);  // prevents multiple logging in same time. have performance issue.
 
         bool keepline = pat[pat.length() - 1] == '\1';
         std::stringstream ss;
@@ -132,24 +43,17 @@ Profile(
         }
     }
 
+
     template<typename... ARGS>
     static void info(const std::string& pat, ARGS... args)
     {
-        Log::_log(std::cout, "INFO", "", pat, args...);
-//        std::stringstream ss;
-//        Log::log_head(ss);
-//        Strings::_fmt(ss, pat, args...);
-//        std::cout << ss.str() << std::endl;
+        Log::_log(std::cout, "INFO", "main.cpp", pat, args...);
     }
 
     template<typename... ARGS>
     static void warn(const std::string& pat, ARGS... args)
     {
-        Log::_log(std::cerr, "WARN", "", pat, args...);
-//        std::stringstream ss;
-//        Log::log_head(ss);
-//        Strings::_fmt(ss, pat, args...);
-//        std::cerr << ss.str() << std::endl;
+        Log::_log(std::cout, "WARN", "", pat, args...);
     }
 
 

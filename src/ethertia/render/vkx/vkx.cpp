@@ -464,12 +464,12 @@ void vl::SubmitCommandBuffer(const std::function<void(VkCommandBuffer)>& fn_reco
 
 
 
-void vl::QueueSubmit(VkQueue queue, VkCommandBuffer cmdbuf, VkSemaphore wait, VkSemaphore signal, VkFence fence)
+void vl::QueueSubmit(VkQueue queue, std::span<const VkCommandBuffer> cmdbufs, VkSemaphore wait, VkSemaphore signal, VkFence fence)
 {
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &cmdbuf;
+    submitInfo.commandBufferCount = cmdbufs.size();
+    submitInfo.pCommandBuffers = cmdbufs.data();
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.pWaitDstStageMask = waitStages;
@@ -1907,7 +1907,7 @@ void vkx::EndFrame(VkCommandBuffer cmdbuf)
     PROFILE("SubmitQueue");
     // Submit the CommandBuffer.
     // Submission is VerySlow. try Batch Submit as much as possible, and Submit in another Thread
-    vl::QueueSubmit(g.GraphicsQueue, cmdbuf,
+    vl::QueueSubmit(g.GraphicsQueue, {{cmdbuf}},
                     g.SemaphoreImageAcquired[frameIdx], g.SemaphoreRenderComplete[frameIdx],
                     g.CommandBuffersFences[frameIdx]);
     }

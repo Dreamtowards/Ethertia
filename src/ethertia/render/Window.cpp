@@ -3,15 +3,20 @@
 //
 
 #include <ethertia/render/Window.h>
+#include <ethertia/util/Strings.h>
 
+#ifdef GL
 #include <glad/glad.h>
+#endif
+
+
+static void SetupGlfwCallbacks(GLFWwindow* _win);
 
 static void glfw_error_callback(int error, const char* description)
 {
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+    Log::warn("GLFW Error: {}: {}", error, description);
 }
 
-static void setup_glfw_callbacks(GLFWwindow* _win);
 
 
 void Window::init()
@@ -77,6 +82,7 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
         int err = glfwGetError(&err_str);
         throw std::runtime_error(Strings::fmt("failed to init glfw window: {}. ({})", err, err_str));
     }
+    glfwSetWindowUserPointer(m_WindowHandle, this);
 
 #ifdef GL
     glfwMakeContextCurrent(m_WindowHandle);
@@ -90,9 +96,7 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
 
     centralize();
 
-    glfwSetWindowUserPointer(m_WindowHandle, this);
-
-    setup_glfw_callbacks(m_WindowHandle);
+    SetupGlfwCallbacks(m_WindowHandle);
 
     glfwGetFramebufferSize(m_WindowHandle, &m_FramebufferWidth, &m_FramebufferHeight);
 
@@ -243,7 +247,7 @@ static void onScroll(GLFWwindow* _win, double xoffset, double yoffset)
 //}
 
 
-static void setup_glfw_callbacks(GLFWwindow* _win)
+static void SetupGlfwCallbacks(GLFWwindow* _win)
 {
     glfwSetWindowSizeCallback(_win, onWindowSize);
     glfwSetFramebufferSizeCallback(_win, onFramebufferSize);

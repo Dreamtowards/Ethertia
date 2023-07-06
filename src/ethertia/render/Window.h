@@ -96,12 +96,12 @@ public:
     }
 
 
-    void maximize() {
-        glfwMaximizeWindow(m_WindowHandle);
-    }
-    void restoreMaximize() {
-        glfwRestoreWindow(m_WindowHandle);
-    }
+//    void maximize() {
+//        glfwMaximizeWindow(m_WindowHandle);
+//    }
+//    void restoreMaximize() {
+//        glfwRestoreWindow(m_WindowHandle);
+//    }
 
 
     void PollEvents()
@@ -117,14 +117,14 @@ public:
         glfwPollEvents();
     }
 
-    void SwapBuffers()
-    {
-        glfwSwapBuffers(m_WindowHandle);
-    }
-
-    void setVSync(bool vsync) {
-        glfwSwapInterval(vsync ? 1 : 0);
-    }
+//    void SwapBuffers()
+//    {
+//        glfwSwapBuffers(m_WindowHandle);
+//    }
+//
+//    void setVSync(bool vsync) {
+//        glfwSwapInterval(vsync ? 1 : 0);
+//    }
 
 public:
     GLFWwindow* m_WindowHandle = nullptr;

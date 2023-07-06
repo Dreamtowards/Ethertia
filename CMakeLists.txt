@@ -97,10 +97,12 @@ add_executable(Ethertia
         lib/imgui-imnodes/imnodes.cpp
 
         src/ethertia/imgui/Imgui.cpp
+        src/ethertia/util/Log.cpp
         src/ethertia/util/Loader.cpp
         src/ethertia/util/BitmapImage.cpp
         src/ethertia/util/BenchmarkTimer.cpp
         src/ethertia/util/Strings.cpp
+
         src/ethertia/init/Controls.cpp
         src/ethertia/init/Settings.cpp
         src/ethertia/render/Window.cpp
