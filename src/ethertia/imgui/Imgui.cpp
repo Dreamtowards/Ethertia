@@ -129,7 +129,7 @@ void Imgui::Init()
 //    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
 //    ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
-    ImGui_ImplGlfw_InitForVulkan(Ethertia::getWindow().m_WindowHandle, true);
+    ImGui_ImplGlfw_InitForVulkan(Window::Handle(), true);
 
 
     ImGui_ImplVulkan_InitInfo init_info = {};

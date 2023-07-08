@@ -9,8 +9,9 @@
 #include <glad/glad.h>
 #endif
 
+static GLFWwindow* g_GlfwWindow = nullptr;
 
-static void SetupGlfwCallbacks(GLFWwindow* _win);
+static void SetupGlfwCallbacks();
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -19,8 +20,12 @@ static void glfw_error_callback(int error, const char* description)
 
 
 
-void Window::init()
+void Window::Init(int _w, int _h, const char* _title)
 {
+    BENCHMARK_TIMER;
+
+    /// PRE INIT GLFW.
+
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         throw std::runtime_error("failed to init glfw.");
@@ -29,19 +34,8 @@ void Window::init()
         throw std::runtime_error("GLFW: Vulkan not supported.");
 
     Log::info("GLFW {}", glfwGetVersionString());
-}
 
-void Window::deinit()
-{
-    glfwTerminate();
-}
-
-
-
-
-Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
-{
-    BENCHMARK_TIMER;
+    // GLFW WINDOW CREATION
 
 #ifdef VULKAN
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
@@ -52,7 +46,6 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
     // GL 4.3: Compute Shader, DebugMessage
     // GL 4.5: DSA, SPIR-V
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-
 #ifdef __APPLE__
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 #else
@@ -65,10 +58,9 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // Required on Mac OSX.
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #endif
+
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
     glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
-
-
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
@@ -76,13 +68,12 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
     glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 #endif
 
-    m_WindowHandle = glfwCreateWindow(_w, _h, _title, nullptr, nullptr);
-    if (!m_WindowHandle) {
+    g_GlfwWindow = glfwCreateWindow(_w, _h, _title, nullptr, nullptr);
+    if (!g_GlfwWindow) {
         const char* err_str;
         int err = glfwGetError(&err_str);
-        throw std::runtime_error(Strings::fmt("failed to init glfw window: {}. ({})", err, err_str));
+        throw std::runtime_error(Strings::fmt("Failed to init glfw window: {}. ({})", err, err_str));
     }
-    glfwSetWindowUserPointer(m_WindowHandle, this);
 
 #ifdef GL
     glfwMakeContextCurrent(m_WindowHandle);
@@ -94,79 +85,83 @@ Window::Window(int _w, int _h, const char* _title) : m_Width(_w), m_Height(_h)
     Log::info("GL {}, {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
 #endif
 
-    centralize();
+    // ADJUST
 
-    SetupGlfwCallbacks(m_WindowHandle);
+    Window::Centralize();
 
-    glfwGetFramebufferSize(m_WindowHandle, &m_FramebufferWidth, &m_FramebufferHeight);
+    SetupGlfwCallbacks();
+
+//    glfwGetFramebufferSize(m_WindowHandle, &m_FramebufferWidth, &m_FramebufferHeight);
 
 
     Log::info("Window initialized.\1");
 }
 
-Window::~Window()
+void Window::Deinit()
 {
-    glfwDestroyWindow(m_WindowHandle);
+    glfwDestroyWindow(g_GlfwWindow);
+
+    glfwTerminate();
+}
+
+double Window::PreciseTime() {
+    return glfwGetTime();
+}
+
+GLFWwindow* Window::Handle() {
+    return g_GlfwWindow;
 }
 
 
 
 bool Window::isCloseRequested() {
-    return glfwWindowShouldClose(m_WindowHandle);
+    return glfwWindowShouldClose(g_GlfwWindow);
 }
+
+static bool g_IsFramebufferResized = false;  // fb-resized may additionally caused by monitor-change, system-scale-change.
 
 bool Window::isFramebufferResized() {
-    return m_IsFramebufferResized;
+    return g_IsFramebufferResized;
 }
 
-
-
-
-
-
-
-void Window::centralize()
-{
+void Window::Centralize() {
     const GLFWvidmode* vmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     int w, h;
-    glfwGetWindowSize(m_WindowHandle, &w, &h);
-    glfwSetWindowPos(m_WindowHandle, (vmode->width - w) / 2, (vmode->height - h) / 2);
-}
-
-double Window::getPreciseTime()
-{
-    return glfwGetTime();
+    glfwGetWindowSize(g_GlfwWindow, &w, &h);
+    glfwSetWindowPos(g_GlfwWindow, (vmode->width - w) / 2, (vmode->height - h) / 2);
 }
 
 
 
+static bool g_IsFullscreen = false;
 
-void Window::fullscreen(GLFWmonitor* monitor)
+
+void Window::SetFullscreen(GLFWmonitor* monitor)
 {
-    m_Fullscreen = true;
+    g_IsFullscreen = true;
 
     const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
-    glfwSetWindowMonitor(m_WindowHandle, monitor, 0, 0, vmode->width, vmode->height, 0);
+    glfwSetWindowMonitor(g_GlfwWindow, monitor, 0, 0, vmode->width, vmode->height, 0);
 }
 
-void Window::restoreFullscreen(int _w, int _h)
+void Window::UnsetFullscreen(int w, int h)
 {
-    m_Fullscreen = false;
+    g_IsFullscreen = false;
 
-    glfwSetWindowMonitor(m_WindowHandle, nullptr, 0, 0, _w, _h, 0);
-    centralize();
+    glfwSetWindowMonitor(g_GlfwWindow, nullptr, 0, 0, w, h, 0);
+    Window::Centralize();
 }
 
-bool Window::isFullscreen() const {
-    return m_Fullscreen;
+bool Window::isFullscreen() {
+    return g_IsFullscreen;
 }
 
-void Window::toggleFullscreen()
+void Window::ToggleFullscreen()
 {
     if (isFullscreen()) {
-        restoreFullscreen();
+        UnsetFullscreen();
     } else {
-        fullscreen();
+        SetFullscreen();
     }
 }
 
@@ -175,28 +170,79 @@ void Window::toggleFullscreen()
 
 
 
+static glm::vec2 g_FramebufferSize;
+static glm::vec2 g_WindowSize;
+static glm::vec2 g_MousePos;
+static glm::vec2 g_MouseDelta;
+static glm::vec2 g_MouseWheel;
 
+static bool g_MouseGrabbed = false;
+static bool g_Patch_GrabbedChanged = false;  // bug patch
 
-
-#define UNPACK_win Window* win = (Window*)glfwGetWindowUserPointer(_win)
-
-static void onFramebufferSize(GLFWwindow* _win, int wid, int hei)
+void Window::PollEvents()
 {
-    UNPACK_win;
-    win->m_FramebufferWidth  = wid;
-    win->m_FramebufferHeight = hei;
+    // Reset FrameStates
+    g_MouseDelta = {0, 0};
+    g_MouseWheel = {0, 0};
+    g_IsFramebufferResized = false;
 
-    win->m_IsFramebufferResized = true;
+    // PollEvents
+    glfwPollEvents();
 }
 
-static void onWindowSize(GLFWwindow* _win, int wid, int hei)
+glm::vec2 Window::MousePos() {
+    return g_MousePos;
+}
+glm::vec2 Window::MouseDelta() {
+    return g_MouseDelta;
+}
+glm::vec2 Window::MouseWheel() {
+    return g_MouseWheel;
+}
+
+void Window::SetMouseGrabbed(bool grabbed)
 {
-    UNPACK_win;
-    win->m_Width  = wid;
-    win->m_Height = hei;
+    if (g_MouseGrabbed != grabbed)
+    {
+        g_MouseGrabbed = grabbed;
+        g_Patch_GrabbedChanged = true;
+
+        glfwSetInputMode(g_GlfwWindow, GLFW_CURSOR, g_MouseGrabbed ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    }
+}
+
+void Window::SetStickyKeys(bool s) {
+    glfwSetInputMode(g_GlfwWindow, GLFW_STICKY_KEYS, s ? GLFW_TRUE : GLFW_FALSE);
+}
+
+glm::vec2 Window::Size() {
+    return g_WindowSize;
+}
+
+void Window::SetTitle(const char* s) {
+    glfwSetWindowTitle(g_GlfwWindow, s);
+}
+
+bool Window::isKeyDown(int key) {
+    return glfwGetKey(g_GlfwWindow, key) == GLFW_PRESS;
+}
+bool Window::isMouseDown(int button) {
+    return glfwGetMouseButton(g_GlfwWindow, button) == GLFW_PRESS;
 }
 
 
+//#define UNPACK_win Window* win = (Window*)glfwGetWindowUserPointer(_win)
+
+static void GlfwCallback_FramebufferSize(GLFWwindow* _win, int wid, int hei)
+{
+    g_FramebufferSize = {wid, hei};
+    g_IsFramebufferResized = true;
+}
+
+static void GlfwCallback_WindowSize(GLFWwindow* _win, int wid, int hei)
+{
+    g_WindowSize = {wid, hei};
+}
 
 
 // CNS: 这里有2个不准确的 DX，就是在切换 glfwSetInputMode(...DISABLE/NORMAL) 的时候
@@ -204,32 +250,25 @@ static void onWindowSize(GLFWwindow* _win, int wid, int hei)
 //           但由于这种情况 通常只在禁用时检测DX 所以启用后产生的巨大DX 通常影响不到 因为自从启用 就已经不检测DX了
 // 当case 2. 启用变成禁用后 内部会设置状态 产生巨大DX 由于禁用时会监听DX 所以会Bang的一下一个巨大DX 由最后启用状态位置 变成最后禁用状态位置的DX
 //
-static void onCursorPos(GLFWwindow* _win, double xpos, double ypos)
+static void GlfwCallback_CursorPos(GLFWwindow* _win, double xpos, double ypos)
 {
-    UNPACK_win;
-    float x = (float)xpos;
-    float y = (float)ypos;
+    glm::vec2 pos = {xpos, ypos};
     // for fix bug:
     // Extreme DX caused by glfwSetInputMode(GLFW_CURSOR_DISABLE/NORMAL), glfw internal will set CursorPos when
     // switching Cursor's Disable/Normal. so we just ignore the first DX after that switch.
-    if (win->m_GrabbedChanged) {
-        win->m_GrabbedChanged = false;
-        win->m_MouseX = x;
-        win->m_MouseY = y;
+    if (g_Patch_GrabbedChanged) {
+        g_Patch_GrabbedChanged = false;
+        g_MousePos = pos;
         return;
     }
-    win->m_MouseDX = x - win->m_MouseX;
-    win->m_MouseDY = y - win->m_MouseY;
-    win->m_MouseX = x;
-    win->m_MouseY = y;
+    g_MouseDelta = pos - g_MousePos;
+    g_MousePos = pos;
 }
 
 
-static void onScroll(GLFWwindow* _win, double xoffset, double yoffset)
+static void GlfwCallback_Scroll(GLFWwindow* _win, double xoffset, double yoffset)
 {
-    UNPACK_win;
-    win->m_ScrollDX = (float)xoffset;
-    win->m_ScrollDY = (float)yoffset;
+    g_MouseWheel = {xoffset, yoffset};
 }
 
 //static void onKeyboardKey(GLFWwindow* _win, int key, int scancode, int action, int mods) {
@@ -247,13 +286,14 @@ static void onScroll(GLFWwindow* _win, double xoffset, double yoffset)
 //}
 
 
-static void SetupGlfwCallbacks(GLFWwindow* _win)
+static void SetupGlfwCallbacks()
 {
-    glfwSetWindowSizeCallback(_win, onWindowSize);
-    glfwSetFramebufferSizeCallback(_win, onFramebufferSize);
+    GLFWwindow* win = g_GlfwWindow;
+    glfwSetWindowSizeCallback(win, GlfwCallback_WindowSize);
+    glfwSetFramebufferSizeCallback(win, GlfwCallback_FramebufferSize);
 
-    glfwSetCursorPosCallback(_win, onCursorPos);
-    glfwSetScrollCallback(_win, onScroll);
+    glfwSetCursorPosCallback(win, GlfwCallback_CursorPos);
+    glfwSetScrollCallback(win, GlfwCallback_Scroll);
 //    glfwSetMouseButtonCallback(_win, onMouseButton);
 //    glfwSetKeyCallback(_win, onKeyboardKey);
 //    glfwSetCharCallback(_win, onCharInput);

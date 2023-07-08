@@ -71,7 +71,7 @@ static void Init()
     Settings::loadSettings();
     NoiseGen::initSIMD();
     if (!Loader::fileExists("./assets")) { throw std::runtime_error("default assets directory not found. make sure you are in valid working directory."); }
-    Log::info("{}, hardware_concurrency {}x, endian {}, cpu {}", Strings::toupper(Loader::sys_target()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
+    Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::sys_target()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
 
     for (const std::string& modpath : Settings::MODS) {
         ModLoader::loadMod(modpath);
@@ -80,9 +80,7 @@ static void Init()
 
     Ethertia::isRunning() = true;
 
-    Window::init();
-    g_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
-
+    Window::Init(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
     RenderEngine::init();
     AudioEngine::init();
     NetworkSystem::init();
@@ -145,8 +143,7 @@ static void Destroy()
     RenderEngine::deinit();
     AudioEngine::deinit();
 
-    delete g_Window;
-    Window::deinit();
+    Window::Deinit();
 }
 
 
@@ -378,7 +375,7 @@ bool& Ethertia::isRunning() {
 World* Ethertia::getWorld() { return g_World; }
 EntityPlayer* Ethertia::getPlayer() { return g_Player; }
 
-float Ethertia::getPreciseTime() { return (float)Window::getPreciseTime(); }
+float Ethertia::getPreciseTime() { return (float)Window::PreciseTime(); }
 float Ethertia::getDelta() { return getTimer().getDelta(); }
 Camera& Ethertia::getCamera() { return g_Camera; }
 HitCursor& Ethertia::getHitCursor() { return g_HitCursor; }
@@ -395,7 +392,7 @@ const Ethertia::Viewport& Ethertia::getViewport() {
         glm::vec4 v = Imgui::wViewportXYWH;
         g_Viewport = { v.x, v.y, v.z, v.w };
     } else {
-        g_Viewport = {0, 0, (float)getWindow().getWidth(), (float)getWindow().getHeight()};
+        g_Viewport = {0, 0, Window::Size().x, Window::Size().y};
     }
     return g_Viewport;
 }

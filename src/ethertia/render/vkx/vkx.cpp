@@ -1338,7 +1338,7 @@ static VkPhysicalDevice PickPhysicalDevice(VkInstance vkInst, VkPhysicalDevicePr
     uint32_t gpu_count = 0;
     vkEnumeratePhysicalDevices(vkInst, &gpu_count, nullptr);
 
-    Log::info("GPUs: ", gpu_count);
+    // Log::info("GPUs: ", gpu_count);
     assert(gpu_count && "failed to find GPU with vulkan support.");
 
     std::vector<VkPhysicalDevice> gpus(gpu_count);

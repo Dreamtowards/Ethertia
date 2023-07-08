@@ -271,7 +271,7 @@ static void ShowMainMenuBar()
                 Controls::saveScreenshot();
             }
             if (ImGui::MenuItem("Fullscreen", KeyBindings::KEY_FULLSCREEN.keyName(), Ethertia::getWindow().isFullscreen())) {
-                Ethertia::getWindow().toggleFullscreen();
+                Window::ToggleFullscreen();
             }
             if (ImGui::MenuItem("Controlling Game", KeyBindings::KEY_ESC.keyName(), Ethertia::isIngame())) {
                 Ethertia::isIngame() = !Ethertia::isIngame();

@@ -60,7 +60,7 @@ static void handleKeyPress()
     }
     if (KeyBindings::KEY_FULLSCREEN.isPressed())
     {
-        Ethertia::getWindow().toggleFullscreen();
+        Window::ToggleFullscreen();
     }
     if (KeyBindings::KEY_COMMAND.isPressed())
     {
@@ -369,14 +369,13 @@ void handleHitCursor()
 void Controls::handleInput()
 {
     Camera& camera = Ethertia::getCamera();
-    Window& window = Ethertia::getWindow();
     EntityPlayer* player = Ethertia::getPlayer();
 
-    if (window.isCloseRequested())
+    if (Window::isCloseRequested())
         Ethertia::shutdown();
 
-    window.setMouseGrabbed(Ethertia::isIngame());
-    window.setStickyKeys(!Ethertia::isIngame());
+    Window::SetMouseGrabbed(Ethertia::isIngame());
+    Window::SetStickyKeys(!Ethertia::isIngame());
 
 
     // Hit Cursor.
@@ -412,10 +411,11 @@ void Controls::handleInput()
     }
     else
     {
-        helicopter->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
-                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
-                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
-                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
+        assert(false);
+//        helicopter->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+//                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
+//                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
+//                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
     }
 
 
@@ -429,11 +429,11 @@ void Controls::handleInput()
 
 
     float dt = Ethertia::getDelta();
-    camera.updateMovement(dt, window.getMouseDX(), window.getMouseDY(), window.isKeyDown(GLFW_KEY_Z));
+    camera.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
 
 
     if (KeyBindings::KEY_G_CAM_DIST.isKeyDown())
-        camera.len += window.getDScroll();
+        camera.len += Window::MouseWheelSum();
     camera.len = Mth::max(camera.len, 0.0f);
 
 

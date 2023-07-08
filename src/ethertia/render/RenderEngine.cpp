@@ -67,9 +67,13 @@ void RenderEngine::init()
 
     };
 
-    vkx::Init(Ethertia::getWindow().m_WindowHandle, true);
-    Log::info("Vulkan {}, {}",
-              vkx::ctx().PhysDeviceProperties.apiVersion,
+    vkx::Init(Window::Handle(), true);
+
+    uint32_t vkApiVersion = vkx::ctx().PhysDeviceProperties.apiVersion;
+    Log::info("vulkan {}.{}.{}, gpu: {}",
+              VK_API_VERSION_MAJOR(vkApiVersion),
+              VK_API_VERSION_MINOR(vkApiVersion),
+              VK_API_VERSION_PATCH(vkApiVersion),
               vkx::ctx().PhysDeviceProperties.deviceName);
 
     TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));

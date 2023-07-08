@@ -751,7 +751,7 @@ static void ShowGameViewport()
 
         if (Ethertia::isIngame())
         {
-            player.m_HotbarSlot += Mth::signal(-Ethertia::getWindow().getDScroll());
+            player.m_HotbarSlot += Mth::signal(-Window::MouseWheelSum());
             player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, hotbarSlots);
         }
 
