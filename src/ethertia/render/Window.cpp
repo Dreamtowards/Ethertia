@@ -234,6 +234,15 @@ bool Window::isMouseDown(int button) {
 }
 
 
+const char* Window::GetClipboard() {
+    return glfwGetClipboardString(g_GlfwWindow);
+}
+
+void Window::SetClipboard(const char* str) {
+    glfwSetClipboardString(g_GlfwWindow, str);
+}
+
+
 //#define UNPACK_win Window* win = (Window*)glfwGetWindowUserPointer(_win)
 
 static void GlfwCallback_FramebufferSize(GLFWwindow* _win, int wid, int hei)

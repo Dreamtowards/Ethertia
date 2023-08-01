@@ -74,8 +74,9 @@ public:
     static bool isAltKeyDown() { return isKeyDown(GLFW_KEY_LEFT_ALT) || isKeyDown(GLFW_KEY_RIGHT_ALT); }
     static bool isCtrlKeyDown() { return isKeyDown(GLFW_KEY_LEFT_CONTROL) || isKeyDown(GLFW_KEY_RIGHT_CONTROL); }
 
-//    const char* getClipboard() { return glfwGetClipboardString(m_WindowHandle); }
-//    void setClipboard(const char* str) { glfwSetClipboardString(m_WindowHandle, str); }
+    static const char* GetClipboard();
+    static void SetClipboard(const char* str);
+
 
 
 
