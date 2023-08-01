@@ -47,7 +47,7 @@ void RenderEngine::init()
     Log::info("RenderEngine initializing..");
 
 #ifdef GL
-    glc::InitDebugMessageCallback([](glc::DebugMessageCallbackArgs args)
+    glc::DebugMessageCallback([](glc::DebugMessageCallbackArgs args)
     {
         Log::info("glDebugMessageCallback[{}][{}][{}/{}]: {}",
                   args.source_str,

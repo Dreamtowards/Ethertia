@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <mutex>
 
 #include <ethertia/util/Strings.h>
 

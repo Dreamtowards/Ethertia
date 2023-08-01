@@ -4,6 +4,7 @@
 
 #include <ethertia/render/Window.h>
 #include <ethertia/util/Strings.h>
+#include <ethertia/util/Log.h>
 
 #ifdef GL
 #include <glad/glad.h>
@@ -30,10 +31,13 @@ void Window::Init(int _w, int _h, const char* _title)
     if (!glfwInit())
         throw std::runtime_error("failed to init glfw.");
 
-    if (!glfwVulkanSupported())
-        throw std::runtime_error("GLFW: Vulkan not supported.");
-
     Log::info("GLFW {}", glfwGetVersionString());
+
+#ifdef VULKAN
+    if (!glfwVulkanSupported())
+        Log::warn("Vulkan Not Supported.");
+//        throw std::runtime_error("GLFW: Vulkan not supported.");
+#endif
 
     // GLFW WINDOW CREATION
 
@@ -93,11 +97,10 @@ void Window::Init(int _w, int _h, const char* _title)
 
 //    glfwGetFramebufferSize(m_WindowHandle, &m_FramebufferWidth, &m_FramebufferHeight);
 
-
     Log::info("Window initialized.\1");
 }
 
-void Window::Deinit()
+void Window::Destroy()
 {
     glfwDestroyWindow(g_GlfwWindow);
 

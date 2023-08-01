@@ -5,9 +5,16 @@
 #ifndef ETHERTIA_WINDOW_H
 #define ETHERTIA_WINDOW_H
 
+//#define GL
+#define VULKAN
+
+#ifdef VULKAN
+#define GLFW_INCLUDE_VULKAN
+#define GLFW_INCLUDE_NONE 1
+#endif
+
 #include <stdexcept>
 
-#define GLFW_INCLUDE_NONE 1
 #include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
 
@@ -17,15 +24,13 @@
 #include <ethertia/util/BitmapImage.h>
 
 
-//#define GL
-#define VULKAN
 
 
 class Window
 {
 public:
     static void Init(int _w, int _h, const char* _title);
-    static void Deinit();
+    static void Destroy();
     static double PreciseTime();
 
     static void PollEvents();

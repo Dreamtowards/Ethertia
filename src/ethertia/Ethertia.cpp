@@ -143,7 +143,7 @@ static void Destroy()
     RenderEngine::deinit();
     AudioEngine::deinit();
 
-    Window::Deinit();
+    Window::Destroy();
 }
 
 

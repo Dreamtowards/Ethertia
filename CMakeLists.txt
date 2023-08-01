@@ -55,7 +55,9 @@ if (APPLE)
     link_directories(lib/vulkan/bin/darwin-x64)
     link_libraries(vulkan.1.3.236)
 elseif(WIN32)
-    link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
+     link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
+#    link_directories("lib/vulkan/bin/windows-x64")
+#    link_libraries("vulkan-1.dll")
 endif ()
 
 
@@ -77,6 +79,7 @@ include_directories(lib/imgui-docking)
 include_directories(src/ethertia/render/vkx)
 include_directories(src/ethertia/render/glc)
 
+include_directories(lib/vulkan/include)
 
 
 add_executable(Ethertia
@@ -192,7 +195,6 @@ else()
 endif()
 
 
-include_directories(lib/vulkan/include)
 
 
 

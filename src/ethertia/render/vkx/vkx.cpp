@@ -1173,7 +1173,7 @@ static void CheckValidationLayersSupport(const std::vector<const char*>& validat
         if (!found) {
             std::stringstream ss;
             for (const auto& layerProperties : availableLayers) {
-                ss << layerProperties.layerName;
+                ss << layerProperties.layerName << ", ";
             }
             throw std::runtime_error(Strings::fmt("Required validation layer '{}' is not available. There {} available layers: {}", layerName, layerCount, ss.str()));
         }
