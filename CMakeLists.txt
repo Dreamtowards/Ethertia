@@ -4,9 +4,9 @@ project(Ethertia)
 set(CMAKE_CXX_STANDARD 20)
 
 # we manually build shared-lib only the first time. (if doesn't have compiled libs), then we just use/link them instead of recompile them.
-set(BUILD_SHARED_LIBS OFF)
+set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC OFF)
-option(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Release)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
@@ -18,23 +18,24 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LINUX TRUE)
 endif ()
 
-set(BIN_TARG "nil")
-if (APPLE)
+# BUILD_TARGET = {windows-x64|darwin-arm64|darwin-x64|linux-x64}
+set(BUILD_TARGET "nil")
+if (WIN32)
+    set(BUILD_TARGET "windows-x64")       # x86-64
+elseif (APPLE)
     if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-        set(BIN_TARG "darwin-arm64")   # apple silicon, arm64
+        set(BUILD_TARGET "darwin-arm64")  # apple silicon, arm64
     else()
-        set(BIN_TARG "darwin-x64")   # x86-64
+        set(BUILD_TARGET "darwin-x64")    # x86-64
     endif ()
-elseif (WIN32)
-    set(BIN_TARG "windows-x64")  # x86-64
 elseif(LINUX)
-    set(BIN_TARG "linux-x64")  # x86-64
+    set(BUILD_TARGET "linux-x64")         # x86-64
 endif ()
-set(BIN_DIR ${CMAKE_SOURCE_DIR}/run/bin/${BIN_TARG})
+set(BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${BUILD_TARGET})
 
 # Output of Shared library & Program
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})  # for Windows
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR})  # for Windows
 
 message("Build Env: ${CMAKE_SYSTEM_PROCESSOR}; ${CMAKE_SYSTEM_NAME}")
 message("Bin Dir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
@@ -55,9 +56,7 @@ if (APPLE)
     link_directories(lib/vulkan/bin/darwin-x64)
     link_libraries(vulkan.1.3.236)
 elseif(WIN32)
-     link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
-#    link_directories("lib/vulkan/bin/windows-x64")
-#    link_libraries("vulkan-1.dll")
+    link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
 endif ()
 
 
@@ -76,6 +75,7 @@ include_directories(lib/yaml-cpp/include)
 include_directories(lib/nbt/include)
 include_directories(lib/openvr/headers)
 include_directories(lib/imgui-docking)
+include_directories(lib/physx/include)
 include_directories(src/ethertia/render/vkx)
 include_directories(src/ethertia/render/glc)
 
@@ -122,8 +122,7 @@ add_executable(Ethertia
         src/ethertia/Ethertia.cpp
         )
 
-add_executable(
-        Elytra
+add_executable(Elytra
         src/ethertia/lang/Elytra.cpp
         )
 
@@ -159,6 +158,7 @@ add_library(TwilightForest SHARED
 if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC)) AND LINUX)
     set(BUILD_SHARED_LIBS ON)
 endif()
+
 
 if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 

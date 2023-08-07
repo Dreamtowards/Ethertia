@@ -105,9 +105,6 @@ public:
 
 
 
-
-
-
     struct Viewport
     {
         float x, y, width, height;
