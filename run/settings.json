@@ -3,8 +3,8 @@
     "resourcepacks/Clarity/",
     "assets/"
   ],
-  "display_height": 1494,
-  "display_width": 2560,
+  "display_height": 946,
+  "display_width": 1255,
   "fov": 68.0,
   "fullscreen": false,
   "graphics.shadow": true,

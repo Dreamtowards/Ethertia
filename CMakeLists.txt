@@ -4,14 +4,14 @@ project(Ethertia)
 set(CMAKE_CXX_STANDARD 20)
 
 # we manually build shared-lib only the first time. (if doesn't have compiled libs), then we just use/link them instead of recompile them.
-set(BUILD_SHARED_LIBS OFF)
-set(BUILD_STATIC OFF)
+set(BUILD_SHARED_LIBS ON)
+set(BUILD_STATIC ON)
 option(CMAKE_BUILD_TYPE Release)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g")
+#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -198,6 +198,13 @@ elseif(WIN32)
     target_link_libraries(Eldaria "${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
 endif ()
 
+
+if (MSVC)
+    target_compile_options(Ethertia PRIVATE
+            /wd4267  # msvc ignore C4267: implicit conversion possible loss of data e.g. uint32_t count = (size_t)ls.size();
+            /wd4244
+            )
+endif()
 
 #set(VULKAN_SDK "E:/_Dev/VulkanSDK/1.3.243.0")
 #find_package(Vulkan REQUIRED)

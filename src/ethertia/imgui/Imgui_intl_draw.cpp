@@ -138,7 +138,7 @@ static void _MenuSystem()
             const char* filename = Loader::openFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
             if (filename) {
                 Log::info("Open world: ", filename);
-                Ethertia::loadWorld(filename);
+                //Ethertia::loadWorld(std::string(filename));
             }
         }
 
@@ -159,7 +159,7 @@ static void _MenuSystem()
                 auto filename = savedir.path().filename();
                 if (ImGui::MenuItem((const char*)filename.c_str(), time_str.c_str()))
                 {
-                    Ethertia::loadWorld(savedir.path().string());
+                    //Ethertia::loadWorld(savedir.path().string());
                 }
             }
         }
@@ -395,7 +395,7 @@ void ShowNewWorldWindow()
                 .Name = _WorldName
         };
         Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
-        Ethertia::loadWorld(save_path, &worldinfo);
+        //Ethertia::loadWorld(save_path, &worldinfo);
         w_NewWorld = false;
     }
 

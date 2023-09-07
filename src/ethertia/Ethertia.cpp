@@ -22,7 +22,7 @@
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/command/Commands.h>
 #include <ethertia/world/ChunkLoader.h>
-#include <ethertia/audio/AudioEngine.h>
+//#include <ethertia/audio/AudioEngine.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/item/Items.h>
 #include <ethertia/init/MaterialMeshes.h>
@@ -85,7 +85,7 @@ static void Init()
     g_Window = new Window(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
     ShaderProgram::loadAll();
     RenderEngine::init();
-    AudioEngine::init();
+    //AudioEngine::init();
     NetworkSystem::init();
     Log::info("Core {}, {}, endian {}", std::thread::hardware_concurrency(), Loader::sys_target(), std::endian::native == std::endian::big ? "big" : "little");
 
@@ -95,7 +95,7 @@ static void Init()
     MaterialTextures::load();
     MaterialMeshes::load();
     ItemTextures::load();
-    Sounds::load();
+    //Sounds::load();
 
     Imgui::Init();
     Recipes::init();  // after mtl-items register.
@@ -145,7 +145,7 @@ static void Destroy()
     NetworkSystem::deinit();
 
     RenderEngine::deinit();
-    AudioEngine::deinit();
+    //AudioEngine::deinit();
 
     Imgui::Destroy();
 
@@ -222,9 +222,9 @@ static void RunMainLoop()
         window.swapBuffers();
         Dbg::_fps_frame(Ethertia::getPreciseTime());
 
-        AudioEngine::checkAlError("Frame");
-        AudioEngine::setListenerPosition(Ethertia::getCamera().position);
-        AudioEngine::setListenerOrientation(Ethertia::getCamera().direction);
+//        AudioEngine::checkAlError("Frame");
+//        AudioEngine::setListenerPosition(Ethertia::getCamera().position);
+//        AudioEngine::setListenerOrientation(Ethertia::getCamera().direction);
     }
 }
 
