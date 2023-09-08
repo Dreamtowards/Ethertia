@@ -23,8 +23,9 @@ class Chunk;
 class ChunkGenerator;
 class ChunkLoader;
 
-struct WorldInfo
+class WorldInfo
 {
+public:
 
     uint64_t Seed = 0;
     std::string Name;

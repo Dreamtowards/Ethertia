@@ -473,8 +473,9 @@ namespace vkx
         uint32_t vertexCount() const { return m_VertexCount; };
     };
 
-    struct Image
+    class Image
     {
+    public:
         VkImage m_Image = nullptr;
         VkDeviceMemory m_ImageMemory = nullptr;
         VkImageView m_ImageView = nullptr;

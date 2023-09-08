@@ -25,91 +25,91 @@
 
 #include <ethertia/init/DebugStat.h>
 
-#include <PxPhysicsAPI.h>
-
-using namespace physx;
-
-static PxDefaultAllocator       g_PxAllocator;
-static PxDefaultErrorCallback   g_PxErrorCallback;
-static PxFoundation*            g_PxFoundation      = nullptr;
-static PxPhysics*               g_PxPhysics         = nullptr;
-static PxDefaultCpuDispatcher*  g_PxCpuDispatcher   = nullptr;
-static PxScene*                 g_PxScene           = nullptr;
-static PxPvd*                   g_PxPVD             = nullptr;
-
-#define FatalError(x) throw std::runtime_error(x);
-
-
-
-void InitPhysics(bool enablePvd = true, bool trackMemoryAllocate = true)
-{
-    g_PxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, g_PxAllocator, g_PxErrorCallback);
-
-    // PhysX Visual Debugger
-    if (enablePvd)
-    {
-        g_PxPVD = PxCreatePvd(*g_PxFoundation);
-        PxPvdTransport* pvdTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-        g_PxPVD->connect(*pvdTransport,PxPvdInstrumentationFlag::eALL);
-    }
-
-    g_PxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *g_PxFoundation, PxTolerancesScale(), trackMemoryAllocate, g_PxPVD);
-    if (!g_PxPhysics)
-        FatalError("PxCreatePhysics failed.");
-
-    if (!PxInitExtensions(*g_PxPhysics, g_PxPVD))
-        FatalError("PxInitExtensions failed.");
-
-//    PxSetPhysXGpuLoadHook(&g_PxGpuLoadHook);
-
-    g_PxCpuDispatcher = PxDefaultCpuDispatcherCreate(2);
-
-    PxSceneDesc sceneDesc(g_PxPhysics->getTolerancesScale());
-    sceneDesc.gravity = {0, -9.81, 0};
-    sceneDesc.cpuDispatcher = g_PxCpuDispatcher;
-    sceneDesc.filterShader	= PxDefaultSimulationFilterShader;
-    g_PxScene = g_PxPhysics->createScene(sceneDesc);
-
-    if (g_PxPVD)
-    {
-        PxPvdSceneClient* pvdClient = g_PxScene->getScenePvdClient();
-        assert(pvdClient);
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-    }
-
-    PxMaterial* g_PxDefaultMaterial = g_PxPhysics->createMaterial(0.5, 0.5, 0.6);
-
-    PxRigidStatic* aGroundStatic = PxCreatePlane(*g_PxPhysics, PxPlane(0,1,0,0), *g_PxDefaultMaterial);
-    g_PxScene->addActor(*aGroundStatic);
-
-//    for (int i = 0; i < 30; ++i) {
-//        for (int j = 0; j < 30; ++j) {
-//            PxTransform localTm();
+//#include <PxPhysicsAPI.h>
 //
-//        }
-//    }
-
-//    while (true)
+//using namespace physx;
+//
+//static PxDefaultAllocator       g_PxAllocator;
+//static PxDefaultErrorCallback   g_PxErrorCallback;
+//static PxFoundation*            g_PxFoundation      = nullptr;
+//static PxPhysics*               g_PxPhysics         = nullptr;
+//static PxDefaultCpuDispatcher*  g_PxCpuDispatcher   = nullptr;
+//static PxScene*                 g_PxScene           = nullptr;
+//static PxPvd*                   g_PxPVD             = nullptr;
+//
+//#define FatalError(x) throw std::runtime_error(x);
+//
+//
+//
+//void InitPhysics(bool enablePvd = true, bool trackMemoryAllocate = true)
+//{
+//    g_PxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, g_PxAllocator, g_PxErrorCallback);
+//
+//    // PhysX Visual Debugger
+//    if (enablePvd)
 //    {
-//        g_PxScene->simulate(1.0/60.0f);
-//        g_PxScene->fetchResults(true);
+//        g_PxPVD = PxCreatePvd(*g_PxFoundation);
+//        PxPvdTransport* pvdTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+//        g_PxPVD->connect(*pvdTransport,PxPvdInstrumentationFlag::eALL);
 //    }
-}
-
-void ReleasePhysics()
-{
-    PX_RELEASE(g_PxScene);
-    PX_RELEASE(g_PxCpuDispatcher);
-    PX_RELEASE(g_PxPhysics);
-    if (g_PxPVD) {
-        PxPvdTransport* tmp = g_PxPVD->getTransport();
-        PX_RELEASE(g_PxPVD);
-        PX_RELEASE(tmp);
-    }
-    PX_RELEASE(g_PxFoundation);
-}
+//
+//    g_PxPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *g_PxFoundation, PxTolerancesScale(), trackMemoryAllocate, g_PxPVD);
+//    if (!g_PxPhysics)
+//        FatalError("PxCreatePhysics failed.");
+//
+//    if (!PxInitExtensions(*g_PxPhysics, g_PxPVD))
+//        FatalError("PxInitExtensions failed.");
+//
+////    PxSetPhysXGpuLoadHook(&g_PxGpuLoadHook);
+//
+//    g_PxCpuDispatcher = PxDefaultCpuDispatcherCreate(2);
+//
+//    PxSceneDesc sceneDesc(g_PxPhysics->getTolerancesScale());
+//    sceneDesc.gravity = {0, -9.81, 0};
+//    sceneDesc.cpuDispatcher = g_PxCpuDispatcher;
+//    sceneDesc.filterShader	= PxDefaultSimulationFilterShader;
+//    g_PxScene = g_PxPhysics->createScene(sceneDesc);
+//
+//    if (g_PxPVD)
+//    {
+//        PxPvdSceneClient* pvdClient = g_PxScene->getScenePvdClient();
+//        assert(pvdClient);
+//        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+//        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+//        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+//    }
+//
+//    PxMaterial* g_PxDefaultMaterial = g_PxPhysics->createMaterial(0.5, 0.5, 0.6);
+//
+//    PxRigidStatic* aGroundStatic = PxCreatePlane(*g_PxPhysics, PxPlane(0,1,0,0), *g_PxDefaultMaterial);
+//    g_PxScene->addActor(*aGroundStatic);
+//
+////    for (int i = 0; i < 30; ++i) {
+////        for (int j = 0; j < 30; ++j) {
+////            PxTransform localTm();
+////
+////        }
+////    }
+//
+////    while (true)
+////    {
+////        g_PxScene->simulate(1.0/60.0f);
+////        g_PxScene->fetchResults(true);
+////    }
+//}
+//
+//void ReleasePhysics()
+//{
+//    PX_RELEASE(g_PxScene);
+//    PX_RELEASE(g_PxCpuDispatcher);
+//    PX_RELEASE(g_PxPhysics);
+//    if (g_PxPVD) {
+//        PxPvdTransport* tmp = g_PxPVD->getTransport();
+//        PX_RELEASE(g_PxPVD);
+//        PX_RELEASE(tmp);
+//    }
+//    PX_RELEASE(g_PxFoundation);
+//}
 
 
 World::World(const std::string& savedir, const WorldInfo* worldinfo)

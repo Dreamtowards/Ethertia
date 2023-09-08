@@ -10,8 +10,8 @@ set(BUILD_STATIC OFF)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g")
+#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -51,13 +51,13 @@ if(WIN32)
 endif()
 
 
-if (APPLE)
-    # VK_ICD_FILENAMES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json
-    link_directories(lib/vulkan/bin/darwin-x64)
-    link_libraries(vulkan.1.3.236)
-elseif(WIN32)
-    link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
-endif ()
+#if (APPLE)
+#    # VK_ICD_FILENAMES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json
+#    link_directories(lib/vulkan/bin/darwin-x64)
+#    link_libraries(vulkan.1.3.236)
+#elseif(WIN32)
+#    link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
+#endif ()
 
 
 include_directories(src)
@@ -79,7 +79,7 @@ include_directories(lib/physx/include)
 include_directories(src/ethertia/render/vkx)
 include_directories(src/ethertia/render/glc)
 
-include_directories(lib/vulkan/include)
+#include_directories(lib/vulkan/include)
 
 
 add_executable(Ethertia
@@ -207,6 +207,22 @@ target_link_libraries(Ethertia nbt++)
 #target_link_libraries(Ethertia openvr_api)
 
 
+
+if (MSVC)
+    target_compile_options(Ethertia PRIVATE
+        /wd4267  # msvc ignore C4267: implicit conversion possible loss of data e.g. uint32_t count = (size_t)ls.size();
+        /wd4244
+    )
+endif()
+
+target_include_directories(Ethertia PRIVATE
+        "C:/Softwares/VulkanSDK/1.3.250.0/Include/")
+
+target_link_directories(Ethertia PRIVATE
+        "C:/Softwares/VulkanSDK/1.3.250.0/Lib/")
+
+target_link_libraries(Ethertia
+        "vulkan-1")
 
 
 #add_subdirectory(lib/openvr)

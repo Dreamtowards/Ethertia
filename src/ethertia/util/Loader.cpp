@@ -768,38 +768,54 @@ std::string Loader::sys_target()
 
 
 
-#include <cpuid.h>
+//#ifdef _WIN32
+//#include <Windows.h>  // get system info
+//#else
+//#include <cpuid.h>
+//#endif
 
 const char* Loader::cpuid()
 {
-    static char CPUBrandString[0x40]{};
-    if (CPUBrandString[0])
-        return CPUBrandString;
-
-#if defined(_WIN32) || defined(__APPLE__)
-
-    unsigned int CPUInfo[4] = {0,0,0,0};
-
-    __cpuid(0x80000000, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
-    unsigned int nExIds = CPUInfo[0];
-
-    memset(CPUBrandString, 0, sizeof(CPUBrandString));
-
-    for (unsigned int i = 0x80000000; i <= nExIds; ++i)
-    {
-        __cpuid(i, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
-
-        if (i == 0x80000002)
-            memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-        else if (i == 0x80000003)
-            memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-        else if (i == 0x80000004)
-            memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
-    }
-    return CPUBrandString;
-#else
-    static_assert(false);
-#endif
+    return "";
+//    static char CPUBrandString[0x40]{};
+//    if (CPUBrandString[0])
+//        return CPUBrandString;
+//
+//#if defined(_WIN32) || defined(__APPLE__)
+//
+//    int CPUInfo[4] = { -1 };
+//    unsigned   nExIds, i = 0;
+//    // Get the information associated with each extended ID.
+//    __cpuid(CPUInfo, 0x80000000);
+//    nExIds = CPUInfo[0];
+//    for (i = 0x80000000; i <= nExIds; ++i)
+//    {
+//        __cpuid(CPUInfo, i);
+//        // Interpret CPU brand string
+//        if (i == 0x80000002)
+//            memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
+//        else if (i == 0x80000003)
+//            memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
+//        else if (i == 0x80000004)
+//            memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
+//    }
+//    //string includes manufacturer, model and clockspeed
+//    using namespace std;
+//    cout << "CPU Type: " << CPUBrandString << endl;
+//
+//
+//    SYSTEM_INFO sysInfo;
+//    GetSystemInfo(&sysInfo);
+//    cout << "Number of Cores: " << sysInfo.dwNumberOfProcessors << endl;
+//
+//    MEMORYSTATUSEX statex;
+//    statex.dwLength = sizeof(statex);
+//    GlobalMemoryStatusEx(&statex);
+//    cout << "Total System Memory: " << (statex.ullTotalPhys / 1024) / 1024 << "MB" << endl;
+//
+//#else
+//    static_assert(false);
+//#endif
 }
 
 

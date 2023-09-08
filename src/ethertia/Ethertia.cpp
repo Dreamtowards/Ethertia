@@ -20,7 +20,7 @@
 #include <ethertia/world/gen/ChunkGenerator.h>
 #include <ethertia/command/Commands.h>
 #include <ethertia/world/ChunkLoader.h>
-#include <ethertia/audio/AudioEngine.h>
+// #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
@@ -36,8 +36,6 @@ static void Init();
 static void Destroy();
 static void RunMainLoop();
 
-
-// EntryPoint.
 
 int main()
 {
@@ -82,14 +80,14 @@ static void Init()
 
     Window::Init(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
     RenderEngine::init();
-    AudioEngine::init();
+    // AudioEngine::init();
     NetworkSystem::init();
 
 
     // Materials & Items
     MaterialMeshes::load();
     ItemTextures::load();
-    Sounds::load();
+//    Sounds::load();
 
     Imgui::Init();
     Recipes::init();  // after mtl-items register.
@@ -141,7 +139,7 @@ static void Destroy()
     Imgui::Destroy();
 
     RenderEngine::deinit();
-    AudioEngine::deinit();
+//    AudioEngine::deinit();
 
     Window::Destroy();
 }
@@ -231,9 +229,9 @@ static void RunMainLoop()
 
         Dbg::_fps_frame(Ethertia::getPreciseTime());
 
-        AudioEngine::checkAlError("Frame");
-        AudioEngine::setListenerPosition(Ethertia::getCamera().position);
-        AudioEngine::setListenerOrientation(Ethertia::getCamera().direction);
+//        AudioEngine::checkAlError("Frame");
+//        AudioEngine::setListenerPosition(Ethertia::getCamera().position);
+//        AudioEngine::setListenerOrientation(Ethertia::getCamera().direction);
     }
 }
 
