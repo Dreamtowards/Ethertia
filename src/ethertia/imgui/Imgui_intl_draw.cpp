@@ -395,7 +395,7 @@ void ShowNewWorldWindow()
                 .Name = _WorldName
         };
         Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
-        //Ethertia::loadWorld(save_path, &worldinfo);
+        Ethertia::loadWorld("saves/save_path", &worldinfo);
         w_NewWorld = false;
     }
 

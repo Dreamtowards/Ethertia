@@ -15,7 +15,7 @@
 #include <ethertia/util/Profiler.h>
 #include <ethertia/util/Scheduler.h>
 #include <ethertia/util/Registry.h>
-
+#include <ethertia/world/World.h>
 
 #include <cassert>
 #ifndef NDEBUG
@@ -23,8 +23,6 @@
 #endif
 
 
-class World;
-class WorldInfo;
 class EntityPlayer;
 class GuiRoot;
 class Window;
