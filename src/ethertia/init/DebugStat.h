@@ -5,6 +5,10 @@
 #ifndef ETHERTIA_DEBUGSTAT_H
 #define ETHERTIA_DEBUGSTAT_H
 
+#include <glm/glm.hpp>
+
+#include <ethertia/util/Profiler.h>
+
 struct DebugStat
 {
 public:

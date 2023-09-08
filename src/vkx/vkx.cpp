@@ -1766,6 +1766,48 @@ void vkx::Destroy()
     vkxc.Instance.destroy(allocator);
 }
 
+vk::CommandBuffer vkx::BeginFrame()
+{
+    VKX_CTX_device_allocator;
+    int fif_i = vkxc.CurrentInflightFrame;
+    vkx::CommandBuffer cmd{ vkxc.CommandBuffers[fif_i] };
+
+    // blocking until the CommandBuffer has finished executing
+    VKX_CHECK(device.waitForFences(vkxc.CommandBufferFences[fif_i], true, UINT64_MAX));
+
+    // acquire swapchain image, and signal SemaphoreImageAcquired[i] when acquired. (when the presentation engine is finished using the image)
+    vkxc.CurrentSwapchainImage =
+            vkx::check(device.acquireNextImageKHR(vkxc.SwapchainKHR, UINT64_MAX, vkxc.SemaphoreImageAcquired[fif_i]));
+
+    device.resetFences(vkxc.CommandBufferFences[fif_i]);  // reset the fence to the unsignaled state
+
+    cmd.Reset();
+    cmd.Begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
+    return cmd;
+}
+
+void vkx::SubmitPresent(vk::CommandBuffer cmd)
+{
+    cmd.end();
+
+    VKX_CTX_device_allocator;
+    int fif_i = vkxc.CurrentInflightFrame;
+
+    // Submit the CommandBuffer.
+    // Submission is VerySlow. try Batch Submit as much as possible, and Submit in another Thread
+    vkx::QueueSubmit(vkxc.GraphicsQueue, cmd,
+                     vkxc.SemaphoreImageAcquired[fif_i], { vk::PipelineStageFlagBits::eColorAttachmentOutput },
+                     vkxc.SemaphoreRenderComplete[fif_i],
+                     vkxc.CommandBufferFences[fif_i]);
+
+    vkx::QueuePresentKHR(vkxc.PresentQueue,
+                         vkxc.SemaphoreRenderComplete[fif_i], vkxc.SwapchainKHR, vkxc.CurrentSwapchainImage);
+
+    //    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
+
+    vkxc.CurrentInflightFrame = (vkxc.CurrentInflightFrame + 1) % vkxc.InflightFrames;
+}
+
 #pragma endregion
 
 

@@ -15,7 +15,7 @@
 #include <ethertia/util/Strings.h>
 #include <ethertia/init/DebugStat.h>
 
-
+#include <ethertia/world/Chunk.h>
 
 class NBT {
 public:

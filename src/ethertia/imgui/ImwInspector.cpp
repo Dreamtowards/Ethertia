@@ -2,13 +2,14 @@
 // Created by Dreamtowards on 2023/5/14.
 //
 
+#include "Imw.h"
 
-#include <ethertia/entity/passive/EntityChicken.h>
-#include <ethertia/entity/EntityFurnace.h>
+//#include <ethertia/entity/passive/EntityChicken.h>
+//#include <ethertia/entity/EntityFurnace.h>
+#include <ethertia/init/Settings.h>
 
 
-
-static void ShowEntityInsp()
+void Imw::ShowInspector(bool* _open)
 {
     ImGui::Begin("Entity", &Settings::w_EntityInsp);
 

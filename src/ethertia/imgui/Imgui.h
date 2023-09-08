@@ -2,10 +2,9 @@
 // Created by Dreamtowards on 2023/3/3.
 //
 
-#ifndef ETHERTIA_IMGUIS_H
-#define ETHERTIA_IMGUIS_H
+#pragma once
 
-//#define IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
 #include <ethertia/entity/Entity.h>
@@ -15,7 +14,7 @@
 class Imgui
 {
 public:
-    inline static float GlobalScale = 1.0f;
+    inline static float GuiScale = 1.0f;
 
     inline static std::vector<std::string> g_MessageBox;
     inline static glm::vec4 wViewportXYWH;
@@ -26,11 +25,28 @@ public:
     static void Init();
     static void Destroy();
 
-    static void RenderGUI(VkCommandBuffer cmdbuf);
     static void NewFrame();
+    static void Render(VkCommandBuffer cmdbuf);
 
-    static void RenderWindows();
 
+
+
+    using DrawFuncPtr = void (*)(bool*);
+    inline static std::vector<DrawFuncPtr> DrawFuncList;
+
+    static void Show(DrawFuncPtr w);
+
+    static bool Has(DrawFuncPtr w);
+
+    static void Close(DrawFuncPtr w);
+
+    static void ShowWindows();
+
+    static void ToggleDrawCheckbox(const char* label, DrawFuncPtr w);
+
+
+
+    static VkDescriptorSet mapImage(VkImageView imageView);
 
     static void Image(void* texId, ImVec2 size, glm::vec4 color = {1,1,1,1});
     static ImVec2 GetWindowContentSize();
@@ -50,4 +66,3 @@ public:
     static void RenderAABB(const AABB& aabb, glm::vec4 col);
 };
 
-#endif //ETHERTIA_IMGUIS_H

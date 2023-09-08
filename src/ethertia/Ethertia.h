@@ -2,8 +2,7 @@
 // Created by Dreamtowards on 2022/4/22.
 //
 
-#ifndef ETHERTIA_ETHERTIA_H
-#define ETHERTIA_ETHERTIA_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <stdexcept>
@@ -150,5 +149,3 @@ public:
 #define PROFILE(x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = Ethertia::getProfiler().push_ap(x)
 #define PROFILE_X(p, x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
 
-
-#endif //ETHERTIA_ETHERTIA_H

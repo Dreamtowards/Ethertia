@@ -169,6 +169,9 @@ namespace vkx
 	
 	void EndMainRenderPass(vk::CommandBuffer cmdbuf);
 
+	vk::CommandBuffer BeginFrame();
+
+	void SubmitPresent(vk::CommandBuffer cmd);
 
 	#pragma endregion
 

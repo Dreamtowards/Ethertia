@@ -3,7 +3,7 @@
 //
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <ethertia/imgui/Imgui.h>
+#include "Imgui.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -14,29 +14,23 @@
 #include <imgui-knobs/imgui-knobs.h>
 #include <imgui-imnodes/imnodes.h>
 
-
-#include <ethertia/init/Settings.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/render/RenderEngine.h>
-
+#include <ethertia/init/Settings.h>
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/init/Controls.h>
-
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/world/Chunk.h>
-//#include <ethertia/render/ssao/SSAORenderer.h>
-//#include <ethertia/render/shadow/ShadowRenderer.h>
-//#include <ethertia/render/debug/DebugRenderer.h>
-//#include <ethertia/render/deferred/GeometryRenderer.h>
+
 
 static void InitStyle()
 {
     ImGuiIO& io = ImGui::GetIO();
 
     ImFontConfig fontConf;
-    fontConf.OversampleH = 3;
-    fontConf.OversampleV = 3;
+    fontConf.OversampleH = 2;
+    fontConf.OversampleV = 2;
     fontConf.RasterizerMultiply = 1.6f;
     io.Fonts->AddFontFromFileTTF("./assets/font/menlo.ttf", 14.0f, &fontConf);
 
@@ -160,16 +154,13 @@ void Imgui::Init()
 
     // Set Before Backend/Impl Init.
     io.ConfigFlags |=
-            ImGuiConfigFlags_DockingEnable;// |           // Enable Docking.
-//            ImGuiConfigFlags_ViewportsEnable;        // Multiple Windows/Viewports
+            ImGuiConfigFlags_DockingEnable |         // Enable Docking.
+            ImGuiConfigFlags_ViewportsEnable;        // Multiple Windows/Viewports
 //            ImGuiConfigFlags_DpiEnableScaleFonts |
 //            ImGuiConfigFlags_DpiEnableScaleViewports;
 //    io.ConfigViewportsNoDecoration = false;
 //    io.ConfigViewportsNoTaskBarIcon = true;
 //    ImGui::GetMainViewport()->DpiScale = 4;
-
-//    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
-//    ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
 
     InitForVulkan();
@@ -177,7 +168,6 @@ void Imgui::Init()
     // ImNodes
     ImNodes::CreateContext();
     ImNodes::GetIO().EmulateThreeButtonMouse.Modifier = &ImGui::GetIO().KeyShift;
-
 
 }
 
@@ -198,14 +188,14 @@ void Imgui::NewFrame()
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
 
-    ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GlobalScale;
+    ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GuiScale;
 
-    ImGui::GetMainViewport()->Size /= Imgui::GlobalScale;
-    ImGui::GetIO().DisplayFramebufferScale *= Imgui::GlobalScale;
+    ImGui::GetMainViewport()->Size /= Imgui::GuiScale;
+    ImGui::GetIO().DisplayFramebufferScale *= Imgui::GuiScale;
 }
 
 
-void Imgui::RenderGUI(VkCommandBuffer cmdbuf)
+void Imgui::Render(VkCommandBuffer cmdbuf)
 {
     {
         PROFILE("Render");
@@ -217,17 +207,78 @@ void Imgui::RenderGUI(VkCommandBuffer cmdbuf)
     // Update Multiple Windows/Viewports
     if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
-        GLFWwindow* backup_current_context = glfwGetCurrentContext();
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
-        glfwMakeContextCurrent(backup_current_context);
     }
 }
 
 
 
 
-static VkDescriptorSet pTexDesc(VkImageView imageView)
+
+
+
+
+
+
+#include <stdx/stdx.h>
+
+void Imgui::Show(DrawFuncPtr w)
+{
+    if (Has(w))
+    {
+        Log::info("Failed to ShowWindow, Existed Already");
+        return;
+    }
+    Imgui::DrawFuncList.push_back(w);
+}
+
+bool Imgui::Has(DrawFuncPtr w)
+{
+    return stdx::exists(Imgui::DrawFuncList, w);  //auto& ls = ImWindows::Windows;std::find(ls.begin(), ls.end(), w) != ls.end();
+}
+
+void Imgui::Close(DrawFuncPtr w)
+{
+    stdx::erase(Imgui::DrawFuncList, w);
+}
+
+void Imgui::ShowWindows()
+{
+    auto& windows = Imgui::DrawFuncList;
+    for (int i = windows.size()-1; i >= 0; --i)
+    {
+        bool show = true;
+
+        windows[i](&show);
+
+        if (!show)
+        {
+            stdx::erase(windows, i);
+        }
+    }
+}
+
+void Imgui::ToggleDrawCheckbox(const char* label, DrawFuncPtr w)
+{
+    bool show = Imgui::Has(w);
+    if (ImGui::Checkbox(label, &show))
+    {
+        if (show) {
+            Imgui::Show(w);
+        } else {
+            Imgui::Close(w);
+        }
+    }
+}
+
+
+
+
+
+
+
+VkDescriptorSet Imgui::mapImage(VkImageView imageView)
 {
     static std::unordered_map<VkImageView, VkDescriptorSet> _cache;
 
@@ -247,7 +298,8 @@ static VkDescriptorSet pTexDesc(VkImageView imageView)
 void Imgui::Image(void* texId, ImVec2 size, glm::vec4 color) {
 //    assert(false);
     if (texId == 0) {
-        texId = pTexDesc(RenderEngine::TEX_WHITE->imageView);
+        throw 4;
+        //texId = pTexDesc(RenderEngine::TEX_WHITE->imageView);
     }
     ImGui::Image((void*)(intptr_t)texId,
                  {size.x, size.y},
@@ -277,81 +329,5 @@ bool Imgui::CalcViewportWorldpos(glm::vec3 worldpos, glm::vec2& out_screenpos)
     return p.z > 0;
 }
 
-static ImGuiKey GetPressedKey()
-{
-    for (int k = ImGuiKey_NamedKey_BEGIN; k < ImGuiKey_NamedKey_END; ++k)
-    {
-        if (ImGui::IsKeyPressed((ImGuiKey)k))
-            return (ImGuiKey)k;
-    }
-    return ImGuiKey_None;
-}
 
-
-
-
-
-#include "Imgui_intl_draw.cpp"
-
-
-
-void Imgui::RenderWindows()
-{
-    ShowDockspaceAndMainMenubar();
-
-    if (Settings::w_Toolbar)
-        ShowToolbar();
-
-    ShowPlayerInventory();
-
-    if (w_ImGuiDemo)
-        ImGui::ShowDemoWindow(&w_ImGuiDemo);
-
-    if (w_NewWorld)
-        ShowNewWorldWindow();
-
-    if (Settings::w_Profiler)
-        ShowProfilers();
-
-    if (Settings::w_EntityList)
-        ShowEntities();
-    if (Settings::w_EntityInsp) {
-        ShowEntityInsp();
-        if (Imgui::g_InspEntity) {
-            Imgui::RenderAABB(Imgui::g_InspEntity->getAABB(), Colors::YELLOW);
-        }
-    }
-    if (Settings::w_ShaderInsp) {
-        ShowShaderProgramInsp();
-    }
-
-    if (Settings::w_Viewport)
-    {
-        ShowGameViewport();
-    } else {
-        Imgui::wViewportXYWH = {Mth::Inf, 0, 0, 0};
-    }
-
-    if (Settings::w_Console)
-        ShowConsole();
-
-    if (Settings::w_Settings) {
-        ShowSettingsWindow();
-    }
-
-
-
-    if (w_NodeEditor)
-        ShowNodeEditor();
-
-
-    if (w_TitleScreen) {
-        ShowTitleScreenWindow();
-    }
-    if (w_Singleplayer) {
-        ShowSingleplayerWindow();
-    }
-
-
-}
 

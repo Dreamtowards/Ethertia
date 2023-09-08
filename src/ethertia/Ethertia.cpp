@@ -30,6 +30,7 @@
 
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/world/Biome.h>
+#include <ethertia/imgui/Imw.h>
 
 
 static void Init();
@@ -79,9 +80,11 @@ static void Init()
     Ethertia::isRunning() = true;
 
     Window::Init(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
-    RenderEngine::init();
+    RenderEngine::Init();
     // AudioEngine::init();
     NetworkSystem::init();
+
+    Imw::InitWindows();
 
 
     // Materials & Items
@@ -89,7 +92,6 @@ static void Init()
     ItemTextures::load();
 //    Sounds::load();
 
-    Imgui::Init();
     Recipes::init();  // after mtl-items register.
 
     g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
@@ -136,9 +138,8 @@ static void Destroy()
 
     NetworkSystem::deinit();
 
-    Imgui::Destroy();
 
-    RenderEngine::deinit();
+    RenderEngine::Destroy();
 //    AudioEngine::deinit();
 
     Window::Destroy();
@@ -189,24 +190,27 @@ static void RunMainLoop()
 
     {
         PROFILE("Input");
-
         {
             PROFILE("PollEvents");
-            window.PollEvents();
+            Window::PollEvents();
         }
         {
             PROFILE("HandleInputs");
             Controls::handleInput();
         }
-        {
-            PROFILE("ImGuiNewFrame");
-            Imgui::NewFrame();
-        }
     }
     {
         PROFILE("ProcGUI");
 
-        Imgui::RenderWindows();
+        {
+            PROFILE("Imgui::NewFrame");
+            Imgui::NewFrame();
+        }
+
+
+        PROFILE("Imgui::ShowWindows");
+        Imw::ShowDockspaceAndMainMenubar();
+        Imgui::ShowWindows();
     }
 
     {
@@ -220,12 +224,12 @@ static void RunMainLoop()
 //        window.swapBuffers();
 
         // Sync FPS.
-        if (Settings::s_FpsCap) {
-            const double till = time_framebegin + (1.0/Settings::s_FpsCap);
-            while (Ethertia::getPreciseTime() < till) {
-                Timer::sleep_for(1);
-            }
-        }
+//        if (Settings::s_FpsCap) {
+//            const double till = time_framebegin + (1.0/Settings::s_FpsCap);
+//            while (Ethertia::getPreciseTime() < till) {
+//                Timer::sleep_for(1);
+//            }
+//        }
 
         Dbg::_fps_frame(Ethertia::getPreciseTime());
 

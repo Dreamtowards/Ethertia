@@ -98,6 +98,13 @@ add_executable(Ethertia
         lib/imgui-imnodes/imnodes.cpp
 
         src/ethertia/imgui/Imgui.cpp
+        src/ethertia/imgui/Imw.cpp
+        src/ethertia/imgui/ImwSettings.cpp
+#        src/ethertia/imgui/ImwInspector.cpp
+        #src/ethertia/imgui/ImwProfiler.cpp
+        #src/ethertia/imgui/ImwGameplay.cpp
+        #src/ethertia/imgui/ImwDebug.cpp
+
         src/ethertia/util/Log.cpp
         src/ethertia/util/Loader.cpp
         src/ethertia/util/BitmapImage.cpp
@@ -212,6 +219,7 @@ if (MSVC)
     target_compile_options(Ethertia PRIVATE
         /wd4267  # msvc ignore C4267: implicit conversion possible loss of data e.g. uint32_t count = (size_t)ls.size();
         /wd4244
+        /wd4305  # warning C4305: 'initializing': truncation from 'double' to 'float'
     )
 endif()
 

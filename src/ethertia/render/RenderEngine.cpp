@@ -40,7 +40,13 @@
 
 
 
-void RenderEngine::init()
+
+static vkx::Image* TEX_WHITE = nullptr;
+static vkx::Image* TEX_UVMAP = nullptr;
+
+
+
+void RenderEngine::Init()
 {
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
@@ -54,6 +60,9 @@ void RenderEngine::init()
               VK_API_VERSION_MINOR(vkApiVersion),
               VK_API_VERSION_PATCH(vkApiVersion),
               vkx::ctx().PhysDeviceProperties.deviceName);
+
+    Imgui::Init();
+
 
     TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
     TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");
@@ -74,9 +83,10 @@ void RenderEngine::init()
 }
 
 
-void RenderEngine::deinit()
+void RenderEngine::Destroy()
 {
-    vkDeviceWaitIdle(vkx::ctx().Device);  // blocking.
+    VKX_CTX_device_allocator;
+    vkxc.Device.waitIdle();
 
     MaterialTextures::clean();
     ItemTextures::clean();
@@ -85,6 +95,8 @@ void RenderEngine::deinit()
 
     delete TEX_WHITE;
     delete TEX_UVMAP;
+
+    Imgui::Destroy();
 
     vkx::Destroy();
 }
@@ -97,22 +109,10 @@ void RenderEngine::Render()
 
     VKX_CTX_device_allocator;
 
-    int fif_i = vkxc.CurrentInflightFrame;
-    vkx::CommandBuffer cmd{ vkxc.CommandBuffers[fif_i] };
-
+    vkx::CommandBuffer cmd{nullptr};
     {
         PROFILE("BeginFrame");
-        // blocking until the CommandBuffer has finished executing
-        VKX_CHECK(device.waitForFences(vkxc.CommandBufferFences[fif_i], true, UINT64_MAX));
-
-        // acquire swapchain image, and signal SemaphoreImageAcquired[i] when acquired. (when the presentation engine is finished using the image)
-        vkxc.CurrentSwapchainImage =
-                vkx::check(device.acquireNextImageKHR(vkxc.SwapchainKHR, UINT64_MAX, vkxc.SemaphoreImageAcquired[fif_i]));
-
-        device.resetFences(vkxc.CommandBufferFences[fif_i]);  // reset the fence to the unsignaled state
-
-        cmd.Reset();
-        cmd.Begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
+        cmd = vkx::BeginFrame();
     }
 
 //    World* world = Ethertia::getWorld();
@@ -132,27 +132,13 @@ void RenderEngine::Render()
     {
         PROFILE("GUI");
 
-        Imgui::RenderGUI(cmd);
+        Imgui::Render(cmd);
     }
     vkx::EndMainRenderPass(cmd);
 
     {
-        PROFILE("EndFrame");
-        cmd.End();
-
-        // Submit the CommandBuffer.
-        // Submission is VerySlow. try Batch Submit as much as possible, and Submit in another Thread
-        vkx::QueueSubmit(vkxc.GraphicsQueue, cmd.cmd,
-                         vkxc.SemaphoreImageAcquired[fif_i], { vk::PipelineStageFlagBits::eColorAttachmentOutput },
-                         vkxc.SemaphoreRenderComplete[fif_i],
-                         vkxc.CommandBufferFences[fif_i]);
-
-        vkx::QueuePresentKHR(vkxc.PresentQueue,
-                             vkxc.SemaphoreRenderComplete[fif_i], vkxc.SwapchainKHR, vkxc.CurrentSwapchainImage);
-
-        //    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
-
-        vkxc.CurrentInflightFrame = (vkxc.CurrentInflightFrame + 1) % vkxc.InflightFrames;
+        PROFILE("SubmitPresent");
+        vkx::SubmitPresent(cmd);
     }
 }
 

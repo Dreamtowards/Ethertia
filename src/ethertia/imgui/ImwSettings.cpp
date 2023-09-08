@@ -2,317 +2,55 @@
 // Created by Dreamtowards on 2023/5/14.
 //
 
-
-
-static enum SettingsPanel {
-    Profile,
-    CurrentWorld,
-    Graphics,
-    Audio,
-    Controls,
-    Language,
-    Mods,
-    ResourcePacks,
-    Credits,
-    Misc
-} g_CurrSettingsPanel = SettingsPanel::Graphics;
-
-
-
-
-
-
-
-
-
-static void _MenuSystem()
-{
-    if (ImGui::BeginMenu("Servers"))
-    {
-        if (ImGui::MenuItem("Connect to server..")) {
-        }
-        ImGui::Separator();
-        ImGui::TextDisabled("Servers:");
-
-        if (ImGui::SmallButton("+")) {
-        }
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("Add server");
-
-        ImGui::EndMenu();
-    }
-    ImGui::Separator();
-
-    if (ImGui::BeginMenu("Open World"))
-    {
-        if (ImGui::MenuItem("New World..")) {
-            w_NewWorld = true;
-        }
-        if (ImGui::MenuItem("Open World..")) {
-            const char* filename = Loader::openFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
-            if (filename) {
-                Log::info("Open world: ", filename);
-                Ethertia::loadWorld(filename);
-            }
-        }
-
-        //ImGui::SeparatorText("Saves");
-        ImGui::Separator();
-        ImGui::TextDisabled("Saves:");
-
-        if (Loader::fileExists("saves/"))
-        {
-            for (const auto& savedir : std::filesystem::directory_iterator("saves/"))
-            {
-//            std::string size_str = Strings::size_str(Loader::calcDirectorySize(savedir.path()));
-
-                float epoch = std::chrono::duration_cast<std::chrono::seconds>(savedir.last_write_time().time_since_epoch()).count();
-                if (epoch < 0)  epoch = 0;  // Error on Windows.
-                std::string time_str = Strings::time_fmt(epoch);
-
-                auto filename = savedir.path().filename();
-                if (ImGui::MenuItem((const char*)filename.c_str(), time_str.c_str()))
-                {
-                    Ethertia::loadWorld(savedir.path().string());
-                }
-            }
-        }
-
-        ImGui::EndMenu();
-    }
-
-    bool worldvalid = Ethertia::getWorld();
-    if (ImGui::MenuItem("Edit World..", nullptr, false, worldvalid))
-    {
-        Settings::w_Settings = true;
-        g_CurrSettingsPanel = SettingsPanel::CurrentWorld;
-    }
-    if (ImGui::MenuItem("Save World", nullptr, false, worldvalid)) {}
-
-    if (ImGui::MenuItem("Close World", nullptr, false, worldvalid)) {
-        Ethertia::unloadWorld();
-    }
-
-    ImGui::Separator();
-
-    if (ImGui::MenuItem("Settings.."))
-    {
-        Settings::w_Settings = true;
-    }
-
-    if (ImGui::MenuItem("Mods", "0 mods loaded")) {
-        Settings::w_Settings = true;
-        g_CurrSettingsPanel = SettingsPanel::Mods;
-    }
-    if (ImGui::MenuItem("Resource Packs")) {
-        Settings::w_Settings = true;
-        g_CurrSettingsPanel = SettingsPanel::ResourcePacks;
-    }
-    if (ImGui::MenuItem("Controls")) {
-        Settings::w_Settings = true;
-        g_CurrSettingsPanel = SettingsPanel::Controls;
-    }
-
-
-
-    if (ImGui::MenuItem("About")) {
-        Settings::w_Settings = true;
-        g_CurrSettingsPanel = SettingsPanel::Credits;
-    }
-
-    ImGui::Separator();
-
-    if (ImGui::MenuItem("Terminate")) {
-        Ethertia::shutdown();
-    }
-}
-
-#include <ethertia/init/KeyBinding.h>
-
-static void ShowMainMenuBar()
-{
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::BeginMenu("System"))
-        {
-            _MenuSystem();
-            ImGui::EndMenu();
-        }
-//        if (ImGui::BeginMenu("Edit"))
-//        {
-//            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-//            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-//            ImGui::Separator();
-//            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-//            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-//            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-//            ImGui::EndMenu();
-//        }
-        if (ImGui::BeginMenu("World"))
-        {
-
-            ImGui::Checkbox("AllEntityAABB", &dbg_AllEntityAABB);
-            ImGui::Checkbox("AllChunkAABB", &dbg_AllChunkAABB);
-//            ImGui::Checkbox("DbgHitEntityAABB", &GuiDebugV::dbg_CursorPt);
-//            ImGui::Checkbox("DbgNearChunkBoundAABB", &GuiDebugV::dbgChunkBoundAABB);
-//            ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
-
-            ImGui::Checkbox("MeshingChunks AABB", &Dbg::dbg_MeshingChunksAABB);
-            ImGui::Checkbox("Chunk Mesh Counter", &Dbg::dbg_ChunkMeshedCounter);
-
-            ImGui::Checkbox("NoChunkSave", &Dbg::dbg_NoChunkSave);
-            ImGui::Checkbox("NoChunkLoad", &Dbg::dbg_NoChunkLoad);
-
-            ImGui::Checkbox("PauseThread ChunkMeshing", &Dbg::dbg_PauseThread_ChunkMeshing);
-            ImGui::Checkbox("PauseThread ChunkLoad/Gen/Save", &Dbg::dbg_PauseThread_ChunkLoadGenSave);
-
-            if (ImGui::Button("Remesh All Chunks")) {
-                for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
-                    it.second->requestRemodel();
-                }
-            }
-
-            if (ImGui::BeginMenu("Gamemode"))
-            {
-                EntityPlayer& p = *Ethertia::getPlayer();
-                int gm = Ethertia::getPlayer()->getGamemode();
-
-                if (ImGui::MenuItem("Survival",  nullptr, gm==Gamemode::SURVIVAL))  p.switchGamemode(Gamemode::SURVIVAL);
-                if (ImGui::MenuItem("Creative",  nullptr, gm==Gamemode::CREATIVE))  p.switchGamemode(Gamemode::CREATIVE);
-                if (ImGui::MenuItem("Spectator", nullptr, gm==Gamemode::SPECTATOR)) p.switchGamemode(Gamemode::SPECTATOR);
-
-                ImGui::EndMenu();
-            }
-            ImGui::SliderFloat("Breaking Terrain Interval in CreativeMode", &Settings::gInterval_BreakingTerrain_CreativeMode, 0, 0.5f);
-
-            ImGui::Separator();
-
-            ImGui::Checkbox("Text Info", &Dbg::dbg_TextInfo);
-            ImGui::Checkbox("View Gizmo", &Dbg::dbg_ViewGizmo);
-            ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
-            ImGui::Checkbox("World Basis", &Dbg::dbg_WorldBasis);
-            ImGui::SliderInt("World GridSize", &Dbg::dbg_WorldHintGrids, 0, 500);
-
-            ImGui::Separator();
-
-            ImGui::Checkbox("Hit Tracking", &Ethertia::getHitCursor().keepTracking);
-            ImGui::SliderFloat("BrushSize", &Ethertia::getHitCursor().brushSize, 0, 16);
-
-            Camera& cam = Ethertia::getCamera();
-            ImGui::SliderFloat("Camera Smoothness", &cam.m_Smoothness, 0, 5);
-            ImGui::SliderFloat("Camera Roll", &cam.eulerAngles.z, -3.14, 3.14);
-
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Rendering"))
-        {
-            ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
-            ImGui::SliderFloat("ViewDistance", &Settings::s_ViewDistance, 0, 16);
-            ImGui::Checkbox("Vsync", &Settings::s_Vsync);
-
-            ImGui::Checkbox("SSAO", &Settings::g_SSAO);
-            ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
-            ImGui::SliderFloat("Shadow Depth Map Re-Render Interval", &Settings::gInterval_ShadowDepthMap, 0, 10);
-
-            ImGui::Separator();
-
-            ImGui::Checkbox("PauseWorldRender", &Dbg::dbg_PauseWorldRender);
-            ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
-            ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
-            ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
-
-            ImGui::Checkbox("NoVegetable", &Dbg::dbg_NoVegetable);
-
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Audio"))
-        {
-
-            static float knobVal = 10;
-            ImGuiKnobs::Knob("Test2", &knobVal, -100, 100, 0.1f, "%.1fdB", ImGuiKnobVariant_Tick);
-
-
-//    if (ImGui::Button("Click Sound")) {
-//        Log::info("PlaySoundClick");
-//        Sounds::AS_GUI->UnqueueAllBuffers();
-//        Sounds::AS_GUI->QueueBuffer(Sounds::GUI_CLICK->m_BufferId);
-//        Sounds::AS_GUI->play();
-//    }
-
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("View"))
-        {
-            ImGui::Checkbox("Viewport", &Settings::w_Viewport);
-            ImGui::Checkbox("Full Viewport", &Settings::w_Viewport_Full);
-            ImGui::Checkbox("Entity List", &Settings::w_EntityList);
-            ImGui::Checkbox("Entity Inspect", &Settings::w_EntityInsp);
-            ImGui::Checkbox("Shader Inspect", &Settings::w_ShaderInsp);
-            ImGui::Checkbox("Console", &Settings::w_Console);
-            ImGui::Checkbox("Profiler", &Settings::w_Profiler);
-
-            ImGui::Separator();
-            ImGui::Checkbox("Settings", &Settings::w_Settings);
-            ImGui::Checkbox("Toolbar", &Settings::w_Toolbar);
-
-            ImGui::Checkbox("NodeEditor", &w_NodeEditor);
-            ImGui::Checkbox("TitleScreen", &w_TitleScreen);
-            ImGui::Checkbox("Singleplayer", &w_Singleplayer);
-            ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
-
-
-            ImGui::Separator();
-
-            static bool ShowHUD = true;
-            if (ImGui::MenuItem("HUD", "F1", &ShowHUD)) {
-
-            }
-            if (ImGui::MenuItem("Save Screenshot", KeyBindings::KEY_SCREENSHOT.keyName())) {
-                Controls::saveScreenshot();
-            }
-            if (ImGui::MenuItem("Fullscreen", KeyBindings::KEY_FULLSCREEN.keyName(), Ethertia::getWindow().isFullscreen())) {
-                Window::ToggleFullscreen();
-            }
-            if (ImGui::MenuItem("Controlling Game", KeyBindings::KEY_ESC.keyName(), Ethertia::isIngame())) {
-                Ethertia::isIngame() = !Ethertia::isIngame();
-            }
-
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMenuBar();
-    }
-
-}
+#include "Imw.h"
 
 #include <imgui_internal.h>
 #include "ImKeymap.cpp"
 
 #include <ethertia/init/KeyBinding.h>
 #include <ethertia/world/ChunkLoader.h>
+#include <ethertia/Ethertia.h>
+#include <ethertia/util/Loader.h>
+#include <ethertia/init/Settings.h>
+#include <ethertia/init/MaterialTextures.h>
 
-static void ShowSettingsWindow()
+
+static ImGuiKey GetPressedKey()
 {
-    ImGui::Begin("Settings", &Settings::w_Settings);
+    for (int k = ImGuiKey_NamedKey_BEGIN; k < ImGuiKey_NamedKey_END; ++k)
+    {
+        if (ImGui::IsKeyPressed((ImGuiKey)k))
+            return (ImGuiKey)k;
+    }
+    return ImGuiKey_None;
+}
 
-    SettingsPanel& currp = g_CurrSettingsPanel;
+
+void Imw::Settings::ShowSettings(bool* pOpen)
+{
+    ImGui::Begin("Settings", pOpen);
+
+    Imw::Settings::Panel& currpanel = Imw::Settings::CurrentPanel;
 
     ImGui::BeginChild("SettingNav", {150, 0}, true);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {8, 8});
+    {
+#define ET_IMW_SETTINGS_LABEL(name, val) if (ImGui::RadioButton(name, currpanel==val)) { currpanel=val; }
 
-    if (ImGui::RadioButton("Profile", currp==Profile)) { currp=Profile; }
-    if (ImGui::RadioButton("Current World", currp==CurrentWorld)) { currp=CurrentWorld; }
-    ImGui::Separator();
-    if (ImGui::RadioButton("Graphics", currp==Graphics)) { currp=Graphics; }
-    if (ImGui::RadioButton("Music & Sounds", currp==Audio)) { currp=Audio; }
-    if (ImGui::RadioButton("Controls", currp==Controls)) { currp=Controls; }
-    if (ImGui::RadioButton("Language", currp==Language)) { currp=Language; }
-    ImGui::Separator();
-    if (ImGui::RadioButton("Mods", currp==Mods)) { currp=Mods; }
-    if (ImGui::RadioButton("Assets", currp==ResourcePacks)) { currp=ResourcePacks; }
-    ImGui::Separator();
-    if (ImGui::RadioButton("Credits", currp==Credits)) { currp=Credits; }
-    if (ImGui::RadioButton("Misc", currp==Misc)) { currp=Misc; }
+        ET_IMW_SETTINGS_LABEL("Profile", Imw::Settings::Profile);
+        ET_IMW_SETTINGS_LABEL("Current World", Imw::Settings::CurrentWorld);
+        ImGui::Separator();
+        ET_IMW_SETTINGS_LABEL("Graphics", Imw::Settings::Graphics);
+        ET_IMW_SETTINGS_LABEL("Music & Sounds", Imw::Settings::Audio);
+        ET_IMW_SETTINGS_LABEL("Controls", Imw::Settings::Controls);
+        ET_IMW_SETTINGS_LABEL("Language", Imw::Settings::Language);
+        ImGui::Separator();
+        ET_IMW_SETTINGS_LABEL("Mods", Imw::Settings::Mods);
+        ET_IMW_SETTINGS_LABEL("Assets", Imw::Settings::ResourcePacks);
+        ImGui::Separator();
+        ET_IMW_SETTINGS_LABEL("Credits", Imw::Settings::Credits);
+        ET_IMW_SETTINGS_LABEL("Misc", Imw::Settings::Misc);
+    }
 
     ImGui::PopStyleVar();
     ImGui::EndChild();
@@ -321,7 +59,7 @@ static void ShowSettingsWindow()
 
     ImGui::BeginChild("SettingPanel", {0,0}, true);
     {
-        if (currp==Profile)
+        if (currpanel==Profile)
         {
             ImGui::Dummy({0, 14});
             ImGui::SetWindowFontScale(1.5f);
@@ -336,7 +74,7 @@ static void ShowSettingsWindow()
 
             ImGui::SeparatorText("Customize Character");
         }
-        else if (currp==CurrentWorld)
+        else if (currpanel==CurrentWorld)
         {
             World* world = Ethertia::getWorld();
             if (!world)
@@ -375,7 +113,7 @@ static void ShowSettingsWindow()
             }
 
         }
-        else if (currp==Graphics)
+        else if (currpanel==Graphics)
         {
 //            ImGui::SeparatorText("Bloom");
 //            ImGui::Checkbox("Bloom", &Settings::g_SSAO);
@@ -391,26 +129,26 @@ static void ShowSettingsWindow()
             ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
             if (ImGui::IsItemHovered()) ImGui::SetTooltip("Field of View.\nNormal: 70\nQuark Pro: 90");
 
-            int fpsLimit = Settings::s_Vsync ? 0 : Settings::s_FpsCap;
+            int fpsLimit = ::Settings::s_Vsync ? 0 : ::Settings::s_FpsCap;
             ImGui::SliderInt("Vsync or FPS Limit", &fpsLimit, 0, 1000,
                              fpsLimit ? Strings::fmt("{} FPS", fpsLimit).c_str() : "Vsync");
             if (fpsLimit != 0) {
-                Settings::s_FpsCap = fpsLimit;
-                Settings::s_Vsync = false;
+                ::Settings::s_FpsCap = fpsLimit;
+                ::Settings::s_Vsync = false;
             } else {
-                Settings::s_Vsync = true;
+                ::Settings::s_Vsync = true;
             }
 
             static float s_SlidingGuiScale = 0;
-            float _gui_scale = Imgui::GlobalScale;
+            float _gui_scale = Imgui::GuiScale;
             if (ImGui::SliderFloat("GUI Scale", &_gui_scale, 0.5f, 4.0f)) {
                 s_SlidingGuiScale = _gui_scale;
             } else if (s_SlidingGuiScale != 0) {
-                Imgui::GlobalScale = s_SlidingGuiScale;
+                Imgui::GuiScale = s_SlidingGuiScale;
                 s_SlidingGuiScale = 0;
             }
 
-            ImGui::SliderFloat("Chunk Load Distance", &Settings::s_ViewDistance, 0, 12);
+            ImGui::SliderFloat("Chunk Load Distance", &::Settings::s_ViewDistance, 0, 12);
 
 #define SeparateRenderSection ImGui::Dummy({0, 6})
 
@@ -478,7 +216,7 @@ static void ShowSettingsWindow()
 
             if (ImGui::CollapsingHeader("Shadow Mapping"))
             {
-                ImGui::Checkbox("Shadow Mapping", &Settings::g_ShadowMapping);
+                ImGui::Checkbox("Shadow Mapping", &::Settings::g_ShadowMapping);
 
                 static int g_ShadowResolution = 1024;
                 ImGui::SliderInt("Shadow Depth Map Resolution", &g_ShadowResolution, 128, 2048);
@@ -494,7 +232,7 @@ static void ShowSettingsWindow()
 
             if (ImGui::CollapsingHeader("SSAO"))
             {
-                ImGui::Checkbox("SSAO", &Settings::g_SSAO);
+                ImGui::Checkbox("SSAO", &::Settings::g_SSAO);
             }
 
             if (ImGui::CollapsingHeader("Bloom"))
@@ -555,14 +293,14 @@ static void ShowSettingsWindow()
 //            SeparateRenderSection;
 
         }
-        else if (currp==Audio)
+        else if (currpanel==Audio)
         {
             static int g_MasterVolume = 0;
             ImGui::SliderInt("Master Volume", &g_MasterVolume, 0, 100, "%d%%");
             ImGui::Dummy({0, 8});
             ImGui::SliderInt("Music", &g_MasterVolume, 0, 100, "%d%%");
         }
-        else if (currp==Controls)
+        else if (currpanel==Controls)
         {
 //            ImGui::SeparatorText("Mouse");
 //
@@ -649,7 +387,7 @@ static void ShowSettingsWindow()
             if (!updatedHoveredKey)
                 s_HoveredKey = nullptr;
         }
-        else if (currp==Language)
+        else if (currpanel==Language)
         {
             std::vector<std::pair<const char*, const char*>> g_Languages = {
                     {"en_us", "English"},
@@ -668,7 +406,7 @@ static void ShowSettingsWindow()
 
             ImGui::TextDisabled("Translation may not 100%% accurate.");
         }
-        else if (currp==Mods)
+        else if (currpanel==Mods)
         {
             static bool s_ModValidatin = true;
             ImGui::Checkbox("Mod Files Hash Online Validation", &s_ModValidatin);
@@ -681,20 +419,20 @@ static void ShowSettingsWindow()
             // 由于Native-Mod的权限极大，在强大和高效能的同时，也可能会有恶意Mod损害您的电脑.
             // 开启Mod官方验证将会只启用通过官方验证的Mod
         }
-        else if (currp==ResourcePacks)
+        else if (currpanel==ResourcePacks)
         {
             if (ImGui::Button("Open ResourcePacks folder")) {
                 Loader::openURL("./resourcepacks");
             }
 
             ImGui::BeginChild("AssetsList", {0, 200});
-            for (auto& path : Settings::ASSETS) {
+            for (auto& path : ::Settings::ASSETS) {
                 ImGui::Selectable(path.c_str(), false);
             }
             ImGui::EndChild();
 
         }
-        else if (currp==Credits)
+        else if (currpanel==Credits)
         {
             ImGui::SetWindowFontScale(1.4f);
             ImGui::Text("%s", Ethertia::Version::name().c_str());
