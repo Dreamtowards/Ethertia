@@ -1,11 +1,8 @@
 //
 // Created by Dreamtowards on 2022/8/22.
 //
-#include <glad/glad.h>
 
 #include "RenderEngine.h"
-
-#include <glc.h>
 
 #include <ethertia/render/Window.h>
 #include <ethertia/init/ItemTextures.h>
@@ -19,6 +16,8 @@
 // Don't use OOP except it's necessary.
 
 #include <ethertia/imgui/Imgui.h>
+#include <ethertia/init/MaterialTextures.h>
+#include <ethertia/material/Materials.h>
 
 //    std::cout << " renderers[";
 ////    GuiRenderer::init();        std::cout << "gui, ";
@@ -35,9 +34,9 @@
 
 
 
-#include "renderer/RendererGbuffers.cpp"
-#include "renderer/RendererCompose.cpp"
-#include "renderer/RendererSkybox.cpp"
+//#include "renderer/RendererGbuffers.cpp"
+//#include "renderer/RendererCompose.cpp"
+//#include "renderer/RendererSkybox.cpp"
 
 
 
@@ -46,26 +45,6 @@ void RenderEngine::init()
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
 
-#ifdef GL
-    glc::DebugMessageCallback([](glc::DebugMessageCallbackArgs args)
-    {
-        Log::info("glDebugMessageCallback[{}][{}][{}/{}]: {}",
-                  args.source_str,
-                  args.type_str,
-                  args.severity_str, args.id,
-                  args.message);
-    });
-#endif
-
-
-//    ShaderProgram::loadAll();
-
-#ifdef VULKAN
-
-
-    vkx::ctx().DebugMessengerCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData) {
-
-    };
 
     vkx::Init(Window::Handle(), true);
 
@@ -82,15 +61,14 @@ void RenderEngine::init()
     Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::load();
 
-    RendererGbuffer::init();
-
-    RendererCompose::init(RendererGbuffer::gPosition.Image->m_ImageView,
-                          RendererGbuffer::gNormal.Image->m_ImageView,
-                          RendererGbuffer::gAlbedo.Image->m_ImageView);
-
-    g_ComposeView = RendererCompose::g_FramebufferAttachmentColor.Image->m_ImageView;
-            // RendererGbuffer::gAlbedo.Image->m_ImageView;
-#endif
+//    RendererGbuffer::init();
+//
+//    RendererCompose::init(RendererGbuffer::gPosition.Image->m_ImageView,
+//                          RendererGbuffer::gNormal.Image->m_ImageView,
+//                          RendererGbuffer::gAlbedo.Image->m_ImageView);
+//
+//    g_ComposeView = RendererCompose::g_FramebufferAttachmentColor.Image->m_ImageView;
+//            // RendererGbuffer::gAlbedo.Image->m_ImageView;
 
     Log::info("RenderEngine initialized.\1");
 }
@@ -103,7 +81,7 @@ void RenderEngine::deinit()
     MaterialTextures::clean();
     ItemTextures::clean();
 
-    RendererGbuffer::deinit();
+//    RendererGbuffer::deinit();
 
     delete TEX_WHITE;
     delete TEX_UVMAP;
@@ -112,38 +90,70 @@ void RenderEngine::deinit()
 }
 
 
-
 void RenderEngine::Render()
 {
-    VkCommandBuffer cmdbuf;
+    if (Window::isFramebufferResized())
+        vkx::RecreateSwapchain();
+
+    VKX_CTX_device_allocator;
+
+    int fif_i = vkxc.CurrentInflightFrame;
+    vkx::CommandBuffer cmd{ vkxc.CommandBuffers[fif_i] };
+
     {
         PROFILE("BeginFrame");
-        vkx::BeginFrame(&cmdbuf);
+        // blocking until the CommandBuffer has finished executing
+        VKX_CHECK(device.waitForFences(vkxc.CommandBufferFences[fif_i], true, UINT64_MAX));
+
+        // acquire swapchain image, and signal SemaphoreImageAcquired[i] when acquired. (when the presentation engine is finished using the image)
+        vkxc.CurrentSwapchainImage =
+                vkx::check(device.acquireNextImageKHR(vkxc.SwapchainKHR, UINT64_MAX, vkxc.SemaphoreImageAcquired[fif_i]));
+
+        device.resetFences(vkxc.CommandBufferFences[fif_i]);  // reset the fence to the unsignaled state
+
+        cmd.Reset();
+        cmd.Begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
     }
 
-    World* world = Ethertia::getWorld();
-    if (world)
-    {
-        {
-            PROFILE("CmdWorldGbuffer");
-            RendererGbuffer::RecordCommands(cmdbuf, world->m_Entities);
-        }
-        {
-            PROFILE("CmdWorldCompose");
-            RendererCompose::RecordCommands(cmdbuf);
-        }
-    }
+//    World* world = Ethertia::getWorld();
+//    if (world)
+//    {
+//        {
+//            PROFILE("CmdWorldGbuffer");
+//            RendererGbuffer::RecordCommands(cmdbuf, world->m_Entities);
+//        }
+//        {
+//            PROFILE("CmdWorldCompose");
+//            RendererCompose::RecordCommands(cmdbuf);
+//        }
+//    }
 
-    vkx::BeginMainRenderPass(cmdbuf);
+    vkx::BeginMainRenderPass(cmd);
     {
         PROFILE("GUI");
 
-        Imgui::RenderGUI(cmdbuf);
+        Imgui::RenderGUI(cmd);
     }
-    vkx::EndMainRenderPass(cmdbuf);
+    vkx::EndMainRenderPass(cmd);
 
-    PROFILE("EndFrame");
-    vkx::EndFrame(cmdbuf);
+    {
+        PROFILE("EndFrame");
+        cmd.End();
+
+        // Submit the CommandBuffer.
+        // Submission is VerySlow. try Batch Submit as much as possible, and Submit in another Thread
+        vkx::QueueSubmit(vkxc.GraphicsQueue, cmd.cmd,
+                         vkxc.SemaphoreImageAcquired[fif_i], { vk::PipelineStageFlagBits::eColorAttachmentOutput },
+                         vkxc.SemaphoreRenderComplete[fif_i],
+                         vkxc.CommandBufferFences[fif_i]);
+
+        vkx::QueuePresentKHR(vkxc.PresentQueue,
+                             vkxc.SemaphoreRenderComplete[fif_i], vkxc.SwapchainKHR, vkxc.CurrentSwapchainImage);
+
+        //    vkQueueWaitIdle(vkx::ctx().PresentQueue);  // BigWaste on GPU.
+
+        vkxc.CurrentInflightFrame = (vkxc.CurrentInflightFrame + 1) % vkxc.InflightFrames;
+    }
 }
 
 

@@ -7,6 +7,8 @@
 
 #include <FastNoise/FastNoise.h>
 
+#include <ethertia/util/Log.h>
+
 class NoiseGen
 {
 public:

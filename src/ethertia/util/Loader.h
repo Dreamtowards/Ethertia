@@ -16,13 +16,10 @@
 
 #include <ethertia/render/VertexData.h>
 #include <ethertia/util/BitmapImage.h>
-#include <ethertia/audio/AudioEngine.h>
+//#include <ethertia/audio/AudioEngine.h>
 
-#include <vkx.h>
+#include <vkx/vkx.hpp>
 
-
-// Dup with GuiCommon.h
-#define DECL_Inst(T) static T* Inst() { static T* INST = new T(); return INST; }
 
 
 class Loader
@@ -116,20 +113,20 @@ public:
 
 
 
-    ////////////////// SOUNDS: OGG, WAV //////////////////
-
-
-    // return: PCM data, 16 bit.
-    // @out_len: num of samples of pcm data. len*sizeof(int16_t)==size_bytes.
-    // @out_channels: 1 or 2. (mono or stereo)
-    static int16_t* loadOGG(const DataBlock& data, size_t* out_len, int* out_channels, int* dst_sampleRate);
-
-    // load to OpenAL buffer.
-    static AudioBuffer* loadOGG(const DataBlock& data);
-
-
-    // PCM, 16-bit sample, 1-channel
-    static void saveWAV(std::ostream& out, const void* pcm, size_t size, int samplePerSec = 44100);
+//    ////////////////// SOUNDS: OGG, WAV //////////////////
+//
+//
+//    // return: PCM data, 16 bit.
+//    // @out_len: num of samples of pcm data. len*sizeof(int16_t)==size_bytes.
+//    // @out_channels: 1 or 2. (mono or stereo)
+//    static int16_t* loadOGG(const DataBlock& data, size_t* out_len, int* out_channels, int* dst_sampleRate);
+//
+//    // load to OpenAL buffer.
+//    static AudioBuffer* loadOGG(const DataBlock& data);
+//
+//
+//    // PCM, 16-bit sample, 1-channel
+//    static void saveWAV(std::ostream& out, const void* pcm, size_t size, int samplePerSec = 44100);
 
 
 

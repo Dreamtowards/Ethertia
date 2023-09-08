@@ -1917,7 +1917,7 @@ void vkx::EndFrame(VkCommandBuffer cmdbuf)
     if (vl::QueuePresentKHR(g.PresentQueue,{{g.SemaphoreRenderComplete[frameIdx]}},
                             1, &g.SwapchainKHR, &imageIdx) == VK_SUBOPTIMAL_KHR)
     {
-        vkx::RecreateSwapchain();
+        //vkx::RecreateSwapchain();
     }
     }
 

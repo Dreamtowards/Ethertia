@@ -8,16 +8,14 @@ cmake-build-release/*
 out/
 .vs/
 
-run/bin/macos-x86-64/*
-run/bin/darwin-x64/*
-run/bin/windows-amd64/*
+run/bin/*
 
 run/settings.json
+run/imgui.ini
 
 run/cache/*.png
 
 run/saves/*
 
-run/imgui.ini
 
 run/screenshots/2023*.png

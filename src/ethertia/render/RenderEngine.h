@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-#include <vkx.h>
+#include <vkx/vkx.hpp>
 
 //#include "Texture.h"
 //#include "VertexArrays.h"

@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 # we manually build shared-lib only the first time. (if doesn't have compiled libs), then we just use/link them instead of recompile them.
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC OFF)
-#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
@@ -68,7 +68,7 @@ include_directories(lib/json/include)
 include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
 include_directories(lib/fastnoise2/include)
-include_directories(lib/glad45/include)
+#include_directories(lib/glad45/include)
 include_directories(lib/entt/src)
 include_directories(lib/openal-soft/include)
 include_directories(lib/yaml-cpp/include)
@@ -76,14 +76,12 @@ include_directories(lib/nbt/include)
 include_directories(lib/openvr/headers)
 include_directories(lib/imgui-docking)
 include_directories(lib/physx/include)
-include_directories(src/ethertia/render/vkx)
-include_directories(src/ethertia/render/glc)
 
 #include_directories(lib/vulkan/include)
 
 
 add_executable(Ethertia
-        lib/glad45/src/glad.c
+#        lib/glad45/src/glad.c
         lib/tinyfd/tinyfiledialogs.c
 
         lib/imgui-docking/imgui.cpp
@@ -116,8 +114,10 @@ add_executable(Ethertia
         src/ethertia/item/ItemComponents.cpp
         src/ethertia/world/World.cpp
 
-        src/ethertia/render/vkx/vkx.cpp
-        src/ethertia/render/glc/glc.cpp
+#        src/ethertia/render/vkx/vkx.cpp
+#        src/ethertia/render/glc/glc.cpp
+
+        src/vkx/vkx.cpp
 
         src/ethertia/Ethertia.cpp
         )

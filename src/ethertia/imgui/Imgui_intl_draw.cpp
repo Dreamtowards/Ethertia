@@ -134,7 +134,7 @@ static void ItemImage(const Item* item, float size = 40, ImDrawList* dl = ImGui:
     ImVec2 uvMin = {i/n, 0};
     ImVec2 uvSize = {1.0f/n, 1};
     ImVec2 min = ImGui::GetCursorScreenPos();
-    dl->AddImage(pTexDesc(ItemTextures::ITEM_ATLAS->m_ImageView), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
+    dl->AddImage(pTexDesc(ItemTextures::ITEM_ATLAS->imageView), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
     ImGui::Dummy({size, size});
 }
 

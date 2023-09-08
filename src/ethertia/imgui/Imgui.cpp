@@ -102,6 +102,48 @@ static void InitStyle()
 }
 
 
+static void ImplImgui_VulkanCheckResult(VkResult r)
+{
+    if (r != VK_SUCCESS) {
+        Log::warn("ImGui Vulkan Error");
+    }
+    vkx::check(r);
+}
+
+static void InitForVulkan()
+{
+    ImGui_ImplGlfw_InitForVulkan(Window::Handle(), true);
+
+    VKX_CTX_device_allocator;
+    ImGui_ImplVulkan_InitInfo initInfo{};
+    initInfo.Instance = vkxc.Instance;
+    initInfo.PhysicalDevice = vkxc.PhysDevice;
+    initInfo.Device = vkxc.Device;
+    initInfo.QueueFamily = vkxc.QueueFamily.GraphicsFamily;
+    initInfo.Queue = vkxc.GraphicsQueue;
+    initInfo.PipelineCache = nullptr;
+    initInfo.DescriptorPool = vkxc.DescriptorPool;
+    initInfo.Subpass = 0;
+    initInfo.MinImageCount = 2;
+    initInfo.ImageCount = vkxc.SwapchainImages.size();
+    initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    initInfo.Allocator = (VkAllocationCallbacks*)vkxc.Allocator;
+    initInfo.CheckVkResultFn = ImplImgui_VulkanCheckResult;
+
+    // Dynamic Rendering, VK_KHR_dynamic_rendering
+    //initInfo.UseDynamicRendering = false;
+    //initInfo.ColorAttachmentFormat = ;
+
+    ImGui_ImplVulkan_Init(&initInfo, vkxc.MainRenderPass);
+
+    vkx::SubmitCommandBuffer([](vk::CommandBuffer cmdbuf)
+    {
+        ImGui_ImplVulkan_CreateFontsTexture(cmdbuf);
+    });
+    ImGui_ImplVulkan_DestroyFontUploadObjects();
+}
+
+
 
 void Imgui::Init()
 {
@@ -118,7 +160,7 @@ void Imgui::Init()
 
     // Set Before Backend/Impl Init.
     io.ConfigFlags |=
-            ImGuiConfigFlags_DockingEnable |           // Enable Docking.
+            ImGuiConfigFlags_DockingEnable;// |           // Enable Docking.
 //            ImGuiConfigFlags_ViewportsEnable;        // Multiple Windows/Viewports
 //            ImGuiConfigFlags_DpiEnableScaleFonts |
 //            ImGuiConfigFlags_DpiEnableScaleViewports;
@@ -129,32 +171,8 @@ void Imgui::Init()
 //    ImGui_ImplGlfw_InitForOpenGL(Ethertia::getWindow().m_WindowHandle, true);
 //    ImGui_ImplOpenGL3_Init("#version 150");  // GL 3.2 + GLSL 150
 
-    ImGui_ImplGlfw_InitForVulkan(Window::Handle(), true);
 
-
-    ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = vkx::ctx().Inst;
-    init_info.PhysicalDevice = vkx::ctx().PhysDevice;
-    init_info.Device = vkx::ctx().Device;
-    init_info.Queue = vkx::ctx().GraphicsQueue;
-    init_info.DescriptorPool = vkx::ctx().DescriptorPool;
-    init_info.MinImageCount = 3;
-    init_info.ImageCount = 3;
-    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.CheckVkResultFn = _vk_check_result;
-    //init_info.QueueFamily = g_QueueFamily;
-    //init_info.PipelineCache = g_PipelineCache;
-    //init_info.Subpass = 0;
-    //init_info.Allocator = g_Allocator;
-    ImGui_ImplVulkan_Init(&init_info, vkx::ctx().MainRenderPass);
-
-
-    vkx::SubmitCommandBuffer([](VkCommandBuffer cmdbuf)
-    {
-        ImGui_ImplVulkan_CreateFontsTexture(cmdbuf);
-    });
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
-
+    InitForVulkan();
 
     // ImNodes
     ImNodes::CreateContext();
@@ -229,7 +247,7 @@ static VkDescriptorSet pTexDesc(VkImageView imageView)
 void Imgui::Image(void* texId, ImVec2 size, glm::vec4 color) {
 //    assert(false);
     if (texId == 0) {
-        texId = pTexDesc(RenderEngine::TEX_WHITE->m_ImageView);
+        texId = pTexDesc(RenderEngine::TEX_WHITE->imageView);
     }
     ImGui::Image((void*)(intptr_t)texId,
                  {size.x, size.y},
