@@ -9,108 +9,123 @@
 #include <ethertia/init/Settings.h>
 
 
-void Imw::ShowInspector(bool* _open)
-{
-    ImGui::Begin("Entity", &Settings::w_EntityInsp);
+//static void _InspEntity()
+//{
+//
+//    ImGui::TextDisabled("%i components", (int)entity->numComponents());
+//
+//    if (ImGui::CollapsingHeader("Transform")) {
+//
+//        ImGui::DragFloat3("Position", &entity->position()[0]);
+//        ImGui::DragFloat3("Rotation", &entity->position()[0]);
+//        ImGui::DragFloat3("Scale", &entity->position()[0]);
+//
+//        ImGui::Separator();
+//        ImGui::TextDisabled("Gizmo:");
+//
+//        static ImGuizmo::OPERATION gizmoOp   = ImGuizmo::ROTATE;
+//        static ImGuizmo::MODE      gizmoMode = ImGuizmo::WORLD;
+//        if (ImGui::IsKeyPressed(ImGuiKey_T)) gizmoOp = ImGuizmo::TRANSLATE;
+//        if (ImGui::IsKeyPressed(ImGuiKey_R)) gizmoOp = ImGuizmo::ROTATE;
+//        if (ImGui::IsKeyPressed(ImGuiKey_S)) gizmoOp = ImGuizmo::SCALE;
+//
+//        if (ImGui::RadioButton("Translate", gizmoOp == ImGuizmo::TRANSLATE)) gizmoOp = ImGuizmo::TRANSLATE;
+//        ImGui::SameLine();
+//        if (ImGui::RadioButton("Rotate", gizmoOp == ImGuizmo::ROTATE)) gizmoOp = ImGuizmo::ROTATE;
+//        ImGui::SameLine();
+//        if (ImGui::RadioButton("Scale", gizmoOp == ImGuizmo::SCALE)) gizmoOp = ImGuizmo::SCALE;
+//
+////        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+////        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
+////        ImGui::InputFloat3("Tr", matrixTranslation);
+////        ImGui::InputFloat3("Rt", matrixRotation);
+////        ImGui::InputFloat3("Sc", matrixScale);
+////        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
+//
+//        if (gizmoOp != ImGuizmo::SCALE)
+//        {
+//            if (ImGui::RadioButton("Local", gizmoMode == ImGuizmo::LOCAL)) gizmoMode = ImGuizmo::LOCAL;
+//            ImGui::SameLine();
+//            if (ImGui::RadioButton("World", gizmoMode == ImGuizmo::WORLD)) gizmoMode = ImGuizmo::WORLD;
+//        }
+//
+//        static bool _Snap = false;
+//        bool snap = _Snap || ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_LeftSuper);
+//        if (ImGui::Checkbox("Snap", &snap)) {
+//            _Snap = snap;
+//        }
+//
+//        glm::vec3 snapValue{0.5};
+//        ImGui::DragFloat3("Snap value", &snapValue[0], 0.5f);
+//
+//        static bool _Bound = false;
+//        ImGui::Checkbox("Bound", &_Bound);
+//
+//        glm::vec3 boundSnapValue{0.5f};
+//        ImGui::DragFloat3("Bound Snap value", &snapValue[0], 0.5f);
+//
+//
+//        {
+////            EntityComponentTransform& ct = entity->getComponent<EntityComponentTransform>();
+//
+//            glm::mat4 matModel = Mth::matModel(entity->position(),
+//                                               entity->getRotation(),
+//                                               {1, 1, 1});
+//
+//            static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+//            static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+//
+//            ImGuizmo::Manipulate(glm::value_ptr(Ethertia::getCamera().matView),
+//                                 glm::value_ptr(Ethertia::getCamera().matProjection),
+//                                 gizmoOp, gizmoMode,
+//                                 glm::value_ptr(matModel),
+//                                 nullptr,
+//                                 snap ? &snapValue[0] : nullptr,
+//                                 _Bound ? bounds : nullptr, _Bound ? boundsSnap : nullptr);
+//            if (ImGuizmo::IsUsing()) {
+//                // Decompose Transformation
+//
+//                glm::vec3 pos, scl;
+//                glm::mat3 rot;
+//                Mth::decomposeTransform(matModel, pos, rot, scl);
+//
+//                entity->position() = pos;
+////                *(glm::mat3*)entity->rot() = rot;
+//            }
+//        }
+//    }
+//
+////    if (ImGui::CollapsingHeader("Diffuse Map")) {
+////        if (entity->m_DiffuseMap)
+////        {
+////            ImGui::Image((void*)(intptr_t)entity->m_DiffuseMap->texId, {64, 64});
+////        }
+////    }
+//
+//
+//}
 
-    Entity* entity = Imgui::g_InspEntity;
-    if (!entity) {
+void Imw::Editor::ShowInspector(bool* _open)
+{
+    ImGui::Begin("Inspector", _open);
+
+    void* inspecting = Imw::Editor::Inspecting;
+    if (!inspecting) {
         ImGui::TextDisabled("No entity selected.");
         ImGui::End();
         return;
     }
-//    ImGui::BeginChild();
 
-    ImGui::TextDisabled("%i components", (int)entity->numComponents());
+    if (Entity* entity = (Entity*)inspecting)
+    {
 
-    if (ImGui::CollapsingHeader("Transform")) {
-
-        ImGui::DragFloat3("Position", &entity->position()[0]);
-        ImGui::DragFloat3("Rotation", &entity->position()[0]);
-        ImGui::DragFloat3("Scale", &entity->position()[0]);
-
-        ImGui::Separator();
-        ImGui::TextDisabled("Gizmo:");
-
-        static ImGuizmo::OPERATION gizmoOp   = ImGuizmo::ROTATE;
-        static ImGuizmo::MODE      gizmoMode = ImGuizmo::WORLD;
-        if (ImGui::IsKeyPressed(ImGuiKey_T)) gizmoOp = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R)) gizmoOp = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_S)) gizmoOp = ImGuizmo::SCALE;
-
-        if (ImGui::RadioButton("Translate", gizmoOp == ImGuizmo::TRANSLATE)) gizmoOp = ImGuizmo::TRANSLATE;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Rotate", gizmoOp == ImGuizmo::ROTATE)) gizmoOp = ImGuizmo::ROTATE;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Scale", gizmoOp == ImGuizmo::SCALE)) gizmoOp = ImGuizmo::SCALE;
-
-//        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-//        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
-//        ImGui::InputFloat3("Tr", matrixTranslation);
-//        ImGui::InputFloat3("Rt", matrixRotation);
-//        ImGui::InputFloat3("Sc", matrixScale);
-//        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
-
-        if (gizmoOp != ImGuizmo::SCALE)
-        {
-            if (ImGui::RadioButton("Local", gizmoMode == ImGuizmo::LOCAL)) gizmoMode = ImGuizmo::LOCAL;
-            ImGui::SameLine();
-            if (ImGui::RadioButton("World", gizmoMode == ImGuizmo::WORLD)) gizmoMode = ImGuizmo::WORLD;
-        }
-
-        static bool _Snap = false;
-        bool snap = _Snap || ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_LeftSuper);
-        if (ImGui::Checkbox("Snap", &snap)) {
-            _Snap = snap;
-        }
-
-        glm::vec3 snapValue{0.5};
-        ImGui::DragFloat3("Snap value", &snapValue[0], 0.5f);
-
-        static bool _Bound = false;
-        ImGui::Checkbox("Bound", &_Bound);
-
-        glm::vec3 boundSnapValue{0.5f};
-        ImGui::DragFloat3("Bound Snap value", &snapValue[0], 0.5f);
-
-
-        {
-//            EntityComponentTransform& ct = entity->getComponent<EntityComponentTransform>();
-
-            glm::mat4 matModel = Mth::matModel(entity->position(),
-                                               entity->getRotation(),
-                                               {1, 1, 1});
-
-            static float bounds[]     = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
-            static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
-
-            ImGuizmo::Manipulate(glm::value_ptr(Ethertia::getCamera().matView),
-                                 glm::value_ptr(Ethertia::getCamera().matProjection),
-                                 gizmoOp, gizmoMode,
-                                 glm::value_ptr(matModel),
-                                 nullptr,
-                                 snap ? &snapValue[0] : nullptr,
-                                 _Bound ? bounds : nullptr, _Bound ? boundsSnap : nullptr);
-            if (ImGuizmo::IsUsing()) {
-                // Decompose Transformation
-
-                glm::vec3 pos, scl;
-                glm::mat3 rot;
-                Mth::decomposeTransform(matModel, pos, rot, scl);
-
-                entity->position() = pos;
-//                *(glm::mat3*)entity->rot() = rot;
-            }
-        }
     }
-
-//    if (ImGui::CollapsingHeader("Diffuse Map")) {
-//        if (entity->m_DiffuseMap)
-//        {
-//            ImGui::Image((void*)(intptr_t)entity->m_DiffuseMap->texId, {64, 64});
-//        }
-//    }
-
+    else
+    {
+        ImGui::TextDisabled("Unsupported Inspecting type.");
+        ImGui::End();
+        return;
+    }
 
 
 
@@ -118,16 +133,23 @@ void Imw::ShowInspector(bool* _open)
 }
 
 
+#include <ethertia/Ethertia.h>
+#include <ethertia/entity/Entity.h>
+#include <ethertia/entity/EntityMesh.h>
+#include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/init/DebugStat.h>
 
-static void CreateEntityToWorld(Entity* e)
+
+static void _CreateEntityToWorld(Entity* e)
 {
     e->position() = Ethertia::getCamera().position;;
     Ethertia::getWorld()->addEntity(e);
 }
 
-static void ShowEntities()
+
+void Imw::Editor::ShowHierarchy(bool* _open)
 {
-    ImGui::Begin("Entities", &Settings::w_EntityList);
+    ImGui::Begin("Hierarchy", _open);
 
     World* world = Ethertia::getWorld();
     if (!world) {
@@ -147,36 +169,36 @@ static void ShowEntities()
             ImGui::BeginDisabled();
         }
 
-        if (ImGui::BeginMenu("Vehicle")) {
-            if (ImGui::MenuItem("Helicopter"))
-            {
-                CreateEntityToWorld(new EntityHelicopter());
-            }
-//            if (ImGui::MenuItem("DrivingSeat"))
-//            {
-//                CreateEntityToWorld(new EntityDrivingSeat());
-//            }
-//            if (ImGui::MenuItem("Propeller"))
-//            {
-//                CreateEntityToWorld(new EntityPropeller());
-//            }
-            ImGui::EndMenu();
-        }
-        if (ImGui::MenuItem("Light")) {
-
-        }
-        if (ImGui::MenuItem("Mesh"))
-        {
-            CreateEntityToWorld(new EntityMesh());
-        }
-        if (ImGui::MenuItem("Chicken"))
-        {
-            CreateEntityToWorld(new EntityChicken());
-        }
-        if (ImGui::MenuItem("Furnace"))
-        {
-            CreateEntityToWorld(new EntityFurnace());
-        }
+//        if (ImGui::BeginMenu("Vehicle")) {
+////            if (ImGui::MenuItem("Helicopter"))
+////            {
+////                CreateEntityToWorld(new EntityHelicopter());
+////            }
+////            if (ImGui::MenuItem("DrivingSeat"))
+////            {
+////                CreateEntityToWorld(new EntityDrivingSeat());
+////            }
+////            if (ImGui::MenuItem("Propeller"))
+////            {
+////                CreateEntityToWorld(new EntityPropeller());
+////            }
+//            ImGui::EndMenu();
+//        }
+//        if (ImGui::MenuItem("Light")) {
+//
+//        }
+//        if (ImGui::MenuItem("Mesh"))
+//        {
+//            CreateEntityToWorld(new EntityMesh());
+//        }
+//        if (ImGui::MenuItem("Chicken"))
+//        {
+//            CreateEntityToWorld(new EntityChicken());
+//        }
+//        if (ImGui::MenuItem("Furnace"))
+//        {
+//            CreateEntityToWorld(new EntityFurnace());
+//        }
         ImGui::SeparatorText("Items");
 
         for (auto& it : Item::REGISTRY)
@@ -188,7 +210,7 @@ static void ShowEntities()
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::BeginTooltip();
-                ItemImage(it.second);
+                Imw::ItemImage(it.second);
                 ImGui::EndTooltip();
             }
         }
@@ -276,9 +298,13 @@ static void ShowEntities()
 }
 
 
-void ShowNodeEditor()
+
+#include <imgui-imnodes/imnodes.h>
+
+
+void Imw::Editor::ShowWorldGen(bool* _open)
 {
-    ImGui::Begin("NodeEdit", &w_NodeEditor);
+    ImGui::Begin("WorldGen", _open);
 
     // id of Attrib/Pin
     static std::vector<std::pair<int, int>> g_Links;
@@ -339,122 +365,9 @@ void ShowNodeEditor()
 
 
 
-static float RenderProfilerSection(const Profiler::Section& sec, float x, float y, float full_width, float full_width_time, const std::function<float(const Profiler::Section&)>& timefunc)
-{
-    const float LINE_HEIGHT = 16;
-
-    double s_time = timefunc(sec);
-    double s_width = (s_time / full_width_time) * full_width;
-    glm::vec4 color = Colors::ofRGB(std::hash<std::string>()(sec.name) * 256);
-    ImU32 col = ImGui::GetColorU32({color.x, color.y, color.z, color.w});
-
-    ImVec2 min = {x,y};
-    ImVec2 max = min+ImVec2(s_width, LINE_HEIGHT);
-    ImGui::RenderFrame(min, max, col);
-    ImGui::RenderText(min, sec.name.c_str());
-
-    if (s_width > 180) {
-        std::string str = Strings::fmt("{}ms@{}", s_time * 1000.0, sec.numExec);
-        ImVec2 text_size = ImGui::CalcTextSize(str.c_str());
-        ImGui::RenderText({max.x-text_size.x, min.y}, str.c_str());
-    }
-
-    float dx = 0;
-    for (const Profiler::Section& sub_sec : sec.sections)
-    {
-        dx += RenderProfilerSection(sub_sec, x+dx, y-LINE_HEIGHT, s_width, s_time, timefunc);
-    }
-
-    if (ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(min, max))
-    {
-        ImGui::SetTooltip("%s\n"
-                          "\n"
-                          "avg %fms\n"
-                          "las %fms\n"
-                          "sum %fms\n"
-                          "exc %u\n"
-                          "%%p  %f",
-                          sec.name.c_str(),
-                          sec._avgTime * 1000.0f,
-                          sec._lasTime * 1000.0f,
-                          sec.sumTime  * 1000.0f,
-                          (uint32_t)sec.numExec,
-                          (float)(sec.parent ? sec.sumTime / sec.parent->sumTime : Mth::NaN));
-    }
-
-    return s_width;
-}
-
-static void ShowProfilers()
-{
-    ImGui::Begin("Profiler");
-
-    static int s_SelectedProfilerIdx = 0;
-    static std::pair<const char*, Profiler*> PROFILERS[] = {
-            {"MainLoop", &Ethertia::getProfiler()},
-            {"Chunk Mesh", &Dbg::dbgProf_ChunkMeshGen},
-            {"Chunk Gen/Load/Save", &Dbg::dbgProf_ChunkGen}
-    };
-
-
-    ImGui::SetNextItemWidth(200);
-    if (ImGui::BeginCombo("###Profiler", PROFILERS[s_SelectedProfilerIdx].first))
-    {
-        for (int i = 0; i < std::size(PROFILERS); ++i)
-        {
-            if (ImGui::Selectable(PROFILERS[i].first, s_SelectedProfilerIdx == i)) {
-                s_SelectedProfilerIdx = i;
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-
-    ImGui::SameLine();
-
-    static int s_SelectedTimeFunc = 0;
-    static std::pair<const char*, std::function<float(const Profiler::Section& sec)>> s_TimeFuncs[] = {
-            {"AvgTime", [](const Profiler::Section& sec) { return sec._avgTime; }},
-            {"SumTime", [](const Profiler::Section& sec) { return sec.sumTime; }},
-            {"LastTime",[](const Profiler::Section& sec) { return sec._lasTime; }}
-    };
-    ImGui::SetNextItemWidth(120);
-    if (ImGui::BeginCombo("###ProfilerTimeFunc", s_TimeFuncs[s_SelectedTimeFunc].first))
-    {
-        for (int i = 0; i < std::size(s_TimeFuncs); ++i)
-        {
-            if (ImGui::Selectable(s_TimeFuncs[i].first, s_SelectedTimeFunc == i)) {
-                s_SelectedTimeFunc = i;
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    ImGui::SameLine();
-
-    Profiler& prof = *PROFILERS[s_SelectedProfilerIdx].second;
-
-    if (ImGui::Button("Reset"))
-    {
-        prof.laterClearRootSection();
-    }
-
-    const Profiler::Section& sec = prof.GetRootSection();
-    auto& timefunc = s_TimeFuncs[s_SelectedTimeFunc].second;
-    ImVec2 begin = ImGui::GetWindowPos() + ImVec2{ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowContentRegionMax().y - 16};
-    float width = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
-    RenderProfilerSection(sec, begin.x, begin.y, width, timefunc(sec), timefunc);
-
-    ImGui::End();
-}
-
-
-
-
-
-static void ShowShaderProgramInsp()
-{
-    ImGui::Begin("ShaderProgram", &Settings::w_Settings);
+//static void ShowShaderProgramInsp()
+//{
+//    ImGui::Begin("ShaderProgram", &Settings::w_Settings);
 //
 //
 //    ShaderProgram* shader = g_InspShaderProgram;
@@ -520,6 +433,6 @@ static void ShowShaderProgramInsp()
 //                break;
 //        }
 //    }
-
-    ImGui::End();
-}
+//
+//    ImGui::End();
+//}

@@ -265,13 +265,13 @@ static void _ShowMainMenuBar()
 
             ImGui::Separator();
             Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings, "F8");
-            Imgui::MenuItemToggleShow("Hierarchy", Imw::Settings::ShowSettings, "F9");
-            Imgui::MenuItemToggleShow("Inspector", Imw::Settings::ShowSettings, "F12");
+            Imgui::MenuItemToggleShow("Hierarchy", Imw::Editor::ShowHierarchy, "F9");
+            Imgui::MenuItemToggleShow("Inspector", Imw::Editor::ShowInspector, "F12");
+            Imgui::MenuItemToggleShow("WorldGen", Imw::Editor::ShowWorldGen);
 
             Imgui::MenuItemToggleShow("Toolbar", Imw::Editor::ShowToolbar);
             Imgui::MenuItemToggleShow("Console", Imw::Editor::ShowConsole);
-            Imgui::MenuItemToggleShow("Profiler", Imw::Settings::ShowSettings);
-            Imgui::MenuItemToggleShow("WorldGen GraphEdit", Imw::Settings::ShowSettings);
+            Imgui::MenuItemToggleShow("Profiler", Imw::Editor::ShowProfiler);
 
             ImGui::Separator();
             Imgui::MenuItemToggleShow("Debug Info", Imw::Settings::ShowSettings, "F3");

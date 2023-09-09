@@ -34,13 +34,18 @@ public:
 
 
         // ImwInspector.cpp
+        inline static void* Inspecting = nullptr;
+
         static void ShowInspector(bool* _open);
 
-        static void ShowEntityList(bool* _open);
+        static void ShowHierarchy(bool* _open);
 
 
         // ImwProfiler.cpp
         static void ShowProfiler(bool* _open);
+
+
+        static void ShowWorldGen(bool* _open);
     };
 
     struct Gameplay
