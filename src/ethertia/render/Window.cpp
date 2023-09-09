@@ -72,6 +72,7 @@ void Window::Init(int _w, int _h, const char* _title)
     glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 #endif
 
+    _w = std::max(1, _w); _h = std::max(1, _h);  // couldn't create 0x0 window.
     g_GlfwWindow = glfwCreateWindow(_w, _h, _title, nullptr, nullptr);
     if (!g_GlfwWindow) {
         const char* err_str;

@@ -42,8 +42,9 @@ public:
 
     static void ShowWindows();
 
-    static void ToggleDrawCheckbox(const char* label, DrawFuncPtr w);
+    static void MenuItemToggleShow(const char* label, DrawFuncPtr w, const char* shortcut = nullptr, bool enabled = true);
 
+    static void ToggleShow(DrawFuncPtr w);
 
 
     static VkDescriptorSet mapImage(VkImageView imageView);

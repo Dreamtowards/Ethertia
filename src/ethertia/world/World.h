@@ -9,7 +9,7 @@
 #include <mutex>
 #include <glm/vec3.hpp>
 #include <glm/gtx/hash.hpp>
-#include <entt/entt.hpp>
+//#include <entt/entt.hpp>
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
@@ -86,7 +86,7 @@ public:
 
     WorldInfo m_WorldInfo;
 
-    entt::registry m_EnttRegistry;
+//    entt::registry m_EnttRegistry;
 
 
     // worldinfo always nullptr (auto read.) except the first Create World.

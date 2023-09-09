@@ -24,7 +24,7 @@ class Entity
 {
 public:
     World* m_World = nullptr;
-    entt::entity m_EnttEntityHandle = entt::null;
+//    entt::entity m_EnttEntityHandle = entt::null;
 
     btRigidBody* m_Rigidbody = nullptr;
 
@@ -44,38 +44,38 @@ public:
         delete m_Rigidbody;
     }
 
-    template<typename T, typename... Args>
-    T& addComponent(Args&&... args) {
-        assert(!hasComponent<T>() && "Entity already have the component.");
-        T& component = m_World->m_EnttRegistry.emplace<T>(m_EnttEntityHandle, std::forward<Args>(args)...);
-        return component;
-    }
-
-    template<typename T>
-    T& getComponent() {
-        assert(hasComponent<T>() && "Entity doesn't have such Component.");
-        return m_World->m_EnttRegistry.get<T>(m_EnttEntityHandle);
-    }
-
-    // hasAny, hasAll
-    template<typename T>
-    bool hasComponent() {
-        return m_World->m_EnttRegistry.any_of<T>(m_EnttEntityHandle);
-    }
-
-    template<typename T>
-    void removeComponent() {
-        assert(hasComponent<T>() && "Entity doesn't have such Component.");
-        m_World->m_EnttRegistry.remove<T>(m_EnttEntityHandle);
-    }
-
-    int numComponents() {
-        int i = 0;
-        for (auto [entity] : m_World->m_EnttRegistry.view<entt::exclude_t<>>().each()) {
-            ++i;
-        }
-        return i;
-    }
+//    template<typename T, typename... Args>
+//    T& addComponent(Args&&... args) {
+//        assert(!hasComponent<T>() && "Entity already have the component.");
+//        T& component = m_World->m_EnttRegistry.emplace<T>(m_EnttEntityHandle, std::forward<Args>(args)...);
+//        return component;
+//    }
+//
+//    template<typename T>
+//    T& getComponent() {
+//        assert(hasComponent<T>() && "Entity doesn't have such Component.");
+//        return m_World->m_EnttRegistry.get<T>(m_EnttEntityHandle);
+//    }
+//
+//    // hasAny, hasAll
+//    template<typename T>
+//    bool hasComponent() {
+//        return m_World->m_EnttRegistry.any_of<T>(m_EnttEntityHandle);
+//    }
+//
+//    template<typename T>
+//    void removeComponent() {
+//        assert(hasComponent<T>() && "Entity doesn't have such Component.");
+//        m_World->m_EnttRegistry.remove<T>(m_EnttEntityHandle);
+//    }
+//
+//    int numComponents() {
+//        int i = 0;
+//        for (auto [entity] : m_World->m_EnttRegistry.view<entt::exclude_t<>>().each()) {
+//            ++i;
+//        }
+//        return i;
+//    }
 
 
 

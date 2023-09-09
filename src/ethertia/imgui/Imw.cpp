@@ -251,23 +251,30 @@ static void _ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("View"))
         {
+            ImGui::Text("Gameplay");
             ImGui::Checkbox("Viewport", &Settings::w_Viewport);
             ImGui::Checkbox("Full Viewport", &Settings::w_Viewport_Full);
+            ImGui::Checkbox("TitleScreen", &w_TitleScreen);
+            ImGui::Checkbox("Singleplayer", &w_Singleplayer);
+
+            ImGui::Separator();
+            ImGui::Text("Editor");
+            ImGui::Checkbox("Toolbar", &Settings::w_Toolbar);
+            Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings, "F5");
+            ImGui::Checkbox("Console", &Settings::w_Console);
+            ImGui::Checkbox("Profiler", &Settings::w_Profiler);
             ImGui::Checkbox("Entity List", &Settings::w_EntityList);
             ImGui::Checkbox("Entity Inspect", &Settings::w_EntityInsp);
             ImGui::Checkbox("Shader Inspect", &Settings::w_ShaderInsp);
-            ImGui::Checkbox("Console", &Settings::w_Console);
-            ImGui::Checkbox("Profiler", &Settings::w_Profiler);
-
-            ImGui::Separator();
-            ImGui::Checkbox("Settings", &Settings::w_Settings);
-            ImGui::Checkbox("Toolbar", &Settings::w_Toolbar);
 
             ImGui::Checkbox("NodeEditor", &w_NodeEditor);
-            ImGui::Checkbox("TitleScreen", &w_TitleScreen);
-            ImGui::Checkbox("Singleplayer", &w_Singleplayer);
-            ImGui::Checkbox("ImGui Demo Window", &w_ImGuiDemo);
 
+            if (ImGui::BeginMenu("Debug"))
+            {
+                Imgui::MenuItemToggleShow("ImGui::DemoWindow", ImGui::ShowDemoWindow);
+
+                ImGui::EndMenu();
+            }
 
             ImGui::Separator();
 
@@ -350,7 +357,6 @@ void Imw::InitWindows()
 //    ShowPlayerInventory();
 
     //     if (w_ImGuiDemo)
-    Imgui::Show(ImGui::ShowDemoWindow);
 
 //    if (w_NewWorld)
 //        ShowNewWorldWindow();

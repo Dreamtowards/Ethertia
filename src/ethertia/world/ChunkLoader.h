@@ -9,6 +9,7 @@
 #include <fstream>
 #include <utility>
 #include <string>
+#include <set>
 
 #include <nbt/nbt_tags.h>
 

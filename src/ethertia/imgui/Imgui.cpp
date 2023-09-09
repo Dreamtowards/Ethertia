@@ -259,16 +259,26 @@ void Imgui::ShowWindows()
     }
 }
 
-void Imgui::ToggleDrawCheckbox(const char* label, DrawFuncPtr w)
+void Imgui::MenuItemToggleShow(const char* label, DrawFuncPtr w, const char* shortcut, bool enabled)
 {
     bool show = Imgui::Has(w);
-    if (ImGui::Checkbox(label, &show))
+    if (ImGui::MenuItem(label, shortcut, show, enabled))
     {
         if (show) {
-            Imgui::Show(w);
-        } else {
             Imgui::Close(w);
+        } else {
+            Imgui::Show(w);
         }
+    }
+}
+
+
+void Imgui::ToggleShow(DrawFuncPtr w)
+{
+    if (Imgui::Has(w)) {
+        Imgui::Close(w);
+    } else {
+        Imgui::Show(w);
     }
 }
 

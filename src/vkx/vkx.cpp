@@ -1567,7 +1567,10 @@ static void _CreateSwapchain(
 
     out_SwapchainExtent = surfaceCapabilities.currentExtent;
     assert(surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() && "VkxError: invalid VkSurfaceCapabilitiesKHR.currentExtent.width");
-    
+    // 0x0 extent may happens when Window Minimized, and 0x0 will cause fail to create swapchain.
+    out_SwapchainExtent.width  = std::max(1, (int)out_SwapchainExtent.width);
+    out_SwapchainExtent.height = std::max(1, (int)out_SwapchainExtent.height);
+
     vk::PresentModeKHR surfacePresentMode = vk::PresentModeKHR::eFifo;  // FIFO is vk guaranteed available.
 //    {
 //        for (auto mode : physDevice.getSurfacePresentModesKHR(surfaceKHR)) {
