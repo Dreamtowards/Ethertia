@@ -86,6 +86,11 @@ static void _ShowMainMenu_System()
                 {
                     Ethertia::loadWorld(savedir.path().string());
                 }
+                ImGui::SameLine();
+                ImGui::SmallButton("*");
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("Modify World");
+                }
             }
         }
 
@@ -251,30 +256,26 @@ static void _ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Text("Gameplay");
-            ImGui::Checkbox("Viewport", &Settings::w_Viewport);
-            ImGui::Checkbox("Full Viewport", &Settings::w_Viewport_Full);
-            ImGui::Checkbox("TitleScreen", &w_TitleScreen);
-            ImGui::Checkbox("Singleplayer", &w_Singleplayer);
+            Imgui::MenuItemToggleShow("Game", Imw::Gameplay::ShowGame, "F5");
+            ImGui::MenuItem("Game Fullwindow", "`", &Imw::Gameplay::GameFullwindow);
+            Imgui::MenuItemToggleShow("TitleScreen", Imw::Gameplay::ShowTitleScreen);
+            Imgui::MenuItemToggleShow("WorldList", Imw::Gameplay::ShowWorldList);
+            Imgui::MenuItemToggleShow("WorldNew", Imw::Gameplay::ShowWorldNew);
+//            Imgui::MenuItemToggleShow("WorldModify", Imw::Gameplay::ShowWorldModify);
 
             ImGui::Separator();
-            ImGui::Text("Editor");
-            ImGui::Checkbox("Toolbar", &Settings::w_Toolbar);
-            Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings, "F5");
-            ImGui::Checkbox("Console", &Settings::w_Console);
-            ImGui::Checkbox("Profiler", &Settings::w_Profiler);
-            ImGui::Checkbox("Entity List", &Settings::w_EntityList);
-            ImGui::Checkbox("Entity Inspect", &Settings::w_EntityInsp);
-            ImGui::Checkbox("Shader Inspect", &Settings::w_ShaderInsp);
+            Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings, "F8");
+            Imgui::MenuItemToggleShow("Hierarchy", Imw::Settings::ShowSettings, "F9");
+            Imgui::MenuItemToggleShow("Inspector", Imw::Settings::ShowSettings, "F12");
 
-            ImGui::Checkbox("NodeEditor", &w_NodeEditor);
+            Imgui::MenuItemToggleShow("Toolbar", Imw::Editor::ShowToolbar);
+            Imgui::MenuItemToggleShow("Console", Imw::Editor::ShowConsole);
+            Imgui::MenuItemToggleShow("Profiler", Imw::Settings::ShowSettings);
+            Imgui::MenuItemToggleShow("WorldGen GraphEdit", Imw::Settings::ShowSettings);
 
-            if (ImGui::BeginMenu("Debug"))
-            {
-                Imgui::MenuItemToggleShow("ImGui::DemoWindow", ImGui::ShowDemoWindow);
-
-                ImGui::EndMenu();
-            }
+            ImGui::Separator();
+            Imgui::MenuItemToggleShow("Debug Info", Imw::Settings::ShowSettings, "F3");
+            Imgui::MenuItemToggleShow("ImGui::DemoWindow", ImGui::ShowDemoWindow);
 
             ImGui::Separator();
 
@@ -463,97 +464,99 @@ void Imw::ShowItemStack(ItemStack& stack, bool manipulation, float size)
 
 
 
-static void ShowToolbar()
-{
-    ImGui::Begin("MASH", nullptr,
-                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+static vkx::Image* _LoadCachedTex(const std::string& p) {
+    static std::map<std::string, vkx::Image*> _Cache;
+    auto& it = _Cache[p];
+    if (!it) {
+        it = Loader::loadTexture(p);
+    }
+    return it;
+}
 
-//#define _TOOLBAR_BTN(id) ImGui::ImageButton(id, LazyLoadTex(id)->pTexId(), {40, 40}, {0,1}, {1,0})
-//
-//    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {1, 1});
-//    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {1, 0});
-////    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
-//
-//    _TOOLBAR_BTN("gui/geo/sel.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/mov.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/mov-all.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/rot.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/scl.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/bnd.png");
-//    ImGui::SameLine();
-//
-//    ImGui::Dummy({4, 0});
-//    ImGui::SameLine();
-//
-//    _TOOLBAR_BTN("gui/geo/sel-rect.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/sel-cir.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/sel-cus.png");
-//    ImGui::SameLine();
-//
-//    ImGui::Dummy({4, 0});
-//    ImGui::SameLine();
-//
-//    _TOOLBAR_BTN("gui/geo/g-cube.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/g-sph.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/g-col.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/g-tor.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/g-cone.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/g-plane.png");
-//    ImGui::SameLine();
-//
-//    ImGui::Dummy({4, 0});
-//    ImGui::SameLine();
-//
-//    _TOOLBAR_BTN("gui/geo/grab.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/brush.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/pencil.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/fill.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/erase.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/pik.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/fing.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/stamp.png");
-//    ImGui::SameLine();
-//    _TOOLBAR_BTN("gui/geo/cpy.png");
-//    ImGui::SameLine();
-//
-//
-//    ImGui::PopStyleVar(2);
+
+void Imw::Editor::ShowToolbar(bool* _open)
+{
+    ImGui::Begin("MASH", _open, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+
+    static bool s_Horiz = true;
+    static float
+        s_Size = 40,
+        s_Border = 0,
+        s_FramePadding = 1,
+        s_ItemSpacing = 1;
+
+#define _ET_TOOLBAR_BTN(id) ImGui::ImageButton(id, Imgui::mapImage(_LoadCachedTex(id)->imageView), {s_Size, s_Size}); if (s_Horiz) { ImGui::SameLine();}
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {s_FramePadding, s_FramePadding});
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {s_ItemSpacing, s_ItemSpacing});
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, s_Border);
+
+    _ET_TOOLBAR_BTN("gui/geo/sel.png");
+    _ET_TOOLBAR_BTN("gui/geo/mov.png");
+    _ET_TOOLBAR_BTN("gui/geo/mov-all.png");
+    _ET_TOOLBAR_BTN("gui/geo/rot.png");
+    _ET_TOOLBAR_BTN("gui/geo/scl.png");
+    _ET_TOOLBAR_BTN("gui/geo/bnd.png");
+
+    ImGui::Dummy({4, 4}); if (s_Horiz) { ImGui::SameLine(); }
+
+    _ET_TOOLBAR_BTN("gui/geo/sel-rect.png");
+    _ET_TOOLBAR_BTN("gui/geo/sel-cir.png");
+    _ET_TOOLBAR_BTN("gui/geo/sel-cus.png");
+
+    ImGui::Dummy({4, 4}); if (s_Horiz) { ImGui::SameLine(); }
+
+    _ET_TOOLBAR_BTN("gui/geo/g-cube.png");
+    _ET_TOOLBAR_BTN("gui/geo/g-sph.png");
+    _ET_TOOLBAR_BTN("gui/geo/g-col.png");
+    _ET_TOOLBAR_BTN("gui/geo/g-tor.png");
+    _ET_TOOLBAR_BTN("gui/geo/g-cone.png");
+    _ET_TOOLBAR_BTN("gui/geo/g-plane.png");
+
+    ImGui::Dummy({4, 4}); if (s_Horiz) { ImGui::SameLine(); }
+
+    _ET_TOOLBAR_BTN("gui/geo/grab.png");
+    _ET_TOOLBAR_BTN("gui/geo/brush.png");
+    _ET_TOOLBAR_BTN("gui/geo/pencil.png");
+    _ET_TOOLBAR_BTN("gui/geo/fill.png");
+    _ET_TOOLBAR_BTN("gui/geo/erase.png");
+    _ET_TOOLBAR_BTN("gui/geo/pik.png");
+    _ET_TOOLBAR_BTN("gui/geo/fing.png");
+    _ET_TOOLBAR_BTN("gui/geo/stamp.png");
+    _ET_TOOLBAR_BTN("gui/geo/cpy.png");
+
+    if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+    {
+        ImGui::OpenPopup("ImwEditorToolbarEdit");
+    }
+    if (ImGui::BeginPopup("ImwEditorToolbarEdit"))
+    {
+        ImGui::Checkbox("Horiz", &s_Horiz);
+        ImGui::DragFloat("Size", &s_Size);
+        ImGui::DragFloat("Border", &s_Border);
+        ImGui::DragFloat("FramePadding", &s_FramePadding);
+        ImGui::DragFloat("ItemSpacing", &s_ItemSpacing);
+        ImGui::EndPopup();
+    }
+
+    ImGui::PopStyleVar(3);
 
     ImGui::End();
 }
 
 
-void Imw::ShowConsole(bool* _open)
+void Imw::Editor::ShowConsole(bool* _open)
 {
     ImGui::Begin("Console", _open);
     ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
-    for (auto& str : Imgui::g_MessageBox) {
+    for (auto& str : Imw::Editor::ConsoleMessages) {
         ImGui::Text("%s", str.c_str());
     }
     ImGui::EndChild();
     static char InputBuf[128];
 
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-    if (ImGui::InputText("###MsgBoxInput", InputBuf, 128,
+    if (ImGui::InputText("###MsgBoxInput", InputBuf, std::size(InputBuf),
                          ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine))
     {
         if (InputBuf[0]) {
@@ -581,16 +584,6 @@ void Imw::ShowConsole(bool* _open)
 
 
 
-
-
-static vkx::Image* LazyLoadTex(const std::string& p) {
-    static std::map<std::string, vkx::Image*> _Cache;
-    auto& it = _Cache[p];
-    if (!it) {
-        it = Loader::loadTexture(p);
-    }
-    return it;
-}
 
 
 

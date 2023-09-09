@@ -2,36 +2,44 @@
 // Created by Dreamtowards on 9/8/2023.
 //
 
+#include "Imw.h"
+#include <imguizmo/ImGuizmo.h>
+#include <imgui_internal.h>
+
+#include <ethertia/Ethertia.h>
+#include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/render/Window.h>
+#include <ethertia/init/DebugStat.h>
 
 
-static void ShowGameViewport()
+void Imw::Gameplay::ShowGame(bool* _open)
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
 
-    static ImGuiID _ViewportLastDockId = 0;
-    static bool _RequestSetBackToLastDock = false;  // when just cancel full viewport
+    static ImGuiID s_ViewportLastDockId = 0;
+    static bool s_RequestSetBackToLastDock = false;  // when just cancel full viewport
 
     // WorkArea: menubars
-    if (Settings::w_Viewport_Full)
+    if (Imw::Gameplay::GameFullwindow)
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
         ImGui::SetNextWindowSize(viewport->Size);
 
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;  // ImGuiWindowFlags_NoDocking
-        _RequestSetBackToLastDock = true;
-    } else if (_RequestSetBackToLastDock) {
-        _RequestSetBackToLastDock = false;
-        ImGui::SetNextWindowDockID(_ViewportLastDockId);
+        s_RequestSetBackToLastDock = true;
+    } else if (s_RequestSetBackToLastDock) {
+        s_RequestSetBackToLastDock = false;
+        ImGui::SetNextWindowDockID(s_ViewportLastDockId);
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-    ImGui::Begin("Viewport", &Settings::w_Viewport, windowFlags);
+    ImGui::Begin("Viewport", _open, windowFlags);
     ImGui::PopStyleVar(2);
 
     if (ImGui::GetWindowDockID()) {
-        _ViewportLastDockId = ImGui::GetWindowDockID();
+        s_ViewportLastDockId = ImGui::GetWindowDockID();
     }
 
     ImVec2 size = Imgui::GetWindowContentSize();
@@ -41,7 +49,7 @@ static void ShowGameViewport()
     // Viewport Texture
     if (Ethertia::getWorld())
     {
-        ImGui::Image(pTexDesc(RenderEngine::g_ComposeView), size);
+        ImGui::Image(Imgui::mapImage(RenderEngine::g_ComposeView), size);
     }
     ImGui::SetCursorPos({0,0});
     ImGui::InvisibleButton("PreventsGameWindowMove", size);
@@ -54,7 +62,7 @@ static void ShowGameViewport()
 
 
 
-    DrawViewportDebugs();
+//    DrawViewportDebugs();
 
 
     // Hotbar
@@ -89,7 +97,7 @@ static void ShowGameViewport()
             if (!stack.empty())
             {
                 ImGui::SetCursorScreenPos(min);
-                RenderItemStack(stack, false, hotbarSlotSize);
+                Imw::ShowItemStack(stack, false, hotbarSlotSize);
             }
 
             min.x += hotbarSlotSize + hotbarSlotGap;
@@ -176,7 +184,7 @@ static void ShowPlayerInventory()
             ImGui::Button("###InvStackClick", {slot_size, slot_size});
 
             ImGui::SetCursorScreenPos(min);
-            RenderItemStack(stack, true, slot_size);
+            Imw::ShowItemStack(stack, true, slot_size);
 
             if ((i+1) % row_items == 0) {
                 min.x = stacks_min.x;
@@ -200,12 +208,12 @@ static void ShowPlayerInventory()
             ImGui::Button("###RecipeCraft", {180, slot_size});
             ImGui::SetCursorScreenPos(mark);
 
-            RenderItemStack(recipe->m_Result, false, slot_size);
+            Imw::ShowItemStack(recipe->m_Result, false, slot_size);
 
             for (ItemStack& src_stack : recipe->m_Source)
             {
                 ImGui::SameLine();
-                RenderItemStack(src_stack, false, slot_size * 0.6f);
+                Imw::ShowItemStack(src_stack, false, slot_size * 0.6f);
             }
 
 
@@ -222,17 +230,17 @@ static void ShowPlayerInventory()
 
 
 
-void ShowNewWorldWindow()
+void Imw::Gameplay::ShowWorldNew(bool* _open)
 {
-    ImGui::Begin("New World", &w_NewWorld);
+    ImGui::Begin("New World", _open);
 
     static char _WorldName[128];
-    ImGui::InputText("World Name", _WorldName, 128);
+    ImGui::InputText("World Name", _WorldName, std::size(_WorldName));
     std::string save_path = Strings::fmt("./saves/{}", _WorldName);
     ImGui::TextDisabled("Will save as: %s", save_path.c_str());
 
     static char _WorldSeed[128];
-    ImGui::InputText("Seed", _WorldSeed, 128);
+    ImGui::InputText("Seed", _WorldSeed, std::size(_WorldSeed));
     uint64_t seed = WorldInfo::ofSeed(_WorldSeed);
     ImGui::TextDisabled("Actual u64 seed: %llu", seed);
 
@@ -245,14 +253,13 @@ void ShowNewWorldWindow()
         };
         Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
         Ethertia::loadWorld(save_path, &worldinfo);
-        w_NewWorld = false;
+        *_open = false;
     }
 
     ImGui::End();
 }
 
 
-#include <imgui_internal.h>
 
 
 
@@ -260,9 +267,9 @@ void ShowNewWorldWindow()
 
 
 
-static void ShowSingleplayerWindow()
+void Imw::Gameplay::ShowWorldList(bool* _open)
 {
-    ImGui::Begin("Singleplayer", &w_Singleplayer);
+    ImGui::Begin("Singleplayer", _open);
 
     if (ImGui::Button("New World")) {
 
@@ -283,11 +290,11 @@ static void ShowSingleplayerWindow()
     ImGui::End();
 }
 
-static void ShowTitleScreenWindow()
+void Imw::Gameplay::ShowTitleScreen(bool* _open)
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-    ImGui::Begin("TitleScreen", &w_TitleScreen);
+    ImGui::Begin("TitleScreen", _open);
     ImGui::PopStyleVar(2);
 
     // Background
@@ -312,7 +319,7 @@ static void ShowTitleScreenWindow()
 
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Singleplayer", btnSize)) {
-        w_Singleplayer = true;
+        Imgui::Show(Imw::Gameplay::ShowWorldList);
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Multiplayer", btnSize)) {
@@ -320,7 +327,7 @@ static void ShowTitleScreenWindow()
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Settings", btnSize)) {
-        Settings::w_Settings = true;
+        Imgui::Show(Imw::Settings::ShowSettings);
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Terminate", btnSize)) {
@@ -333,28 +340,28 @@ static void ShowTitleScreenWindow()
 
 
 // draw AABB Box for InvalidMeshChunks (To be mesh), and draw Mesh Counter for each chunk indicates how many times the chunk had meshed.
-static void DbgShowChunkMeshingAndCounter()
-{
-    Ethertia::getWorld()->forLoadedChunks([](Chunk* c)
-                                          {
-                                              if (Dbg::dbg_MeshingChunksAABB && c->m_MeshingState != Chunk::MESH_VALID)
-                                              {
-                                                  Imgui::RenderAABB(c->chunkpos(), c->chunkpos()+glm::vec3(16),
-                                                                    c->m_MeshingState == Chunk::MESH_INVALID ?  // MeshInvalid or Meshing
-                                                                    ImGui::GetColorU32({0.2, 0, 0, .5}) :
-                                                                    ImGui::GetColorU32({1, 0, 0, 1}));
-                                              }
-
-                                              if (Dbg::dbg_ChunkMeshedCounter)
-                                              {
-                                                  glm::vec3 pTextW = c->chunkpos() + glm::vec3(8.0f);
-                                                  glm::vec2 pTextS;
-                                                  if (Imgui::CalcViewportWorldpos(pTextW, pTextS))
-                                                  {
-                                                      ImGui::RenderText({pTextS.x, pTextS.y}, Strings::fmt("Meshed x{}", c->dbg_MeshCounter).c_str());
-                                                  }
-                                              }
-                                          });
-
-
-}
+//static void DbgShowChunkMeshingAndCounter()
+//{
+//    Ethertia::getWorld()->forLoadedChunks([](Chunk* c)
+//                                          {
+//                                              if (Dbg::dbg_MeshingChunksAABB && c->m_MeshingState != Chunk::MESH_VALID)
+//                                              {
+//                                                  Imgui::RenderAABB(c->chunkpos(), c->chunkpos()+glm::vec3(16),
+//                                                                    c->m_MeshingState == Chunk::MESH_INVALID ?  // MeshInvalid or Meshing
+//                                                                    ImGui::GetColorU32({0.2, 0, 0, .5}) :
+//                                                                    ImGui::GetColorU32({1, 0, 0, 1}));
+//                                              }
+//
+//                                              if (Dbg::dbg_ChunkMeshedCounter)
+//                                              {
+//                                                  glm::vec3 pTextW = c->chunkpos() + glm::vec3(8.0f);
+//                                                  glm::vec2 pTextS;
+//                                                  if (Imgui::CalcViewportWorldpos(pTextW, pTextS))
+//                                                  {
+//                                                      ImGui::RenderText({pTextS.x, pTextS.y}, Strings::fmt("Meshed x{}", c->dbg_MeshCounter).c_str());
+//                                                  }
+//                                              }
+//                                          });
+//
+//
+//}

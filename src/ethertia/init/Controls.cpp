@@ -2,7 +2,7 @@
 // Created by Dreamtowards on 2023/2/19.
 //
 
-#include <ethertia/init/Controls.h>
+#include "Controls.h"
 
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
@@ -10,19 +10,20 @@
 #include <ethertia/entity/EntityDroppedItem.h>
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
-#include "Settings.h"
 #include "ethertia/entity/component/EntityDrivingSeat.h"
 #include "ethertia/entity/component/EntityPropeller .h"
 #include <ethertia/init/DebugStat.h>
+#include <ethertia/imgui/Imgui.h>
+#include <ethertia/imgui/Imw.h>
+#include <ethertia/init/Settings.h>
+
+#include <ethertia/init/KeyBinding.h>
 
 //#include <ethertia/gui/screen/GuiF4Lock.h>
 //#include <ethertia/gui/screen/GuiDebugV.h>
 //#include <ethertia/gui/screen/GuiIngame.h>
 //#include <ethertia/gui/screen/GuiScreenPause.h>
 
-#include <ethertia/imgui/Imgui.h>
-
-#include <ethertia/init/KeyBinding.h>
 
 void Controls::initConsoleThread()
 {
@@ -52,7 +53,7 @@ static void handleKeyPress()
     }
     if (KeyBindings::KEY_FULL_VIEWPORT.isPressed())
     {
-        Settings::w_Viewport_Full = !Settings::w_Viewport_Full;
+        Imw::Gameplay::GameFullwindow = !Imw::Gameplay::GameFullwindow;
     }
     if (KeyBindings::KEY_SCREENSHOT.isPressed())
     {

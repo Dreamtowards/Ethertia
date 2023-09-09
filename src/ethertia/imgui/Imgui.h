@@ -16,7 +16,6 @@ class Imgui
 public:
     inline static float GuiScale = 1.0f;
 
-    inline static std::vector<std::string> g_MessageBox;
     inline static glm::vec4 wViewportXYWH;
 
     // selected entity in the Entity Inspector.
