@@ -38,7 +38,7 @@ bool Loader::fileExists(const std::filesystem::path& path)
 
 std::string Loader::fileAssets(const std::string& p)
 {
-    for (const std::string& basepath : Settings::ASSETS)
+    for (const std::string& basepath : Settings::Assets)
     {
         std::string path = basepath + p;
         if (Loader::fileExists(path))

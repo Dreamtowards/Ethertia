@@ -426,7 +426,7 @@ void Imw::Settings::ShowSettings(bool* pOpen)
             }
 
             ImGui::BeginChild("AssetsList", {0, 200});
-            for (auto& path : ::Settings::ASSETS) {
+            for (auto& path : ::Settings::Assets) {
                 ImGui::Selectable(path.c_str(), false);
             }
             ImGui::EndChild();

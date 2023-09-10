@@ -2,30 +2,32 @@
 // Created by Dreamtowards on 2023/3/8.
 //
 
-
-
 #include "Settings.h"
 
 #include <nlohmann/json.hpp>
 #include <format>
+#include <map>
+#include <stdx/stdx.h>
 
 #include <ethertia/util/Loader.h>
 #include <ethertia/world/gen/NoiseGen.h>
-#include <ethertia/render/RenderEngine.h>
 #include <ethertia/init/MaterialTextures.h>
-#include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
-
-
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
+
+
+static const char* SETTINGS_FILE = "./settings.json";
 
 
 // for Store & Restore opened windows.
 static std::map<std::string, Imgui::DrawFuncPtr> DrawFuncIds;
 
 
-void Settings::loadSettings() {
+
+
+void Settings::LoadSettings()
+{
     BENCHMARK_TIMER;
     Log::info("Load Settings.\1");
     if (!Loader::fileExists(SETTINGS_FILE))
@@ -51,12 +53,12 @@ void Settings::loadSettings() {
 
     conf.get("view_distance", s_ViewDistance);
     conf.get("fov", Ethertia::getCamera().fov);
-    conf.get("display_width", displayWidth);
-    conf.get("display_height", displayHeight);
+    conf.get("display_width", DisplayWidth);
+    conf.get("display_height", DisplayHeight);
     conf.get("vsync", s_Vsync);
 
-    conf.get("assets", Settings::ASSETS);
-    conf.get("mods", Settings::MODS);
+    conf.get("assets", Settings::Assets);
+    conf.get("mods", Settings::Mods);
 
     conf.get("mtl_resolution", MaterialTextures::TEX_RESOLUTION);
 
@@ -87,12 +89,10 @@ void Settings::loadSettings() {
 }
 
 
-#include <map>
-#include <stdx/stdx.h>
 
 
 
-void Settings::saveSettings()
+void Settings::SaveSettings()
 {
     BENCHMARK_TIMER;
     Log::info("Save Settings.\1");
@@ -104,13 +104,13 @@ void Settings::saveSettings()
 
     conf["view_distance"] = s_ViewDistance;
     conf["fov"] =           Ethertia::getCamera().fov;
-    conf["assets"] =        Settings::ASSETS;
+    conf["assets"] =        Settings::Assets;
     conf["display_width"]  =_WindowSize.x;
     conf["display_height"] =_WindowSize.y;
     conf["vsync"] =         s_Vsync;
     conf["mtl_resolution"] =MaterialTextures::TEX_RESOLUTION;
     conf["simd_level"] =    NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel);
-    conf["mods"] =          MODS;
+    conf["mods"] =          Settings::Mods;
     conf["graphics.ssao"] = Settings::g_SSAO;
     conf["graphics.shadow"]=Settings::g_ShadowMapping;
 

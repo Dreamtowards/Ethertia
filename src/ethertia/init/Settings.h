@@ -2,39 +2,34 @@
 // Created by Dreamtowards on 2022/12/17.
 //
 
-#ifndef ETHERTIA_SETTINGS_H
-#define ETHERTIA_SETTINGS_H
+#pragma once
 
 #include <string>
 #include <vector>
 
+
 class Settings
 {
 public:
-    inline static const char* SETTINGS_FILE = "./settings.json";
+    inline static int DisplayWidth  = 1280,
+                      DisplayHeight = 720;
 
-
-    inline static int displayWidth  = 1280,
-                      displayHeight = 720;
-
-    inline static std::vector<std::string> MODS;
+    inline static std::vector<std::string> Mods;
 
     // Resource Packs. locate assets file by Loader::fileAssets() ordered.   // fixme: might conflict with mods?
-    inline static std::vector<std::string> ASSETS = {"assets/"};  // default value, would be replace by settings.json::assets
+    inline static std::vector<std::string> Assets = {"assets/"};  // default value, would be replace by settings.json::assets
 
 
-    static void loadSettings();
+    static void LoadSettings();
 
-    static void saveSettings();
+    static void SaveSettings();
 
-    //static void loadProgramArguments(int argc, const char* argv[]) {}
 
 
     inline static bool g_SSAO = true,
                        g_ShadowMapping = true;
 
 
-    inline static bool w_Viewport_Full = false;
     inline static bool w_Console_FocusInput = false;  // true: Force bring Console Window to front and Focus on the InputBox while Console Window was showing. used when press '/' key.
 
 
@@ -52,4 +47,3 @@ public:
 
 };
 
-#endif //ETHERTIA_SETTINGS_H

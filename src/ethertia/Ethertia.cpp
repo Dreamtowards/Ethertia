@@ -67,19 +67,19 @@ static Camera       g_Camera;
 static void Init()
 {
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
-    Settings::loadSettings();
+    Settings::LoadSettings();
     NoiseGen::initSIMD();
     if (!Loader::fileExists("./assets")) { throw std::runtime_error("default assets directory not found. make sure you are in valid working directory."); }
     Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::sys_target()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
 
-    for (const std::string& modpath : Settings::MODS) {
+    for (const std::string& modpath : Settings::Mods) {
         ModLoader::loadMod(modpath);
     }
     //OpenVR::init();
 
     Ethertia::isRunning() = true;
 
-    Window::Init(Settings::displayWidth, Settings::displayHeight, Ethertia::Version::name().c_str());
+    Window::Init(Settings::DisplayWidth, Settings::DisplayHeight, Ethertia::Version::name().c_str());
     RenderEngine::Init();
     // AudioEngine::init();
     NetworkSystem::init();
@@ -128,7 +128,7 @@ static void Init()
 // System Cleanup
 static void Destroy()
 {
-    Settings::saveSettings();
+    Settings::SaveSettings();
 
     if (Ethertia::getWorld()) {
         Ethertia::unloadWorld();
