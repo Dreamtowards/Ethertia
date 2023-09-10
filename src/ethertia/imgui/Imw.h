@@ -9,9 +9,6 @@ class Imw
 {
 public:
 
-    static void InitWindows();
-
-
 
     inline static ItemStack g_InventoryHoldingItemStack;
 

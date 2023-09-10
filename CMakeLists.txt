@@ -76,6 +76,8 @@ include_directories(lib/fastnoise2/include)
 #include_directories(lib/openvr/headers)
 include_directories(lib/imgui-docking)
 include_directories(lib/physx/include)
+#include_directories(lib/jsonmeo-0.23.8/include)
+include_directories(lib/json-nlohmann-3.11.2/include)
 
 #include_directories(lib/vulkan/include)
 

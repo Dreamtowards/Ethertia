@@ -1,0 +1,37 @@
+version: '1.1.0.{build}'
+
+image:
+- Visual Studio 2015
+- Ubuntu
+- macos
+
+platform:
+  - x86
+  - x64
+  
+configuration:
+- Debug
+- Release
+
+for:
+  - 
+    matrix:
+      only:
+        - configuration: Debug
+    environment:
+      config: Debug
+
+  - 
+    matrix:
+      only:
+        - configuration: Release
+    environment:
+      config: Release
+
+build_script:
+  - cmake -H. -B_builds -DCMAKE_BUILD_TYPE=%config% -DCMAKE_CXX_STANDARD=98
+  - cmake --build _builds --config %config%
+
+test_script:
+  - ps: cd _builds
+  - ctest -VV -C %config%

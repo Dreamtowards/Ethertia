@@ -4,7 +4,10 @@
 
 
 
-#include <ethertia/init/Settings.h>
+#include "Settings.h"
+
+#include <nlohmann/json.hpp>
+#include <format>
 
 #include <ethertia/util/Loader.h>
 #include <ethertia/world/gen/NoiseGen.h>
@@ -13,82 +16,113 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 
-#include <nlohmann/json.hpp>
+
+#include <ethertia/imgui/Imgui.h>
+#include <ethertia/imgui/Imw.h>
 
 
-template<typename T>
-static void set_ifexists(nlohmann::json& j, const std::string& name, T* p) {
-    if (j.contains(name)) {
-        *p = j[name];
-    }
-}
+// for Store & Restore opened windows.
+static std::map<std::string, Imgui::DrawFuncPtr> DrawFuncIds;
 
-void Settings::loadSettings() {  using nlohmann::json;
+
+void Settings::loadSettings() {
     BENCHMARK_TIMER;
     Log::info("Load Settings.\1");
     if (!Loader::fileExists(SETTINGS_FILE))
         return;
 
-    json settings = json::parse((char*)Loader::loadFile(SETTINGS_FILE).data());
+    DrawFuncIds["settings"] = Imw::Settings::ShowSettings;
+    DrawFuncIds["inspector"] = Imw::Editor::ShowInspector;
+    DrawFuncIds["hierarchy"] = Imw::Editor::ShowHierarchy;
+    DrawFuncIds["profiler"] = Imw::Editor::ShowProfiler;
+    DrawFuncIds["toolbar"] = Imw::Editor::ShowToolbar;
+    DrawFuncIds["console"] = Imw::Editor::ShowConsole;
+    DrawFuncIds["worldgen"] = Imw::Editor::ShowWorldGen;
+    DrawFuncIds["game"] = Imw::Gameplay::ShowGame;
+    DrawFuncIds["game-titlescreen"] = Imw::Gameplay::ShowTitleScreen;
+    DrawFuncIds["game-worldlist"] = Imw::Gameplay::ShowWorldList;
+    DrawFuncIds["game-worldnew"] = Imw::Gameplay::ShowWorldNew;
+    DrawFuncIds["game-titlescreen"] = Imw::Gameplay::ShowTitleScreen;
+    DrawFuncIds["dbg-imgui-demowindow"] = ImGui::ShowDemoWindow;
 
-    set_ifexists(settings, "view_distance",  &s_ViewDistance);
-    set_ifexists(settings, "fov",            &Ethertia::getCamera().fov);
-    set_ifexists(settings, "display_width",  &displayWidth);
-    set_ifexists(settings, "display_height", &displayHeight);
-    set_ifexists(settings, "vsync",          &s_Vsync);
+    using namespace nlohmann;
+    json conf = json::parse((char*)Loader::loadFile(SETTINGS_FILE).data());
 
-    set_ifexists(settings, "assets",         &Settings::ASSETS);
-    set_ifexists(settings, "mods",           &MODS);
 
+    conf.get("view_distance", s_ViewDistance);
+    conf.get("fov", Ethertia::getCamera().fov);
+    conf.get("display_width", displayWidth);
+    conf.get("display_height", displayHeight);
+    conf.get("vsync", s_Vsync);
+
+    conf.get("assets", Settings::ASSETS);
+    conf.get("mods", Settings::MODS);
+
+    conf.get("mtl_resolution", MaterialTextures::TEX_RESOLUTION);
+
+    conf.get("graphics.ssao", g_SSAO);
+    conf.get("graphics.shadow", g_ShadowMapping);
 
     std::string simdLevel;
-    set_ifexists(settings, "simd_level", &simdLevel);
-    NoiseGen::g_SIMDLevel = NoiseGen::FastSIMD_ofLevelName(simdLevel);
+    if (conf.get("simd_level", simdLevel))
+    {
+        NoiseGen::g_SIMDLevel = NoiseGen::FastSIMD_ofLevelName(simdLevel);
+    }
 
-    set_ifexists(settings, "mtl_resolution", &MaterialTextures::TEX_RESOLUTION);
 
-    set_ifexists(settings, "graphics.ssao", &g_SSAO);
-    set_ifexists(settings, "graphics.shadow", &g_ShadowMapping);
-
-    set_ifexists(settings, "window.viewport", &w_Viewport);
-    set_ifexists(settings, "window.settings", &w_Settings);
-    set_ifexists(settings, "window.toolbar", &w_Toolbar);
-    set_ifexists(settings, "window.console", &w_Console);
-
-    set_ifexists(settings, "window.entity_list", &w_EntityList);
-    set_ifexists(settings, "window.entity_insp", &w_EntityInsp);
-    set_ifexists(settings, "window.shader_insp", &w_ShaderInsp);
-
+    std::vector<std::string> openedwindows;
+    if (conf.get("windows", openedwindows))
+    {
+        for (const std::string& k : openedwindows)
+        {
+            auto it = DrawFuncIds.find(k);
+            if (it == DrawFuncIds.end()) {
+                Log::warn("failed to load unknown window {}", k);
+            } else {
+                Imgui::Show(it->second);
+            }
+        }
+    }
 
 }
 
 
-void Settings::saveSettings()  {  using nlohmann::json;
+#include <map>
+#include <stdx/stdx.h>
+
+
+
+void Settings::saveSettings()
+{
     BENCHMARK_TIMER;
     Log::info("Save Settings.\1");
 
-    json settings = json::object({
-        {"view_distance",  s_ViewDistance},
-        {"fov",            Ethertia::getCamera().fov},
-        {"assets",         Settings::ASSETS},
-        {"display_width",  Window::Size().x},
-        {"display_height", Window::Size().y},
-        {"vsync",          s_Vsync},
-        {"fullscreen",     false},
-        {"mtl_resolution", MaterialTextures::TEX_RESOLUTION},
-        {"simd_level",     NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel)},
-        {"mods",           MODS},
-        {"graphics.ssao",  Settings::g_SSAO},
-        {"graphics.shadow",Settings::g_ShadowMapping},
-        {"window.viewport",w_Viewport},
-        {"window.settings",w_Settings},
-        {"window.toolbar", w_Toolbar},
-        {"window.console", w_Console},
-        {"window.entity_list", w_EntityList},
-        {"window.entity_insp", w_EntityInsp},
-        {"window.shader_insp", w_ShaderInsp}
-    });
+    using namespace nlohmann;
+    json conf = json{};
+
+    glm::vec2 _WindowSize = Window::Size();
+
+    conf["view_distance"] = s_ViewDistance;
+    conf["fov"] =           Ethertia::getCamera().fov;
+    conf["assets"] =        Settings::ASSETS;
+    conf["display_width"]  =_WindowSize.x;
+    conf["display_height"] =_WindowSize.y;
+    conf["vsync"] =         s_Vsync;
+    conf["mtl_resolution"] =MaterialTextures::TEX_RESOLUTION;
+    conf["simd_level"] =    NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel);
+    conf["mods"] =          MODS;
+    conf["graphics.ssao"] = Settings::g_SSAO;
+    conf["graphics.shadow"]=Settings::g_ShadowMapping;
+
+
+    std::vector<std::string> openedwindows;
+    for (auto& ptr : Imgui::DrawFuncList) {
+        openedwindows.push_back(stdx::find_key(DrawFuncIds, ptr));
+    }
+    conf["windows"] =       openedwindows;
+
 
     std::ofstream f(SETTINGS_FILE);
-    f << settings.dump(2);
+    f << conf.dump(2);
+    f.close();
 }

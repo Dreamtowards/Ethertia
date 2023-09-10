@@ -33,15 +33,6 @@ public:
     inline static bool g_SSAO = true,
                        g_ShadowMapping = true;
 
-    // Window
-    inline static bool w_Viewport = true,
-                       w_Toolbar = true,
-                       w_EntityList = false,
-                       w_EntityInsp = true,
-                       w_ShaderInsp = false,
-                       w_Console = false,
-                       w_Settings = false,
-                       w_Profiler = true;
 
     inline static bool w_Viewport_Full = false;
     inline static bool w_Console_FocusInput = false;  // true: Force bring Console Window to front and Focus on the InputBox while Console Window was showing. used when press '/' key.

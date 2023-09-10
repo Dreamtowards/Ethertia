@@ -25,7 +25,7 @@ namespace stdx
 	}
 
 	template<typename T>
-	bool exists(std::vector<T>& ls, const T& val)
+	bool exists(const std::vector<T>& ls, const T& val)
 	{
 		return std::find(ls.begin(), ls.end(), val) != ls.end();
 	}
@@ -34,5 +34,18 @@ namespace stdx
     static T* ptr(const T& ref)
     {
         return reinterpret_cast<T*>(&ref);
+    }
+
+    template<typename K, typename V>
+    static K find_key(const std::map<K, V>& m, const V& val)
+    {
+        for (auto it = m.cbegin(); it != m.cend(); ++it)
+        {
+            if (it->second == val)
+            {
+                return it->first;
+            }
+        }
+        throw std::runtime_error("stdx::find_key error: no such value");
     }
 }

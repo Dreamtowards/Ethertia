@@ -112,26 +112,22 @@ static void _ShowMainMenu_System()
 
     if (ImGui::MenuItem("Settings.."))
     {
-        Settings::w_Settings = true;
+        Imgui::Show(Imw::Settings::ShowSettings);
     }
 
     if (ImGui::MenuItem("Mods", "0 mods loaded")) {
-        Settings::w_Settings = true;
         Imw::Settings::CurrentPanel = Imw::Settings::Panel::Mods;
     }
     if (ImGui::MenuItem("Resource Packs")) {
-        Settings::w_Settings = true;
         Imw::Settings::CurrentPanel = Imw::Settings::Panel::ResourcePacks;
     }
     if (ImGui::MenuItem("Controls")) {
-        Settings::w_Settings = true;
         Imw::Settings::CurrentPanel = Imw::Settings::Panel::Controls;
     }
 
 
 
     if (ImGui::MenuItem("About")) {
-        Settings::w_Settings = true;
         Imw::Settings::CurrentPanel = Imw::Settings::Panel::Credits;
     }
 
@@ -286,7 +282,7 @@ static void _ShowMainMenuBar()
             if (ImGui::MenuItem("Save Screenshot", KeyBindings::KEY_SCREENSHOT.keyName())) {
                 Controls::saveScreenshot();
             }
-            if (ImGui::MenuItem("Fullscreen", KeyBindings::KEY_FULLSCREEN.keyName(), Ethertia::getWindow().isFullscreen())) {
+            if (ImGui::MenuItem("Fullscreen", KeyBindings::KEY_FULLSCREEN.keyName(), Window::isFullscreen())) {
                 Window::ToggleFullscreen();
             }
             if (ImGui::MenuItem("Controlling Game", KeyBindings::KEY_ESC.keyName(), Ethertia::isIngame())) {
@@ -349,9 +345,8 @@ void Imw::ShowDockspaceAndMainMenubar()
 
 
 
-void Imw::InitWindows()
-{
-
+//void Imw::InitWindows()
+//{
 //    if (Settings::w_Toolbar)
 //        ShowToolbar();
 
@@ -403,7 +398,7 @@ void Imw::InitWindows()
 //    if (w_Singleplayer) {
 //        ShowSingleplayerWindow();
 //    }
-}
+//}
 
 
 

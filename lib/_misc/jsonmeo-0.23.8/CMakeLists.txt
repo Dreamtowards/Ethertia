@@ -1,0 +1,40 @@
+cmake_minimum_required(VERSION 3.14)
+project(meojson CXX)
+
+include_directories(./include)
+
+option(BUILD_SAMPLE "Build sample in sample/sample.cpp" ON)
+option(BUILD_BENCHMARK "Build benchmark in benchmark/benchmark.cpp" OFF)
+option(ENABLE_NEON "Enable ARM NEON" OFF)
+
+set(CMAKE_CXX_STANDARD 17)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    add_compile_options("/utf-8" "/W4" "/WX")
+else()
+    add_compile_options("-Wall;-Wextra;-Wpedantic;-Werror;-mtune=native")
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|EM64T|x86_64")
+        add_compile_options("-msse4.1")
+    endif()
+endif()
+
+if(ENABLE_NEON)
+    add_compile_definitions(MEOJSON_ENABLE_NEON)
+endif()
+
+if (BUILD_SAMPLE)
+    add_executable(sample sample/sample.cpp include/json.hpp)
+    add_executable(json5_parse_sample sample/json5_parse.cpp include/json.hpp include/json5.hpp)
+endif()
+
+if (BUILD_BENCHMARK)
+    SET(CMAKE_BUILD_TYPE "Release")
+    add_executable(benchmark benchmark/benchmark.cpp include/json.hpp)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|EM64T|x86_64")
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+            target_compile_options(benchmark PRIVATE "/arch:AVX2")
+        elseif(CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU|Clang")
+            target_compile_options(benchmark PRIVATE "-mavx2")
+        endif()
+    endif()
+endif()

@@ -1,0 +1,83 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+
+          MSBUILD meojson.sln /t:rebuild /p:Configuration="Debug" /p:Platform="x64" /m
+
+      - name: Run Sample
+        run: |
+          ./build/Debug/sample.exe
+          ./build/Debug/json5_parse_sample.exe
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: sample-windows
+          path: build
+
+  ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+
+          make -j$(nproc)
+
+      - name: Run Sample
+        run: |
+          ./build/sample
+          ./build/json5_parse_sample
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: sample-linux
+          path: build
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: brew install ninja
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -G Ninja ..
+
+          ninja
+
+      - name: Run Sample
+        run: |
+          ./build/sample
+          ./build/json5_parse_sample
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          name: sample-macos
+          path: build

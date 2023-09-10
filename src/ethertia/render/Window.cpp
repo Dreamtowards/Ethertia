@@ -20,6 +20,15 @@ static void glfw_error_callback(int error, const char* description)
 }
 
 
+static glm::vec2 g_FramebufferSize;
+static glm::vec2 g_WindowSize;
+static glm::vec2 g_MousePos;
+static glm::vec2 g_MouseDelta;
+static glm::vec2 g_MouseWheel;
+
+static bool g_MouseGrabbed = false;
+static bool g_Patch_GrabbedChanged = false;  // bug patch
+
 
 void Window::Init(int _w, int _h, const char* _title)
 {
@@ -35,14 +44,14 @@ void Window::Init(int _w, int _h, const char* _title)
 
 #ifdef VULKAN
     if (!glfwVulkanSupported())
-        Log::warn("Vulkan Not Supported.");
-//        throw std::runtime_error("GLFW: Vulkan not supported.");
+        Log::warn("GLFW Error: Vulkan Not Supported.");
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
 #endif
 
     // GLFW WINDOW CREATION
 
 #ifdef VULKAN
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
 #endif
 
 #ifdef GL
@@ -96,7 +105,10 @@ void Window::Init(int _w, int _h, const char* _title)
 
     SetupGlfwCallbacks();
 
-//    glfwGetFramebufferSize(m_WindowHandle, &m_FramebufferWidth, &m_FramebufferHeight);
+    // init window size. since callback may not been called on init.
+    int w, h;
+    glfwGetWindowSize(g_GlfwWindow, &w, &h);
+    g_WindowSize = {w, h};
 
     Log::info("Window initialized.\1");
 }
@@ -173,15 +185,6 @@ void Window::ToggleFullscreen()
 
 
 
-
-static glm::vec2 g_FramebufferSize;
-static glm::vec2 g_WindowSize;
-static glm::vec2 g_MousePos;
-static glm::vec2 g_MouseDelta;
-static glm::vec2 g_MouseWheel;
-
-static bool g_MouseGrabbed = false;
-static bool g_Patch_GrabbedChanged = false;  // bug patch
 
 void Window::PollEvents()
 {

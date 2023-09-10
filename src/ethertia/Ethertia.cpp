@@ -84,8 +84,6 @@ static void Init()
     // AudioEngine::init();
     NetworkSystem::init();
 
-    Imw::InitWindows();
-
 
     // Materials & Items
     MaterialMeshes::load();

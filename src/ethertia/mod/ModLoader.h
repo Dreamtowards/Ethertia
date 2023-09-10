@@ -16,7 +16,7 @@
 #include <ethertia/mod/Mod.h>
 #include <ethertia/util/Log.h>
 
-#include <nlohmann/json.hpp>
+//#include <json.h>
 
 class ModLoader
 {
@@ -26,31 +26,30 @@ public:
     static void loadMod(const std::string& modpath)
     {
         BENCHMARK_TIMER;
-        using nlohmann::json;
 
-        Mod::Manifest manifest;
-        json conf = json::parse((char*)Loader::loadFile(modpath + "/mod.json").data());
-
-        manifest.name = conf["name"];
-        manifest.id = conf["id"];
-
-        if (conf.contains("version")) manifest.version = conf["version"];
-        if (conf.contains("website")) manifest.version = conf["website"];
-
-        std::string sys_target = Loader::sys_target();
-        auto conf_bin = conf["bin"];
-        if (!conf_bin.contains(sys_target))
-            throw std::runtime_error(Strings::fmt("Mod {} doesn't support current system {}. (no binary executables)", manifest.name, sys_target));
-
-        std::string bin_path = conf_bin[sys_target];
-        {
-            // Load and Init.
-            bool succ = loadModProgram(bin_path.c_str());
-
-            assert(succ && "Failed to load/init mod program.");
-        }
-
-        Log::info("Mod {} ({}, {}) loaded in\1", manifest.name, manifest.id, bin_path);
+//        Mod::Manifest manifest;
+//        json::jobject conf = json::jobject::parse((char*)Loader::loadFile(modpath + "/mod.json").data());
+//
+//        manifest.name = conf["name"];
+//        manifest.id = conf["id"];
+//
+//        conf.get("version", manifest.version);
+//        conf.get("website", manifest.website);
+//
+//        std::string sys_target = Loader::sys_target();
+//        json::jobject conf_bin = conf["bin"];
+//        if (!conf_bin.has_key(sys_target))
+//            throw std::runtime_error(Strings::fmt("Mod {} doesn't support current system {}. (no binary executables)", manifest.name, sys_target));
+//
+//        std::string bin_path = conf_bin[sys_target];
+//        {
+//            // Load and Init.
+//            bool succ = loadModProgram(bin_path.c_str());
+//
+//            assert(succ && "Failed to load/init mod program.");
+//        }
+//
+//        Log::info("Mod {} ({}, {}) loaded in\1", manifest.name, manifest.id, bin_path);
     }
 
 
