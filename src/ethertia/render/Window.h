@@ -2,26 +2,15 @@
 // Created by Dreamtowards on 2022/3/31.
 //
 
-#ifndef ETHERTIA_WINDOW_H
-#define ETHERTIA_WINDOW_H
-
-//#define GL
-#define VULKAN
-
-#ifdef VULKAN
-#define GLFW_INCLUDE_VULKAN
-#define GLFW_INCLUDE_NONE 1
-#endif
+#pragma once
 
 #include <stdexcept>
 
+#define GLFW_INCLUDE_VULKAN
+#define GLFW_INCLUDE_NONE 1
 #include <GLFW/glfw3.h>
-#include <glm/vec2.hpp>
 
-#include <ethertia/util/Log.h>
-#include <ethertia/event/EventBus.h>
-#include <ethertia/util/BenchmarkTimer.h>
-#include <ethertia/util/BitmapImage.h>
+#include <glm/vec2.hpp>
 
 
 
@@ -123,4 +112,3 @@ public:
 
 };
 
-#endif //ETHERTIA_WINDOW_H

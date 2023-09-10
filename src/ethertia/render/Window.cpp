@@ -2,19 +2,19 @@
 // Created by Dreamtowards on 2023/2/13.
 //
 
-#include <ethertia/render/Window.h>
-#include <ethertia/util/Strings.h>
-#include <ethertia/util/Log.h>
+#include "Window.h"
 
-#ifdef GL
-#include <glad/glad.h>
-#endif
+#include <format>
+
+#include <ethertia/util/Log.h>
+#include <ethertia/util/BenchmarkTimer.h>
+
 
 static GLFWwindow* g_GlfwWindow = nullptr;
 
-static void SetupGlfwCallbacks();
+static void _SetupGlfwCallbacks();
 
-static void glfw_error_callback(int error, const char* description)
+static void _GlfwErrorCallback(int error, const char* description)
 {
     Log::warn("GLFW Error: {}: {}", error, description);
 }
@@ -34,81 +34,40 @@ void Window::Init(int _w, int _h, const char* _title)
 {
     BENCHMARK_TIMER;
 
-    /// PRE INIT GLFW.
-
-    glfwSetErrorCallback(glfw_error_callback);
+    glfwSetErrorCallback(_GlfwErrorCallback);
     if (!glfwInit())
         throw std::runtime_error("failed to init glfw.");
 
     Log::info("GLFW {}", glfwGetVersionString());
 
-#ifdef VULKAN
+
     if (!glfwVulkanSupported())
         Log::warn("GLFW Error: Vulkan Not Supported.");
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
-#endif
 
-    // GLFW WINDOW CREATION
-
-#ifdef VULKAN
-#endif
-
-#ifdef GL
-    // GL 4.0: Tessellation Shader
-    // GL 4.3: Compute Shader, DebugMessage
-    // GL 4.5: DSA, SPIR-V
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-#else
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-#endif
-
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);   // available since GL 4.3, glDebugMessageCallback.
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);  // Required on Mac OSX.
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
-#endif
-
-    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
-    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-    glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
-#endif
 
     _w = std::max(1, _w); _h = std::max(1, _h);  // couldn't create 0x0 window.
     g_GlfwWindow = glfwCreateWindow(_w, _h, _title, nullptr, nullptr);
     if (!g_GlfwWindow) {
         const char* err_str;
         int err = glfwGetError(&err_str);
-        throw std::runtime_error(Strings::fmt("Failed to init glfw window: {}. ({})", err, err_str));
+        throw std::runtime_error(std::format("Failed to init glfw window: {}. ({})", err, err_str));
     }
 
-#ifdef GL
-    glfwMakeContextCurrent(m_WindowHandle);
-    glfwSwapInterval(0);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        throw std::runtime_error("Failed to init GLAD.");
-
-    Log::info("GL {}, {}, {}", glGetString(GL_VERSION), glGetString(GL_RENDERER), glGetString(GL_VENDOR));
-#endif
 
     // ADJUST
 
     Window::Centralize();
 
-    SetupGlfwCallbacks();
+    _SetupGlfwCallbacks();
 
-    // init window size. since callback may not been called on init.
-    int w, h;
-    glfwGetWindowSize(g_GlfwWindow, &w, &h);
-    g_WindowSize = {w, h};
+
+    {   // fixed: g_WindowSize stay 0 if no window size changes. (WindowSize callback wouldn't been call on create window.)
+        int w, h;
+        glfwGetWindowSize(g_GlfwWindow, &w, &h);
+        g_WindowSize = {w, h};
+    }
 
     Log::info("Window initialized.\1");
 }
@@ -302,7 +261,7 @@ static void GlfwCallback_Scroll(GLFWwindow* _win, double xoffset, double yoffset
 //}
 
 
-static void SetupGlfwCallbacks()
+static void _SetupGlfwCallbacks()
 {
     GLFWwindow* win = g_GlfwWindow;
     glfwSetWindowSizeCallback(win, GlfwCallback_WindowSize);
