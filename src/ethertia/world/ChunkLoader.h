@@ -84,7 +84,7 @@ public:
     }
 
     void saveWorldInfo(const WorldInfo& worldinfo) const {
-        std::ofstream file(Loader::fileMkdirs(_FileWorldInfo()), std::ios::out | std::ios::binary);
+        std::ofstream file(Loader::Mkdirs(_FileWorldInfo()), std::ios::out | std::ios::binary);
 
         nbt::tag_compound tagWorld;
         tagWorld.put("Name", worldinfo.Name);
@@ -142,11 +142,11 @@ public:
             return it->second;  // todo: May Dangerous?
 
         std::string filename = Strings::fmt("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
-        if (readonly && !Loader::fileExists(filename)) {
+        if (readonly && !Loader::FileExists(filename)) {
             return nullptr;  // file not exists.
         }
 
-        Loader::fileMkdirs(filename);
+        Loader::Mkdirs(filename);
         std::fstream* file = new std::fstream(filename, std::ios::binary);
 
         VolumeStore* vst = new VolumeStore();
@@ -226,7 +226,7 @@ public:
 //
 //        // move buf to file[info.pos];
 
-        std::ofstream file(Loader::fileMkdirs(_OldChunkFileName(chunkpos)), std::ios::out | std::ios::binary);
+        std::ofstream file(Loader::Mkdirs(_OldChunkFileName(chunkpos)), std::ios::out | std::ios::binary);
 
         nbt::io::write_tag("ChunkData", chunkdata, file);
 

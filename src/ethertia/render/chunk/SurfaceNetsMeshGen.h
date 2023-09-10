@@ -119,7 +119,7 @@ public:
                                 int mtlId = mtl ? mtl->m_TexId : -1;
                                 static const int PURE_MTL_MAGICNUMBER = -1;
 
-                                vtx->m_Vertices.emplace_back(pos, glm::vec2(mtlId, PURE_MTL_MAGICNUMBER), -c.norm);
+                                vtx->addVertex({pos, glm::vec2(mtlId, PURE_MTL_MAGICNUMBER), -c.norm});
                             }
                         }
                     }

@@ -37,7 +37,7 @@ public:
 
     EntityPlayer()
     {
-        m_Model = Loader::loadVertexData(MaterialMeshes::CAPSULE);
+        m_Model = Loader::LoadVertexData(MaterialMeshes::CAPSULE);
 
         auto* shapeCapsule = new btCapsuleShape(0.5, 2);
 

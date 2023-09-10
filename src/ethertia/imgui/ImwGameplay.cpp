@@ -323,7 +323,7 @@ void Imw::Gameplay::ShowTitleScreen(bool* _open)
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Multiplayer", btnSize)) {
-        Loader::showMessageBox("INFO", "Not available");
+        Loader::ShowMessageBox("INFO", "Not available");
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Settings", btnSize)) {

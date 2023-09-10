@@ -22,7 +22,7 @@ public:
 
             const VertexData* vtx = MaterialMeshes::STOOL;
             entity->setMesh(EntityMesh::CreateMeshShape(vtx));
-            entity->updateModel(Loader::loadVertexData(vtx));
+            entity->updateModel(Loader::LoadVertexData(vtx));
 
             _SendMessage("EntityMesh created.");
         }
@@ -37,29 +37,29 @@ public:
             if (args[1] == "set")
             {
                 const std::string& path = args[2];
-                if (!Loader::fileExists(path)){
+                if (!Loader::FileExists(path)){
                     _SendMessage("No mesh file on: ", path);
                     return;
                 }
 
                 EntityMesh* eMesh = (EntityMesh*)target;
 
-                VertexData* vtx = Loader::loadOBJ(path.c_str());
-                eMesh->updateModel(Loader::loadVertexData(vtx));
-                eMesh->setMesh(EntityMesh::CreateMeshShape(vtx));
+                auto vtx = Loader::LoadOBJ(path.c_str());
+                eMesh->updateModel(Loader::LoadVertexData(vtx));
+                eMesh->setMesh(EntityMesh::CreateMeshShape(vtx.get()));
 
                 _SendMessage("Mesh updated.");
             }
             else if (args[1] == "diff")
             {
                 const std::string& path = args[2];
-                if (!Loader::fileExists(path)){
+                if (!Loader::FileExists(path)){
                     _SendMessage("No texture file on: ", path);
                     return;
                 }
 
                 EntityMesh* entity = (EntityMesh*)Ethertia::getHitCursor().hitEntity;
-                entity->m_DiffuseMap = Loader::loadTexture(path);
+                entity->m_DiffuseMap = Loader::LoadImage(path);
 
                 _SendMessage("Texture updated.");
             }

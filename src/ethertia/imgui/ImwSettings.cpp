@@ -105,7 +105,7 @@ void Imw::Settings::ShowSettings(bool* pOpen)
 
                 if (ImGui::Button("Open World Save Directory"))
                 {
-                    Loader::openURL(world->m_ChunkLoader->m_ChunkDir);
+                    Loader::OpenURL(world->m_ChunkLoader->m_ChunkDir);
                 }
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("%s", world->m_ChunkLoader->m_ChunkDir.c_str());
@@ -422,7 +422,7 @@ void Imw::Settings::ShowSettings(bool* pOpen)
         else if (currpanel==ResourcePacks)
         {
             if (ImGui::Button("Open ResourcePacks folder")) {
-                Loader::openURL("./resourcepacks");
+                Loader::OpenURL("./resourcepacks");
             }
 
             ImGui::BeginChild("AssetsList", {0, 200});

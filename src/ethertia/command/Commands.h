@@ -10,7 +10,7 @@
 #include <ethertia/command/Command.h>
 
 #include <ethertia/command/CommandTp.h>
-#include <ethertia/command/CommandMesh.h>
+//#include <ethertia/command/CommandMesh.h>
 #include <ethertia/command/CommandTime.h>
 #include <ethertia/command/CommandWorldEdit.h>
 
@@ -114,7 +114,7 @@ public:
     REGISTER_CMD(HEAL, "heal", new CommandHeal());
     REGISTER_CMD(GAMEMODE, "gamemode", new CommandGamemode());
     REGISTER_CMD(FLY, "fly", new CommandFly());
-    REGISTER_CMD(MESH, "mesh", new CommandMesh());
+//    REGISTER_CMD(MESH, "mesh", new CommandMesh());
     REGISTER_CMD(TIME, "time", new CommandTime());
 
     REGISTER_CMD(WE_SET, "/set", new CommandWESet());

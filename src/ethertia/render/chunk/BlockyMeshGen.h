@@ -84,13 +84,13 @@ public:
 
         rp += glm::vec3(0.5, 0.0, 0.5);  // offset to cell horiz center.
 
-        vtx->m_Vertices.reserve(vtx->m_Vertices.size() + obj_vtx.m_Vertices.size());
+        vtx->Vertices.reserve(vtx->Vertices.size() + obj_vtx.Vertices.size());
 
         for (auto& vert : obj_vtx)
         {
-            vtx->addVert({vert.pos + rp,
-                          vert.tex * uvMul + uvAdd,
-                          vert.norm});
+            vtx->addVertex({vert.pos + rp,
+                            vert.tex * uvMul + uvAdd,
+                            vert.norm});
         }
     }
 
@@ -161,7 +161,7 @@ public:
             //glm::vec2 uv(CUBE_UV[bas], CUBE_UV[bas+1]);
             glm::vec2 uv{mtlId, 1000};
 
-            vtx->addVert({pos, uv, norm});
+            vtx->addVertex({pos, uv, norm});
         }
     }
 

@@ -108,7 +108,7 @@ public:
 //            VertexProcess::othonorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->normals.data());
 //            VertexProcess::gen_avgnorm(vbufTerrain->vertexCount(), vbufTerrain->positions.data(), vbufTerrain->vertexCount(), vbufTerrain->normals.data());
 
-            for (auto& vert : vtxVegetable->m_Vertices) {
+            for (auto& vert : vtxVegetable->Vertices) {
                 vert.norm = {0,1,0};
             }
         }
@@ -141,10 +141,10 @@ public:
 
             if (Ethertia::getWorld() && chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);
-                chunk->m_MeshTerrain->updateModel(vtxTerrain->vertexCount() ? Loader::loadVertexData(vtxTerrain) : nullptr);
+                chunk->m_MeshTerrain->updateModel(vtxTerrain->vertexCount() ? Loader::LoadVertexData(vtxTerrain) : nullptr);
 
                 chunk->m_MeshVegetable->setMesh(meshVegetable);
-                chunk->m_MeshVegetable->updateModel(vtxVegetable->vertexCount() ? Loader::loadVertexData(vtxVegetable) : nullptr);
+                chunk->m_MeshVegetable->updateModel(vtxVegetable->vertexCount() ? Loader::LoadVertexData(vtxVegetable) : nullptr);
 
             } else {
                 delete meshTerrain;

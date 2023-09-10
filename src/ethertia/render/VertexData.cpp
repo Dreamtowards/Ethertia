@@ -2,58 +2,67 @@
 // Created by Dreamtowards on 2023/4/27.
 //
 
-
-
 #include "VertexData.h"
 
 
 
 
-const void* VertexData::data() const {
-    return m_Vertices.data();
-}
-size_t VertexData::size() const {
-    return sizeof(m_Vertices[0]) * m_Vertices.size();
-}
+//const void* VertexData::data() const {
+//    return Vertices.data();
+//}
+//size_t VertexData::size() const {
+//    return sizeof(Vertices[0]) * Vertices.size();
+//}
 
 const void* VertexData::vtx_data() const {
-    return m_Vertices.data();
+    return Vertices.data();
 }
 size_t VertexData::vtx_size() const {
-    return sizeof(m_Vertices[0]) * m_Vertices.size();
+    return sizeof(Vertices[0]) * Vertices.size();
 }
 
 const void* VertexData::idx_data() const {
-    return m_Indices.data();
+    return Indices.data();
 }
 size_t VertexData::idx_size() const {
-    return sizeof(m_Indices[0]) * m_Indices.size();
+    return sizeof(Indices[0]) * Indices.size();
 }
 
-size_t VertexData::vertexCount() const
+
+std::span<const char> VertexData::vtx_span() const
 {
-    return isIndexed() ? m_Indices.size() : m_Vertices.size();
+    return {(const char*)vtx_data(), vtx_size()};
+}
+std::span<const char> VertexData::idx_span() const
+{
+    return {(const char*)idx_data(), idx_size()};
+}
+
+
+uint32_t VertexData::vertexCount() const
+{
+    return isIndexed() ? Indices.size() : Vertices.size();
 }
 
 bool VertexData::isIndexed() const
 {
-    return !m_Indices.empty();
+    return !Indices.empty();
 }
 
-const VertexData::Vertex& VertexData::vert(int i) const
+const VertexData::Vertex& VertexData::vert(uint32_t i) const
 {
-    return isIndexed() ? m_Vertices[m_Indices[i]] : m_Vertices[i];
+    return isIndexed() ? Vertices[Indices[i]] : Vertices[i];
 }
 
 
-void VertexData::addVert(const Vertex& vert)
+void VertexData::addVertex(const Vertex& vert)
 {
     if (isIndexed())
     {
-        m_Indices.push_back(m_Vertices.size());
+        Indices.push_back(Vertices.size());
     }
 
-    m_Vertices.emplace_back(vert);
+    Vertices.emplace_back(vert);
 }
 
 
@@ -69,7 +78,7 @@ VertexData::VertexData() {}
 
 VertexData::~VertexData()
 {
-    Log::info("Delete VertexData: {} with {} vertices", m_Filename, m_Vertices.size());
+    Log::info("Delete VertexData: {} with {} vertices", m_Filename, Vertices.size());
 }
 
 
@@ -90,8 +99,8 @@ VertexData::Vertex::Vertex(const glm::vec3& pos, const glm::vec2& tex, const glm
 size_t std::hash<VertexData::Vertex>::operator()(const VertexData::Vertex &vertex) const
 {
     return ((hash<glm::vec3>()(vertex.pos) ^
-            (hash<glm::vec2>()(vertex.tex)  << 1)) >> 1) ^
-            (hash<glm::vec3>()(vertex.norm) << 1);
+             (hash<glm::vec2>()(vertex.tex)  << 1)) >> 1) ^
+           (hash<glm::vec3>()(vertex.norm) << 1);
 }
 
 bool VertexData::Vertex::operator==(const Vertex& o) const {
@@ -105,28 +114,32 @@ size_t VertexData::Vertex::stride()
 }
 
 
-VertexData* VertexData::makeIndexed(const VertexData* nonIndexed)
+VertexData* VertexData::MakeIndexed(const VertexData* nonIndexed)
 {
     assert(!nonIndexed->isIndexed());
 
     std::unordered_map<VertexData::Vertex, uint32_t> vertexMap;
     VertexData* indexed = new VertexData();
 
-    for (const VertexData::Vertex& vert : nonIndexed->m_Vertices)
+    int nVert = nonIndexed->vertexCount();
+    indexed->Indices.reserve(nVert);
+    indexed->Vertices.reserve(nVert / 6);
+
+    for (const VertexData::Vertex& vert : nonIndexed->Vertices)
     {
         auto it = vertexMap.find(vert);
         if (it != vertexMap.end())
         {
             // Vertex already exists in map
-            indexed->m_Indices.push_back(it->second);
+            indexed->Indices.push_back(it->second);
         }
         else
         {
             // New unique vertex, add to map
-            uint32_t index = indexed->m_Vertices.size();
+            uint32_t index = indexed->Vertices.size();
             vertexMap[vert] = index;
-            indexed->m_Vertices.push_back(vert);
-            indexed->m_Indices.push_back(index);
+            indexed->Vertices.push_back(vert);
+            indexed->Indices.push_back(index);
         }
     }
     return indexed;

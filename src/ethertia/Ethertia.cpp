@@ -8,23 +8,22 @@
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Scheduler.h>
-#include <ethertia/util/Strings.h>
 #include <ethertia/entity/Entity.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/network/client/ClientConnectionProc.h>
-#include <ethertia/network/client/NetworkSystem.h>
+//#include <ethertia/network/client/NetworkSystem.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/world/gen/ChunkGenerator.h>
-#include <ethertia/command/Commands.h>
+//#include <ethertia/command/Commands.h>
 #include <ethertia/world/ChunkLoader.h>
 // #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
-#include <ethertia/vr/OpenVR.h>
+//#include <ethertia/vr/OpenVR.h>
 //#include <ethertia/init/Sounds.h>
 #include <ethertia/item/recipe/Recipes.h>
 
@@ -69,8 +68,8 @@ static void Init()
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::LoadSettings();
     NoiseGen::initSIMD();
-    if (!Loader::fileExists("./assets")) { throw std::runtime_error("default assets directory not found. make sure you are in valid working directory."); }
-    Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::sys_target()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
+    if (!Loader::FileExists("./assets")) { throw std::runtime_error("default assets directory not found. make sure you are in valid working directory."); }
+//    Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::sys_target()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
 
     for (const std::string& modpath : Settings::Mods) {
         ModLoader::loadMod(modpath);
@@ -86,8 +85,8 @@ static void Init()
 
 
     // Materials & Items
-    MaterialMeshes::load();
-    ItemTextures::load();
+    MaterialMeshes::Load();
+    ItemTextures::Load();
 //    Sounds::load();
 
     Recipes::init();  // after mtl-items register.
@@ -111,7 +110,7 @@ static void Init()
     Material::REGISTRY.dbgPrintEntries("Materials");
     Item::REGISTRY.dbgPrintEntries("Items");
     Biome::REGISTRY.dbgPrintEntries("Biomes");
-    Command::REGISTRY.dbgPrintEntries("Commands");
+//    Command::REGISTRY.dbgPrintEntries("Commands");
     Recipe::REGISTRY.dbgPrintEntries("Recipes");
 
 
@@ -321,38 +320,39 @@ void Ethertia::unloadWorld()
 
 void Ethertia::dispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
+    Log::warn("Not supported yet. cmd {}", cmdline);
 
-    if (cmdline[0] != '/') {
-        if (!NetworkSystem::m_Connection) {
-            _SendMessage("Failed send chat, you haven't connect a server.");
-            return;
-        }
-        NetworkSystem::SendPacket(PacketChat{ cmdline });
-        return;
-    }
-
-    std::vector<std::string> args = Strings::splitSpaces(cmdline);
-
-    std::string cmd = args[0].substr(1);  // sub the leading '/'
-
-    Command* command = (Command*)Command::REGISTRY.get(cmd);
-    if (!command) {
-        _SendMessage("Unknown command: {} ({})", cmd, cmdline);
-        return;
-    }
-
-    // Execute command
-
-    try
-    {
-        command->onCommand(args);
-    }
-    catch (...)
-    {
-        std::exception_ptr p = std::current_exception();
-
-        _SendMessage("Error occurred when command execution.");
-    }
+//    if (cmdline[0] != '/') {
+//        if (!NetworkSystem::m_Connection) {
+//            _SendMessage("Failed send chat, you haven't connect a server.");
+//            return;
+//        }
+//        NetworkSystem::SendPacket(PacketChat{ cmdline });
+//        return;
+//    }
+//
+//    std::vector<std::string> args = Strings::splitSpaces(cmdline);
+//
+//    std::string cmd = args[0].substr(1);  // sub the leading '/'
+//
+//    Command* command = (Command*)Command::REGISTRY.get(cmd);
+//    if (!command) {
+//        _SendMessage("Unknown command: {} ({})", cmd, cmdline);
+//        return;
+//    }
+//
+//    // Execute command
+//
+//    try
+//    {
+//        command->onCommand(args);
+//    }
+//    catch (...)
+//    {
+//        std::exception_ptr p = std::current_exception();
+//
+//        _SendMessage("Error occurred when command execution.");
+//    }
 
     //todo: sender? that only make sense on serverside.
 }

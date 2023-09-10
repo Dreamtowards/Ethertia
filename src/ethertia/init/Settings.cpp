@@ -5,9 +5,11 @@
 #include "Settings.h"
 
 #include <nlohmann/json.hpp>
+#include <stdx/stdx.h>
+
+#include <fstream>
 #include <format>
 #include <map>
-#include <stdx/stdx.h>
 
 #include <ethertia/util/Loader.h>
 #include <ethertia/world/gen/NoiseGen.h>
@@ -30,7 +32,7 @@ void Settings::LoadSettings()
 {
     BENCHMARK_TIMER;
     Log::info("Load Settings.\1");
-    if (!Loader::fileExists(SETTINGS_FILE))
+    if (!Loader::FileExists(SETTINGS_FILE))
         return;
 
     DrawFuncIds["settings"] = Imw::Settings::ShowSettings;
@@ -48,7 +50,7 @@ void Settings::LoadSettings()
     DrawFuncIds["dbg-imgui-demowindow"] = ImGui::ShowDemoWindow;
 
     using namespace nlohmann;
-    json conf = json::parse((char*)Loader::loadFile(SETTINGS_FILE).data());
+    json conf = json::parse((char*)Loader::LoadFile(SETTINGS_FILE).data());
 
 
     conf.get("view_distance", s_ViewDistance);

@@ -8,6 +8,8 @@
 #include <imgui-knobs/imgui-knobs.h>
 #include <imgui_internal.h>
 
+#include <filesystem>
+
 #include <ethertia/Ethertia.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/DebugStat.h>
@@ -60,7 +62,7 @@ static void _ShowMainMenu_System()
             w_NewWorld = true;
         }
         if (ImGui::MenuItem("Open World..")) {
-            const char* filename = Loader::openFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
+            const char* filename = Loader::OpenFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
             if (filename) {
                 Log::info("Open world: ", filename);
                 Ethertia::loadWorld(filename);
@@ -71,7 +73,7 @@ static void _ShowMainMenu_System()
         ImGui::Separator();
         ImGui::TextDisabled("Saves:");
 
-        if (Loader::fileExists("saves/"))
+        if (Loader::FileExists("saves/"))
         {
             for (const auto& savedir : std::filesystem::directory_iterator("saves/"))
             {
@@ -463,7 +465,7 @@ static vkx::Image* _LoadCachedTex(const std::string& p) {
     static std::map<std::string, vkx::Image*> _Cache;
     auto& it = _Cache[p];
     if (!it) {
-        it = Loader::loadTexture(p);
+        it = Loader::LoadImage(p);
     }
     return it;
 }

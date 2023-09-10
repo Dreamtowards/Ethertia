@@ -13,7 +13,7 @@
 
 #include <ethertia/util/AABB.h>
 #include <ethertia/world/World.h>
-#include <ethertia/entity/component/EntityComponent.h>
+//#include <ethertia/entity/component/EntityComponent.h>
 
 //#include <ethertia/render/Texture.h>
 //#include <ethertia/render/VertexBuffer.h>
@@ -170,7 +170,7 @@ public:
     static btConvexHullShape* CreateHullShape(const VertexData* vtx)
     {
         btConvexHullShape* hull = new btConvexHullShape();
-        for (const VertexData::Vertex& vert : vtx->m_Vertices)
+        for (const VertexData::Vertex& vert : vtx->Vertices)
         {
             hull->addPoint(Mth::btVec3(vert.pos), false);
         }

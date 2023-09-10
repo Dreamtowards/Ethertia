@@ -10,8 +10,8 @@
 #include <ethertia/entity/EntityDroppedItem.h>
 #include <ethertia/entity/EntityMesh.h>
 #include <ethertia/render/chunk/SurfaceNetsMeshGen.h>
-#include "ethertia/entity/component/EntityDrivingSeat.h"
-#include "ethertia/entity/component/EntityPropeller .h"
+//#include "ethertia/entity/component/EntityDrivingSeat.h"
+//#include "ethertia/entity/component/EntityPropeller .h"
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
@@ -291,14 +291,14 @@ static void handleKeyPress()
 //        s_HoldingEntity->m_Rigidbody->getWorldTransform().setOrigin(Mth::btVec3(force_pos));
     }
 
-    if (KeyBindings::KEY_G_SITTING.isPressed())
-    {
-        EntityDrivingSeat* entityDrivingSeat = dynamic_cast<EntityDrivingSeat*>(Ethertia::getHitCursor().hitEntity);
-        if (entityDrivingSeat)
-        {
-            entityDrivingSeat->setDriver(Ethertia::getPlayer());
-        }
-    }
+//    if (KeyBindings::KEY_G_SITTING.isPressed())
+//    {
+//        EntityDrivingSeat* entityDrivingSeat = dynamic_cast<EntityDrivingSeat*>(Ethertia::getHitCursor().hitEntity);
+//        if (entityDrivingSeat)
+//        {
+//            entityDrivingSeat->setDriver(Ethertia::getPlayer());
+//        }
+//    }
 
 }
 

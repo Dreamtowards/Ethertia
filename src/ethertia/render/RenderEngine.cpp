@@ -64,11 +64,11 @@ void RenderEngine::Init()
     Imgui::Init();
 
 
-    TEX_WHITE = Loader::loadTexture(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
-    TEX_UVMAP = Loader::loadTexture("misc/uvmap.png");
+    TEX_WHITE = Loader::LoadImage(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
+    TEX_UVMAP = Loader::LoadImage("misc/uvmap.png");
 
     Materials::registerMaterialItems();  // before items tex load.
-    MaterialTextures::load();
+    MaterialTextures::Load();
 
 //    RendererGbuffer::init();
 //
@@ -88,8 +88,8 @@ void RenderEngine::Destroy()
     VKX_CTX_device_allocator;
     vkxc.Device.waitIdle();
 
-    MaterialTextures::clean();
-    ItemTextures::clean();
+    MaterialTextures::Destroy();
+    ItemTextures::Destroy();
 
 //    RendererGbuffer::deinit();
 

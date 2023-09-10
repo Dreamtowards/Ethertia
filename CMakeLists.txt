@@ -8,6 +8,12 @@ set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC OFF)
 set(CMAKE_BUILD_TYPE Debug)
 
+set(CMAKE_BUILD_PARALLEL_LEVEL 10)
+set(MSVC_COMPILE_FLAGS "/MP")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS}" )
+
+set(MAKE_PROGRAM ninja -j10)
+
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 #set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -62,29 +68,36 @@ endif()
 
 include_directories(src)
 include_directories(lib)
+
 include_directories(lib/glfw/include)
+include_directories(lib/imgui-docking)
+
+include_directories(lib/physx-5.2.1/include)
 include_directories(lib/bullet3/src)
-include_directories(lib/json/include)
+include_directories(lib/fastnoise2/include)
+
 include_directories(lib/enet/include)
 include_directories(lib/msgpack/include)
-include_directories(lib/fastnoise2/include)
+
+include_directories(lib/stb)
+include_directories(lib/json-nlohmann-3.11.2/include)
+include_directories(lib/tinyobjloader-1.0.6)
+include_directories(lib/tinyfd-2.9.3)
+
 #include_directories(lib/glad45/include)
 #include_directories(lib/entt/src)
 #include_directories(lib/openal-soft/include)
 #include_directories(lib/yaml-cpp/include)
 #include_directories(lib/nbt/include)
 #include_directories(lib/openvr/headers)
-include_directories(lib/imgui-docking)
-include_directories(lib/physx/include)
 #include_directories(lib/jsonmeo-0.23.8/include)
-include_directories(lib/json-nlohmann-3.11.2/include)
 
 #include_directories(lib/vulkan/include)
 
 
 add_executable(Ethertia
 #        lib/glad45/src/glad.c
-        lib/tinyfd/tinyfiledialogs.c
+        lib/tinyfd-2.9.3/tinyfiledialogs.c
 
         lib/imgui-docking/imgui.cpp
         lib/imgui-docking/imgui_draw.cpp
@@ -108,6 +121,8 @@ add_executable(Ethertia
         #src/ethertia/imgui/ImwGameplay.cpp
         #src/ethertia/imgui/ImwDebug.cpp
 
+        src/ethertia/init/init_load.cpp
+
         src/ethertia/util/Log.cpp
         src/ethertia/util/Loader.cpp
         src/ethertia/util/BitmapImage.cpp
@@ -129,8 +144,7 @@ add_executable(Ethertia
 
         src/vkx/vkx.cpp
 
-        src/ethertia/Ethertia.cpp
-        )
+        src/ethertia/Ethertia.cpp)
 
 add_executable(Elytra
         src/ethertia/lang/Elytra.cpp
