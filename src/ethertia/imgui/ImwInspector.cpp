@@ -151,6 +151,23 @@ void Imw::Editor::ShowHierarchy(bool* _open)
 {
     ImGui::Begin("Hierarchy", _open);
 
+    {
+        static const char* types[] = { "Entities", "Graphics Pipelines" };
+        static int current = 0;
+
+        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+        if (ImGui::BeginCombo("##HierarchyType", types[current]))
+        {
+            for (size_t i = 0; i < std::size(types); i++)
+            {
+                if (ImGui::Selectable(types[i], i==current))
+                    current = i;
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+    }
+
     World* world = Ethertia::getWorld();
     if (!world) {
         ImGui::TextDisabled("World not loaded.");

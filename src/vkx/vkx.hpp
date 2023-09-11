@@ -321,8 +321,6 @@ namespace vkx
 		vk::ImageTiling tiling = vk::ImageTiling::eOptimal,
 		bool creatingCubeMap = false);
 
-	vkx::Image* CreateDepthImage(int width, int height);
-
 	vk::ImageView CreateImageView(
 		vk::Image image,
 		vk::Format format = vk::Format::eR8G8B8A8Unorm,  // ?? SRGB or UNORM
@@ -333,6 +331,20 @@ namespace vkx
 		vk::Filter magFilter = vk::Filter::eNearest,
 		vk::Filter minFilter = vk::Filter::eNearest,
 		vk::SamplerAddressMode addressModeUVW = vk::SamplerAddressMode::eRepeat);
+
+
+	// for Framebuffer attachments
+
+	vkx::Image* CreateColorImage(
+		vk::Extent2D wh,
+		vk::Format format = vk::Format::eB8G8R8A8Unorm,
+		vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eColorAttachment,
+        vk::ImageAspectFlags aspectFlags = vk::ImageAspectFlagBits::eColor);
+
+	vkx::Image* CreateDepthImage(
+		vk::Extent2D wh, 
+		vk::Format depthFormat = vk::Format::eUndefined);  // eUndefined: _FindDepthFormat. 
+
 
 
 	vkx::Image* CreateStagedImage(
@@ -485,7 +497,7 @@ namespace vkx
 
 	vk::DescriptorBufferInfo IDescriptorBuffer(const vkx::UniformBuffer* ub);
 
-	vk::DescriptorImageInfo IDescriptorImage(vk::ImageView imageView);
+	vk::DescriptorImageInfo IDescriptorImage(vk::ImageView imageView, vk::Sampler sampler = vkx::ctx().ImageSampler);
 
 	struct FnArg_WriteDescriptor
 	{
@@ -498,6 +510,9 @@ namespace vkx
 		std::initializer_list<FnArg_WriteDescriptor> writeDescriptors,
 		uint32_t firstBinding = 0);
 
+
+
+	vk::PushConstantRange IPushConstantRange(vk::ShaderStageFlags shaderStageFlags, uint32_t size, uint32_t offset = 0);
 
 
 	#pragma endregion

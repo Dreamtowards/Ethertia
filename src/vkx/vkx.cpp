@@ -406,20 +406,31 @@ vkx::Image::~Image()
 }
 
 
-vkx::Image* vkx::CreateDepthImage(int width, int height)
+vkx::Image* vkx::CreateColorImage(
+    vk::Extent2D wh,
+    vk::Format format,
+    vk::ImageUsageFlags usage,
+    vk::ImageAspectFlags aspectFlags)
 {
-    vk::Format depthFormat = _FindDepthFormat();
-
     vk::DeviceMemory imageMemory;
-    vk::Image image = vkx::CreateImage(width, height, imageMemory,
-        depthFormat, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+    vk::Image image = vkx::CreateImage(wh.width, wh.height, imageMemory, format, usage);
 
-    vk::ImageView imageView = vkx::CreateImageView(image, depthFormat, vk::ImageAspectFlagBits::eDepth);
+    vk::ImageView imageView = vkx::CreateImageView(image, format, aspectFlags);
 
-    _TransitionImageLayout(image, depthFormat,
+    return new vkx::Image(image, imageMemory, format, wh.width, wh.height, imageView);
+}
+
+vkx::Image* vkx::CreateDepthImage(vk::Extent2D wh, vk::Format depthFormat)
+{
+    if (depthFormat == vk::Format::eUndefined)
+        depthFormat = _FindDepthFormat();
+
+    vkx::Image* img = vkx::CreateColorImage(wh, depthFormat, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::ImageAspectFlagBits::eDepth);
+
+    _TransitionImageLayout(img->image, depthFormat,
         vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
-    return new vkx::Image(image, imageMemory, depthFormat, width, height, imageView);
+    return img;
 }
 
 
@@ -1117,11 +1128,10 @@ vk::DescriptorBufferInfo vkx::IDescriptorBuffer(const vkx::UniformBuffer* ub)
     return bufferInfo;
 }
 
-vk::DescriptorImageInfo vkx::IDescriptorImage(vk::ImageView imageView)
+vk::DescriptorImageInfo vkx::IDescriptorImage(vk::ImageView imageView, vk::Sampler sampler)
 {
-    VKX_CTX_device_allocator;
     vk::DescriptorImageInfo imageInfo{};
-    imageInfo.sampler = vkxc.ImageSampler;
+    imageInfo.sampler = sampler;
     imageInfo.imageView = imageView;
     imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
     return imageInfo;
@@ -1166,6 +1176,17 @@ void vkx::WriteDescriptorSet(
 
     device.updateDescriptorSets(ls, {});
 }
+
+
+vk::PushConstantRange vkx::IPushConstantRange(vk::ShaderStageFlags shaderStageFlags, uint32_t size, uint32_t offset)
+{
+    vk::PushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = shaderStageFlags;
+    pushConstantRange.offset = offset;
+    pushConstantRange.size = size;
+    return pushConstantRange;
+}
+
 
 #pragma endregion
 

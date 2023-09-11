@@ -99,6 +99,8 @@ add_executable(Ethertia
 #        lib/glad45/src/glad.c
         lib/tinyfd-2.9.3/tinyfiledialogs.c
 
+        src/vkx/vkx.cpp
+
         lib/imgui-docking/imgui.cpp
         lib/imgui-docking/imgui_draw.cpp
         lib/imgui-docking/imgui_widgets.cpp
@@ -142,13 +144,12 @@ add_executable(Ethertia
 #        src/ethertia/render/vkx/vkx.cpp
 #        src/ethertia/render/glc/glc.cpp
 
-        src/vkx/vkx.cpp
+        #src/ethertia/render/renderer/RendererGbuffer.cpp    
 
         src/ethertia/Ethertia.cpp)
 
 add_executable(Elytra
-        src/ethertia/lang/Elytra.cpp
-        )
+        src/ethertia/lang/Elytra.cpp)
 
 set_target_properties(
     Ethertia PROPERTIES
@@ -174,12 +175,10 @@ set_target_properties(
 
 
 add_executable(DedicatedServer
-        src/ethertia/network/DedicatedServer.cpp
-        )
+        src/ethertia/network/DedicatedServer.cpp)
 
 add_library(TwilightForest SHARED
-        run/mods/TwilightForest/src/TwilightForest.cpp
-        )
+        run/mods/TwilightForest/src/TwilightForest.cpp)
 
 
 #On linux, We can build shared libraries as default.

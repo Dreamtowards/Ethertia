@@ -33,12 +33,7 @@
 //
 
 
-
-//#include "renderer/RendererGbuffers.cpp"
-//#include "renderer/RendererCompose.cpp"
-//#include "renderer/RendererSkybox.cpp"
-
-
+#include "renderer/RendererGbuffer.cpp"
 
 
 static vkx::Image* TEX_WHITE = nullptr;
@@ -69,6 +64,11 @@ void RenderEngine::Init()
 
     Materials::registerMaterialItems();  // before items tex load.
     MaterialTextures::Load();
+
+
+    RendererGbuffer::Init();
+
+
 
 //    RendererGbuffer::init();
 //

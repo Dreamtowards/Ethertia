@@ -2,11 +2,9 @@
 // Created by Dreamtowards on 2022/4/25.
 //
 
-#ifndef ETHERTIA_CAMERA_H
-#define ETHERTIA_CAMERA_H
+#pragma once
 
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <ethertia/util/Mth.h>
@@ -74,5 +72,3 @@ public:
     }
 
 };
-
-#endif //ETHERTIA_CAMERA_H
