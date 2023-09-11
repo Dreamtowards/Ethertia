@@ -5,6 +5,7 @@
 #pragma once
 
 #include <span>
+#include <memory>  // std::unique_ptr
 
 #include <vkx/vkx.hpp>
 
@@ -128,8 +129,7 @@ public:
     // interleaved vertex data. load to GPU, StagedBuffer.
     static vkx::VertexBuffer* LoadVertexData(const VertexData* vtx);
 
-    // todo a bit silly, perfer Load uri, or sptr.get() in arg passing
-    static vkx::VertexBuffer* LoadVertexData(std::shared_ptr<VertexData> vtx) { return Loader::LoadVertexData(vtx.get()); }
+    static vkx::VertexBuffer* LoadVertexData(const std::string& uri) { return Loader::LoadVertexData(std::unique_ptr<VertexData>(Loader::LoadOBJ(uri)).get()); }
 
 
     // Image ? Texture
@@ -204,16 +204,16 @@ public:
     static void OpenURL(const std::string& url);
 
 
-    /*
     static const char* cpuid();
 
 
     // macOS:   darwin-x64  | darwin-arm64
     // Windows: windows-x64 | windows-arm64
     // Linux:   linux-x64   | linux-arm64
-    static std::string sys_target();
+    static std::string os_arch();
 
 
+    /*
     // deprecated: no where used.
     // windows / darwin / linux
     // static const char* sys_name();

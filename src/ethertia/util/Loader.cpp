@@ -773,13 +773,12 @@ void Loader::OpenURL(const std::string& url)
 //    Log::info("s: {}", s);
 //    Loader::ShowMessageBox("Title", s, "yesnocancel", "question");
 //}
-/*
 
 
 
 
 // https://stackoverflow.com/questions/152016/detecting-cpu-architecture-compile-time
-std::string Loader::sys_target()
+std::string Loader::os_arch()
 {
 #if defined(__APPLE__) && defined(__x86_64__)
     return "darwin-x64";
@@ -818,7 +817,7 @@ const char* Loader::cpuid()
 
     int CPUInfo[4] = { -1 };
     unsigned   nExIds, i = 0;
-    char CPUBrandString[0x40];
+
     // Get the information associated with each extended ID.
     __cpuid(CPUInfo, 0x80000000);
     nExIds = CPUInfo[0];
@@ -833,19 +832,18 @@ const char* Loader::cpuid()
         else if (i == 0x80000004)
             memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
     }
+
+    return CPUBrandString;
     //string includes manufacturer, model and clockspeed
-    using namespace std;
-    cout << "CPU Type: " << CPUBrandString << endl;
 
-
-    SYSTEM_INFO sysInfo;
-    GetSystemInfo(&sysInfo);
-    cout << "Number of Cores: " << sysInfo.dwNumberOfProcessors << endl;
-
-    MEMORYSTATUSEX statex;
-    statex.dwLength = sizeof(statex);
-    GlobalMemoryStatusEx(&statex);
-    cout << "Total System Memory: " << (statex.ullTotalPhys / 1024) / 1024 << "MB" << endl;
+    //SYSTEM_INFO sysInfo;
+    //GetSystemInfo(&sysInfo);
+    //cout << "Number of Cores: " << sysInfo.dwNumberOfProcessors << endl;
+    //
+    //MEMORYSTATUSEX statex;
+    //statex.dwLength = sizeof(statex);
+    //GlobalMemoryStatusEx(&statex);
+    //cout << "Total System Memory: " << (statex.ullTotalPhys / 1024) / 1024 << "MB" << endl;
 
 #elif defined(__APPLE__)
 
@@ -873,6 +871,8 @@ const char* Loader::cpuid()
 #endif
 }
 
+
+/*
 
 //const char* Loader::sysname()
 //{

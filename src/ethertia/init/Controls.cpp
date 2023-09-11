@@ -404,20 +404,20 @@ void Controls::handleInput()
         player->setSprint(false);
     }
 
-    EntityHelicopter* helicopter = dynamic_cast<EntityHelicopter*>(Imgui::g_InspEntity);
-    if (!helicopter) {
-        player->move(KeyBindings::KEY_G_JUMP.isKeyDown(), KeyBindings::KEY_G_SNEAK.isKeyDown(),
-                     KeyBindings::KEY_G_FORWARD.isKeyDown(), KeyBindings::KEY_G_BACK.isKeyDown(),
-                     KeyBindings::KEY_G_LEFT.isKeyDown(), KeyBindings::KEY_G_RIGHT.isKeyDown());
-    }
-    else
-    {
-        assert(false);
-//        helicopter->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
-//                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
-//                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
-//                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
-    }
+//    EntityHelicopter* helicopter = dynamic_cast<EntityHelicopter*>(Imgui::g_InspEntity);
+//    if (!helicopter) {
+//        player->move(KeyBindings::KEY_G_JUMP.isKeyDown(), KeyBindings::KEY_G_SNEAK.isKeyDown(),
+//                     KeyBindings::KEY_G_FORWARD.isKeyDown(), KeyBindings::KEY_G_BACK.isKeyDown(),
+//                     KeyBindings::KEY_G_LEFT.isKeyDown(), KeyBindings::KEY_G_RIGHT.isKeyDown());
+//    }
+//    else
+//    {
+//        assert(false);
+////        helicopter->move(window.isKeyDown(GLFW_KEY_SPACE), window.isKeyDown(GLFW_KEY_LEFT_SHIFT),
+////                                 window.isKeyDown(GLFW_KEY_W), window.isKeyDown(GLFW_KEY_S),
+////                                 window.isKeyDown(GLFW_KEY_A), window.isKeyDown(GLFW_KEY_D),
+////                                 window.isKeyDown(GLFW_KEY_LEFT_BRACKET), window.isKeyDown(GLFW_KEY_RIGHT_BRACKET));
+//    }
 
 
     // Camera Move

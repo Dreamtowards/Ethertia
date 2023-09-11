@@ -291,6 +291,14 @@ namespace vkx
 
 		void EndRenderPass();
 
+		void BindDescriptorSets(vk::PipelineLayout pipelineLayout, vkx_slice_t<vk::DescriptorSet> descriptorSets, uint32_t firstSet = 0);
+
+		template<typename ValueType>
+		void PushConstants(vk::PipelineLayout pipelineLayout, vk::ShaderStageFlags stageFlags, ValueType values, uint32_t offset = 0)
+		{
+			cmd.pushConstants(pipelineLayout, stageFlags, offset, sizeof(values), &values);
+		}
+
 		void BindGraphicsPipeline(vk::Pipeline graphicsPipeline);
 
 		void SetViewport(vk::Offset2D offset, vk::Extent2D extent, float minDepth = 0.0f, float maxDepth = 1.0f);
@@ -319,7 +327,7 @@ namespace vkx
 		vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 		vk::MemoryPropertyFlags memProperties = vk::MemoryPropertyFlagBits::eDeviceLocal,
 		vk::ImageTiling tiling = vk::ImageTiling::eOptimal,
-		bool creatingCubeMap = false);
+		bool isCubeMap = false);
 
 	vk::ImageView CreateImageView(
 		vk::Image image,
@@ -445,6 +453,7 @@ namespace vkx
 		vk::PolygonMode		polygonMode = vk::PolygonMode::eFill;
 		vk::CullModeFlags	cullMode = vk::CullModeFlagBits::eBack;
 		vk::FrontFace		frontFace = vk::FrontFace::eCounterClockwise;
+		std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments = { vkx::IPipelineColorBlendAttachment() };
 		std::vector<vk::DynamicState> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
 	};
 
@@ -452,6 +461,7 @@ namespace vkx
 		vkx_slice_t<std::pair<std::span<const char>, vk::ShaderStageFlagBits>> shaderStageSources,
 		std::initializer_list<vk::Format> vertexInputAttribFormats,
 		vk::DescriptorSetLayout descriptorSetLayout,
+		vkx_slice_t<vk::PushConstantRange> pushConstantRanges,
 		FnArg_CreateGraphicsPipeline args = {},
 		vk::RenderPass renderPass = {},
 		uint32_t subpass = 0);

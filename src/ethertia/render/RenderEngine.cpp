@@ -16,6 +16,7 @@
 // Don't use OOP except it's necessary.
 
 #include <ethertia/imgui/Imgui.h>
+#include <ethertia/imgui/Imw.h>
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/material/Materials.h>
 
@@ -68,6 +69,7 @@ void RenderEngine::Init()
 
     RendererGbuffer::Init();
 
+    Imw::Gameplay::GameImageView = RendererGbuffer::gPosition->imageView;
 
 
 //    RendererGbuffer::init();
@@ -114,6 +116,8 @@ void RenderEngine::Render()
         PROFILE("BeginFrame");
         cmd = vkx::BeginFrame();
     }
+
+    RendererGbuffer::RecordCommand(cmd);
 
 //    World* world = Ethertia::getWorld();
 //    if (world)

@@ -634,6 +634,11 @@ void vkx::CommandBuffer::EndRenderPass()
     cmd.endRenderPass();
 }
 
+void vkx::CommandBuffer::BindDescriptorSets(vk::PipelineLayout pipelineLayout, vkx_slice_t<vk::DescriptorSet> descriptorSets, uint32_t firstSet)
+{
+    cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, firstSet, descriptorSets, {});
+}
+
 void vkx::CommandBuffer::BindGraphicsPipeline(vk::Pipeline graphicsPipeline)
 {
     cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
@@ -889,6 +894,7 @@ vkx::GraphicsPipeline* vkx::CreateGraphicsPipeline(
     vkx_slice_t<std::pair<std::span<const char>, vk::ShaderStageFlagBits>> shaderStageSources,
     std::initializer_list<vk::Format> vertexInputAttribFormats,
     vk::DescriptorSetLayout descriptorSetLayout,
+    vkx_slice_t<vk::PushConstantRange> pushConstantRanges,
     vkx::FnArg_CreateGraphicsPipeline args,
     vk::RenderPass renderPass,
     uint32_t subpass)
@@ -946,13 +952,11 @@ vkx::GraphicsPipeline* vkx::CreateGraphicsPipeline(
     depthStencilState.front = {};
     depthStencilState.back = {};
 
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment = vkx::IPipelineColorBlendAttachment();
-    
     vk::PipelineColorBlendStateCreateInfo colorBlendState{};
     colorBlendState.logicOpEnable = VK_FALSE;
     colorBlendState.logicOp = vk::LogicOp::eCopy;
-    colorBlendState.attachmentCount = 1;
-    colorBlendState.pAttachments = &colorBlendAttachment;  // for each Framebuffer
+    colorBlendState.attachmentCount = args.colorBlendAttachments.size();
+    colorBlendState.pAttachments = args.colorBlendAttachments.data();  // for each Framebuffer
     colorBlendState.blendConstants[0] = 0.0f; // Optional
     colorBlendState.blendConstants[1] = 0.0f; 
     colorBlendState.blendConstants[2] = 0.0f; 
@@ -963,7 +967,7 @@ vkx::GraphicsPipeline* vkx::CreateGraphicsPipeline(
     dynamicState.pDynamicStates    = args.dynamicStates.data();
 
 
-    vk::PipelineLayout pipelineLayout = vkx::CreatePipelineLayout(descriptorSetLayout);
+    vk::PipelineLayout pipelineLayout = vkx::CreatePipelineLayout(descriptorSetLayout, pushConstantRanges);
 
 
     vk::GraphicsPipelineCreateInfo pipelineInfo{};
@@ -1644,7 +1648,7 @@ static void _CreateSwapchain(
     }
 
     // Swapchain Depth Image
-    out_SwapchainDepthImage = vkx::CreateDepthImage(out_SwapchainExtent.width, out_SwapchainExtent.height);
+    out_SwapchainDepthImage = vkx::CreateDepthImage(out_SwapchainExtent);
 
     // Swapchain Framebuffers
     out_SwapchainFramebuffers.resize(swapchainImageCount);

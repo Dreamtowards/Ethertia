@@ -49,6 +49,8 @@ public:
     {
         inline static bool GameFullwindow = false;
 
+        inline static vk::ImageView GameImageView = nullptr;
+
         static void ShowGame(bool* _open);
 
 
