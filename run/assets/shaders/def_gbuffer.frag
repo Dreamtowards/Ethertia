@@ -99,7 +99,7 @@ void main()
 
     int MaxBary_i = MaxIdx(BaryCoord.xyz);  // aka HighestWeightVertIdx
 
-    gPosition.xyzw = vec4(1);// WorldPos;
+    gPosition = vec4(1);// WorldPos;
 
 //    // when uv.y == 1000 (mtl magic number), means this vertex is a Pure MTL,
 //    // then use Triplanar Mapping etc to generate Albedo, Normal.

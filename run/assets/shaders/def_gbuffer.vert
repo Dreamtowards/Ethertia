@@ -23,16 +23,23 @@ layout(push_constant) uniform PushConstant_T {
 } pc;
 
 
+vec2 positions[3] = vec2[](
+    vec2(-0.5, -0.5),
+    vec2(0.5, -0.5),
+    vec2(0.0, 0.5)
+);
+
+
 void main()
 {
-    mat4 matModel = pc.matModel;
+    // mat4 matModel = pc.matModel;
 
-    vec4 worldpos = matModel * vec4(in_pos, 1);
-    gl_Position = ubo.matProjection * ubo.matView * worldpos;
+    // vec4 worldpos = matModel * vec4(in_pos, 1);
+    gl_Position = ubo.matProjection * ubo.matView * vec4(in_pos, 1);// worldpos;
 
     
-    vs_out.WorldPos = worldpos.xyz;
-    vs_out.WorldNorm = normalize(mat3(matModel) * in_norm);
+    //vs_out.WorldPos = worldpos.xyz;
+    //vs_out.WorldNorm = normalize(mat3(matModel) * in_norm);
 
 
     // Barycentric Coordinate of the triangle, for material blend.

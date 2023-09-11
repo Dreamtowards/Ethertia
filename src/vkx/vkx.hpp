@@ -451,7 +451,7 @@ namespace vkx
 		vk::PrimitiveTopology topology = vk::PrimitiveTopology::eTriangleList;
 		// RasterizationState
 		vk::PolygonMode		polygonMode = vk::PolygonMode::eFill;
-		vk::CullModeFlags	cullMode = vk::CullModeFlagBits::eBack;
+		vk::CullModeFlags	cullMode = vk::CullModeFlagBits::eNone;
 		vk::FrontFace		frontFace = vk::FrontFace::eCounterClockwise;
 		std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments = { vkx::IPipelineColorBlendAttachment() };
 		std::vector<vk::DynamicState> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };

@@ -61,7 +61,7 @@ void RendererGbuffer::Init()
 {
 	VKX_CTX_device_allocator;
 
-    g_VertexBuf = Loader::LoadVertexData("entity/cone.obj");
+    g_VertexBuf = Loader::LoadVertexData("entity/gravestone/mesh.obj");
 
     // RenderPass
     {
@@ -157,7 +157,7 @@ void RendererGbuffer::UpdateUniformBuffer(int fifi)
     // GLM was originally designed for OpenGL, where the Y coordinate of the clip coordinates is inverted.
     // The easiest way to compensate for that is to flip the sign on the scaling factor of the Y axis in
     // the projection matrix. If you don't do this, then the image will be rendered upside down.
-    // g_uboVert.matProjection[1][1] *= -1;
+    //g_uboVert.matProjection[1][1] *= -1;
 
     g_UniformBuffers_Vert[fifi]->Upload(&g_uboVert);
 
@@ -170,11 +170,13 @@ void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf)
 {
     int fif_i = vkx::ctx().CurrentInflightFrame;
 
+    UpdateUniformBuffer(fif_i);
+
     vkx::CommandBuffer cmd{cmdbuf};
 
     cmd.BeginRenderPass(RenderPass, Framebuffer, g_AttachmentSize, 
         {
-            vkx::ClearValueColor(),
+            vkx::ClearValueColor(0, 0.3, 0),
             vkx::ClearValueColor(),
             vkx::ClearValueColor(),
             vkx::ClearValueDepthStencil()
@@ -202,7 +204,7 @@ void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf)
         } 
         else
         {
-            cmd.Draw(g_VertexBuf->vertexCount);
+            cmd.Draw(3);
         }
     }
 
