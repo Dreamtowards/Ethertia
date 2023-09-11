@@ -99,8 +99,6 @@ void main()
 
     int MaxBary_i = MaxIdx(BaryCoord.xyz);  // aka HighestWeightVertIdx
 
-    gPosition = vec4(1);// WorldPos;
-
 //    // when uv.y == 1000 (mtl magic number), means this vertex is a Pure MTL,
 //    // then use Triplanar Mapping etc to generate Albedo, Normal.
 //    bool PureMTL = fract(MtlIds[HighestBaryIdx]) == 0.5;
@@ -159,12 +157,12 @@ void main()
 //        );
 //
 //    }
-//
-//    // Gbuffer Output
-//    gPosition.xyz   = FragPos;
-//    //gPosition.w     = LinearDepth(gl_FragCoord.z, 0.01, 1000.0);
-//    //gNormal.xyz = FragNorm;
-//    //gNormal.w   = 1;
-//    //gAlbedo.xyz = Albedo;  // BaryCoord
-//    //gAlbedo.w   = 1;
+
+    // Gbuffer Output
+    gPosition.xyz   = WorldPos;
+    //gPosition.w     = LinearDepth(gl_FragCoord.z, 0.01, 1000.0);
+    //gNormal.xyz = FragNorm;
+    //gNormal.w   = 1;
+    //gAlbedo.xyz = Albedo;  // BaryCoord
+    //gAlbedo.w   = 1;
 }

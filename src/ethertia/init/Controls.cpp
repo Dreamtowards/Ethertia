@@ -387,11 +387,7 @@ void Controls::handleInput()
 
     camera.position = Ethertia::getPlayer()->position();
 
-    if (player->getGamemode() == Gamemode::SPECTATOR) {  // track camera viewMatrix only while InGame.
-        camera.update(Ethertia::isIngame());
-    } else {
-        camera.update(true);
-    }
+    camera.update(Ethertia::isIngame());
 
     if (!Ethertia::isIngame())
         return;
