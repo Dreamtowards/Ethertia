@@ -193,39 +193,35 @@ static void DrawViewportDebugs()
 #pragma endregion
 
 
-glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta, float pitchDelta)
+glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta, float pitchDelta, float len = 0.5f)
 {
-    glm::mat4 invView = glm::inverse(view);
-
-    glm::vec3 eye = glm::vec3(invView[3]);
-
     glm::vec3 right     = glm::vec3(view[0][0], view[1][0], view[2][0]);
     glm::vec3 up        = glm::vec3(view[0][1], view[1][1], view[2][1]);
     glm::vec3 forward   = glm::vec3(view[0][2], view[1][2], view[2][2]);
+
+    glm::mat4 invView = glm::inverse(view);
+
+    glm::vec3 eye = glm::vec3(invView[3]);
     
-    view = glm::translate(view, moveDelta.x * right);
-    view = glm::translate(view, moveDelta.y * up); 
-    view = glm::translate(view, moveDelta.z * forward);
+    //view = glm::translate(view, moveDelta.x * right);
+    //view = glm::translate(view, moveDelta.y * up); 
+    //view = glm::translate(view, moveDelta.z * forward);
 
     glm::mat4 yawMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(yawDelta), {0, 1, 0});
     glm::mat4 pitchMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(pitchDelta), right);
-    // view = yawMatrix * pitchMatrix * view;
 
-    glm::vec3 newForward = glm::mat3(yawMatrix) * glm::mat3(pitchMatrix) * forward;
-    newForward = glm::normalize(newForward);
+    glm::vec3 newForward = glm::normalize(glm::mat3(yawMatrix) * glm::mat3(pitchMatrix) * forward);
 
-    float len = 5;
     glm::vec3 pivot = eye - forward * len;
 
     glm::vec3 newEye = pivot + newForward * len;
 
-    //vec_t newEye = camTarget + newDir * length;
-    //newEye += moveOffset;
-    //camTarget += moveOffset;
-    //LookAt(&newEye.x, &camTarget.x, &referenceUp.x, view);
-    return glm::lookAt(newEye, pivot, { 0, 1,0 });
+    moveDelta = glm::mat3(invView) * moveDelta;
+    pivot += moveDelta;
+    newEye += moveDelta;
 
-    return view;
+    return glm::lookAt(newEye, pivot, { 0, 1, 0 });
+
 }
 
 
@@ -296,28 +292,28 @@ void Imw::Gameplay::ShowGame(bool* _open)
         // RMB Drag = Rotate
         if (ImGui::IsMouseDragging(ImGuiMouseButton_Right))
         {
-            dYaw   += MouseDelta.x;
-            dPitch += MouseDelta.y;
+            dYaw   += -MouseDelta.x;
+            dPitch += -MouseDelta.y;
 
             float dt = Ethertia::getDelta() * 4.0f;
             if (io.KeyShift) dt *= 8.0f;
 
-            if (io.KeysDown[ImGuiKey_W]) move.z += dt;
-            if (io.KeysDown[ImGuiKey_S]) move.z -= dt;
-            if (io.KeysDown[ImGuiKey_A]) move.x += dt;
-            if (io.KeysDown[ImGuiKey_D]) move.x -= dt;
-            if (io.KeysDown[ImGuiKey_Q]) move.y += dt;
-            if (io.KeysDown[ImGuiKey_E]) move.y -= dt;
+            if (io.KeysDown[ImGuiKey_W]) move.z -= dt;
+            if (io.KeysDown[ImGuiKey_S]) move.z += dt;
+            if (io.KeysDown[ImGuiKey_A]) move.x -= dt;
+            if (io.KeysDown[ImGuiKey_D]) move.x += dt;
+            if (io.KeysDown[ImGuiKey_Q]) move.y -= dt;
+            if (io.KeysDown[ImGuiKey_E]) move.y += dt;
         }
         else if (ImGui::IsMouseDragging(ImGuiMouseButton_Middle))
         {
             float spd = 0.4;
-            move.x +=  MouseDelta.x * spd;
-            move.y += -MouseDelta.y * spd;
+            move.x += -MouseDelta.x * spd;
+            move.y +=  MouseDelta.y * spd;
         }
         else if (MouseWheel)
         {
-            move.z += MouseWheel;
+            move.z += -MouseWheel;
         }
         
 
