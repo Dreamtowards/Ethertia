@@ -1,0 +1,13 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "Ethertia.exe (C:\\DevOldEth\\Ethertia\\run\\bin\\windows-x64\\Ethertia.exe)",
+      "name": "Ethertia.exe (C:\\DevOldEth\\Ethertia\\run\\bin\\windows-x64\\Ethertia.exe)",
+      "currentDir": "${workspaceRoot}\\run"
+    }
+  ]
+}

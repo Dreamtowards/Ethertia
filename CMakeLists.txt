@@ -40,7 +40,7 @@ endif ()
 set(BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${BUILD_TARGET})
 
 # Output of Shared library & Program
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR}) 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR})  # for Windows
 
 message("Build Env: ${CMAKE_SYSTEM_PROCESSOR}; ${CMAKE_SYSTEM_NAME}")
@@ -149,6 +149,10 @@ add_executable(Ethertia
 add_executable(Elytra
         src/ethertia/lang/Elytra.cpp
         )
+
+set_target_properties(
+    Ethertia PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/run")
 
 
 #add_executable(Eldaria

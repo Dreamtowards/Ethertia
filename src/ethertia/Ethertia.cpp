@@ -68,8 +68,7 @@ static void Init()
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::LoadSettings();
     NoiseGen::initSIMD();
-    if (!Loader::FileExists("./assets")) { throw std::runtime_error("default assets directory not found. make sure you are in valid working directory."); }
-//    Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::sys_target()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
+    //    Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::sys_target()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
 
     for (const std::string& modpath : Settings::Mods) {
         ModLoader::loadMod(modpath);

@@ -10,6 +10,7 @@
 #include <fstream>
 #include <format>
 #include <map>
+#include <filesystem>
 
 #include <ethertia/util/Loader.h>
 #include <ethertia/world/gen/NoiseGen.h>
@@ -30,10 +31,8 @@ static std::map<std::string, Imgui::DrawFuncPtr> DrawFuncIds;
 
 void Settings::LoadSettings()
 {
-    BENCHMARK_TIMER;
-    Log::info("Load Settings.\1");
-    if (!Loader::FileExists(SETTINGS_FILE))
-        return;
+    if (!Loader::FileExists("./assets"))
+        throw std::runtime_error(std::format("default assets directory not found. make sure you are in valid working directory. (current dir: {})", std::filesystem::current_path().string()));
 
     DrawFuncIds["settings"] = Imw::Settings::ShowSettings;
     DrawFuncIds["inspector"] = Imw::Editor::ShowInspector;
@@ -48,6 +47,15 @@ void Settings::LoadSettings()
     DrawFuncIds["game-worldnew"] = Imw::Gameplay::ShowWorldNew;
     DrawFuncIds["game-titlescreen"] = Imw::Gameplay::ShowTitleScreen;
     DrawFuncIds["dbg-imgui-demowindow"] = ImGui::ShowDemoWindow;
+
+
+    BENCHMARK_TIMER;
+    Log::info("Load Settings.\1");
+    if (!Loader::FileExists(SETTINGS_FILE)) {
+        Log::info("settings file {} not found. skip.", SETTINGS_FILE);
+        return;
+    }
+
 
     using namespace nlohmann;
     json conf = json::parse((char*)Loader::LoadFile(SETTINGS_FILE).data());
@@ -87,6 +95,7 @@ void Settings::LoadSettings()
             }
         }
     }
+
 
 }
 
