@@ -47,7 +47,7 @@ public:
 
 	static void Init();
 
-    static void RecordCommand(vk::CommandBuffer cmd);
+    static void RecordCommand(vk::CommandBuffer cmd, const std::vector<Entity*>& _Entities);
 
     static void UpdateUniformBuffer(int fifi);
 
@@ -165,7 +165,7 @@ void RendererGbuffer::UpdateUniformBuffer(int fifi)
     g_UniformBuffers_Frag[fifi]->Upload(&g_uboFrag);
 }
 
-void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf)
+void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf, const std::vector<Entity*>& _Entities)
 {
     int fif_i = vkx::ctx().CurrentInflightFrame;
 
@@ -188,22 +188,35 @@ void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf)
 
     cmd.BindGraphicsPipeline(Pipeline->Pipeline);
 
+    PushConstant pc{};
+
+    for (Entity* entity : _Entities)
     {
-        PushConstant pc;
-        pc.matModel = glm::mat4{ 1.0 };
+        vkx::VertexBuffer* vtx = entity->m_Model;
+        if (vtx == nullptr)
+            continue;
+        //// Frustum Culling
+        //if (!Ethertia::getCamera().testFrustum(entity->getAABB()))
+        //    continue;
+        //if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera().len == 0)
+        //    continue;
+
+        pc.matModel = Maths::matModel(entity->position());
 
         cmd.PushConstants(Pipeline->PipelineLayout, vk::ShaderStageFlagBits::eVertex, pc);
 
-        cmd.BindVertexBuffers(g_VertexBuf->vertexBuffer);
 
-        if (g_VertexBuf->indexBuffer)
+
+        cmd.BindVertexBuffers(vtx->vertexBuffer);
+
+        if (vtx->indexBuffer)
         {
-            cmd.BindIndexBuffer(g_VertexBuf->indexBuffer);
-            cmd.DrawIndexed(g_VertexBuf->vertexCount);
+            cmd.BindIndexBuffer(vtx->indexBuffer);
+            cmd.DrawIndexed(vtx->vertexCount);
         } 
         else
         {
-            cmd.Draw(3);
+            cmd.Draw(vtx->vertexCount);
         }
     }
 

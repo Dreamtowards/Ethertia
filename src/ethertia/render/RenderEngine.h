@@ -16,7 +16,6 @@ public:
 
     static void Render();
 
-
-    inline static VkImageView g_ComposeView = nullptr;
+    inline static bool s_PauseWorldRender = false;
 };
 

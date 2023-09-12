@@ -2,8 +2,7 @@
 // Created by Dreamtowards on 2022/4/22.
 //
 
-#ifndef ETHERTIA_MTH_H
-#define ETHERTIA_MTH_H
+#pragma once
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -17,6 +16,7 @@
 
 #include <ostream>
 
+// glm::vec3 to string
 namespace glm {
     std::ostream& operator<<(std::ostream& s, const glm::vec3& v);
 }
@@ -24,7 +24,7 @@ namespace glm {
 class Mth
 {
 public:
-    static constexpr float PI = 3.14159265359f;
+    static constexpr float PI   = 3.14159265359f;
     static constexpr float PI_2 = 1.57079632679f;
     static constexpr float _2PI = 2*PI;
 
@@ -418,4 +418,4 @@ public:
 
 };
 
-#endif //ETHERTIA_MTH_H
+using Maths = Mth;

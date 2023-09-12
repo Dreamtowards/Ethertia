@@ -130,6 +130,7 @@ add_executable(Ethertia
         src/ethertia/util/BitmapImage.cpp
         src/ethertia/util/BenchmarkTimer.cpp
         src/ethertia/util/Strings.cpp
+        src/ethertia/util/Maths.cpp
 
         src/ethertia/init/Controls.cpp
         src/ethertia/init/Settings.cpp

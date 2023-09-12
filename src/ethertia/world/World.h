@@ -2,14 +2,12 @@
 // Created by Dreamtowards on 2022/4/22.
 //
 
-#ifndef ETHERTIA_WORLD_H
-#define ETHERTIA_WORLD_H
+#pragma once
 
 #include <unordered_map>
 #include <mutex>
 #include <glm/vec3.hpp>
 #include <glm/gtx/hash.hpp>
-//#include <entt/entt.hpp>
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
@@ -59,6 +57,7 @@ public:
     };
 
 };
+
 
 class World
 {
@@ -199,4 +198,3 @@ public:
 //    };
 };
 
-#endif //ETHERTIA_WORLD_H

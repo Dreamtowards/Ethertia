@@ -217,6 +217,11 @@ static void _ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("Rendering"))
         {
+            ImGui::Checkbox("PauseWorldRender", &RenderEngine::s_PauseWorldRender);
+
+            ImGui::Separator();
+
+
             ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
             ImGui::SliderFloat("ViewDistance", &Settings::s_ViewDistance, 0, 16);
             ImGui::Checkbox("Vsync", &Settings::s_Vsync);
@@ -227,7 +232,6 @@ static void _ShowMainMenuBar()
 
             ImGui::Separator();
 
-            ImGui::Checkbox("PauseWorldRender", &Dbg::dbg_PauseWorldRender);
             ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
             ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
             ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);

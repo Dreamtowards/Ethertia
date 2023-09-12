@@ -137,7 +137,7 @@ void Imw::Editor::ShowInspector(bool* _open)
         if (ImGui::SmallButton("x")) {
             Imw::Editor::SetInspectionObject(nullptr, eNone);
         }
-        ImGui::SeparatorText("");
+        ImGui::Separator();
     }
 
     switch (inspectionType)
@@ -208,9 +208,9 @@ static void _HrcEntities()
     auto& entities = world->m_Entities;
 
     if (ImGui::Button(" + ")) {
-        ImGui::OpenPopup("new_entity");
+        ImGui::OpenPopup("ImwEditorNewEntity");
     }
-    if (ImGui::BeginPopup("new_entity")) {
+    if (ImGui::BeginPopup("ImwEditorNewEntity")) {
         //        if (ImGui::BeginMenu("Vehicle")) {
         ////            if (ImGui::MenuItem("Helicopter"))
         ////            {

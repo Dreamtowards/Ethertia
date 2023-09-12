@@ -4,6 +4,7 @@
 
 #include "RenderEngine.h"
 
+
 #include <ethertia/render/Window.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/Settings.h>
@@ -12,26 +13,22 @@
 #include <ethertia/init/DebugStat.h>
 
 
-// RenderEngine is static/singleton. shouldn't instantiate.
-// Don't use OOP except it's necessary.
 
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/material/Materials.h>
 
-//    std::cout << " renderers[";
-////    GuiRenderer::init();        std::cout << "gui, ";
-////    FontRenderer::init();       std::cout << "font, ";
-////    GeometryRenderer::init();   std::cout << "geometry ";
-////    ComposeRenderer::init();    std::cout << "deferred ";
+
+#include <ethertia/world/World.h>
+#include <ethertia/entity/Entity.h>
+
+
 ////    SkyboxRenderer::init();     std::cout << "skybox ";
 ////    ParticleRenderer::init();   std::cout << "particle ";
-//    //SkyGradientRenderer::init();
-//
+// 
 ////    SSAORenderer::init();
 ////    ShadowRenderer::init();
-//
 
 
 #include "renderer/RendererGbuffer.cpp"
@@ -73,7 +70,6 @@ void RenderEngine::Init()
         RendererGbuffer::gNormal->imageView,
         RendererGbuffer::gAlbedo->imageView);
 
-    Imw::Gameplay::GameImageView = RendererCompose::rtColor->imageView;
     // RendererGbuffer::gAlbedo->imageView;
     
 
@@ -109,7 +105,6 @@ void RenderEngine::Destroy()
     vkx::Destroy();
 }
 
-
 void RenderEngine::Render()
 {
     if (Window::isFramebufferResized())
@@ -123,22 +118,20 @@ void RenderEngine::Render()
         cmd = vkx::BeginFrame();
     }
 
-    RendererGbuffer::RecordCommand(cmd);
 
-    RendererCompose::RecordCommand(cmd);
-
-//    World* world = Ethertia::getWorld();
-//    if (world)
-//    {
-//        {
-//            PROFILE("CmdWorldGbuffer");
-//            RendererGbuffer::RecordCommands(cmdbuf, world->m_Entities);
-//        }
-//        {
-//            PROFILE("CmdWorldCompose");
-//            RendererCompose::RecordCommands(cmdbuf);
-//        }
-//    }
+    World* world = Ethertia::GetWorld();
+    if (world && !s_PauseWorldRender)
+    {
+        Imw::Gameplay::GameImageView = RendererCompose::rtColor->imageView;
+        {
+            PROFILE("CmdWorldGbuffer");
+            RendererGbuffer::RecordCommand(cmd, world->m_Entities);
+        }
+        {
+            PROFILE("CmdWorldCompose");
+            RendererCompose::RecordCommand(cmd);
+        }
+    }
 
     vkx::BeginMainRenderPass(cmd);
     {
