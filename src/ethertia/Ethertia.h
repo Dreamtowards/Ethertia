@@ -68,8 +68,8 @@ class Ethertia
 public:
     Ethertia() = delete;
 
-    static void loadWorld(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
-    static void unloadWorld();
+    static void LoadWorld(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
+    static void UnloadWorld();
 
     // send chat message (@cmd not '/' leading) or dispatch command ('/' leading).
     static void dispatchCommand(const std::string& cmd);

@@ -129,7 +129,7 @@ static void Destroy()
     Settings::SaveSettings();
 
     if (Ethertia::getWorld()) {
-        Ethertia::unloadWorld();
+        Ethertia::UnloadWorld();
     }
 
     NetworkSystem::deinit();
@@ -246,7 +246,7 @@ static void RunMainLoop()
 //    }
 //}
 
-void Ethertia::loadWorld(const std::string& savedir, const WorldInfo* worldinfo)
+void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 {
     assert(getWorld() == nullptr);
     assert(Ethertia::getScheduler().numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
@@ -270,7 +270,7 @@ void Ethertia::loadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 
 }
 
-void Ethertia::unloadWorld()
+void Ethertia::UnloadWorld()
 {
     assert(getWorld());
     Log::info("Unloading World...");

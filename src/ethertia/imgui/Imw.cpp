@@ -65,7 +65,7 @@ static void _ShowMainMenu_System()
             const char* filename = Loader::OpenFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
             if (filename) {
                 Log::info("Open world: ", filename);
-                Ethertia::loadWorld(filename);
+                Ethertia::LoadWorld(filename);
             }
         }
 
@@ -86,7 +86,7 @@ static void _ShowMainMenu_System()
                 auto filename = savedir.path().filename();
                 if (ImGui::MenuItem((const char*)filename.c_str(), time_str.c_str()))
                 {
-                    Ethertia::loadWorld(savedir.path().string());
+                    Ethertia::LoadWorld(savedir.path().string());
                 }
                 ImGui::SameLine();
                 ImGui::SmallButton("*");
@@ -99,7 +99,7 @@ static void _ShowMainMenu_System()
         ImGui::EndMenu();
     }
 
-    bool worldvalid = Ethertia::getWorld();
+    bool worldvalid = Ethertia::getWorld() != nullptr;
     if (ImGui::MenuItem("Edit World..", nullptr, false, worldvalid))
     {
         Imw::Settings::CurrentPanel = Imw::Settings::Panel::CurrentWorld;
@@ -107,7 +107,7 @@ static void _ShowMainMenu_System()
     if (ImGui::MenuItem("Save World", nullptr, false, worldvalid)) {}
 
     if (ImGui::MenuItem("Close World", nullptr, false, worldvalid)) {
-        Ethertia::unloadWorld();
+        Ethertia::UnloadWorld();
     }
 
     ImGui::Separator();
