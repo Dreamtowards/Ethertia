@@ -69,7 +69,7 @@ void RenderEngine::Init()
 
     RendererGbuffer::Init();
 
-    Imw::Gameplay::GameImageView = RendererGbuffer::gPosition->imageView;
+    Imw::Gameplay::GameImageView = RendererGbuffer::gAlbedo->imageView;
 
 
 //    RendererGbuffer::init();

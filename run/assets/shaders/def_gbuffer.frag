@@ -23,8 +23,8 @@ layout(set = 0, binding = 1) uniform UniformBufferFrag_T {
     float MtlHeightmapBlendPow;  // def 0.6
 } ubo;
 
-layout(set = 0, binding = 2) uniform sampler2D texDiffuse;
-layout(set = 0, binding = 3) uniform sampler2D texNormal;
+layout(set = 0, binding = 2) uniform sampler2D texDiff;
+layout(set = 0, binding = 3) uniform sampler2D texNorm;
 layout(set = 0, binding = 4) uniform sampler2D texDRAM;  // Disp, Refl, AO, Metal, +Emission? DRAM
 
 
@@ -97,7 +97,8 @@ void main()
     vec3 BaryCoord  = fs_in.BaryCoord;
     vec3 MtlIds     = fs_in.MtlIds;
 
-    int MaxBary_i = MaxIdx(BaryCoord.xyz);  // aka HighestWeightVertIdx
+    int MaxBary_i = MaxIdx(BaryCoord.xyz);
+
 
 //    // when uv.y == 1000 (mtl magic number), means this vertex is a Pure MTL,
 //    // then use Triplanar Mapping etc to generate Albedo, Normal.
@@ -158,11 +159,17 @@ void main()
 //
 //    }
 
+
+    float LnDepth = LinearDepth(gl_FragCoord.z, 0.01, 10.0);
+
+
+    Albedo = texture(texDiff, vec2(WorldPos.x / ubo.MtlTexCap, 1-WorldPos.z)).rgb;
+
     // Gbuffer Output
     gPosition.xyz   = WorldPos;
-    //gPosition.w     = LinearDepth(gl_FragCoord.z, 0.01, 1000.0);
+    //gPosition.w     = 
     //gNormal.xyz = FragNorm;
     //gNormal.w   = 1;
-    //gAlbedo.xyz = Albedo;  // BaryCoord
-    //gAlbedo.w   = 1;
+    gAlbedo.xyz = Albedo;  // BaryCoord
+    gAlbedo.w   = 1;
 }

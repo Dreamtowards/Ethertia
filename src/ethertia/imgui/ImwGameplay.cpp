@@ -222,6 +222,73 @@ glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta
 
 }
 
+static void _MoveCamera()
+{
+    float dYaw = 0;
+    float dPitch = 0;
+    glm::vec3 move{};
+    glm::vec3 moveaa{};  // axis align, for mc-like shift space - down up
+    float len = 0.1f;
+
+    auto& io = ImGui::GetIO();
+    ImVec2 MouseDelta = io.MouseDelta;
+    float  MouseWheel = io.MouseWheel;
+
+    float mspd = 0.3;
+
+    bool keyShiftDown = Window::isShiftKeyDown();
+    bool keyCtrlDown = Window::isCtrlKeyDown();
+    bool opFpsCamMove = ImGui::IsMouseDragging(ImGuiMouseButton_Right);
+    bool opEdtCamMove = ImGui::IsMouseDragging(ImGuiMouseButton_Middle);
+
+    if (opFpsCamMove || opEdtCamMove)
+    {
+        if (opFpsCamMove)
+        {
+            dYaw += -MouseDelta.x * mspd;
+            dPitch += -MouseDelta.y * mspd;
+        }
+        else if (opEdtCamMove)
+        {
+            if (keyShiftDown)
+            {
+                move.x += -MouseDelta.x * mspd;
+                move.y += MouseDelta.y * mspd;
+            }
+            else
+            {
+                dYaw += -MouseDelta.x * mspd;
+                dPitch += -MouseDelta.y * mspd;
+                len = 16;
+            }
+        }
+
+        float dt = Ethertia::getDelta() * 4.0f;
+        if (io.KeyCtrl) dt *= 8.0f;
+
+        if (io.KeysDown[ImGuiKey_W]) move.z -= dt;
+        if (io.KeysDown[ImGuiKey_S]) move.z += dt;
+        if (io.KeysDown[ImGuiKey_A]) move.x -= dt;
+        if (io.KeysDown[ImGuiKey_D]) move.x += dt;
+        if (io.KeysDown[ImGuiKey_Q]) move.y -= dt;
+        if (io.KeysDown[ImGuiKey_E]) move.y += dt;
+        if (keyShiftDown && !opEdtCamMove) moveaa.y -= dt;
+        if (io.KeysDown[ImGuiKey_Space]) moveaa.y += dt;
+    }
+
+
+    if (MouseWheel)
+    {
+        move.z += -MouseWheel;
+    }
+
+
+    if (dYaw || dPitch || glm::length2(move) || glm::length2(moveaa))
+    {
+        Camera& cam = Ethertia::getCamera();
+        cam.matView = MatView_MoveRotate(cam.matView, move, dYaw, dPitch, len, moveaa);
+    }
+}
 
 
 void Imw::Gameplay::ShowGame(bool* _open)
@@ -278,73 +345,7 @@ void Imw::Gameplay::ShowGame(bool* _open)
 
     if (ImGui::IsWindowHovered())
     {
-        float dYaw = 0;
-        float dPitch = 0;
-        glm::vec3 move{};
-        glm::vec3 moveaa{};  // axis align, for mc-like shift space - down up
-        float len = 0.1f;
-
-        auto& io = ImGui::GetIO();
-        ImVec2 MouseDelta = io.MouseDelta;
-        float  MouseWheel = io.MouseWheel;
-
-        float mspd = 0.3;
-
-        bool keyShiftDown = Window::isShiftKeyDown();
-        bool opFpsCamMove = ImGui::IsMouseDragging(ImGuiMouseButton_Right);
-        bool opEdtCamMove = ImGui::IsMouseDragging(ImGuiMouseButton_Middle);
-
-        if (opFpsCamMove || opEdtCamMove)
-        {
-            if (opFpsCamMove)
-            {
-                dYaw += -MouseDelta.x * mspd;
-                dPitch += -MouseDelta.y * mspd;
-            }
-            else if (opEdtCamMove)
-            {
-                if (keyShiftDown)
-                {
-                    move.x += -MouseDelta.x * mspd;
-                    move.y += MouseDelta.y * mspd;
-                }
-                else
-                {
-                    dYaw += -MouseDelta.x * mspd;
-                    dPitch += -MouseDelta.y * mspd;
-                    len = 16;
-                }
-            }
-
-            float dt = Ethertia::getDelta() * 4.0f;
-            if (io.KeyCtrl) dt *= 8.0f;
-
-            if (io.KeysDown[ImGuiKey_W]) move.z -= dt;
-            if (io.KeysDown[ImGuiKey_S]) move.z += dt;
-            if (io.KeysDown[ImGuiKey_A]) move.x -= dt;
-            if (io.KeysDown[ImGuiKey_D]) move.x += dt;
-            if (io.KeysDown[ImGuiKey_Q]) move.y -= dt;
-            if (io.KeysDown[ImGuiKey_E]) move.y += dt;
-            if (keyShiftDown) moveaa.y -= dt;
-            if (io.KeysDown[ImGuiKey_Space]) moveaa.y += dt;
-        }
-        
-
-        if (MouseWheel)
-        {
-            move.z += -MouseWheel;
-        }
-        
-
-        if (dYaw || dPitch || glm::length2(move) || glm::length2(moveaa))
-        {
-            Camera& cam = Ethertia::getCamera();
-            cam.matView = MatView_MoveRotate(cam.matView, move, dYaw, dPitch, len, moveaa);
-        }
-    }
-    else
-    {
-        //ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+        _MoveCamera();
     }
 
 

@@ -27,11 +27,11 @@ void main()
 {
     mat4 matModel = pc.matModel;
 
-    vec4 worldpos = matModel * vec4(in_pos, 1);
-    gl_Position = ubo.matProjection * ubo.matView * worldpos;
+    vec4 WorldPos = matModel * vec4(in_pos, 1);
+    gl_Position = ubo.matProjection * ubo.matView * WorldPos;
 
     
-    vs_out.WorldPos = worldpos.xyz;
+    vs_out.WorldPos = WorldPos.xyz;
     vs_out.WorldNorm = normalize(mat3(matModel) * in_norm);
 
 

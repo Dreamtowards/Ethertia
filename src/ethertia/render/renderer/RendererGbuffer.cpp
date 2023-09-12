@@ -8,6 +8,7 @@
 
 #include <ethertia/util/Loader.h>
 
+
 class RendererGbuffer
 {
 public:
