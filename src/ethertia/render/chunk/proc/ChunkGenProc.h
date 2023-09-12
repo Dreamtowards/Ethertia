@@ -34,7 +34,7 @@ public:
                     Timer::sleep_for(1);
                     continue;
                 }
-                World* world = Ethertia::getWorld();
+                World* world = Ethertia::GetWorld();
                 PROFILE_X(Dbg::dbgProf_ChunkGen, "ChunkProc");
 
                 vec3 chunkpos;

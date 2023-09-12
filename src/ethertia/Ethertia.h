@@ -71,6 +71,9 @@ public:
     static void LoadWorld(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
     static void UnloadWorld();
 
+    static World* GetWorld();
+
+
     // send chat message (@cmd not '/' leading) or dispatch command ('/' leading).
     static void dispatchCommand(const std::string& cmd);
 
@@ -85,7 +88,6 @@ public:
 
 
 
-    static World* getWorld();
     static EntityPlayer* getPlayer();
     static Window& getWindow();
     static Timer& getTimer();

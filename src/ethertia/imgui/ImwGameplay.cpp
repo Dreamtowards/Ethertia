@@ -21,7 +21,7 @@
 
 static void ShowDebugTextOverlay()
 {
-    World* world = Ethertia::getWorld();
+    World* world = Ethertia::GetWorld();
     float dt = Ethertia::getDelta();
     EntityPlayer* player = Ethertia::getPlayer();
     btRigidBody* playerRb = player->m_Rigidbody;

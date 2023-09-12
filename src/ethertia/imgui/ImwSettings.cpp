@@ -76,7 +76,7 @@ void Imw::Settings::ShowSettings(bool* pOpen)
         }
         else if (currpanel==CurrentWorld)
         {
-            World* world = Ethertia::getWorld();
+            World* world = Ethertia::GetWorld();
             if (!world)
             {
                 ImGui::TextDisabled("No world loaded.");

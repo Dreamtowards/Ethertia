@@ -20,6 +20,7 @@ void ItemComponentFood::onUse()
 
 void ItemComponentMaterial::onUse()
 {
+    World* world = Ethertia::GetWorld();
 
     HitCursor& cur = Ethertia::getHitCursor();
     if (!cur.hit)
@@ -31,19 +32,19 @@ void ItemComponentMaterial::onUse()
 
     if (mtl->m_IsVegetable || mtl->m_CustomMesh || Ethertia::getWindow().isKeyDown(GLFW_KEY_B))  // || GuiDebugV::g_BlockMode
     {
-        Cell& c = Ethertia::getWorld()->getCell(p + cur.normal*0.1f);
+        Cell& c = world->getCell(p + cur.normal*0.1f);
 
         c.density = 0;
         c.mtl = mtl;
         c.exp_meta = 1;
 
-        Ethertia::getWorld()->requestRemodel(p);
+        world->requestRemodel(p);
         return;
     }
 
     int n = cur.brushSize;
-    AABB::forCube(n, [n, p, mtl](glm::vec3 rp) {
-        Cell& b = Ethertia::getWorld()->getCell(p + rp);
+    AABB::forCube(n, [&](glm::vec3 rp) {
+        Cell& b = world->getCell(p + rp);
         float f = n - glm::length(rp + glm::vec3(0.5));
 
         if (!Ethertia::getWindow().isAltKeyDown())  {
@@ -52,7 +53,7 @@ void ItemComponentMaterial::onUse()
         if (b.density >= 0.0f)
             b.mtl = mtl;
 
-        Ethertia::getWorld()->requestRemodel(p+rp);
+        world->requestRemodel(p+rp);
     });
 }
 
@@ -65,7 +66,7 @@ void ItemComponentEntity::onUse()  {
     HitCursor& cur = Ethertia::getHitCursor();
 
     e->position() = cur.position + cur.normal * 1.0f;
-    Ethertia::getWorld()->addEntity(e);
+    Ethertia::GetWorld()->addEntity(e);
 }
 
 
@@ -107,19 +108,19 @@ void ItemComponentToolUniversalLinkTool::onUse()
             case Point2Point:
             {
                 auto* point2pointConstraint = new btPoint2PointConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, firstLocation.getOrigin(), secondLocation.getOrigin());
-                Ethertia::getWorld()->m_DynamicsWorld->addConstraint(point2pointConstraint);
+                Ethertia::GetWorld()->m_DynamicsWorld->addConstraint(point2pointConstraint);
                 break;
             }
             case Hinge:
             {
                 auto* hingeConstraint = new btHingeConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, firstLocation, secondLocation, true);
-                Ethertia::getWorld()->m_DynamicsWorld->addConstraint(hingeConstraint);
+                Ethertia::GetWorld()->m_DynamicsWorld->addConstraint(hingeConstraint);
                 break;
             }
             case Generic6Dof:
             {
                 auto* generic6DofConstraint = new btGeneric6DofConstraint(*firstEntity->m_Rigidbody, *secondEntity->m_Rigidbody, firstLocation, secondLocation, true);
-                Ethertia::getWorld()->m_DynamicsWorld->addConstraint(generic6DofConstraint);
+                Ethertia::GetWorld()->m_DynamicsWorld->addConstraint(generic6DofConstraint);
                 break;
             }
         }

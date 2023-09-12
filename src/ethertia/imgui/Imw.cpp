@@ -99,7 +99,7 @@ static void _ShowMainMenu_System()
         ImGui::EndMenu();
     }
 
-    bool worldvalid = Ethertia::getWorld() != nullptr;
+    bool worldvalid = Ethertia::GetWorld() != nullptr;
     if (ImGui::MenuItem("Edit World..", nullptr, false, worldvalid))
     {
         Imw::Settings::CurrentPanel = Imw::Settings::Panel::CurrentWorld;
@@ -178,7 +178,7 @@ static void _ShowMainMenuBar()
             ImGui::Checkbox("PauseThread ChunkLoad/Gen/Save", &Dbg::dbg_PauseThread_ChunkLoadGenSave);
 
             if (ImGui::Button("Remesh All Chunks")) {
-                for (auto it : Ethertia::getWorld()->getLoadedChunks()) {
+                for (auto it : Ethertia::GetWorld()->getLoadedChunks()) {
                     it.second->requestRemodel();
                 }
             }

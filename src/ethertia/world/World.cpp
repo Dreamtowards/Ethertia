@@ -457,11 +457,11 @@ void World::invalidateCellFp(glm::vec3 center, int n)
 
 
 Cell& World::_GetCell(Chunk* chunk, glm::vec3 rp)  {
-    if (!Ethertia::getWorld()) {
+    if (!Ethertia::GetWorld()) {
         static Cell EMP{0,0};
         return EMP;  // No..
     }
-    return Chunk::outbound(rp) ? /*chunk->m_World avoid interrupt Meshing*/Ethertia::getWorld()->getCell(chunk->position + rp) : chunk->getCell(rp);
+    return Chunk::outbound(rp) ? /*chunk->m_World avoid interrupt Meshing*/Ethertia::GetWorld()->getCell(chunk->position + rp) : chunk->getCell(rp);
 }
 
 

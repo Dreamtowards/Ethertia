@@ -38,7 +38,7 @@ public:
                     Timer::sleep_for(1);
                     continue;
                 }
-                World* world = Ethertia::getWorld();
+                World* world = Ethertia::GetWorld();
                 PROFILE_X(Dbg::dbgProf_ChunkMeshGen, "MeshGen");
 
                 Chunk* chunk = nullptr;
@@ -139,7 +139,7 @@ public:
         // Dont upload/to be render if Current and Previous Mesh is Empty.
         Ethertia::getScheduler().addTask([chunk, vtxTerrain, vtxVegetable, meshTerrain, meshVegetable]() {
 
-            if (Ethertia::getWorld() && chunk->m_World) {
+            if (Ethertia::GetWorld() && chunk->m_World) {
                 chunk->m_MeshTerrain->setMesh(meshTerrain);
                 chunk->m_MeshTerrain->updateModel(vtxTerrain->vertexCount() ? Loader::LoadVertexData(vtxTerrain) : nullptr);
 

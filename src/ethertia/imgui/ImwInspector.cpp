@@ -192,15 +192,15 @@ void Imw::Editor::ShowInspector(bool* _open)
 #pragma region Imw Hierarchy
 
 
-static void _CreateEntityToWorld(Entity* e)
-{
-    e->position() = Ethertia::getCamera().position;;
-    Ethertia::getWorld()->addEntity(e);
-}
+//static void _CreateEntityToWorld(Entity* e)
+//{
+//    e->position() = Ethertia::getCamera().position;;
+//    Ethertia::getWorld()->addEntity(e);
+//}
 
 static void _HrcEntities()
 {
-    World* world = Ethertia::getWorld();
+    World* world = Ethertia::GetWorld();
     if (!world) {
         ImGui::TextDisabled("World not loaded.");
         return;
@@ -211,12 +211,6 @@ static void _HrcEntities()
         ImGui::OpenPopup("new_entity");
     }
     if (ImGui::BeginPopup("new_entity")) {
-        bool disabledDueNoWorld = Ethertia::getWorld() == nullptr;
-        if (disabledDueNoWorld) {
-            ImGui::TextDisabled("Disabled due No World Loaded");
-            ImGui::BeginDisabled();
-        }
-
         //        if (ImGui::BeginMenu("Vehicle")) {
         ////            if (ImGui::MenuItem("Helicopter"))
         ////            {
@@ -263,9 +257,6 @@ static void _HrcEntities()
             }
         }
 
-        if (disabledDueNoWorld) {
-            ImGui::EndDisabled();
-        }
         ImGui::EndPopup();
     }
 

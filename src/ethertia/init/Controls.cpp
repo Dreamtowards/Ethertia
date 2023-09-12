@@ -77,7 +77,7 @@ static void handleKeyPress()
     }
 
     // Follow are Gameplay keys.
-    if (!Ethertia::isIngame() || !Ethertia::getWorld())
+    if (!Ethertia::isIngame() || !Ethertia::GetWorld())
         return;
 
     HitCursor& cur = Ethertia::getHitCursor();
@@ -98,7 +98,7 @@ static void handleKeyPress()
     }
 
     // Break Terrain
-    World* world = Ethertia::getWorld();
+    World* world = Ethertia::GetWorld();
     if (hitCellMtl && KeyBindings::KEY_G_ATTACK.isKeyDown())
     {
         if (isSurvivalMode)
@@ -243,7 +243,7 @@ static void handleKeyPress()
             bool dropAll = Ethertia::getWindow().isCtrlKeyDown();
             stack.moveTo(drop, dropAll ? stack.amount() : 1);
 
-            Ethertia::getWorld()->dropItem(player.position(), drop,player.getViewDirection() * 3.0f);
+            Ethertia::GetWorld()->dropItem(player.position(), drop,player.getViewDirection() * 3.0f);
         }
     }
 
@@ -305,7 +305,7 @@ static void handleKeyPress()
 
 void handleHitCursor()
 {
-    World* world = Ethertia::getWorld();
+    World* world = Ethertia::GetWorld();
     Camera& camera = Ethertia::getCamera();
 
     HitCursor& cur = Ethertia::getHitCursor();
@@ -316,7 +316,7 @@ void handleHitCursor()
     glm::vec3 _p_beg = camera.position;
 
     btCollisionObject* obj = nullptr;
-    cur.hit = Ethertia::getWorld()->raycast(_p_beg, _p_beg + camera.direction * 100.0f, p, n, &obj);
+    cur.hit = world->raycast(_p_beg, _p_beg + camera.direction * 100.0f, p, n, &obj);
 
     if (!cur.hit) {
         cur.reset();

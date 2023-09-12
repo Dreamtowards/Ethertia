@@ -128,7 +128,7 @@ static void Destroy()
 {
     Settings::SaveSettings();
 
-    if (Ethertia::getWorld()) {
+    if (Ethertia::GetWorld()) {
         Ethertia::UnloadWorld();
     }
 
@@ -150,7 +150,7 @@ static void RunMainLoop()
     double time_framebegin = Ethertia::getPreciseTime();
     Ethertia::getTimer().update(time_framebegin);
     float dt = Ethertia::getDelta();
-    World* world = Ethertia::getWorld();
+    World* world = Ethertia::GetWorld();
     Window& window = Ethertia::getWindow();
 
     {
@@ -248,7 +248,7 @@ static void RunMainLoop()
 
 void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 {
-    assert(getWorld() == nullptr);
+    assert(Ethertia::GetWorld() == nullptr);
     assert(Ethertia::getScheduler().numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
 
     g_World = new World(savedir, worldinfo);
@@ -272,7 +272,7 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 
 void Ethertia::UnloadWorld()
 {
-    assert(getWorld());
+    assert(Ethertia::GetWorld() != nullptr);
     Log::info("Unloading World...");
     Ethertia::getHitCursor().reset();
 
@@ -282,13 +282,13 @@ void Ethertia::UnloadWorld()
     Timer::wait_for(&ChunkMeshProc::g_Running, 0);  // before delete chunks
 
 
-    getWorld()->unloadAllChunks();
+    Ethertia::GetWorld()->unloadAllChunks();
 
     Log::info("Cleaning ChunkGen");
     ChunkGenProc::g_Running = -1;
     Timer::wait_for(&ChunkGenProc::g_Running, 0);
 
-    World* oldWorld = getWorld();
+    World* oldWorld = Ethertia::GetWorld();
     g_World = nullptr;
 
 
@@ -371,7 +371,7 @@ bool& Ethertia::isRunning() {
     return g_Running;
 }
 
-World* Ethertia::getWorld() { return g_World; }
+World* Ethertia::GetWorld() { return g_World; }
 EntityPlayer* Ethertia::getPlayer() { return g_Player; }
 
 float Ethertia::getPreciseTime() { return (float)Window::PreciseTime(); }
