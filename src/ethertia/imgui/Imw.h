@@ -30,9 +30,25 @@ public:
         static void ShowConsole(bool* _open);
 
 
-        // ImwInspector.cpp
-        inline static void* Inspecting = nullptr;
 
+        enum InspectionType
+        {
+            eNone,
+            eEntity,
+            eCamera,
+            ePipeline
+        };
+
+        inline static void* _InspectionObject = nullptr;
+        inline static InspectionType _InspectionType;
+
+        static void SetInspectionObject(void* inspecting, InspectionType type)
+        {
+            _InspectionObject = inspecting;
+            _InspectionType = type;
+        }
+
+        // ImwInspector.cpp
         static void ShowInspector(bool* _open);
 
         static void ShowHierarchy(bool* _open);

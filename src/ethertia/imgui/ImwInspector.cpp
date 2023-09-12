@@ -9,6 +9,17 @@
 #include <ethertia/init/Settings.h>
 
 
+
+#include <ethertia/Ethertia.h>
+#include <ethertia/entity/Entity.h>
+#include <ethertia/entity/EntityMesh.h>
+#include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/init/DebugStat.h>
+
+
+#pragma region Imw Inspector
+
+
 //static void _InspEntity()
 //{
 //
@@ -105,39 +116,80 @@
 //
 //}
 
+#include <format>
+#include <glm/gtx/string_cast.hpp>
+
 void Imw::Editor::ShowInspector(bool* _open)
 {
     ImGui::Begin("Inspector", _open);
 
-    void* inspecting = Imw::Editor::Inspecting;
-    if (!inspecting) {
-        ImGui::TextDisabled("No entity selected.");
+    void* inspectionObject = Imw::Editor::_InspectionObject;
+    auto inspectionType = Imw::Editor::_InspectionType;
+    if (!inspectionObject) {
+        ImGui::TextDisabled("Nothing inspecting.");
         ImGui::End();
         return;
-    }
-
-    if (Entity* entity = (Entity*)inspecting)
-    {
-
     }
     else
     {
-        ImGui::TextDisabled("Unsupported Inspecting type.");
-        ImGui::End();
-        return;
+        ImGui::TextDisabled(std::format("inspecting: {}.", inspectionObject).c_str());
+        ImGui::SameLine();
+        if (ImGui::SmallButton("x")) {
+            Imw::Editor::SetInspectionObject(nullptr, eNone);
+        }
+        ImGui::SeparatorText("");
     }
 
+    switch (inspectionType)
+    {
+        case eEntity: 
+        {
+            Entity* entity = (Entity*)inspectionObject;
 
+            ImGui::Text(std::format("Entity: {}", glm::to_string(entity->position())).c_str());
+            break;
+        }
+        case eCamera:
+        {
+            Camera* cam = (Camera*)inspectionObject;
+
+            ImGui::DragFloat3("Position", &cam->position.x);
+            ImGui::DragFloat3("Euler Angles", &cam->eulerAngles.x);
+
+            ImGui::SeparatorText("Perspective");
+            ImGui::DragFloat("Fov", &cam->fov);
+            ImGui::DragFloat("NearPlane", &cam->fov);
+            ImGui::DragFloat("FarPlane", &cam->fov);
+            break;
+        }
+        case ePipeline:
+        {
+
+            //break;
+        }
+        default:
+        {
+            ImGui::TextDisabled("Unsupported Inspecting type. %s", inspectionObject);
+            ImGui::End();
+            return;
+        }
+    }
 
     ImGui::End();
 }
 
 
-#include <ethertia/Ethertia.h>
-#include <ethertia/entity/Entity.h>
-#include <ethertia/entity/EntityMesh.h>
-#include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/init/DebugStat.h>
+
+
+
+#pragma endregion
+
+
+
+
+
+
+#pragma region Imw Hierarchy
 
 
 static void _CreateEntityToWorld(Entity* e)
@@ -146,32 +198,11 @@ static void _CreateEntityToWorld(Entity* e)
     Ethertia::getWorld()->addEntity(e);
 }
 
-
-void Imw::Editor::ShowHierarchy(bool* _open)
+static void _HrcEntities()
 {
-    ImGui::Begin("Hierarchy", _open);
-
-    {
-        static const char* types[] = { "Entities", "Graphics Pipelines" };
-        static int current = 0;
-
-        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-        if (ImGui::BeginCombo("##HierarchyType", types[current]))
-        {
-            for (size_t i = 0; i < std::size(types); i++)
-            {
-                if (ImGui::Selectable(types[i], i==current))
-                    current = i;
-            }
-            ImGui::EndCombo();
-        }
-        ImGui::PopItemWidth();
-    }
-
     World* world = Ethertia::getWorld();
     if (!world) {
         ImGui::TextDisabled("World not loaded.");
-        ImGui::End();
         return;
     }
     auto& entities = world->m_Entities;
@@ -186,36 +217,36 @@ void Imw::Editor::ShowHierarchy(bool* _open)
             ImGui::BeginDisabled();
         }
 
-//        if (ImGui::BeginMenu("Vehicle")) {
-////            if (ImGui::MenuItem("Helicopter"))
-////            {
-////                CreateEntityToWorld(new EntityHelicopter());
-////            }
-////            if (ImGui::MenuItem("DrivingSeat"))
-////            {
-////                CreateEntityToWorld(new EntityDrivingSeat());
-////            }
-////            if (ImGui::MenuItem("Propeller"))
-////            {
-////                CreateEntityToWorld(new EntityPropeller());
-////            }
-//            ImGui::EndMenu();
-//        }
-//        if (ImGui::MenuItem("Light")) {
-//
-//        }
-//        if (ImGui::MenuItem("Mesh"))
-//        {
-//            CreateEntityToWorld(new EntityMesh());
-//        }
-//        if (ImGui::MenuItem("Chicken"))
-//        {
-//            CreateEntityToWorld(new EntityChicken());
-//        }
-//        if (ImGui::MenuItem("Furnace"))
-//        {
-//            CreateEntityToWorld(new EntityFurnace());
-//        }
+        //        if (ImGui::BeginMenu("Vehicle")) {
+        ////            if (ImGui::MenuItem("Helicopter"))
+        ////            {
+        ////                CreateEntityToWorld(new EntityHelicopter());
+        ////            }
+        ////            if (ImGui::MenuItem("DrivingSeat"))
+        ////            {
+        ////                CreateEntityToWorld(new EntityDrivingSeat());
+        ////            }
+        ////            if (ImGui::MenuItem("Propeller"))
+        ////            {
+        ////                CreateEntityToWorld(new EntityPropeller());
+        ////            }
+        //            ImGui::EndMenu();
+        //        }
+        //        if (ImGui::MenuItem("Light")) {
+        //
+        //        }
+        //        if (ImGui::MenuItem("Mesh"))
+        //        {
+        //            CreateEntityToWorld(new EntityMesh());
+        //        }
+        //        if (ImGui::MenuItem("Chicken"))
+        //        {
+        //            CreateEntityToWorld(new EntityChicken());
+        //        }
+        //        if (ImGui::MenuItem("Furnace"))
+        //        {
+        //            CreateEntityToWorld(new EntityFurnace());
+        //        }
         ImGui::SeparatorText("Items");
 
         for (auto& it : Item::REGISTRY)
@@ -274,17 +305,17 @@ void Imw::Editor::ShowHierarchy(bool* _open)
         }
     }
 
-//    ImGui::SameLine();
-//    if (ImGui::TreeNode(".."))
-//    {
-//        ImGui::Checkbox("Show only In Frustum", &_ShowOnlyInFrustum);
-//        ImGui::Checkbox("Sort by Distance", &_SortByDistance);
-//        ImGui::SliderInt("List Limit", &_ListLimit, 0, 5000);
-//
-//        ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
-//
-//        ImGui::TreePop();
-//    }
+    //    ImGui::SameLine();
+    //    if (ImGui::TreeNode(".."))
+    //    {
+    //        ImGui::Checkbox("Show only In Frustum", &_ShowOnlyInFrustum);
+    //        ImGui::Checkbox("Sort by Distance", &_SortByDistance);
+    //        ImGui::SliderInt("List Limit", &_ListLimit, 0, 5000);
+    //
+    //        ImGui::TextDisabled("%i rendered / %i loaded.", Settings::dbgEntitiesRendered, (int)entities.size());
+    //
+    //        ImGui::TreePop();
+    //    }
 
 
     ImGui::Separator();
@@ -309,10 +340,57 @@ void Imw::Editor::ShowHierarchy(bool* _open)
             ++i;
         }
     }
+}
+
+void Imw::Editor::ShowHierarchy(bool* _open)
+{
+    ImGui::Begin("Hierarchy", _open);
+
+    static const char* types[] = { "Entities", "Pipelines", "Internals" };
+    static int current = 0;
+
+    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+    if (ImGui::BeginCombo("##HierarchyType", types[current]))
+    {
+        for (size_t i = 0; i < std::size(types); i++)
+        {
+            if (ImGui::Selectable(types[i], i == current))
+                current = i;
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
+
+    if (current == 0)
+    {
+        _HrcEntities();
+    }
+    else if (current == 1)
+    {
+
+    }
+    else if (current == 2)
+    {
+        if (ImGui::Selectable("Main Camera")) {
+            Imw::Editor::SetInspectionObject(&Ethertia::getCamera(), eCamera);
+        }
+
+        if (ImGui::Selectable("Pipeline: GBuffer")) {
+            Imw::Editor::SetInspectionObject(&Ethertia::getCamera(), eCamera);
+        }
+    }
 
 
     ImGui::End();
 }
+
+
+
+
+
+#pragma endregion
+
+
 
 
 
