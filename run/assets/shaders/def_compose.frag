@@ -33,13 +33,14 @@ layout(set = 0, binding = 1) uniform sampler2D gPosition;
 layout(set = 0, binding = 2) uniform sampler2D gNormal;
 layout(set = 0, binding = 3) uniform sampler2D gAlbdeo;
 layout(set = 0, binding = 4) uniform sampler2D gDRAM;
-layout(set = 0, binding = 5) uniform samplerCube testCubeMap;
+//layout(set = 0, binding = 5) uniform samplerCube testCubeMap;
 
 
 
 vec3 GetRayDir()
 {
-    vec2 ndc = vec2(TexCoord * 2.0 - 1.0);
+    vec2 uv = vec2(TexCoord.x, 1.0 - TexCoord.y);  // vulkan 2d LT coord, to world Y-up gl LB coord.
+    vec2 ndc = vec2(uv * 2.0 - 1.0);
     vec4 rayClip = vec4(ndc.xy, -1.0, 1.0);
 
     vec4 rayView = ubo.invMatProj * rayClip;
@@ -54,7 +55,7 @@ void main()
 {
     // Read Gbuffer
     vec4  _PosDep  = texture(gPosition, TexCoord);
-    vec3  FragPos = _PosDep.xyz;
+    vec3  WorldPos = _PosDep.xyz;
     float Depth    = _PosDep.w;
 
     vec3 CameraPos = ubo.CameraPos;
@@ -65,11 +66,11 @@ void main()
         vec3 SkyColor = vec3(0, 0.6, 1);
         FragColor = vec4(SkyColor * f, 1.0);
 
-        FragColor = texture(testCubeMap, RayDir);
+        //FragColor = texture(testCubeMap, RayDir);
         return;
     }
 
-    vec3 FragNorm = texture(gNormal, TexCoord).xyz;
+    vec3 WorldNorm = texture(gNormal, TexCoord).xyz;
     vec3 Albedo = texture(gAlbdeo, TexCoord).xyz;
 
     vec4 _DRAM = texture(gDRAM, TexCoord);
@@ -77,7 +78,7 @@ void main()
     float Roughness = _DRAM.y;
     float AO = _DRAM.z;
 
-    vec3 FragToCamera = normalize(CameraPos - FragPos);
+    vec3 FragToCamera = normalize(CameraPos - WorldPos);
 
     // Lighting
 
@@ -94,12 +95,12 @@ void main()
         Light light = ubo.lights[i];
 
         // Diffuse
-        vec3 FragToLight = normalize(light.position - FragPos);
-        vec3 Diffuse = Albedo * light.color * max(0.24, dot(FragToLight, FragNorm));
+        vec3 FragToLight = normalize(light.position - WorldPos);
+        vec3 Diffuse = Albedo * light.color * max(0.24, dot(FragToLight, WorldNorm));
 
         // Specular
         vec3 halfwayDir = normalize(FragToLight + FragToCamera);
-        vec3 Specular = light.color * specularIntensity * pow(max(dot(halfwayDir, FragNorm), 0.0), shininess);
+        vec3 Specular = light.color * specularIntensity * pow(max(dot(halfwayDir, WorldPos), 0.0), shininess);
 
         // SpotLight
         //        if (dot(-FragToLight, LightDir) > coneAngle) {
@@ -107,8 +108,9 @@ void main()
         //        }
 
         // Attenuation
-        float distance = length(light.position - FragPos);
-        float Atten = 1;//1.0 / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance*distance));
+        float distance = length(light.position - WorldPos);
+        float Atten = dot(light.attenuation, light.attenuation) == 0 ? 1.0 : 
+                      1.0 / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance*distance));
 
         totalDiffuse  += Diffuse  * Atten;
         totalSpecular += Specular * Atten;

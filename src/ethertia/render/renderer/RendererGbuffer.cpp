@@ -1,9 +1,7 @@
 
 
 #include <vkx/vkx.hpp>
-
 #include <glm/glm.hpp>
-
 #include <vector>
 
 #include <ethertia/util/Loader.h>
@@ -208,6 +206,202 @@ void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf)
             cmd.Draw(3);
         }
     }
+
+    cmd.EndRenderPass();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class RendererCompose
+{
+public:
+
+    inline static vk::RenderPass RenderPass;
+    inline static vk::Framebuffer Framebuffer;
+
+    inline static vkx::Image* rtColor = nullptr;
+    inline static vkx::Image* rtDepth = nullptr;
+
+    inline static vkx::GraphicsPipeline* Pipeline = nullptr;
+
+    inline static std::vector<vkx::UniformBuffer*> g_UniformBuffers;
+
+
+    struct Light
+    {
+        alignas(16) glm::vec3 position;
+        alignas(16) glm::vec3 color;
+        alignas(16) glm::vec3 attenuation;
+
+        alignas(16) glm::vec3 direction;
+        glm::vec2 coneAngle;
+    };
+    inline static struct UBO
+    {
+        alignas(16) glm::vec3 CameraPos;
+
+        alignas(16) glm::mat4 invMatView;
+        alignas(16) glm::mat4 invMatProj;
+
+        uint32_t lightCount;
+        Light lights[64];
+
+    } g_UBO;
+
+    static void Init(vk::ImageView gPosition, vk::ImageView gNormal, vk::ImageView gAlbedo);
+
+    static void RecordCommand(vk::CommandBuffer cmd);
+
+    static void UpdateUniformBuffer(int fifi);
+};
+
+
+void RendererCompose::Init(vk::ImageView gPosition, vk::ImageView gNormal, vk::ImageView gAlbedo)
+{
+    VKX_CTX_device_allocator;
+
+    // RenderPass
+    rtColor = vkx::CreateColorImage(g_AttachmentSize, vk::Format::eR8G8B8A8Unorm);
+    rtDepth = vkx::CreateDepthImage(g_AttachmentSize, vkxc.SwapchainDepthImageFormat);
+
+    RenderPass = vkx::CreateRenderPass(
+        {
+            vkx::IAttachmentDesc(rtColor->format, vk::ImageLayout::eShaderReadOnlyOptimal),
+            vkx::IAttachmentDesc(rtDepth->format, vk::ImageLayout::eDepthStencilAttachmentOptimal),
+        },
+        vkx::IGraphicsSubpass(
+            vkx::IAttachmentRef(0, vk::ImageLayout::eColorAttachmentOptimal),
+            vkx::IAttachmentRef(1, vk::ImageLayout::eDepthStencilAttachmentOptimal)
+        ));
+
+    Framebuffer = vkx::CreateFramebuffer(g_AttachmentSize, RenderPass,
+        {
+            rtColor->imageView,
+            rtDepth->imageView
+        });
+
+    // Pipeline, Descriptor
+
+    Pipeline = vkx::CreateGraphicsPipeline(
+        {
+            {Loader::LoadAsset("shaders/def_compose.vert.spv"), vk::ShaderStageFlagBits::eVertex},
+            {Loader::LoadAsset("shaders/def_compose.frag.spv"), vk::ShaderStageFlagBits::eFragment},
+        },
+        {},
+        vkx::CreateDescriptorSetLayout({
+            {vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment},           // frag UBO
+            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gPosition
+            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gNormal
+            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gAlbedo
+            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment}     // gDRAM
+        }),
+        {},
+        {},
+        RenderPass
+    );
+
+
+    for (int i = 0; i < vkxc.InflightFrames; ++i) {
+        g_UniformBuffers.push_back(vkx::CreateUniformBuffer(sizeof(UBO)));
+    }
+
+    for (int i = 0; i < vkxc.InflightFrames; ++i) 
+    {
+        vkx::WriteDescriptorSet(Pipeline->DescriptorSets[i],
+            {
+                { .buffer = vkx::IDescriptorBuffer(g_UniformBuffers[i]) },
+                { .image = vkx::IDescriptorImage(gPosition) },
+                { .image = vkx::IDescriptorImage(gNormal) },
+                { .image = vkx::IDescriptorImage(gAlbedo) },
+                { .image = vkx::IDescriptorImage(gAlbedo) }  // todo DRAM
+            });
+    }
+
+
+}
+
+void RendererCompose::UpdateUniformBuffer(int fifi)
+{
+    UBO& ubo = g_UBO;
+    Camera& cam = Ethertia::getCamera();
+
+    ubo.CameraPos = cam.position;
+
+    ubo.invMatView = glm::inverse(cam.matView);
+    ubo.invMatProj = glm::inverse(cam.matProjection);
+
+    //ubo.invMatProj = cam.matProjection;
+    //ubo.invMatProj[1][1] *= -1;
+    //ubo.invMatProj = glm::inverse(g_UBO.invMatProj);
+
+    ubo.lightCount = 1;
+
+    ubo.lights[0] = {
+            .position = ubo.invMatView[3],
+            .color = {3,2,1},
+            .attenuation = {0.3, 0.1, 0.01}
+    };
+
+
+    g_UniformBuffers[fifi]->Upload(&g_UBO);
+
+}
+
+
+void RendererCompose::RecordCommand(vk::CommandBuffer cmdbuf)
+{
+    int fif_i = vkx::ctx().CurrentInflightFrame;
+
+    UpdateUniformBuffer(fif_i);
+
+    vkx::CommandBuffer cmd{ cmdbuf };
+
+    cmd.BeginRenderPass(RenderPass, Framebuffer, g_AttachmentSize,
+        {
+            vkx::ClearValueColor(0, 0, 0.2f),
+            vkx::ClearValueDepthStencil()
+        });
+
+    cmd.SetViewport({}, g_AttachmentSize);
+    cmd.SetScissor({}, g_AttachmentSize);
+
+    cmd.BindDescriptorSets(Pipeline->PipelineLayout, Pipeline->DescriptorSets[fif_i]);
+
+    cmd.BindGraphicsPipeline(Pipeline->Pipeline);
+
+    cmd.Draw(6);
 
     cmd.EndRenderPass();
 }

@@ -166,10 +166,10 @@ void main()
     Albedo = texture(texDiff, vec2(WorldPos.x / ubo.MtlTexCap, 1-WorldPos.z)).rgb;
 
     // Gbuffer Output
-    gPosition.xyz   = WorldPos;
-    //gPosition.w     = 
-    //gNormal.xyz = FragNorm;
-    //gNormal.w   = 1;
-    gAlbedo.xyz = Albedo;  // BaryCoord
-    gAlbedo.w   = 1;
+    gPosition.xyz = WorldPos;
+    gPosition.w   = LnDepth;
+    gNormal.xyz   = WorldNorm;
+    gNormal.w     = 1;
+    gAlbedo.xyz   = Albedo;  // BaryCoord
+    gAlbedo.w     = 1;
 }

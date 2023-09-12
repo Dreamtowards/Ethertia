@@ -68,8 +68,14 @@ void RenderEngine::Init()
 
 
     RendererGbuffer::Init();
+    RendererCompose::Init(
+        RendererGbuffer::gPosition->imageView,
+        RendererGbuffer::gNormal->imageView,
+        RendererGbuffer::gAlbedo->imageView);
 
-    Imw::Gameplay::GameImageView = RendererGbuffer::gAlbedo->imageView;
+    Imw::Gameplay::GameImageView = RendererCompose::rtColor->imageView;
+    // RendererGbuffer::gAlbedo->imageView;
+    
 
 
 //    RendererGbuffer::init();
@@ -118,6 +124,8 @@ void RenderEngine::Render()
     }
 
     RendererGbuffer::RecordCommand(cmd);
+
+    RendererCompose::RecordCommand(cmd);
 
 //    World* world = Ethertia::getWorld();
 //    if (world)
