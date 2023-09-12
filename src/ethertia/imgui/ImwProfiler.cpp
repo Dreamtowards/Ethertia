@@ -36,7 +36,7 @@ static float _RenderProfilerSection(const Profiler::Section& sec, float x, float
         dx += _RenderProfilerSection(sub_sec, x+dx, y-LINE_HEIGHT, s_width, s_time, timefunc);
     }
 
-    if (ImGui::IsWindowFocused() && ImGui::IsMouseHoveringRect(min, max))
+    if (ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(min, max))
     {
         ImGui::SetTooltip("%s\n"
                           "\n"
