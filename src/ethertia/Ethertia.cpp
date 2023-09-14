@@ -31,6 +31,8 @@
 #include <ethertia/world/Biome.h>
 #include <ethertia/imgui/Imw.h>
 
+#include <thread>
+
 
 static void Init();
 static void Destroy();
@@ -68,11 +70,11 @@ static void Init()
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::LoadSettings();
     NoiseGen::initSIMD();
-    //    Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::sys_target()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
+    Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::os_arch()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
 
-    for (const std::string& modpath : Settings::Mods) {
-        ModLoader::loadMod(modpath);
-    }
+    //for (const std::string& modpath : Settings::Mods) {
+    //    ModLoader::LoadMod(modpath);
+    //}
     //OpenVR::init();
 
     Ethertia::isRunning() = true;
@@ -95,6 +97,8 @@ static void Init()
     g_Player->switchGamemode(Gamemode::CREATIVE);
     g_Player->setFlying(true);
 
+
+    //std::thread_pool tp;
 
     // Proc Threads
     ChunkMeshProc::initThread();

@@ -101,6 +101,8 @@ add_executable(Ethertia
 
         src/vkx/vkx.cpp
 
+        src/stdx/thread_pool.cpp
+
         lib/imgui-docking/imgui.cpp
         lib/imgui-docking/imgui_draw.cpp
         lib/imgui-docking/imgui_widgets.cpp

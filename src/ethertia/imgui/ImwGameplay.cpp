@@ -219,7 +219,6 @@ glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta
     newEye += moveDelta + moveAbsDelta;
 
     return glm::lookAt(newEye, pivot, { 0, 1, 0 });
-
 }
 
 static void _MoveCamera()

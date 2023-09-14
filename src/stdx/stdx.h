@@ -5,6 +5,14 @@
 
 namespace stdx
 {
+
+	template<typename T>
+	static T* ptr(const T& ref)
+	{
+		return reinterpret_cast<T*>(&ref);
+	}
+
+
 	// return true: success erased.
 	template<typename T>
 	bool erase(std::vector<T>& ls, size_t idx)
@@ -29,12 +37,6 @@ namespace stdx
 	{
 		return std::find(ls.begin(), ls.end(), val) != ls.end();
 	}
-
-    template<typename T>
-    static T* ptr(const T& ref)
-    {
-        return reinterpret_cast<T*>(&ref);
-    }
 
     template<typename K, typename V>
     static K find_key(const std::map<K, V>& m, const V& val)
