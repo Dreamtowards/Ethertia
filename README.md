@@ -2,11 +2,11 @@
 
 # Ethertia <sub><sup>· 以太效應</sup></sub>
 
-__Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan, PhysX, C++20
+__Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan, PhysX, C++20.
 
 [Documentations](https://docs.ethertia.com) - 
 [Official Site](https://ethertia.com) - 
-[Discord](https://zh.wikipedia.org/wiki/Ethertia) &nbsp;|&nbsp;
+[Discord](https://discord.gg/2gzHbuXF) &nbsp;|&nbsp;
 [Bilibili](https://space.bilibili.com/19483166) - 
 [QQ](https://jq.qq.com/?_wv=1027&k=tgM29oDM)
 
@@ -15,7 +15,7 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 
 ### Showcase
 
-[Video: Demo 23w14]()
+[Video: Demo 23w14](https://www.bilibili.com/video/BV1ov4y1H7Eo)
 
 ![](https://raw.githubusercontent.com/Dreamtowards/Ethertia/main/run/screenshots/qs230402.png)
 
@@ -25,10 +25,10 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 
 ### **Intro**
 
-- [Overview]()
-- [Build & Run](run/assets/docs/zh-cn/build-run.md)
-- [Roadmap](run/assets/docs/zh-cn/about-ethertia.md)
-- [Showcase]()
+- [Overview](//docs.ethertia.com/intro)
+- [Build & Run](//docs.ethertia.com/intro/build-run)
+- [Roadmap](//docs.ethertia.com/intro/roadmap)
+- [Showcase](//docs.ethertia.com/intro/showcase)
 
 ### **Gameplay**
 
@@ -47,7 +47,7 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 
 ### **Credits**
 
-- <small>Devlopment:</small> 
+- <small>Devlopers:</small> 
   [Eldrine Le Prismarine](https://elytra.dev/~pris), Thaumstrail
 - <small>Composition:</small> N/A
 - <small>Libraries:</small> PhysX (NVIDIA); Vulkan (Khoronos, AMD, LunarG); stb (Sean Barret); ... 
