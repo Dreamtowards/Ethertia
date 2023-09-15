@@ -6,7 +6,7 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 
 [Documentations](https://docs.ethertia.com) - 
 [Official Site](https://ethertia.com) - 
-[Discord](https://zh.wikipedia.org/wiki/Ethertia) -
+[Discord](https://zh.wikipedia.org/wiki/Ethertia) &nbsp;|&nbsp;
 [Bilibili](https://space.bilibili.com/19483166) - 
 [QQ](https://jq.qq.com/?_wv=1027&k=tgM29oDM)
 
@@ -16,6 +16,8 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 > and the main development force are on the ["algorithm" branch](https://github.com/Dreamtowards/Ethertia/tree/algorithm) (Vulkan, PhysX).
 > 
 > -> Learn more about our [Roadmap](https://docs.ethertia.com/intro/roadmap)
+
+---
 
 ### Showcase
 
@@ -43,23 +45,16 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 ### **Development**
 
 - [Rendering]()
-- [Physics]()
 - [WorldGen]()
+- [Physics]()
 - [Mobs]()
-- [Gui]()
 - [Modding]()
 - [Networking]()
 
 ### **Credits**
 
 - <small>Devlopment:</small> 
-  [@Eldrine Le Prismarine](https://elytra.dev/~pris), @Thaumstrail
-- <small>Ingame artwork:</small> N/A
-- <small>Libraries:</small> PhysX © NVIDIA; Vulkan © Khoronos, AMD, LunarG; stb © Sean Barret; ... 
+  [Eldrine Le Prismarine](https://elytra.dev/~pris), Thaumstrail
+- <small>Composition:</small> N/A
+- <small>Libraries:</small> PhysX (NVIDIA); Vulkan (Khoronos, AMD, LunarG); stb (Sean Barret); ... 
 
-
-<!--
-- Devlopment: [@Eldrine Le Prismarine](https://elytra.dev/~pris) (voxel, graphics, gameplay), Thaumstrail
-- Ingame artwork: none
-- Thirdparty: PhysX © NVIDIA
--->
