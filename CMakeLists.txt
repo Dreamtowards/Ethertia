@@ -69,16 +69,17 @@ endif()
 include_directories(src)
 include_directories(lib)
 
-include_directories(lib/glfw/include)
+include_directories(lib/glfw-3.3.8/include)
 include_directories(lib/imgui-docking)
 
 include_directories(lib/physx-5.2.1/include)
 include_directories(lib/bullet3/src)
-include_directories(lib/fastnoise2/include)
+include_directories(lib/fastnoise2-0.10.0a/include)
 
-include_directories(lib/enet/include)
-include_directories(lib/msgpack/include)
+include_directories(lib/enet-2.3.6/include)
+include_directories(lib/msgpack-cppack19/include)
 
+include_directories(lib/glm-0.9.9.8)
 include_directories(lib/stb)
 include_directories(lib/json-nlohmann-3.11.2/include)
 include_directories(lib/tinyobjloader-1.0.6)
@@ -96,11 +97,9 @@ include_directories(lib/tinyfd-2.9.3)
 
 
 add_executable(Ethertia
-#        lib/glad45/src/glad.c
         lib/tinyfd-2.9.3/tinyfiledialogs.c
 
         src/vkx/vkx.cpp
-
         src/stdx/thread_pool.cpp
 
         lib/imgui-docking/imgui.cpp
@@ -110,7 +109,6 @@ add_executable(Ethertia
         lib/imgui-docking/imgui_demo.cpp
         lib/imgui-docking/backends/imgui_impl_glfw.cpp
         lib/imgui-docking/backends/imgui_impl_vulkan.cpp
-#        lib/imgui-docking/backends/imgui_impl_opengl3.cpp
 
         lib/imguizmo/ImGuizmo.cpp
         lib/imgui-knobs/imgui-knobs.cpp
@@ -122,7 +120,6 @@ add_executable(Ethertia
         src/ethertia/imgui/ImwGameplay.cpp
         src/ethertia/imgui/ImwInspector.cpp
         src/ethertia/imgui/ImwProfiler.cpp
-        #src/ethertia/imgui/ImwGameplay.cpp
         #src/ethertia/imgui/ImwDebug.cpp
 
         src/ethertia/init/init_load.cpp
@@ -138,14 +135,9 @@ add_executable(Ethertia
         src/ethertia/init/Settings.cpp
         src/ethertia/render/Window.cpp
         src/ethertia/render/RenderEngine.cpp
-#        src/ethertia/render/ShaderProgram.cpp
-#        src/ethertia/render/RenderCommand_ImplGL.cpp
         src/ethertia/render/VertexData.cpp
         src/ethertia/item/ItemComponents.cpp
         src/ethertia/world/World.cpp
-
-#        src/ethertia/render/vkx/vkx.cpp
-#        src/ethertia/render/glc/glc.cpp
 
         #src/ethertia/render/renderer/RendererGbuffer.cpp    
 
@@ -194,13 +186,13 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 
     set(GLFW_BUILD_EXAMPLES OFF)
     set(GLFW_BUILD_TESTS OFF)
-    add_subdirectory(lib/glfw)
+    add_subdirectory(lib/glfw-3.3.8)
     target_link_libraries(Ethertia glfw)
 
     add_subdirectory(lib/bullet3)
     target_link_libraries(Ethertia BulletDynamics BulletCollision LinearMath)
 
-    add_subdirectory(lib/fastnoise2)
+    add_subdirectory(lib/fastnoise2-0.10.0a)
     target_link_libraries(Ethertia FastNoise2)
 
 #    add_subdirectory(lib/openal-soft)
