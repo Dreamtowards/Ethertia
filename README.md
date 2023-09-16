@@ -53,17 +53,17 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 - <small>Libraries:</small> 
 [PhysX 5.2.1](https://github.com/NVIDIA-Omniverse/PhysX) (NVIDIA); 
 [Vulkan](https://www.vulkan.org/) (Khoronos, AMD, LunarG);  
-[stb](https://github.com/nothings/stb) (Sean Barret: stb_image, stb_image_write, stb_image_resize, stb_vorbis)  
-[fastnoise2-0.10.0a](https://github.com/Auburn/FastNoise2)  
-[imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (& imgui-imnodes, ImGuizmo, imgui-knobs)  
-[enet-2.3.6](https://github.com/zpl-c/enet)  
-[openvr-1.26.7](https://github.com/ValveSoftware/openvr)  
+[stb_image*, stb_vorbis](https://github.com/nothings/stb) (Sean Barret)  
+[fastnoise2-0.10.0a](https://github.com/Auburn/FastNoise2) (Auburn)  
+[imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (ocornut; imgui-imnodes, ImGuizmo, imgui-knobs)  
+[enet-2.3.6](https://github.com/zpl-c/enet) (Lee Salzman, Bespin, Dominik Madarász "zpl-zak")  
+[openvr-1.26.7](https://github.com/ValveSoftware/openvr) (Valve)  
 [json-nlohmann-3.11.2](https://github.com/nlohmann/json)  
-[tinyobjloader-1.0.6](https://github.com/tinyobjloader/tinyobjloader)  
+[tinyobjloader-1.0.6](https://github.com/tinyobjloader/tinyobjloader) (Syoyo Fujita, etc)  
 [tinyfd-2.9.3](https://github.com/native-toolkit/libtinyfiledialogs)  
-[nativefiledialogs-0.116](https://github.com/mlabbe/nativefiledialog)  
-[openal-soft-0.23.7.4](https://github.com/kcat/openal-soft)  
-[glfw-3.3.8](https://github.com/glfw/glfw)  
-[glm-0.9.9.8](https://github.com/g-truc/glm)  
+[nativefiledialogs-0.116](https://github.com/mlabbe/nativefiledialog) (mlabbe)  
+[openal-soft-0.23.7.4](https://github.com/kcat/openal-soft) (kcat)  
+[glfw-3.3.8](https://github.com/glfw/glfw) (Marcus Geelnard, Camilla Löwy "elmindreda")  
+[glm-0.9.9.8](https://github.com/g-truc/glm) (g-truc)  
 ... 
 
