@@ -50,15 +50,15 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 - <small>Devlopers:</small> 
   [Eldrine Le Prismarine](https://elytra.dev/~pris), Thaumstrail
 - <small>Composition:</small> N/A
-- <small>Libraries:</small> 
-[PhysX 5.2.1](https://github.com/NVIDIA-Omniverse/PhysX) (NVIDIA); 
-[Vulkan](https://www.vulkan.org/) (Khoronos, AMD, LunarG);  
-[stb_image*, stb_vorbis](https://github.com/nothings/stb) (Sean Barret)  
+- <small>Libraries:</small>   
+[PhysX 5.2.1](https://github.com/NVIDIA-Omniverse/PhysX) (NVIDIA);  
+[Vulkan](https://www.vulkan.org/) (Khoronos, AMD, LunarG);   
+[stb](https://github.com/nothings/stb) (Sean Barret "nothings"; stb_image*, stb_vorbis)  
 [fastnoise2-0.10.0a](https://github.com/Auburn/FastNoise2) (Auburn)  
 [imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (ocornut; imgui-imnodes, ImGuizmo, imgui-knobs)  
 [enet-2.3.6](https://github.com/zpl-c/enet) (Lee Salzman, Bespin, Dominik Madarász "zpl-zak")  
 [openvr-1.26.7](https://github.com/ValveSoftware/openvr) (Valve)  
-[json-nlohmann-3.11.2](https://github.com/nlohmann/json)  
+[json-nlohmann-3.11.2](https://github.com/nlohmann/json) (Niels Lohmann)  
 [tinyobjloader-1.0.6](https://github.com/tinyobjloader/tinyobjloader) (Syoyo Fujita, etc)  
 [tinyfd-2.9.3](https://github.com/native-toolkit/libtinyfiledialogs)  
 [nativefiledialogs-0.116](https://github.com/mlabbe/nativefiledialog) (mlabbe)  
