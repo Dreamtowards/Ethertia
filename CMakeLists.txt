@@ -57,14 +57,6 @@ if(WIN32)
 endif()
 
 
-#if (APPLE)
-#    # VK_ICD_FILENAMES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json
-#    link_directories(lib/vulkan/bin/darwin-x64)
-#    link_libraries(vulkan.1.3.236)
-#elseif(WIN32)
-#    link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
-#endif ()
-
 
 include_directories(src)
 include_directories(lib)
@@ -73,25 +65,23 @@ include_directories(lib/glfw-3.3.8/include)
 include_directories(lib/imgui-docking)
 
 include_directories(lib/physx-5.2.1/include)
-include_directories(lib/bullet3/src)
 include_directories(lib/fastnoise2-0.10.0a/include)
+include_directories(lib/glm-0.9.9.8)
 
 include_directories(lib/enet-2.3.6/include)
 include_directories(lib/msgpack-cppack19/include)
 
-include_directories(lib/glm-0.9.9.8)
 include_directories(lib/stb)
 include_directories(lib/json-nlohmann-3.11.2/include)
 include_directories(lib/tinyobjloader-1.0.6)
 include_directories(lib/tinyfd-2.9.3)
 
-#include_directories(lib/glad45/include)
-#include_directories(lib/entt/src)
+include_directories(lib/bullet3/src)
+
 #include_directories(lib/openal-soft/include)
 #include_directories(lib/yaml-cpp/include)
 #include_directories(lib/nbt/include)
 #include_directories(lib/openvr/headers)
-#include_directories(lib/jsonmeo-0.23.8/include)
 
 #include_directories(lib/vulkan/include)
 
@@ -146,27 +136,8 @@ add_executable(Ethertia
 add_executable(Elytra
         src/ethertia/lang/Elytra.cpp)
 
-set_target_properties(
-    Ethertia PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/run")
 
 
-#add_executable(Eldaria
-#        lib/imgui-docking/imgui.cpp
-#        lib/imgui-docking/imgui_draw.cpp
-#        lib/imgui-docking/imgui_widgets.cpp
-#        lib/imgui-docking/imgui_tables.cpp
-#        lib/imgui-docking/imgui_demo.cpp
-#        lib/imgui-docking/backends/imgui_impl_glfw.cpp
-#        lib/imgui-docking/backends/imgui_impl_vulkan.cpp
-#        lib/tinyfd/tinyfiledialogs.c
-#
-#        src/eldaria/Eldaria.cpp
-#        src/eldaria/util/Loader.cpp
-#        src/ethertia/util/Loader.cpp
-#        src/ethertia/render/VertexData.cpp
-#        src/eldaria/vulkan/VulkanIntl.cpp
-#        src/eldaria/imgui/Imgui.cpp)
 
 
 add_executable(DedicatedServer
@@ -198,8 +169,6 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
 #    add_subdirectory(lib/openal-soft)
 #    target_link_libraries(Ethertia OpenAL)
 
-#    add_subdirectory(lib/entt)
-
 else()
     target_link_directories(Ethertia PUBLIC ${BIN_DIR})
 #    target_link_directories(Eldaria PUBLIC ${BIN_DIR})
@@ -220,16 +189,6 @@ endif()
 
 
 
-#set(NBT_BUILD_SHARED ON)  # required for build shared-library.
-set(NBT_BUILD_TESTS OFF)
-add_subdirectory(lib/nbt)
-target_link_libraries(Ethertia nbt++)
-
-
-#target_link_libraries(Ethertia openvr_api)
-
-
-
 if (MSVC)
     target_compile_options(Ethertia PRIVATE
         /wd4267  # msvc ignore C4267: implicit conversion possible loss of data e.g. uint32_t count = (size_t)ls.size();
@@ -238,32 +197,53 @@ if (MSVC)
     )
 endif()
 
-target_include_directories(Ethertia PRIVATE
-        "C:/Softwares/VulkanSDK/1.3.250.0/Include/")
 
-target_link_directories(Ethertia PRIVATE
-        "C:/Softwares/VulkanSDK/1.3.250.0/Lib/")
-
-target_link_libraries(Ethertia
-        "vulkan-1")
+# Setup Vulkan
+set(VULKAN_SDK "C:/Softwares/VulkanSDK/1.3.250.0")
+target_include_directories(Ethertia PRIVATE "${VULKAN_SDK}/Include/")
+target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
+target_link_libraries(Ethertia "vulkan-1")
 
 
-#add_subdirectory(lib/openvr)
-
-#add_subdirectory(lib/yaml-cpp)
-#link_libraries(yaml-cpp)
 
 
-# https://vulkan.lunarg.com/sdk/home
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#set(NBT_BUILD_SHARED ON)  # required for build shared-library.
+set(NBT_BUILD_TESTS OFF)
+add_subdirectory(lib/nbt)
+target_link_libraries(Ethertia nbt++)
+
+#target_link_libraries(Ethertia openvr_api)
+
+
+
+
 
 # Vulkan, for Apple Darwin need 2 env variables: (no quote)
 #VK_DRIVER_FILES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json    # a.k.a. VK_ICD_FILENAMES, installable client drivers.
 #VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d           # for validation layer.
 
-
-
 #set(VULKAN_SDK "E:/_Dev/VulkanSDK/1.3.243.0")
 #find_package(Vulkan REQUIRED)
 #target_link_libraries(target ${Vulkan_LIBRARIES})
 
-#if (APPLE) ###    link_libraries(MoltenVK)  # Dont Link MoltenVK Manually. it's linked by ICD loaders.
+#if (APPLE)
+#    # VK_ICD_FILENAMES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json
+#    link_directories(lib/vulkan/bin/darwin-x64)
+#    link_libraries(vulkan.1.3.236)
+#elseif(WIN32)
+#    link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
+#endif ()
