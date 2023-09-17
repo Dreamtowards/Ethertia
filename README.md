@@ -47,8 +47,9 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 
 ### **Credits**
 
-- <small>Devlopers:</small> 
-  [Eldrine Le Prismarine "Dreamtowards"](https://elytra.dev/~pris), Thaumstrail
+- <small>Devlopers:</small>   
+  [Dreamtowards](https://elytra.dev/~pris),  
+- [Thaumstrail](https://github.com/thaumstrial)
 - <small>Composition:</small> N/A
 - <small>Libraries:</small>   
   - [physx-5.2.1](https://github.com/NVIDIA-Omniverse/PhysX) (NVIDIA);  
@@ -56,14 +57,14 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
   - [stb](https://github.com/nothings/stb) (Sean Barret "nothings"; stb_image*, stb_vorbis)  
   - [fastnoise2-0.10.0a](https://github.com/Auburn/FastNoise2) (Jordan Peck "Auburn")  
   - [imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (ocornut; imgui-imnodes, ImGuizmo, imgui-knobs)  
+  - [glm-0.9.9.8](https://github.com/g-truc/glm) (g-truc)  
   - [enet-2.3.6](https://github.com/zpl-c/enet) (Lee Salzman, Bespin, Dominik Madarász "zpl-zak")  
   - [msgpack-cppack-0.19](https://github.com/mikeloomisgg/cppack) (Mike Loomis "mikeloomisgg", msgpack spec)  
   - [openvr-1.26.7](https://github.com/ValveSoftware/openvr) (Valve Corp)  
-  - [json-nlohmann-3.11.2](https://github.com/nlohmann/json) (Niels Lohmann)  
+  - [openal-soft-0.23.7.4](https://github.com/kcat/openal-soft) (kcat)  
   - [tinyobjloader-1.0.6](https://github.com/tinyobjloader/tinyobjloader) (Syoyo Fujita, etc)  
   - [tinyfd-2.9.3](https://github.com/native-toolkit/libtinyfiledialogs) (Joshua Granick)  
-  - [openal-soft-0.23.7.4](https://github.com/kcat/openal-soft) (kcat)  
+  - [json-nlohmann-3.11.2](https://github.com/nlohmann/json) (Niels Lohmann)  
   - [glfw-3.3.8](https://github.com/glfw/glfw) (Marcus Geelnard, Camilla Löwy "elmindreda")  
-  - [glm-0.9.9.8](https://github.com/g-truc/glm) (g-truc)  
 ... 
 
