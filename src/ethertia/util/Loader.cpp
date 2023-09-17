@@ -751,28 +751,6 @@ void Loader::OpenURL(const std::string& url)
 }
 
 
-// Test
-//Loader::ShowMessageBox("Title", "Msg");
-//
-//Loader::ShowInputBox("Title", "Msg", "sth");
-//
-//const char* s = Loader::OpenFileDialog("Titlea", nullptr, {}, "Imgs Files", true);
-//if (s) {
-//    Log::info("s: {}", s);
-//    Loader::ShowMessageBox("Title", s, "okcancel", "warning");
-//}
-//
-//s = Loader::OpenFolderDialog("Titlea", "C:/Dev/Algerithm");
-//if (s) {
-//    Log::info("s: {}", s);
-//    Loader::ShowMessageBox("Title", s, "yesno", "error");
-//}
-//
-//Loader::OpenColorPicker("ColPk", Colors::BLUE, nullptr, &s);
-//if (s) {
-//    Log::info("s: {}", s);
-//    Loader::ShowMessageBox("Title", s, "yesnocancel", "question");
-//}
 
 
 

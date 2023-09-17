@@ -278,6 +278,7 @@ static void _ShowMainMenuBar()
             ImGui::Separator();
             Imgui::MenuItemToggleShow("Debug Info", Imw::Settings::ShowSettings, "F3");
             Imgui::MenuItemToggleShow("ImGui::DemoWindow", ImGui::ShowDemoWindow);
+            Imgui::MenuItemToggleShow("Imw::Debug::ShowDialogs", Imw::Debug::ShowDialogs);
 
             ImGui::Separator();
 

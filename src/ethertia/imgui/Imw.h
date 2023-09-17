@@ -103,4 +103,11 @@ public:
     };
 
 
+    class Debug
+    {
+    public:
+
+        static void ShowDialogs(bool* _open);
+    };
+
 };

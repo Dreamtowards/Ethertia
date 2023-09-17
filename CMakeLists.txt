@@ -110,7 +110,7 @@ add_executable(Ethertia
         src/ethertia/imgui/ImwGameplay.cpp
         src/ethertia/imgui/ImwInspector.cpp
         src/ethertia/imgui/ImwProfiler.cpp
-        #src/ethertia/imgui/ImwDebug.cpp
+        src/ethertia/imgui/ImwDebug.cpp
 
         src/ethertia/init/init_load.cpp
 
