@@ -714,6 +714,16 @@ const char* Loader::OpenFileDialog(
     return tinyfd_openFileDialog(title, defaultPath, filterPatterns.size(), filterPatterns.begin(), filterDesc, allowMultipleSelects);
 }
 
+
+const char* Loader::SaveFileDialog(
+    const char* title,
+    const char* defaultPath,
+    std::initializer_list<const char*> filterPatterns,
+    const char* singleFilterDesc)
+{
+    return tinyfd_saveFileDialog(title, defaultPath, filterPatterns.size(), filterPatterns.begin(), singleFilterDesc);
+}
+
 const char* Loader::OpenFolderDialog(const char* title, const char* defaultPath)
 {
     return tinyfd_selectFolderDialog(title, defaultPath);

@@ -35,6 +35,12 @@ void Imw::Debug::ShowDialogs(bool* _open)
 		if (s) Log::info("Result: {}", s);
 	}
 
+	if (ImGui::Button("SaveFileDialog"))
+	{
+		const char* s = Loader::SaveFileDialog("Title2");
+		if (s) Log::info("Result: {}", s);
+	}
+
 	if (ImGui::Button("OpenFolderDialog"))
 	{
 		const char* s = Loader::OpenFolderDialog("Title2", nullptr);

@@ -185,6 +185,15 @@ public:
             const char* filterDesc = nullptr,                        // NULL or "image files"
             bool allowMultipleSelects = false);
 
+
+    // returns NULL on cancel
+    static const char* SaveFileDialog(
+        const char* title = nullptr,
+        const char* defaultPath = nullptr,
+        std::initializer_list<const char*> filterPatterns = {},  // NULL or {"*.jpg","*.png"}
+        const char* singleFilterDesc = nullptr);                 // NULL or "image files"
+
+
     static const char* OpenFolderDialog(const char* title = "", const char* defaultPath = "");
 
 
