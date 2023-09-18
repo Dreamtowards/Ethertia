@@ -37,7 +37,12 @@ static void _ListFolder(const std::filesystem::path& _path, const std::string& d
         {
             flags |= ImGuiTreeNodeFlags_Selected;
         }
-        if (ImGui::TreeNodeEx(filename.c_str(), flags))
+        bool open = ImGui::TreeNodeEx(filename.c_str(), flags);
+        if (ImGui::IsItemClicked())
+        {
+            Imw::Editor::ExploringPath = _path;
+        }
+        if (open)
         {
             // order: folders, then files
             std::vector<std::filesystem::path> ls;
@@ -60,10 +65,6 @@ static void _ListFolder(const std::filesystem::path& _path, const std::string& d
                 _ListFolder(p, {}, listFiles);
             }
             ImGui::TreePop();
-        }
-        if (ImGui::IsItemClicked())
-        {
-            Imw::Editor::ExploringPath = _path;
         }
     }
     else
@@ -183,7 +184,6 @@ static void _ListThaumbnails()
     ImGui::EndChild();
 
     ImGui::PushItemWidth(128);
-    //ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin() + ImVec2{0, ImGui::GetWindowContentRegionMax().y - 18});
     ImGui::SliderFloat("Size", &s_ThumbnailsSize, 32, 320);
     ImGui::PopItemWidth();
 }
@@ -196,12 +196,15 @@ void Imw::Editor::ShowExplorer(bool* _open)
     ImGui::BeginChild("ImwExplorerOutline", { 300, 0 }, true);
     {
         static bool s_ListFiles = true;
-        ImGui::Checkbox("ListFiles", &s_ListFiles);
-        ImGui::SameLine();
+
         if (ImGui::Button("+"))
         {
 
         }
+        ImGui::SameLine();
+        ImGui::Checkbox("ListFiles", &s_ListFiles);
+
+        ImGui::Separator();
 
         ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 0, 0 });  // no row spacing
         if (ImGui::BeginTable("ImwExplorerThumbnails", 1,
@@ -210,7 +213,7 @@ void Imw::Editor::ShowExplorer(bool* _open)
         {
             _ListFolder(
                 std::filesystem::current_path(),
-                std::format("Current Path ({})", std::filesystem::current_path().string()),
+                std::filesystem::current_path().string(),//std::format("Current Path ({})", std::filesystem::current_path().string()),
                 s_ListFiles);
 
             ImGui::EndTable();
@@ -218,8 +221,6 @@ void Imw::Editor::ShowExplorer(bool* _open)
         ImGui::PopStyleVar();
     }
     ImGui::EndChild();
-
-    //ImGui::Separator();
 
     ImGui::SameLine();
 
