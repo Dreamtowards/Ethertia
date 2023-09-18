@@ -10,18 +10,6 @@
 
 
 
-void Log::log_head(std::ostream& out, const char* _lv, const char* _loc)
-{
-    double sec_micro = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    double sec_milli = sec_micro * 0.001;
-
-    Strings::_fmt(out, "[{}.{7}][{}/{}]{}: ",
-                  Strings::time_fmt(-1, "%Y-%m-%d.%H:%M:%S"),
-                  std::fmod(sec_milli, 1000.0f),
-                  std::this_thread::get_id(), _lv,
-                  _loc
-    );
-}
 //        out << "[" << std::put_time(tm_info, "%Y-%m-%d.%H:%M:%S") << "." << (std::fmod(sec, 1000.0f)) << "]"
 //            << "["<<std::this_thread::get_id()<<"/INFO]: ";
 

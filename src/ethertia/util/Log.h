@@ -2,62 +2,60 @@
 // Created by Dreamtowards on 2022/4/22.
 //
 
-#ifndef ETHERTIA_LOG_H
-#define ETHERTIA_LOG_H
+#pragma once
 
 #include <string>
 #include <iostream>
-#include <sstream>
 #include <mutex>
-
-#include <ethertia/util/Strings.h>
+#include <format>
+#include <chrono>
+#include <sstream>  // for std::this_thread::get_id()
+#include <source_location>
 
 
 class Log
 {
 public:
 
-
-    /// produce a "log_head" e.g. "[2023-07-06.13:44:03.623.765][0x7ff850a73640/INFO]: "
-    static void log_head(std::ostream& out, const char* _lv = "INFO", const char* _loc = "");
-
-    /// this function is global Synchronous. so wouldn't cause 'Log Tearing' when multiple thread logging at the same time.
-    /// @pat if last char is '\1', then '\n' will not be automatically add at the end. (and the '\1' also wouldn't be print out.)
+    /// this function is global synchronous. so wouldn't cause 'Log Tearing' when multiple thread logging at the same time.
+    /// @fmt if last char is '\1', then '\n' will not be automatically add at the end. (and the '\1' also wouldn't be print out.)
     ///      this is useful when u need append sth. e.g. BenchmarkTimer's time result.
     /// @lv  level text in the 'log_head' e.g. "DEBUG/INFO/WARN/ERROR"
-    template<typename... ARGS>
-    static void _log(std::ostream& s, const char* _lv, const char* _loc, const std::string& pat, ARGS... args)
+    template<typename... Args>
+    static void log(std::ostream& out, const char* _lv, const char* _loc, std::string_view fmt, Args&&... args)
     {
         static std::mutex g_LogLock;
         std::lock_guard<std::mutex> _guard(g_LogLock);  // prevents multiple logging in same time. have performance issue.
 
-        bool keepline = pat[pat.length() - 1] == '\1';
-        std::stringstream ss;
+        bool keepline = fmt.back() == '\1';
 
-        Log::log_head(ss, _lv, _loc);
-        Strings::_fmt(ss, (keepline ? pat.substr(0, pat.length()-1) : pat), args...);
+        std::ostringstream ss;
+        ss << std::this_thread::get_id();
 
-        s << ss.str();
+        // log_head: e.g. "[2023-09-18 15:56:28.7610201][0x7ff850a73640/INFO]: "
+        out << std::format("[{}][{}/{}]{}: ", 
+            std::chrono::system_clock::now(), ss.str(), _lv, _loc);
+
+        out << std::vformat(keepline ? fmt.substr(0, fmt.length() - 1) : fmt,
+            std::make_format_args(std::forward<Args>(args)...));
 
         if (!keepline) {
-            s << std::endl;
+            out << std::endl;
         }
     }
 
 
-    template<typename... ARGS>
-    static void info(const std::string& pat, ARGS... args)
+    template<typename... Args>
+    static void info(std::string_view fmt, Args&&... args)
     {
-        Log::_log(std::cout, "INFO", "", pat, args...);
+        Log::log(std::cout, "INFO", "", fmt, std::forward<Args>(args)...);
     }
 
-    template<typename... ARGS>
-    static void warn(const std::string& pat, ARGS... args)
+    template<typename... Args>
+    static void warn(std::string_view fmt, Args&&... args)
     {
-        Log::_log(std::cout, "WARN", "", pat, args...);
+        Log::log(std::cout, "WARN", "", fmt, std::forward<Args>(args)...);
     }
 
 
 };
-
-#endif //ETHERTIA_LOG_H

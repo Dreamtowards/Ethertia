@@ -257,7 +257,7 @@ void World::saveUnloadedChunks()
     {
         DebugStat::dbg_ChunksSaving = m_UnloadedChunks.size() - i;
         if (ChunkGenProc::g_Running == -1) {  // when unloadWorld().
-            Log::info("Saving chunk {} ({}/{})", chunk->position, i+1, m_UnloadedChunks.size()); ++i;
+            Log::info("Saving chunk {} ({}/{})", glm::to_string(chunk->position), i + 1, m_UnloadedChunks.size()); ++i;
         }
 
         m_ChunkLoader->saveChunk(chunk);

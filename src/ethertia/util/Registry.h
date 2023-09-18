@@ -6,6 +6,7 @@
 #define ETHERTIA_REGISTRY_H
 
 #include <map>
+#include <cassert>
 
 #include <ethertia/util/Collections.h>
 #include <ethertia/util/Log.h>

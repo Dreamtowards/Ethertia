@@ -7,6 +7,8 @@
 
 #include <ethertia/item/Item.h>
 
+#include <cassert>
+
 // It's more like a Slot.
 // ItemStack always behaves moving. if add a Stack to another, the source stack will be reduce.
 
