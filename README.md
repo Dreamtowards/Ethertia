@@ -59,7 +59,7 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
   - [imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (ocornut; imgui-imnodes, ImGuizmo, imgui-knobs)  
   - [glm-0.9.9.8](https://github.com/g-truc/glm) (g-truc)  
   - [enet-2.3.6](https://github.com/zpl-c/enet) (Lee Salzman, Dominik Madarász "zpl-zak")  
-  - [msgpack-cppack-0.19](https://github.com/mikeloomisgg/cppack) (Mike Loomis "mikeloomisgg", msgpack spec)  
+  - [msgpack-cppack-0.19](https://github.com/mikeloomisgg/cppack) (Mike Loomis, msgpack spec)  
   - [openvr-1.26.7](https://github.com/ValveSoftware/openvr) (Valve Corp)  
   - [openal-soft-0.23.7.4](https://github.com/kcat/openal-soft) (kcat)  
   - [tinyobjloader-1.0.6](https://github.com/tinyobjloader/tinyobjloader) (Syoyo Fujita, etc)  

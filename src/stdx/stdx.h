@@ -2,6 +2,10 @@
 #pragma once
 
 #include <vector>
+#include <map>
+#include <string>
+
+#include <format>
 
 namespace stdx
 {
@@ -50,4 +54,18 @@ namespace stdx
         }
         throw std::runtime_error("stdx::find_key error: no such value");
     }
+
+	// size in bytes
+	static std::string size_str(size_t _size)
+	{
+		static const char* _SIZES[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB"};
+		int i = 0;
+		double size = _size;
+		while (size >= 1024 && i < std::size(_SIZES) - 1)
+		{
+			++i;
+			size /= 1024;
+		}
+		return std::format("{:.2f} {}", size, _SIZES[i]);
+	}
 }

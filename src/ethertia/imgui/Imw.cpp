@@ -45,7 +45,7 @@ static void _ShowMainMenu_System()
         if (ImGui::MenuItem("Connect to server..")) {
         }
         ImGui::Separator();
-        ImGui::TextDisabled("Servers:");
+        ImGui::TextDisabled("Servers:"); 
 
         if (ImGui::SmallButton("+")) {
         }
@@ -259,7 +259,7 @@ static void _ShowMainMenuBar()
         if (ImGui::BeginMenu("View"))
         {
             Imgui::MenuItemToggleShow("Game", Imw::Gameplay::ShowGame, "F5");
-            ImGui::MenuItem("Game Fullwindow", "`", &Imw::Gameplay::GameFullwindow);
+            ImGui::MenuItem("Game Fullwindow", "F10", &Imw::Gameplay::GameFullwindow);
             Imgui::MenuItemToggleShow("TitleScreen", Imw::Gameplay::ShowTitleScreen);
             Imgui::MenuItemToggleShow("WorldList", Imw::Gameplay::ShowWorldList);
             Imgui::MenuItemToggleShow("WorldNew", Imw::Gameplay::ShowWorldNew);
@@ -269,7 +269,9 @@ static void _ShowMainMenuBar()
             Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings, "F8");
             Imgui::MenuItemToggleShow("Hierarchy", Imw::Editor::ShowHierarchy, "F9");
             Imgui::MenuItemToggleShow("Inspector", Imw::Editor::ShowInspector, "F12");
+            Imgui::MenuItemToggleShow("Explorer", Imw::Editor::ShowExplorer);
             Imgui::MenuItemToggleShow("WorldGen", Imw::Editor::ShowWorldGen);
+            Imgui::MenuItemToggleShow("ShaderGraph", Imw::Editor::ShowWorldGen);
 
             Imgui::MenuItemToggleShow("Toolbar", Imw::Editor::ShowToolbar);
             Imgui::MenuItemToggleShow("Console", Imw::Editor::ShowConsole);
@@ -342,7 +344,7 @@ void Imw::ShowDockspaceAndMainMenubar()
         ImGui::SetCursorScreenPos(ImGui::GetMousePos() - ImVec2(20, 20));
         Imw::ItemImage(g_InventoryHoldingItemStack.item(), 40, ImGui::GetForegroundDrawList());
     }
-
+    
     ImGui::End();
 }
 
@@ -550,7 +552,7 @@ void Imw::Editor::ShowToolbar(bool* _open)
 void Imw::Editor::ShowConsole(bool* _open)
 {
     ImGui::Begin("Console", _open);
-    ImGui::BeginChild("###MsgTextList", {0, -ImGui::GetFrameHeightWithSpacing()});
+    ImGui::BeginChild("###MsgTextList", { 0, -ImGui::GetFrameHeightWithSpacing() });
     for (auto& str : Imw::Editor::ConsoleMessages) {
         ImGui::Text("%s", str.c_str());
     }
@@ -559,7 +561,7 @@ void Imw::Editor::ShowConsole(bool* _open)
 
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
     if (ImGui::InputText("###MsgBoxInput", InputBuf, std::size(InputBuf),
-                         ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine))
+        ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine))
     {
         if (InputBuf[0]) {
             Ethertia::dispatchCommand(InputBuf);
@@ -598,7 +600,7 @@ void Imgui::RenderWorldLine(glm::vec3 p0, glm::vec3 p1, ImU32 col, float thickne
     glm::vec2 p0s, p1s;
     if (Imgui::CalcViewportWorldpos(p0, p0s) && Imgui::CalcViewportWorldpos(p1, p1s))
     {
-        ImGui::GetWindowDrawList()->AddLine({p0s.x, p0s.y}, {p1s.x, p1s.y}, col, thickness);
+        ImGui::GetWindowDrawList()->AddLine({ p0s.x, p0s.y }, { p1s.x, p1s.y }, col, thickness);
     }
 }
 
@@ -607,13 +609,13 @@ void Imgui::RenderAABB(glm::vec3 min, glm::vec3 max, ImU32 col, float tk)
     using glm::vec3; using glm::vec2;
     // p0-3: on min.z
     vec3 p0 = min;
-    vec3 p1 = {max.x, min.y, min.z};
-    vec3 p2 = {min.x, max.y, min.z};
-    vec3 p3 = {max.x, max.y, min.z};
+    vec3 p1 = { max.x, min.y, min.z };
+    vec3 p2 = { min.x, max.y, min.z };
+    vec3 p3 = { max.x, max.y, min.z };
     // on max.z
-    vec3 p4 = {min.x, min.y, max.z};
-    vec3 p5 = {max.x, min.y, max.z};
-    vec3 p6 = {min.x, max.y, max.z};
+    vec3 p4 = { min.x, min.y, max.z };
+    vec3 p5 = { max.x, min.y, max.z };
+    vec3 p6 = { min.x, max.y, max.z };
     vec3 p7 = max;
 
     RenderWorldLine(p0, p1, col, tk); RenderWorldLine(p2, p3, col, tk); RenderWorldLine(p4, p5, col, tk); RenderWorldLine(p6, p7, col, tk);  // X
@@ -623,7 +625,179 @@ void Imgui::RenderAABB(glm::vec3 min, glm::vec3 max, ImU32 col, float tk)
 
 void Imgui::RenderAABB(const AABB& aabb, glm::vec4 c)
 {
-    Imgui::RenderAABB(aabb.min, aabb.max, ImGui::GetColorU32({c.x, c.y, c.z, c.w}));
+    Imgui::RenderAABB(aabb.min, aabb.max, ImGui::GetColorU32({ c.x, c.y, c.z, c.w }));
 }
 
 
+#include <stdx/stdx.h>
+#include <set>
+
+static void _ListFolder(const std::filesystem::path& _path, const std::string& displayname = {}, bool listFiles = true)
+{
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    std::string filename = displayname.empty() ? _path.filename().string() : displayname;
+
+    if (std::filesystem::is_directory(_path))
+    {
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding;
+        if (Imw::Editor::ExploringPath == _path)
+        {
+            flags |= ImGuiTreeNodeFlags_Selected;
+        }
+        if (ImGui::TreeNodeEx(filename.c_str(), flags))
+        {
+            if (ImGui::IsItemClicked())
+            {
+                Imw::Editor::ExploringPath = _path;
+            }
+
+            // order: folders, then files
+            std::vector<std::filesystem::path> ls;
+            int i_folder_end = 0;
+            for (auto& p : std::filesystem::directory_iterator(_path))
+            {
+                if (std::filesystem::is_directory(p))
+                {
+                    ls.insert(ls.begin() + i_folder_end, p);
+                    ++i_folder_end;
+                }
+                else if (listFiles)
+                {
+                    ls.push_back(p);
+                }
+            }
+
+            for (const std::filesystem::path& p : ls)
+            {
+                _ListFolder(p, {}, listFiles);
+            }
+            ImGui::TreePop();
+        }
+    }
+    else
+    {
+
+        ImGui::TreeNodeEx(filename.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+        
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+        {
+            ImGui::BeginTooltip();
+            size_t filesize = std::filesystem::file_size(_path);
+            ImGui::TextDisabled(
+                "Path: %s\n"
+                "Size: %s\n"
+                "Date modified: N/A",
+                _path.string().c_str(),
+                stdx::size_str(filesize).c_str());
+            ImGui::EndTooltip();
+        }
+    }
+}
+
+
+void Imw::Editor::ShowExplorer(bool* _open)
+{
+    ImGui::Begin("Explorer", _open);
+
+    ImGui::BeginChild("ImwExplorerOutline", {300, 0}, true);
+    {
+        static bool s_ListFiles = true;
+        ImGui::Checkbox("ListFiles", &s_ListFiles);
+        ImGui::SameLine();
+        if (ImGui::SmallButton("+"))
+        {
+
+        }
+
+        if (ImGui::BeginTable("ImwExplorerThumbnails", 1,
+            ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_NoHostExtendX,
+            {300, 0}))
+        {
+            //const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
+            //ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
+            //ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
+            //ImGui::TableHeadersRow();
+
+            _ListFolder(
+                std::filesystem::current_path(), 
+                std::format("Current Path ({})", std::filesystem::current_path().string()),
+                s_ListFiles);
+
+            ImGui::EndTable();
+        }
+    }
+    ImGui::EndChild();
+
+    //ImGui::Separator();
+
+    ImGui::SameLine();
+
+    ImGui::BeginChild("ImwExplorerDetail", {}, true);
+    {
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+        ImGui::BeginChild(ImGui::GetID("ImExpPath"), {0, ImGui::GetTextLineHeightWithSpacing() });
+        ImGui::PopStyleVar(1);
+        ImGui::PopStyleColor();
+        static int  _EditPathMode = 0;  // 0: Buttons, 1= EditingText, 2=JustOpenEdit
+        static char _EditPath[256];
+
+        if (_EditPathMode)
+        {
+            if (_EditPathMode == 2)
+            {
+                ImGui::SetKeyboardFocusHere(0);  // focus PathEdit
+                _EditPathMode = 1;
+            }
+
+            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+            if (ImGui::InputText("##ImwExpPathInput", _EditPath, std::size(_EditPath), ImGuiInputTextFlags_EnterReturnsTrue))
+            {
+                Imw::Editor::ExploringPath = _EditPath;
+            }
+            ImGui::PopItemWidth();
+
+            if (!ImGui::IsItemFocused())
+            {
+                _EditPathMode = 0;
+            }
+        }
+        else
+        {
+            std::filesystem::path selpath;
+
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+            for (const std::filesystem::path& part : Imw::Editor::ExploringPath)
+            {
+                if (ImGui::Button(part.string().c_str()))
+                {
+                    selpath = part;
+                }
+                ImGui::SameLine(0, 0);
+                if (ImGui::ArrowButton(part.string().c_str(), ImGuiDir_Right))
+                {
+
+                }
+                ImGui::SameLine();
+            }
+            ImGui::PopStyleColor();
+
+            if (!selpath.empty())
+            {
+                Imw::Editor::ExploringPath = selpath;
+            }
+        }
+        ImGui::EndChild();
+
+        if (ImGui::IsItemClicked())
+        {
+            _EditPathMode = 2;
+            std::strcpy(_EditPath, Imw::Editor::ExploringPath.string().c_str());
+        }
+
+    }
+    ImGui::EndChild();
+
+    ImGui::End();
+}

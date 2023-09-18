@@ -144,7 +144,7 @@ static void Destroy()
 
     Window::Destroy();
 }
-
+#include <imgui_internal.h>
 
 // MainLoop.
 // frequence=fps.
@@ -211,6 +211,13 @@ static void RunMainLoop()
         PROFILE("Imgui::ShowWindows");
         Imw::ShowDockspaceAndMainMenubar();
         Imgui::ShowWindows();
+
+
+        //if (ImGui::BeginViewportSideBar("TestSidebar2", ImGui::GetMainViewport(), ImGuiDir_Left, 16, ImGuiWindowFlags_None))
+        //{
+        //    ImGui::Text("Sth");
+        //    ImGui::End();
+        //}
     }
 
     {

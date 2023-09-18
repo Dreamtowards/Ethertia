@@ -4,6 +4,7 @@
 
 #include <ethertia/imgui/Imgui.h>
 
+#include <filesystem>
 
 class Imw
 {
@@ -29,6 +30,10 @@ public:
 
         static void ShowConsole(bool* _open);
 
+        
+        inline static std::filesystem::path ExploringPath;
+
+        static void ShowExplorer(bool* _open);
 
 
         enum InspectionType
