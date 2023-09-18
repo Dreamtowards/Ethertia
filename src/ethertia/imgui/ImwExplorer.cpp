@@ -7,20 +7,23 @@
 #include <set>
 
 #include <filesystem>
+#include <chrono>
 
 
 static void _ShowFileDetailTooltip(const std::filesystem::path& path)
 {
     ImGui::BeginTooltip();
-    size_t filesize = std::filesystem::file_size(path);
-    auto time = std::filesystem::last_write_time(path);
-    ImGui::TextDisabled(
-        "Path: %s\n"
-        "Size: %s\n"
-        "Date modified: %s",
+
+    std::filesystem::file_time_type ftime = std::filesystem::last_write_time(path);
+
+    ImGui::TextDisabled(std::format(
+        "Path: {}\n"
+        "Size: {}\n"
+        "Date modified: {}",
         path.string().c_str(),
-        stdx::size_str(filesize).c_str(),
-        std::format("{}", time));
+        std::filesystem::is_directory(path) ? "--" : stdx::size_str(std::filesystem::file_size(path)).c_str(),
+        ftime
+    ).c_str());
     ImGui::EndTooltip();
 }
 
