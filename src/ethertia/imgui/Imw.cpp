@@ -768,18 +768,22 @@ void Imw::Editor::ShowExplorer(bool* _open)
             std::filesystem::path selpath;
 
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+            std::filesystem::path abspath;
             for (const std::filesystem::path& part : Imw::Editor::ExploringPath)
             {
+                abspath /= part;
                 if (ImGui::Button(part.string().c_str()))
                 {
-                    selpath = part;
+                    selpath = abspath;
                 }
                 ImGui::SameLine(0, 0);
-                if (ImGui::ArrowButton(part.string().c_str(), ImGuiDir_Right))
-                {
 
-                }
-                ImGui::SameLine();
+                ImGui::TextDisabled("/");
+                //if (ImGui::ArrowButton(part.string().c_str(), ImGuiDir_Right))
+                //{
+                //
+                //}
+                ImGui::SameLine(0, 0);
             }
             ImGui::PopStyleColor();
 

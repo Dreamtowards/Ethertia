@@ -66,3 +66,31 @@ public:
     static void RenderAABB(const AABB& aabb, glm::vec4 col);
 };
 
+
+
+/*
+
+ChangeLogs to imgui
+
+1. Gui Scale
+
+
+2. smaller arrow on ImGui::RenderArrow, imgui_draw.cpp 
+https://github.com/ocornut/imgui/issues/2235#issuecomment-602231017
+    ...
+    case ImGuiDir_Down:
+        if (dir == ImGuiDir_Up) r = -r;
+        a = ImVec2(+0.000f, +0.450f) * r;
+        b = ImVec2(-0.800f, -0.450f) * r;
+        c = ImVec2(+0.800f, -0.450f) * r;
+        break;
+    case ImGuiDir_Left:
+    case ImGuiDir_Right:
+        if (dir == ImGuiDir_Left) r = -r;
+        a = ImVec2(+0.450f, +0.000f) * r;
+        b = ImVec2(-0.450f, +0.800f) * r;
+        c = ImVec2(-0.450f, -0.800f) * r;
+        break;
+
+
+*/
