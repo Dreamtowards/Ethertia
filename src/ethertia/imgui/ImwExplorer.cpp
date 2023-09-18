@@ -32,18 +32,13 @@ static void _ListFolder(const std::filesystem::path& _path, const std::string& d
 
     if (std::filesystem::is_directory(_path))
     {
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;// | ImGuiTreeNodeFlags_FramePadding;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding;
         if (Imw::Editor::ExploringPath == _path)
         {
             flags |= ImGuiTreeNodeFlags_Selected;
         }
         if (ImGui::TreeNodeEx(filename.c_str(), flags))
         {
-            if (ImGui::IsItemClicked())
-            {
-                Imw::Editor::ExploringPath = _path;
-            }
-
             // order: folders, then files
             std::vector<std::filesystem::path> ls;
             int i_folder_end = 0;
@@ -66,10 +61,14 @@ static void _ListFolder(const std::filesystem::path& _path, const std::string& d
             }
             ImGui::TreePop();
         }
+        if (ImGui::IsItemClicked())
+        {
+            Imw::Editor::ExploringPath = _path;
+        }
     }
     else
     {
-        ImGui::TreeNodeEx(filename.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth);
+        ImGui::TreeNodeEx(filename.c_str(), ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_FramePadding);
     }
 
     if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
@@ -147,6 +146,49 @@ static void _PathEdit()
     }
 }
 
+static void _ListThaumbnails()
+{
+    static float s_ThumbnailsSize = 64;
+    ImGui::BeginChild("ImwExplorerThumbnails", { 0, -ImGui::GetFrameHeightWithSpacing() });  // sizeY: remains bottom adjust bar
+
+    if (std::filesystem::is_directory(Imw::Editor::ExploringPath))
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4, 4 });
+        for (const std::filesystem::path& p : std::filesystem::directory_iterator(Imw::Editor::ExploringPath))
+        {
+            ImGui::BeginGroup();// Child(p.filename().string().c_str(), { s_ThumbnailsSize , s_ThumbnailsSize + 64 });
+            if (ImGui::Button("_", { s_ThumbnailsSize, s_ThumbnailsSize }))
+            {
+
+            }
+            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + s_ThumbnailsSize);
+            ImGui::Text(p.filename().string().c_str());
+            ImGui::PopTextWrapPos();
+
+            ImGui::EndGroup();
+
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+            {
+                _ShowFileDetailTooltip(p);
+            }
+
+            if (ImGui::GetContentRegionMaxAbs().x - ImGui::GetItemRectMax().x > s_ThumbnailsSize + 10)
+            {
+                ImGui::SameLine();
+            }
+        }
+        ImGui::PopStyleVar(1);
+    }
+
+    ImGui::EndChild();
+
+    ImGui::PushItemWidth(128);
+    //ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin() + ImVec2{0, ImGui::GetWindowContentRegionMax().y - 18});
+    ImGui::SliderFloat("Size", &s_ThumbnailsSize, 32, 320);
+    ImGui::PopItemWidth();
+}
+
+
 void Imw::Editor::ShowExplorer(bool* _open)
 {
     ImGui::Begin("Explorer", _open);
@@ -156,20 +198,16 @@ void Imw::Editor::ShowExplorer(bool* _open)
         static bool s_ListFiles = true;
         ImGui::Checkbox("ListFiles", &s_ListFiles);
         ImGui::SameLine();
-        if (ImGui::SmallButton("+"))
+        if (ImGui::Button("+"))
         {
 
         }
 
+        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 0, 0 });  // no row spacing
         if (ImGui::BeginTable("ImwExplorerThumbnails", 1,
             ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_NoHostExtendX,
             { 300, 0 }))
         {
-            //const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
-            //ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
-            //ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
-            //ImGui::TableHeadersRow();
-
             _ListFolder(
                 std::filesystem::current_path(),
                 std::format("Current Path ({})", std::filesystem::current_path().string()),
@@ -177,6 +215,7 @@ void Imw::Editor::ShowExplorer(bool* _open)
 
             ImGui::EndTable();
         }
+        ImGui::PopStyleVar();
     }
     ImGui::EndChild();
 
@@ -188,44 +227,7 @@ void Imw::Editor::ShowExplorer(bool* _open)
     {
         _PathEdit();
 
-        static float s_ThumbnailsSize = 64;
-        ImGui::BeginChild("ImwExplorerThumbnails", { 0, -ImGui::GetFrameHeightWithSpacing() });  // sizeY: remains bottom adjust bar
-
-        if (std::filesystem::is_directory(Imw::Editor::ExploringPath))
-        {
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4, 4 });
-            for (const std::filesystem::path& p : std::filesystem::directory_iterator(Imw::Editor::ExploringPath))
-            {
-                ImGui::BeginGroup();// Child(p.filename().string().c_str(), { s_ThumbnailsSize , s_ThumbnailsSize + 64 });
-                if (ImGui::Button("_", { s_ThumbnailsSize, s_ThumbnailsSize }))
-                {
-
-                }
-                ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + s_ThumbnailsSize);
-                ImGui::Text(p.filename().string().c_str());
-                ImGui::PopTextWrapPos();
-
-                ImGui::EndGroup();
-
-                if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-                {
-                    _ShowFileDetailTooltip(p);
-                }
-
-                if (ImGui::GetContentRegionMaxAbs().x - ImGui::GetItemRectMax().x > s_ThumbnailsSize + 10)
-                {
-                    ImGui::SameLine();
-                }
-            }
-            ImGui::PopStyleVar(1);
-        }
-
-        ImGui::EndChild();
-
-        ImGui::PushItemWidth(128);
-        //ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin() + ImVec2{0, ImGui::GetWindowContentRegionMax().y - 18});
-        ImGui::SliderFloat("Size", &s_ThumbnailsSize, 32, 320);
-        ImGui::PopItemWidth();
+        _ListThaumbnails();
     }
     ImGui::EndChild();
 
