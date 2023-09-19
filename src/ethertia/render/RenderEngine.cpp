@@ -38,39 +38,9 @@ static vkx::Image* TEX_WHITE = nullptr;
 static vkx::Image* TEX_UVMAP = nullptr;
 
 
-#include <source_location>
-
-int defaultValueGenerator()
-{
-    static int c = 0;
-    return ++c;
-}
-
-namespace logx
-{
-    template <typename... Args>
-    struct debug
-    {
-        debug(Args&&... args, std::source_location loc = std::source_location::current())
-        {
-            std::cout << loc.line() << " : ";
-            ((std::cout << std::forward<Args>(args) << " "), ...);
-            std::cout << std::endl;
-        }
-    };
-
-    // c++17: class template argument deduction
-    template <typename... Args>
-    debug(Args&&...args) -> debug<Args...>;
-
-}
 
 void RenderEngine::Init()
 {
-    logx::debug<int>(9);
-
-    std::exit(1);
-
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
 

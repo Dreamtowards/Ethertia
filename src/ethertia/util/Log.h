@@ -12,6 +12,8 @@
 #include <sstream>  // for std::this_thread::get_id()
 #include <source_location>
 
+#define ET_LOG_SRCLOC 1
+
 
 class Log
 {
@@ -45,6 +47,33 @@ public:
     }
 
 
+#ifdef  ET_LOG_SRCLOC
+
+    // use of c++17 class template argument deduction
+
+    template<typename... Args>
+    struct info
+    {
+        info(std::string_view fmt, Args&&... args, std::source_location loc = std::source_location::current())
+        {
+            std::string filename = loc.file_name();
+            filename = filename.substr(filename.find_last_of("/\\")+1);
+
+            Log::log(std::cout, "INFO", std::format("[{}:{}]", filename, loc.line()).c_str(),
+                fmt, std::forward<Args>(args)...);
+        }
+    };
+    template <typename... Args>
+    info(std::string_view fmt, Args&&...args) -> info<Args...>;
+
+    template<typename... Args>
+    static void warn(std::string_view fmt, Args&&... args)
+    {
+        Log::log(std::cout, "WARN", "", fmt, std::forward<Args>(args)...);
+    }
+
+#else
+
     template<typename... Args>
     static void info(std::string_view fmt, Args&&... args)
     {
@@ -56,6 +85,8 @@ public:
     {
         Log::log(std::cout, "WARN", "", fmt, std::forward<Args>(args)...);
     }
+
+#endif //  ET_LOG_SRCLOC
 
 
 };
