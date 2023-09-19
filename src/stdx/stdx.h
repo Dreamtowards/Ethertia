@@ -83,7 +83,7 @@ namespace stdx
 		return std::format("{:.2f} {}", size, _SIZES[i]);
 	}
 
-	static std::string time_str(std::time_t epoch_sec = -1, const char* _fmt = "%Y-%m-%d.%H:%M:%S")
+	static std::string time_str(std::time_t epoch_sec = -1, const char* _fmt = "%Y-%m-%d %H:%M:%S")
 	{
 		if (epoch_sec == -1) epoch_sec = std::time(nullptr);
 

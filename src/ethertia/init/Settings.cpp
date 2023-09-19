@@ -40,6 +40,7 @@ void Settings::LoadSettings()
     DrawFuncIds["profiler"] = Imw::Editor::ShowProfiler;
     DrawFuncIds["toolbar"] = Imw::Editor::ShowToolbar;
     DrawFuncIds["console"] = Imw::Editor::ShowConsole;
+    DrawFuncIds["explorer"] = Imw::Editor::ShowExplorer;
     DrawFuncIds["worldgen"] = Imw::Editor::ShowWorldGen;
     DrawFuncIds["game"] = Imw::Gameplay::ShowGame;
     DrawFuncIds["game-titlescreen"] = Imw::Gameplay::ShowTitleScreen;

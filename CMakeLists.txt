@@ -125,7 +125,7 @@ add_executable(Ethertia
 
         src/ethertia/init/init_load.cpp
 
-        src/ethertia/util/Log.cpp
+        
         src/ethertia/util/Loader.cpp
         src/ethertia/util/BitmapImage.cpp
         src/ethertia/util/BenchmarkTimer.cpp
