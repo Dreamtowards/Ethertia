@@ -233,32 +233,35 @@ static void _MoveCamera()
     ImVec2 MouseDelta = io.MouseDelta;
     float  MouseWheel = io.MouseWheel;
 
-    float mspd = 0.3;
+    float mspd = 0.2f;
 
-    bool keyShiftDown = Window::isShiftKeyDown();
+    bool keyAltDown = Window::isAltKeyDown();
     bool keyCtrlDown = Window::isCtrlKeyDown();
-    bool opFpsCamMove = ImGui::IsMouseDragging(ImGuiMouseButton_Right);
-    bool opEdtCamMove = ImGui::IsMouseDragging(ImGuiMouseButton_Middle);
+    bool dragRMB = ImGui::IsMouseDragging(ImGuiMouseButton_Right);
+    bool dragMMB = ImGui::IsMouseDragging(ImGuiMouseButton_Middle);
 
-    if (opFpsCamMove || opEdtCamMove)
+    if (dragRMB || dragMMB)
     {
-        if (opFpsCamMove)
+        if (dragRMB)
         {
+            // FPS Rotate
             dYaw += -MouseDelta.x * mspd;
             dPitch += -MouseDelta.y * mspd;
         }
-        else if (opEdtCamMove)
+        else if (dragMMB)
         {
-            if (keyShiftDown)
+            if (keyAltDown)
             {
-                move.x += -MouseDelta.x * mspd;
-                move.y += MouseDelta.y * mspd;
-            }
-            else
-            {
+                // Pivot Rotate
                 dYaw += -MouseDelta.x * mspd;
                 dPitch += -MouseDelta.y * mspd;
                 len = 16;
+            }
+            else
+            {
+                // Pin XY
+                move.x += -MouseDelta.x * mspd;
+                move.y += MouseDelta.y * mspd;
             }
         }
 
@@ -271,13 +274,14 @@ static void _MoveCamera()
         if (io.KeysDown[ImGuiKey_D]) move.x += dt;
         if (io.KeysDown[ImGuiKey_Q]) move.y -= dt;
         if (io.KeysDown[ImGuiKey_E]) move.y += dt;
-        if (keyShiftDown && !opEdtCamMove) moveaa.y -= dt;
+        if (Window::isShiftKeyDown()) moveaa.y -= dt;
         if (io.KeysDown[ImGuiKey_Space]) moveaa.y += dt;
     }
 
 
     if (MouseWheel)
     {
+        // Zoom Z
         move.z += -MouseWheel;
     }
 
@@ -342,7 +346,7 @@ void Imw::Gameplay::ShowGame(bool* _open)
 
     DrawViewportDebugs();
 
-    if (ImGui::IsWindowHovered())
+    if (ImGui::IsWindowHovered() || ImGui::IsWindowFocused())
     {
         _MoveCamera();
     }
