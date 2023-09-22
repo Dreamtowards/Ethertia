@@ -45,6 +45,8 @@ int main()
     Log::info("{}", stdx::daytime(stdx::daytime("5")));
     Log::info("{}", stdx::daytime(stdx::daytime("00:30.5pm")));
     Log::info("{}", stdx::daytime(stdx::daytime("10:30.5:2.59 am")));
+    Log::info("{}", stdx::daytime(stdx::daytime("::60.5p")));
+    Log::info("{}", stdx::daytime(stdx::daytime("  100  :  :  10.9  Pm ")));
 
     return 1;
 

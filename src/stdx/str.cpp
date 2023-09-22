@@ -97,7 +97,33 @@ char stdx::at(std::string_view str, size_t pos) {
 }
 
 
-std::string stdx::daytime(float daytime, bool apm, bool gen_sec)
+char* stdx::skip_spaces(const char* p)
+{
+	while (*p && std::isspace(*p))
+	{
+		++p;
+	}	
+	return (char*)p;
+}
+
+
+
+
+
+//Log::info("{}", stdx::daytime(stdx::daytime("5")));
+//Log::info("{}", stdx::daytime(stdx::daytime("00:30.5pm")));
+//Log::info("{}", stdx::daytime(stdx::daytime("10:30.5:2.59 am")));
+//Log::info("{}", stdx::daytime(stdx::daytime("::60.5p")));
+//Log::info("{}", stdx::daytime(stdx::daytime("  100  :  :  10.9  Pm ")));
+//
+//[2023 - 09 - 22 12:47 : 00.9314761][30848 / INFO][Ethertia.cpp:45]: 05 : 00
+//[2023 - 09 - 22 12:47 : 00.9328794][30848 / INFO][Ethertia.cpp:46] : 00 : 30 : 30.00
+//[2023 - 09 - 22 12:47 : 00.9336121][30848 / INFO][Ethertia.cpp:47] : 10 : 30 : 32.59
+//[2023 - 09 - 22 12:47 : 00.9341415][30848 / INFO][Ethertia.cpp:48] : 00 : 01 : 00.50
+//[2023 - 09 - 22 12:47 : 00.9344923][30848 / INFO][Ethertia.cpp:49] : 100 : 00 : 10.90
+
+
+std::string stdx::daytime(float daytime, bool apm)
 {
 	float hr = daytime * 24.0;
 	float mn = (hr - std::floor(hr)) * 60.0;
@@ -107,7 +133,7 @@ std::string stdx::daytime(float daytime, bool apm, bool gen_sec)
 
 	ss << std::format("{:02}:{:02}", (int)(am ? hr : hr - 12), (int)mn);
 
-	if (gen_sec)
+	if (sec != 0)
 	{
 		ss << std::format(":{:05.2f}", sec);
 	}
@@ -123,20 +149,26 @@ float stdx::daytime(std::string_view _str)
 {
 	char* str = (char*)_str.data();
 
+	str = stdx::skip_spaces(str);
 	float hr = std::strtof(str, &str);
 
+	str = stdx::skip_spaces(str);
 	float mn = 0;
 	if (*str == ':') {
 		++str;
+		str = stdx::skip_spaces(str);
 		mn = std::strtof(str, &str);
 	}
 
+	str = stdx::skip_spaces(str);
 	float sec = 0;
 	if (*str == ':') {
 		++str;
+		str = stdx::skip_spaces(str);
 		sec = std::strtof(str, &str);
 	}
 
+	str = stdx::skip_spaces(str);
 	if (*str == 'P' || *str == 'p') {  // PM
 		hr += 12.0f;
 	}

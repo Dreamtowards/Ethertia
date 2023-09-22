@@ -33,6 +33,8 @@ namespace stdx
 
 	char at(std::string_view str, size_t pos);
 
+    char* skip_spaces(const char* p);
+
 
 	// size in bytes
 	// return x.xx "B", "KB", "MB", "GB", "TB", "PB", "EB"
@@ -40,7 +42,7 @@ namespace stdx
 
 
 
-	std::string daytime(float daytime, bool apm = false, bool sec = true);
+	std::string daytime(float daytime, bool apm = false);
 
 	// parse_daytime
 	float daytime(std::string_view str);
