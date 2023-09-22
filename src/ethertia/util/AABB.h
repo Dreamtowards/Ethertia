@@ -2,8 +2,7 @@
 // Created by Dreamtowards on 2022/5/24.
 //
 
-#ifndef ETHERTIA_AABB_H
-#define ETHERTIA_AABB_H
+#pragma once
 
 #include <glm/vec3.hpp>
 #include <glm/common.hpp>  // glm::min/max
@@ -13,10 +12,11 @@
 class AABB
 {
 public:
+
     glm::vec3 min;
     glm::vec3 max;
 
-    AABB(const glm::vec3 &min, const glm::vec3 &max) : min(min), max(max) {}
+    AABB(const glm::vec3& min, const glm::vec3& max) : min(min), max(max) {}
 
     AABB() : min(0), max(0) {}
 
@@ -27,7 +27,7 @@ public:
     bool empty() {
         return min == max;
     }
-    glm::vec3 size() {
+    glm::vec3 extent() {
         return max - min;
     }
 
@@ -63,4 +63,3 @@ public:
     }
 };
 
-#endif //ETHERTIA_AABB_H

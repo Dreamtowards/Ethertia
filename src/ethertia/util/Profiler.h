@@ -117,11 +117,24 @@ public:
         }
     }
 
+
+
+    class EndScopeCaller
+    {
+    public:
+        std::function<void()> fn;
+
+        ~EndScopeCaller()
+        {
+            fn();
+        }
+    };
+
     [[nodiscard]]
-    DtorCaller push_ap(std::string_view name) {
+    EndScopeCaller push_ap(std::string_view name) {
         push(name);
 
-        return DtorCaller{[this](){
+        return EndScopeCaller{[this](){
             pop();
         }};
     }

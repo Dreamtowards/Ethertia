@@ -2,27 +2,24 @@
 // Created by Dreamtowards on 2022/7/29.
 //
 
-#ifndef ETHERTIA_SMOOTHVALUE_H
-#define ETHERTIA_SMOOTHVALUE_H
+#pragma once
 
-#include <ethertia/util/Mth.h>
+#include <cmath>
 
 class SmoothValue
 {
 public:
+
     float target = 0;
 
-    float delta = 0;
     float current = 0;
 
-    void update(float dt) {
-
+    float update(float dt) 
+    {
         float old = current;
-        current = Mth::lerp(dt, current, target);
-        delta = current - old;
+        current = std::lerp(current, target, dt);  //  a + t * (b - a);
+        return current - old;
     }
-
 
 };
 
-#endif //ETHERTIA_SMOOTHVALUE_H
