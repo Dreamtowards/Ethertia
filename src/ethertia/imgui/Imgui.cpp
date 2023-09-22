@@ -219,9 +219,8 @@ void Imgui::Render(VkCommandBuffer cmdbuf)
 
 
 
+#include <stdx/collection.h>
 
-
-#include <stdx/stdx.h>
 
 void Imgui::Show(DrawFuncPtr w)
 {

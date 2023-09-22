@@ -3,7 +3,7 @@
 #include "Imw.h"
 #include <imgui_internal.h>
 
-#include <stdx/stdx.h>
+#include <stdx/str.h>
 #include <set>
 
 #include <filesystem>

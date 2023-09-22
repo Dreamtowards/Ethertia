@@ -2,14 +2,12 @@
 // Created by Dreamtowards on 2022/4/22.
 //
 
-#ifndef ETHERTIA_TICKABLE_H
-#define ETHERTIA_TICKABLE_H
+#pragma once
 
 class Tickable
 {
+public:
 
-    virtual void onTick() = 0;
+    virtual void Tick() = 0;
 
 };
-
-#endif //ETHERTIA_TICKABLE_H

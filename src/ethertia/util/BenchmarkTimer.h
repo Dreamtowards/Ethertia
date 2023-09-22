@@ -2,33 +2,42 @@
 // Created by Dreamtowards on 2022/4/30.
 //
 
-#ifndef ETHERTIA_BENCHMARKTIMER_H
-#define ETHERTIA_BENCHMARKTIMER_H
+#pragma once
+
+#include <chrono>
 
 
-#define BENCHMARK_TIMER_MSG(msg) BenchmarkTimer _tm(nullptr, msg);
-#define BENCHMARK_TIMER_VAL(ptr) BenchmarkTimer _tm(ptr, nullptr);
-
-#define BENCHMARK_TIMER BenchmarkTimer _tm;
-
-
+// An execution time measurer, starting when the object is constructed, and ends when the done() function or destructor is called
 class BenchmarkTimer
 {
 public:
-    BenchmarkTimer(float* _tmr = nullptr, const char* _msg = " in {}.\n");
-    ~BenchmarkTimer();
+	// @_tmr: a pointer to a number, If not nullptr, this number will be += accumulate the entire measurement time (in seconds) at the end of the measurement.
+	//        this is useful when you want sum-up or get the measurement time.
+	// @_msg: a message that will be print at the end of the measurement unless it's a nullptr. "{}" is the time e.g. "85.616320ms"
+	BenchmarkTimer(double* _ptm = nullptr, const char* _msg = " in {}.\n");
 
-    void done();
+	// there will auto call Stop();
+	~BenchmarkTimer();
+
+	// End of Measurement
+	void Stop();
 
 private:
 
-    double m_Begin;
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_TimeBegin;
 
-    const char* m_TailMsg = nullptr;
-    float* m_AppendTime = nullptr;
+	const char* m_EndMsg = nullptr;
+	double* m_pTimeAppend = nullptr;  // f32 or f64?
 
-    bool m_Done = false;
-
+	bool m_Stopped = false;
 };
 
-#endif //ETHERTIA_BENCHMARKTIMER_H
+// simply with default measurement message.
+#define BENCHMARK_TIMER BenchmarkTimer _tm
+
+// with Custom Message
+#define BENCHMARK_TIMER_MSG(msg) BenchmarkTimer _tm(nullptr, msg)
+
+// pure Time Accumulator.
+#define BENCHMARK_TIMER_TMR(ptm) BenchmarkTimer _tm(ptm, nullptr)
+

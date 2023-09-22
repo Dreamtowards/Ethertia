@@ -5,7 +5,7 @@
 #include "Settings.h"
 
 #include <nlohmann/json.hpp>
-#include <stdx/stdx.h>
+#include <stdx/collection.h>
 
 #include <fstream>
 #include <format>

@@ -53,7 +53,7 @@ public:
      */
     int processTasks(float timeout)
     {
-        float duration = 0;
+        double duration = 0;
         int numTasksProcessed = 0;
 
         while (numTasks())  // numTasks() is locked, thread-safe.
