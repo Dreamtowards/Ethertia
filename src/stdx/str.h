@@ -31,11 +31,19 @@ namespace stdx
 
 	std::string& tolower(std::string& str);
 
+	char at(std::string_view str, size_t pos);
 
 
 	// size in bytes
 	// return x.xx "B", "KB", "MB", "GB", "TB", "PB", "EB"
 	std::string size_str(size_t _size);
+
+
+
+	std::string daytime(float daytime, bool apm = false, bool sec = true);
+
+	// parse_daytime
+	float daytime(std::string_view str);
 
 
 

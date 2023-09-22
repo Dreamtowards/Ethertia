@@ -26,7 +26,7 @@ static float _RenderProfilerSection(const Profiler::Section& sec, float x, float
     ImGui::RenderText(min, sec.name.c_str());
 
     if (s_width > 180) {
-        std::string str = Strings::fmt("{}ms@{}", s_time * 1000.0, sec.numExec);
+        std::string str = std::format("{}ms@{}", s_time * 1000.0, sec.numExec);
         ImVec2 text_size = ImGui::CalcTextSize(str.c_str());
         ImGui::RenderText({max.x-text_size.x, min.y}, str.c_str());
     }

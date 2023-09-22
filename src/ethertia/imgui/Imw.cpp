@@ -78,12 +78,8 @@ static void _ShowMainMenu_System()
             {
 //            std::string size_str = Strings::size_str(Loader::calcDirectorySize(savedir.path()));
 
-                float epoch = std::chrono::duration_cast<std::chrono::seconds>(savedir.last_write_time().time_since_epoch()).count();
-                if (epoch < 0)  epoch = 0;  // Error on Windows.
-                std::string time_str = Strings::time_fmt(epoch);
-
                 auto filename = savedir.path().filename();
-                if (ImGui::MenuItem((const char*)filename.c_str(), time_str.c_str()))
+                if (ImGui::MenuItem((const char*)filename.c_str(), std::format("{}", savedir.last_write_time()).c_str()))
                 {
                     Ethertia::LoadWorld(savedir.path().string());
                 }

@@ -10,6 +10,7 @@
 #include <utility>
 #include <string>
 #include <set>
+#include <glm/gtx/string_cast.hpp>
 
 #include <nbt/nbt_tags.h>
 
@@ -65,7 +66,7 @@ public:
 
 
     std::string _FileWorldInfo() const {
-        return Strings::fmt("{}/world.dat", m_ChunkDir);
+        return std::format("{}/world.dat", m_ChunkDir);
     }
 
     bool loadWorldInfo(WorldInfo& worldinfo) {
@@ -130,7 +131,7 @@ public:
  */
 
     std::string _OldChunkFileName(glm::vec3 chunkpos) {
-        return Strings::fmt("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
+        return std::format("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
     }
 
 
@@ -141,7 +142,7 @@ public:
         if (it != m_LoadedChunkFiles.end())
             return it->second;  // todo: May Dangerous?
 
-        std::string filename = Strings::fmt("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
+        std::string filename = std::format("{}/chunks/{}.{}.{}.vst", m_ChunkDir, chunkpos.x, chunkpos.y, chunkpos.z);
         if (readonly && !Loader::FileExists(filename)) {
             return nullptr;  // file not exists.
         }
@@ -210,7 +211,7 @@ public:
         try {
             return nbt::io::read_compound(file).second;
         } catch (...) {
-            throw std::runtime_error(Strings::fmt("Error occurred when read chunk data at {}", chunkpos));
+            throw std::runtime_error(std::format("Error occurred when read chunk data at {}", glm::to_string(chunkpos)));
         }
     }
 

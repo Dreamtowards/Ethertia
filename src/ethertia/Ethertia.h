@@ -14,7 +14,7 @@
 #include <ethertia/util/Scheduler.h>
 #include <ethertia/util/Registry.h>
 
-#include <ethertia/util/Strings.h>
+#include <format>
 
 #include <cassert>
 #ifndef NDEBUG
@@ -131,12 +131,12 @@ public:
         inline static const char* snapshot = "23w10";  // release: nullptr.
 
         static const std::string& version_name() {
-            static std::string _Inst = snapshot ? Strings::fmt("{} *{}.{}.{}", snapshot, major, minor, revision)
-                                                : Strings::fmt("{}.{}.{}", major, minor, revision);
+            static std::string _Inst = snapshot ? std::format("{} *{}.{}.{}", snapshot, major, minor, revision)
+                                                : std::format("{}.{}.{}", major, minor, revision);
             return _Inst;
         }
         static const std::string& name() {
-            static std::string _Inst = Strings::fmt("Ethertia Alpha {}", version_name());
+            static std::string _Inst = std::format("Ethertia Alpha {}", version_name());
             return _Inst;
         }
     };

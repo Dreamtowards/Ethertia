@@ -80,3 +80,69 @@ std::string stdx::size_str(size_t _size)
 	}
 	return std::format("{:.2f} {}", size, _SIZES[i]);
 }
+
+
+
+
+
+
+
+
+
+// safe access. overflow -> return 0. useful for check { str[x] == '?' }
+char stdx::at(std::string_view str, size_t pos) {
+	if (pos < str.length())
+		return str[pos];
+	return 0;
+}
+
+
+std::string stdx::daytime(float daytime, bool apm, bool gen_sec)
+{
+	float hr = daytime * 24.0;
+	float mn = (hr - std::floor(hr)) * 60.0;
+	float sec = (mn - std::floor(mn)) * 60.0;
+	std::stringstream ss;
+	bool am = hr < 12;
+
+	ss << std::format("{:02}:{:02}", (int)(am ? hr : hr - 12), (int)mn);
+
+	if (gen_sec)
+	{
+		ss << std::format(":{:05.2f}", sec);
+	}
+
+	if (apm)
+	{
+		ss << " " << (am ? "AM" : "PM");
+	}
+	return ss.str();
+}
+
+float stdx::daytime(std::string_view _str)
+{
+	char* str = (char*)_str.data();
+
+	float hr = std::strtof(str, &str);
+
+	float mn = 0;
+	if (*str == ':') {
+		++str;
+		mn = std::strtof(str, &str);
+	}
+
+	float sec = 0;
+	if (*str == ':') {
+		++str;
+		sec = std::strtof(str, &str);
+	}
+
+	if (*str == 'P' || *str == 'p') {  // PM
+		hr += 12.0f;
+	}
+	
+	float t = hr / 24.0;
+	if (mn) t += mn / (60.0 * 24.0);
+	if (sec) t += sec / (60.0 * 60.0 * 24.0);
+	return t;
+}

@@ -32,6 +32,7 @@
 #include <ethertia/imgui/Imw.h>
 
 #include <thread>
+#include <stdx/str.h>
 
 
 static void Init();
@@ -41,6 +42,12 @@ static void RunMainLoop();
 
 int main()
 {
+    Log::info("{}", stdx::daytime(stdx::daytime("5")));
+    Log::info("{}", stdx::daytime(stdx::daytime("00:30.5pm")));
+    Log::info("{}", stdx::daytime(stdx::daytime("10:30.5:2.59 am")));
+
+    return 1;
+
     Init();
 
     while (Ethertia::isRunning())

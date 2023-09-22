@@ -25,6 +25,8 @@
 
 #include <ethertia/init/DebugStat.h>
 
+#include <glm/gtx/string_cast.hpp>
+
 //#include <PxPhysicsAPI.h>
 //
 //using namespace physx;
@@ -299,7 +301,7 @@ void World::unloadChunk(glm::vec3 p) {
         LOCK_GUARD(m_LockChunks);
         auto it = m_Chunks.find(Chunk::chunkpos(p));
         if (it == m_Chunks.end())
-            throw std::logic_error(Strings::fmt("Failed unload chunk. Not exists. {}", p));
+            throw std::logic_error(std::format("Failed unload chunk. Not exists. {}", glm::to_string(p)));
         chunk = it->second;
         assert(chunk);
 

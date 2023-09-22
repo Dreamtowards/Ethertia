@@ -131,7 +131,7 @@ void Imw::Settings::ShowSettings(bool* pOpen)
 
             int fpsLimit = ::Settings::s_Vsync ? 0 : ::Settings::s_FpsCap;
             ImGui::SliderInt("Vsync or FPS Limit", &fpsLimit, 0, 1000,
-                             fpsLimit ? Strings::fmt("{} FPS", fpsLimit).c_str() : "Vsync");
+                             fpsLimit ? std::format("{} FPS", fpsLimit).c_str() : "Vsync");
             if (fpsLimit != 0) {
                 ::Settings::s_FpsCap = fpsLimit;
                 ::Settings::s_Vsync = false;

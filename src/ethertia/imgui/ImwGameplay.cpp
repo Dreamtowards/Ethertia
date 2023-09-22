@@ -16,6 +16,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <stdx/str.h>
+
 
 #pragma region Game Viewport Debug
 
@@ -35,20 +37,20 @@ static void ShowDebugTextOverlay()
 
     if (world)
     {
-        worldInfo = Strings::fmt("{}. inhabited {}s, daytime {}. seed {}",
+        worldInfo = std::format("{}. inhabited {}s, daytime {}. seed {}",
             world->m_WorldInfo.Name,
             world->m_WorldInfo.InhabitedTime,
-            Strings::daytime(world->getDayTime()),
+            stdx::daytime(world->getDayTime()),
             world->getSeed());
         Chunk* hitChunk = world->getLoadedChunk(cur.position);
         if (hitChunk) {
-            chunkInfo = Strings::fmt("GenPop: {}, Inhabited: {}s",
+            chunkInfo = std::format("GenPop: {}, Inhabited: {}s",
                 hitChunk->m_Populated,
                 hitChunk->m_InhabitedTime);
         }
         if (cur.cell) {
             Cell* c = cur.cell;
-            cellInfo = Strings::fmt("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
+            cellInfo = std::format("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
                 c->mtl ? c->mtl->getRegistryId() : "nil",
                 c->density,
                 (int)c->exp_meta,
@@ -57,7 +59,7 @@ static void ShowDebugTextOverlay()
     }
 
 
-    std::string str = Strings::fmt(
+    std::string str = std::format(
         "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
         "avg-fps: {}. dt: {}, {}fps\n"
         "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
@@ -75,7 +77,7 @@ static void ShowDebugTextOverlay()
         "CPU: {}\n"
         "GPU: {}"
         ,
-        Ethertia::getCamera().position, Ethertia::getCamera().len,
+        glm::to_string(Ethertia::getCamera().position), Ethertia::getCamera().len,
         meterPerSec, meterPerSec * 3.6f,
         player->m_OnGround, player->m_NumContactPoints,
 
@@ -96,7 +98,7 @@ static void ShowDebugTextOverlay()
         std::thread::hardware_concurrency(),
         std::endian::native == std::endian::big ? "big" : "little",
         Loader::cpuid(),
-        vkx::ctx().PhysDeviceProperties.deviceName
+        (const char*)vkx::ctx().PhysDeviceProperties.deviceName
     );
 
     auto& vp = Ethertia::getViewport();
@@ -523,7 +525,7 @@ void Imw::Gameplay::ShowWorldNew(bool* _open)
 
     static char _WorldName[128];
     ImGui::InputText("World Name", _WorldName, std::size(_WorldName));
-    std::string save_path = Strings::fmt("./saves/{}", _WorldName);
+    std::string save_path = std::format("./saves/{}", _WorldName);
     ImGui::TextDisabled("Will save as: %s", save_path.c_str());
 
     static char _WorldSeed[128];
@@ -591,7 +593,7 @@ void Imw::Gameplay::ShowTitleScreen(bool* _open)
 
     // LeftBottom Version/Stats
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
-    Imgui::TextAlign(Strings::fmt("0 mods loaded.\n{}", Ethertia::Version::name()).c_str(),
+    Imgui::TextAlign(std::format("0 mods loaded.\n{}", Ethertia::Version::name()).c_str(),
                      {0.0f, 1.0f});
 
     // RightBottom Copyright
