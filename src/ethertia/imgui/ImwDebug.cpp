@@ -5,6 +5,7 @@
 #include "Imw.h"
 
 #include <ethertia/util/Loader.h>
+#include <ethertia/util/Colors.h>
 
 
 void Imw::Debug::ShowDialogs(bool* _open)

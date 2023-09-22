@@ -7,6 +7,7 @@
 #include <imgui_internal.h>
 
 #include <ethertia/util/Profiler.h>
+#include <ethertia/util/Colors.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/init/DebugStat.h>
 

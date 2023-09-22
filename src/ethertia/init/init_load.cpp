@@ -4,11 +4,10 @@
 
 
 #include <format>
-
+#include <vkx/vkx.hpp>
 
 #include <ethertia/util/Loader.h>
 
-#include <vkx/vkx.hpp>
 
 
 
@@ -22,14 +21,14 @@
 
 static bool MtlTex_LoadResizeTo(const std::string& mtl, std::string_view textype, BitmapImage& dst_resized)
 {
-    std::string asset = Strings::fmt("material/{}/{}.png", mtl, textype);
+    std::string asset = std::format("material/{}/{}.png", mtl, textype);
     std::string path = Loader::FindAsset(asset);
     if (!path.empty()) {
         BitmapImage src = Loader::LoadPNG_(path.c_str());
-        BitmapImage::resize(src, dst_resized);
+        BitmapImage::Resize(src, dst_resized);
         return true;
     } else {
-        std::cerr << Strings::fmt(" missed '{}'.", asset);
+        std::cerr << std::format(" missed '{}'.", asset);
 
         //      if (textype == "diff")  resized->fillPixels(0xFFFFFFFF);  // unit 1
         // else if (textype == "disp")  resized->fillPixels(0x808080FF);  // middle height
@@ -145,10 +144,13 @@ void MaterialTextures::Load()
 
 static vkx::Image* ItemTex_MakeAtlas(const std::string& cache_file, int resolution) {
 
-    if (Loader::FileExists(cache_file)) {
+    if (Loader::FileExists(cache_file)) 
+    {
         std::cout << "loading from cache '" << cache_file << "'";
         return Loader::LoadImage(cache_file);
-    } else {
+    } 
+    else 
+    {
         std::cout << "cache not found. start baking.";
 
         int n = Item::REGISTRY.size();
@@ -164,25 +166,25 @@ static vkx::Image* ItemTex_MakeAtlas(const std::string& cache_file, int resoluti
 
             std::string loc;
             if (item->hasComponent<ItemComponentMaterial>()) {
-                loc = Strings::fmt("material/{}/view.png", id);
+                loc = std::format("material/{}/view.png", id);
                 if (Loader::FindAsset(loc).empty()) {  // if Not Found
-                    loc = Strings::fmt("material/{}/diff.png", id);
+                    loc = std::format("material/{}/diff.png", id);
                 }
             } else {
-                loc = Strings::fmt("item/{}/view.png", id);
+                loc = std::format("item/{}/view.png", id);
             }
 
             if (!Loader::FindAsset(loc).empty())
             {
                 BitmapImage img = Loader::LoadPNG(loc);
-                BitmapImage::resize(img, resized);
+                BitmapImage::Resize(img, resized);
 
                 BitmapImage::CopyPixels(0, 0, resized,
                                         i*resolution, 0, atlas);
             }
             else
             {
-                std::cerr  << Strings::fmt("missing item texture '{}'.", loc);
+                std::cerr  << std::format("missing item texture '{}'.", loc);
             }
             i++;
         }

@@ -10,6 +10,8 @@
 
 #include <glm/vec3.hpp>
 
+#include <ethertia/util/Colors.h>
+
 
 // Holdridge (1947, 1964)       life zones  https://en.wikipedia.org/wiki/File:Lifezones_Pengo.svg
 // Whittaker (1962, 1970, 1975) biome-types https://en.wikipedia.org/wiki/File:Climate_influence_on_terrestrial_biome.svg

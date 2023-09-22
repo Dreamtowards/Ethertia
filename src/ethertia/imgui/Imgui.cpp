@@ -20,6 +20,7 @@
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/init/Controls.h>
+#include <ethertia/util/Colors.h>
 #include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/world/Chunk.h>
 
@@ -46,29 +47,14 @@ static void InitStyle()
     styl.ScrollbarRounding = 2;
     styl.TabRounding = 2;
 
-    for (int i = 0; i < ImGuiCol_COUNT; ++i)
-    {
-        ImVec4& col = styl.Colors[i];
-        float f = std::max(Colors::luminance({col.x, col.y, col.z}), 0.06f);
-        //(col.x + col.y + col.z) / 3.0f;
-        col = ImVec4(f,f,f,col.w);
-    }
 
     auto& Col = styl.Colors;
 
-    Col[ImGuiCol_CheckMark] =
-    Col[ImGuiCol_SliderGrab] =
-            {1.000f, 1.000f, 1.000f, 1.000f};
-
-//    style.Colors[ImGuiCol_MenuBarBg] = {0,0,0,0};
-
-    Col[ImGuiCol_HeaderHovered] = {0.051f, 0.431f, 0.992f, 1.000f};
-    Col[ImGuiCol_HeaderActive] = {0.071f, 0.388f, 0.853f, 1.000f};
-    Col[ImGuiCol_Header] = {0.106f, 0.298f, 0.789f, 1.000f};  // also for Selectable.
 
     Col[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
     Col[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
 
+    //Col[ImGuiCol_MenuBarBg] = {0,0,0,0};
     Col[ImGuiCol_Tab] =
     Col[ImGuiCol_TabUnfocused] = {0,0,0,0};
 
@@ -78,21 +64,37 @@ static void InitStyle()
     Col[ImGuiCol_TitleBg] =
     Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
 
-//        style.Colors[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
-//        style.Colors[ImGuiCol_Button] =
-//        style.Colors[ImGuiCol_Header] =
-//        style.Colors[ImGuiCol_FrameBg] =
-//                {0.322f, 0.322f, 0.322f, 0.540f};
-//
-//        style.Colors[ImGuiCol_ButtonHovered] =
-//        style.Colors[ImGuiCol_HeaderHovered] =
-//        style.Colors[ImGuiCol_FrameBgHovered] =
-//                {0.626f, 0.626f, 0.626f, 0.400f};
-//
-//        style.Colors[ImGuiCol_ButtonActive] =
-//        style.Colors[ImGuiCol_HeaderActive] =
-//                {0.170f, 0.170f, 0.170f, 1.000f};
+    //Col[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
+    //Col[ImGuiCol_Button] =
+    //Col[ImGuiCol_Header] =
+    //Col[ImGuiCol_FrameBg] =
+    //        {0.322f, 0.322f, 0.322f, 0.540f};
+    //
+    //Col[ImGuiCol_ButtonHovered] =
+    //Col[ImGuiCol_HeaderHovered] =
+    //Col[ImGuiCol_FrameBgHovered] =
+    //        {0.626f, 0.626f, 0.626f, 0.400f};
+    //
+    //Col[ImGuiCol_ButtonActive] =
+    //Col[ImGuiCol_HeaderActive] =
+    //        {0.170f, 0.170f, 0.170f, 1.000f};
 
+
+    for (int i = 0; i < ImGuiCol_COUNT; ++i)
+    {
+        ImVec4& col = styl.Colors[i];
+        float f = std::max(Colors::luminance({ col.x, col.y, col.z }), 0.06f);
+        if (f < 0.5) f *= 0.9;
+        col = ImVec4(f, f, f*1.1f, col.w);
+    }
+
+    Col[ImGuiCol_HeaderHovered] = { 0.051f, 0.431f, 0.992f, 1.000f };
+    Col[ImGuiCol_HeaderActive] = { 0.071f, 0.388f, 0.853f, 1.000f };
+    Col[ImGuiCol_Header] = { 0.106f, 0.298f, 0.789f, 1.000f };  // also for Selectable.
+
+    Col[ImGuiCol_CheckMark] =
+    Col[ImGuiCol_SliderGrab] =
+        { 1.000f, 1.000f, 1.000f, 1.000f };
 }
 
 

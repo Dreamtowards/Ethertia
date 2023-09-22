@@ -12,7 +12,6 @@
 
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Log.h>
-#include <ethertia/util/DtorCaller.h>
 
 class Profiler
 {
@@ -131,7 +130,8 @@ public:
     };
 
     [[nodiscard]]
-    EndScopeCaller push_ap(std::string_view name) {
+    EndScopeCaller push_ap(std::string_view name)
+    {
         push(name);
 
         return EndScopeCaller{[this](){
