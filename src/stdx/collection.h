@@ -37,7 +37,7 @@ namespace stdx
 	}
 
 	template<typename K, typename V>
-	static K find_key(const std::map<K, V>& m, const V& val)
+	K find_key(const std::map<K, V>& m, const V& val)
 	{
 		for (auto it = m.cbegin(); it != m.cend(); ++it)
 		{

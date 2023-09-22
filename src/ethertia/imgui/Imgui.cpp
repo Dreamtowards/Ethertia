@@ -85,7 +85,7 @@ static void InitStyle()
         ImVec4& col = styl.Colors[i];
         float f = std::max(Colors::luminance({ col.x, col.y, col.z }), 0.06f);
         if (f < 0.5) f *= 0.9;
-        col = ImVec4(f, f, f*1.1f, col.w);
+        col = ImVec4(f, f, f*1.04f, col.w);
     }
 
     Col[ImGuiCol_HeaderHovered] = { 0.051f, 0.431f, 0.992f, 1.000f };
