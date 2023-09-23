@@ -26,8 +26,8 @@ public:
 	explicit World();
 	~World();
 
-
-	Entity CreateEntity(uint64_t uuid);
+	// if uuid == 0 -> generate a uuid
+	Entity CreateEntity(uint64_t uuid = 0);
 
 	void DestroyEntity(Entity entity);
 
@@ -35,6 +35,7 @@ public:
 
 	void DuplicateEntity(Entity entity);
 
+	const std::unordered_map<uint64_t, entt::entity> GetEntities() const { return m_EntityMap; }
 
 
 	void OnTick(float dt);

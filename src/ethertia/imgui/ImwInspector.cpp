@@ -12,6 +12,7 @@
 #include <ethertia/init/DebugStat.h>
 
 #include <ethertia/world/World.h>
+#include <ethertia/world/Entity.h>
 
 //#include <ethertia/entity/Entity.h>
 //#include <ethertia/entity/EntityMesh.h>
@@ -243,6 +244,11 @@ void Imw::Editor::ShowInspector(bool* _open)
 
 
 
+
+
+
+
+
 #pragma region Imw Hierarchy
 
 
@@ -392,39 +398,107 @@ void Imw::Editor::ShowHierarchy(bool* _open)
 {
     ImGui::Begin("Hierarchy", _open);
 
-    static const char* types[] = { "Entities", "Pipelines", "Internals" };
-    static int current = 0;
+    World* world = Ethertia::GetWorld();
+    if (!world) 
+    {
+        ImGui::TextDisabled("World not loaded.");
+        ImGui::End();
+        return;
+    }
+
+    if (ImGui::Button("+"))
+    {
+        ImGui::OpenPopup("CreateEntity");
+    }
+    Imgui::ItemHoveredTooltip("Create Entity");
+
+    if (ImGui::BeginPopup("CreateEntity"))
+    {
+        if (ImGui::MenuItem("Entity"))
+        {
+            world->CreateEntity();
+        }
+
+        ImGui::EndPopup();
+    }
+
+
+    ImGui::SameLine();
+
+    if (ImGui::ArrowButton("##options", ImGuiDir_Down))
+    {
+        //if (ImGui::BeginCombo("##HierarchyType", types[current]))
+        //{
+        //    for (size_t i = 0; i < std::size(types); i++)
+        //    {
+        //        if (ImGui::Selectable(types[i], i == current))
+        //            current = i;
+        //    }
+        //    ImGui::EndCombo();
+        //}
+    }
+    ImGui::SameLine();
 
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-    if (ImGui::BeginCombo("##HierarchyType", types[current]))
-    {
-        for (size_t i = 0; i < std::size(types); i++)
-        {
-            if (ImGui::Selectable(types[i], i == current))
-                current = i;
-        }
-        ImGui::EndCombo();
-    }
+    static char _Search[128];
+    ImGui::InputTextWithHint("##search", "Find..", _Search, std::size(_Search));
     ImGui::PopItemWidth();
 
-    if (current == 0)
-    {
-        _HrcEntities();
-    }
-    else if (current == 1)
-    {
+    ImGui::Separator();
 
-    }
-    else if (current == 2)
+    ImGui::BeginChild("entitylist", {0, -ImGui::GetTextLineHeightWithSpacing()});
+
+    if (ImGui::BeginTable("table", 2, 
+        ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX, {}))
     {
-        if (ImGui::Selectable("Main Camera")) {
-            Imw::Editor::SetInspectionObject(&Ethertia::getCamera(), eCamera);
+        //ImGui::TableSetupColumn("##0", ImGuiTableColumnFlags_WidthFixed, 16);
+        //ImGui::TableSetupColumn("##Name", ImGuiTableColumnFlags_WidthStretch, 200);
+        //ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthStretch, 80);
+        //ImGui::TableHeadersRow();
+
+        static uint64_t s_SelectedEntityUuid = 0;
+
+        for (auto& it : world->GetEntities())
+        {
+            uint64_t uuid = it.first;
+
+            ImGui::PushID(uuid);
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+
+            if (ImGui::Selectable("##sel", s_SelectedEntityUuid==uuid, ImGuiSelectableFlags_SpanAllColumns))
+            {
+                s_SelectedEntityUuid = s_SelectedEntityUuid==uuid ? -1 : uuid;
+            }
+            Imgui::ItemHoveredTooltip(std::format("UUID: {}", uuid));
+
+            ImGui::SameLine();
+            ImGui::Text("Entity N");
+
+            ImGui::TableNextColumn();
+            ImGui::TextDisabled("Type2");
+
+            ImGui::PopID();
         }
 
-        if (ImGui::Selectable("Pipeline: GBuffer")) {
-            Imw::Editor::SetInspectionObject(&Ethertia::getCamera(), eCamera);
-        }
+        ImGui::EndTable();
     }
+
+    ImGui::EndChild();
+
+
+    ImGui::TextDisabled(std::format("{} entity.", world->GetEntities().size()).c_str());
+
+
+
+    //if (ImGui::Selectable("Main Camera")) {
+    //    Imw::Editor::SetInspectionObject(&Ethertia::getCamera(), eCamera);
+    //}
+    //
+    //if (ImGui::Selectable("Pipeline: GBuffer")) {
+    //    Imw::Editor::SetInspectionObject(&Ethertia::getCamera(), eCamera);
+    //}
 
 
     ImGui::End();

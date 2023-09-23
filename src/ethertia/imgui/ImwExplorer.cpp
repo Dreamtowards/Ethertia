@@ -196,7 +196,7 @@ void Imw::Editor::ShowExplorer(bool* _open)
 {
     ImGui::Begin("Explorer", _open);
 
-    ImGui::BeginChild("ImwExplorerOutline", { 300, 0 }, true);
+    ImGui::BeginChild("Outline", { 300, 0 }, true);
     {
         static bool s_ListFiles = true;
 
@@ -210,7 +210,7 @@ void Imw::Editor::ShowExplorer(bool* _open)
         ImGui::Separator();
 
         ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 0, 0 });  // no row spacing
-        if (ImGui::BeginTable("ImwExplorerThumbnails", 1,
+        if (ImGui::BeginTable("OutlineTable", 1,
             ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_NoHostExtendX,
             { 300, 0 }))
         {
@@ -227,7 +227,7 @@ void Imw::Editor::ShowExplorer(bool* _open)
 
     ImGui::SameLine();
 
-    ImGui::BeginChild("ImwExplorerDetail", {}, true);
+    ImGui::BeginChild("Detail", {}, true);
     {
         _PathEdit();
 

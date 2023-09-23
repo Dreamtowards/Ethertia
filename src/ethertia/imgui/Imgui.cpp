@@ -285,6 +285,15 @@ void Imgui::ToggleShow(DrawFuncPtr w)
 
 
 
+void Imgui::ItemHoveredTooltip(const std::string& str)
+{
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+    {
+        ImGui::BeginTooltip();
+        ImGui::TextDisabled(str.c_str());
+        ImGui::EndTooltip();
+    }
+}
 
 VkDescriptorSet Imgui::mapImage(VkImageView imageView)
 {

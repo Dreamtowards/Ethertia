@@ -23,9 +23,15 @@ void World::OnTick(float dt)
 	//	return;
 }
 
+static int g_LastEntityUUID = 0;
 
 Entity World::CreateEntity(uint64_t uuid)
 {
+	if (uuid == 0)
+	{
+		uuid = ++g_LastEntityUUID;
+	}
+
 	Entity entity{ m_EntityRegistry.create(), this, uuid };
 
 	// assign: uuid, transform, name.

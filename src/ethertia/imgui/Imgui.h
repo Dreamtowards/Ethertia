@@ -8,8 +8,8 @@
 #include <imgui.h>
 
 #include <vulkan/vulkan.h>
-
 #include <glm/glm.hpp>
+#include <string>
 
 #include <ethertia/util/AABB.h>
 
@@ -45,6 +45,8 @@ public:
 
     static void ToggleShow(DrawFuncPtr w);
 
+
+    static void ItemHoveredTooltip(const std::string& str);
 
     static VkDescriptorSet mapImage(VkImageView imageView);
 
