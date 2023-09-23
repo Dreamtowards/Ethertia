@@ -745,19 +745,26 @@ glm::vec3 Loader::OpenColorPicker(
 }
 
 
-void Loader::OpenURL(const std::string& url)
+void Loader::OpenURL(std::string_view url)
 {
-    const char* cmd = nullptr;
-#if _WIN32
-    cmd = "start ";  // windows
+#if _WIN32  
+    std::string win_url(url);
+
+    // replace '/' to '\'
+    for (char& c : win_url)
+    {
+        if (c == '/') c = '\\';
+    }
+
+    std::system(("start " + win_url).c_str());
+    return;
 #elif __APPLE__
-    cmd = "open ";  // macos
+    std::system((std::string("open ") + url).c_str());
 #elif __unix__
-    cmd = "xdg-open ";  // linux
+    std::system((std::string("xdg-open ") + url).c_str());
 #else
     static_assert(false);  // Not supported OS yet.
 #endif
-    std::system(std::string(cmd + url).c_str());
 }
 
 

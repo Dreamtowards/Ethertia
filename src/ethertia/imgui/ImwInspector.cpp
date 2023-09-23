@@ -4,9 +4,14 @@
 
 #include "Imw.h"
 
+#include <format>
+#include <glm/gtx/string_cast.hpp>
+
 #include <ethertia/Ethertia.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/DebugStat.h>
+
+#include <ethertia/world/World.h>
 
 //#include <ethertia/entity/Entity.h>
 //#include <ethertia/entity/EntityMesh.h>
@@ -114,8 +119,54 @@
 //
 //}
 
-#include <format>
-#include <glm/gtx/string_cast.hpp>
+
+static void _InspWorld(World* world)
+{
+    WorldInfo& worldinfo = world->GetWorldInfo();
+
+    ImGui::Text(std::format(
+        "World Name: {}\n"
+        "World Seed: {}\n"
+        "DayTime: {}\n"
+        "DayTime Length: {}\n"
+        "Inhibited Time: {}\n"
+        ,
+        worldinfo.Name,
+        worldinfo.Seed,
+        worldinfo.InhabitedTime,
+        worldinfo.InhabitedTime,
+        worldinfo.InhabitedTime
+    ).c_str());
+    //ImGui::BeginDisabled();
+    //const WorldInfo& winf = world->m_WorldInfo;
+    //
+    //static char WorldName[128];
+    //ImGui::InputText("World Name", WorldName, 128);
+    //
+    //static char WorldSeed[128];
+    //ImGui::InputText("World Seed", WorldSeed, 128);
+    //
+    //ImGui::EndDisabled();
+    //
+    //ImGui::SliderFloat("Day Time", &world->m_WorldInfo.DayTime, 0, 1);
+    //ImGui::SliderFloat("Day Time Length", &world->m_WorldInfo.DayLength, 1, 3600);
+    //
+    //
+    //ImGui::ColorEdit3("Sun Color", &Dbg::dbg_WorldSunColor.x);
+    //ImGui::ColorEdit3("Dbg Color", &Dbg::dbg_ShaderDbgColor.x);
+    //ImGui::DragFloat("Sun Brightness Mul", &Dbg::dbg_WorldSunColorBrightnessMul, 0.1);
+    //
+    //
+    //if (ImGui::Button("Open World Save Directory"))
+    //{
+    //    Loader::OpenURL(world->m_ChunkLoader->m_ChunkDir);
+    //}
+    //if (ImGui::IsItemHovered()) {
+    //    ImGui::SetTooltip("%s", world->m_ChunkLoader->m_ChunkDir.c_str());
+    //}
+}
+
+
 
 void Imw::Editor::ShowInspector(bool* _open)
 {
@@ -145,6 +196,11 @@ void Imw::Editor::ShowInspector(bool* _open)
             Entity* entity = (Entity*)inspectionObject;
 
             //ImGui::Text(std::format("Entity: {}", glm::to_string(entity->position())).c_str());
+            break;
+        }
+        case eWorld:
+        {
+            _InspWorld((World*)inspectionObject);
             break;
         }
         case eCamera:

@@ -115,14 +115,14 @@ void RenderEngine::Render()
     World* world = Ethertia::GetWorld();
     if (world && !s_PauseWorldRender)
     {
-        Imw::Gameplay::GameImageView = RendererCompose::rtColor->imageView;
+        //Imw::Gameplay::GameImageView = RendererCompose::rtColor->imageView;
         {
             PROFILE("CmdWorldGbuffer");
             //RendererGbuffer::RecordCommand(cmd, world->m_Entities);
         }
         {
             PROFILE("CmdWorldCompose");
-            RendererCompose::RecordCommand(cmd);
+            //RendererCompose::RecordCommand(cmd);
         }
     }
 

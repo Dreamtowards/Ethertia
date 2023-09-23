@@ -16,21 +16,7 @@
 #include <ethertia/init/KeyBinding.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/util/Loader.h>
-//#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/world/Chunk.h>
-
-
-static bool
-        w_ImGuiDemo = false,
-        w_NewWorld = false,
-        w_NodeEditor = false,
-        w_TitleScreen = false,
-        w_Singleplayer = false;
-
-static bool
-        dbg_AllEntityAABB = false,
-        dbg_AllChunkAABB = false,
-        dbg_Gbuffer = false;
 
 
 
@@ -58,29 +44,40 @@ static void _ShowMainMenu_System()
 
     if (ImGui::BeginMenu("Open World"))
     {
-        if (ImGui::MenuItem("New World..")) {
-            w_NewWorld = true;
+        if (ImGui::MenuItem("New World.."))
+        {
+            Imgui::Show(Imw::Gameplay::ShowWorldNew);
         }
-        if (ImGui::MenuItem("Open World..")) {
-            const char* filename = Loader::OpenFolderDialog("Open World..", "./saves/");  //std::filesystem::current_path().append("/saves/").string().c_str());
-            if (filename) {
-                Log::info("Open world: ", filename);
+        if (ImGui::MenuItem("Open World..")) 
+        {
+            if (const char* filename = Loader::OpenFolderDialog("Open World..", "saves/"))
+            {
                 Ethertia::LoadWorld(filename);
             }
         }
 
         //ImGui::SeparatorText("Saves");
         ImGui::Separator();
+
         ImGui::TextDisabled("Saves:");
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("click to open default save directory");
+            ImGui::EndTooltip();
+        }
+        if (ImGui::IsItemClicked())
+        {
+            Loader::OpenURL("saves/");
+        }
 
         if (Loader::FileExists("saves/"))
         {
             for (const auto& savedir : std::filesystem::directory_iterator("saves/"))
             {
-//            std::string size_str = Strings::size_str(Loader::calcDirectorySize(savedir.path()));
+                // std::string size_str = Strings::size_str(Loader::calcDirectorySize(savedir.path()));
 
-                auto filename = savedir.path().filename();
-                if (ImGui::MenuItem((const char*)filename.c_str(), std::format("{}", savedir.last_write_time()).c_str()))
+                if (ImGui::MenuItem(savedir.path().filename().string().c_str(), std::format("{}", savedir.last_write_time()).c_str()))
                 {
                     Ethertia::LoadWorld(savedir.path().string());
                 }
@@ -98,7 +95,7 @@ static void _ShowMainMenu_System()
     bool worldvalid = Ethertia::GetWorld() != nullptr;
     if (ImGui::MenuItem("Edit World..", nullptr, false, worldvalid))
     {
-        Imw::Settings::CurrentPanel = Imw::Settings::Panel::CurrentWorld;
+        Imw::Editor::SetInspectionObject(Ethertia::GetWorld(), Imw::Editor::eWorld);
     }
     if (ImGui::MenuItem("Save World", nullptr, false, worldvalid)) {}
 
@@ -158,8 +155,8 @@ static void _ShowMainMenuBar()
         if (ImGui::BeginMenu("World"))
         {
 
-            ImGui::Checkbox("AllEntityAABB", &dbg_AllEntityAABB);
-            ImGui::Checkbox("AllChunkAABB", &dbg_AllChunkAABB);
+            //ImGui::Checkbox("AllEntityAABB", &dbg_AllEntityAABB);
+            //ImGui::Checkbox("AllChunkAABB", &dbg_AllChunkAABB);
 //            ImGui::Checkbox("DbgHitEntityAABB", &GuiDebugV::dbg_CursorPt);
 //            ImGui::Checkbox("DbgNearChunkBoundAABB", &GuiDebugV::dbgChunkBoundAABB);
 //            ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
@@ -228,7 +225,7 @@ static void _ShowMainMenuBar()
 
             ImGui::Separator();
 
-            ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
+            //ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
             ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
             ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
 

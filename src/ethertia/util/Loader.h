@@ -210,7 +210,7 @@ public:
 
 
     // open File, Folder, Website URL
-    static void OpenURL(const std::string& url);
+    static void OpenURL(std::string_view url);
 
 
     static const char* cpuid();

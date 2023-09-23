@@ -7,12 +7,7 @@
 
 World::World()
 {
-	//auto view = m_EntityRegistry.view<ScriptComponent>();
-	//for (auto e : view)
-	//{
-	//	Entity entity = { e, this };
-	//	ScriptEngine::OnCreateEntity(entity);
-	//}
+
 }
 
 World::~World()

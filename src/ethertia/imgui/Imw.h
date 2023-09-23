@@ -42,6 +42,7 @@ public:
         {
             eNone,
             eEntity,
+            eWorld,
             eCamera,
             ePipeline
         };

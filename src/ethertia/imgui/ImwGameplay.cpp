@@ -520,34 +520,52 @@ static void ShowPlayerInventory()
 }
 
 
+#include <ethertia/world/World.h>
 
+#include <time.h>
+
+static uint64_t _ParseSeed(const char* str)
+{
+    if (*str == 0)
+        return std::time(0);  // unix timestamp in seconds
+
+    char* end;
+    uint64_t seed = std::strtoll(str, &end, 10);
+
+    if (end == str)  // parse failed.
+    {
+        return std::hash<std::string_view>()(str);
+    }
+
+    return seed;
+}
 
 
 void Imw::Gameplay::ShowWorldNew(bool* _open)
 {
     ImGui::Begin("New World", _open);
 
-    //static char _WorldName[128];
-    //ImGui::InputText("World Name", _WorldName, std::size(_WorldName));
-    //std::string save_path = std::format("./saves/{}", _WorldName);
-    //ImGui::TextDisabled("Will save as: %s", save_path.c_str());
-    //
-    //static char _WorldSeed[128];
-    //ImGui::InputText("Seed", _WorldSeed, std::size(_WorldSeed));
-    //uint64_t seed = WorldInfo::ofSeed(_WorldSeed);
-    //ImGui::TextDisabled("Actual u64 seed: %llu", seed);
-    //
-    //
-    //if (ImGui::Button("Create"))
-    //{
-    //    WorldInfo worldinfo{
-    //            .Seed = seed,
-    //            .Name = _WorldName
-    //    };
-    //    Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
-    //    Ethertia::LoadWorld(save_path, &worldinfo);
-    //    *_open = false;
-    //}
+    static char _WorldName[128];
+    ImGui::InputText("World Name", _WorldName, std::size(_WorldName));
+    std::string save_path = std::format("./saves/{}", _WorldName);
+    ImGui::TextDisabled("Will save as: %s", save_path.c_str());
+    
+    static char _WorldSeed[128];
+    ImGui::InputText("Seed", _WorldSeed, std::size(_WorldSeed));
+    uint64_t seed = _ParseSeed(_WorldSeed);
+    ImGui::TextDisabled("Actual u64 seed: %llu", seed);
+    
+    
+    if (ImGui::Button("Create"))
+    {
+        WorldInfo worldinfo{
+                .Seed = seed,
+                .Name = _WorldName
+        };
+        Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
+        Ethertia::LoadWorld(save_path, &worldinfo);
+        *_open = false;
+    }
 
     ImGui::End();
 }

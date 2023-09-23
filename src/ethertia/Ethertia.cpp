@@ -245,7 +245,7 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
     //ChunkMeshProc::g_Running = 1;
     //ChunkGenProc::g_Running = 1;
 
-    // Log::info("Loading world @\"{}\" seed {}", savedir, world->m_WorldInfo.Seed);
+    Log::info("Loading world '{}'", savedir);
 
 
 //    getScheduler()->addTask([](){

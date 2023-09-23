@@ -76,41 +76,6 @@ void Imw::Settings::ShowSettings(bool* pOpen)
         }
         else if (currpanel==CurrentWorld)
         {
-            World* world = Ethertia::GetWorld();
-            if (!world)
-            {
-                ImGui::TextDisabled("No world loaded.");
-            }
-            else
-            {
-                //ImGui::BeginDisabled();
-                //const WorldInfo& winf = world->m_WorldInfo;
-                //
-                //static char WorldName[128];
-                //ImGui::InputText("World Name", WorldName, 128);
-                //
-                //static char WorldSeed[128];
-                //ImGui::InputText("World Seed", WorldSeed, 128);
-                //
-                //ImGui::EndDisabled();
-                //
-                //ImGui::SliderFloat("Day Time", &world->m_WorldInfo.DayTime, 0, 1);
-                //ImGui::SliderFloat("Day Time Length", &world->m_WorldInfo.DayLength, 1, 3600);
-                //
-                //
-                //ImGui::ColorEdit3("Sun Color", &Dbg::dbg_WorldSunColor.x);
-                //ImGui::ColorEdit3("Dbg Color", &Dbg::dbg_ShaderDbgColor.x);
-                //ImGui::DragFloat("Sun Brightness Mul", &Dbg::dbg_WorldSunColorBrightnessMul, 0.1);
-                //
-                //
-                //if (ImGui::Button("Open World Save Directory"))
-                //{
-                //    Loader::OpenURL(world->m_ChunkLoader->m_ChunkDir);
-                //}
-                //if (ImGui::IsItemHovered()) {
-                //    ImGui::SetTooltip("%s", world->m_ChunkLoader->m_ChunkDir.c_str());
-                //}
-            }
 
         }
         else if (currpanel==Graphics)
