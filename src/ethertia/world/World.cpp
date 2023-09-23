@@ -2,6 +2,7 @@
 
 #include "World.h"
 
+#include "Entity.h"
 
 
 World::World()
@@ -28,9 +29,9 @@ void World::OnTick(float dt)
 }
 
 
-Entity World::CreateEntity(Entity::Id uuid)
+Entity World::CreateEntity(uint64_t uuid)
 {
-	Entity entity{ m_EntityRegistry.create(), this };
+	Entity entity{ m_EntityRegistry.create(), this, uuid };
 
 	// assign: uuid, transform, name.
 
@@ -45,11 +46,11 @@ void World::DestroyEntity(Entity entity)
 	m_EntityRegistry.destroy(entity);
 }
 
-Entity World::FindEntity(Entity::Id uuid)
+Entity World::FindEntity(uint64_t uuid)
 {
 	auto it = m_EntityMap.find(uuid);
 	if (it == m_EntityMap.end())
 		return {};
 
-	return Entity{ it->second, this };
+	return Entity{ it->second, this, uuid };
 }

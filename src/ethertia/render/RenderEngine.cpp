@@ -5,11 +5,14 @@
 #include "RenderEngine.h"
 
 
+#include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
+#include <ethertia/util/BenchmarkTimer.h>
+
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/Settings.h>
-#include <ethertia/entity/EntityDroppedItem.h>
-#include <ethertia/entity/player/EntityPlayer.h>
+//#include <ethertia/entity/EntityDroppedItem.h>
+//#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/init/DebugStat.h>
 
 
@@ -21,7 +24,7 @@
 
 
 #include <ethertia/world/World.h>
-#include <ethertia/entity/Entity.h>
+//#include <ethertia/entity/Entity.h>
 
 
 ////    SkyboxRenderer::init();     std::cout << "skybox ";
@@ -60,28 +63,18 @@ void RenderEngine::Init()
     TEX_WHITE = Loader::LoadImage(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
     TEX_UVMAP = Loader::LoadImage("misc/uvmap.png");
 
-    Materials::registerMaterialItems();  // before items tex load.
-    MaterialTextures::Load();
+    //Materials::registerMaterialItems();  // before items tex load.
+    //MaterialTextures::Load();
 
 
-    RendererGbuffer::Init();
-    RendererCompose::Init(
-        RendererGbuffer::gPosition->imageView,
-        RendererGbuffer::gNormal->imageView,
-        RendererGbuffer::gAlbedo->imageView);
-
-    // RendererGbuffer::gAlbedo->imageView;
+    //RendererGbuffer::Init();
     
+    //RendererCompose::Init(
+    //    RendererGbuffer::gPosition->imageView,
+    //    RendererGbuffer::gNormal->imageView,
+    //    RendererGbuffer::gAlbedo->imageView);
 
 
-//    RendererGbuffer::init();
-//
-//    RendererCompose::init(RendererGbuffer::gPosition.Image->m_ImageView,
-//                          RendererGbuffer::gNormal.Image->m_ImageView,
-//                          RendererGbuffer::gAlbedo.Image->m_ImageView);
-//
-//    g_ComposeView = RendererCompose::g_FramebufferAttachmentColor.Image->m_ImageView;
-//            // RendererGbuffer::gAlbedo.Image->m_ImageView;
 
     Log::info("RenderEngine initialized.\1");
 }
@@ -125,7 +118,7 @@ void RenderEngine::Render()
         Imw::Gameplay::GameImageView = RendererCompose::rtColor->imageView;
         {
             PROFILE("CmdWorldGbuffer");
-            RendererGbuffer::RecordCommand(cmd, world->m_Entities);
+            //RendererGbuffer::RecordCommand(cmd, world->m_Entities);
         }
         {
             PROFILE("CmdWorldCompose");

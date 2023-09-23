@@ -4,17 +4,15 @@
 
 #include "Imw.h"
 
+#include <ethertia/Ethertia.h>
+#include <ethertia/init/Settings.h>
+#include <ethertia/init/DebugStat.h>
+
+//#include <ethertia/entity/Entity.h>
+//#include <ethertia/entity/EntityMesh.h>
+//#include <ethertia/entity/player/EntityPlayer.h>
 //#include <ethertia/entity/passive/EntityChicken.h>
 //#include <ethertia/entity/EntityFurnace.h>
-#include <ethertia/init/Settings.h>
-
-
-
-#include <ethertia/Ethertia.h>
-#include <ethertia/entity/Entity.h>
-#include <ethertia/entity/EntityMesh.h>
-#include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/init/DebugStat.h>
 
 
 #pragma region Imw Inspector
@@ -146,7 +144,7 @@ void Imw::Editor::ShowInspector(bool* _open)
         {
             Entity* entity = (Entity*)inspectionObject;
 
-            ImGui::Text(std::format("Entity: {}", glm::to_string(entity->position())).c_str());
+            //ImGui::Text(std::format("Entity: {}", glm::to_string(entity->position())).c_str());
             break;
         }
         case eCamera:
@@ -205,7 +203,7 @@ static void _HrcEntities()
         ImGui::TextDisabled("World not loaded.");
         return;
     }
-    auto& entities = world->m_Entities;
+    //auto& entities = world->m_Entities;
 
     if (ImGui::Button(" + ")) {
         ImGui::OpenPopup("ImwEditorNewEntity");
@@ -241,60 +239,61 @@ static void _HrcEntities()
         //        {
         //            CreateEntityToWorld(new EntityFurnace());
         //        }
-        ImGui::SeparatorText("Items");
-
-        for (auto& it : Item::REGISTRY)
-        {
-            if (ImGui::MenuItem(it.first.c_str()))
-            {
-                ItemStack stack(it.second, 10);
-                Ethertia::getPlayer()->m_Inventory.putItemStack(stack);
-            }
-            if (ImGui::IsItemHovered()) {
-                ImGui::BeginTooltip();
-                Imw::ItemImage(it.second);
-                ImGui::EndTooltip();
-            }
-        }
-
-        ImGui::EndPopup();
-    }
-
-    ImGui::SameLine();
-
-    static bool _ShowOnlyInFrustum = true;
-    static bool _SortByDistance = false;
-    static int _ListLimit = 100;
-    static bool _KeepSelectHitEntity = false;
-    static bool _IgnoreChunkProxyEntities = true;
-    if (ImGui::Button("..."))
-    {
-        ImGui::OpenPopup("entities_ops");
-    }
-    if (ImGui::BeginPopup("entities_ops"))
-    {
-        ImGui::Checkbox("List only In-Frustum", &_ShowOnlyInFrustum);
-        ImGui::Checkbox("Sort by Distance", &_SortByDistance);
-        ImGui::Checkbox("Keep Select HitEntity", &_KeepSelectHitEntity);
-        ImGui::Checkbox("Ignore chunk proxy entities", &_IgnoreChunkProxyEntities);
-        ImGui::SliderInt("List Limit", &_ListLimit, 0, 5000);
-
-
-        ImGui::TextDisabled("%i rendered / %i loaded.", Dbg::dbg_NumEntityRendered, (int)entities.size());
-
-        if (ImGui::Button("Unselect")) {
-            Imgui::g_InspEntity = nullptr;
-        }
+        
+        //ImGui::SeparatorText("Items");
+        //
+        //for (auto& it : Item::REGISTRY)
+        //{
+        //    if (ImGui::MenuItem(it.first.c_str()))
+        //    {
+        //        ItemStack stack(it.second, 10);
+        //        Ethertia::getPlayer()->m_Inventory.putItemStack(stack);
+        //    }
+        //    if (ImGui::IsItemHovered()) {
+        //        ImGui::BeginTooltip();
+        //        Imw::ItemImage(it.second);
+        //        ImGui::EndTooltip();
+        //    }
+        //}
 
         ImGui::EndPopup();
     }
 
-    if (_KeepSelectHitEntity) {
-        auto& cur = Ethertia::getHitCursor();
-        if (cur.hitEntity) {
-            Imgui::g_InspEntity = cur.hitEntity;
-        }
-    }
+    //ImGui::SameLine();
+    //
+    //static bool _ShowOnlyInFrustum = true;
+    //static bool _SortByDistance = false;
+    //static int _ListLimit = 100;
+    //static bool _KeepSelectHitEntity = false;
+    //static bool _IgnoreChunkProxyEntities = true;
+    //if (ImGui::Button("..."))
+    //{
+    //    ImGui::OpenPopup("entities_ops");
+    //}
+    //if (ImGui::BeginPopup("entities_ops"))
+    //{
+    //    ImGui::Checkbox("List only In-Frustum", &_ShowOnlyInFrustum);
+    //    ImGui::Checkbox("Sort by Distance", &_SortByDistance);
+    //    ImGui::Checkbox("Keep Select HitEntity", &_KeepSelectHitEntity);
+    //    ImGui::Checkbox("Ignore chunk proxy entities", &_IgnoreChunkProxyEntities);
+    //    ImGui::SliderInt("List Limit", &_ListLimit, 0, 5000);
+    //
+    //
+    //    ImGui::TextDisabled("%i rendered / %i loaded.", Dbg::dbg_NumEntityRendered, (int)entities.size());
+    //
+    //    if (ImGui::Button("Unselect")) {
+    //        Imgui::g_InspEntity = nullptr;
+    //    }
+    //
+    //    ImGui::EndPopup();
+    //}
+    //
+    //if (_KeepSelectHitEntity) {
+    //    auto& cur = Ethertia::getHitCursor();
+    //    if (cur.hitEntity) {
+    //        Imgui::g_InspEntity = cur.hitEntity;
+    //    }
+    //}
 
     //    ImGui::SameLine();
     //    if (ImGui::TreeNode(".."))
@@ -311,26 +310,26 @@ static void _HrcEntities()
 
     ImGui::Separator();
 
-    {
-        int i = 0;
-        for (Entity* e : entities)
-        {
-            if (_ListLimit != 0 && i > _ListLimit)
-                break;
-            if (_ShowOnlyInFrustum && !Ethertia::getCamera().testFrustum(e->getAABB()))
-                continue;
-            if (_IgnoreChunkProxyEntities && dynamic_cast<EntityMesh*>(e))
-                continue;
-
-            char buf[32];
-
-            sprintf(buf, "#%.3i | %s", i, typeid(*e).name());
-            if (ImGui::Selectable(buf, Imgui::g_InspEntity == e)) {
-                Imgui::g_InspEntity = e;
-            }
-            ++i;
-        }
-    }
+    //{
+    //    int i = 0;
+    //    for (Entity* e : entities)
+    //    {
+    //        if (_ListLimit != 0 && i > _ListLimit)
+    //            break;
+    //        if (_ShowOnlyInFrustum && !Ethertia::getCamera().testFrustum(e->getAABB()))
+    //            continue;
+    //        if (_IgnoreChunkProxyEntities && dynamic_cast<EntityMesh*>(e))
+    //            continue;
+    //
+    //        char buf[32];
+    //
+    //        sprintf(buf, "#%.3i | %s", i, typeid(*e).name());
+    //        if (ImGui::Selectable(buf, Imgui::g_InspEntity == e)) {
+    //            Imgui::g_InspEntity = e;
+    //        }
+    //        ++i;
+    //    }
+    //}
 }
 
 void Imw::Editor::ShowHierarchy(bool* _open)

@@ -7,7 +7,7 @@
 #include <vkx/vkx.hpp>
 
 #include <ethertia/util/Loader.h>
-
+#include <ethertia/util/BenchmarkTimer.h>
 
 
 
@@ -43,7 +43,8 @@ static bool MtlTex_LoadResizeTo(const std::string& mtl, std::string_view textype
  * @param textype could be: diff/disp/norm/ao/rough
  * @param px needed resolution in pixel
  */
-static vkx::Image* MtlTex_MakeAtlas(std::string_view textype, int px, const std::string& cache_file, bool composeDRAM = false) {
+static vkx::Image* MtlTex_MakeAtlas(std::string_view textype, int px, const std::string& cache_file, bool composeDRAM = false) 
+{
     BENCHMARK_TIMER;
 
     if (Loader::FileExists(cache_file))
@@ -115,7 +116,7 @@ static vkx::Image* MtlTex_MakeAtlas(std::string_view textype, int px, const std:
 
 void MaterialTextures::Load()
 {
-    BenchmarkTimer tm;
+    BENCHMARK_TIMER;
     Log::info("Loading {} material texture/atlases... (x{})", Material::REGISTRY.size(), TEX_RESOLUTION);
 
     int i = 0;
@@ -151,47 +152,48 @@ static vkx::Image* ItemTex_MakeAtlas(const std::string& cache_file, int resoluti
     } 
     else 
     {
-        std::cout << "cache not found. start baking.";
-
-        int n = Item::REGISTRY.size();
-
-        BitmapImage atlas(resolution*n, resolution);
-        BitmapImage resized(resolution, resolution);
-
-        int i = 0;
-        for (auto& it : Item::REGISTRY)
-        {
-            Item* item = it.second;
-            const std::string& id = it.first;
-
-            std::string loc;
-            if (item->hasComponent<ItemComponentMaterial>()) {
-                loc = std::format("material/{}/view.png", id);
-                if (Loader::FindAsset(loc).empty()) {  // if Not Found
-                    loc = std::format("material/{}/diff.png", id);
-                }
-            } else {
-                loc = std::format("item/{}/view.png", id);
-            }
-
-            if (!Loader::FindAsset(loc).empty())
-            {
-                BitmapImage img = Loader::LoadPNG(loc);
-                BitmapImage::Resize(img, resized);
-
-                BitmapImage::CopyPixels(0, 0, resized,
-                                        i*resolution, 0, atlas);
-            }
-            else
-            {
-                std::cerr  << std::format("missing item texture '{}'.", loc);
-            }
-            i++;
-        }
-
-        Loader::SavePNG(cache_file, atlas);
-
-        return Loader::LoadImage(atlas);
+        assert(false);
+        //std::cout << "cache not found. start baking.";
+        //
+        //int n = Item::REGISTRY.size();
+        //
+        //BitmapImage atlas(resolution*n, resolution);
+        //BitmapImage resized(resolution, resolution);
+        //
+        //int i = 0;
+        //for (auto& it : Item::REGISTRY)
+        //{
+        //    Item* item = it.second;
+        //    const std::string& id = it.first;
+        //
+        //    std::string loc;
+        //    if (item->hasComponent<ItemComponentMaterial>()) {
+        //        loc = std::format("material/{}/view.png", id);
+        //        if (Loader::FindAsset(loc).empty()) {  // if Not Found
+        //            loc = std::format("material/{}/diff.png", id);
+        //        }
+        //    } else {
+        //        loc = std::format("item/{}/view.png", id);
+        //    }
+        //
+        //    if (!Loader::FindAsset(loc).empty())
+        //    {
+        //        BitmapImage img = Loader::LoadPNG(loc);
+        //        BitmapImage::Resize(img, resized);
+        //
+        //        BitmapImage::CopyPixels(0, 0, resized,
+        //                                i*resolution, 0, atlas);
+        //    }
+        //    else
+        //    {
+        //        std::cerr  << std::format("missing item texture '{}'.", loc);
+        //    }
+        //    i++;
+        //}
+        //
+        //Loader::SavePNG(cache_file, atlas);
+        //
+        //return Loader::LoadImage(atlas);
     }
 }
 

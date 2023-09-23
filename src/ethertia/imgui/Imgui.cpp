@@ -5,6 +5,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "Imgui.h"
 
+#include <vkx/vkx.hpp>
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <backends/imgui_impl_glfw.h>
@@ -16,13 +18,8 @@
 
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/render/RenderEngine.h>
-#include <ethertia/init/Settings.h>
 #include <ethertia/init/DebugStat.h>
-#include <ethertia/init/Controls.h>
 #include <ethertia/util/Colors.h>
-#include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/world/Chunk.h>
 
 
 static void InitStyle()

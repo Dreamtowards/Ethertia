@@ -3,11 +3,10 @@
 
 #include <entt/entt.hpp>
 
-#include "Entity.h"
-
 #include <unordered_map>
 
 
+class Entity;  // fwd
 
 class World
 {
@@ -17,11 +16,11 @@ public:
 	~World();
 
 
-	Entity CreateEntity(Entity::Id uuid);
+	Entity CreateEntity(uint64_t uuid);
 
 	void DestroyEntity(Entity entity);
 
-	Entity FindEntity(Entity::Id uuid);
+	Entity FindEntity(uint64_t uuid);
 
 	void DuplicateEntity(Entity entity);
 
@@ -34,6 +33,6 @@ private:
 
 	entt::registry m_EntityRegistry;
 
-	std::unordered_map<Entity::Id, entt::entity> m_EntityMap;
+	std::unordered_map<uint64_t, entt::entity> m_EntityMap;
 
 };

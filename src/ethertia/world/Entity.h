@@ -3,45 +3,44 @@
 
 #include <stdint.h>
 
-class World;
+#include "World.h"
+
 
 class Entity
 {
 public:
-	using Id = uint64_t;
-
 	Entity() = default;
-	Entity(entt::entity handle, World* world) : m_EntityHandle(handle), m_World(world) {}
+	Entity(entt::entity handle, World* world, uint64_t uuid) : m_EntityHandle(handle), m_World(world), m_UUID(uuid) {}
 	Entity(const Entity& other) = default;
 
-	template<typename T, typename... Args>
-	T& AddComponent(Args&&... args)
-	{
-		STDX_ASSERT(!HasComponent<T>(), "Entity already has the component!");
-		T& component = m_World->m_EntityRegistry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
-		m_World->OnComponentAdded<T>(*this, component);
-		return component;
-	}
-
-	template<typename T>
-	void RemoveComponent()
-	{
-		STDX_ASSERT(HasComponent<T>(), "Entity does not have component!");
-		m_World->m_EntityRegistry.remove<T>(m_EntityHandle);
-	}
-
-	template<typename T>
-	T& GetComponent() 
-	{
-		STDX_ASSERT(HasComponent<T>(), "Entity does not have component!");
-		return m_World->m_EntityRegistry.get<T>(m_EntityHandle);
-	}
-
-	template<typename T>
-	bool HasComponent() const
-	{
-		return m_World->m_EntityRegistry.has<T>(m_EntityHandle);
-	}
+	//template<typename T, typename... Args>
+	//T& AddComponent(Args&&... args)
+	//{
+	//	STDX_ASSERT(!HasComponent<T>(), "Entity already has the component!");
+	//	T& component = m_World->m_EntityRegistry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+	//	m_World->OnComponentAdded<T>(*this, component);
+	//	return component;
+	//}
+	//
+	//template<typename T>
+	//void RemoveComponent()
+	//{
+	//	STDX_ASSERT(HasComponent<T>(), "Entity does not have component!");
+	//	m_World->m_EntityRegistry.remove<T>(m_EntityHandle);
+	//}
+	//
+	//template<typename T>
+	//T& GetComponent() 
+	//{
+	//	STDX_ASSERT(HasComponent<T>(), "Entity does not have component!");
+	//	return m_World->m_EntityRegistry.get<T>(m_EntityHandle);
+	//}
+	//
+	//template<typename T>
+	//bool HasComponent() const
+	//{
+	//	return m_World->m_EntityRegistry.has<T>(m_EntityHandle);
+	//}
 
 
 	operator bool() const { return m_EntityHandle != entt::null; }
@@ -52,7 +51,7 @@ public:
 
 	// GetName, GetTransform
 
-	Entity::Id uuid() const;
+	uint64_t uuid() const { return m_UUID; }
 
 	// Transform
 
@@ -68,4 +67,6 @@ private:
 	entt::entity m_EntityHandle{ entt::null };
 
 	World* m_World = nullptr;
+
+	uint64_t m_UUID;
 };

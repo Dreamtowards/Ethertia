@@ -7,6 +7,10 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
+#include <vulkan/vulkan.h>
+
+#include <glm/glm.hpp>
+
 #include <ethertia/util/AABB.h>
 
 

@@ -6,17 +6,19 @@
 #include <imguizmo/ImGuizmo.h>
 #include <imgui_internal.h>
 
-#include <ethertia/Ethertia.h>
-#include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/render/Window.h>
-#include <ethertia/init/DebugStat.h>
-#include <ethertia/world/Chunk.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include <stdx/str.h>
+
+#include <ethertia/Ethertia.h>
+//#include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/util/Loader.h>
+#include <ethertia/render/Window.h>
+#include <ethertia/init/DebugStat.h>
+#include <ethertia/world/Chunk.h>
 
 
 #pragma region Game Viewport Debug
@@ -25,84 +27,86 @@ static void ShowDebugTextOverlay()
 {
     World* world = Ethertia::GetWorld();
     float dt = Ethertia::getDelta();
-    EntityPlayer* player = Ethertia::getPlayer();
-    btRigidBody* playerRb = player->m_Rigidbody;
-    float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
+    //EntityPlayer* player = Ethertia::getPlayer();
+    //btRigidBody* playerRb = player->m_Rigidbody;
+    //float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
+    //
+    //std::string cellInfo = "nil";
+    //std::string chunkInfo = "nil";
+    //std::string worldInfo = "nil";
+    //HitCursor& cur = Ethertia::getHitCursor();
+    //
+    //
+    //if (world)
+    //{
+    //    worldInfo = std::format("{}. inhabited {}s, daytime {}. seed {}",
+    //        world->m_WorldInfo.Name,
+    //        world->m_WorldInfo.InhabitedTime,
+    //        stdx::daytime(world->getDayTime()),
+    //        world->getSeed());
+    //    Chunk* hitChunk = world->getLoadedChunk(cur.position);
+    //    if (hitChunk) {
+    //        chunkInfo = std::format("GenPop: {}, Inhabited: {}s",
+    //            hitChunk->m_Populated,
+    //            hitChunk->m_InhabitedTime);
+    //    }
+    //    if (cur.cell) {
+    //        Cell* c = cur.cell;
+    //        cellInfo = std::format("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
+    //            c->mtl ? c->mtl->getRegistryId() : "nil",
+    //            c->density,
+    //            (int)c->exp_meta,
+    //            cur.cell_breaking_time);
+    //    }
+    //}
+    //
+    //
+    //std::string str = std::format(
+    //    "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
+    //    "avg-fps: {}. dt: {}, {}fps\n"
+    //    "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
+    //    "\n"
+    //    "World: {}\n"
+    //    "HitChunk: {}\n"
+    //    "HitCell: {}\n"
+    //    "\n"
+    //    "task {}, async {}\n"
+    //    "ChunkProvide: {}\n"
+    //    "ChunkMeshing: {}\n"
+    //    "ChunkSaving:  {}\n"
+    //    "\n"
+    //    "OS: {}, {} concurrency, {} endian\n"
+    //    "CPU: {}\n"
+    //    "GPU: {}"
+    //    ,
+    //    glm::to_string(Ethertia::getCamera().position), Ethertia::getCamera().len,
+    //    meterPerSec, meterPerSec * 3.6f,
+    //    player->m_OnGround, player->m_NumContactPoints,
+    //
+    //    Dbg::dbg_FPS, dt, Mth::floor(1.0f / dt),
+    //
+    //    Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
+    //
+    //    worldInfo,
+    //    chunkInfo,
+    //    cellInfo,
+    //
+    //    Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
+    //    DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
+    //    DebugStat::dbg_NumChunksMeshInvalid,
+    //    DebugStat::dbg_ChunksSaving,
+    //
+    //    Loader::os_arch(),
+    //    std::thread::hardware_concurrency(),
+    //    std::endian::native == std::endian::big ? "big" : "little",
+    //    Loader::cpuid(),
+    //    (const char*)vkx::ctx().PhysDeviceProperties.deviceName
+    //);
 
-    std::string cellInfo = "nil";
-    std::string chunkInfo = "nil";
-    std::string worldInfo = "nil";
-    HitCursor& cur = Ethertia::getHitCursor();
-
-
-    if (world)
-    {
-        worldInfo = std::format("{}. inhabited {}s, daytime {}. seed {}",
-            world->m_WorldInfo.Name,
-            world->m_WorldInfo.InhabitedTime,
-            stdx::daytime(world->getDayTime()),
-            world->getSeed());
-        Chunk* hitChunk = world->getLoadedChunk(cur.position);
-        if (hitChunk) {
-            chunkInfo = std::format("GenPop: {}, Inhabited: {}s",
-                hitChunk->m_Populated,
-                hitChunk->m_InhabitedTime);
-        }
-        if (cur.cell) {
-            Cell* c = cur.cell;
-            cellInfo = std::format("mtl: {}, dens: {}, meta: {} | DiggingTime: {}",
-                c->mtl ? c->mtl->getRegistryId() : "nil",
-                c->density,
-                (int)c->exp_meta,
-                cur.cell_breaking_time);
-        }
-    }
-
-
-    std::string str = std::format(
-        "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
-        "avg-fps: {}. dt: {}, {}fps\n"
-        "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
-        "\n"
-        "World: {}\n"
-        "HitChunk: {}\n"
-        "HitCell: {}\n"
-        "\n"
-        "task {}, async {}\n"
-        "ChunkProvide: {}\n"
-        "ChunkMeshing: {}\n"
-        "ChunkSaving:  {}\n"
-        "\n"
-        "OS: {}, {} concurrency, {} endian\n"
-        "CPU: {}\n"
-        "GPU: {}"
-        ,
-        glm::to_string(Ethertia::getCamera().position), Ethertia::getCamera().len,
-        meterPerSec, meterPerSec * 3.6f,
-        player->m_OnGround, player->m_NumContactPoints,
-
-        Dbg::dbg_FPS, dt, Mth::floor(1.0f / dt),
-
-        Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
-
-        worldInfo,
-        chunkInfo,
-        cellInfo,
-
-        Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
-        DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
-        DebugStat::dbg_NumChunksMeshInvalid,
-        DebugStat::dbg_ChunksSaving,
-
-        Loader::os_arch(),
-        std::thread::hardware_concurrency(),
-        std::endian::native == std::endian::big ? "big" : "little",
-        Loader::cpuid(),
-        (const char*)vkx::ctx().PhysDeviceProperties.deviceName
-    );
-
-    auto& vp = Ethertia::getViewport();
-    ImGui::RenderText({ vp.x, vp.y + 16 }, str.c_str());
+    //auto& vp = Ethertia::getViewport();
+    //ImGui::RenderText({ vp.x, vp.y + 16 }, str.c_str());
+    // 
+    // 
     //    ImGui::SetNextWindowPos({vp.x+0, vp.y+16});
     //    ImGui::SetNextWindowBgAlpha(0.0f);
     //    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -355,57 +359,57 @@ void Imw::Gameplay::ShowGame(bool* _open)
 
 
     // Hotbar
-    EntityPlayer& player = *Ethertia::getPlayer();
-    int gm = player.getGamemode();
-    if (gm == Gamemode::SURVIVAL || gm == Gamemode::CREATIVE)
-    {
-        int hotbarSlots = std::min((int)player.m_Inventory.size(), 8);
-
-        if (Ethertia::isIngame())
-        {
-            player.m_HotbarSlot += Mth::signal(-Window::MouseWheelSum());
-            player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, hotbarSlots);
-        }
-
-        float hotbarSlotSize = 45;
-        float hotbarSlotGap = 4;
-        float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * hotbarSlots - hotbarSlotGap;
-        const ImVec2 hotbar_min = {vp.x + (vp.width-hotbarWidth)/2,
-                                   vp.y + vp.height - hotbarSlotSize - hotbarSlotGap};
-        ImVec2 size = {hotbarSlotSize, hotbarSlotSize};
-        static ImU32 col_bg = ImGui::GetColorU32({0, 0, 0, 0.3});
-        static ImU32 col_bg_sel = ImGui::GetColorU32({1, 1, 1, 0.5});
-
-        // Player Inventory Hotbar
-        ImVec2 min = hotbar_min;
-        for (int i = 0; i < hotbarSlots; ++i)
-        {
-            ImGui::RenderFrame(min, min+size, i == player.m_HotbarSlot ? col_bg_sel : col_bg);
-            ItemStack& stack = player.m_Inventory.at(i);
-
-            if (!stack.empty())
-            {
-                ImGui::SetCursorScreenPos(min);
-                Imw::ShowItemStack(stack, false, hotbarSlotSize);
-            }
-
-            min.x += hotbarSlotSize + hotbarSlotGap;
-        }
-
-        // Player Health
-        if (gm == Gamemode::SURVIVAL)
-        {
-            float healthWidth = hotbarWidth * 0.42f;
-            float healthHeight = 4;
-            static ImU32 col_health_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.6});
-            static ImU32 col_health = ImGui::GetColorU32({0.8, 0.3, 0.3, 1});
-            float perc = player.m_Health / 10.0f;
-
-            min = hotbar_min + ImVec2(0, -healthHeight - 8);
-            ImGui::RenderFrame(min, min+ImVec2(healthWidth, healthHeight), col_health_bg);
-            ImGui::RenderFrame(min, min+ImVec2(healthWidth * perc, healthHeight), col_health);
-        }
-    }
+    //EntityPlayer& player = *Ethertia::getPlayer();
+    //int gm = player.getGamemode();
+    //if (gm == Gamemode::SURVIVAL || gm == Gamemode::CREATIVE)
+    //{
+    //    int hotbarSlots = std::min((int)player.m_Inventory.size(), 8);
+    //
+    //    if (Ethertia::isIngame())
+    //    {
+    //        player.m_HotbarSlot += Mth::signal(-Window::MouseWheelSum());
+    //        player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, hotbarSlots);
+    //    }
+    //
+    //    float hotbarSlotSize = 45;
+    //    float hotbarSlotGap = 4;
+    //    float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * hotbarSlots - hotbarSlotGap;
+    //    const ImVec2 hotbar_min = {vp.x + (vp.width-hotbarWidth)/2,
+    //                               vp.y + vp.height - hotbarSlotSize - hotbarSlotGap};
+    //    ImVec2 size = {hotbarSlotSize, hotbarSlotSize};
+    //    static ImU32 col_bg = ImGui::GetColorU32({0, 0, 0, 0.3});
+    //    static ImU32 col_bg_sel = ImGui::GetColorU32({1, 1, 1, 0.5});
+    //
+    //    // Player Inventory Hotbar
+    //    ImVec2 min = hotbar_min;
+    //    for (int i = 0; i < hotbarSlots; ++i)
+    //    {
+    //        ImGui::RenderFrame(min, min+size, i == player.m_HotbarSlot ? col_bg_sel : col_bg);
+    //        ItemStack& stack = player.m_Inventory.at(i);
+    //
+    //        if (!stack.empty())
+    //        {
+    //            ImGui::SetCursorScreenPos(min);
+    //            Imw::ShowItemStack(stack, false, hotbarSlotSize);
+    //        }
+    //
+    //        min.x += hotbarSlotSize + hotbarSlotGap;
+    //    }
+    //
+    //    // Player Health
+    //    if (gm == Gamemode::SURVIVAL)
+    //    {
+    //        float healthWidth = hotbarWidth * 0.42f;
+    //        float healthHeight = 4;
+    //        static ImU32 col_health_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.6});
+    //        static ImU32 col_health = ImGui::GetColorU32({0.8, 0.3, 0.3, 1});
+    //        float perc = player.m_Health / 10.0f;
+    //
+    //        min = hotbar_min + ImVec2(0, -healthHeight - 8);
+    //        ImGui::RenderFrame(min, min+ImVec2(healthWidth, healthHeight), col_health_bg);
+    //        ImGui::RenderFrame(min, min+ImVec2(healthWidth * perc, healthHeight), col_health);
+    //    }
+    //}
 
     const ImVec2 vpCenter = {vp.x + vp.width/2, vp.y + vp.height/2};
 
@@ -422,19 +426,19 @@ void Imw::Gameplay::ShowGame(bool* _open)
     }
 
     // Cell Breaking Time Indicator
-    HitCursor& cur = Ethertia::getHitCursor();
-    if (gm == Gamemode::SURVIVAL && cur.cell_breaking_time)
-    {
-        float width = 40;
-        float h = 4;
-        ImVec2 min = vpCenter + ImVec2(-width/2, -12);
-        float perc = cur.cell_breaking_time / Dbg::dbg_CurrCellBreakingFullTime;
-
-        static ImU32 col_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.8});
-        static ImU32 col_fg = ImGui::GetColorU32({0.8, 0.8, 0.8, 1});
-        ImGui::RenderFrame(min, min+ImVec2(width, h), col_bg);
-        ImGui::RenderFrame(min, min+ImVec2(width * perc, h), col_fg);
-    }
+    //HitCursor& cur = Ethertia::getHitCursor();
+    //if (gm == Gamemode::SURVIVAL && cur.cell_breaking_time)
+    //{
+    //    float width = 40;
+    //    float h = 4;
+    //    ImVec2 min = vpCenter + ImVec2(-width/2, -12);
+    //    float perc = cur.cell_breaking_time / Dbg::dbg_CurrCellBreakingFullTime;
+    //
+    //    static ImU32 col_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.8});
+    //    static ImU32 col_fg = ImGui::GetColorU32({0.8, 0.8, 0.8, 1});
+    //    ImGui::RenderFrame(min, min+ImVec2(width, h), col_bg);
+    //    ImGui::RenderFrame(min, min+ImVec2(width * perc, h), col_fg);
+    //}
 
     ImGui::End();
 }
@@ -447,70 +451,70 @@ static void ShowPlayerInventory()
 {
     ImGui::Begin("Inventory");
 
-    static bool tmpInited = false;
-    if (!tmpInited) {
-        tmpInited = true;
-        for (auto& it : Item::REGISTRY) {
-            ItemStack stack(it.second, 10);
-            Ethertia::getPlayer()->m_Inventory.putItemStack(stack);
-        }
-    }
-
-    const float slot_size = 40;
-    {
-        const float slot_gap = 4;
-        const int row_items = 6;
-        ImGui::BeginChild("InventoryStacks", {(slot_size+slot_gap)*row_items+slot_gap, 0});
-
-        ImVec2 stacks_min = ImGui::GetCursorScreenPos();
-        ImVec2 min = stacks_min;
-        Inventory& inv = Ethertia::getPlayer()->m_Inventory;
-        for (int i = 0; i < inv.size(); ++i)
-        {
-            ItemStack& stack = inv.at(i);
-
-            ImGui::SetCursorScreenPos(min);
-            ImGui::Button("###InvStackClick", {slot_size, slot_size});
-
-            ImGui::SetCursorScreenPos(min);
-            Imw::ShowItemStack(stack, true, slot_size);
-
-            if ((i+1) % row_items == 0) {
-                min.x = stacks_min.x;
-                min.y += slot_size + slot_gap;
-            } else {
-                min.x += slot_size + slot_gap;
-            }
-        }
-
-        ImGui::EndChild();
-    }
-    ImGui::SameLine();
-    {
-        ImGui::BeginChild("InventoryRecipes", {190, 0});
-
-        for (auto& it : Recipe::REGISTRY)
-        {
-            Recipe* recipe = it.second;
-
-            ImVec2 mark = ImGui::GetCursorScreenPos();
-            ImGui::Button("###RecipeCraft", {180, slot_size});
-            ImGui::SetCursorScreenPos(mark);
-
-            Imw::ShowItemStack(recipe->m_Result, false, slot_size);
-
-            for (ItemStack& src_stack : recipe->m_Source)
-            {
-                ImGui::SameLine();
-                Imw::ShowItemStack(src_stack, false, slot_size * 0.6f);
-            }
-
-
-//            ImGui::Dummy({180, slot_size});
-        }
-
-        ImGui::EndChild();
-    }
+//    static bool tmpInited = false;
+//    if (!tmpInited) {
+//        tmpInited = true;
+//        for (auto& it : Item::REGISTRY) {
+//            ItemStack stack(it.second, 10);
+//            Ethertia::getPlayer()->m_Inventory.putItemStack(stack);
+//        }
+//    }
+//    
+//    const float slot_size = 40;
+//    {
+//        const float slot_gap = 4;
+//        const int row_items = 6;
+//        ImGui::BeginChild("InventoryStacks", {(slot_size+slot_gap)*row_items+slot_gap, 0});
+//    
+//        ImVec2 stacks_min = ImGui::GetCursorScreenPos();
+//        ImVec2 min = stacks_min;
+//        Inventory& inv = Ethertia::getPlayer()->m_Inventory;
+//        for (int i = 0; i < inv.size(); ++i)
+//        {
+//            ItemStack& stack = inv.at(i);
+//    
+//            ImGui::SetCursorScreenPos(min);
+//            ImGui::Button("###InvStackClick", {slot_size, slot_size});
+//    
+//            ImGui::SetCursorScreenPos(min);
+//            Imw::ShowItemStack(stack, true, slot_size);
+//    
+//            if ((i+1) % row_items == 0) {
+//                min.x = stacks_min.x;
+//                min.y += slot_size + slot_gap;
+//            } else {
+//                min.x += slot_size + slot_gap;
+//            }
+//        }
+//    
+//        ImGui::EndChild();
+//    }
+//    ImGui::SameLine();
+//    {
+//        ImGui::BeginChild("InventoryRecipes", {190, 0});
+//    
+//        for (auto& it : Recipe::REGISTRY)
+//        {
+//            Recipe* recipe = it.second;
+//    
+//            ImVec2 mark = ImGui::GetCursorScreenPos();
+//            ImGui::Button("###RecipeCraft", {180, slot_size});
+//            ImGui::SetCursorScreenPos(mark);
+//    
+//            Imw::ShowItemStack(recipe->m_Result, false, slot_size);
+//    
+//            for (ItemStack& src_stack : recipe->m_Source)
+//            {
+//                ImGui::SameLine();
+//                Imw::ShowItemStack(src_stack, false, slot_size * 0.6f);
+//            }
+//    
+//    
+////            ImGui::Dummy({180, slot_size});
+//        }
+//    
+//        ImGui::EndChild();
+//    }
 
     ImGui::End();
 }
@@ -523,27 +527,27 @@ void Imw::Gameplay::ShowWorldNew(bool* _open)
 {
     ImGui::Begin("New World", _open);
 
-    static char _WorldName[128];
-    ImGui::InputText("World Name", _WorldName, std::size(_WorldName));
-    std::string save_path = std::format("./saves/{}", _WorldName);
-    ImGui::TextDisabled("Will save as: %s", save_path.c_str());
-
-    static char _WorldSeed[128];
-    ImGui::InputText("Seed", _WorldSeed, std::size(_WorldSeed));
-    uint64_t seed = WorldInfo::ofSeed(_WorldSeed);
-    ImGui::TextDisabled("Actual u64 seed: %llu", seed);
-
-
-    if (ImGui::Button("Create"))
-    {
-        WorldInfo worldinfo{
-                .Seed = seed,
-                .Name = _WorldName
-        };
-        Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
-        Ethertia::LoadWorld(save_path, &worldinfo);
-        *_open = false;
-    }
+    //static char _WorldName[128];
+    //ImGui::InputText("World Name", _WorldName, std::size(_WorldName));
+    //std::string save_path = std::format("./saves/{}", _WorldName);
+    //ImGui::TextDisabled("Will save as: %s", save_path.c_str());
+    //
+    //static char _WorldSeed[128];
+    //ImGui::InputText("Seed", _WorldSeed, std::size(_WorldSeed));
+    //uint64_t seed = WorldInfo::ofSeed(_WorldSeed);
+    //ImGui::TextDisabled("Actual u64 seed: %llu", seed);
+    //
+    //
+    //if (ImGui::Button("Create"))
+    //{
+    //    WorldInfo worldinfo{
+    //            .Seed = seed,
+    //            .Name = _WorldName
+    //    };
+    //    Log::info("Creating world '{}' seed {}.", worldinfo.Name, worldinfo.Seed);
+    //    Ethertia::LoadWorld(save_path, &worldinfo);
+    //    *_open = false;
+    //}
 
     ImGui::End();
 }

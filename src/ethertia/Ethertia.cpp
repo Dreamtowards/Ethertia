@@ -8,16 +8,17 @@
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Scheduler.h>
-#include <ethertia/render/chunk/proc/ChunkMeshProc.h>
-#include <ethertia/render/chunk/proc/ChunkGenProc.h>
 #include <ethertia/init/Settings.h>
-#include <ethertia/network/client/ClientConnectionProc.h>
 #include <ethertia/init/Controls.h>
+#include <ethertia/init/DebugStat.h>
+#include <ethertia/network/client/ClientConnectionProc.h>
 #include <ethertia/world/ChunkLoader.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
-#include <ethertia/item/recipe/Recipes.h>
+//#include <ethertia/item/recipe/Recipes.h>
+//#include <ethertia/render/chunk/proc/ChunkMeshProc.h>
+//#include <ethertia/render/chunk/proc/ChunkGenProc.h>
 //#include <ethertia/network/client/NetworkSystem.h>
 //#include <ethertia/command/Commands.h>
 // #include <ethertia/audio/AudioEngine.h>
@@ -66,7 +67,7 @@ static void Init()
 {
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::LoadSettings();
-    NoiseGen::initSIMD();
+    //NoiseGen::InitSIMD();
     Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::os_arch()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
 
     //for (const std::string& modpath : Settings::Mods) {
@@ -87,7 +88,7 @@ static void Init()
     ItemTextures::Load();
 //    Sounds::load();
 
-    Recipes::init();  // after mtl-items register.
+    //Recipes::init();  // after mtl-items register.
 
     //g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
     //g_Player->position() = {0, 10, 0};
@@ -98,8 +99,8 @@ static void Init()
     //std::thread_pool tp;
 
     // Proc Threads
-    ChunkMeshProc::initThread();
-    ChunkGenProc::initThread();
+    //ChunkMeshProc::initThread();
+    //ChunkGenProc::initThread();
     Ethertia::getAsyncScheduler().initThread();
     Ethertia::getScheduler().m_ThreadId = std::this_thread::get_id();
     Controls::initConsoleThread();
@@ -107,11 +108,11 @@ static void Init()
 
 
 
-    Material::REGISTRY.dbgPrintEntries("Materials");
-    Item::REGISTRY.dbgPrintEntries("Items");
+//    Material::REGISTRY.dbgPrintEntries("Materials");
+//    Item::REGISTRY.dbgPrintEntries("Items");
 //    Biome::REGISTRY.dbgPrintEntries("Biomes");
 //    Command::REGISTRY.dbgPrintEntries("Commands");
-    Recipe::REGISTRY.dbgPrintEntries("Recipes");
+//    Recipe::REGISTRY.dbgPrintEntries("Recipes");
 
 
 #ifdef ET_DEBUG
@@ -163,24 +164,9 @@ static void RunMainLoop()
 
         while (Ethertia::getTimer().polltick())
         {
-            // runTick();
-        }
-        // these are Temporary. should be put in World::onTick().
+            PROFILE("WorldTick");
 
-        if (world)
-        {
-            PROFILE("Phys");
-            g_Player->m_PrevVelocity = g_Player->m_Rigidbody->getLinearVelocity();
-            world->m_DynamicsWorld->stepSimulation(dt);
-
-            world->processEntityCollision();
-
-            world->forLoadedChunks([](Chunk* chunk)
-            {
-                chunk->m_InhabitedTime += Ethertia::getDelta();
-            });
-
-            world->onTick(dt);
+            world->OnTick(dt);
         }
     }
 
@@ -251,15 +237,15 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
     assert(Ethertia::GetWorld() == nullptr);
     assert(Ethertia::getScheduler().numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
 
-    g_World = new World(savedir, worldinfo);
+    g_World = new World();// savedir, worldinfo);
     World* world = g_World;
 
-    world->addEntity(getPlayer());
+    //world->addEntity(getPlayer());
 
-    ChunkMeshProc::g_Running = 1;
-    ChunkGenProc::g_Running = 1;
+    //ChunkMeshProc::g_Running = 1;
+    //ChunkGenProc::g_Running = 1;
 
-    Log::info("Loading world @\"{}\" *{}", world->m_ChunkLoader->m_ChunkDir, world->m_WorldInfo.Seed);
+    // Log::info("Loading world @\"{}\" seed {}", savedir, world->m_WorldInfo.Seed);
 
 
 //    getScheduler()->addTask([](){
@@ -277,16 +263,16 @@ void Ethertia::UnloadWorld()
     Ethertia::getHitCursor().reset();
 
 
-    Log::info("Cleaning MeshGen");
-    ChunkMeshProc::g_Running = -1;
-    Timer::wait_for(&ChunkMeshProc::g_Running, 0);  // before delete chunks
-
-
-    Ethertia::GetWorld()->unloadAllChunks();
-
-    Log::info("Cleaning ChunkGen");
-    ChunkGenProc::g_Running = -1;
-    Timer::wait_for(&ChunkGenProc::g_Running, 0);
+    //Log::info("Cleaning MeshGen");
+    //ChunkMeshProc::g_Running = -1;
+    //Timer::wait_for(&ChunkMeshProc::g_Running, 0);  // before delete chunks
+    //
+    //
+    ////Ethertia::GetWorld()->unloadAllChunks();
+    //
+    //Log::info("Cleaning ChunkGen");
+    //ChunkGenProc::g_Running = -1;
+    //Timer::wait_for(&ChunkGenProc::g_Running, 0);
 
     World* oldWorld = Ethertia::GetWorld();
     g_World = nullptr;
@@ -412,14 +398,14 @@ float Scheduler::_intl_program_time() {
 
 
 
-void Entity::onRender()
-{
+//void Entity::onRender()
+//{
 //    GeometryRenderer::render(
 //            m_Model, position(), getRotation(), m_DiffuseMap);
-}
+//}
 
-void EntityMesh::onRender()
-{
+//void EntityMesh::onRender()
+//{
 //    bool isFoliage = !m_FaceCulling;  if (isFoliage && Dbg::dbg_NoVegetable) return;
 //
 //    if (isFoliage)
@@ -430,7 +416,7 @@ void EntityMesh::onRender()
 //
 //    if (isFoliage)
 //        glEnable(GL_CULL_FACE);  // set back
-}
+//}
 
 
 

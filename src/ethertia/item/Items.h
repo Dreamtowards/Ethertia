@@ -6,35 +6,35 @@
 #define ETHERTIA_ITEMS_H
 
 
-#include <ethertia/item/ItemComponents.h>
+//#include <ethertia/item/ItemComponents.h>
 
-#include <ethertia/entity/EntityLantern.h>
-#include <ethertia/entity/vehicle/EntityHelicopter.h>
-#include <ethertia/entity/EntityTorch.h>
+//#include <ethertia/entity/EntityLantern.h>
+//#include <ethertia/entity/vehicle/EntityHelicopter.h>
+//#include <ethertia/entity/EntityTorch.h>
 
 class Items
 {
 public:
 
-#define REGISTER_ITEM(VAR, id, comps) inline static const Item* VAR = new Item(id, comps);
-
-
-    // Food
-    REGISTER_ITEM(APPLE,        "apple",        {new ItemComponentFood(1.5)});
-    REGISTER_ITEM(LIME,         "lime",         {new ItemComponentFood(0.5)});
-
-
-    // Tool
-    REGISTER_ITEM(PICKAXE,      "pickaxe",      {new ItemComponentTool()});
-    REGISTER_ITEM(GRAPPLE,      "grapple",      {new ItemComponentToolGrapple()});
-    REGISTER_ITEM(HOE,          "hoe",          {new ItemComponentTool()});
-    REGISTER_ITEM(SHEARS,       "shears",       {new ItemComponentTool()});
-    REGISTER_ITEM(UNIVERSAL_LINK_TOOL, "universal_link_tool", {new ItemComponentToolUniversalLinkTool()})
-
-    // Craft Material
-    REGISTER_ITEM(STICK,        "stick",        {new ItemComponentFuel(3.0)});
-    REGISTER_ITEM(COAL,         "coal",         {new ItemComponentFuel(16.0)});
-    REGISTER_ITEM(IRON_INGOT,   "iron_ingot",   {});
+//#define REGISTER_ITEM(VAR, id, comps) inline static const Item* VAR = new Item(id, comps);
+//
+//
+//    // Food
+//    REGISTER_ITEM(APPLE,        "apple",        {new ItemComponentFood(1.5)});
+//    REGISTER_ITEM(LIME,         "lime",         {new ItemComponentFood(0.5)});
+//
+//
+//    // Tool
+//    REGISTER_ITEM(PICKAXE,      "pickaxe",      {new ItemComponentTool()});
+//    REGISTER_ITEM(GRAPPLE,      "grapple",      {new ItemComponentToolGrapple()});
+//    REGISTER_ITEM(HOE,          "hoe",          {new ItemComponentTool()});
+//    REGISTER_ITEM(SHEARS,       "shears",       {new ItemComponentTool()});
+//    REGISTER_ITEM(UNIVERSAL_LINK_TOOL, "universal_link_tool", {new ItemComponentToolUniversalLinkTool()})
+//
+//    // Craft Material
+//    REGISTER_ITEM(STICK,        "stick",        {new ItemComponentFuel(3.0)});
+//    REGISTER_ITEM(COAL,         "coal",         {new ItemComponentFuel(16.0)});
+//    REGISTER_ITEM(IRON_INGOT,   "iron_ingot",   {});
 
 //    static Entity* newEntityLantern()
 //    {

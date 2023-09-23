@@ -165,63 +165,63 @@ void RendererGbuffer::UpdateUniformBuffer(int fifi)
     g_UniformBuffers_Frag[fifi]->Upload(&g_uboFrag);
 }
 
-void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf, const std::vector<Entity*>& _Entities)
-{
-    int fif_i = vkx::ctx().CurrentInflightFrame;
-
-    UpdateUniformBuffer(fif_i);
-
-    vkx::CommandBuffer cmd{cmdbuf};
-
-    cmd.BeginRenderPass(RenderPass, Framebuffer, g_AttachmentSize, 
-        {
-            vkx::ClearValueColor(0, 0.3, 0),
-            vkx::ClearValueColor(),
-            vkx::ClearValueColor(),
-            vkx::ClearValueDepthStencil()
-        });
-
-    cmd.SetViewport({}, g_AttachmentSize);
-    cmd.SetScissor({}, g_AttachmentSize);
-
-    cmd.BindDescriptorSets(Pipeline->PipelineLayout, Pipeline->DescriptorSets[fif_i]);
-
-    cmd.BindGraphicsPipeline(Pipeline->Pipeline);
-
-    PushConstant pc{};
-
-    for (Entity* entity : _Entities)
-    {
-        vkx::VertexBuffer* vtx = entity->m_Model;
-        if (vtx == nullptr)
-            continue;
-        //// Frustum Culling
-        //if (!Ethertia::getCamera().testFrustum(entity->getAABB()))
-        //    continue;
-        //if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera().len == 0)
-        //    continue;
-
-        pc.matModel = Maths::matModel(entity->position());
-
-        cmd.PushConstants(Pipeline->PipelineLayout, vk::ShaderStageFlagBits::eVertex, pc);
-
-
-
-        cmd.BindVertexBuffers(vtx->vertexBuffer);
-
-        if (vtx->indexBuffer)
-        {
-            cmd.BindIndexBuffer(vtx->indexBuffer);
-            cmd.DrawIndexed(vtx->vertexCount);
-        } 
-        else
-        {
-            cmd.Draw(vtx->vertexCount);
-        }
-    }
-
-    cmd.EndRenderPass();
-}
+//void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf, const std::vector<Entity*>& _Entities)
+//{
+//    int fif_i = vkx::ctx().CurrentInflightFrame;
+//
+//    UpdateUniformBuffer(fif_i);
+//
+//    vkx::CommandBuffer cmd{cmdbuf};
+//
+//    cmd.BeginRenderPass(RenderPass, Framebuffer, g_AttachmentSize, 
+//        {
+//            vkx::ClearValueColor(0, 0.3, 0),
+//            vkx::ClearValueColor(),
+//            vkx::ClearValueColor(),
+//            vkx::ClearValueDepthStencil()
+//        });
+//
+//    cmd.SetViewport({}, g_AttachmentSize);
+//    cmd.SetScissor({}, g_AttachmentSize);
+//
+//    cmd.BindDescriptorSets(Pipeline->PipelineLayout, Pipeline->DescriptorSets[fif_i]);
+//
+//    cmd.BindGraphicsPipeline(Pipeline->Pipeline);
+//
+//    PushConstant pc{};
+//
+//    for (Entity* entity : _Entities)
+//    {
+//        vkx::VertexBuffer* vtx = entity->m_Model;
+//        if (vtx == nullptr)
+//            continue;
+//        //// Frustum Culling
+//        //if (!Ethertia::getCamera().testFrustum(entity->getAABB()))
+//        //    continue;
+//        //if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera().len == 0)
+//        //    continue;
+//
+//        pc.matModel = Maths::matModel(entity->position());
+//
+//        cmd.PushConstants(Pipeline->PipelineLayout, vk::ShaderStageFlagBits::eVertex, pc);
+//
+//
+//
+//        cmd.BindVertexBuffers(vtx->vertexBuffer);
+//
+//        if (vtx->indexBuffer)
+//        {
+//            cmd.BindIndexBuffer(vtx->indexBuffer);
+//            cmd.DrawIndexed(vtx->vertexCount);
+//        } 
+//        else
+//        {
+//            cmd.Draw(vtx->vertexCount);
+//        }
+//    }
+//
+//    cmd.EndRenderPass();
+//}
 
 
 

@@ -54,7 +54,7 @@ public:
 
 
     // Vegetable/Foliage
-    REGISTER_MTL(WATER,         "water",        { .hardness = Mth::Inf, .vege = true });
+    REGISTER_MTL(WATER,         "water",        { .hardness = INFINITY, .vege = true });
     REGISTER_MTL(LEAVES,        "leaves",       { .hardness = 0, .mesh = true, .vege = true });
     REGISTER_MTL(SPRUCE_LEAVES, "spruce_leaves",{ .hardness = 0, .mesh = true, .vege = true });
     REGISTER_MTL(TALL_GRASS,    "tall_grass",   { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
@@ -86,13 +86,13 @@ public:
     // 所以目前用前者 毕竟mtl是核心内容。而且还没发现坏处。
 //    inline static const Item* STONE = new Item("stone", {new Item::ComponentMaterial(1)});
 
-    static void registerMaterialItems()
-    {
-        for (auto& it : Material::REGISTRY)
-        {
-            it.second->m_MaterialItem = new Item(it.first, {new ItemComponentMaterial(it.second)});
-        }
-    }
+    //static void registerMaterialItems()
+    //{
+    //    for (auto& it : Material::REGISTRY)
+    //    {
+    //        it.second->m_MaterialItem = new Item(it.first, {new ItemComponentMaterial(it.second)});
+    //    }
+    //}
 
 
 };

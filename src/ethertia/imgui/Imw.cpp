@@ -15,7 +15,8 @@
 #include <ethertia/init/Controls.h>
 #include <ethertia/init/KeyBinding.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/entity/player/EntityPlayer.h>
+#include <ethertia/util/Loader.h>
+//#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/world/Chunk.h>
 
 
@@ -172,23 +173,23 @@ static void _ShowMainMenuBar()
             ImGui::Checkbox("PauseThread ChunkMeshing", &Dbg::dbg_PauseThread_ChunkMeshing);
             ImGui::Checkbox("PauseThread ChunkLoad/Gen/Save", &Dbg::dbg_PauseThread_ChunkLoadGenSave);
 
-            if (ImGui::Button("Remesh All Chunks")) {
-                for (auto it : Ethertia::GetWorld()->getLoadedChunks()) {
-                    it.second->requestRemodel();
-                }
-            }
+            //if (ImGui::Button("Remesh All Chunks")) {
+            //    for (auto it : Ethertia::GetWorld()->getLoadedChunks()) {
+            //        it.second->requestRemodel();
+            //    }
+            //}
 
-            if (ImGui::BeginMenu("Gamemode"))
-            {
-                EntityPlayer& p = *Ethertia::getPlayer();
-                int gm = Ethertia::getPlayer()->getGamemode();
-
-                if (ImGui::MenuItem("Survival",  nullptr, gm==Gamemode::SURVIVAL))  p.switchGamemode(Gamemode::SURVIVAL);
-                if (ImGui::MenuItem("Creative",  nullptr, gm==Gamemode::CREATIVE))  p.switchGamemode(Gamemode::CREATIVE);
-                if (ImGui::MenuItem("Spectator", nullptr, gm==Gamemode::SPECTATOR)) p.switchGamemode(Gamemode::SPECTATOR);
-
-                ImGui::EndMenu();
-            }
+            //if (ImGui::BeginMenu("Gamemode"))
+            //{
+            //    EntityPlayer& p = *Ethertia::getPlayer();
+            //    int gm = Ethertia::getPlayer()->getGamemode();
+            //
+            //    if (ImGui::MenuItem("Survival",  nullptr, gm==Gamemode::SURVIVAL))  p.switchGamemode(Gamemode::SURVIVAL);
+            //    if (ImGui::MenuItem("Creative",  nullptr, gm==Gamemode::CREATIVE))  p.switchGamemode(Gamemode::CREATIVE);
+            //    if (ImGui::MenuItem("Spectator", nullptr, gm==Gamemode::SPECTATOR)) p.switchGamemode(Gamemode::SPECTATOR);
+            //
+            //    ImGui::EndMenu();
+            //}
             ImGui::SliderFloat("Breaking Terrain Interval in CreativeMode", &Settings::gInterval_BreakingTerrain_CreativeMode, 0, 0.5f);
 
             ImGui::Separator();
@@ -212,7 +213,7 @@ static void _ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("Rendering"))
         {
-            ImGui::Checkbox("PauseWorldRender", &RenderEngine::s_PauseWorldRender);
+            //ImGui::Checkbox("PauseWorldRender", &RenderEngine::s_PauseWorldRender);
 
             ImGui::Separator();
 

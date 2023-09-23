@@ -1,6 +1,10 @@
 
 #pragma once
 
+#include <string_view>
+
+class WorldInfo;
+class Chunk;
 
 class ChunkLoader
 {

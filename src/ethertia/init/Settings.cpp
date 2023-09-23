@@ -13,11 +13,13 @@
 #include <filesystem>
 
 #include <ethertia/util/Loader.h>
-#include <ethertia/world/gen/NoiseGen.h>
+#include <ethertia/util/BenchmarkTimer.h>
+#include <ethertia/Ethertia.h>
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
+//#include <ethertia/world/gen/NoiseGen.h>
 
 
 static const char* SETTINGS_FILE = "./settings.json";
@@ -76,11 +78,11 @@ void Settings::LoadSettings()
     conf.get("graphics.ssao", g_SSAO);
     conf.get("graphics.shadow", g_ShadowMapping);
 
-    std::string simdLevel;
-    if (conf.get("simd_level", simdLevel))
-    {
-        NoiseGen::g_SIMDLevel = NoiseGen::FastSIMD_ofLevelName(simdLevel);
-    }
+    //std::string simdLevel;
+    //if (conf.get("simd_level", simdLevel))
+    //{
+    //    NoiseGen::g_SIMDLevel = NoiseGen::FastSIMD_ofLevelName(simdLevel);
+    //}
 
 
     std::vector<std::string> openedwindows;
@@ -121,7 +123,7 @@ void Settings::SaveSettings()
     conf["display_height"] =_WindowSize.y;
     conf["vsync"] =         s_Vsync;
     conf["mtl_resolution"] =MaterialTextures::TEX_RESOLUTION;
-    conf["simd_level"] =    NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel);
+    //conf["simd_level"] =    NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel);
     conf["mods"] =          Settings::Mods;
     conf["graphics.ssao"] = Settings::g_SSAO;
     conf["graphics.shadow"]=Settings::g_ShadowMapping;

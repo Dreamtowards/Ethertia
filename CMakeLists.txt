@@ -132,15 +132,15 @@ add_executable(Ethertia
         src/ethertia/util/BitmapImage.cpp
         src/ethertia/util/BenchmarkTimer.cpp
         src/ethertia/util/Maths.cpp
+        src/ethertia/render/VertexData.cpp
 
-        src/ethertia/init/Controls.cpp
-        src/ethertia/init/Settings.cpp
         src/ethertia/render/Window.cpp
         src/ethertia/render/RenderEngine.cpp
-        src/ethertia/render/VertexData.cpp
-        src/ethertia/item/ItemComponents.cpp
+        src/ethertia/init/Controls.cpp
+        src/ethertia/init/Settings.cpp
         src/ethertia/world/World.cpp
 
+        # src/ethertia/item/ItemComponents.cpp
         #src/ethertia/render/renderer/RendererGbuffer.cpp    
 
         src/ethertia/Ethertia.cpp)

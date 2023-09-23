@@ -4,6 +4,8 @@
 
 #include <ethertia/imgui/Imgui.h>
 
+#include <ethertia/item/ItemStack.h>
+
 #include <filesystem>
 
 class Imw
@@ -70,7 +72,7 @@ public:
     {
         inline static bool GameFullwindow = false;
 
-        inline static vk::ImageView GameImageView = nullptr;
+        inline static VkImageView GameImageView = nullptr;
 
         static void ShowGame(bool* _open);
 
