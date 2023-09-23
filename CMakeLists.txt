@@ -80,6 +80,7 @@ include_directories(lib/glm-0.9.9.8)
 
 include_directories(lib/enet-2.3.6/include)
 include_directories(lib/msgpack-cppack19/include)
+include_directories(lib/entt-3.12.2/src)
 
 include_directories(lib/stb)
 include_directories(lib/json-nlohmann-3.11.2/include)

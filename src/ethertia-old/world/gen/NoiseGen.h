@@ -17,7 +17,7 @@ public:
 
     static void initSIMD()  // 0.05ms in debug.
     {
-        Log::info("Compiled SIMD Levels: {} :: {} (CPU max: {})\1",
+        Log::info("Compiled SIMD Levels: {}, using {} (CPU deduced: {})\1",
                   NoiseGen::FastSIMD_CompiledLevels("/"),
                   NoiseGen::FastSIMD_LevelName(NoiseGen::g_SIMDLevel),
                   NoiseGen::FastSIMD_LevelName(FastSIMD::CPUMaxSIMDLevel()));

@@ -8,27 +8,23 @@
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Scheduler.h>
-#include <ethertia/entity/Entity.h>
-#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 #include <ethertia/render/chunk/proc/ChunkGenProc.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/network/client/ClientConnectionProc.h>
-//#include <ethertia/network/client/NetworkSystem.h>
 #include <ethertia/init/Controls.h>
-#include <ethertia/world/gen/ChunkGenerator.h>
-//#include <ethertia/command/Commands.h>
 #include <ethertia/world/ChunkLoader.h>
-// #include <ethertia/audio/AudioEngine.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
+#include <ethertia/item/recipe/Recipes.h>
+//#include <ethertia/network/client/NetworkSystem.h>
+//#include <ethertia/command/Commands.h>
+// #include <ethertia/audio/AudioEngine.h>
 //#include <ethertia/vr/OpenVR.h>
 //#include <ethertia/init/Sounds.h>
-#include <ethertia/item/recipe/Recipes.h>
 
 #include <ethertia/imgui/Imgui.h>
-#include <ethertia/world/Biome.h>
 #include <ethertia/imgui/Imw.h>
 
 #include <thread>
@@ -42,14 +38,6 @@ static void RunMainLoop();
 
 int main()
 {
-    Log::info("{}", stdx::daytime(stdx::daytime("5")));
-    Log::info("{}", stdx::daytime(stdx::daytime("00:30.5pm")));
-    Log::info("{}", stdx::daytime(stdx::daytime("10:30.5:2.59 am")));
-    Log::info("{}", stdx::daytime(stdx::daytime("::60.5p")));
-    Log::info("{}", stdx::daytime(stdx::daytime("  100  :  :  10.9  Pm ")));
-
-    return 1;
-
     Init();
 
     while (Ethertia::isRunning())
@@ -101,10 +89,10 @@ static void Init()
 
     Recipes::init();  // after mtl-items register.
 
-    g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
-    g_Player->position() = {0, 10, 0};
-    g_Player->switchGamemode(Gamemode::CREATIVE);
-    g_Player->setFlying(true);
+    //g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
+    //g_Player->position() = {0, 10, 0};
+    //g_Player->switchGamemode(Gamemode::CREATIVE);
+    //g_Player->setFlying(true);
 
 
     //std::thread_pool tp;
@@ -121,7 +109,7 @@ static void Init()
 
     Material::REGISTRY.dbgPrintEntries("Materials");
     Item::REGISTRY.dbgPrintEntries("Items");
-    Biome::REGISTRY.dbgPrintEntries("Biomes");
+//    Biome::REGISTRY.dbgPrintEntries("Biomes");
 //    Command::REGISTRY.dbgPrintEntries("Commands");
     Recipe::REGISTRY.dbgPrintEntries("Recipes");
 
@@ -164,7 +152,6 @@ static void RunMainLoop()
     Ethertia::getTimer().update(time_framebegin);
     float dt = Ethertia::getDelta();
     World* world = Ethertia::GetWorld();
-    Window& window = Ethertia::getWindow();
 
     {
         PROFILE("SyncTask");
@@ -220,13 +207,6 @@ static void RunMainLoop()
         PROFILE("Imgui::ShowWindows");
         Imw::ShowDockspaceAndMainMenubar();
         Imgui::ShowWindows();
-
-
-        //if (ImGui::BeginViewportSideBar("TestSidebar2", ImGui::GetMainViewport(), ImGuiDir_Left, 16, ImGuiWindowFlags_None))
-        //{
-        //    ImGui::Text("Sth");
-        //    ImGui::End();
-        //}
     }
 
     {

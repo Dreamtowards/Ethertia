@@ -7,7 +7,6 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
-#include <ethertia/entity/Entity.h>
 #include <ethertia/util/AABB.h>
 
 
@@ -17,9 +16,6 @@ public:
     inline static float GuiScale = 1.0f;
 
     inline static glm::vec4 wViewportXYWH;
-
-    // selected entity in the Entity Inspector.
-    inline static Entity* g_InspEntity = nullptr;
 
     static void Init();
     static void Destroy();

@@ -110,17 +110,17 @@ char* stdx::skip_spaces(const char* p)
 
 
 
-//Log::info("{}", stdx::daytime(stdx::daytime("5")));
+//Log::info("{}", stdx::daytime(stdx::daytime("5"))); 
 //Log::info("{}", stdx::daytime(stdx::daytime("00:30.5pm")));
 //Log::info("{}", stdx::daytime(stdx::daytime("10:30.5:2.59 am")));
 //Log::info("{}", stdx::daytime(stdx::daytime("::60.5p")));
 //Log::info("{}", stdx::daytime(stdx::daytime("  100  :  :  10.9  Pm ")));
-//
-//[2023 - 09 - 22 12:47 : 00.9314761][30848 / INFO][Ethertia.cpp:45]: 05 : 00
-//[2023 - 09 - 22 12:47 : 00.9328794][30848 / INFO][Ethertia.cpp:46] : 00 : 30 : 30.00
-//[2023 - 09 - 22 12:47 : 00.9336121][30848 / INFO][Ethertia.cpp:47] : 10 : 30 : 32.59
-//[2023 - 09 - 22 12:47 : 00.9341415][30848 / INFO][Ethertia.cpp:48] : 00 : 01 : 00.50
-//[2023 - 09 - 22 12:47 : 00.9344923][30848 / INFO][Ethertia.cpp:49] : 100 : 00 : 10.90
+// 
+//[2023-09-22 12:47:00.9314761][30848/INFO][Ethertia.cpp:45]: 05:00
+//[2023-09-22 12:47:00.9328794][30848/INFO][Ethertia.cpp:46]: 00:30:30.00
+//[2023-09-22 12:47:00.9336121][30848/INFO][Ethertia.cpp:47]: 10:30:32.59
+//[2023-09-22 12:47:00.9341415][30848/INFO][Ethertia.cpp:48]: 00:01:00.50
+//[2023-09-22 12:47:00.9344923][30848/INFO][Ethertia.cpp:49]: 100:00:10.90
 
 
 std::string stdx::daytime(float daytime, bool apm)
