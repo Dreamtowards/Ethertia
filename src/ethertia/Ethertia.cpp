@@ -106,16 +106,15 @@ static void Init()
     Controls::initConsoleThread();
 
 
-
-    Imw::Editor::AddComponentInspector<TagComponent>([](TagComponent& comp)
+    Imw::Editor::AddComponentInspector<uint16_t>([](auto& comp)
         {
-            ImGui::Text("Inspect TAGGG %i", comp.IsEnabled);
+            ImGui::Text("Inspect Int %i", comp);
         });
 
-    //Imw::Editor::AddComponentInspector<TransformComponent>([](auto& comp)
-    //    {
-    //        ImGui::Text("Inspect Added TRansf");
-    //    });
+    Imw::Editor::AddComponentInspector<TransformComponent>([](auto& comp)
+        {
+            ImGui::Text("Inspect Added TRansf");
+        });
 
 
 //    Material::REGISTRY.dbgPrintEntries("Materials");

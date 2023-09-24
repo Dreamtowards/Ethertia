@@ -179,26 +179,22 @@ void Imw::Editor::ShowInspector(bool* _open)
         ImGui::End();
         return;
     }
-    //else
-    //{
-    //    ImGui::TextDisabled(std::format("Id: {}, {} Components.", entity, entity.reg().view(entity)).c_str());
-    //    ImGui::SameLine();
-    //    if (ImGui::SmallButton("x")) {
-    //        Imw::Editor::SetInspectionObject(nullptr, eNone);
-    //    }
-    //    ImGui::Separator();
-    //}
 
+    if (ImGui::Button("+"))
+    {
+        ImGui::OpenPopup("AddComponent");
+    }
+    ImGui::SameLine();
     
-        auto& tag = entity.GetComponent<TagComponent>();
+    auto& tag = entity.GetComponent<TagComponent>();
 
-        ImGui::Checkbox("##IsEnabled", &tag.IsEnabled);
-        Imgui::ItemTooltip("Enabled or Disable");
+    ImGui::Checkbox("##IsEnabled", &tag.IsEnabled);
+    Imgui::ItemTooltip("Enabled or Disable");
 
-        ImGui::SameLine();
+    ImGui::SameLine();
 
-        Imgui::InputText("##Name", tag.Name, "Entity Name");
-        Imgui::ItemTooltip("Entity Name, is not unique, it's kinda trivial");
+    Imgui::InputText("##Name", tag.Name, "Entity Name");
+    Imgui::ItemTooltip("Entity Name, is not unique, it's kinda trivial");
     
 
     ImGui::Separator();
@@ -212,71 +208,61 @@ void Imw::Editor::ShowInspector(bool* _open)
     {
         if (auto& c_storage = it.second; c_storage.contains(entity))
         {
-            auto& c_type = c_storage.type();
+            ++numEntityComponents;
+            auto& c_type = c_storage.type();  // Component Type Info
+
+            if (c_type.hash() == entt::type_hash<TagComponent>())
+                continue;
             auto it = ComponentInspectors.find(c_type.hash());
-            if (it == ComponentInspectors.end())
-            {
+            if (it == ComponentInspectors.end()) {
                 ImGui::Text("Not Support for Component '%s' Inspect", c_type.name().data());
+                continue;
             }
-            else
+            
+            const char* str_p = c_type.name().data();
+            int str_n = c_type.name().size();
+            // the component type name is like "struct TagComponent", so we skip the leading space etc.
+            if (c_type.name().starts_with("struct ")) {
+                str_p += 7;
+                str_n -= 7;
+            }
+            static char _ComponentName[128];
+            std::strncpy(_ComponentName, str_p, str_n);
+            _ComponentName[str_n] = 0;
+
+            if (ImGui::CollapsingHeader(_ComponentName))
             {
-                //if (ImGui::CollapsingHeader(std::string(c_type.name()).c_str()))
-                ImGui::SeparatorText(std::string(c_type.name()).c_str());
-                {
-                    void* c_data = c_storage.value(entity);  // get the Component Data
+                void* c_data = c_storage.value(entity);  // get the Component Data
                     
-                    it->second(c_data);
-                }
+                it->second(c_data);
             }
     
-            ++numEntityComponents;
         }
+    }
+
+    if (ImGui::Button("Add Component", { -1, 0 }))
+    {
+        ImGui::OpenPopup("AddComponent");
+    }
+
+    if (ImGui::BeginPopup("AddComponent"))
+    {
+        if (ImGui::MenuItem("std::uint16_t"))
+        {
+            entity.AddComponent<std::uint16_t>();
+        }
+        if (ImGui::MenuItem("std::string"))
+        {
+            entity.AddComponent<std::string>();
+        }
+
+        ImGui::EndPopup();
     }
 
     ImGui::EndChild();
 
     ImGui::TextDisabled(std::format("{} components, entity id: {}.", numEntityComponents, entity.id()).c_str());
 
-
-    //switch (inspectionType)
-    //{
-    //    case eEntity: 
-    //    {
-    //        Entity* entity = (Entity*)inspectionObject;
-    //
-    //        //ImGui::Text(std::format("Entity: {}", glm::to_string(entity->position())).c_str());
-    //        break;
-    //    }
-    //    case eWorld:
-    //    {
-    //        _InspWorld((World*)inspectionObject);
-    //        break;
-    //    }
-    //    case eCamera:
-    //    {
-    //        Camera* cam = (Camera*)inspectionObject;
-    //
-    //        ImGui::DragFloat3("Position", &cam->position.x);
-    //        ImGui::DragFloat3("Euler Angles", &cam->eulerAngles.x);
-    //
-    //        ImGui::SeparatorText("Perspective");
-    //        ImGui::DragFloat("Fov", &cam->fov);
-    //        ImGui::DragFloat("NearPlane", &cam->fov);
-    //        ImGui::DragFloat("FarPlane", &cam->fov);
-    //        break;
-    //    }
-    //    case ePipeline:
-    //    {
-    //
-    //        //break;
-    //    }
-    //    default:
-    //    {
-    //        ImGui::TextDisabled("Unsupported Inspecting type. %s", inspectionObject);
-    //        ImGui::End();
-    //        return;
-    //    }
-    //}
 
     ImGui::End();
 }
