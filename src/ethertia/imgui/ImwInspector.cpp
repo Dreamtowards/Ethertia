@@ -173,62 +173,86 @@ void Imw::Editor::ShowInspector(bool* _open)
 {
     ImGui::Begin("Inspector", _open);
 
-    void* inspectionObject = Imw::Editor::_InspectionObject;
-    auto inspectionType = Imw::Editor::_InspectionType;
-    if (!inspectionObject) {
-        ImGui::TextDisabled("Nothing inspecting.");
+    Entity entity = Imw::Editor::SelectedEntity;
+    if (!entity) {
+        ImGui::TextDisabled("Select an entity to inspect.");
         ImGui::End();
         return;
     }
-    else
+    //else
+    //{
+    //    ImGui::TextDisabled(std::format("Id: {}, {} Components.", entity, entity.reg().view(entity)).c_str());
+    //    ImGui::SameLine();
+    //    if (ImGui::SmallButton("x")) {
+    //        Imw::Editor::SetInspectionObject(nullptr, eNone);
+    //    }
+    //    ImGui::Separator();
+    //}
+    ImGui::Separator();
+
+    ImGui::BeginChild("ComponentsList", { 0, -ImGui::GetTextLineHeightWithSpacing() });
+
+    int numEntityComponents = 0;
+    int numWorldCompTypes = 0;
+    
+    for (const auto& it : entity.reg().storage())
     {
-        ImGui::TextDisabled(std::format("inspecting: {}.", inspectionObject).c_str());
-        ImGui::SameLine();
-        if (ImGui::SmallButton("x")) {
-            Imw::Editor::SetInspectionObject(nullptr, eNone);
+        entt::id_type c_id = it.first;
+        auto& c_ls = it.second;
+        auto& c_type = c_ls.type();
+        ++numWorldCompTypes;
+
+        if (c_ls.contains(entity))
+        {
+            ImGui::Text(std::format("comp id: {}, comp t: {}", c_id, c_ls.type().name()).c_str());
+            ++numEntityComponents;
         }
-        ImGui::Separator();
     }
 
-    switch (inspectionType)
-    {
-        case eEntity: 
-        {
-            Entity* entity = (Entity*)inspectionObject;
+    ImGui::EndChild();
 
-            //ImGui::Text(std::format("Entity: {}", glm::to_string(entity->position())).c_str());
-            break;
-        }
-        case eWorld:
-        {
-            _InspWorld((World*)inspectionObject);
-            break;
-        }
-        case eCamera:
-        {
-            Camera* cam = (Camera*)inspectionObject;
+    ImGui::TextDisabled(std::format("{} components. world component types: {}", numEntityComponents, numWorldCompTypes).c_str());
 
-            ImGui::DragFloat3("Position", &cam->position.x);
-            ImGui::DragFloat3("Euler Angles", &cam->eulerAngles.x);
 
-            ImGui::SeparatorText("Perspective");
-            ImGui::DragFloat("Fov", &cam->fov);
-            ImGui::DragFloat("NearPlane", &cam->fov);
-            ImGui::DragFloat("FarPlane", &cam->fov);
-            break;
-        }
-        case ePipeline:
-        {
-
-            //break;
-        }
-        default:
-        {
-            ImGui::TextDisabled("Unsupported Inspecting type. %s", inspectionObject);
-            ImGui::End();
-            return;
-        }
-    }
+    //switch (inspectionType)
+    //{
+    //    case eEntity: 
+    //    {
+    //        Entity* entity = (Entity*)inspectionObject;
+    //
+    //        //ImGui::Text(std::format("Entity: {}", glm::to_string(entity->position())).c_str());
+    //        break;
+    //    }
+    //    case eWorld:
+    //    {
+    //        _InspWorld((World*)inspectionObject);
+    //        break;
+    //    }
+    //    case eCamera:
+    //    {
+    //        Camera* cam = (Camera*)inspectionObject;
+    //
+    //        ImGui::DragFloat3("Position", &cam->position.x);
+    //        ImGui::DragFloat3("Euler Angles", &cam->eulerAngles.x);
+    //
+    //        ImGui::SeparatorText("Perspective");
+    //        ImGui::DragFloat("Fov", &cam->fov);
+    //        ImGui::DragFloat("NearPlane", &cam->fov);
+    //        ImGui::DragFloat("FarPlane", &cam->fov);
+    //        break;
+    //    }
+    //    case ePipeline:
+    //    {
+    //
+    //        //break;
+    //    }
+    //    default:
+    //    {
+    //        ImGui::TextDisabled("Unsupported Inspecting type. %s", inspectionObject);
+    //        ImGui::End();
+    //        return;
+    //    }
+    //}
 
     ImGui::End();
 }
@@ -410,7 +434,7 @@ void Imw::Editor::ShowHierarchy(bool* _open)
     {
         ImGui::OpenPopup("CreateEntity");
     }
-    Imgui::ItemHoveredTooltip("Create Entity");
+    //Imgui::ItemHoveredTooltip("Create Entity");
 
     if (ImGui::BeginPopup("CreateEntity"))
     {
@@ -456,22 +480,19 @@ void Imw::Editor::ShowHierarchy(bool* _open)
         //ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthStretch, 80);
         //ImGui::TableHeadersRow();
 
-        static uint64_t s_SelectedEntityUuid = 0;
-
-        for (auto& it : world->GetEntities())
+        world->registry().each([&](entt::entity entity)
         {
-            uint64_t uuid = it.first;
-
-            ImGui::PushID(uuid);
+            ImGui::PushID((entt::id_type)entity);
             ImGui::TableNextRow();
 
             ImGui::TableNextColumn();
 
-            if (ImGui::Selectable("##sel", s_SelectedEntityUuid==uuid, ImGuiSelectableFlags_SpanAllColumns))
+            if (ImGui::Selectable("##sel", SelectedEntity == entity, ImGuiSelectableFlags_SpanAllColumns))
             {
-                s_SelectedEntityUuid = s_SelectedEntityUuid==uuid ? -1 : uuid;
+                SelectedEntity = SelectedEntity == entity ? Entity{} : Entity{entity, world};
             }
-            Imgui::ItemHoveredTooltip(std::format("UUID: {}", uuid));
+            Imgui::ItemHoveredTooltip(std::format("entt_id: {}", (entt::id_type)entity));
+
 
             ImGui::SameLine();
             ImGui::Text("Entity N");
@@ -480,15 +501,33 @@ void Imw::Editor::ShowHierarchy(bool* _open)
             ImGui::TextDisabled("Type2");
 
             ImGui::PopID();
-        }
+        });
 
         ImGui::EndTable();
+    }
+
+    if (SelectedEntity)
+    {
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+            ImGui::OpenPopup("MenuOpEntity");
+        }
+        if (ImGui::BeginPopup("MenuOpEntity"))
+        {
+            //ImGui::TextDisabled("");
+
+            if (ImGui::MenuItem("Destroy Entity")) {
+                world->DestroyEntity(SelectedEntity);
+            }
+
+            ImGui::EndPopup();
+        }
     }
 
     ImGui::EndChild();
 
 
-    ImGui::TextDisabled(std::format("{} entity.", world->GetEntities().size()).c_str());
+    ImGui::TextDisabled(std::format("{} entity.", world->registry().size()).c_str());
 
 
 

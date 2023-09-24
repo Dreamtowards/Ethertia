@@ -23,35 +23,28 @@ void World::OnTick(float dt)
 	//	return;
 }
 
-static int g_LastEntityUUID = 0;
 
-Entity World::CreateEntity(uint64_t uuid)
+Entity World::CreateEntity()
 {
-	if (uuid == 0)
-	{
-		uuid = ++g_LastEntityUUID;
-	}
-
-	Entity entity{ m_EntityRegistry.create(), this, uuid };
+	Entity entity{ m_EntityRegistry.create(), this };
 
 	// assign: uuid, transform, name.
 
-	m_EntityMap[uuid] = entity;
+	m_EntityRegistry.emplace<std::string>(entity, "Entity Name");
+	m_EntityRegistry.emplace<uint16_t>(entity, 123);
+
+	m_EntityRegistry.emplace<TransformComponent>(entity);
+	m_EntityRegistry.emplace<NameComponent>(entity);
 
 	return entity;
 }
 
-void World::DestroyEntity(Entity entity)
+void World::DestroyEntity(entt::entity entity)
 {
-	m_EntityMap.erase(entity.uuid());
 	m_EntityRegistry.destroy(entity);
 }
 
-Entity World::FindEntity(uint64_t uuid)
+Entity World::FindEntity(entt::entity id)
 {
-	auto it = m_EntityMap.find(uuid);
-	if (it == m_EntityMap.end())
-		return {};
-
-	return Entity{ it->second, this, uuid };
+	return Entity{ id, this };
 }

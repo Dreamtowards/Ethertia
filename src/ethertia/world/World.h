@@ -2,6 +2,7 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <glm/glm.hpp>
 
 #include <unordered_map>
 
@@ -17,6 +18,15 @@ public:
 
 };
 
+class TransformComponent
+{
+	glm::mat4 transform;
+};
+class NameComponent
+{
+	std::string name;
+};
+
 class Entity;  // fwd
 
 class World
@@ -26,16 +36,15 @@ public:
 	explicit World();
 	~World();
 
-	// if uuid == 0 -> generate a uuid
-	Entity CreateEntity(uint64_t uuid = 0);
+	Entity CreateEntity();
 
-	void DestroyEntity(Entity entity);
+	void DestroyEntity(entt::entity uuid);
 
-	Entity FindEntity(uint64_t uuid);
+	Entity FindEntity(entt::entity uuid);
 
-	void DuplicateEntity(Entity entity);
+	void DuplicateEntity(entt::entity uuid);
 
-	const std::unordered_map<uint64_t, entt::entity> GetEntities() const { return m_EntityMap; }
+	entt::registry& registry() { return m_EntityRegistry; }
 
 
 	void OnTick(float dt);
@@ -45,8 +54,6 @@ public:
 private:
 
 	entt::registry m_EntityRegistry;
-
-	std::unordered_map<uint64_t, entt::entity> m_EntityMap;
 
 	WorldInfo m_WorldInfo;
 

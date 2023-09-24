@@ -8,6 +8,8 @@
 
 #include <filesystem>
 
+#include <ethertia/world/Entity.h>
+
 class Imw
 {
 public:
@@ -59,6 +61,8 @@ public:
         // ImwInspector.cpp
         static void ShowInspector(bool* _open);
 
+        inline static Entity SelectedEntity{};
+
         static void ShowHierarchy(bool* _open);
 
 
@@ -67,6 +71,11 @@ public:
 
 
         static void ShowWorldGen(bool* _open);
+    };
+
+    class Outliner
+    {
+
     };
 
     struct Gameplay
