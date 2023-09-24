@@ -30,11 +30,8 @@ Entity World::CreateEntity()
 
 	// assign: uuid, transform, name.
 
-	m_EntityRegistry.emplace<std::string>(entity, "Entity Name");
-	m_EntityRegistry.emplace<uint16_t>(entity, 123);
-
-	m_EntityRegistry.emplace<TransformComponent>(entity);
-	m_EntityRegistry.emplace<NameComponent>(entity);
+	m_EntityRegistry.emplace<TagComponent>(entity, "Entity");
+	m_EntityRegistry.emplace<TransformComponent>(entity, glm::mat4(1.0f));
 
 	return entity;
 }

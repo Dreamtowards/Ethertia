@@ -190,6 +190,18 @@ void Imw::Editor::ShowInspector(bool* _open)
     //}
     ImGui::Separator();
 
+    {
+        auto& compTag = entity.GetComponent<TagComponent>();
+
+        ImGui::Checkbox("##IsEnabled", &compTag.IsEnabled);
+        Imgui::ItemTooltip("Enabled or Disable");
+
+        ImGui::SameLine();
+
+        Imgui::InputText("##Name", compTag.Name, "Entity Name");
+        Imgui::ItemTooltip("Entity Name, is not unique, it's kinda trivial");
+    }
+
     ImGui::BeginChild("ComponentsList", { 0, -ImGui::GetTextLineHeightWithSpacing() });
 
     int numEntityComponents = 0;
@@ -211,7 +223,7 @@ void Imw::Editor::ShowInspector(bool* _open)
 
     ImGui::EndChild();
 
-    ImGui::TextDisabled(std::format("{} components. world component types: {}", numEntityComponents, numWorldCompTypes).c_str());
+    ImGui::TextDisabled(std::format("{} components, entity id: {}. world component types: {}", numEntityComponents, entity.id(), numWorldCompTypes).c_str());
 
 
     //switch (inspectionType)
@@ -434,7 +446,6 @@ void Imw::Editor::ShowHierarchy(bool* _open)
     {
         ImGui::OpenPopup("CreateEntity");
     }
-    //Imgui::ItemHoveredTooltip("Create Entity");
 
     if (ImGui::BeginPopup("CreateEntity"))
     {
@@ -472,33 +483,51 @@ void Imw::Editor::ShowHierarchy(bool* _open)
 
     ImGui::BeginChild("entitylist", {0, -ImGui::GetTextLineHeightWithSpacing()});
 
-    if (ImGui::BeginTable("table", 2, 
-        ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX, {}))
+    if (ImGui::BeginTable("table", 3, 
+        ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_SizingStretchProp, {}))
     {
-        //ImGui::TableSetupColumn("##0", ImGuiTableColumnFlags_WidthFixed, 16);
-        //ImGui::TableSetupColumn("##Name", ImGuiTableColumnFlags_WidthStretch, 200);
-        //ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthStretch, 80);
+        ImGui::TableSetupColumn("##0", ImGuiTableColumnFlags_WidthFixed, 16);
+        ImGui::TableSetupColumn("##Name", ImGuiTableColumnFlags_WidthStretch, 200);
+        ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthFixed, 80);
         //ImGui::TableHeadersRow();
 
-        world->registry().each([&](entt::entity entity)
-        {
-            ImGui::PushID((entt::id_type)entity);
+        world->registry().each([&](entt::entity eid) {
+
+            Entity entity = { eid, world };
+            auto& tag = entity.GetComponent<TagComponent>();
+
+            ImGui::PushID(entity.id());
             ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            if (!tag.IsEnabled) 
+            {
+                ImGui::Text("X");
+                if (ImGui::IsItemClicked()) {
+                    tag.IsEnabled = !tag.IsEnabled;
+                }
+            }
+            else if (ImGui::IsItemHovered())
+            {
+                ImGui::TextDisabled("X");
+            }
 
             ImGui::TableNextColumn();
 
             if (ImGui::Selectable("##sel", SelectedEntity == entity, ImGuiSelectableFlags_SpanAllColumns))
             {
-                SelectedEntity = SelectedEntity == entity ? Entity{} : Entity{entity, world};
+                SelectedEntity = SelectedEntity == entity ? Entity{} : entity;
             }
-            Imgui::ItemHoveredTooltip(std::format("entt_id: {}", (entt::id_type)entity));
+            Imgui::ItemTooltip(std::format("entt_id: {}", entity.id()));
 
 
             ImGui::SameLine();
-            ImGui::Text("Entity N");
+            ImGui::Text("%s", tag.Name.c_str());
 
             ImGui::TableNextColumn();
-            ImGui::TextDisabled("Type2");
+
+            
+            ImGui::TextDisabled("type");
 
             ImGui::PopID();
         });

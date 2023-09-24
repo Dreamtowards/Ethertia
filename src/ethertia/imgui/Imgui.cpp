@@ -285,7 +285,7 @@ void Imgui::ToggleShow(DrawFuncPtr w)
 
 
 
-void Imgui::ItemHoveredTooltip(const std::string& str)
+void Imgui::ItemTooltip(const std::string& str)
 {
     if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
     {
@@ -294,6 +294,26 @@ void Imgui::ItemHoveredTooltip(const std::string& str)
         ImGui::EndTooltip();
     }
 }
+
+
+bool Imgui::InputText(const char* label, std::string& text, const char* hint)
+{
+    static char buffer[256];
+    strncpy(buffer, text.c_str(), sizeof(buffer));
+    buffer[sizeof(buffer) - 1] = 0;
+
+    if (ImGui::InputTextWithHint(label, hint, buffer, sizeof(buffer)))
+    {
+        text = buffer;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
 
 VkDescriptorSet Imgui::mapImage(VkImageView imageView)
 {

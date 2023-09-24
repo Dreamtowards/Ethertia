@@ -46,7 +46,13 @@ public:
     static void ToggleShow(DrawFuncPtr w);
 
 
-    static void ItemHoveredTooltip(const std::string& str);
+
+
+    static void ItemTooltip(const std::string& str);
+
+    static bool InputText(const char* label, std::string& text, const char* hint = nullptr);
+
+
 
     static VkDescriptorSet mapImage(VkImageView imageView);
 

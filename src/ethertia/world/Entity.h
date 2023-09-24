@@ -1,10 +1,7 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #include "World.h"
-
 
 
 class Entity

@@ -6,6 +6,8 @@
 
 #include <unordered_map>
 
+#include "EntityComponents.h"
+
 
 class WorldInfo
 {
@@ -16,15 +18,6 @@ public:
 
 	std::string Name;
 
-};
-
-class TransformComponent
-{
-	glm::mat4 transform;
-};
-class NameComponent
-{
-	std::string name;
 };
 
 class Entity;  // fwd
