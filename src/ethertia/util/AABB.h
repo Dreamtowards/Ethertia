@@ -24,12 +24,12 @@ public:
 //        return p[axis] >= min[axis] && p[axis] < max[axis];
 //    }
 
-    bool empty() {
-        return min == max;
-    }
-    glm::vec3 extent() {
-        return max - min;
-    }
+    bool empty() const { return min == max; }
+    operator bool() const { return empty(); }
+
+    glm::vec3 extent() { return max - min; }
+
+    AABB operator+ (const glm::vec3& p) { return AABB{ min + p, max + p }; }
 
     void wrap(glm::vec3 a, glm::vec3 b) {
         min = glm::min(a, b);

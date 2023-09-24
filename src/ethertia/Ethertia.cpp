@@ -106,16 +106,28 @@ static void Init()
     Controls::initConsoleThread();
 
 
+    Imw::Editor::AddComponentInspector<TransformComponent>([](TransformComponent& comp)
+        {
+            ImGui::DragFloat3("Position", &comp.position().x);
+            ImGui::DragFloat3("Rotation", &comp.position().x);
+            ImGui::DragFloat3("Scale", &comp.position().x);
+
+            ImGui::RadioButton("World", true);
+            ImGui::SameLine();
+            ImGui::RadioButton("Local", false);
+        });
     Imw::Editor::AddComponentInspector<uint16_t>([](auto& comp)
         {
             ImGui::Text("Inspect Int %i", comp);
         });
 
-    Imw::Editor::AddComponentInspector<TransformComponent>([](auto& comp)
-        {
-            ImGui::Text("Inspect Added TRansf");
-        });
 
+    Imw::Editor::AddComponentInspector<DebugDrawBoundingBox>([](DebugDrawBoundingBox& comp)
+        {
+            ImGui::DragFloat3("Min", &comp.BoundingBox.min.x);
+            ImGui::DragFloat3("Max", &comp.BoundingBox.max.x);
+            ImGui::ColorEdit4("Color", &comp.Color.x);
+        });
 
 //    Material::REGISTRY.dbgPrintEntries("Materials");
 //    Item::REGISTRY.dbgPrintEntries("Items");

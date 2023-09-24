@@ -180,11 +180,26 @@ void Imw::Editor::ShowInspector(bool* _open)
         return;
     }
 
-    if (ImGui::Button("+"))
-    {
-        ImGui::OpenPopup("AddComponent");
-    }
+    ImGui::Button("+");
     ImGui::SameLine();
+
+    if (ImGui::BeginPopupContextItem(0, ImGuiPopupFlags_MouseButtonLeft))
+    {
+        if (ImGui::MenuItem("std::uint16_t"))
+        {
+            entity.AddComponent<std::uint16_t>();
+        }
+        if (ImGui::MenuItem("std::string"))
+        {
+            entity.AddComponent<std::string>();
+        }
+        if (ImGui::MenuItem("DebugDrawAABB"))
+        {
+            entity.AddComponent<DebugDrawBoundingBox>();
+        }
+
+        ImGui::EndPopup();
+    }
     
     auto& tag = entity.GetComponent<TagComponent>();
 
@@ -219,18 +234,31 @@ void Imw::Editor::ShowInspector(bool* _open)
                 continue;
             }
             
-            const char* str_p = c_type.name().data();
-            int str_n = c_type.name().size();
-            // the component type name is like "struct TagComponent", so we skip the leading space etc.
-            if (c_type.name().starts_with("struct ")) {
-                str_p += 7;
-                str_n -= 7;
+            std::string_view name = c_type.name();
+            if (name.starts_with("struct ")) {
+                name = name.substr(7);
+            }
+            if (name.ends_with("Component")) {
+                name = name.substr(0, name.size() - 9);
             }
             static char _ComponentName[128];
-            std::strncpy(_ComponentName, str_p, str_n);
-            _ComponentName[str_n] = 0;
+            std::strncpy(_ComponentName, name.data(), name.size());
+            _ComponentName[name.size()] = 0;
 
-            if (ImGui::CollapsingHeader(_ComponentName))
+            ImGui::Spacing();
+            bool open = ImGui::CollapsingHeader(_ComponentName);
+
+            if (ImGui::BeginPopupContextItem())
+            {
+                if (ImGui::MenuItem("Remove Component"))
+                {
+                    c_storage.erase(entity);
+                    open = false;  // already erased. skip access
+                }
+                ImGui::EndPopup();
+            }
+
+            if (open)
             {
                 void* c_data = c_storage.value(entity);  // get the Component Data
                     
@@ -240,24 +268,8 @@ void Imw::Editor::ShowInspector(bool* _open)
         }
     }
 
-    if (ImGui::Button("Add Component", { -1, 0 }))
-    {
-        ImGui::OpenPopup("AddComponent");
-    }
+    //if (ImGui::Button("Add Component", { -1, 0 })) {}
 
-    if (ImGui::BeginPopup("AddComponent"))
-    {
-        if (ImGui::MenuItem("std::uint16_t"))
-        {
-            entity.AddComponent<std::uint16_t>();
-        }
-        if (ImGui::MenuItem("std::string"))
-        {
-            entity.AddComponent<std::string>();
-        }
-
-        ImGui::EndPopup();
-    }
 
     ImGui::EndChild();
 
@@ -525,14 +537,9 @@ void Imw::Editor::ShowHierarchy(bool* _open)
 
     if (SelectedEntity)
     {
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-        {
-            ImGui::OpenPopup("MenuOpEntity");
-        }
-        if (ImGui::BeginPopup("MenuOpEntity"))
+        if (ImGui::BeginPopupContextItem("MenuOpEntity"))
         {
             //ImGui::TextDisabled("");
-
             if (ImGui::MenuItem("Destroy Entity")) {
                 world->DestroyEntity(SelectedEntity);
             }

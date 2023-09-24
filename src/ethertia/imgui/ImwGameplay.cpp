@@ -16,6 +16,7 @@
 #include <ethertia/Ethertia.h>
 //#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/util/Loader.h>
+#include <ethertia/util/Colors.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/world/Chunk.h>
@@ -133,6 +134,15 @@ static void ShowDebugTextOverlay()
 
 static void DrawViewportDebugs()
 {
+    World* world = Ethertia::GetWorld();
+    if (world)
+    {
+        for (const auto& [eid, box, trans] : world->registry().view<DebugDrawBoundingBox, TransformComponent>().each())
+        {
+
+            Imgui::RenderAABB(box.BoundingBox + trans.position(), box.Color);
+        }
+    }
 
     if (Dbg::dbg_ViewGizmo)
     {
