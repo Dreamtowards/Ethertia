@@ -107,6 +107,16 @@ static void Init()
 
 
 
+    Imw::Editor::AddComponentInspector<TagComponent>([](TagComponent& comp)
+        {
+            ImGui::Text("Inspect TAGGG %i", comp.IsEnabled);
+        });
+
+    //Imw::Editor::AddComponentInspector<TransformComponent>([](auto& comp)
+    //    {
+    //        ImGui::Text("Inspect Added TRansf");
+    //    });
+
 
 //    Material::REGISTRY.dbgPrintEntries("Materials");
 //    Item::REGISTRY.dbgPrintEntries("Items");

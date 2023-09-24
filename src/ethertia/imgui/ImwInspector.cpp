@@ -188,42 +188,54 @@ void Imw::Editor::ShowInspector(bool* _open)
     //    }
     //    ImGui::Separator();
     //}
-    ImGui::Separator();
 
-    {
-        auto& compTag = entity.GetComponent<TagComponent>();
+    
+        auto& tag = entity.GetComponent<TagComponent>();
 
-        ImGui::Checkbox("##IsEnabled", &compTag.IsEnabled);
+        ImGui::Checkbox("##IsEnabled", &tag.IsEnabled);
         Imgui::ItemTooltip("Enabled or Disable");
 
         ImGui::SameLine();
 
-        Imgui::InputText("##Name", compTag.Name, "Entity Name");
+        Imgui::InputText("##Name", tag.Name, "Entity Name");
         Imgui::ItemTooltip("Entity Name, is not unique, it's kinda trivial");
-    }
+    
+
+    ImGui::Separator();
 
     ImGui::BeginChild("ComponentsList", { 0, -ImGui::GetTextLineHeightWithSpacing() });
 
     int numEntityComponents = 0;
-    int numWorldCompTypes = 0;
     
+    // for Pools of ComponentType
     for (const auto& it : entity.reg().storage())
     {
-        entt::id_type c_id = it.first;
-        auto& c_ls = it.second;
-        auto& c_type = c_ls.type();
-        ++numWorldCompTypes;
-
-        if (c_ls.contains(entity))
+        if (auto& c_storage = it.second; c_storage.contains(entity))
         {
-            ImGui::Text(std::format("comp id: {}, comp t: {}", c_id, c_ls.type().name()).c_str());
+            auto& c_type = c_storage.type();
+            auto it = ComponentInspectors.find(c_type.hash());
+            if (it == ComponentInspectors.end())
+            {
+                ImGui::Text("Not Support for Component '%s' Inspect", c_type.name().data());
+            }
+            else
+            {
+                //if (ImGui::CollapsingHeader(std::string(c_type.name()).c_str()))
+                ImGui::SeparatorText(std::string(c_type.name()).c_str());
+                {
+                    void* c_data = c_storage.value(entity);  // get the Component Data
+                    
+                    it->second(c_data);
+                }
+            }
+    
             ++numEntityComponents;
         }
     }
 
     ImGui::EndChild();
 
-    ImGui::TextDisabled(std::format("{} components, entity id: {}. world component types: {}", numEntityComponents, entity.id(), numWorldCompTypes).c_str());
+    ImGui::TextDisabled(std::format("{} components, entity id: {}.", numEntityComponents, entity.id()).c_str());
 
 
     //switch (inspectionType)
@@ -483,12 +495,12 @@ void Imw::Editor::ShowHierarchy(bool* _open)
 
     ImGui::BeginChild("entitylist", {0, -ImGui::GetTextLineHeightWithSpacing()});
 
-    if (ImGui::BeginTable("table", 3, 
+    if (ImGui::BeginTable("table", 2, 
         ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_SizingStretchProp, {}))
     {
-        ImGui::TableSetupColumn("##0", ImGuiTableColumnFlags_WidthFixed, 16);
-        ImGui::TableSetupColumn("##Name", ImGuiTableColumnFlags_WidthStretch, 200);
-        ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthFixed, 80);
+        //ImGui::TableSetupColumn("##0", ImGuiTableColumnFlags_WidthFixed, 16);
+        //ImGui::TableSetupColumn("##Name", ImGuiTableColumnFlags_WidthStretch, 200);
+        //ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthFixed, 80);
         //ImGui::TableHeadersRow();
 
         world->registry().each([&](entt::entity eid) {
@@ -500,19 +512,6 @@ void Imw::Editor::ShowHierarchy(bool* _open)
             ImGui::TableNextRow();
 
             ImGui::TableNextColumn();
-            if (!tag.IsEnabled) 
-            {
-                ImGui::Text("X");
-                if (ImGui::IsItemClicked()) {
-                    tag.IsEnabled = !tag.IsEnabled;
-                }
-            }
-            else if (ImGui::IsItemHovered())
-            {
-                ImGui::TextDisabled("X");
-            }
-
-            ImGui::TableNextColumn();
 
             if (ImGui::Selectable("##sel", SelectedEntity == entity, ImGuiSelectableFlags_SpanAllColumns))
             {
@@ -520,13 +519,16 @@ void Imw::Editor::ShowHierarchy(bool* _open)
             }
             Imgui::ItemTooltip(std::format("entt_id: {}", entity.id()));
 
-
             ImGui::SameLine();
-            ImGui::Text("%s", tag.Name.c_str());
+
+            if (tag.IsEnabled) {
+                ImGui::Text("%s", tag.Name.c_str());
+            } else {
+                ImGui::TextDisabled("%s", tag.Name.c_str());
+            }
 
             ImGui::TableNextColumn();
 
-            
             ImGui::TextDisabled("type");
 
             ImGui::PopID();

@@ -8,9 +8,9 @@
 // name as TagComponent instead of NameComponent, because 'Tag' could means some 'attached information' like IsEnabled
 struct TagComponent
 {
-	std::string Name;
-
 	bool IsEnabled;
+
+	std::string Name;
 
 	TagComponent(const std::string& name, bool enabled = true) : Name(name), IsEnabled(enabled) {}
 };
