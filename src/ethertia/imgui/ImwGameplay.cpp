@@ -2,9 +2,10 @@
 // Created by Dreamtowards on 9/8/2023.
 //
 
+#include "Imgui.h"
+#include "ImwGame.h"
 #include "Imw.h"
 #include <imgui_internal.h>
-#include <ImGuizmo.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,7 +15,6 @@
 #include <stdx/str.h>
 
 #include <ethertia/Ethertia.h>
-//#include <ethertia/entity/player/EntityPlayer.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Colors.h>
 #include <ethertia/render/Window.h>
@@ -141,11 +141,12 @@ static void _ShowGizmo(Entity& entity)
     auto& compTrans = entity.GetComponent<TransformComponent>();
     glm::mat4 mat = compTrans.Transform;
 
-    static ImGuizmo::OPERATION _GizmoOp = ImGuizmo::TRANSLATE;
-    static ImGuizmo::MODE      _GizmoMode = ImGuizmo::WORLD;
-    if (ImGui::IsKeyPressed(ImGuiKey_W)) _GizmoOp = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_E)) _GizmoOp = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R)) _GizmoOp = ImGuizmo::SCALE;
+    auto& guizmoOp = ImwGame::GuizmoOperation;
+    auto& guizmoMode = ImwGame::GuizmoMode;
+
+    if (ImGui::IsKeyPressed(ImGuiKey_W)) guizmoOp = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_E)) guizmoOp = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_R)) guizmoOp = ImGuizmo::SCALE;
 
     //if (ImGui::RadioButton("Translate", _GizmoOp == ImGuizmo::TRANSLATE))    _GizmoOp = ImGuizmo::TRANSLATE;  ImGui::SameLine();
     //if (ImGui::RadioButton("Rotate",    _GizmoOp == ImGuizmo::ROTATE))       _GizmoOp = ImGuizmo::ROTATE;     ImGui::SameLine();
@@ -177,7 +178,7 @@ static void _ShowGizmo(Entity& entity)
     bool manipulated = ImGuizmo::Manipulate(
         glm::value_ptr(Ethertia::getCamera().matView),
         glm::value_ptr(Ethertia::getCamera().matProjection),
-        _GizmoOp, _GizmoMode,
+        guizmoOp, guizmoMode,
         glm::value_ptr(mat),
         nullptr,  // delta matrix?
         nullptr,  // snap
@@ -200,7 +201,6 @@ static void _ShowGizmo(Entity& entity)
 
 static void _ShowViewportWidgets()
 {
-
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
     ImGui::ArrowButton("Menu", ImGuiDir_Down);
 
@@ -421,7 +421,7 @@ static void _MoveCamera()
 
 
 
-void Imw::Gameplay::ShowGame(bool* _open)
+void ImwGame::ShowGame(bool* _open)
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
 
@@ -429,7 +429,7 @@ void Imw::Gameplay::ShowGame(bool* _open)
     static bool s_RequestSetBackToLastDock = false;  // when just cancel full viewport
 
     // WorkArea: menubars
-    if (Imw::Gameplay::GameFullwindow)
+    if (ImwGame::IsFullwindow)
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
@@ -459,9 +459,9 @@ void Imw::Gameplay::ShowGame(bool* _open)
     Imgui::wViewportXYWH = { viewPos.x, viewPos.y, viewSize.x, viewSize.y};
 
     // Viewport Image
-    if (Imw::Gameplay::GameImageView)
+    if (ImwGame::WorldImageView)
     {
-        ImGui::Image(Imgui::mapImage(Imw::Gameplay::GameImageView), viewSize);
+        ImGui::Image(Imgui::mapImage(ImwGame::WorldImageView), viewSize);
     }
     //ImGui::SetCursorPos({0,0});
     //ImGui::InvisibleButton("PreventsGameWindowDragMove", viewSize);
@@ -665,7 +665,7 @@ static uint64_t _ParseSeed(const char* str)
 }
 
 
-void Imw::Gameplay::ShowWorldNew(bool* _open)
+void ImwGame::ShowWorldNew(bool* _open)
 {
     ImGui::Begin("New World", _open);
 
@@ -702,7 +702,7 @@ void Imw::Gameplay::ShowWorldNew(bool* _open)
 
 
 
-void Imw::Gameplay::ShowWorldList(bool* _open)
+void ImwGame::ShowWorldList(bool* _open)
 {
     ImGui::Begin("Singleplayer", _open);
 
@@ -725,7 +725,7 @@ void Imw::Gameplay::ShowWorldList(bool* _open)
     ImGui::End();
 }
 
-void Imw::Gameplay::ShowTitleScreen(bool* _open)
+void ImwGame::ShowTitleScreen(bool* _open)
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
@@ -754,7 +754,7 @@ void Imw::Gameplay::ShowTitleScreen(bool* _open)
 
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Singleplayer", btnSize)) {
-        Imgui::Show(Imw::Gameplay::ShowWorldList);
+        Imgui::Show(ImwGame::ShowWorldList);
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Multiplayer", btnSize)) {

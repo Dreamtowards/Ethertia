@@ -46,7 +46,7 @@ static void _ShowMainMenu_System()
     {
         if (ImGui::MenuItem("New World.."))
         {
-            Imgui::Show(Imw::Gameplay::ShowWorldNew);
+            Imgui::Show(ImwGame::ShowWorldNew);
         }
         if (ImGui::MenuItem("Open World..")) 
         {
@@ -234,17 +234,19 @@ static void _ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("View"))
         {
-            Imgui::MenuItemToggleShow("Game", Imw::Gameplay::ShowGame, "F5");
-            ImGui::MenuItem("Game Fullwindow", "F10", &Imw::Gameplay::GameFullwindow);
-            Imgui::MenuItemToggleShow("TitleScreen", Imw::Gameplay::ShowTitleScreen);
-            Imgui::MenuItemToggleShow("WorldList", Imw::Gameplay::ShowWorldList);
-            Imgui::MenuItemToggleShow("WorldNew", Imw::Gameplay::ShowWorldNew);
-//            Imgui::MenuItemToggleShow("WorldModify", Imw::Gameplay::ShowWorldModify);
+            Imgui::MenuItemToggleShow("Game", ImwGame::ShowGame, "F5");
+            ImGui::MenuItem("Game Fullwindow", "F10", &ImwGame::IsFullwindow);
+            Imgui::MenuItemToggleShow("TitleScreen", ImwGame::ShowTitleScreen);
+            Imgui::MenuItemToggleShow("WorldList", ImwGame::ShowWorldList);
+            Imgui::MenuItemToggleShow("WorldNew", ImwGame::ShowWorldNew);
+            Imgui::MenuItemToggleShow("WorldSettings", ImwGame::ShowWorldNew);
+
+            ImGui::Separator();
+            Imgui::MenuItemToggleShow("Hierarchy", ImwInspector::ShowHierarchy);
+            Imgui::MenuItemToggleShow("Inspector", ImwInspector::ShowInspector);
 
             ImGui::Separator();
             Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings, "F8");
-            Imgui::MenuItemToggleShow("Hierarchy", ImwInspector::ShowHierarchy);
-            Imgui::MenuItemToggleShow("Inspector", ImwInspector::ShowInspector);
             Imgui::MenuItemToggleShow("Explorer", Imw::Editor::ShowExplorer);
             Imgui::MenuItemToggleShow("WorldGen", Imw::Editor::ShowWorldGen);
             Imgui::MenuItemToggleShow("ShaderGraph", Imw::Editor::ShowWorldGen);

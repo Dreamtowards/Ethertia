@@ -47,7 +47,7 @@ static void handleKeyPress()
     }
     if (KeyBindings::KEY_FULL_VIEWPORT.isPressed())
     {
-        Imw::Gameplay::GameFullwindow = !Imw::Gameplay::GameFullwindow;
+        ImwGame::IsFullwindow = !ImwGame::IsFullwindow;
     }
     if (KeyBindings::KEY_SCREENSHOT.isPressed())
     {

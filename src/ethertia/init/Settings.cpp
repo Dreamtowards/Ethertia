@@ -45,11 +45,11 @@ void Settings::LoadSettings()
     DrawFuncIds["console"] = Imw::Editor::ShowConsole;
     DrawFuncIds["explorer"] = Imw::Editor::ShowExplorer;
     DrawFuncIds["worldgen"] = Imw::Editor::ShowWorldGen;
-    DrawFuncIds["game"] = Imw::Gameplay::ShowGame;
-    DrawFuncIds["game-titlescreen"] = Imw::Gameplay::ShowTitleScreen;
-    DrawFuncIds["game-worldlist"] = Imw::Gameplay::ShowWorldList;
-    DrawFuncIds["game-worldnew"] = Imw::Gameplay::ShowWorldNew;
-    DrawFuncIds["game-titlescreen"] = Imw::Gameplay::ShowTitleScreen;
+    DrawFuncIds["game"] = ImwGame::ShowGame;
+    DrawFuncIds["game-titlescreen"] = ImwGame::ShowTitleScreen;
+    DrawFuncIds["game-worldlist"] = ImwGame::ShowWorldList;
+    DrawFuncIds["game-worldnew"] = ImwGame::ShowWorldNew;
+    DrawFuncIds["game-titlescreen"] = ImwGame::ShowTitleScreen;
     DrawFuncIds["dbg-imgui-demowindow"] = ImGui::ShowDemoWindow;
 
 

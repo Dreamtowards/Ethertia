@@ -332,17 +332,6 @@ static void _InspTransform(TransformComponent& comp)
 
 
 
-    ImGui::Separator();
-    //ImGui::SeparatorText("Gizmo:");
-    
-    static ImGuizmo::OPERATION gizmoOp   = ImGuizmo::ROTATE;
-    static ImGuizmo::MODE      gizmoMode = ImGuizmo::WORLD;
-    if (ImGui::IsKeyPressed(ImGuiKey_W)) gizmoOp = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_E)) gizmoOp = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R)) gizmoOp = ImGuizmo::SCALE;
-    
-    
-    
     
     // need draw in ShowGame window.
     //bool manipulated = ImGuizmo::Manipulate(

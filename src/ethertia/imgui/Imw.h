@@ -10,6 +10,8 @@
 
 #include <ethertia/world/Entity.h>
 
+#include "ImwGame.h"
+
 class Imw
 {
 public:
@@ -55,21 +57,8 @@ public:
 
     struct Gameplay
     {
-        inline static bool GameFullwindow = false;
-
-        inline static VkImageView GameImageView = nullptr;
-
-        static void ShowGame(bool* _open);
-
 
         // ImwGameplay.cpp
-        static void ShowWorldNew(bool* _open);
-
-        static void ShowWorldList(bool* _open);
-
-        static void ShowWorldModify(bool* _open);
-
-        static void ShowTitleScreen(bool* _open);
     };
 
 

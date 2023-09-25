@@ -40,7 +40,7 @@ class KeyBindings
 public:
     inline static KeyBinding
         KEY_ESC             {ImGuiKey_Escape,       "Pause/Resume"},
-        KEY_FULL_VIEWPORT   {ImGuiKey_GraveAccent,  "Full Viewport"},
+        KEY_FULL_VIEWPORT   {ImGuiKey_F10,          "Full Viewport"},
         KEY_SCREENSHOT      {ImGuiKey_F2,           "Screenshot"},
         KEY_DEBUG_INFO      {ImGuiKey_F3,           "Debug info"},
         KEY_FULLSCREEN      {ImGuiKey_F11,          "Fullscreen"},
