@@ -3,8 +3,8 @@
 //
 
 #include "Imw.h"
-#include <imguizmo/ImGuizmo.h>
 #include <imgui_internal.h>
+#include <ImGuizmo.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -21,6 +21,7 @@
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/world/Chunk.h>
 
+#include <ethertia/imgui/ImwInspector.h>
 
 #pragma region Game Viewport Debug
 
@@ -310,6 +311,10 @@ static void _MoveCamera()
 }
 
 
+
+
+
+
 void Imw::Gameplay::ShowGame(bool* _open)
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
@@ -324,7 +329,7 @@ void Imw::Gameplay::ShowGame(bool* _open)
         ImGui::SetNextWindowPos(viewport->Pos);
         ImGui::SetNextWindowSize(viewport->Size);
 
-        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;  // ImGuiWindowFlags_NoDocking
+        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize;  // ImGuiWindowFlags_NoDocking
         s_RequestSetBackToLastDock = true;
     } else if (s_RequestSetBackToLastDock) {
         s_RequestSetBackToLastDock = false;
@@ -333,34 +338,70 @@ void Imw::Gameplay::ShowGame(bool* _open)
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-    ImGui::Begin("Viewport", _open, windowFlags);
+    ImGui::Begin("World Viewport", _open, windowFlags);
     ImGui::PopStyleVar(2);
+
 
     if (ImGui::GetWindowDockID()) {
         s_ViewportLastDockId = ImGui::GetWindowDockID();
     }
 
-    ImVec2 size = Imgui::GetWindowContentSize();
-    ImVec2 pos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
-    Imgui::wViewportXYWH = {pos.x, pos.y, size.x, size.y};
+    ImVec2 viewSize = Imgui::GetWindowContentSize();
+    ImVec2 viewPos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
+    Imgui::wViewportXYWH = { viewPos.x, viewPos.y, viewSize.x, viewSize.y};
 
-    // Viewport Texture
+    // Viewport Image
     if (Imw::Gameplay::GameImageView)
     {
-        ImGui::Image(Imgui::mapImage(Imw::Gameplay::GameImageView), size);
+        ImGui::Image(Imgui::mapImage(Imw::Gameplay::GameImageView), viewSize);
     }
-    ImGui::SetCursorPos({0,0});
-    ImGui::InvisibleButton("PreventsGameWindowMove", size);
+    //ImGui::SetCursorPos({0,0});
+    //ImGui::InvisibleButton("PreventsGameWindowDragMove", viewSize);
 
-    ImGuizmo::BeginFrame();
-    ImGuizmo::SetOrthographic(false);
+
+
     ImGuizmo::SetDrawlist();
-    auto& vp = Ethertia::getViewport();
-    ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
 
+
+    Entity SelectedEntity = ImwInspector::SelectedEntity;
 
 
     DrawViewportDebugs();
+
+
+    if (SelectedEntity)
+    {
+        auto& compTrans = SelectedEntity.GetComponent<TransformComponent>();
+        glm::mat4 mat = compTrans.Transform;
+
+        static ImGuizmo::OPERATION _GizmoOp = ImGuizmo::TRANSLATE;
+        static ImGuizmo::MODE      _GizmoMode = ImGuizmo::WORLD;
+        if (ImGui::IsKeyPressed(ImGuiKey_W)) _GizmoOp = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_E)) _GizmoOp = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_R)) _GizmoOp = ImGuizmo::SCALE;
+
+        bool manipulated = ImGuizmo::Manipulate(
+            glm::value_ptr(Ethertia::getCamera().matView),
+            glm::value_ptr(Ethertia::getCamera().matProjection),
+            _GizmoOp, _GizmoMode,
+            glm::value_ptr(mat),
+            nullptr,  // delta mat?
+            nullptr,  // snap
+            /*_OpBound ? bounds : */nullptr,  // bound
+            /*_OpBound ? boundsSnap : */nullptr);  // boundSnap
+
+        if (manipulated || ImGuizmo::IsUsing())
+        {
+            //Mth::decomposeTransform(matModel, pos, rot, scl);
+
+            compTrans.Transform = mat;
+        }
+    }
+
+
+
+
+
 
     if (ImGui::IsWindowHovered() || ImGui::IsWindowFocused())
     {
@@ -421,7 +462,8 @@ void Imw::Gameplay::ShowGame(bool* _open)
     //    }
     //}
 
-    const ImVec2 vpCenter = {vp.x + vp.width/2, vp.y + vp.height/2};
+    //auto& vp = Ethertia::getViewport();
+    const ImVec2 vpCenter = {viewPos.x + viewSize.x/2, viewPos.y + viewSize.y/2};
 
     // Crosshair
     if (!Dbg::dbg_ViewBasis)

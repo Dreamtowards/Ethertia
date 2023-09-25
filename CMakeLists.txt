@@ -73,6 +73,9 @@ include_directories(lib)
 
 include_directories(lib/glfw-3.3.8/include)
 include_directories(lib/imgui-docking)
+include_directories(lib/imguizmo-1.83)
+include_directories(lib/imgui-imnodes-0.5)
+include_directories(lib/imgui-knobs-0.21.2)
 
 include_directories(lib/physx-5.2.1/include)
 include_directories(lib/fastnoise2-0.10.0a/include)
@@ -112,9 +115,9 @@ add_executable(Ethertia
         lib/imgui-docking/backends/imgui_impl_glfw.cpp
         lib/imgui-docking/backends/imgui_impl_vulkan.cpp
 
-        lib/imguizmo/ImGuizmo.cpp
-        lib/imgui-knobs/imgui-knobs.cpp
-        lib/imgui-imnodes/imnodes.cpp
+        lib/imguizmo-1.83/ImGuizmo.cpp
+        lib/imgui-knobs-0.21.2/imgui-knobs.cpp
+        lib/imgui-imnodes-0.5/imnodes.cpp
 
         src/ethertia/imgui/Imgui.cpp
         src/ethertia/imgui/Imw.cpp

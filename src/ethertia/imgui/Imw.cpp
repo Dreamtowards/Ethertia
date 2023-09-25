@@ -5,10 +5,10 @@
 #include "Imw.h"
 
 #include <ethertia/imgui/Imgui.h>
-#include <imgui-knobs/imgui-knobs.h>
+#include <imgui-knobs.h>
 #include <imgui_internal.h>
 
-
+#include <ethertia/imgui/ImwInspector.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/DebugStat.h>
@@ -95,7 +95,7 @@ static void _ShowMainMenu_System()
     bool worldvalid = Ethertia::GetWorld() != nullptr;
     if (ImGui::MenuItem("Edit World..", nullptr, false, worldvalid))
     {
-        Imw::Editor::SetInspectionObject(Ethertia::GetWorld(), Imw::Editor::eWorld);
+        // Imgui::Show(ImwInspector::ShowWorldSettings);
     }
     if (ImGui::MenuItem("Save World", nullptr, false, worldvalid)) {}
 
@@ -113,7 +113,7 @@ static void _ShowMainMenu_System()
     if (ImGui::MenuItem("Mods", "0 mods loaded")) {
         Imw::Settings::CurrentPanel = Imw::Settings::Panel::Mods;
     }
-    if (ImGui::MenuItem("Resource Packs")) {
+    if (ImGui::MenuItem("Assets")) {
         Imw::Settings::CurrentPanel = Imw::Settings::Panel::ResourcePacks;
     }
     if (ImGui::MenuItem("Controls")) {
@@ -142,16 +142,6 @@ static void _ShowMainMenuBar()
             _ShowMainMenu_System();
             ImGui::EndMenu();
         }
-//        if (ImGui::BeginMenu("Edit"))
-//        {
-//            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-//            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-//            ImGui::Separator();
-//            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-//            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-//            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-//            ImGui::EndMenu();
-//        }
         if (ImGui::BeginMenu("World"))
         {
 
@@ -240,13 +230,6 @@ static void _ShowMainMenuBar()
             ImGuiKnobs::Knob("Test2", &knobVal, -100, 100, 0.1f, "%.1fdB", ImGuiKnobVariant_Tick);
 
 
-//    if (ImGui::Button("Click Sound")) {
-//        Log::info("PlaySoundClick");
-//        Sounds::AS_GUI->UnqueueAllBuffers();
-//        Sounds::AS_GUI->QueueBuffer(Sounds::GUI_CLICK->m_BufferId);
-//        Sounds::AS_GUI->play();
-//    }
-
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View"))
@@ -260,8 +243,8 @@ static void _ShowMainMenuBar()
 
             ImGui::Separator();
             Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings, "F8");
-            Imgui::MenuItemToggleShow("Hierarchy", Imw::Editor::ShowHierarchy, "F9");
-            Imgui::MenuItemToggleShow("Inspector", Imw::Editor::ShowInspector, "F12");
+            Imgui::MenuItemToggleShow("Hierarchy", ImwInspector::ShowHierarchy);
+            Imgui::MenuItemToggleShow("Inspector", ImwInspector::ShowInspector);
             Imgui::MenuItemToggleShow("Explorer", Imw::Editor::ShowExplorer);
             Imgui::MenuItemToggleShow("WorldGen", Imw::Editor::ShowWorldGen);
             Imgui::MenuItemToggleShow("ShaderGraph", Imw::Editor::ShowWorldGen);
@@ -620,4 +603,74 @@ void Imgui::RenderAABB(const AABB& aabb, glm::vec4 c)
 {
     Imgui::RenderAABB(aabb.min, aabb.max, ImGui::GetColorU32({ c.x, c.y, c.z, c.w }));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+#include <imnodes.h>
+
+
+void Imw::Editor::ShowWorldGen(bool* _open)
+{
+    ImGui::Begin("WorldGen", _open);
+
+    // id of Attrib/Pin
+    static std::vector<std::pair<int, int>> g_Links;
+
+    ImNodes::BeginNodeEditor();
+
+    for (int i = 0; i < 4; ++i) {
+        ImNodes::BeginNode(i);
+
+        ImNodes::BeginNodeTitleBar();
+        ImGui::Text("Title");
+        ImNodes::EndNodeTitleBar();
+
+        ImNodes::BeginInputAttribute(i * 5 + 1);
+
+        ImGui::Text("Input3");
+
+        ImNodes::EndInputAttribute();
+
+        ImNodes::BeginOutputAttribute(i * 5 + 2, ImNodesPinShape_Triangle);
+        static bool bl;
+        ImGui::Checkbox("SthCheck", &bl);
+        ImNodes::EndOutputAttribute();
+
+        ImNodes::BeginStaticAttribute(i * 5 + 3);
+        ImGui::Text("Static");
+        ImNodes::EndStaticAttribute();
+
+        ImNodes::EndNode();
+    }
+
+    {
+        int i = 0;
+        for (auto& lk : g_Links) {
+            ImNodes::Link(++i, lk.first, lk.second);
+        }
+    }
+    ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_BottomLeft);  // call before ImNodes::EndNodeEditor();
+    ImNodes::EndNodeEditor();
+
+    {
+        int attr_beg, attr_end;
+        if (ImNodes::IsLinkCreated(&attr_beg, &attr_end)) {  // call after ImNodes::EndNodeEditor();
+            g_Links.emplace_back(attr_beg, attr_end);
+        }
+    }
+
+
+    ImGui::End();
+}
+
+
 

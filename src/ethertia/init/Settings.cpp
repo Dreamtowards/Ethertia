@@ -19,6 +19,7 @@
 #include <ethertia/render/Window.h>
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
+#include <ethertia/imgui/ImwInspector.h>
 //#include <ethertia/world/gen/NoiseGen.h>
 
 
@@ -37,8 +38,8 @@ void Settings::LoadSettings()
         throw std::runtime_error(std::format("default assets directory not found. make sure you are in valid working directory. (current dir: {})", std::filesystem::current_path().string()));
 
     DrawFuncIds["settings"] = Imw::Settings::ShowSettings;
-    DrawFuncIds["inspector"] = Imw::Editor::ShowInspector;
-    DrawFuncIds["hierarchy"] = Imw::Editor::ShowHierarchy;
+    DrawFuncIds["inspector"] = ImwInspector::ShowInspector;
+    DrawFuncIds["hierarchy"] = ImwInspector::ShowHierarchy;
     DrawFuncIds["profiler"] = Imw::Editor::ShowProfiler;
     DrawFuncIds["toolbar"] = Imw::Editor::ShowToolbar;
     DrawFuncIds["console"] = Imw::Editor::ShowConsole;

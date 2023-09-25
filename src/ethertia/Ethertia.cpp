@@ -16,6 +16,7 @@
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/mod/ModLoader.h>
+#include <ethertia/imgui/ImwInspector.h>  // tmp
 //#include <ethertia/item/recipe/Recipes.h>
 //#include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 //#include <ethertia/render/chunk/proc/ChunkGenProc.h>
@@ -82,6 +83,7 @@ static void Init()
     // AudioEngine::init();
     NetworkSystem::init();
 
+    ImwInspector::InitComponentInspectors();
 
     // Materials & Items
     MaterialMeshes::Load();
@@ -105,29 +107,6 @@ static void Init()
     Ethertia::getScheduler().m_ThreadId = std::this_thread::get_id();
     Controls::initConsoleThread();
 
-
-    Imw::Editor::AddComponentInspector<TransformComponent>([](TransformComponent& comp)
-        {
-            ImGui::DragFloat3("Position", &comp.position().x);
-            ImGui::DragFloat3("Rotation", &comp.position().x);
-            ImGui::DragFloat3("Scale", &comp.position().x);
-
-            ImGui::RadioButton("World", true);
-            ImGui::SameLine();
-            ImGui::RadioButton("Local", false);
-        });
-    Imw::Editor::AddComponentInspector<uint16_t>([](auto& comp)
-        {
-            ImGui::Text("Inspect Int %i", comp);
-        });
-
-
-    Imw::Editor::AddComponentInspector<DebugDrawBoundingBox>([](DebugDrawBoundingBox& comp)
-        {
-            ImGui::DragFloat3("Min", &comp.BoundingBox.min.x);
-            ImGui::DragFloat3("Max", &comp.BoundingBox.max.x);
-            ImGui::ColorEdit4("Color", &comp.Color.x);
-        });
 
 //    Material::REGISTRY.dbgPrintEntries("Materials");
 //    Item::REGISTRY.dbgPrintEntries("Items");

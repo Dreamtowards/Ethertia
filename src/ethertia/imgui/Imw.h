@@ -40,42 +40,6 @@ public:
         static void ShowExplorer(bool* _open);
 
 
-        enum InspectionType
-        {
-            eNone,
-            eEntity,
-            eWorld,
-            eCamera,
-            ePipeline
-        };
-
-        inline static void* _InspectionObject = nullptr;
-        inline static InspectionType _InspectionType;
-
-        static void SetInspectionObject(void* inspecting, InspectionType type)
-        {
-            _InspectionObject = inspecting;
-            _InspectionType = type;
-        }
-
-        // ImwInspector.cpp
-        static void ShowInspector(bool* _open);
-
-        inline static std::unordered_map<uint32_t, std::function<void(void*)>> ComponentInspectors;
-
-        template<typename ComponentType>
-        static void AddComponentInspector(const std::function<void(ComponentType&)>& fn)
-        {
-            ComponentInspectors[entt::type_hash<ComponentType>().value()] = [=](void* cp_data) 
-                {
-                    fn(*static_cast<ComponentType*>(cp_data));
-                };
-        }
-
-        inline static Entity SelectedEntity{};
-
-        static void ShowHierarchy(bool* _open);
-
 
         // ImwProfiler.cpp
         static void ShowProfiler(bool* _open);

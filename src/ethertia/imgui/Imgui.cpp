@@ -12,9 +12,9 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
 
-#include <imguizmo/ImGuizmo.h>
-#include <imgui-knobs/imgui-knobs.h>
-#include <imgui-imnodes/imnodes.h>
+#include <ImGuizmo.h>
+#include <imgui-knobs.h>
+#include <imnodes.h>
 
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
@@ -191,6 +191,15 @@ void Imgui::NewFrame()
 
     ImGui::GetMainViewport()->Size /= Imgui::GuiScale;
     ImGui::GetIO().DisplayFramebufferScale *= Imgui::GuiScale;
+
+
+    ImGuizmo::SetOrthographic(false);
+    //ImGuizmo::SetOrthographic(Ethertia::GetCamera().IsOrthographic());
+    ImGuizmo::BeginFrame();
+
+    auto& vp = Ethertia::getViewport();
+    ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
+
 }
 
 
@@ -332,8 +341,8 @@ VkDescriptorSet Imgui::mapImage(VkImageView imageView)
 
 
 // texId: 0=white
-void Imgui::Image(void* texId, ImVec2 size, glm::vec4 color) {
-//    assert(false);
+void Imgui::Image(void* texId, ImVec2 size, glm::vec4 color) 
+{
     if (texId == 0) {
         throw 4;
         //texId = pTexDesc(RenderEngine::TEX_WHITE->imageView);

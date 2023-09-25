@@ -56,7 +56,10 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
   - [vulkan](https://www.vulkan.org/) (Khoronos, AMD, LunarG);   
   - [stb](https://github.com/nothings/stb) (Sean Barret "nothings"; stb_image*, stb_vorbis)  
   - [fastnoise2-0.10.0a](https://github.com/Auburn/FastNoise2) (Jordan Peck "Auburn")  
-  - [imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (ocornut; imgui-imnodes, ImGuizmo, imgui-knobs)  
+  - [imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (ocornut)  
+  - [imnodes-0.5](https://github.com/Nelarius/imnodes) (Johann Muszynski "Nelarius")  
+  - [imguizmo-1.83](https://github.com/CedricGuillemet/ImGuizmo) (Cedric Guillemet)  
+  - [imgui-knobs-0.21.2](https://github.com/DGriffin91/imgui-rs-knobs) (Griffin, Vasiliy Yorkin)  
   - [glm-0.9.9.8](https://github.com/g-truc/glm) (g-truc)  
   - [enet-2.3.6](https://github.com/zpl-c/enet) (Lee Salzman, Dominik Madarász "zpl-zak")  
   - [msgpack-cppack-0.19](https://github.com/mikeloomisgg/cppack) (Mike Loomis, msgpack spec)  
