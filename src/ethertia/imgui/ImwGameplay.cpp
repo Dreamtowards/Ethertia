@@ -25,19 +25,16 @@
 
 #pragma region Game Viewport Debug
 
-static void ShowDebugTextOverlay()
+static void _ShowDebugText()
 {
+    Camera& cam = Ethertia::getCamera();
     World* world = Ethertia::GetWorld();
     float dt = Ethertia::getDelta();
-    //EntityPlayer* player = Ethertia::getPlayer();
-    //btRigidBody* playerRb = player->m_Rigidbody;
-    //float meterPerSec = Mth::floor_dn(playerRb->getLinearVelocity().length(), 3);
-    //
+
     //std::string cellInfo = "nil";
     //std::string chunkInfo = "nil";
     //std::string worldInfo = "nil";
     //HitCursor& cur = Ethertia::getHitCursor();
-    //
     //
     //if (world)
     //{
@@ -62,51 +59,58 @@ static void ShowDebugTextOverlay()
     //    }
     //}
     //
-    //
-    //std::string str = std::format(
-    //    "CamPos: {}, len: {}, spd {}mps {}kph; ground: {}, CollPts {}.\n"
-    //    "avg-fps: {}. dt: {}, {}fps\n"
-    //    "NumEntityRendered: {}/{}, LoadedChunks: {}\n"
-    //    "\n"
-    //    "World: {}\n"
-    //    "HitChunk: {}\n"
-    //    "HitCell: {}\n"
-    //    "\n"
-    //    "task {}, async {}\n"
-    //    "ChunkProvide: {}\n"
-    //    "ChunkMeshing: {}\n"
-    //    "ChunkSaving:  {}\n"
-    //    "\n"
-    //    "OS: {}, {} concurrency, {} endian\n"
-    //    "CPU: {}\n"
-    //    "GPU: {}"
-    //    ,
-    //    glm::to_string(Ethertia::getCamera().position), Ethertia::getCamera().len,
-    //    meterPerSec, meterPerSec * 3.6f,
-    //    player->m_OnGround, player->m_NumContactPoints,
-    //
-    //    Dbg::dbg_FPS, dt, Mth::floor(1.0f / dt),
-    //
-    //    Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
-    //
-    //    worldInfo,
-    //    chunkInfo,
-    //    cellInfo,
-    //
-    //    Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
-    //    DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
-    //    DebugStat::dbg_NumChunksMeshInvalid,
-    //    DebugStat::dbg_ChunksSaving,
-    //
-    //    Loader::os_arch(),
-    //    std::thread::hardware_concurrency(),
-    //    std::endian::native == std::endian::big ? "big" : "little",
-    //    Loader::cpuid(),
-    //    (const char*)vkx::ctx().PhysDeviceProperties.deviceName
-    //);
+    static glm::vec3 CamPosLast;
+    glm::vec3 CamPosCurr = cam.matView[3];
+    glm::vec3 CamPosMoved = CamPosCurr - CamPosLast;
+    CamPosLast = CamPosCurr;
+    float CamPosMoveSpeedMPS = glm::length(CamPosMoved);
+    
 
-    //auto& vp = Ethertia::getViewport();
-    //ImGui::RenderText({ vp.x, vp.y + 16 }, str.c_str());
+    // kph = mps*3.6
+    std::string str = std::format(
+        "cam pos: {}, spd: {}mps {}kph\n" 
+        //"plr ground: {}, collide pts: {}\n"
+        "avg_fps: {}. dt: {}, {}fps\n"
+        //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
+        "\n"
+        //"World: {}\n"
+        //"HitChunk: {}\n"
+        //"HitCell: {}\n"
+        //"\n"
+        //"task {}, async {}\n"
+        //"ChunkProvide: {}\n"
+        //"ChunkMeshing: {}\n"
+        //"ChunkSaving:  {}\n"
+        "\n"
+        "OS: {}, {} concurrency, {} endian\n"
+        "CPU: {}\n"
+        "GPU: {}\n"
+        "RAM: x GB / x GB"
+        ,
+        glm::to_string(Ethertia::getCamera().position).substr(4),
+        CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
+        //player->m_OnGround, player->m_NumContactPoints,
+    
+        Dbg::dbg_FPS, dt, Mth::floor(1.0f / dt),
+    
+        //Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
+    
+        //worldInfo,
+        //chunkInfo,
+        //cellInfo,
+        //
+        //Ethertia::getScheduler().numTasks(), Ethertia::getAsyncScheduler().numTasks(),
+        //DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
+        //DebugStat::dbg_NumChunksMeshInvalid,
+        //DebugStat::dbg_ChunksSaving,
+    
+        Loader::os_arch(), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little",
+        Loader::cpuid(),
+        (const char*)vkx::ctx().PhysDeviceProperties.deviceName
+    );
+
+    ImGui::SetCursorPos({ 0, 64 });
+    ImGui::Text(str.c_str());
     // 
     // 
     //    ImGui::SetNextWindowPos({vp.x+0, vp.y+16});
@@ -132,9 +136,108 @@ static void ShowDebugTextOverlay()
     //    ImGui::PopStyleVar(2);
 }
 
-
-static void DrawViewportDebugs()
+static void _ShowGizmo(Entity& entity)
 {
+    auto& compTrans = entity.GetComponent<TransformComponent>();
+    glm::mat4 mat = compTrans.Transform;
+
+    static ImGuizmo::OPERATION _GizmoOp = ImGuizmo::TRANSLATE;
+    static ImGuizmo::MODE      _GizmoMode = ImGuizmo::WORLD;
+    if (ImGui::IsKeyPressed(ImGuiKey_W)) _GizmoOp = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_E)) _GizmoOp = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(ImGuiKey_R)) _GizmoOp = ImGuizmo::SCALE;
+
+    //if (ImGui::RadioButton("Translate", _GizmoOp == ImGuizmo::TRANSLATE))    _GizmoOp = ImGuizmo::TRANSLATE;  ImGui::SameLine();
+    //if (ImGui::RadioButton("Rotate",    _GizmoOp == ImGuizmo::ROTATE))       _GizmoOp = ImGuizmo::ROTATE;     ImGui::SameLine();
+    //if (ImGui::RadioButton("Scale",     _GizmoOp == ImGuizmo::SCALE))        _GizmoOp = ImGuizmo::SCALE;
+
+    //if (gizmoOp != ImGuizmo::SCALE)
+    //{
+    //    if (ImGui::RadioButton("World", _GizmoMode == ImGuizmo::WORLD)) _GizmoMode = ImGuizmo::WORLD; ImGui::SameLine();
+    //    if (ImGui::RadioButton("Local", _GizmoMode == ImGuizmo::LOCAL)) _GizmoMode = ImGuizmo::LOCAL;
+    //}
+    //static bool _OpSnap = false;
+    //static glm::vec3 _SnapValue{ 0.5 };
+    //bool snap = _OpSnap || ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_LeftSuper);
+    //if (ImGui::Checkbox("Snap", &snap)) {
+    //    _OpSnap = snap;
+    //}
+    //if (snap) {
+    //    ImGui::DragFloat3("Snap value", &_SnapValue[0], 0.5f);
+    //}
+    //
+    //static bool _OpBound = false;
+    //static glm::vec3 _BoundSnapValue{ 0.5f };
+    //ImGui::Checkbox("Bound", &_OpBound);
+    //if (_OpBound) {
+    //    ImGui::DragFloat3("Bound Snap value", &_BoundSnapValue[0], 0.5f);
+    //}
+    //static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+
+    bool manipulated = ImGuizmo::Manipulate(
+        glm::value_ptr(Ethertia::getCamera().matView),
+        glm::value_ptr(Ethertia::getCamera().matProjection),
+        _GizmoOp, _GizmoMode,
+        glm::value_ptr(mat),
+        nullptr,  // delta matrix?
+        nullptr,  // snap
+        /*_OpBound ? bounds : */nullptr,    // bound
+        /*_OpBound ? snap : */nullptr);     // boundSnap
+
+    if (manipulated)  // || ImGuizmo::IsUsing()
+    {
+        compTrans.Transform = mat;
+    }
+
+    //ImGuizmo::DrawCubes(
+    //    glm::value_ptr(Ethertia::getCamera().matView),
+    //    glm::value_ptr(Ethertia::getCamera().matProjection), 
+    //    glm::value_ptr(mat), 1);
+}
+
+
+
+
+static void _ShowViewportWidgets()
+{
+
+    ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
+    ImGui::ArrowButton("Menu", ImGuiDir_Down);
+
+    if (ImGui::BeginPopupContextItem(0, ImGuiPopupFlags_MouseButtonLeft))
+    {
+        static float Snap = 0;
+
+        float MenuMaxX = ImGui::GetContentRegionAvail().x;
+        int _SnapInputWidth = 100;
+        ImGui::PushItemWidth(_SnapInputWidth);
+        ImGui::RadioButton("Translate", true);  ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapPos", &Snap);
+        ImGui::RadioButton("Rotate", true);     ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapRot", &Snap);
+        ImGui::RadioButton("Scale", true);      ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapScl", &Snap);
+        ImGui::PopItemWidth();
+
+        ImGui::Spacing();
+        ImGui::RadioButton("World", true);      ImGui::SameLine();  ImGui::RadioButton("Local", true);
+
+        ImGui::Separator();
+        ImGui::DragInt("Hint Grids", &Dbg::dbg_WorldHintGrids);
+        ImGui::Checkbox("View Gizmo", &Dbg::dbg_ViewGizmo);
+        ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
+
+        ImGui::Separator();
+        ImGui::Checkbox("Debug Text Info", &Dbg::dbg_TextInfo);
+
+        ImGui::EndPopup();
+    }
+
+    Entity SelectedEntity = ImwInspector::SelectedEntity;
+    if (SelectedEntity)
+    {
+        _ShowGizmo(SelectedEntity);
+    }
+
+
+
     World* world = Ethertia::GetWorld();
     if (world)
     {
@@ -157,8 +260,11 @@ static void DrawViewportDebugs()
     if (Dbg::dbg_WorldHintGrids > 0)
     {
         glm::mat4 iden(1.0f);
-        ImGuizmo::DrawGrid(glm::value_ptr(Ethertia::getCamera().matView), glm::value_ptr(Ethertia::getCamera().matProjection),
-            glm::value_ptr(iden), (float)Dbg::dbg_WorldHintGrids);
+        ImGuizmo::DrawGrid(
+            glm::value_ptr(Ethertia::getCamera().matView),
+            glm::value_ptr(Ethertia::getCamera().matProjection),
+            glm::value_ptr(iden), 
+            (float)Dbg::dbg_WorldHintGrids);
     }
 
     //if (Dbg::dbg_ChunkMeshedCounter || Dbg::dbg_MeshingChunksAABB)
@@ -167,7 +273,7 @@ static void DrawViewportDebugs()
     //}
     if (Dbg::dbg_TextInfo)
     {
-        ShowDebugTextOverlay();
+        _ShowDebugText();
     }
     if (Dbg::dbg_WorldBasis)
     {
@@ -341,6 +447,8 @@ void Imw::Gameplay::ShowGame(bool* _open)
     ImGui::Begin("World Viewport", _open, windowFlags);
     ImGui::PopStyleVar(2);
 
+    // ImGuizmo: Make Draw to Current Window. otherwise the draw will behind the window.
+    ImGuizmo::SetDrawlist();
 
     if (ImGui::GetWindowDockID()) {
         s_ViewportLastDockId = ImGui::GetWindowDockID();
@@ -360,45 +468,9 @@ void Imw::Gameplay::ShowGame(bool* _open)
 
 
 
-    ImGuizmo::SetDrawlist();
 
 
-    Entity SelectedEntity = ImwInspector::SelectedEntity;
-
-
-    DrawViewportDebugs();
-
-
-    if (SelectedEntity)
-    {
-        auto& compTrans = SelectedEntity.GetComponent<TransformComponent>();
-        glm::mat4 mat = compTrans.Transform;
-
-        static ImGuizmo::OPERATION _GizmoOp = ImGuizmo::TRANSLATE;
-        static ImGuizmo::MODE      _GizmoMode = ImGuizmo::WORLD;
-        if (ImGui::IsKeyPressed(ImGuiKey_W)) _GizmoOp = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_E)) _GizmoOp = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGuiKey_R)) _GizmoOp = ImGuizmo::SCALE;
-
-        bool manipulated = ImGuizmo::Manipulate(
-            glm::value_ptr(Ethertia::getCamera().matView),
-            glm::value_ptr(Ethertia::getCamera().matProjection),
-            _GizmoOp, _GizmoMode,
-            glm::value_ptr(mat),
-            nullptr,  // delta mat?
-            nullptr,  // snap
-            /*_OpBound ? bounds : */nullptr,  // bound
-            /*_OpBound ? boundsSnap : */nullptr);  // boundSnap
-
-        if (manipulated || ImGuizmo::IsUsing())
-        {
-            //Mth::decomposeTransform(matModel, pos, rot, scl);
-
-            compTrans.Transform = mat;
-        }
-    }
-
-
+    _ShowViewportWidgets();
 
 
 

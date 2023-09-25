@@ -341,38 +341,10 @@ static void _InspTransform(TransformComponent& comp)
     if (ImGui::IsKeyPressed(ImGuiKey_E)) gizmoOp = ImGuizmo::ROTATE;
     if (ImGui::IsKeyPressed(ImGuiKey_R)) gizmoOp = ImGuizmo::SCALE;
     
-    if (ImGui::RadioButton("Translate", gizmoOp == ImGuizmo::TRANSLATE))    gizmoOp = ImGuizmo::TRANSLATE;  ImGui::SameLine();
-    if (ImGui::RadioButton("Rotate",    gizmoOp == ImGuizmo::ROTATE))       gizmoOp = ImGuizmo::ROTATE;     ImGui::SameLine();
-    if (ImGui::RadioButton("Scale",     gizmoOp == ImGuizmo::SCALE))        gizmoOp = ImGuizmo::SCALE;
     
-    if (gizmoOp != ImGuizmo::SCALE)
-    {
-        if (ImGui::RadioButton("Local", gizmoMode == ImGuizmo::LOCAL)) gizmoMode = ImGuizmo::LOCAL; ImGui::SameLine();
-        if (ImGui::RadioButton("World", gizmoMode == ImGuizmo::WORLD)) gizmoMode = ImGuizmo::WORLD;
-    }
     
-    static bool _OpSnap = false;
-    bool snap = _OpSnap || ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_LeftSuper);
-    if (ImGui::Checkbox("Snap", &snap)) {
-        _OpSnap = snap;
-    }
-
-    static glm::vec3 _SnapValue{ 0.5 };
-    if (snap) {
-        ImGui::DragFloat3("Snap value", &_SnapValue[0], 0.5f);
-    }
     
-    static bool _OpBound = false;
-    ImGui::Checkbox("Bound", &_OpBound);
-    
-    static glm::vec3 _BoundSnapValue{0.5f};
-    if (_OpBound) {
-        ImGui::DragFloat3("Bound Snap value", &_BoundSnapValue[0], 0.5f);
-    }
-        
-    static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
-    static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
-    
+    // need draw in ShowGame window.
     //bool manipulated = ImGuizmo::Manipulate(
     //    glm::value_ptr(Ethertia::getCamera().matView),
     //    glm::value_ptr(Ethertia::getCamera().matProjection),
