@@ -201,6 +201,9 @@ static void _ShowGizmo(Entity& entity)
 
 static void _ShowViewportWidgets()
 {
+    Entity SelectedEntity = ImwInspector::SelectedEntity;
+
+
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
     ImGui::ArrowButton("Menu", ImGuiDir_Down);
 
@@ -208,16 +211,25 @@ static void _ShowViewportWidgets()
     {
         static float Snap = 0;
 
+        if (!SelectedEntity) { ImGui::BeginDisabled(); }
+
+        auto& guizmoOp   = ImwGame::GuizmoOperation;
+        auto& guizmoMode = ImwGame::GuizmoMode;
+
         float MenuMaxX = ImGui::GetContentRegionAvail().x;
         int _SnapInputWidth = 100;
         ImGui::PushItemWidth(_SnapInputWidth);
-        ImGui::RadioButton("Translate", true);  ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapPos", &Snap);
-        ImGui::RadioButton("Rotate", true);     ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapRot", &Snap);
-        ImGui::RadioButton("Scale", true);      ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapScl", &Snap);
+        if (ImGui::RadioButton("Translate", guizmoOp == ImGuizmo::TRANSLATE)) guizmoOp = ImGuizmo::TRANSLATE;   ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapPos", &Snap);
+        if (ImGui::RadioButton("Rotate",    guizmoOp == ImGuizmo::ROTATE))    guizmoOp = ImGuizmo::ROTATE;      ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapRot", &Snap);
+        if (ImGui::RadioButton("Scale",     guizmoOp == ImGuizmo::SCALE))     guizmoOp = ImGuizmo::SCALE;       ImGui::SameLine(MenuMaxX - _SnapInputWidth);  ImGui::DragFloat("##SnapScl", &Snap);
         ImGui::PopItemWidth();
 
         ImGui::Spacing();
-        ImGui::RadioButton("World", true);      ImGui::SameLine();  ImGui::RadioButton("Local", true);
+        if (ImGui::RadioButton("World", guizmoMode == ImGuizmo::WORLD)) guizmoMode = ImGuizmo::WORLD;
+        ImGui::SameLine();  
+        if (ImGui::RadioButton("Local", guizmoMode == ImGuizmo::LOCAL)) guizmoMode = ImGuizmo::LOCAL;
+
+        if (!SelectedEntity) { ImGui::EndDisabled(); }
 
         ImGui::Separator();
         ImGui::DragInt("Hint Grids", &Dbg::dbg_WorldHintGrids);
@@ -230,7 +242,6 @@ static void _ShowViewportWidgets()
         ImGui::EndPopup();
     }
 
-    Entity SelectedEntity = ImwInspector::SelectedEntity;
     if (SelectedEntity)
     {
         _ShowGizmo(SelectedEntity);

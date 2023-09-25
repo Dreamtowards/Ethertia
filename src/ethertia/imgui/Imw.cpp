@@ -235,7 +235,7 @@ static void _ShowMainMenuBar()
         if (ImGui::BeginMenu("View"))
         {
             Imgui::MenuItemToggleShow("Game", ImwGame::ShowGame, "F5");
-            ImGui::MenuItem("Game Fullwindow", "F10", &ImwGame::IsFullwindow);
+            ImGui::MenuItem("Game IsFullwindow", KeyBindings::KEY_FULL_VIEWPORT.keyName(), &ImwGame::IsFullwindow);
             Imgui::MenuItemToggleShow("TitleScreen", ImwGame::ShowTitleScreen);
             Imgui::MenuItemToggleShow("WorldList", ImwGame::ShowWorldList);
             Imgui::MenuItemToggleShow("WorldNew", ImwGame::ShowWorldNew);
@@ -246,7 +246,7 @@ static void _ShowMainMenuBar()
             Imgui::MenuItemToggleShow("Inspector", ImwInspector::ShowInspector);
 
             ImGui::Separator();
-            Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings, "F8");
+            Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings);
             Imgui::MenuItemToggleShow("Explorer", Imw::Editor::ShowExplorer);
             Imgui::MenuItemToggleShow("WorldGen", Imw::Editor::ShowWorldGen);
             Imgui::MenuItemToggleShow("ShaderGraph", Imw::Editor::ShowWorldGen);
@@ -256,7 +256,7 @@ static void _ShowMainMenuBar()
             Imgui::MenuItemToggleShow("Profiler", Imw::Editor::ShowProfiler);
 
             ImGui::Separator();
-            Imgui::MenuItemToggleShow("Debug Info", Imw::Settings::ShowSettings, "F3");
+            Imgui::MenuItemToggleShow("Debug Info", Imw::Settings::ShowSettings, KeyBindings::KEY_DEBUG_INFO.keyName());
             Imgui::MenuItemToggleShow("ImGui::DemoWindow", ImGui::ShowDemoWindow);
             Imgui::MenuItemToggleShow("Imw::Debug::ShowDialogs", Imw::Debug::ShowDialogs);
 
