@@ -23,7 +23,7 @@
 
 #include <ethertia/imgui/ImwInspector.h>
 
-#pragma region Game Viewport Debug
+#pragma region Viewport Ops
 
 static void _ShowDebugText()
 {
@@ -196,9 +196,6 @@ static void _ShowGizmo(Entity& entity)
     //    glm::value_ptr(mat), 1);
 }
 
-
-
-
 static void _ShowViewportWidgets()
 {
     Entity SelectedEntity = ImwInspector::SelectedEntity;
@@ -324,8 +321,6 @@ static void _ShowViewportWidgets()
 
 }
 
-#pragma endregion
-
 
 glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta, float pitchDelta, float len = 0.1f, glm::vec3 moveAbsDelta = {0, 0, 0})
 {
@@ -408,12 +403,12 @@ static void _MoveCamera()
         if (io.KeysDown[ImGuiKey_D]) move.x += dt;
         if (io.KeysDown[ImGuiKey_Q]) move.y -= dt;
         if (io.KeysDown[ImGuiKey_E]) move.y += dt;
-        if (Window::isShiftKeyDown()) moveaa.y -= dt;
+        if (keyCtrlDown) moveaa.y -= dt;
         if (io.KeysDown[ImGuiKey_Space]) moveaa.y += dt;
     }
 
 
-    if (MouseWheel)
+    if (MouseWheel && ImGui::IsWindowHovered())
     {
         // Zoom Z
         move.z += -MouseWheel;
@@ -427,6 +422,8 @@ static void _MoveCamera()
     }
 }
 
+
+#pragma endregion
 
 
 
@@ -455,7 +452,7 @@ void ImwGame::ShowGame(bool* _open)
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-    ImGui::Begin("World Viewport", _open, windowFlags);
+    ImGui::Begin("World", _open, windowFlags);
     ImGui::PopStyleVar(2);
 
     // ImGuizmo: Make Draw to Current Window. otherwise the draw will behind the window.
