@@ -2,6 +2,7 @@
 
 #include "ChunkSystem.h"
 
+#include <ethertia/Ethertia.h>
 
 
 static void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
@@ -22,10 +23,18 @@ static void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
             {
                 glm::vec3 chunkpos = glm::vec3(dx, dy, dz) * 16.0f + viewer_chunkpos;
 
-                if (GetChunk(chunkpos) || m_LoadingChunks.exists())
+                // if (m_LoadingChunks.size() > ChunksLoadingMaxConcurrent) break;
+                if (GetChunk(chunkpos) || m_ChunksLoading.exists())
                     continue;
 
                 std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(m_World, chunkpos);
+
+                auto& threadpool = Ethertia::GetThreadPool();
+
+                threadpool.submit([]()
+                    {
+                        // GenerateChunk(chunk);
+                    });
             }
         }
     }

@@ -2,11 +2,11 @@
 #pragma once
 
 #include <thread>
-
-#include <functional>
 #include <vector>
 #include <queue>
 #include <mutex>
+#include <future>
+#include <functional>
 #include <condition_variable>
 
 namespace stdx
@@ -21,6 +21,30 @@ namespace stdx
 		~thread_pool();
 
 		void submit(const func_t& task);
+
+		
+		template<typename F, typename... Args>
+		auto submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>
+		{
+			auto task = std::make_shared<std::packaged_task<decltype(f(args...))()>>(
+				std::bind(std::forward<F>(f), std::forward<Args>(args)...)
+			);
+
+			submit([]()
+				{
+					(*task)();
+				});
+			//{
+			//	std::lock_guard<std::mutex> _lock(m_TasksLock);
+			//	m_Tasks.emplace([]()
+			//		{
+			//			(*task)();
+			//		});
+			//}
+			//m_TasksNotification.notify_one();
+
+			return task->get_future();
+		}
 
 		size_t num_threads() const { return m_WorkerThreads.size(); }
 		size_t num_tasks() const { return m_Tasks.size(); }

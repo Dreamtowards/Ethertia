@@ -63,7 +63,7 @@ stdx::thread_pool::~thread_pool()
 void stdx::thread_pool::submit(const func_t& func)
 {
 	{
-		std::unique_lock<std::mutex> _lock(m_TasksLock);
+		std::lock_guard<std::mutex> _lock(m_TasksLock);
 
 		m_Tasks.emplace(func);
 	}
