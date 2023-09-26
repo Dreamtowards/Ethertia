@@ -4,7 +4,6 @@
 
 #include <ethertia/Ethertia.h>
 
-
 static void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
 {
     // todo: Recursive Octree Load.
@@ -31,10 +30,15 @@ static void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
 
                 auto& threadpool = Ethertia::GetThreadPool();
 
-                threadpool.submit([]()
-                    {
-                        // GenerateChunk(chunk);
-                    });
+                //auto fut = threadpool.submit([]()
+                //    {
+                //        // GenerateChunk(chunk);
+                //
+                //        return 0;
+                //    });
+                //
+                //fut._Is_ready();
+
             }
         }
     }
