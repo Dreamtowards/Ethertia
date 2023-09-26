@@ -5,11 +5,15 @@
 
 void stdx::thread_pool::_WorkerProc()
 {
+	bool _OnceExecuted = false;
+
 	while (true)
 	{
 		std::function<void()> task;
 		{
 			std::unique_lock<std::mutex> _lock(m_TasksLock);
+			if (_OnceExecuted)
+				--m_NumThreadsWorking;  // should after task(), but put here for less-lock efficiency
 
 			while (m_Tasks.empty())
 			{
@@ -27,10 +31,7 @@ void stdx::thread_pool::_WorkerProc()
 
 		task();
 
-		{
-			std::unique_lock<std::mutex> _lock(m_TasksLock);  // performance issue?
-			--m_NumThreadsWorking;  // del:should after task(), but put here for less-lock efficiency
-		}
+		_OnceExecuted = true;
 	}
 }
 
