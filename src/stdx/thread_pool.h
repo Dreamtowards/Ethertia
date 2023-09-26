@@ -25,17 +25,23 @@ namespace stdx
 
 		enum task_state
 		{
-			eCreated,
-			eRunning,
-			eCompleted,
-			eCancelled,
-			eFaulted
+			created,
+			running,
+			completed,
+			cancelled,
+			faulted
 		};
 
 		template<typename _TResult>
 		class base_task
 		{
-			//_TResult& get();
+		public:
+			_TResult& get()
+			{
+				std::unique_lock<std::mutex> _lock(m_ResultLock);
+				m_ResultNotification.wait(_lock, [this] { return is_completed(); });
+				return m_Result;
+			}
 
 			bool try_get(_TResult& val) const
 			{
@@ -45,18 +51,20 @@ namespace stdx
 				return true;
 			}
 
-
 			task_state state() const { return m_State; }
 
-			bool is_completed() const { return state() == task_state::eCancelled; }
+			bool is_completed() const { return m_State == task_state::completed; }
 
-			[[nodiscard]] bool cancel();
+			// [[nodiscard]] bool cancel();
 
 		private:
 
 			_TResult m_Result;
 
-			task_state m_State = task_state::eCreated;
+			task_state m_State = task_state::created;
+
+			std::mutex m_ResultLock;
+			std::condition_variable m_ResultNotification;
 
 			friend class stdx::thread_pool;
 		};
@@ -86,7 +94,7 @@ namespace stdx
 					{
 						try
 						{
-							task_->m_State = task_state::eRunning;
+							task_->m_State = task_state::running;
 							if constexpr(std::is_void<decltype(f(args...))>::value)
 							{
 								func();
@@ -95,11 +103,12 @@ namespace stdx
 							{
 								task_->m_Result = func();
 							}
-							task_->m_State = task_state::eCompleted;
+							task_->m_State = task_state::completed;
+							task_->m_ResultNotification.notify_all();
 						}
 						catch (...)
 						{
-							task_->m_State = task_state::eFaulted;
+							task_->m_State = task_state::faulted;
 						}
 					});
 			}
@@ -107,6 +116,12 @@ namespace stdx
 
 			return task_;
 		}
+
+		//template<typename T>
+		//bool cancel(std::shared_ptr<task<T>> task)
+		//{
+		//	std::lock_guard<std::mutex> _lock(m_TasksLock);
+		//}
 
 		size_t num_threads() const { return m_WorkerThreads.size(); }
 		size_t num_tasks() const { return m_Tasks.size(); }

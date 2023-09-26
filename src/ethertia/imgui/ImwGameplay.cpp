@@ -432,7 +432,6 @@ static void _MoveCamera()
 
 
 
-
 void ImwGame::ShowGame(bool* _open)
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
@@ -485,7 +484,11 @@ void ImwGame::ShowGame(bool* _open)
                 std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         
                 Log::info("TaskDone");
+
+                return 100;
             });
+
+        Log::info("Ret: {}", fu->get());
 
     }
 
