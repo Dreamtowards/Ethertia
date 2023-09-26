@@ -72,7 +72,7 @@ static void _ShowDebugText()
         "cam pos: {}, spd: {}mps {}kph\n" 
         //"plr ground: {}, collide pts: {}\n"
         "avg_fps: {}. dt: {}, {}fps\n"
-        "thread_pool: threads: {}, tasks: {}\n"
+        "threadpool: threads: {} / {}, tasks: {}\n"
         //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
         "\n"
         //"World: {}\n"
@@ -95,7 +95,7 @@ static void _ShowDebugText()
     
         Dbg::dbg_FPS, dt, std::floor(1.0f / dt),
 
-        thread_pool.num_threads(), thread_pool.num_tasks(),
+        thread_pool.num_working_threads(), thread_pool.num_threads(), thread_pool.num_tasks(),
     
         //Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
     
@@ -478,8 +478,15 @@ void ImwGame::ShowGame(bool* _open)
     //ImGui::SetCursorPos({0,0});
     //ImGui::InvisibleButton("PreventsGameWindowDragMove", viewSize);
 
+    if (ImGui::Button("AddTask"))
+    {
+        auto fu = Ethertia::GetThreadPool().submit([]() 
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
-
+                Log::info("TaskDone");
+            });
+    }
 
 
     _ShowViewportWidgets();

@@ -14,15 +14,11 @@ namespace stdx
 	class thread_pool
 	{
 	public:
-		using func_t = std::function<void()>;
 		
 		explicit thread_pool(uint32_t _NumWorkers = std::thread::hardware_concurrency());
 
 		~thread_pool();
 
-		void submit(const func_t& task);
-
-		
 		template<typename F, typename... Args>
 		auto submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>
 		{
@@ -30,18 +26,14 @@ namespace stdx
 				std::bind(std::forward<F>(f), std::forward<Args>(args)...)
 			);
 
-			submit([]()
-				{
-					(*task)();
-				});
-			//{
-			//	std::lock_guard<std::mutex> _lock(m_TasksLock);
-			//	m_Tasks.emplace([]()
-			//		{
-			//			(*task)();
-			//		});
-			//}
-			//m_TasksNotification.notify_one();
+			{
+				std::lock_guard<std::mutex> _lock(m_TasksLock);
+				m_Tasks.emplace([task]()
+					{
+						(*task)();
+					});
+			}
+			m_TasksNotification.notify_one();
 
 			return task->get_future();
 		}
@@ -49,11 +41,14 @@ namespace stdx
 		size_t num_threads() const { return m_WorkerThreads.size(); }
 		size_t num_tasks() const { return m_Tasks.size(); }
 
+		size_t num_working_threads() const { return m_NumThreadsWorking; }
+
 	private:
 
 		std::vector<std::thread> m_WorkerThreads;
+		int m_NumThreadsWorking = 0;  // num threads that actual processing task.
 
-		std::queue<func_t> m_Tasks;
+		std::queue<std::function<void()>> m_Tasks;
 		std::mutex m_TasksLock;
 		std::condition_variable m_TasksNotification;
 

@@ -7,28 +7,33 @@ void stdx::thread_pool::_WorkerProc()
 {
 	while (true)
 	{
-		func_t task;
+		std::function<void()> task;
 		{
 			std::unique_lock<std::mutex> _lock(m_TasksLock);
 
 			while (m_Tasks.empty())
 			{
 				if (m_Stop) 
-					return;  // Only return when queue is empty and should_stop
+					return;  // only return when queue is empty and should_stop
 				
-                // Wait until notified
+                // wait until notified
 				m_TasksNotification.wait(_lock);
 			}
 
 			task = std::move(m_Tasks.front());
 			m_Tasks.pop();
+			++m_NumThreadsWorking;
 		}
 
 		task();
+
+		{
+			std::unique_lock<std::mutex> _lock(m_TasksLock);  // performance issue?
+			--m_NumThreadsWorking;  // del:should after task(), but put here for less-lock efficiency
+		}
 	}
 }
 
-#include <iostream>
 stdx::thread_pool::thread_pool(uint32_t _NumWorkers)
 {
 	m_WorkerThreads.reserve(_NumWorkers);
@@ -37,17 +42,13 @@ stdx::thread_pool::thread_pool(uint32_t _NumWorkers)
 	{
 		m_WorkerThreads.emplace_back(&stdx::thread_pool::_WorkerProc, this);
 	}
-
-	std::cout << "ThreadPool Init " << _NumWorkers << "\n";
+	// std::cout << "ThreadPool Init " << _NumWorkers << "\n";
 }
 
 
 stdx::thread_pool::~thread_pool()
 {
-	{
-		std::lock_guard<std::mutex> lock(m_TasksLock);
-		m_Stop = true;
-	}
+	m_Stop = true;
 
 	m_TasksNotification.notify_all();
 
@@ -59,14 +60,3 @@ stdx::thread_pool::~thread_pool()
 		}
 	}
 }
-
-void stdx::thread_pool::submit(const func_t& func)
-{
-	{
-		std::lock_guard<std::mutex> _lock(m_TasksLock);
-
-		m_Tasks.emplace(func);
-	}
-	m_TasksNotification.notify_one();
-}
-
