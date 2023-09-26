@@ -4,7 +4,7 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 
-#include <unordered_map>
+#include <ethertia/world/chunk/ChunkSystem.h>
 
 #include "EntityComponents.h"
 
@@ -17,6 +17,10 @@ public:
 	float InhabitedTime = 0;
 
 	std::string Name;
+
+	// =t*24hr
+	float DayTime = 0;
+	float DayTimeLength = 60*6;  // in seconds
 
 };
 
@@ -31,18 +35,27 @@ public:
 
 	Entity CreateEntity();
 
-	void DestroyEntity(entt::entity uuid);
+	void DestroyEntity(entt::entity id);
 
-	Entity FindEntity(entt::entity uuid);
-
-	void DuplicateEntity(entt::entity uuid);
 
 	entt::registry& registry() { return m_EntityRegistry; }
 
 
+
 	void OnTick(float dt);
 
+
+
+	#pragma region WorldInfo
+	
 	WorldInfo& GetWorldInfo() { return m_WorldInfo; }
+
+	uint64_t GetSeed() const { return m_WorldInfo.Seed; }
+	float& GetInhabitedTime() { return m_WorldInfo.InhabitedTime; }
+
+	const std::string& GetWorldName() const { return m_WorldInfo.Name;  }
+
+	#pragma endregion
 
 private:
 
@@ -50,4 +63,9 @@ private:
 
 	WorldInfo m_WorldInfo;
 
+	ChunkSystem m_ChunkSystem;
+
+
+	bool m_Paused = false;
+	int  m_PausedStepFrames = 0;
 };

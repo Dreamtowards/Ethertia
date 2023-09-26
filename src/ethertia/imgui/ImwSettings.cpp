@@ -8,7 +8,6 @@
 #include "ImKeymap.cpp"
 
 #include <ethertia/init/KeyBinding.h>
-#include <ethertia/world/ChunkLoader.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/init/Settings.h>

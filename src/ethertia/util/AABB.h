@@ -20,10 +20,6 @@ public:
 
     AABB() : min(0), max(0) {}
 
-//    static bool intersects(const glm::vec3& min, const glm::vec3& max, glm::vec3 p, int axis) {
-//        return p[axis] >= min[axis] && p[axis] < max[axis];
-//    }
-
     bool empty() const { return min == max; }
     operator bool() const { return empty(); }
 
@@ -31,12 +27,14 @@ public:
 
     AABB operator+ (const glm::vec3& p) { return AABB{ min + p, max + p }; }
 
-    void wrap(glm::vec3 a, glm::vec3 b) {
+    void wrap(glm::vec3 a, glm::vec3 b) 
+    {
         min = glm::min(a, b);
         max = glm::max(a, b);
     }
 
-    void set(glm::vec3 p) {
+    void set(glm::vec3 p)
+    {
         min = p;
         max = p;
     }
@@ -61,5 +59,9 @@ public:
     static bool intersectsAxis(const AABB& a, const AABB& b, int axis) {
         return a.min[axis] < b.max[axis] && a.max[axis] > b.min[axis];
     }
+
+    //    static bool intersects(const glm::vec3& min, const glm::vec3& max, glm::vec3 p, int axis) {
+    //        return p[axis] >= min[axis] && p[axis] < max[axis];
+    //    }
 };
 

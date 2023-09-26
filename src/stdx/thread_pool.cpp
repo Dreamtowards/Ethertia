@@ -9,13 +9,14 @@ void stdx::thread_pool::_WorkerProc()
 	{
 		func_t task;
 		{
-			std::unique_lock<std::mutex> _lock;
+			std::unique_lock<std::mutex> _lock(m_TasksLock);
 
 			while (m_Tasks.empty())
 			{
 				if (m_Stop) 
 					return;  // Only return when queue is empty and should_stop
 				
+                // Wait until notified
 				m_TasksNotification.wait(_lock);
 			}
 
@@ -27,16 +28,17 @@ void stdx::thread_pool::_WorkerProc()
 	}
 }
 
-
+#include <iostream>
 stdx::thread_pool::thread_pool(uint32_t _NumWorkers)
 {
 	m_WorkerThreads.reserve(_NumWorkers);
 
-	for (size_t i = 0; i < _NumWorkers; ++i)
+	for (uint32_t i = 0; i < _NumWorkers; ++i)
 	{
-		//m_WorkerThreads.emplace_back(&_WorkerProc, this);
+		m_WorkerThreads.emplace_back(&stdx::thread_pool::_WorkerProc, this);
 	}
 
+	std::cout << "ThreadPool Init " << _NumWorkers << "\n";
 }
 
 

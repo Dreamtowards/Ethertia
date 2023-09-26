@@ -20,7 +20,7 @@ namespace stdx
 
 		~thread_pool();
 
-		void submit(const func_t& func);
+		void submit(const func_t& task);
 
 	private:
 

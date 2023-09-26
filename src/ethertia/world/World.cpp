@@ -16,11 +16,17 @@ World::~World()
 }
 
 
-// OnUpdate()
+
 void World::OnTick(float dt)
 {
-	//if (m_IsPaused && --m_PausedStepFrames < 0)
-	//	return;
+	if (m_Paused && --m_PausedStepFrames < 0)
+		return;
+
+	WorldInfo& wi = GetWorldInfo();
+	wi.InhabitedTime += dt;
+	wi.DayTime += dt / wi.DayTimeLength;
+
+
 }
 
 
@@ -39,9 +45,4 @@ Entity World::CreateEntity()
 void World::DestroyEntity(entt::entity entity)
 {
 	m_EntityRegistry.destroy(entity);
-}
-
-Entity World::FindEntity(entt::entity id)
-{
-	return Entity{ id, this };
 }

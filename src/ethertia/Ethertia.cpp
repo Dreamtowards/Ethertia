@@ -11,12 +11,11 @@
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/init/DebugStat.h>
-#include <ethertia/network/client/ClientConnectionProc.h>
-#include <ethertia/world/ChunkLoader.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
-#include <ethertia/mod/ModLoader.h>
 #include <ethertia/imgui/ImwInspector.h>  // tmp
+//#include <ethertia/mod/ModLoader.h>
+//#include <ethertia/network/client/ClientConnectionProc.h>
 //#include <ethertia/item/recipe/Recipes.h>
 //#include <ethertia/render/chunk/proc/ChunkMeshProc.h>
 //#include <ethertia/render/chunk/proc/ChunkGenProc.h>
@@ -31,6 +30,7 @@
 
 #include <thread>
 #include <stdx/str.h>
+#include <stdx/thread_pool.h>
 
 
 static void Init();
@@ -63,6 +63,10 @@ static Profiler     g_Profiler;
 static Camera       g_Camera;
 
 
+static std::unique_ptr<stdx::thread_pool> g_ThreadPool;
+
+
+
 // System Initialization.
 static void Init()
 {
@@ -81,9 +85,11 @@ static void Init()
     Window::Init(Settings::DisplayWidth, Settings::DisplayHeight, Ethertia::Version::name().c_str());
     RenderEngine::Init();
     // AudioEngine::init();
-    NetworkSystem::init();
+    // NetworkSystem::init();
 
-    ImwInspector::InitComponentInspectors();
+    g_ThreadPool = std::make_unique<stdx::thread_pool>(std::thread::hardware_concurrency());
+
+    ImwInspector::InitComponentInspectors();  // tmp
 
     // Materials & Items
     MaterialMeshes::Load();
@@ -134,7 +140,7 @@ static void Destroy()
         Ethertia::UnloadWorld();
     }
 
-    NetworkSystem::deinit();
+    // NetworkSystem::deinit();
 
 
     RenderEngine::Destroy();
@@ -142,10 +148,9 @@ static void Destroy()
 
     Window::Destroy();
 }
-#include <imgui_internal.h>
 
-// MainLoop.
-// frequence=fps.
+
+// MainLoop. called every display frame.
 static void RunMainLoop()
 {
     PROFILE("Frame");
@@ -166,7 +171,10 @@ static void RunMainLoop()
         {
             PROFILE("WorldTick");
 
-            world->OnTick(dt);
+            if (world)
+            {
+                world->OnTick(dt);
+            }
         }
     }
 

@@ -3,6 +3,9 @@
 
 #include "Cell.h"
 
+#include <ethertia/util/AABB.h>
+
+class World;
 
 class Chunk
 {
@@ -10,6 +13,8 @@ public:
 	static const int SIZE = 16;
 
 	glm::vec3 chunkpos;  // world coordinate, but multiples of 16
+
+	bool m_NeedRebuildMesh = true;  // MeshingState
 
 	explicit Chunk(World* world, glm::vec3 chunkpos);
 
