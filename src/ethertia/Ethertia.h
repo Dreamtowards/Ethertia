@@ -13,7 +13,6 @@
 #include <ethertia/init/HitCursor.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Profiler.h>
-#include <ethertia/util/Scheduler.h>
 #include <ethertia/util/Registry.h>
 
 
@@ -85,17 +84,12 @@ public:
     static void shutdown() { isRunning() = false; }     // not immediately shutdown, but after this frame.
 
 
-    static bool inMainThread() { return getScheduler().inThread(); }  // is call from main thread.
-
-
     static stdx::thread_pool& GetThreadPool();
 
 
     static EntityPlayer* getPlayer();
     static Window& getWindow();
     static Timer& getTimer();
-    static Scheduler& getScheduler();
-    static Scheduler& getAsyncScheduler();
     static HitCursor& getHitCursor();
     static Profiler& getProfiler();
     static Camera& getCamera();

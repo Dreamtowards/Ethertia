@@ -7,7 +7,7 @@
 #include <ethertia/world/World.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Timer.h>
-#include <ethertia/util/Scheduler.h>
+#include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/init/DebugStat.h>
@@ -55,8 +55,6 @@ int main()
 static Window*      g_Window = nullptr;
 static World*       g_World = nullptr;
 static EntityPlayer*g_Player = nullptr;
-static Scheduler    g_Scheduler;        // main thread tasks executor.
-static Scheduler    g_AsyncScheduler;
 static Timer        g_Timer;
 static HitCursor    g_HitCursor;
 static Profiler     g_Profiler;
@@ -108,8 +106,6 @@ static void Init()
     // Proc Threads
     //ChunkMeshProc::initThread();
     //ChunkGenProc::initThread();
-    Ethertia::getAsyncScheduler().initThread();
-    Ethertia::getScheduler().m_ThreadId = std::this_thread::get_id();
     Controls::initConsoleThread();
 
 
@@ -157,11 +153,6 @@ static void RunMainLoop()
     Ethertia::getTimer().update(time_framebegin);
     float dt = Ethertia::getDelta();
     World* world = Ethertia::GetWorld();
-
-    {
-        PROFILE("SyncTask");
-        Ethertia::getScheduler().processTasks(0.01);
-    }
 
     {
         PROFILE("Tick");
@@ -242,7 +233,6 @@ static void RunMainLoop()
 void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 {
     assert(Ethertia::GetWorld() == nullptr);
-    assert(Ethertia::getScheduler().numTasks() == 0);  // main-scheduler should be world-isolated. at least now.
 
     g_World = new World();// savedir, worldinfo);
     World* world = g_World;
@@ -285,26 +275,10 @@ void Ethertia::UnloadWorld()
     g_World = nullptr;
 
 
-    Log::info("Sync Tasks {}", getScheduler().numTasks());
-    // make sure no Task remain. Task is world-isolated., Exec after other chunk-proc threads cuz they may addTask().
-    getScheduler().processTasks(Mth::Inf);
-    assert(getScheduler().numTasks() == 0);
-
-    Log::info("Async Tasks {}", getAsyncScheduler().numTasks());
-    getAsyncScheduler().processTasks(Mth::Inf);  // why? for what?
-    assert(getAsyncScheduler().numTasks() == 0);
-
-
     delete oldWorld;
 
 
     Log::info("World unloaded.");
-
-    // remove gui after GuiEventPolling
-    // getScheduler()->addTask([](){
-    //     Ethertia::getRootGUI()->removeAllGuis();
-    //     Ethertia::getRootGUI()->addGui(GuiScreenMainMenu::Inst());
-    // });
 }
 
 
@@ -385,8 +359,6 @@ float Ethertia::getDelta() { return getTimer().getDelta(); }
 Camera& Ethertia::getCamera() { return g_Camera; }
 HitCursor& Ethertia::getHitCursor() { return g_HitCursor; }
 Profiler& Ethertia::getProfiler() { return g_Profiler; }
-Scheduler& Ethertia::getAsyncScheduler() { return g_AsyncScheduler; }
-Scheduler& Ethertia::getScheduler() { return g_Scheduler; }
 Timer& Ethertia::getTimer() { return g_Timer; }
 Window& Ethertia::getWindow() { return *g_Window; }
 
@@ -409,11 +381,6 @@ const Ethertia::Viewport& Ethertia::getViewport() {
 
 
 
-
-
-float Scheduler::_intl_program_time() {
-    return Ethertia::getPreciseTime();
-}
 
 
 
