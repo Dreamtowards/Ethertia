@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 #include <stdexcept>
+#include <format>
+#include <stdx/thread_pool.h>
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/init/HitCursor.h>
@@ -14,7 +16,6 @@
 #include <ethertia/util/Scheduler.h>
 #include <ethertia/util/Registry.h>
 
-#include <format>
 
 #include <cassert>
 #ifndef NDEBUG
@@ -86,6 +87,8 @@ public:
 
     static bool inMainThread() { return getScheduler().inThread(); }  // is call from main thread.
 
+
+    static stdx::thread_pool& GetThreadPool();
 
 
     static EntityPlayer* getPlayer();

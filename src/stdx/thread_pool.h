@@ -22,6 +22,9 @@ namespace stdx
 
 		void submit(const func_t& task);
 
+		size_t num_threads() const { return m_WorkerThreads.size(); }
+		size_t num_tasks() const { return m_Tasks.size(); }
+
 	private:
 
 		std::vector<std::thread> m_WorkerThreads;

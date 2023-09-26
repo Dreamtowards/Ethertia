@@ -65,12 +65,14 @@ static void _ShowDebugText()
     CamPosLast = CamPosCurr;
     float CamPosMoveSpeedMPS = glm::length(CamPosMoved);
     
+    const auto& thread_pool = Ethertia::GetThreadPool();
 
     // kph = mps*3.6
     std::string str = std::format(
         "cam pos: {}, spd: {}mps {}kph\n" 
         //"plr ground: {}, collide pts: {}\n"
         "avg_fps: {}. dt: {}, {}fps\n"
+        "thread_pool: threads: {}, tasks: {}\n"
         //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
         "\n"
         //"World: {}\n"
@@ -91,7 +93,9 @@ static void _ShowDebugText()
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
         //player->m_OnGround, player->m_NumContactPoints,
     
-        Dbg::dbg_FPS, dt, Mth::floor(1.0f / dt),
+        Dbg::dbg_FPS, dt, std::floor(1.0f / dt),
+
+        thread_pool.num_threads(), thread_pool.num_tasks(),
     
         //Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
     

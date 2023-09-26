@@ -75,6 +75,8 @@ static void Init()
     //NoiseGen::InitSIMD();
     Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::os_arch()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
 
+    g_ThreadPool = std::make_unique<stdx::thread_pool>(std::thread::hardware_concurrency());
+
     //for (const std::string& modpath : Settings::Mods) {
     //    ModLoader::LoadMod(modpath);
     //}
@@ -86,8 +88,6 @@ static void Init()
     RenderEngine::Init();
     // AudioEngine::init();
     // NetworkSystem::init();
-
-    g_ThreadPool = std::make_unique<stdx::thread_pool>(std::thread::hardware_concurrency());
 
     ImwInspector::InitComponentInspectors();  // tmp
 
@@ -104,7 +104,6 @@ static void Init()
     //g_Player->setFlying(true);
 
 
-    //std::thread_pool tp;
 
     // Proc Threads
     //ChunkMeshProc::initThread();
@@ -350,11 +349,19 @@ void Ethertia::dispatchCommand(const std::string& cmdline) {
     //todo: sender? that only make sense on serverside.
 }
 
+
+
 void Ethertia::notifyMessage(const std::string& msg) {
     Log::info("[MSG/C] ", msg);
 //    GuiMessageList::Inst()->addMessage(msg);
     Imw::Editor::ConsoleMessages.push_back(msg);
 }
+
+
+
+
+
+
 
 bool& Ethertia::isIngame() {
     static bool g_IsControllingGame = false;
@@ -366,6 +373,11 @@ bool& Ethertia::isRunning() {
 }
 
 World* Ethertia::GetWorld() { return g_World; }
+
+stdx::thread_pool& Ethertia::GetThreadPool() { return *g_ThreadPool; }
+
+
+
 EntityPlayer* Ethertia::getPlayer() { return g_Player; }
 
 float Ethertia::getPreciseTime() { return (float)Window::PreciseTime(); }

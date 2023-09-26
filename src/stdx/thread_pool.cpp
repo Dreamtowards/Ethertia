@@ -69,3 +69,4 @@ void stdx::thread_pool::submit(const func_t& func)
 	}
 	m_TasksNotification.notify_one();
 }
+
