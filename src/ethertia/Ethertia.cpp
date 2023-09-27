@@ -24,6 +24,7 @@
 // #include <ethertia/audio/AudioEngine.h>
 //#include <ethertia/vr/OpenVR.h>
 //#include <ethertia/init/Sounds.h>
+#include <ethertia/util/Math.h>
 
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
@@ -63,6 +64,7 @@ static Camera       g_Camera;
 
 static std::unique_ptr<stdx::thread_pool> g_ThreadPool;
 
+static std::thread::id g_MainThreadId{};
 
 
 // System Initialization.
@@ -74,6 +76,7 @@ static void Init()
     Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::os_arch()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
 
     g_ThreadPool = std::make_unique<stdx::thread_pool>(std::thread::hardware_concurrency());
+    g_MainThreadId = std::this_thread::get_id();
 
     //for (const std::string& modpath : Settings::Mods) {
     //    ModLoader::LoadMod(modpath);
@@ -350,6 +353,7 @@ World* Ethertia::GetWorld() { return g_World; }
 
 stdx::thread_pool& Ethertia::GetThreadPool() { return *g_ThreadPool; }
 
+bool Ethertia::InMainThread() { return std::this_thread::get_id() == g_MainThreadId; }
 
 
 EntityPlayer* Ethertia::getPlayer() { return g_Player; }

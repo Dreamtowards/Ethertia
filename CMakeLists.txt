@@ -16,8 +16,7 @@ set(CMAKE_CXX_STANDARD 20)
 # we manually build shared-lib only the first time. (if doesn't have compiled libs), then we just use/link them instead of recompile them.
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC OFF)
-set(CMAKE_BUILD_TYPE Debug)
-
+#set(CMAKE_BUILD_TYPE "Release")
 
 #set(CMAKE_BUILD_PARALLEL_LEVEL 10)
 #set(MSVC_COMPILE_FLAGS "/MP")
@@ -53,7 +52,7 @@ set(BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${BUILD_TARGET})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR}) 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR})  # for Windows
 
-message("Build Env: ${CMAKE_SYSTEM_PROCESSOR}; ${CMAKE_SYSTEM_NAME}")
+message("Ethertia Build Env: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR};")
 message("Bin Dir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 
 
@@ -133,7 +132,7 @@ add_executable(Ethertia
         
         src/ethertia/util/Loader.cpp
         src/ethertia/util/BitmapImage.cpp
-        src/ethertia/util/BenchmarkTimer.cpp
+        
         src/ethertia/util/Maths.cpp
         src/ethertia/render/VertexData.cpp
 
@@ -141,7 +140,12 @@ add_executable(Ethertia
         src/ethertia/render/RenderEngine.cpp
         src/ethertia/init/Controls.cpp
         src/ethertia/init/Settings.cpp
+
         src/ethertia/world/World.cpp
+        src/ethertia/world/Chunk.cpp
+        src/ethertia/world/chunk/ChunkSystem.cpp
+        src/ethertia/world/chunk/ChunkGenerator.cpp
+
 
         # src/ethertia/item/ItemComponents.cpp
         #src/ethertia/render/renderer/RendererGbuffer.cpp    
@@ -160,6 +164,11 @@ add_executable(DedicatedServer
 
 add_library(TwilightForest SHARED
         run/mods/TwilightForest/src/TwilightForest.cpp)
+
+
+        
+add_executable(EthertiaTests 
+    src/test/test.cpp)
 
 
 #On linux, We can build shared libraries as default.

@@ -14,7 +14,7 @@ namespace stdx
 	class thread_pool
 	{
 	public:
-		
+		// TODO: Adaptive Increase Worker
 		explicit thread_pool(uint32_t _NumWorkers = std::thread::hardware_concurrency());
 
 		~thread_pool();

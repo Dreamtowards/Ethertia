@@ -477,20 +477,6 @@ void ImwGame::ShowGame(bool* _open)
     //ImGui::SetCursorPos({0,0});
     //ImGui::InvisibleButton("PreventsGameWindowDragMove", viewSize);
 
-    if (ImGui::Button("AddTask"))
-    {
-        auto fu = Ethertia::GetThreadPool().submit([]() 
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-        
-                Log::info("TaskDone");
-
-                return 100;
-            });
-
-        Log::info("Ret: {}", fu->get());
-
-    }
 
 
     _ShowViewportWidgets();

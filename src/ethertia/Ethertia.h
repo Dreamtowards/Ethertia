@@ -16,11 +16,6 @@
 #include <ethertia/util/Registry.h>
 
 
-#include <cassert>
-#ifndef NDEBUG
-#define ET_DEBUG
-#endif
-
 
 class World;
 class WorldInfo;
@@ -85,6 +80,8 @@ public:
 
 
     static stdx::thread_pool& GetThreadPool();
+    
+    static bool InMainThread();
 
 
     static EntityPlayer* getPlayer();

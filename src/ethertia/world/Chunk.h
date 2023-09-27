@@ -33,10 +33,10 @@ public:
 	Chunk& operator=(const Chunk& c) = delete;
 
 
-	static glm::vec3 ChunkPos(glm::vec3 p);  // floor(p, 16)
-	static glm::vec3 LocalPos(glm::vec3 p);  // mod(p, 16)
+	static glm::ivec3 ChunkPos(glm::ivec3 p);  // floor(p, 16)
+	static glm::ivec3 LocalPos(glm::ivec3 p);  // abs(mod(p, 16)) or (p & 15)
 
-	static bool IsChunkPos(glm::vec3 chunkpos);   // mod(p, 16) == 0
+	static bool IsChunkPos(glm::ivec3 chunkpos);  // mod(p, 16) == 0
 	static bool IsLocalPos(glm::ivec3 localpos);  // [0, 16)
 
 private:

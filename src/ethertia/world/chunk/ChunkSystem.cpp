@@ -2,9 +2,50 @@
 
 #include "ChunkSystem.h"
 
-#include <ethertia/Ethertia.h>
+#include <ethertia/Ethertia.h>  // thread_pool, viewpos
 
-static void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
+#include <ethertia/util/Assert.h>
+
+
+std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
+{
+    ET_ASSERT(Chunk::IsChunkPos(chunkpos));
+    ET_ASSERT(GetChunk(chunkpos) == nullptr);
+
+    std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(m_World, chunkpos);
+
+    bool load = false;// m_ChunkLoader->LoadChunk(chunk);
+
+    if (!load)
+    {
+        // m_ChunkGenerator->GenerateChunk(chunk);
+
+        ChunkGenerator::GenerateChunk(*chunk.get());
+    }
+
+    return chunk;
+}
+
+
+void ChunkSystem::QueueLoad(glm::vec3 chunkpos)
+{
+    ET_ASSERT(Chunk::IsChunkPos(chunkpos));
+    ET_ASSERT(GetChunk(chunkpos) == nullptr);
+    ET_ASSERT(!m_ChunksLoading.contains(chunkpos));
+
+    auto& threadpool = Ethertia::GetThreadPool();
+
+    auto task = threadpool.submit([this, chunkpos]()
+        {
+            return _ProvideChunk(chunkpos);
+        });
+
+    auto [it, succ] = m_ChunksLoading.try_emplace(chunkpos, task);
+
+    ET_ASSERT(succ);  // make sure no override
+}
+
+void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
 {
     // todo: Recursive Octree Load.
     
@@ -23,21 +64,11 @@ static void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
                 glm::vec3 chunkpos = glm::vec3(dx, dy, dz) * 16.0f + viewer_chunkpos;
 
                 // if (m_LoadingChunks.size() > ChunksLoadingMaxConcurrent) break;
-                if (GetChunk(chunkpos) || m_ChunksLoading.exists())
+                if (GetChunk(chunkpos) || m_ChunksLoading.contains(chunkpos))
                     continue;
 
-                std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(m_World, chunkpos);
 
-                auto& threadpool = Ethertia::GetThreadPool();
-
-                //auto fut = threadpool.submit([]()
-                //    {
-                //        // GenerateChunk(chunk);
-                //
-                //        return 0;
-                //    });
-                //
-                //fut._Is_ready();
+                
 
             }
         }
@@ -45,9 +76,11 @@ static void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
 }
 
 
+
+
 void ChunkSystem::OnTick()
 {
-	_UpdateChunkLoadAndUnload({0,0,0});
+	_UpdateChunkLoadAndUnload({0,0,0}, {4, 2});
 
 
 }
@@ -55,7 +88,13 @@ void ChunkSystem::OnTick()
 
 
 
-std::shared_ptr<Chunk> GetChunk(glm::vec3 chunkpos)
-{
+// todo: use SVO to get a chunk in O(logN) time.
 
+std::shared_ptr<Chunk> ChunkSystem::GetChunk(glm::vec3 chunkpos)
+{
+    // _lock
+    auto it = m_Chunks.find(chunkpos);
+    if (it == m_Chunks.end())
+        return nullptr;
+    return it->second;
 }
