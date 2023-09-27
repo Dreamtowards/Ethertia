@@ -220,9 +220,9 @@ VertexData* Loader::LoadOBJ_(const char* filename)
     }
 #ifdef ET_LOADER_LOADINFO
     Log::info("Load OBJ {}. VertexCount={}, VerticesTable={}. (vertices reduced to {}%, by additional {}% indices)",
-              filename, vtx->vertexCount(), vtx->Vertices.size(),
-              (float)vtx->Vertices.size()/vtx->vertexCount(),
-              (float)vtx->Indices.size()/vtx->vertexCount()*((float)sizeof(uint32_t) / sizeof(VertexData::Vertex)));
+              filename, vtx->VertexCount(), vtx->Vertices.size(),
+              (float)vtx->Vertices.size()/vtx->VertexCount(),
+              (float)vtx->Indices.size()/vtx->VertexCount()*((float)sizeof(uint32_t) / sizeof(VertexData::Vertex)));
 #endif
     return vtx;
 }
@@ -287,11 +287,11 @@ vkx::VertexBuffer* Loader::LoadVertexData(const VertexData* vtx)
 
     vk::DeviceMemory idxmem{};
     vk::Buffer idxbuf{};
-    if (vtx->isIndexed())
+    if (vtx->IsIndexed())
     {
         idxbuf = vkx::CreateStagedBuffer(vtx->idx_data(), vtx->idx_size(), idxmem, vk::BufferUsageFlagBits::eIndexBuffer);
     }
-    return new vkx::VertexBuffer(vtxbuf, vtxmem, idxbuf, idxmem, vtx->vertexCount());
+    return new vkx::VertexBuffer(vtxbuf, vtxmem, idxbuf, idxmem, vtx->VertexCount());
 }
 
 

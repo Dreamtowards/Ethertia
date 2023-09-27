@@ -24,14 +24,18 @@ public:
         glm::vec3 norm;
 
         Vertex() = default;
-        Vertex(const glm::vec3& pos, const glm::vec2& tex, const glm::vec3& norm);
+        Vertex(const glm::vec3& pos, const glm::vec2& tex, const glm::vec3& norm) : pos(pos), tex(tex), norm(norm) {}
 
-        bool operator==(const Vertex& o) const;
+        bool operator==(const Vertex& o) const { return pos == o.pos && tex == o.tex && norm == o.norm; }
 
-        static size_t stride();
+        static size_t stride()
+        {
+            static_assert(sizeof(VertexData::Vertex) == 32);  // sizeof(float) * 8, {vec3 pos, vec2 uv, vec3 norm}
+            return sizeof(VertexData::Vertex);
+        }
     };
 
-    VertexData();
+    VertexData() = default;
     ~VertexData();
 
     std::vector<Vertex> Vertices;
@@ -41,30 +45,50 @@ public:
 
 
 
-    //const void* data() const;  // vtx_data
-    //size_t size() const;       // vtx_size
+    const void* vtx_data() const { return Vertices.data(); }
+    size_t      vtx_size() const { return sizeof(Vertices[0]) * Vertices.size(); }
 
-    const void* vtx_data() const;
-    size_t vtx_size() const;
+    const void* idx_data() const { return Indices.data(); }
+    size_t      idx_size() const { return sizeof(Indices[0]) * Indices.size(); }
 
-    const void* idx_data() const;
-    size_t idx_size() const;
+    std::span<const char> vtx_span() const { return { (const char*)vtx_data(), vtx_size() }; }
+    std::span<const char> idx_span() const { return { (const char*)idx_data(), idx_size() }; }
 
-    std::span<const char> vtx_span() const;
-    std::span<const char> idx_span() const;
+    bool IsIndexed() const { return !Indices.empty(); }
 
-    bool isIndexed() const { return !Indices.empty(); }
+    const Vertex& at(uint32_t i) const { IsIndexed() ? Vertices[Indices[i]] : Vertices[i]; }
 
-    // all vertices, not just unique vertices number.
-    uint32_t vertexCount() const { isIndexed() ? Indices.size() : Vertices.size(); }
+    uint32_t VertexCount() const { return IsIndexed() ? Indices.size() : Vertices.size(); }
 
-    // access vertex. by index if isIndexed(). useful for iteration of {vert(i) : vertexCount()}
-    const Vertex& vert(uint32_t i) const;
 
-    void addVertex(const Vertex& vert);
+    // Fast Add / Remove. if IsIndexed, the compression will decline.
+
+    void AddVertex(const Vertex& vert)
+    {
+        if (IsIndexed())
+        {
+            Indices.push_back(Vertices.size());
+        }
+        Vertices.emplace_back(vert);
+    }
+
+    void RemoveVertex(int index, int count = 1)
+    {
+        if (IsIndexed())
+        {
+            auto it = Indices.begin() + index;
+            Indices.erase(it, it + count);
+        }
+        else
+        {
+            auto it = Vertices.begin() + index;
+            Vertices.erase(it, it + count);
+        }
+    }
+
 
     // make an Unique Indexed VertexData. hash-map method.
-    static VertexData* MakeIndexed(const VertexData* nonIndexed);
+    static VertexData* MakeIndexed(const VertexData* nonIndexed, VertexData* out = new VertexData());
 
 
     struct VertIter
@@ -72,7 +96,7 @@ public:
         uint32_t m_idx;
         const VertexData* m_vtx;
 
-        const Vertex& operator*() const { return m_vtx->vert(m_idx); }
+        const Vertex& operator*() const { return m_vtx->at(m_idx); }
         VertIter operator++() { ++m_idx; return *this; }
         VertIter operator--() { --m_idx; return *this; }
         friend bool operator!=(const VertIter& a, const VertIter& b) { return a.m_idx!=b.m_idx; }
@@ -82,7 +106,7 @@ public:
         return VertIter{0, this};
     }
     VertIter end() const {
-        return VertIter{vertexCount(), this};
+        return VertIter{VertexCount(), this};
     }
 
 
