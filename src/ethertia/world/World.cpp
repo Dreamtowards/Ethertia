@@ -8,6 +8,7 @@
 World::World()
 {
 
+	//m_ChunkSystem.m_World = this;
 }
 
 World::~World()
@@ -27,6 +28,7 @@ void World::OnTick(float dt)
 	wi.DayTime += dt / wi.DayTimeLength;
 
 
+	m_ChunkSystem.OnTick();
 }
 
 

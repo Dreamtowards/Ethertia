@@ -87,14 +87,3 @@ void ChunkSystem::OnTick()
 
 
 
-
-// todo: use SVO to get a chunk in O(logN) time.
-
-std::shared_ptr<Chunk> ChunkSystem::GetChunk(glm::vec3 chunkpos)
-{
-    // _lock
-    auto it = m_Chunks.find(chunkpos);
-    if (it == m_Chunks.end())
-        return nullptr;
-    return it->second;
-}

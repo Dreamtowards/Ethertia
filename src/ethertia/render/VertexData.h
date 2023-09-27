@@ -39,6 +39,8 @@ public:
 
     std::string m_Filename;  // dbg
 
+
+
     //const void* data() const;  // vtx_data
     //size_t size() const;       // vtx_size
 
@@ -51,10 +53,10 @@ public:
     std::span<const char> vtx_span() const;
     std::span<const char> idx_span() const;
 
-    bool isIndexed() const;
+    bool isIndexed() const { return !Indices.empty(); }
 
     // all vertices, not just unique vertices number.
-    uint32_t vertexCount() const;
+    uint32_t vertexCount() const { isIndexed() ? Indices.size() : Vertices.size(); }
 
     // access vertex. by index if isIndexed(). useful for iteration of {vert(i) : vertexCount()}
     const Vertex& vert(uint32_t i) const;

@@ -63,7 +63,7 @@ private:
 
 	WorldInfo m_WorldInfo;
 
-	ChunkSystem m_ChunkSystem;
+	ChunkSystem m_ChunkSystem {this};
 
 
 	bool m_Paused = false;

@@ -20,11 +20,23 @@ class ChunkSystem
 {
 public:
 
+	ChunkSystem(World* world) : m_World(world) {}
+
+	// todo: use SVO to get a chunk in O(logN) time.
 	// get loaded chunk.
 	// return nullptr if chunk at the chunkpos is not loaded
-	std::shared_ptr<Chunk> GetChunk(glm::vec3 chunkpos);
+	std::shared_ptr<Chunk> GetChunk(glm::vec3 chunkpos)
+	{
+		auto it = m_Chunks.find(chunkpos);
+		if (it == m_Chunks.end())
+			return nullptr;
+		return it->second;
+	}
 
-	const std::unordered_map<glm::vec3, std::shared_ptr<Chunk>>& GetChunks();
+	const std::unordered_map<glm::vec3, std::shared_ptr<Chunk>>& GetChunks()
+	{
+		return m_Chunks;
+	}
 
 
 
