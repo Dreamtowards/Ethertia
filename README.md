@@ -2,7 +2,7 @@
 
 # Ethertia <sub><sup>· 以太效應</sup></sub>
 
-__Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan, PhysX, C++20
+__Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan, PhysX, C++20.
 
 [Documentations](https://docs.ethertia.com) - 
 [Official Site](https://ethertia.com) - 
