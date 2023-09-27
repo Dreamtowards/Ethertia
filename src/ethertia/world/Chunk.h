@@ -4,6 +4,8 @@
 #include "Cell.h"
 
 #include <ethertia/util/AABB.h>
+#include <ethertia/util/Assert.h>
+#include <ethertia/util/Math.h>
 
 class World;
 
@@ -19,25 +21,45 @@ public:
 	explicit Chunk(World* world, glm::vec3 chunkpos);
 
 
+	Cell& LocalCell(glm::ivec3 localpos) { return m_Cells[Chunk::LocalIdx(localpos)]; }
 
-	Cell GetCell(glm::ivec3 lp);
+	Cell GetCell(glm::ivec3 localpos) { return LocalCell(localpos); }
 
-	void SetCell(glm::ivec3 lp, const Cell& c);
+	void SetCell(glm::ivec3 localpos, const Cell& cell) { LocalCell(localpos) = cell; }
 
 
 
-	AABB BoundingBox() const { return AABB(chunkpos, chunkpos+16.0f); }
+	AABB GetAABB() const { return { chunkpos, chunkpos + 16.0f }; }
 
 
 	Chunk(const Chunk& c) = delete;  // auto-copy is disabled due to Heavy Cell MemoryCost
 	Chunk& operator=(const Chunk& c) = delete;
 
+	static glm::ivec3 ChunkPos(glm::ivec3 p) { return Math::Floor16(p); }
+	static glm::ivec3 LocalPos(glm::ivec3 p) { return Math::Mod16(p); }
 
-	static glm::ivec3 ChunkPos(glm::ivec3 p);  // floor(p, 16)
-	static glm::ivec3 LocalPos(glm::ivec3 p);  // abs(mod(p, 16)) or (p & 15)
+	static bool IsChunkPos(glm::ivec3 chunkpos)  // mod(p, 16) == 0
+	{
+		return	chunkpos.x % 16 == 0 &&
+				chunkpos.y % 16 == 0 &&
+				chunkpos.z % 16 == 0;
+	}
 
-	static bool IsChunkPos(glm::ivec3 chunkpos);  // mod(p, 16) == 0
-	static bool IsLocalPos(glm::ivec3 localpos);  // [0, 16)
+	// [0, 16)
+	static bool IsLocalPos(glm::ivec3 localpos)
+	{
+		return	localpos.x >= 0 && localpos.x < 16 &&
+				localpos.y >= 0 && localpos.y < 16 &&
+				localpos.z >= 0 && localpos.z < 16;
+	}
+
+	// x << 8 | y << 4 | z
+	static int LocalIdx(glm::ivec3 localpos)
+	{
+		ET_ASSERT(Chunk::IsLocalPos(localpos));
+		return localpos.x << 8 | localpos.y << 4 | localpos.z;
+	}
+
 
 private:
 	Cell m_Cells[SIZE * SIZE * SIZE]{};
@@ -48,5 +70,8 @@ private:
 
 	// m_MeshingState;
 
-	static int CellIdx(int x, int y, int z);
 };
+
+
+
+

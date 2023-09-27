@@ -3,6 +3,7 @@
 #pragma once
 
 #include <cmath>
+#include <glm/glm.hpp>
 
 class Math
 {
@@ -33,9 +34,22 @@ public:
 		return x & ~15;
 	}
 
+
 	static unsigned int Mod16(int x)
 	{
 		return x & 15;
+	}
+
+#define ET_OP_VEC3(op, v) { op(v.x), op(v.y), op(v.z) }
+
+	static glm::ivec3 Floor16(glm::ivec3 p)
+	{
+		return ET_OP_VEC3(Math::Floor16, p);
+	}
+
+	static glm::ivec3 Mod16(glm::ivec3 p)
+	{
+		return ET_OP_VEC3(Math::Mod16, p);
 	}
 
 	//static int Floor(float v, int n)
