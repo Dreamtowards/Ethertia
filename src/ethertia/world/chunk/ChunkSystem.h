@@ -64,6 +64,8 @@ private:
 
 public:
 	std::unordered_map<glm::vec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksLoading;
+
+	glm::ivec2 m_TmpLoadDistance{3, 2};
 private:
 
 
@@ -76,7 +78,7 @@ private:
 	std::shared_ptr<Chunk> _ProvideChunk(glm::vec3 chunkpos);
 
 
-	void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance);
+	void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec2 viewDistance);
 	
 	//void _AddChunk(std::shared_ptr<Chunk> chunk);
 	//

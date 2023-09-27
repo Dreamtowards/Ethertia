@@ -48,7 +48,7 @@ std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
 //    ET_ASSERT(succ);  // make sure no override
 //}
 
-void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
+void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec2 viewDistance)
 {
     static int m_ChunksLoadingMaxConcurrent = 40;
 
@@ -139,7 +139,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDis
 
 void ChunkSystem::OnTick()
 {
-	_UpdateChunkLoadAndUnload({0,0,0}, {4, 2});
+	_UpdateChunkLoadAndUnload({0,0,0}, m_TmpLoadDistance);
 
 
 }
