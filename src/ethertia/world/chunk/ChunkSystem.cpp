@@ -1,6 +1,8 @@
 
 
 #include "ChunkSystem.h"
+#include <ethertia/world/World.h>
+#include <ethertia/world/Entity.h>
 
 #include <ethertia/Ethertia.h>  // thread_pool, viewpos
 
@@ -28,23 +30,23 @@ std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
 }
 
 
-void ChunkSystem::QueueLoad(glm::vec3 chunkpos)
-{
-    ET_ASSERT(Chunk::IsChunkPos(chunkpos));
-    ET_ASSERT(GetChunk(chunkpos) == nullptr);
-    ET_ASSERT(!m_ChunksLoading.contains(chunkpos));
-
-    auto& threadpool = Ethertia::GetThreadPool();
-
-    auto task = threadpool.submit([this, chunkpos]()
-        {
-            return _ProvideChunk(chunkpos);
-        });
-
-    auto [it, succ] = m_ChunksLoading.try_emplace(chunkpos, task);
-
-    ET_ASSERT(succ);  // make sure no override
-}
+//void ChunkSystem::QueueLoad(glm::vec3 chunkpos)
+//{
+//    ET_ASSERT(Chunk::IsChunkPos(chunkpos));
+//    ET_ASSERT(GetChunk(chunkpos) == nullptr);
+//    ET_ASSERT(!m_ChunksLoading.contains(chunkpos));
+//
+//    auto& threadpool = Ethertia::GetThreadPool();
+//
+//    auto task = threadpool.submit([this, chunkpos]()
+//        {
+//            return _ProvideChunk(chunkpos);
+//        });
+//
+//    auto [it, succ] = m_ChunksLoading.try_emplace(chunkpos, task);
+//
+//    ET_ASSERT(succ);  // make sure no override
+//}
 
 void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
 {
@@ -55,22 +57,60 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDis
 
     glm::ivec3 viewer_chunkpos = Chunk::ChunkPos(viewpos);
 
-    glm::ivec3 vd{ viewDistance.x, viewDistance.y, viewDistance.x };
 
-    ET_BEGIN_ITER_REGION(vd, rp)
-    {
+    // Async Generate/Load chunk
+    AABB::each({ viewDistance.x, viewDistance.y, viewDistance.x }, [&](glm::ivec3 rp) {
+
         glm::ivec3 chunkpos = rp * 16 + viewer_chunkpos;
 
-        if (m_ChunksLoading.size() > m_ChunksLoadingMaxConcurrent) 
-            break;
+        if (m_ChunksLoading.size() > m_ChunksLoadingMaxConcurrent)
+            return false;
         if (GetChunk(chunkpos) || m_ChunksLoading.contains(chunkpos))
+            return true;
+
+        auto& threadpool = Ethertia::GetThreadPool();
+
+        auto task = threadpool.submit([this, chunkpos]()
+            {
+                return _ProvideChunk(chunkpos);
+            });
+
+        auto [it, succ] = m_ChunksLoading.try_emplace(chunkpos, task);
+
+        ET_ASSERT(succ);  // make sure no override
+
+        return true;
+    });
+
+    // Add AsyncGenerated Chunk to World
+    static std::vector<glm::ivec3> _ChunksLoadingRemove;  // static: avoid dynamic heap alloc.
+    _ChunksLoadingRemove.clear();
+
+    for (auto it : m_ChunksLoading)
+    {
+        glm::ivec3 chunkpos = it.first;
+        auto task = it.second;
+
+        if (!task->is_completed())
             continue;
 
-        QueueLoad(chunkpos);
-    }
-    ET_END_ITER_REGION
+        ET_ASSERT(GetChunk(chunkpos) == nullptr);
+        auto chunk = task->get();
+        m_Chunks[chunkpos] = chunk;
 
-    
+        Entity entity = m_World->CreateEntity();
+        auto& box = entity.AddComponent<DebugDrawBoundingBox>();
+        box.BoundingBox = chunk->GetAABB();
+
+        _ChunksLoadingRemove.push_back(chunkpos);
+    }
+    for (auto cp : _ChunksLoadingRemove)
+    {
+        m_ChunksLoading.erase(cp);
+    }
+
+
+
 
 
 

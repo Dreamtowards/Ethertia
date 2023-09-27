@@ -24,11 +24,11 @@ public:
 	static void ShowGame(bool* _open);
 
 
+	static void ShowWorldSettings(bool* _open);
+
 	static void ShowWorldNew(bool* _open);
 
 	static void ShowWorldList(bool* _open);
-
-	static void ShowWorldModify(bool* _open);
 
 	static void ShowTitleScreen(bool* _open);
 

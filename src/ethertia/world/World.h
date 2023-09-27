@@ -14,13 +14,14 @@ class WorldInfo
 public:
 
 	uint64_t Seed = 0;
-	float InhabitedTime = 0;
 
 	std::string Name;
 
 	// =t*24hr
 	float DayTime = 0;
 	float DayTimeLength = 60*6;  // in seconds
+
+	float InhabitedTime = 0;
 
 };
 
@@ -44,6 +45,8 @@ public:
 
 	void OnTick(float dt);
 
+
+	ChunkSystem& GetChunkSystem() { return m_ChunkSystem; }
 
 
 	#pragma region WorldInfo

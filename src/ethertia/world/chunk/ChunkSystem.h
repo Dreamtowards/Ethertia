@@ -43,7 +43,7 @@ public:
 	void OnTick();
 
 
-	void QueueLoad(glm::vec3 chunkpos);
+	//void QueueLoad(glm::vec3 chunkpos);
 
 	void SaveChunk();
 
@@ -62,7 +62,9 @@ private:
 	// Loaded Chunks. basic linear struct.
 	std::unordered_map<glm::vec3, std::shared_ptr<Chunk>> m_Chunks;
 
+public:
 	std::unordered_map<glm::vec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksLoading;
+private:
 
 
 	// Chunk SVO Root.

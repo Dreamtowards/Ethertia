@@ -239,11 +239,11 @@ static void _ShowMainMenuBar()
             Imgui::MenuItemToggleShow("TitleScreen", ImwGame::ShowTitleScreen);
             Imgui::MenuItemToggleShow("WorldList", ImwGame::ShowWorldList);
             Imgui::MenuItemToggleShow("WorldNew", ImwGame::ShowWorldNew);
-            Imgui::MenuItemToggleShow("WorldSettings", ImwGame::ShowWorldNew);
 
             ImGui::Separator();
-            Imgui::MenuItemToggleShow("Hierarchy", ImwInspector::ShowHierarchy);
-            Imgui::MenuItemToggleShow("Inspector", ImwInspector::ShowInspector);
+            Imgui::MenuItemToggleShow("World Hierarchy", ImwInspector::ShowHierarchy);
+            Imgui::MenuItemToggleShow("Entity Inspector", ImwInspector::ShowInspector);
+            Imgui::MenuItemToggleShow("World Settings", ImwGame::ShowWorldSettings);
 
             ImGui::Separator();
             Imgui::MenuItemToggleShow("Settings", Imw::Settings::ShowSettings);

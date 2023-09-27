@@ -36,10 +36,16 @@ namespace stdx
 		class base_task
 		{
 		public:
-			_TResult& get()
+			_TResult& get_sync()
 			{
 				std::unique_lock<std::mutex> _lock(m_ResultLock);
 				m_ResultNotification.wait(_lock, [this] { return is_completed(); });
+				return m_Result;
+			}
+
+			_TResult& get()
+			{
+				assert(is_completed());
 				return m_Result;
 			}
 

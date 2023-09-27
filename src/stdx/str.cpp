@@ -123,17 +123,18 @@ char* stdx::skip_spaces(const char* p)
 //[2023-09-22 12:47:00.9344923][30848/INFO][Ethertia.cpp:49]: 100:00:10.90
 
 
-std::string stdx::daytime(float daytime, bool apm)
+std::string stdx::duration(float sec, bool sec_str, bool apm)
 {
-	float hr = daytime * 24.0;
-	float mn = (hr - std::floor(hr)) * 60.0;
-	float sec = (mn - std::floor(mn)) * 60.0;
+	int mn = (int)std::floor(sec / 60.0f) % 60;
+	int hr = (int)std::floor(sec / (60 * 60.0f));
+	sec = ((int)sec % 60) + (sec - (int)sec);
+
 	std::stringstream ss;
 	bool am = hr < 12;
 
-	ss << std::format("{:02}:{:02}", (int)(am ? hr : hr - 12), (int)mn);
+	ss << std::format("{:02}:{:02}", ((apm && !am) ? hr-12 : hr), mn);
 
-	if (sec != 0)
+	if (sec_str) // && sec != 0)
 	{
 		ss << std::format(":{:05.2f}", sec);
 	}
@@ -145,7 +146,7 @@ std::string stdx::daytime(float daytime, bool apm)
 	return ss.str();
 }
 
-float stdx::daytime(std::string_view _str)
+float stdx::duration(std::string_view _str)
 {
 	char* str = (char*)_str.data();
 

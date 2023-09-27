@@ -47,21 +47,21 @@ public:
 
 #define ET_END_ITER_REGION }}}
 
-    //static void each(glm::ivec3 extent, const std::function<bool(glm::ivec3)>& fn)
-    //{
-    //    for (int dx = -extent.x; dx <= extent.x; ++dx)
-    //    {
-    //        for (int dy = -extent.y; dy <= extent.y; ++dy)
-    //        {
-    //            for (int dz = -extent.z; dz <= extent.z; ++dz)
-    //            {
-    //                if (!fn({ dx, dy, dz }))
-    //                    return;
-    //            }
-    //        }
-    //    }
-    //}
-    //
+    static void each(glm::ivec3 extent, const std::function<bool(glm::ivec3)>& fn)
+    {
+        for (int dx = -extent.x; dx <= extent.x; ++dx)
+        {
+            for (int dy = -extent.y; dy <= extent.y; ++dy)
+            {
+                for (int dz = -extent.z; dz <= extent.z; ++dz)
+                {
+                    if (!fn({ dx, dy, dz }))
+                        return;
+                }
+            }
+        }
+    }
+    
     //static void forEach(glm::vec3 min, glm::vec3 max, const std::function<void(glm::vec3)>& fn) {
     //    for (float rx = min.x; rx <= max.x; ++rx) {
     //        for (float ry = min.y; ry <= max.y; ++ry) {

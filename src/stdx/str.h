@@ -41,11 +41,14 @@ namespace stdx
 	std::string size_str(size_t _size);
 
 
+	std::string duration(float sec, bool sec_str = true, bool apm = false);
 
-	std::string daytime(float daytime, bool apm = false);
+	float duration(std::string_view str);
 
-	// parse_daytime
-	float daytime(std::string_view str);
+
+	inline std::string daytime(float daytime, bool sec_str = false, bool apm = true) { return stdx::duration(daytime * (24 * 60 * 60), sec_str, apm); }
+
+	inline float daytime(std::string_view str) { return stdx::duration(str) / (24 * 60 * 60); }
 
 
 

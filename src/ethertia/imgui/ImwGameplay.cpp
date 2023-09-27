@@ -31,18 +31,22 @@ static void _ShowDebugText()
     World* world = Ethertia::GetWorld();
     float dt = Ethertia::getDelta();
 
+    std::string strWorldInfo = "--";
     //std::string cellInfo = "nil";
     //std::string chunkInfo = "nil";
-    //std::string worldInfo = "nil";
     //HitCursor& cur = Ethertia::getHitCursor();
     //
-    //if (world)
-    //{
-    //    worldInfo = std::format("{}. inhabited {}s, daytime {}. seed {}",
-    //        world->m_WorldInfo.Name,
-    //        world->m_WorldInfo.InhabitedTime,
-    //        stdx::daytime(world->getDayTime()),
-    //        world->getSeed());
+    if (world)
+    {
+        WorldInfo& wi = world->GetWorldInfo();
+
+        strWorldInfo = std::format("'{}'; daytime: {}; inhabited: {:.2f}s; seed: {}\nChunks: {} / {} loading/loaded.",
+            wi.Name,
+            stdx::daytime(wi.DayTime, true, false),
+            wi.InhabitedTime,
+            wi.Seed,
+            world->GetChunkSystem().m_ChunksLoading.size(),
+            world->GetChunkSystem().GetChunks().size());
     //    Chunk* hitChunk = world->getLoadedChunk(cur.position);
     //    if (hitChunk) {
     //        chunkInfo = std::format("GenPop: {}, Inhabited: {}s",
@@ -57,7 +61,7 @@ static void _ShowDebugText()
     //            (int)c->exp_meta,
     //            cur.cell_breaking_time);
     //    }
-    //}
+    }
     //
     static glm::vec3 CamPosLast;
     glm::vec3 CamPosCurr = cam.matView[3];
@@ -75,7 +79,7 @@ static void _ShowDebugText()
         "threadpool: threads: {} / {}, tasks: {}\n"
         //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
         "\n"
-        //"World: {}\n"
+        "World: {}\n"
         //"HitChunk: {}\n"
         //"HitCell: {}\n"
         //"\n"
@@ -84,7 +88,7 @@ static void _ShowDebugText()
         //"ChunkMeshing: {}\n"
         //"ChunkSaving:  {}\n"
         "\n"
-        "OS: {}, {} concurrency, {} endian\n"
+        "OS: {}, {} concurrency, {}-endian\n"
         "CPU: {}\n"
         "GPU: {}\n"
         "RAM: x GB / x GB"
@@ -99,7 +103,7 @@ static void _ShowDebugText()
     
         //Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
     
-        //worldInfo,
+        strWorldInfo,
         //chunkInfo,
         //cellInfo,
         //
@@ -108,12 +112,12 @@ static void _ShowDebugText()
         //DebugStat::dbg_NumChunksMeshInvalid,
         //DebugStat::dbg_ChunksSaving,
     
-        Loader::os_arch(), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little",
+        Loader::os_arch(), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "B" : "L",
         Loader::cpuid(),
         (const char*)vkx::ctx().PhysDeviceProperties.deviceName
     );
 
-    ImGui::SetCursorPos({ 0, 64 });
+    ImGui::SetCursorPos({ 0, 48 });
     ImGui::Text(str.c_str());
     // 
     // 
@@ -704,7 +708,35 @@ void ImwGame::ShowWorldNew(bool* _open)
 }
 
 
+void ImwGame::ShowWorldSettings(bool* _open)
+{
+    ImGui::Begin("World Settings", _open);
 
+    World* world = Ethertia::GetWorld();
+    if (!world) {
+        ImGui::TextDisabled("World not loaded");
+        ImGui::End();
+        return;
+    }
+    
+    ImGui::SeparatorText("World Info");
+    WorldInfo& wi = world->GetWorldInfo();
+
+    Imgui::InputText("World Name", wi.Name);
+
+    ImGui::TextDisabled("World Seed: %i", wi.Seed);
+
+    ImGui::TextDisabled(std::format(
+        "Inhabited time: {}", 
+        
+        wi.InhabitedTime).c_str());
+
+    ImGui::SliderFloat("DayTime", &wi.DayTime, 0, 1, std::format("{:.3f} {}", wi.DayTime, stdx::daytime(wi.DayTime)).c_str());
+
+    ImGui::DragFloat("DayTimeLength", &wi.DayTimeLength, 1, 0, 0, std::format("{}s {}", (int)wi.DayTimeLength, stdx::duration(wi.DayTimeLength, false)).c_str());
+
+    ImGui::End();
+}
 
 
 
