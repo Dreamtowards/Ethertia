@@ -56,9 +56,22 @@ void test(float& v)
     }
 }
 
+bool testret()
+{
+
+}
+
 
 int main()
 {
+
+    for (float i = 0; i < 10000000; ++i)
+    {
+        bool b = testret();
+        if (b)
+            Log::info("{}", b);
+    }
+    return 0;
     float f = 0;
     for (int i = 0; i < 5; ++i)
     {

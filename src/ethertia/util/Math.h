@@ -29,16 +29,23 @@ public:
 		return x - n * Math::Floor(x / n);
 	}
 
+	//static int Floor(float v, int n)
+	//{
+	//	return Math::Floor(v / n) * n;
+	//}
+
 	static int Floor16(int x)
 	{
 		return x & ~15;
 	}
 
-
 	static unsigned int Mod16(int x)
 	{
 		return x & 15;
 	}
+
+
+
 
 #define ET_OP_VEC3(op, v) { op(v.x), op(v.y), op(v.z) }
 
@@ -52,14 +59,17 @@ public:
 		return ET_OP_VEC3(Math::Mod16, p);
 	}
 
-	//static int Floor(float v, int n)
-	//{
-	//	return Math::Floor(v / n) * n;
-	//}
 
-	//static int Mod(int x, int n)
-	//{
-	//	int f = x % n;
-	//	return f < 0 ? f + n : f;
-	//}
+
 };
+
+
+
+
+
+//glm::vec3 operator+(const )
+//{
+//
+//}
+
+

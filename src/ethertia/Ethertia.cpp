@@ -225,17 +225,15 @@ static void RunMainLoop()
 
 
 
-//void Ethertia::runTick()
-//{
-//    if (m_World) {
-//
-//        m_World->tick();
-//    }
-//}
+
+
+
+
+#pragma region LoadWorld, UnloadWorld
 
 void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 {
-    assert(Ethertia::GetWorld() == nullptr);
+    ET_ASSERT(Ethertia::GetWorld() == nullptr);
 
     g_World = new World();// savedir, worldinfo);
     World* world = g_World;
@@ -258,8 +256,10 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 
 void Ethertia::UnloadWorld()
 {
-    assert(Ethertia::GetWorld() != nullptr);
+    ET_ASSERT(Ethertia::GetWorld() != nullptr);
+
     Log::info("Unloading World...");
+
     Ethertia::getHitCursor().reset();
 
 
@@ -283,6 +283,9 @@ void Ethertia::UnloadWorld()
 
     Log::info("World unloaded.");
 }
+
+
+#pragma endregion
 
 
 

@@ -5,6 +5,7 @@
 #include <ethertia/Ethertia.h>  // thread_pool, viewpos
 
 #include <ethertia/util/Assert.h>
+#include <ethertia/util/Math.h>
 
 
 std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
@@ -47,32 +48,50 @@ void ChunkSystem::QueueLoad(glm::vec3 chunkpos)
 
 void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::vec2 viewDistance)
 {
+    static int m_ChunksLoadingMaxConcurrent = 40;
+
     // todo: Recursive Octree Load.
-    
 	// Check which chunks Need to be Load
 
-    glm::vec3 viewer_chunkpos = Chunk::ChunkPos(viewpos);
+    glm::ivec3 viewer_chunkpos = Chunk::ChunkPos(viewpos);
 
-    int nH = (int)viewDistance.x;
-    int nV = (int)viewDistance.y;
-    for (int dx = -nH; dx <= nH; ++dx)
+    glm::ivec3 vd{ viewDistance.x, viewDistance.y, viewDistance.x };
+
+    ET_BEGIN_ITER_REGION(vd, rp)
     {
-        for (int dy = -nV; dy <= nV; ++dy)
-        {
-            for (int dz = -nH; dz <= nH; ++dz)
-            {
-                glm::vec3 chunkpos = glm::vec3(dx, dy, dz) * 16.0f + viewer_chunkpos;
+        glm::ivec3 chunkpos = rp * 16 + viewer_chunkpos;
 
-                // if (m_LoadingChunks.size() > ChunksLoadingMaxConcurrent) break;
-                if (GetChunk(chunkpos) || m_ChunksLoading.contains(chunkpos))
-                    continue;
+        if (m_ChunksLoading.size() > m_ChunksLoadingMaxConcurrent) 
+            break;
+        if (GetChunk(chunkpos) || m_ChunksLoading.contains(chunkpos))
+            continue;
 
-
-                
-
-            }
-        }
+        QueueLoad(chunkpos);
     }
+    ET_END_ITER_REGION
+
+    
+
+
+
+    //for (int dx = -ex.x; dx <= ex.x; ++dx)
+    //{
+    //    for (int dy = -ex.y; dy <= ex.y; ++dy)
+    //    {
+    //        for (int dz = -ex.z; dz <= ex.z; ++dz)
+    //        {
+    //            glm::ivec3 chunkpos = glm::ivec3(dx, dy, dz) * 16 + viewer_chunkpos;
+    //
+    //            if (m_ChunksLoading.size() > m_ChunksLoadingMaxConcurrent)
+    //                break;
+    //            if (GetChunk(chunkpos) || m_ChunksLoading.contains(chunkpos))
+    //                continue;
+    //
+    //            QueueLoad(chunkpos);
+    //
+    //        }
+    //    }
+    //}
 }
 
 
