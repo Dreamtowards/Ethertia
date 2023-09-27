@@ -6,7 +6,7 @@
 #include <ethertia/util/Math.h>
 
 
-void test(float& v)
+void test(float& v) 
 {
     const float N = 10 * 1000000;
 
