@@ -177,6 +177,58 @@ void ImwInspector::ShowHierarchy(bool* _open)
 
 
 
+#include <ImGuizmo.h>
+
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+
+static void _InspTransform(TransformComponent& comp)
+{
+    glm::mat4 mat = comp.Transform;
+
+    glm::vec3 scale;
+    glm::quat quat;
+    glm::vec3 pos;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose(mat, scale, quat, pos, skew, perspective);
+
+    //        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+    //        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
+    //        ImGui::InputFloat3("Tr", matrixTranslation);
+    //        ImGui::InputFloat3("Rt", matrixRotation);
+    //        ImGui::InputFloat3("Sc", matrixScale);
+    //        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
+
+
+    ImGui::DragFloat3("Position", &comp.position().x);
+    ImGui::DragFloat3("Rotation", &comp.position().x);
+    ImGui::DragFloat3("Scale", &comp.position().x);
+
+
+
+
+    // need draw in ShowGame window.
+    //bool manipulated = ImGuizmo::Manipulate(
+    //    glm::value_ptr(Ethertia::getCamera().matView),
+    //    glm::value_ptr(Ethertia::getCamera().matProjection),
+    //    gizmoOp, gizmoMode,
+    //    glm::value_ptr(mat),
+    //    nullptr,  // delta mat?
+    //    nullptr,  // snap
+    //    _OpBound ? bounds : nullptr,  // bound
+    //    _OpBound ? boundsSnap : nullptr);  // boundSnap
+    //
+    //if (manipulated) // ImGuizmo::IsUsing() 
+    //{
+    //    //Mth::decomposeTransform(matModel, pos, rot, scl);
+    //
+    //    comp.Transform = mat;
+    //}
+}
+
+
+
 
 #pragma region Imw Inspector
 
@@ -213,7 +265,7 @@ void ImwInspector::ShowInspector(bool* _open)
         ImGui::EndPopup();
     }
     
-    auto& tag = entity.GetComponent<TagComponent>();
+    auto& tag = entity.GetTag();
 
     ImGui::Checkbox("##IsEnabled", &tag.IsEnabled);
     Imgui::ItemTooltip("Enabled or Disable");
@@ -228,8 +280,17 @@ void ImwInspector::ShowInspector(bool* _open)
 
     ImGui::BeginChild("ComponentsList", { 0, -ImGui::GetTextLineHeightWithSpacing() });
 
+    auto& trans = entity.GetTransform();
+
+    ImGui::Spacing();
+    if (ImGui::CollapsingHeader("Transform"))
+    {
+        _InspTransform(trans);
+    }
+
+
     int numEntityComponents = 0;
-    
+
     // for Pools of ComponentType
     for (const auto& it : entity.reg().storage())
     {
@@ -238,7 +299,7 @@ void ImwInspector::ShowInspector(bool* _open)
             ++numEntityComponents;
             auto& c_type = c_storage.type();  // Component Type Info
 
-            if (c_type.hash() == entt::type_hash<TagComponent>())
+            if (c_type.hash() == entt::type_hash<TagComponent>() || c_type.hash() == entt::type_hash<TransformComponent>())
                 continue;
             auto it = ComponentInspectors.find(c_type.hash());
             if (it == ComponentInspectors.end()) {
@@ -302,58 +363,6 @@ void ImwInspector::ShowInspector(bool* _open)
 
 
 
-#include <ImGuizmo.h>
-
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-
-static void _InspTransform(TransformComponent& comp)
-{
-    glm::mat4 mat = comp.Transform;
-
-    glm::vec3 scale;
-    glm::quat quat;
-    glm::vec3 pos;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose(mat, scale, quat, pos, skew, perspective);
-
-    //        float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-    //        ImGuizmo::DecomposeMatrixToComponents(&RenderEngine::matView[0][0], matrixTranslation, matrixRotation, matrixScale);
-    //        ImGui::InputFloat3("Tr", matrixTranslation);
-    //        ImGui::InputFloat3("Rt", matrixRotation);
-    //        ImGui::InputFloat3("Sc", matrixScale);
-    //        ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &RenderEngine::matView[0][0]);
-
-
-    ImGui::DragFloat3("Position", &comp.position().x);
-    ImGui::DragFloat3("Rotation", &comp.position().x);
-    ImGui::DragFloat3("Scale", &comp.position().x);
-
-
-
-    
-    // need draw in ShowGame window.
-    //bool manipulated = ImGuizmo::Manipulate(
-    //    glm::value_ptr(Ethertia::getCamera().matView),
-    //    glm::value_ptr(Ethertia::getCamera().matProjection),
-    //    gizmoOp, gizmoMode,
-    //    glm::value_ptr(mat),
-    //    nullptr,  // delta mat?
-    //    nullptr,  // snap
-    //    _OpBound ? bounds : nullptr,  // bound
-    //    _OpBound ? boundsSnap : nullptr);  // boundSnap
-    //
-    //if (manipulated) // ImGuizmo::IsUsing() 
-    //{
-    //    //Mth::decomposeTransform(matModel, pos, rot, scl);
-    //
-    //    comp.Transform = mat;
-    //}
-}
-
-
-
 
 static void _InspDbgAABB(DebugDrawBoundingBox& comp)
 {
@@ -371,48 +380,48 @@ void ImwInspector::InitComponentInspectors()
     ImwInspector::AddComponentInspector<DebugDrawBoundingBox>(_InspDbgAABB);
 }
 
-static void _InspWorld(World* world)
-{
-    WorldInfo& worldinfo = world->GetWorldInfo();
-
-    ImGui::Text(std::format(
-        "World Name: {}\n"
-        "World Seed: {}\n"
-        "DayTime: {}\n"
-        "DayTime Length: {}\n"
-        "Inhibited Time: {}\n"
-        ,
-        worldinfo.Name,
-        worldinfo.Seed,
-        worldinfo.InhabitedTime,
-        worldinfo.InhabitedTime,
-        worldinfo.InhabitedTime
-    ).c_str());
-    //ImGui::BeginDisabled();
-    //const WorldInfo& winf = world->m_WorldInfo;
-    //
-    //static char WorldName[128];
-    //ImGui::InputText("World Name", WorldName, 128);
-    //
-    //static char WorldSeed[128];
-    //ImGui::InputText("World Seed", WorldSeed, 128);
-    //
-    //ImGui::EndDisabled();
-    //
-    //ImGui::SliderFloat("Day Time", &world->m_WorldInfo.DayTime, 0, 1);
-    //ImGui::SliderFloat("Day Time Length", &world->m_WorldInfo.DayLength, 1, 3600);
-    //
-    //
-    //ImGui::ColorEdit3("Sun Color", &Dbg::dbg_WorldSunColor.x);
-    //ImGui::ColorEdit3("Dbg Color", &Dbg::dbg_ShaderDbgColor.x);
-    //ImGui::DragFloat("Sun Brightness Mul", &Dbg::dbg_WorldSunColorBrightnessMul, 0.1);
-    //
-    //
-    //if (ImGui::Button("Open World Save Directory"))
-    //{
-    //    Loader::OpenURL(world->m_ChunkLoader->m_ChunkDir);
-    //}
-    //if (ImGui::IsItemHovered()) {
-    //    ImGui::SetTooltip("%s", world->m_ChunkLoader->m_ChunkDir.c_str());
-    //}
-}
+//static void _InspWorld(World* world)
+//{
+//    WorldInfo& worldinfo = world->GetWorldInfo();
+//
+//    ImGui::Text(std::format(
+//        "World Name: {}\n"
+//        "World Seed: {}\n"
+//        "DayTime: {}\n"
+//        "DayTime Length: {}\n"
+//        "Inhibited Time: {}\n"
+//        ,
+//        worldinfo.Name,
+//        worldinfo.Seed,
+//        worldinfo.InhabitedTime,
+//        worldinfo.InhabitedTime,
+//        worldinfo.InhabitedTime
+//    ).c_str());
+//    //ImGui::BeginDisabled();
+//    //const WorldInfo& winf = world->m_WorldInfo;
+//    //
+//    //static char WorldName[128];
+//    //ImGui::InputText("World Name", WorldName, 128);
+//    //
+//    //static char WorldSeed[128];
+//    //ImGui::InputText("World Seed", WorldSeed, 128);
+//    //
+//    //ImGui::EndDisabled();
+//    //
+//    //ImGui::SliderFloat("Day Time", &world->m_WorldInfo.DayTime, 0, 1);
+//    //ImGui::SliderFloat("Day Time Length", &world->m_WorldInfo.DayLength, 1, 3600);
+//    //
+//    //
+//    //ImGui::ColorEdit3("Sun Color", &Dbg::dbg_WorldSunColor.x);
+//    //ImGui::ColorEdit3("Dbg Color", &Dbg::dbg_ShaderDbgColor.x);
+//    //ImGui::DragFloat("Sun Brightness Mul", &Dbg::dbg_WorldSunColorBrightnessMul, 0.1);
+//    //
+//    //
+//    //if (ImGui::Button("Open World Save Directory"))
+//    //{
+//    //    Loader::OpenURL(world->m_ChunkLoader->m_ChunkDir);
+//    //}
+//    //if (ImGui::IsItemHovered()) {
+//    //    ImGui::SetTooltip("%s", world->m_ChunkLoader->m_ChunkDir.c_str());
+//    //}
+//}
