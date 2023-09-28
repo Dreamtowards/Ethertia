@@ -24,6 +24,10 @@
 
 #include <ethertia/imgui/ImwInspector.h>
 
+
+static float s_CameraMoveSpeed = 1;
+
+
 #pragma region Viewport Ops
 
 static void _ShowDebugText()
@@ -74,7 +78,7 @@ static void _ShowDebugText()
 
     // kph = mps*3.6
     std::string str = std::format(
-        "cam pos: {}, spd: {}mps {}kph\n" 
+        "cam pos: {}, spd: {}mps {}kph; edt_spd_fac: {}\n" 
         //"plr ground: {}, collide pts: {}\n"
         "avg_fps: {}. dt: {}, {}fps\n"
         "threadpool: threads: {} / {}, tasks: {}\n"
@@ -94,8 +98,9 @@ static void _ShowDebugText()
         "GPU: {}\n"
         "RAM: x GB / x GB"
         ,
-        glm::to_string(Ethertia::getCamera().position).substr(4),
+        glm::to_string(Ethertia::getCamera().matView[3]).substr(4),
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
+        s_CameraMoveSpeed,
         //player->m_OnGround, player->m_NumContactPoints,
     
         Dbg::dbg_FPS, dt, std::floor(1.0f / dt),
@@ -238,11 +243,15 @@ static void _ShowViewportWidgets()
         if (!SelectedEntity) { ImGui::EndDisabled(); }
 
         ImGui::Separator();
+
+        ImGui::DragFloat("Move Speed", &s_CameraMoveSpeed);
+
+        ImGui::Separator();
+
         ImGui::DragInt("Hint Grids", &Dbg::dbg_WorldHintGrids);
         ImGui::Checkbox("View Gizmo", &Dbg::dbg_ViewGizmo);
         ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
 
-        ImGui::Separator();
         ImGui::Checkbox("Debug Text Info", &Dbg::dbg_TextInfo);
 
         ImGui::EndPopup();
@@ -375,8 +384,8 @@ static void _MoveCamera()
 
     bool keyAltDown = Window::isAltKeyDown();
     bool keyCtrlDown = Window::isCtrlKeyDown();
-    bool dragRMB = ImGui::IsMouseDragging(ImGuiMouseButton_Right);
-    bool dragMMB = ImGui::IsMouseDragging(ImGuiMouseButton_Middle);
+    bool dragRMB = ImGui::IsMouseDown(ImGuiMouseButton_Right);
+    bool dragMMB = ImGui::IsMouseDown(ImGuiMouseButton_Middle);
 
     if (dragRMB || dragMMB)
     {
@@ -403,21 +412,26 @@ static void _MoveCamera()
             }
         }
 
-        float dt = Ethertia::getDelta() * 4.0f;
-        if (io.KeyCtrl) dt *= 8.0f;
-
-        if (io.KeysDown[ImGuiKey_W]) move.z -= dt;
-        if (io.KeysDown[ImGuiKey_S]) move.z += dt;
-        if (io.KeysDown[ImGuiKey_A]) move.x -= dt;
-        if (io.KeysDown[ImGuiKey_D]) move.x += dt;
-        if (io.KeysDown[ImGuiKey_Q]) move.y -= dt;
-        if (io.KeysDown[ImGuiKey_E]) move.y += dt;
-        if (keyCtrlDown) moveaa.y -= dt;
-        if (io.KeysDown[ImGuiKey_Space]) moveaa.y += dt;
-    }
+        if (io.KeysDown[ImGuiKey_W]) move.z -= 1;
+        if (io.KeysDown[ImGuiKey_S]) move.z += 1;
+        if (io.KeysDown[ImGuiKey_A]) move.x -= 1;
+        if (io.KeysDown[ImGuiKey_D]) move.x += 1;
+        if (io.KeysDown[ImGuiKey_Q]) move.y -= 1;
+        if (io.KeysDown[ImGuiKey_E]) move.y += 1;
+        if (keyCtrlDown) moveaa.y -= 1;
+        if (io.KeysDown[ImGuiKey_Space]) moveaa.y += 1;
 
 
-    if (MouseWheel && ImGui::IsWindowHovered())
+        s_CameraMoveSpeed += MouseWheel;
+        s_CameraMoveSpeed = std::max(0.0f, s_CameraMoveSpeed);
+
+        float spd = Ethertia::getDelta() * s_CameraMoveSpeed;
+
+        move *= spd;
+        moveaa *= spd;
+
+    } 
+    else if (MouseWheel && ImGui::IsWindowHovered())
     {
         // Zoom Z
         move.z += -MouseWheel;
