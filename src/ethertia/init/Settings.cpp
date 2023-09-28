@@ -40,6 +40,7 @@ void Settings::LoadSettings()
     DrawFuncIds["settings"] = Imw::Settings::ShowSettings;
     DrawFuncIds["inspector"] = ImwInspector::ShowInspector;
     DrawFuncIds["hierarchy"] = ImwInspector::ShowHierarchy;
+    DrawFuncIds["worldsettings"] = ImwGame::ShowWorldSettings;
     DrawFuncIds["profiler"] = Imw::Editor::ShowProfiler;
     DrawFuncIds["toolbar"] = Imw::Editor::ShowToolbar;
     DrawFuncIds["console"] = Imw::Editor::ShowConsole;

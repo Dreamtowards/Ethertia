@@ -733,16 +733,16 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
     ImGui::InputInt("World Seed", (int*)&wi.Seed);
 
-    ImGui::DragFloat("Inhabited time", &wi.InhabitedTime);
+    ImGui::DragFloat("InhabitedTime", &wi.InhabitedTime);
 
-    ImGui::SliderFloat("DayTime", &wi.DayTime, 0, 1, std::format("{:.3f} {}", wi.DayTime, stdx::daytime(wi.DayTime)).c_str());
+    ImGui::SliderFloat("DayTime", &wi.DayTime, 0, 1, std::format("{:.5f} {}", wi.DayTime, stdx::daytime(wi.DayTime)).c_str());
 
-    ImGui::DragFloat("DayTimeLength", &wi.DayTimeLength, 1, 0, 0, std::format("{}s {}", (int)wi.DayTimeLength, stdx::duration(wi.DayTimeLength, false)).c_str());
+    ImGui::DragFloat("DayTimeLength", &wi.DayTimeLength, 1, 1, 86400, std::format("{}s {}", (int)wi.DayTimeLength, stdx::duration(wi.DayTimeLength, false)).c_str());
 
 
     ImGui::SeparatorText("Chunk System");
 
-    ImGui::DragInt2("Load Distance", &world->GetChunkSystem().m_TmpLoadDistance.x);
+    ImGui::DragInt2("Load Distance", &world->GetChunkSystem().m_TmpLoadDistance.x, 0, 10000);
 
 
     ImGui::End();
