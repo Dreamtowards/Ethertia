@@ -26,6 +26,7 @@ void World::OnTick(float dt)
 	WorldInfo& wi = GetWorldInfo();
 	wi.InhabitedTime += dt;
 	wi.DayTime += dt / wi.DayTimeLength;
+	wi.DayTime -= (int)wi.DayTime;  // keep [0-1]
 
 
 	m_ChunkSystem.OnTick();
