@@ -12,6 +12,8 @@
 
 #include <ethertia/world/chunk/meshgen/MeshGen.h>
 
+#include <ethertia/init/MaterialMeshes.h>  // tmp test
+
 
 std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
 {
@@ -201,7 +203,13 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         if (!task->is_completed())
             continue;
 
+        auto chunk = task->get();
+        Entity& entity = chunk->entity;
+
         // Update MeshRender
+        auto& meshr = entity.AddComponent<MeshRenderComponent>();
+        meshr.VertexBuffer = Loader::LoadVertexData(MaterialMeshes::CAPSULE);
+
         // Update MeshPhysics
 
         _TmpChunksBatchErase.push_back(chunkpos);
@@ -249,5 +257,6 @@ static void _UpdateChunksMeshing()
 
 void ChunkSystem::OnTick()
 {
-    _UpdateChunkLoadAndUnload({ 0,0,0 }, { 0,0,0 });// m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x
+    _UpdateChunkLoadAndUnload({ 0,0,0 }, { m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x });
+
 }
