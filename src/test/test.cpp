@@ -56,22 +56,47 @@ void test(float& v)
     }
 }
 
-bool testret()
+
+#include <chrono>
+class testV
 {
+public:
+    template<typename T>
+    static T GenInt()
+    {
+        static T _i = std::chrono::system_clock::now().time_since_epoch().count();
+        return _i;
+    }
 
-}
+    static int InlintFunc()
+    {
+        return GenInt<int>();
+    }
 
-
+    static int InlintFunc2()
+    {
+        return GenInt<uint32_t>();
+    }
+};
 int main()
 {
+    Log::info("A: {}", testV::InlintFunc());
 
-    for (float i = 0; i < 10000000; ++i)
-    {
-        bool b = testret();
-        if (b)
-            Log::info("{}", b);
-    }
+    Log::info("A: {}", testV::InlintFunc());
+
+    Log::info("A: {}", testV::InlintFunc2());
+    Log::info("A: {}", testV::InlintFunc2());
+
+    Log::info("A: {}", testV::InlintFunc());
+
     return 0;
+    //for (float i = 0; i < 10000000; ++i)
+    //{
+    //    bool b = testret();
+    //    if (b)
+    //        Log::info("{}", b);
+    //}
+    //return 0;
     float f = 0;
     for (int i = 0; i < 5; ++i)
     {

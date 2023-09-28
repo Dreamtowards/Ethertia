@@ -44,6 +44,8 @@ public:
 
 	AABB GetAABB() const { return { chunkpos, chunkpos + 16 }; }
 
+	World& GetWorld() { return *m_World; }
+
 
 	Chunk(const Chunk& c) = delete;  // auto-copy is disabled due to Heavy Cell MemoryCost
 	Chunk& operator=(const Chunk& c) = delete;

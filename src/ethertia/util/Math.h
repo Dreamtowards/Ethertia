@@ -64,15 +64,3 @@ public:
 
 };
 
-
-
-
-/*
-Modify glm
-
-1. Receiving ptr
-@glm/detail/type_vec3.hpp line:108
-
-GLM_FUNC_DECL GLM_CONSTEXPR explicit vec(const T p[3]) : x(p[0]), y(p[1]), z(p[2]) {}
-
-*/

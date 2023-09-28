@@ -212,8 +212,14 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         // Update MeshRender
 
         auto* rmesh = &chunk->entity.GetComponent<MeshRenderComponent>();
+
         delete rmesh->VertexBuffer;  // really?
-        rmesh->VertexBuffer = Loader::LoadVertexData(rmesh->VertexData);
+        rmesh->VertexBuffer = nullptr;
+
+        if (rmesh->VertexData->VertexCount())
+        {
+            rmesh->VertexBuffer = Loader::LoadVertexData(rmesh->VertexData);
+        }
 
         // Update MeshPhysics
 

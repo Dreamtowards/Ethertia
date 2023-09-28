@@ -70,13 +70,13 @@ static void _PutCube(VertexData& vtx, glm::ivec3 lp, Chunk& chunk, Cell& cell)
 void MeshGen::GenerateMesh(Chunk& chunk, VertexData& vtx)
 {
 
-    for (int rx = 0; rx < 16; ++rx)
+    for (int dx = 0; dx < 16; ++dx)
     {
-        for (int ry = 0; ry < 16; ++ry)
+        for (int dy = 0; dy < 16; ++dy)
         {
-            for (int rz = 0; rz < 16; ++rz)
+            for (int dz = 0; dz < 16; ++dz)
             {
-                glm::ivec3 lp{rx, ry, rz};
+                glm::ivec3 lp{dx, dy, dz};
                 Cell& cell = chunk.LocalCell(lp);
 
                 if (cell.IsSolid())
