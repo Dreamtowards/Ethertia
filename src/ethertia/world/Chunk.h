@@ -18,24 +18,31 @@ class Chunk
 public:
 	static const int SIZE = 16;
 
-	glm::vec3 chunkpos;  // world coordinate, but multiples of 16
+	glm::ivec3 chunkpos;  // world coordinate, but multiples of 16
 
 	Entity entity;  // proxy entity.
 
 	bool m_NeedRebuildMesh = true;  // MeshingState
 
-	explicit Chunk(World* world, glm::vec3 chunkpos);
+	explicit Chunk(World* world, glm::ivec3 chunkpos);
 
 
 	Cell& LocalCell(glm::ivec3 localpos) { return m_Cells[Chunk::LocalIdx(localpos)]; }
 
-	Cell GetCell(glm::ivec3 localpos) { return LocalCell(localpos); }
+	Cell GetCell(glm::ivec3 localpos, bool worldwide = false) 
+	{ 
+		if (worldwide && !Chunk::IsLocalPos(localpos))
+		{
+			return m_World->GetCell(chunkpos + localpos);
+		}
+		return LocalCell(localpos); 
+	}
 
 	void SetCell(glm::ivec3 localpos, const Cell& cell) { LocalCell(localpos) = cell; }
 
 
 
-	AABB GetAABB() const { return { chunkpos, chunkpos + 16.0f }; }
+	AABB GetAABB() const { return { chunkpos, chunkpos + 16 }; }
 
 
 	Chunk(const Chunk& c) = delete;  // auto-copy is disabled due to Heavy Cell MemoryCost

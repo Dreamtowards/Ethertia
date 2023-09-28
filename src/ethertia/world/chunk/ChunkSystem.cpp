@@ -117,6 +117,9 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         auto& trans = entity.GetTransform();
         trans.position() = chunkpos;
 
+        auto& rmesh = entity.AddComponent<MeshRenderComponent>();
+        rmesh.VertexData = new VertexData();
+
         auto& box = entity.AddComponent<DebugDrawBoundingBox>();
         box.BoundingBox.max = glm::vec3(16);
 
@@ -178,13 +181,13 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             continue;
         chunk->m_NeedRebuildMesh = false;
 
-        auto task = threadpool.submit([chunk]() {
+        VertexData* vtx = chunk->entity.GetComponent<MeshRenderComponent>().VertexData;
+        vtx->Clear();
 
-            //VertexData* vtx = new VertexData();
-            //
-            //MeshGen::GenerateMesh(chunk.get(), vtx);
-            //
-            //vkx::VertexBuffer* vbuf = Loader::LoadVertexData(vtx);
+        auto task = threadpool.submit([chunk, vtx]() {
+
+
+            MeshGen::GenerateMesh(*chunk.get(), *vtx);
 
             return chunk;
         });
@@ -207,8 +210,10 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         Entity& entity = chunk->entity;
 
         // Update MeshRender
-        auto& meshr = entity.AddComponent<MeshRenderComponent>();
-        meshr.VertexBuffer = Loader::LoadVertexData(MaterialMeshes::CAPSULE);
+
+        auto* rmesh = &chunk->entity.GetComponent<MeshRenderComponent>();
+        delete rmesh->VertexBuffer;  // really?
+        rmesh->VertexBuffer = Loader::LoadVertexData(rmesh->VertexData);
 
         // Update MeshPhysics
 

@@ -5,6 +5,7 @@
 void ChunkGenerator::GenerateChunk(Chunk& chunk)
 {
 
+	chunk.LocalCell({}).value = 1;
 }
 
 

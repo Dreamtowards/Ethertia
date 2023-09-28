@@ -39,9 +39,12 @@ struct DebugDrawBoundingBox
 
 
 
+#include <ethertia/render/VertexData.h>
 #include <vkx/vkx.hpp>
 
 struct MeshRenderComponent
 {
+	VertexData* VertexData = nullptr;
+
 	vkx::VertexBuffer* VertexBuffer = nullptr;
 };

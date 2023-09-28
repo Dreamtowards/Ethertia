@@ -86,6 +86,12 @@ public:
         }
     }
 
+    void Clear()
+    {
+        Vertices.clear();
+        Indices.clear();
+    }
+
 
     // make an Unique Indexed VertexData. hash-map method.
     static VertexData* MakeIndexed(const VertexData* nonIndexed, VertexData* out = new VertexData());

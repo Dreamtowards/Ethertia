@@ -23,6 +23,7 @@ public:
 
 };
 
+class Cell;
 class Entity;  // fwd
 
 class World
@@ -43,6 +44,7 @@ public:
 
 	void OnTick(float dt);
 
+	Cell& GetCell(glm::ivec3 p);
 
 	ChunkSystem& GetChunkSystem() { return *m_ChunkSystem; }
 

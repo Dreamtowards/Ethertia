@@ -50,3 +50,15 @@ void World::DestroyEntity(entt::entity entity)
 {
 	m_EntityRegistry.destroy(entity);
 }
+
+
+
+Cell& World::GetCell(glm::ivec3 p)
+{
+	auto chunk = GetChunkSystem().GetChunk(Chunk::ChunkPos(p));
+
+	if (!chunk)
+		return Cell::Nil();
+	
+	return chunk->LocalCell(Chunk::LocalPos(p));
+}

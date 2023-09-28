@@ -10,6 +10,6 @@ class MeshGen
 {
 public:
 
-	static void GenerateMesh(Chunk* chunk, VertexData* vtx);
+	static void GenerateMesh(Chunk& chunk, VertexData& vtx);
 
 };
