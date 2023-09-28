@@ -20,6 +20,7 @@
 #include <ethertia/render/Window.h>
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/world/Chunk.h>
+#include <ethertia/world/chunk/ChunkSystem.h>
 
 #include <ethertia/imgui/ImwInspector.h>
 

@@ -7,6 +7,8 @@
 #include <ethertia/util/Assert.h>
 #include <ethertia/util/Math.h>
 
+#include <ethertia/world/Entity.h>
+
 class World;
 
 class Chunk
@@ -15,6 +17,8 @@ public:
 	static const int SIZE = 16;
 
 	glm::vec3 chunkpos;  // world coordinate, but multiples of 16
+
+	Entity entity;  // proxy entity.
 
 	bool m_NeedRebuildMesh = true;  // MeshingState
 

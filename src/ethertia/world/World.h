@@ -4,10 +4,8 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 
-#include <ethertia/world/chunk/ChunkSystem.h>
 
-#include "EntityComponents.h"
-
+class ChunkSystem;
 
 class WorldInfo
 {
@@ -46,7 +44,7 @@ public:
 	void OnTick(float dt);
 
 
-	ChunkSystem& GetChunkSystem() { return m_ChunkSystem; }
+	ChunkSystem& GetChunkSystem() { return *m_ChunkSystem; }
 
 
 	#pragma region WorldInfo
@@ -66,7 +64,7 @@ private:
 
 	WorldInfo m_WorldInfo;
 
-	ChunkSystem m_ChunkSystem {this};
+	std::unique_ptr<ChunkSystem> m_ChunkSystem;
 
 
 	bool m_Paused = false;

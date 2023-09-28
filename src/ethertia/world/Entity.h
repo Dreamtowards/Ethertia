@@ -3,6 +3,7 @@
 
 #include "World.h"
 
+#include "EntityComponents.h"
 
 class Entity
 {
@@ -40,6 +41,9 @@ public:
 		return m_World->registry().has<T>(m_EntityId);
 	}
 
+
+	TransformComponent& GetTransform() { return GetComponent<TransformComponent>(); }
+	TagComponent& GetTag() { return GetComponent<TagComponent>(); }
 	
 
 

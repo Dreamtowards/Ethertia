@@ -6,8 +6,10 @@
 #include <ethertia/render/Window.h>
 #include <ethertia/world/World.h>
 #include <ethertia/util/Loader.h>
-#include <ethertia/util/Timer.h>
+#include <ethertia/util/Assert.h>
+#include <ethertia/util/Math.h>
 #include <ethertia/util/BenchmarkTimer.h>
+#include <ethertia/util/Timer.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/init/DebugStat.h>
@@ -24,7 +26,6 @@
 // #include <ethertia/audio/AudioEngine.h>
 //#include <ethertia/vr/OpenVR.h>
 //#include <ethertia/init/Sounds.h>
-#include <ethertia/util/Math.h>
 
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>

@@ -1,14 +1,15 @@
 
 
 #include "World.h"
-
 #include "Entity.h"
+
+#include <ethertia/world/chunk/ChunkSystem.h>
 
 
 World::World()
 {
 
-	//m_ChunkSystem.m_World = this;
+	m_ChunkSystem = std::make_unique<ChunkSystem>(this);
 }
 
 World::~World()
@@ -29,7 +30,7 @@ void World::OnTick(float dt)
 	wi.DayTime -= (int)wi.DayTime;  // keep [0-1]
 
 
-	m_ChunkSystem.OnTick();
+	m_ChunkSystem->OnTick();
 }
 
 

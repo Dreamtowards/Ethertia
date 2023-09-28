@@ -14,6 +14,7 @@
 
 //#include <ethertia/world/chunk/SVO.h>
 
+class World;
 
 
 class ChunkSystem
@@ -78,7 +79,7 @@ private:
 	std::shared_ptr<Chunk> _ProvideChunk(glm::vec3 chunkpos);
 
 
-	void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec2 viewDistance);
+	void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 viewDistance);
 	
 	//void _AddChunk(std::shared_ptr<Chunk> chunk);
 	//

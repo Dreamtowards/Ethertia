@@ -47,19 +47,20 @@ public:
 
 
 
-#define ET_OP_VEC3(op, v) { op(v.x), op(v.y), op(v.z) }
+#define ET_MAKE_VEC3(v, op) { op(v.x), op(v.y), op(v.z) }
 
 	static glm::ivec3 Floor16(glm::ivec3 p)
 	{
-		return ET_OP_VEC3(Math::Floor16, p);
+		return ET_MAKE_VEC3(p, Math::Floor16);
 	}
 
 	static glm::ivec3 Mod16(glm::ivec3 p)
 	{
-		return ET_OP_VEC3(Math::Mod16, p);
+		return ET_MAKE_VEC3(p, Math::Mod16);
 	}
 
-
+// e.g. ET_VEC3_CMP(dist, <=, viewer_loaddist, &&);
+#define ET_VEC3_CMP(a, cmp, b, conn) (a.x cmp b.x conn a.y cmp b.y conn a.z cmp b.z)
 
 };
 
