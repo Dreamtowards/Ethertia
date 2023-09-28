@@ -8,6 +8,9 @@
 
 #include <ethertia/util/Assert.h>
 #include <ethertia/util/Math.h>
+#include <ethertia/util/Loader.h>
+
+#include <ethertia/world/chunk/meshgen/MeshGen.h>
 
 
 std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
@@ -58,6 +61,9 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 {
     static int m_ChunksLoadingMaxConcurrent = 40;
 
+
+    auto& threadpool = Ethertia::GetThreadPool();
+
     // todo: Recursive Octree Load.
 	// Check which chunks Need to be Load
 
@@ -73,8 +79,6 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             return false;
         if (GetChunk(chunkpos) || m_ChunksLoading.contains(chunkpos))
             return true;
-
-        auto& threadpool = Ethertia::GetThreadPool();
 
         auto task = threadpool.submit([this, chunkpos]()
             {
@@ -160,6 +164,60 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
 
 
+
+    // Detect ChunkMeshing
+
+    for (auto it : m_Chunks)
+    {
+        glm::ivec3 cp = it.first;
+        auto chunk = it.second;
+
+        if (!chunk->m_NeedRebuildMesh)
+            continue;
+        chunk->m_NeedRebuildMesh = false;
+
+        auto task = threadpool.submit([chunk]() {
+
+            //VertexData* vtx = new VertexData();
+            //
+            //MeshGen::GenerateMesh(chunk.get(), vtx);
+            //
+            //vkx::VertexBuffer* vbuf = Loader::LoadVertexData(vtx);
+
+            return chunk;
+        });
+
+        auto [it, succ] = m_ChunksMeshing.try_emplace(cp, task);
+    }
+
+    // Load/Upload ChunkMesh
+
+    _TmpChunksBatchErase.clear();
+    for (auto it : m_ChunksMeshing)
+    {
+        glm::ivec3 chunkpos = it.first;
+        auto task = it.second;
+
+        if (!task->is_completed())
+            continue;
+
+        // Update MeshRender
+        // Update MeshPhysics
+
+        _TmpChunksBatchErase.push_back(chunkpos);
+    }
+
+    for (auto cp : _TmpChunksBatchErase)
+    {
+        m_ChunksMeshing.erase(cp);
+    }
+    if (_TmpChunksBatchErase.size())
+    {
+        Log::info("{} Chunks Meshed", _TmpChunksBatchErase.size());
+    }
+
+
+
     //for (int dx = -ex.x; dx <= ex.x; ++dx)
     //{
     //    for (int dy = -ex.y; dy <= ex.y; ++dy)
@@ -182,13 +240,14 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
 
 
-
-void ChunkSystem::OnTick()
+static void _UpdateChunksMeshing()
 {
-    _UpdateChunkLoadAndUnload({ 0,0,0 }, { m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x });
-
 
 }
 
 
 
+void ChunkSystem::OnTick()
+{
+    _UpdateChunkLoadAndUnload({ 0,0,0 }, { 0,0,0 });// m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x
+}

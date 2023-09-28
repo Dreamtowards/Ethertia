@@ -4,6 +4,8 @@
 #include <memory>
 #include <unordered_map>
 #include <glm/vec3.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
 #include <stdx/thread_pool.h>
@@ -26,7 +28,7 @@ public:
 	// todo: use SVO to get a chunk in O(logN) time.
 	// get loaded chunk.
 	// return nullptr if chunk at the chunkpos is not loaded
-	std::shared_ptr<Chunk> GetChunk(glm::vec3 chunkpos)
+	std::shared_ptr<Chunk> GetChunk(glm::ivec3 chunkpos)
 	{
 		auto it = m_Chunks.find(chunkpos);
 		if (it == m_Chunks.end())
@@ -34,7 +36,7 @@ public:
 		return it->second;
 	}
 
-	const std::unordered_map<glm::vec3, std::shared_ptr<Chunk>>& GetChunks()
+	const std::unordered_map<glm::ivec3, std::shared_ptr<Chunk>>& GetChunks()
 	{
 		return m_Chunks;
 	}
@@ -61,12 +63,14 @@ private:
 
 
 	// Loaded Chunks. basic linear struct.
-	std::unordered_map<glm::vec3, std::shared_ptr<Chunk>> m_Chunks;
+	std::unordered_map<glm::ivec3, std::shared_ptr<Chunk>> m_Chunks;
 
 public:
-	std::unordered_map<glm::vec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksLoading;
+	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksLoading;
 
 	glm::ivec2 m_TmpLoadDistance{3, 2};
+
+	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksMeshing;
 private:
 
 

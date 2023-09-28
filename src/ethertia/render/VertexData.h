@@ -56,7 +56,7 @@ public:
 
     bool IsIndexed() const { return !Indices.empty(); }
 
-    const Vertex& at(uint32_t i) const { IsIndexed() ? Vertices[Indices[i]] : Vertices[i]; }
+    [[nodiscard]] const Vertex& at(uint32_t i) const { return IsIndexed() ? Vertices[Indices[i]] : Vertices[i]; }
 
     uint32_t VertexCount() const { return IsIndexed() ? Indices.size() : Vertices.size(); }
 

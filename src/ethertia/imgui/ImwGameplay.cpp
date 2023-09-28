@@ -25,7 +25,7 @@
 #include <ethertia/imgui/ImwInspector.h>
 
 
-static float s_CameraMoveSpeed = 1;
+static float s_CameraMoveSpeed = 16;
 
 
 #pragma region Viewport Ops
@@ -434,7 +434,7 @@ static void _MoveCamera()
     else if (MouseWheel && ImGui::IsWindowHovered())
     {
         // Zoom Z
-        move.z += -MouseWheel;
+        move.z += -MouseWheel * s_CameraMoveSpeed;
     }
 
 

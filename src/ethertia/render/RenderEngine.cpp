@@ -64,15 +64,15 @@ void RenderEngine::Init()
     TEX_UVMAP = Loader::LoadImage("misc/uvmap.png");
 
     //Materials::registerMaterialItems();  // before items tex load.
-    //MaterialTextures::Load();
+    MaterialTextures::Load();
 
 
-    //RendererGbuffer::Init();
+    RendererGbuffer::Init();
     
-    //RendererCompose::Init(
-    //    RendererGbuffer::gPosition->imageView,
-    //    RendererGbuffer::gNormal->imageView,
-    //    RendererGbuffer::gAlbedo->imageView);
+    RendererCompose::Init(
+        RendererGbuffer::gPosition->imageView,
+        RendererGbuffer::gNormal->imageView,
+        RendererGbuffer::gAlbedo->imageView);
 
 
 
@@ -115,14 +115,14 @@ void RenderEngine::Render()
     World* world = Ethertia::GetWorld();
     if (world && !s_PauseWorldRender)
     {
-        //Imw::Gameplay::GameImageView = RendererCompose::rtColor->imageView;
+        ImwGame::WorldImageView = RendererCompose::rtColor->imageView;
         {
             PROFILE("CmdWorldGbuffer");
-            //RendererGbuffer::RecordCommand(cmd, world->m_Entities);
+            RendererGbuffer::RecordCommand(cmd, world->registry());
         }
         {
             PROFILE("CmdWorldCompose");
-            //RendererCompose::RecordCommand(cmd);
+            RendererCompose::RecordCommand(cmd);
         }
     }
 

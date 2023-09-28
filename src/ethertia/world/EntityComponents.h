@@ -36,3 +36,12 @@ struct DebugDrawBoundingBox
 
 	glm::vec4 Color = Colors::RED;
 };
+
+
+
+#include <vkx/vkx.hpp>
+
+struct MeshRenderComponent
+{
+	vkx::VertexBuffer* VertexBuffer = nullptr;
+};
