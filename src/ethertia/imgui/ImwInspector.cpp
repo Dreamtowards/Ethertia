@@ -229,7 +229,6 @@ static void _InspTransform(TransformComponent& comp)
 
 
 
-
 #pragma region Imw Inspector
 
 
@@ -256,10 +255,6 @@ void ImwInspector::ShowInspector(bool* _open)
         if (ImGui::MenuItem("std::string"))
         {
             entity.AddComponent<std::string>();
-        }
-        if (ImGui::MenuItem("DebugDrawAABB"))
-        {
-            entity.AddComponent<DebugDrawBoundingBox>();
         }
 
         ImGui::EndPopup();
@@ -361,15 +356,26 @@ void ImwInspector::ShowInspector(bool* _open)
 
 
 
-
-
-
-static void _InspDbgAABB(DebugDrawBoundingBox& comp)
+static void _InspRenderMesh(MeshRenderComponent& comp)
 {
-    ImGui::DragFloat3("Min", &comp.BoundingBox.min.x);
-    ImGui::DragFloat3("Max", &comp.BoundingBox.max.x);
-    ImGui::ColorEdit4("Color", &comp.Color.x);
+    vkx::VertexBuffer* vbuf = comp.VertexBuffer;
+    ImGui::SeparatorText("vkx::VertexBuffer");
+    ImGui::TextDisabled("VertexCount: %i", vbuf->vertexCount);
+
+
+    VertexData* vtx = comp.VertexData;
+    ImGui::SeparatorText("VertexData");
+    ImGui::TextDisabled(std::format(
+        "VertexCount: {}\n"
+        "Indices: {}\n"
+        "Vertices: {}",
+        vtx->VertexCount(),
+        vtx->Indices.size(),
+        vtx->Vertices.size()
+    ).c_str());
 }
+
+
 
 
 void ImwInspector::InitComponentInspectors()
@@ -377,7 +383,7 @@ void ImwInspector::InitComponentInspectors()
     
     ImwInspector::AddComponentInspector<TransformComponent>(_InspTransform);
 
-    ImwInspector::AddComponentInspector<DebugDrawBoundingBox>(_InspDbgAABB);
+    ImwInspector::AddComponentInspector<MeshRenderComponent>(_InspRenderMesh);
 }
 
 //static void _InspWorld(World* world)

@@ -21,7 +21,7 @@ public:
 	static Cell& Nil()
 	{
 		static Cell _C{};
-		_C.value = std::numeric_limits<float>::infinity();
+		_C.value = -std::numeric_limits<float>::infinity();
 		_C.mtl = nullptr;
 		return _C;
 	}

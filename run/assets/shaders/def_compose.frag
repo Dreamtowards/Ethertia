@@ -58,7 +58,6 @@ void main()
     vec3  WorldPos = _PosDep.xyz;
     float Depth    = _PosDep.w;
 
-    vec3 CameraPos = ubo.CameraPos;
     vec3 RayDir = GetRayDir();
 
     if (Depth == 1.0) {
@@ -69,6 +68,7 @@ void main()
         //FragColor = texture(testCubeMap, RayDir);
         return;
     }
+    vec3 CameraPos = ubo.CameraPos;
 
     vec3 WorldNorm = texture(gNormal, TexCoord).xyz;
     vec3 Albedo = texture(gAlbdeo, TexCoord).xyz;
@@ -118,6 +118,6 @@ void main()
 
 
 
-    FragColor.rgb = (totalDiffuse + totalSpecular);
+    FragColor.rgb = (WorldNorm + 0.5) / 2.0;//(totalDiffuse + totalSpecular);
     FragColor.a = 1;
 }

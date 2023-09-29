@@ -215,6 +215,7 @@ static void _ShowViewportWidgets()
 {
     Entity SelectedEntity = ImwInspector::SelectedEntity;
 
+    static bool s_ShowChunkLoadBound = false;
 
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
     ImGui::ArrowButton("Menu", ImGuiDir_Down);
@@ -254,6 +255,8 @@ static void _ShowViewportWidgets()
         ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
 
         ImGui::Checkbox("Debug Text Info", &Dbg::dbg_TextInfo);
+
+        ImGui::Checkbox("ChunkSystem Load Bound", &s_ShowChunkLoadBound);
 
         if (ImGui::Button("Reloa Pipeline"))
         {
@@ -318,6 +321,13 @@ static void _ShowViewportWidgets()
         Imgui::RenderWorldLine(o, o + rot * glm::vec3(0, n, 0), ImGui::GetColorU32({ 0,1,0,1 }));
         Imgui::RenderWorldLine(o, o + rot * glm::vec3(0, 0, n), ImGui::GetColorU32({ 0,0,1,1 }));
         *pView = camView;  // restore.
+    }
+
+    if (s_ShowChunkLoadBound)
+    {
+
+
+        //Imgui::RenderAABB(AABB{}, Colors::GRAY);
     }
 
     //World* world = Ethertia::getWorld();
@@ -496,15 +506,15 @@ void ImwGame::ShowGame(bool* _open)
 
 
 
-    _ShowViewportWidgets();
-
-
-
-
     if (ImGui::IsWindowHovered() || ImGui::IsWindowFocused())
     {
         _MoveCamera();
     }
+
+
+    _ShowViewportWidgets();
+
+
 
 
     // Hotbar
