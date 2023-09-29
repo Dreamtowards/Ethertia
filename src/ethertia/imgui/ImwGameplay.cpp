@@ -271,14 +271,6 @@ static void _ShowViewportWidgets()
 
 
     World* world = Ethertia::GetWorld();
-    if (world)
-    {
-        for (const auto& [eid, box, trans] : world->registry().view<DebugDrawBoundingBox, TransformComponent>().each())
-        {
-
-            Imgui::RenderAABB(box.BoundingBox + trans.position(), box.Color);
-        }
-    }
 
     if (Dbg::dbg_ViewGizmo)
     {

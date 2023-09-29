@@ -27,17 +27,6 @@ struct TransformComponent
 
 
 
-#include <ethertia/util/AABB.h>
-#include <ethertia/util/Colors.h>
-
-struct DebugDrawBoundingBox
-{
-	AABB BoundingBox;
-
-	glm::vec4 Color = Colors::RED;
-};
-
-
 
 #include <ethertia/render/VertexData.h>
 #include <vkx/vkx.hpp>

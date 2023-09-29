@@ -120,9 +120,6 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         auto& rmesh = entity.AddComponent<MeshRenderComponent>();
         rmesh.VertexData = new VertexData();
 
-        auto& box = entity.AddComponent<DebugDrawBoundingBox>();
-        box.BoundingBox.max = glm::vec3(16);
-
         chunk->entity = entity;
 
         _TmpChunksBatchErase.push_back(chunkpos);
