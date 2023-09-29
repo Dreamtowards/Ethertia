@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile Vulkan Shader",
+            "type": "shell",
+            "command": "glslangValidator.exe",
+            "args": [
+                "-V",
+                "${file}", 
+                "-o",
+                "${fileDirname}/${fileBasename}.spv"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
