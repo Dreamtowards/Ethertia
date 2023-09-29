@@ -16,6 +16,8 @@ public:
 
     static void Render();
 
+    static void _ReloadPipeline();
+
     inline static bool s_PauseWorldRender = false;
 };
 

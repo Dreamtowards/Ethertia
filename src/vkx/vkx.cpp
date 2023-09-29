@@ -896,6 +896,7 @@ vkx::GraphicsPipeline* vkx::CreateGraphicsPipeline(
     vk::DescriptorSetLayout descriptorSetLayout,
     vkx_slice_t<vk::PushConstantRange> pushConstantRanges,
     vkx::FnArg_CreateGraphicsPipeline args,
+    std::vector<vk::DescriptorSet>* pDescriptorSets,
     vk::RenderPass renderPass,
     uint32_t subpass)
 {
@@ -1001,10 +1002,13 @@ vkx::GraphicsPipeline* vkx::CreateGraphicsPipeline(
     gp->PipelineLayout = pipelineLayout;
     gp->DescriptorSetLayout = descriptorSetLayout;
 
-    const int fif = vkxc.InflightFrames;
-    gp->DescriptorSets.resize(fif);
-    std::vector<vk::DescriptorSetLayout> layouts(fif, descriptorSetLayout);
-    vkx::AllocateDescriptorSets(fif, gp->DescriptorSets.data(), layouts.data());
+    if (pDescriptorSets)
+    {
+        const int fif = vkxc.InflightFrames;
+        pDescriptorSets->resize(fif);
+        std::vector<vk::DescriptorSetLayout> layouts(fif, descriptorSetLayout);
+        vkx::AllocateDescriptorSets(fif, pDescriptorSets->data(), layouts.data());
+    }
 
     return gp;
 }

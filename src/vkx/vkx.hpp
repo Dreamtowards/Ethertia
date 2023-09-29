@@ -425,7 +425,6 @@ namespace vkx
 		// for added flexibility, But that will increase the coupling and complexity of the system. so it is managed together to increase cohesion.
 		vk::DescriptorSetLayout DescriptorSetLayout;
 
-		std::vector<vk::DescriptorSet> DescriptorSets;
 
 		//GraphicsPipeline(vk::Pipeline pipeline, vk::PipelineLayout pipelineLayout, vk::DescriptorSetLayout descriptorSetLayout,
 		//	const std::vector<vk::DescriptorSet>& descriptorSets) : Pipeline(pipeline), PipelineLayout(pipelineLayout),
@@ -463,6 +462,7 @@ namespace vkx
 		vk::DescriptorSetLayout descriptorSetLayout,
 		vkx_slice_t<vk::PushConstantRange> pushConstantRanges,
 		FnArg_CreateGraphicsPipeline args = {},
+		std::vector<vk::DescriptorSet>* pDescriptorSets = nullptr,
 		vk::RenderPass renderPass = {},
 		uint32_t subpass = 0);
 

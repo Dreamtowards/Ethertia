@@ -16,6 +16,8 @@ public:
 
     inline static vkx::GraphicsPipeline* Pipeline;
 
+    inline static std::vector<vk::DescriptorSet> DescriptorSets;
+
     inline static std::vector<vkx::UniformBuffer*> g_UniformBuffers_Vert;
     inline static std::vector<vkx::UniformBuffer*> g_UniformBuffers_Frag;
 
@@ -100,6 +102,12 @@ void RendererGbuffer::Init()
 
 
 
+    // Uniform Buffers
+    for (int i = 0; i < vkxc.InflightFrames; ++i) {
+        g_UniformBuffers_Vert.push_back(vkx::CreateUniformBuffer(sizeof(UBO_Vert)));
+        g_UniformBuffers_Frag.push_back(vkx::CreateUniformBuffer(sizeof(UBO_Frag)));
+    }
+
 
     Pipeline = vkx::CreateGraphicsPipeline(
         {
@@ -122,18 +130,13 @@ void RendererGbuffer::Init()
         {
             .colorBlendAttachments = { vkx::IPipelineColorBlendAttachment(), vkx::IPipelineColorBlendAttachment(), vkx::IPipelineColorBlendAttachment() }
         },
+        & DescriptorSets,
         RenderPass);
 
 
-    // Uniform Buffers
-    for (int i = 0; i < vkxc.InflightFrames; ++i) {
-        g_UniformBuffers_Vert.push_back(vkx::CreateUniformBuffer(sizeof(UBO_Vert)));
-        g_UniformBuffers_Frag.push_back(vkx::CreateUniformBuffer(sizeof(UBO_Frag)));
-    }
-
     for (int i = 0; i < vkxc.InflightFrames; ++i)
     {
-        vkx::WriteDescriptorSet(Pipeline->DescriptorSets[i],
+        vkx::WriteDescriptorSet(DescriptorSets[i],
             {
                 {.buffer = vkx::IDescriptorBuffer(g_UniformBuffers_Vert[i]) },
                 {.buffer = vkx::IDescriptorBuffer(g_UniformBuffers_Frag[i]) },
@@ -185,7 +188,7 @@ void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf, const entt::regist
     cmd.SetViewport({}, g_AttachmentSize);
     cmd.SetScissor({}, g_AttachmentSize);
 
-    cmd.BindDescriptorSets(Pipeline->PipelineLayout, Pipeline->DescriptorSets[fif_i]);
+    cmd.BindDescriptorSets(Pipeline->PipelineLayout, DescriptorSets[fif_i]);
 
     cmd.BindGraphicsPipeline(Pipeline->Pipeline);
 
@@ -272,6 +275,8 @@ public:
 
     inline static vkx::GraphicsPipeline* Pipeline = nullptr;
 
+    inline static std::vector<vk::DescriptorSet> DescriptorSets;
+
     inline static std::vector<vkx::UniformBuffer*> g_UniformBuffers;
 
 
@@ -296,12 +301,45 @@ public:
 
     } g_UBO;
 
+    static void ReloadPipeline()
+    {
+
+        delete Pipeline;
+
+        Pipeline = vkx::CreateGraphicsPipeline(
+            {
+                {Loader::LoadAsset("shaders/def_compose.vert.spv"), vk::ShaderStageFlagBits::eVertex},
+                {Loader::LoadAsset("shaders/def_compose.frag.spv"), vk::ShaderStageFlagBits::eFragment},
+            },
+            {},
+            vkx::CreateDescriptorSetLayout({
+                {vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment},           // frag UBO
+                {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gPosition
+                {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gNormal
+                {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gAlbedo
+                {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment}     // gDRAM
+                }),
+            {},
+            {},
+            DescriptorSets.size() ? nullptr : & DescriptorSets,
+            RenderPass
+        );
+    }
+
     static void Init(vk::ImageView gPosition, vk::ImageView gNormal, vk::ImageView gAlbedo);
 
     static void RecordCommand(vk::CommandBuffer cmd);
 
     static void UpdateUniformBuffer(int fifi);
 };
+
+void RenderEngine::_ReloadPipeline()
+{
+    VKX_CTX_device_allocator;
+    vkxc.Device.waitIdle();
+
+    RendererCompose::ReloadPipeline();
+}
 
 
 void RendererCompose::Init(vk::ImageView gPosition, vk::ImageView gNormal, vk::ImageView gAlbedo)
@@ -330,32 +368,17 @@ void RendererCompose::Init(vk::ImageView gPosition, vk::ImageView gNormal, vk::I
 
     // Pipeline, Descriptor
 
-    Pipeline = vkx::CreateGraphicsPipeline(
-        {
-            {Loader::LoadAsset("shaders/def_compose.vert.spv"), vk::ShaderStageFlagBits::eVertex},
-            {Loader::LoadAsset("shaders/def_compose.frag.spv"), vk::ShaderStageFlagBits::eFragment},
-        },
-        {},
-        vkx::CreateDescriptorSetLayout({
-            {vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment},           // frag UBO
-            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gPosition
-            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gNormal
-            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},    // gAlbedo
-            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment}     // gDRAM
-        }),
-        {},
-        {},
-        RenderPass
-    );
-
 
     for (int i = 0; i < vkxc.InflightFrames; ++i) {
         g_UniformBuffers.push_back(vkx::CreateUniformBuffer(sizeof(UBO)));
     }
 
+    ReloadPipeline();
+
+
     for (int i = 0; i < vkxc.InflightFrames; ++i) 
     {
-        vkx::WriteDescriptorSet(Pipeline->DescriptorSets[i],
+        vkx::WriteDescriptorSet(DescriptorSets[i],
             {
                 { .buffer = vkx::IDescriptorBuffer(g_UniformBuffers[i]) },
                 { .image = vkx::IDescriptorImage(gPosition) },
@@ -413,7 +436,7 @@ void RendererCompose::RecordCommand(vk::CommandBuffer cmdbuf)
     cmd.SetViewport({}, g_AttachmentSize);
     cmd.SetScissor({}, g_AttachmentSize);
 
-    cmd.BindDescriptorSets(Pipeline->PipelineLayout, Pipeline->DescriptorSets[fif_i]);
+    cmd.BindDescriptorSets(Pipeline->PipelineLayout, DescriptorSets[fif_i]);
 
     cmd.BindGraphicsPipeline(Pipeline->Pipeline);
 

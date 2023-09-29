@@ -118,6 +118,6 @@ void main()
 
 
 
-    FragColor.rgb = (totalDiffuse + totalSpecular);
+    FragColor.rgb = (totalDiffuse + totalSpecular) + 0.5;
     FragColor.a = 1;
 }

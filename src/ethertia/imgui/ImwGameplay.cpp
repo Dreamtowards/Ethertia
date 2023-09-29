@@ -23,6 +23,7 @@
 #include <ethertia/world/chunk/ChunkSystem.h>
 
 #include <ethertia/imgui/ImwInspector.h>
+#include <ethertia/render/RenderEngine.h>
 
 
 static float s_CameraMoveSpeed = 16;
@@ -253,6 +254,11 @@ static void _ShowViewportWidgets()
         ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
 
         ImGui::Checkbox("Debug Text Info", &Dbg::dbg_TextInfo);
+
+        if (ImGui::Button("Reloa Pipeline"))
+        {
+            Dbg::dbg_RelaodPipeline = true;
+        }
 
         ImGui::EndPopup();
     }

@@ -37,6 +37,7 @@ public:
     inline static bool dbg_RenderedEntityAABB = false;
     inline static bool dbg_NoVegetable = false;
 
+    inline static bool dbg_RelaodPipeline = false;
 
     // GUI Render
     inline static bool dbg_TextInfo = false,
