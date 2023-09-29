@@ -14,7 +14,7 @@ inline static int Idx3(int rx, int ry, int rz) {
 
 void ChunkGenerator::GenerateChunk(Chunk& chunk)
 {
-    uint64_t seed = chunk.GetWorld().GetSeed(); chunk.LocalCell({}).value = 1; return;
+    uint64_t seed = chunk.GetWorld().GetSeed();
 
     glm::ivec3 chunkpos = chunk.chunkpos;
 

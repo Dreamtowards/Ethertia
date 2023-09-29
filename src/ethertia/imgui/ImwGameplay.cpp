@@ -260,7 +260,7 @@ static void _ShowViewportWidgets()
 
         if (ImGui::Button("Reloa Pipeline"))
         {
-            Dbg::dbg_RelaodPipeline = true;
+            RenderEngine::_ReloadPipeline();
         }
 
         ImGui::EndPopup();

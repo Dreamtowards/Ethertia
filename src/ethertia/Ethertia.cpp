@@ -202,12 +202,6 @@ static void RunMainLoop()
         RenderEngine::Render();
     }
 
-    if (Dbg::dbg_RelaodPipeline)
-    {
-        Dbg::dbg_RelaodPipeline = false;
-        RenderEngine::_ReloadPipeline();
-    }
-
     {
         PROFILE("FpsCap");
 //        window.setVSync(Settings::s_Vsync);

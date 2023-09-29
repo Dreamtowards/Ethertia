@@ -116,8 +116,8 @@ void main()
         totalSpecular += Specular * Atten;
     }
 
+    vec3 _VisualNorm = (WorldNorm + 0.5) / 2.0;;
 
-
-    FragColor.rgb = (WorldNorm + 0.5) / 2.0;//(totalDiffuse + totalSpecular);
+    FragColor.rgb = Albedo * 0.5 + _VisualNorm * 0.5;//(totalDiffuse + totalSpecular);
     FragColor.a = 1;
 }

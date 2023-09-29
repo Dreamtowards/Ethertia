@@ -170,6 +170,6 @@ void main()
     gPosition.w   = LnDepth;
     gNormal.xyz   = WorldNorm;
     gNormal.w     = 1;
-    gAlbedo.xyz   = Albedo;  // BaryCoord
+    gAlbedo.xyz   = BaryCoord;  // BaryCoord
     gAlbedo.w     = 1;
 }
