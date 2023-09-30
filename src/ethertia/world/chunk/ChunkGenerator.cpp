@@ -4,6 +4,8 @@
 #include <ethertia/world/Chunk.h>
 #include <ethertia/util/NoiseGen.h>
 
+#include <ethertia/material/Materials.h>
+
 
 inline static int IdxXZ(int rx, int rz) {
     return rz * 16 + rx;
@@ -43,11 +45,17 @@ void ChunkGenerator::GenerateChunk(Chunk& chunk)
                 Material* mtl = nullptr;
                 if (f > 0)
                 {
+                    mtl = Materials::STONE;
+                } 
+                else if (p.y < 0)
+                {
+                    mtl = Materials::WATER;
                 }
 
                 Cell& cell = chunk.LocalCell(lp);
 
                 cell.value = f;
+                cell.mtl = mtl;
             }
         }
     }

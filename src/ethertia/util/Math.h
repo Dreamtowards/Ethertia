@@ -9,6 +9,8 @@ class Math
 {
 public:
 
+	inline static const float Inf = std::numeric_limits<float>::infinity();
+
 	static int Floor(float x)
 	{
 		return (int)x - ((int)x > x);
@@ -61,6 +63,37 @@ public:
 
 // e.g. ET_VEC3_CMP(dist, <=, viewer_loaddist, &&);
 #define ET_VEC3_CMP(a, cmp, b, conn) (a.x cmp b.x conn a.y cmp b.y conn a.z cmp b.z)
+
+
+
+
+
+
+
+	template<typename T>
+	static T InverseLerp(T t, T a, T b)
+	{
+		return (t - a) / (b - a);
+	}
+
+
+
+
+	static bool IsFinite(glm::vec3 v)
+	{
+		return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
+	}
+
+	static bool AnyNan(glm::vec3 v)
+	{
+		return std::isnan(v.x) || std::isnan(v.y) || std::isnan(v.z);
+	}
+	static bool AnyInf(glm::vec3 v)
+	{
+		return std::isinf(v.x) || std::isinf(v.y) || std::isinf(v.z);
+	}
+
+
 
 };
 
