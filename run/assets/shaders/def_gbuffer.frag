@@ -167,7 +167,7 @@ void main()
     // Gbuffer Output
     gPosition.xyz = WorldPos;
     gPosition.w   = LnDepth;  // todo: Disable ColorBlend here
-    gNormal.xyz   = WorldNorm;
+    gNormal.xyz   = Norm;
     gNormal.w     = 1;
     gAlbedo.xyz   = Albedo;  // BaryCoord
     gAlbedo.w     = 1;

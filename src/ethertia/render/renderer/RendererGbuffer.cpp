@@ -72,7 +72,7 @@ public:
             }),
             { vkx::IPushConstantRange(vk::ShaderStageFlagBits::eVertex, sizeof(PushConstant)) },
         {
-            .colorBlendAttachments = { vkx::IPipelineColorBlendAttachment(false), vkx::IPipelineColorBlendAttachment(), vkx::IPipelineColorBlendAttachment() }
+            .colorBlendAttachments = { vkx::IPipelineColorBlendAttachment(false), vkx::IPipelineColorBlendAttachment(false), vkx::IPipelineColorBlendAttachment(false) }
         },
             DescriptorSets.size() ? nullptr : &DescriptorSets,
             RenderPass);
