@@ -193,6 +193,11 @@ public:
                     {
                         Cell c1 = chunk.GetCell(lp + AXES[axis_i], true);
 
+                        // Skip the face constructing with a Nil Cell. since the FeaturePoint and Normal(SDF Grad) cannot be evaluated.
+                        // ?but Outside should be Enclosed? or the Shadow Casting will be a problem. if a Ceil in TopNil
+                        //if (c1.IsNil())
+                        //    continue;
+
                         if (!SN_SignChanged(c0, c1))
                             continue;
 
@@ -210,7 +215,10 @@ public:
                             if (!c.IsFpValid())   // only eval when cache invalid.
                             {
                                 fp = SN_FeaturePoint(quadp, chunk);
-                                c.norm = SN_Grad(quadp, chunk);
+                                c.norm = -SN_Grad(quadp, chunk);
+
+                                if (!Math::IsFinite(c.norm))
+                                    c.norm = { 1, 0, 0 };
                             }
 
                             vec3 pos = quadp + fp;
@@ -236,7 +244,7 @@ public:
                             vtx.AddVertex({ 
                                 pos, 
                                 glm::vec2(MtlId, PURE_MTL_MAGICNUMBER),
-                                glm::vec3(0, 1, 0)//-c.norm 
+                                c.norm 
                                 });
                         }
                         

@@ -19,6 +19,8 @@ public:
 
 	bool IsSolid() const { return value > 0; }
 
+	bool IsNil() const { return value == -Math::Inf; }
+
 	bool IsFpValid() const {
 		return std::isfinite(fp.x);
 	}
