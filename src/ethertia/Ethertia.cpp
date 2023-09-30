@@ -26,7 +26,7 @@
 // #include <ethertia/audio/AudioEngine.h>
 //#include <ethertia/vr/OpenVR.h>
 //#include <ethertia/init/Sounds.h>
-
+#include <ethertia/world/Physics.h>
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
 
@@ -91,6 +91,8 @@ static void Init()
     // AudioEngine::init();
     // NetworkSystem::init();
 
+    Physics::Init();
+
     ImwInspector::InitComponentInspectors();  // tmp
 
     // Materials & Items
@@ -140,6 +142,8 @@ static void Destroy()
     }
 
     // NetworkSystem::deinit();
+
+    Physics::Release();
 
 
     RenderEngine::Destroy();

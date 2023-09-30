@@ -4,6 +4,8 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 
+#include <PxPhysicsAPI.h>
+
 
 class ChunkSystem;
 
@@ -71,4 +73,6 @@ private:
 
 	bool m_Paused = false;
 	int  m_PausedStepFrames = 0;
+
+	physx::PxScene* m_PxScene = nullptr;
 };

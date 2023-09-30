@@ -22,3 +22,6 @@
 
 #endif // ET_DEBUG
 
+
+
+#define ET_ERROR(msg) throw std::runtime_error(msg);

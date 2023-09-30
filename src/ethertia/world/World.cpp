@@ -5,16 +5,59 @@
 
 #include <ethertia/world/chunk/ChunkSystem.h>
 
+#include <ethertia/world/Physics.h>
+
+
+using namespace physx;
 
 World::World()
 {
 
 	m_ChunkSystem = std::make_unique<ChunkSystem>(this);
+
+	PxPhysics* _Phys = Physics::Phys();
+
+
+	PxSceneDesc sceneDesc(_Phys->getTolerancesScale());
+	sceneDesc.gravity = { 0, -9.81, 0 };
+	sceneDesc.cpuDispatcher = Physics::CpuDispatcher();
+	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+	m_PxScene = _Phys->createScene(sceneDesc);
+
+	if (Physics::Pvd())
+	{
+		PxPvdSceneClient* pvdClient = m_PxScene->getScenePvdClient();
+		assert(pvdClient);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+	}
+
+	m_PxScene->lockRead();
+
+	PxMaterial* g_PxDefaultMaterial = _Phys->createMaterial(0.5, 0.5, 0.6);
+
+	PxRigidStatic* aGroundStatic = PxCreatePlane(*_Phys, PxPlane(0, 1, 0, 0), *g_PxDefaultMaterial);
+	m_PxScene->addActor(*aGroundStatic);
+
+	for (int i = 0; i < 30; ++i) {
+		for (int j = 0; j < 30; ++j) {
+			PxTransform localTm();
+
+		}
+	}
+
+	while (true)
+	{
+		m_PxScene->simulate(1.0 / 60.0f);
+		m_PxScene->fetchResults(true);
+	}
 }
 
 World::~World()
 {
 
+	PX_RELEASE(m_PxScene);
 }
 
 
