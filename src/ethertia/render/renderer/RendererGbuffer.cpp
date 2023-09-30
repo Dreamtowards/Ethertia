@@ -49,6 +49,35 @@ public:
 
 	static void Init();
 
+    static void ReloadPipeline()
+    {
+        delete Pipeline;
+
+        Pipeline = vkx::CreateGraphicsPipeline(
+            {
+                { Loader::LoadAsset("shaders/def_gbuffer.vert.spv"), vk::ShaderStageFlagBits::eVertex },
+                { Loader::LoadAsset("shaders/def_gbuffer.frag.spv"), vk::ShaderStageFlagBits::eFragment }
+            },
+        {
+            vk::Format::eR32G32B32Sfloat,
+            vk::Format::eR32G32Sfloat,
+            vk::Format::eR32G32B32Sfloat,
+        },
+        vkx::CreateDescriptorSetLayout({
+            {vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex},            // vert UBO
+            {vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment},          // frag UBO
+            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},   // frag diffuseMap
+            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},   // frag normMap
+            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment}    // frag dramMap (Disp, Rough, AO, Metal)
+            }),
+            { vkx::IPushConstantRange(vk::ShaderStageFlagBits::eVertex, sizeof(PushConstant)) },
+        {
+            .colorBlendAttachments = { vkx::IPipelineColorBlendAttachment(false), vkx::IPipelineColorBlendAttachment(), vkx::IPipelineColorBlendAttachment() }
+        },
+            DescriptorSets.size() ? nullptr : &DescriptorSets,
+            RenderPass);
+    }
+
     static void RecordCommand(vk::CommandBuffer cmd, const entt::registry& entt_reg);
 
     static void UpdateUniformBuffer(int fifi);
@@ -109,29 +138,7 @@ void RendererGbuffer::Init()
     }
 
 
-    Pipeline = vkx::CreateGraphicsPipeline(
-        {
-            { Loader::LoadAsset("shaders/def_gbuffer.vert.spv"), vk::ShaderStageFlagBits::eVertex },
-            { Loader::LoadAsset("shaders/def_gbuffer.frag.spv"), vk::ShaderStageFlagBits::eFragment }
-        }, 
-        {
-            vk::Format::eR32G32B32Sfloat,
-            vk::Format::eR32G32Sfloat,
-            vk::Format::eR32G32B32Sfloat,
-        }, 
-        vkx::CreateDescriptorSetLayout({
-            {vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex},            // vert UBO
-            {vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment},          // frag UBO
-            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},   // frag diffuseMap
-            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment},   // frag normMap
-            {vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment}    // frag dramMap (Disp, Rough, AO, Metal)
-        }),
-        { vkx::IPushConstantRange(vk::ShaderStageFlagBits::eVertex, sizeof(PushConstant)) },
-        {
-            .colorBlendAttachments = { vkx::IPipelineColorBlendAttachment(), vkx::IPipelineColorBlendAttachment(), vkx::IPipelineColorBlendAttachment() }
-        },
-        & DescriptorSets,
-        RenderPass);
+    ReloadPipeline();
 
 
     for (int i = 0; i < vkxc.InflightFrames; ++i)
@@ -321,7 +328,7 @@ public:
                 }),
             {},
             {},
-            DescriptorSets.size() ? nullptr : & DescriptorSets,
+            DescriptorSets.size() ? nullptr : &DescriptorSets,
             RenderPass
         );
     }
@@ -338,6 +345,7 @@ void RenderEngine::_ReloadPipeline()
     VKX_CTX_device_allocator;
     vkxc.Device.waitIdle();
 
+    RendererGbuffer::ReloadPipeline();
     RendererCompose::ReloadPipeline();
 }
 
@@ -396,10 +404,10 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
     UBO& ubo = g_UBO;
     Camera& cam = Ethertia::getCamera();
 
-    ubo.CameraPos = cam.position;
-
     ubo.invMatView = glm::inverse(cam.matView);
     ubo.invMatProj = glm::inverse(cam.matProjection);
+
+    ubo.CameraPos = ubo.invMatView[3];
 
     //ubo.invMatProj = cam.matProjection;
     //ubo.invMatProj[1][1] *= -1;
@@ -408,7 +416,7 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
     ubo.lightCount = 1;
 
     ubo.lights[0] = {
-            .position = ubo.invMatView[3],
+            .position = ubo.CameraPos + glm::vec3{0,1,0},
             .color = {3,2,1},
             .attenuation = {0.3, 0.1, 0.01}
     };

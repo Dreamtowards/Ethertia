@@ -112,12 +112,12 @@ void main()
         float Atten = dot(light.attenuation, light.attenuation) == 0 ? 1.0 : 
                       1.0 / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance*distance));
 
-        totalDiffuse  += Diffuse  * Atten;
-        totalSpecular += Specular * Atten;
+        totalDiffuse  += Diffuse;//  * Atten;
+        totalSpecular += Specular;// * Atten;
     }
 
-    vec3 _VisualNorm = (WorldNorm + 0.5) / 2.0;;
+    //vec3 _VisualNorm = (FragToCamera + 0.5) / 2.0;;
 
-    FragColor.rgb = Albedo * 0.5 + _VisualNorm * 0.5;//(totalDiffuse + totalSpecular);
+    FragColor.rgb = (totalDiffuse + totalSpecular);
     FragColor.a = 1;
 }

@@ -92,10 +92,10 @@ vec4 TriplanarSample(sampler2D tex, vec3 FragWorldPos, int MtlTexId, vec3 blend)
 void main()
 {
     vec3 Albedo = vec3(0);
-    vec3 WorldPos    = fs_in.WorldPos;
-    vec3 WorldNorm   = fs_in.WorldNorm;
+    vec3 WorldPos   = fs_in.WorldPos;
+    vec3 WorldNorm  = fs_in.WorldNorm;
     vec3 BaryCoord  = fs_in.BaryCoord;
-    vec3 MtlIds     = fs_in.MtlIds;
+    vec3 MtlIds     = fs_in.MtlIds / BaryCoord;  // wait to test
 
     int MaxBary_i = MaxIdx(BaryCoord.xyz);
 
@@ -114,62 +114,61 @@ void main()
 //    }
 //    else
 //    {
-//        // PureMTL. use Triplanar Mapping.
-//
-//        vec3 blend = pow(abs(FragNorm), vec3(ubo.MtlTriplanarBlendPow));  // more pow leads more [sharp at norm, mixing at tex]
-//             blend = blend / (blend.x + blend.y + blend.z);
-//
-//        int FragMtlId
-//        = int(MtlIds[HighestBaryIdx]);
-//
+        // PureMTL. use Triplanar Mapping.
+
+        vec3 blend = pow(abs(WorldNorm), vec3(ubo.MtlTriplanarBlendPow));  // more pow leads more [sharp at norm, mixing at tex]
+             blend = blend / (blend.x + blend.y + blend.z);
+
+        int MtlId = int(MtlIds[MaxBary_i]);
+
 //#ifndef OPT
 //        // HeightMap Transition.
 //        vec3 heightMapBlend = pow(BaryCoord, vec3(ubo.MtlHeightmapBlendPow));  // 0.5-0.7. lesser -> more mix
 //        float h0 = TriplanarSample(dramSampler, FragPos, int(MtlIds[0]), blend).r * heightMapBlend[0];
 //        float h1 = TriplanarSample(dramSampler, FragPos, int(MtlIds[1]), blend).r * heightMapBlend[1];
 //        float h2 = TriplanarSample(dramSampler, FragPos, int(MtlIds[2]), blend).r * heightMapBlend[2];
-//        int HighestDispIdx = MaxValIdx(vec3(h0, h1, h2));  // mostHeightIdx
-//        FragMtlId = int(MtlIds[HighestDispIdx]);
+//        int MaxDisp_i = MaxIdx(vec3(h0, h1, h2)); 
+//        MtlId = int(MtlIds[MaxDisp_i]);
 //#endif
-//
-////        if (FragMtlId == 0) {
-////            discard;
-////        }
-//
-//        Albedo = TriplanarSample(diffuseSampler, FragPos, FragMtlId, blend).rgb;
-//
-//        vec4 DRAM = TriplanarSample(dramSampler, FragPos, FragMtlId, blend).rgba;
-//
-//
-//
-//#define UnwrapNorm(uv) (texture(normalSampler, uv).rgb * 2.0 - 1.0)
-//
-//        mat3 uvXYZ = TriplanarUVs(FragPos, FragMtlId);
-//        vec3 tnormX = UnwrapNorm(uvXYZ[0].xy);  // original texture space normal
-//        vec3 tnormY = UnwrapNorm(uvXYZ[1].xy);
-//        vec3 tnormZ = UnwrapNorm(uvXYZ[2].xy);
-//
-//        // GPU Gems 3, Triplanar Normal Mapping Method.
-//        FragNorm = normalize(
-//            vec3(0, tnormX.yx)          * blend.x +
-//            vec3(tnormY.x, 0, tnormY.y) * blend.y +
-//            vec3(tnormZ.xy, 0)          * blend.z +
-//            FragNorm
-//        );
-//
+
+//        if (MtlId == 0) {
+//            discard;
+//        }
+
+        Albedo = TriplanarSample(texDiff, WorldPos, MtlId, blend).rgb;
+
+        vec4 DRAM = TriplanarSample(texDRAM, WorldPos, MtlId, blend).rgba;
+
+
+
+#define UnwrapNorm(uv) (texture(texNorm, uv).rgb * 2.0 - 1.0)
+
+        mat3 uvXYZ = TriplanarUVs(WorldPos, MtlId);
+        vec3 tnormX = UnwrapNorm(uvXYZ[0].xy);  // original texture space normal
+        vec3 tnormY = UnwrapNorm(uvXYZ[1].xy);
+        vec3 tnormZ = UnwrapNorm(uvXYZ[2].xy);
+
+        // GPU Gems 3, Triplanar Normal Mapping Method.
+        vec3 Norm = normalize(
+            vec3(0, tnormX.yx)          * blend.x +
+            vec3(tnormY.x, 0, tnormY.y) * blend.y +
+            vec3(tnormZ.xy, 0)          * blend.z +
+            WorldNorm
+        );
+
 //    }
 
 
-    float LnDepth = LinearDepth(gl_FragCoord.z, 0.01, 10.0);
+    float LnDepth = LinearDepth(gl_FragCoord.z, 0.01, 1000.0);
 
 
-    Albedo = texture(texDiff, vec2(WorldPos.x / ubo.MtlTexCap, 1-WorldPos.z)).rgb;
+    //Albedo = texture(texDiff, vec2(WorldPos.x / ubo.MtlTexCap, 1-WorldPos.z)).rgb;
 
     // Gbuffer Output
     gPosition.xyz = WorldPos;
-    gPosition.w   = LnDepth;
+    gPosition.w   = LnDepth;  // todo: Disable ColorBlend here
     gNormal.xyz   = WorldNorm;
     gNormal.w     = 1;
-    gAlbedo.xyz   = BaryCoord;  // BaryCoord
+    gAlbedo.xyz   = Albedo;  // BaryCoord
     gAlbedo.w     = 1;
 }

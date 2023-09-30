@@ -68,9 +68,10 @@ static void _ShowDebugText()
     //            cur.cell_breaking_time);
     //    }
     }
-    //
+
+
     static glm::vec3 CamPosLast;
-    glm::vec3 CamPosCurr = cam.matView[3];
+    glm::vec3 CamPosCurr = glm::inverse(cam.matView)[3];  // HeavyCost!!! try make cache if necessary
     glm::vec3 CamPosMoved = CamPosCurr - CamPosLast;
     CamPosLast = CamPosCurr;
     float CamPosMoveSpeedMPS = glm::length(CamPosMoved);
@@ -99,7 +100,7 @@ static void _ShowDebugText()
         "GPU: {}\n"
         "RAM: x GB / x GB"
         ,
-        glm::to_string(Ethertia::getCamera().matView[3]).substr(4),
+        glm::to_string(CamPosCurr).substr(4),
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
         s_CameraMoveSpeed,
         //player->m_OnGround, player->m_NumContactPoints,
