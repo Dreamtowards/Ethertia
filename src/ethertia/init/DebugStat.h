@@ -24,6 +24,7 @@ public:
             dbg_NoChunkSave = true,
             dbg_NoChunkLoad = true;
 
+    inline static bool dbg_IsChunkModifying = false;
 
     inline static int dbg_NumEntityRendered = 0;
 

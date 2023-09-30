@@ -768,6 +768,13 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
     ImGui::DragInt2("Load Distance", &world->GetChunkSystem().m_TmpLoadDistance.x, 0, 10000);
 
+    if (ImGui::Button("ReMesh All Chunks"))
+    {
+        for (auto it : world->GetChunkSystem().GetChunks())
+        {
+            it.second->m_NeedRebuildMesh = true;
+        }
+    }
 
     ImGui::End();
 }

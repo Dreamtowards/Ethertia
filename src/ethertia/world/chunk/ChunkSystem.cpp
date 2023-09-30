@@ -210,7 +210,12 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
         auto* rmesh = &chunk->entity.GetComponent<MeshRenderComponent>();
 
-        delete rmesh->VertexBuffer;  // really?
+        if (rmesh->VertexBuffer)
+        {
+            // really?
+            vkx::ctx().Device.waitIdle();
+            delete rmesh->VertexBuffer;
+        }
         rmesh->VertexBuffer = nullptr;
 
         if (rmesh->VertexData->VertexCount())
@@ -261,10 +266,13 @@ static void _UpdateChunksMeshing()
 
 }
 
-
+#include <ethertia/init/DebugStat.h>
 
 void ChunkSystem::OnTick()
 {
+
+    Dbg::dbg_IsChunkModifying = true;
     _UpdateChunkLoadAndUnload({ 0,0,0 }, { m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x });
+    Dbg::dbg_IsChunkModifying = false;
 
 }

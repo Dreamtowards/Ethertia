@@ -27,6 +27,9 @@ void ChunkGenerator::GenerateChunk(Chunk& chunk)
     float noise2d[16 * 16];
     FBM->GenUniformGrid2D(noise2d, chunkpos.x, chunkpos.z, 16, 16, 1 / 400.0f, seed);
 
+    float noise3d[16 * 16 * 16];
+    FBM->GenUniformGrid3D(noise3d, chunkpos.x, chunkpos.y, chunkpos.z, 16, 16, 16, 1 / 200.0f, seed);
+
     for (int dx = 0; dx < 16; ++dx)
     {
         for (int dy = 0; dy < 16; ++dy)
@@ -38,7 +41,9 @@ void ChunkGenerator::GenerateChunk(Chunk& chunk)
 
                 float terr2d = noise2d[IdxXZ(dx, dz)];
 
-                float f = terr2d - p.y / 30.0f;
+                float f3d = noise3d[Idx3(dx,dy,dz)];
+
+                float f = f3d;// -p.y / 40.0f;
 
                 
                 

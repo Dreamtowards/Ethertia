@@ -119,7 +119,7 @@ void main()
         vec3 blend = pow(abs(WorldNorm), vec3(ubo.MtlTriplanarBlendPow));  // more pow leads more [sharp at norm, mixing at tex]
              blend = blend / (blend.x + blend.y + blend.z);
 
-        int MtlId = int(MtlIds[MaxBary_i]);
+        int MtlId = 5;//int(MtlIds[MaxBary_i]);
 
 //#ifndef OPT
 //        // HeightMap Transition.
@@ -169,6 +169,6 @@ void main()
     gPosition.w   = LnDepth;  // todo: Disable ColorBlend here
     gNormal.xyz   = Norm;
     gNormal.w     = 1;
-    gAlbedo.xyz   = WorldNorm;  // Albedo BaryCoord
+    gAlbedo.xyz   = ((Norm + 1.0) / 2.0);  // Albedo BaryCoord ((WorldNorm + 1.0) / 2.0)
     gAlbedo.w     = 1;
 }

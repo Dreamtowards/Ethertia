@@ -163,7 +163,11 @@ public:
             }
         }
 
-        ET_ASSERT(signchanges != 0 &&"FpEval Error: No SignChange.");
+        if (signchanges == 0)
+        {
+            return { 0, 99, 0 };
+        }
+        //ET_ASSERT(signchanges != 0 &&"FpEval Error: No SignChange.");
         ET_ASSERT(Math::IsFinite(fp_sum) &&"FpEval Error: Non-Finite Fp Value.");
 
         //if (numIntersects == 0) return { 0,0,0 };  // Dont return NaN.
@@ -217,6 +221,10 @@ public:
                                 fp = SN_FeaturePoint(quadp, chunk);
                                 c.norm = -SN_Grad(quadp, chunk);
 
+                                //if (!std::isfinite(c.norm.x)) c.norm.x = 0;
+                                //if (!std::isfinite(c.norm.y)) c.norm.y = 0;
+                                //if (!std::isfinite(c.norm.z)) c.norm.z = 0;
+
                                 if (!Math::IsFinite(c.norm))
                                     c.norm = { 1, 0, 0 };
                             }
@@ -261,9 +269,14 @@ public:
 #pragma endregion
 
 
+#include <ethertia/init/DebugStat.h>
+#include <thread>
+#include <chrono>
 
 void MeshGen::GenerateMesh(Chunk& chunk, VertexData& vtx)
 {
+    while (Dbg::dbg_IsChunkModifying)
+        std::this_thread::sleep_for(std::chrono::nanoseconds(1));
 
     MeshGen_SN::SN_Contouring(chunk, vtx);
     return;

@@ -16,6 +16,8 @@
 
 //#include <ethertia/world/chunk/SVO.h>
 
+#define ET_LOCK_GUARD(mtx) std::lock_guard<std::mutex> _lock(mtx);
+
 class World;
 
 
@@ -30,6 +32,7 @@ public:
 	// return nullptr if chunk at the chunkpos is not loaded
 	std::shared_ptr<Chunk> GetChunk(glm::ivec3 chunkpos)
 	{
+		//ET_LOCK_GUARD(m_ChunksLock);
 		auto it = m_Chunks.find(chunkpos);
 		if (it == m_Chunks.end())
 			return nullptr;
@@ -65,6 +68,8 @@ private:
 	// Loaded Chunks. basic linear struct.
 	std::unordered_map<glm::ivec3, std::shared_ptr<Chunk>> m_Chunks;
 
+	std::mutex m_ChunksLock;
+
 public:
 	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksLoading;
 
@@ -82,7 +87,7 @@ private:
 	// Load / Generate Chunk, but not load to world
 	std::shared_ptr<Chunk> _ProvideChunk(glm::vec3 chunkpos);
 
-
+	
 	void _UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 viewDistance);
 	
 	//void _AddChunk(std::shared_ptr<Chunk> chunk);
