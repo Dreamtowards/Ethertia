@@ -85,8 +85,8 @@ void main()
     vec3 totalDiffuse = vec3(0);
     vec3 totalSpecular = vec3(0);
 
-    float specularIntensity = (1.0 - Roughness) * 0.3;
-    float shininess = 1024;
+    float specularIntensity = 0.4;//(1.0 - Roughness) * 0.3;
+    float shininess = 8;
 
     totalDiffuse += Albedo * 0.2;  // Ambient.
 
@@ -100,7 +100,7 @@ void main()
 
         // Specular
         vec3 halfwayDir = normalize(FragToLight + FragToCamera);
-        vec3 Specular = light.color * specularIntensity * pow(max(dot(halfwayDir, WorldPos), 0.0), shininess);
+        vec3 Specular = light.color * specularIntensity * pow(max(dot(halfwayDir, WorldNorm), 0.0), shininess);
 
         // SpotLight
         //        if (dot(-FragToLight, LightDir) > coneAngle) {
@@ -112,8 +112,8 @@ void main()
         float Atten = dot(light.attenuation, light.attenuation) == 0 ? 1.0 : 
                       1.0 / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance*distance));
 
-        totalDiffuse  += Diffuse;//  * Atten;
-        totalSpecular += Specular;// * Atten;
+        totalDiffuse  += Diffuse * Atten;
+        totalSpecular += Specular * Atten;
     }
 
     //vec3 _VisualNorm = (FragToCamera + 0.5) / 2.0;;
