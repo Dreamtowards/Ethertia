@@ -46,8 +46,10 @@ World::World()
 
 	m_ChunkSystem = std::make_unique<ChunkSystem>(this);
 
-	PxPhysics* _Phys = Physics::Phys();
 
+	// InitPhys
+
+	PxPhysics* _Phys = Physics::Phys();
 
 	PxSceneDesc sceneDesc(_Phys->getTolerancesScale());
 	sceneDesc.gravity = { 0, -9.81, 0 };

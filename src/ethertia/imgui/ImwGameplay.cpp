@@ -395,10 +395,16 @@ static void _MoveCamera()
     bool keyCtrlDown = Window::isCtrlKeyDown();
     bool dragRMB = ImGui::IsMouseDown(ImGuiMouseButton_Right);
     bool dragMMB = ImGui::IsMouseDown(ImGuiMouseButton_Middle);
+    bool dragLMB = ImGui::IsMouseDown(ImGuiMouseButton_Left);
 
     if (dragRMB || dragMMB)
     {
-        if (dragRMB)
+        if (dragRMB && (dragMMB || dragLMB))
+        {
+            move.z += -MouseDelta.y * mspd;
+            move.x += -MouseDelta.x * mspd;
+        }
+        else if (dragRMB)
         {
             // FPS Rotate
             dYaw += -MouseDelta.x * mspd;

@@ -37,3 +37,23 @@ struct MeshRenderComponent
 
 	vkx::VertexBuffer* VertexBuffer = nullptr;
 };
+
+
+
+// Physics Collision Geometry
+// UE: 
+struct ColliderComponent
+{
+	physx::PxShape* Shape;
+};
+
+
+struct RendererComponent
+{
+
+};
+
+struct RigidbodyComponent
+{
+	physx::PxRigidDynamic* RigidDynamic = nullptr;
+};
