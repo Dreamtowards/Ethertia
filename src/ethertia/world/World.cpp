@@ -10,6 +10,37 @@
 
 using namespace physx;
 
+static PxMaterial* dbg_PhysMtl = nullptr;
+static PxPhysics* dbg_Phys = nullptr;
+static PxScene* dbg_Scene = nullptr;
+
+static PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
+{
+	PxRigidDynamic* dynamic = PxCreateDynamic(*dbg_Phys, t, geometry, *dbg_PhysMtl, 10.0f);
+	dynamic->setAngularDamping(0.5f);
+	dynamic->setLinearVelocity(velocity);
+	dbg_Scene->addActor(*dynamic);
+	return dynamic;
+}
+
+static void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
+{
+	PxShape* shape = dbg_Phys->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *dbg_PhysMtl);
+	for (PxU32 i = 0; i < size; i++)
+	{
+		for (PxU32 j = 0; j < size - i; j++)
+		{
+			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
+			PxRigidDynamic* body = dbg_Phys->createRigidDynamic(t.transform(localTm));
+			body->attachShape(*shape);
+			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+			dbg_Scene->addActor(*body);
+		}
+	}
+	shape->release();
+}
+
+
 World::World()
 {
 
@@ -24,34 +55,26 @@ World::World()
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	m_PxScene = _Phys->createScene(sceneDesc);
 
-	if (Physics::Pvd())
+	if (PxPvdSceneClient* pvdClient = m_PxScene->getScenePvdClient())
 	{
-		PxPvdSceneClient* pvdClient = m_PxScene->getScenePvdClient();
-		assert(pvdClient);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 
-	m_PxScene->lockRead();
+	dbg_Phys = _Phys;
+	dbg_Scene = m_PxScene;
 
-	PxMaterial* g_PxDefaultMaterial = _Phys->createMaterial(0.5, 0.5, 0.6);
+	dbg_PhysMtl = _Phys->createMaterial(0.5, 0.5, 0.6);
 
-	PxRigidStatic* aGroundStatic = PxCreatePlane(*_Phys, PxPlane(0, 1, 0, 0), *g_PxDefaultMaterial);
+	PxRigidStatic* aGroundStatic = PxCreatePlane(*_Phys, PxPlane(0, 1, 0, 0), *dbg_PhysMtl);
 	m_PxScene->addActor(*aGroundStatic);
 
-	for (int i = 0; i < 30; ++i) {
-		for (int j = 0; j < 30; ++j) {
-			PxTransform localTm();
+	PxReal stackZ = 10.0f;
+	for (PxU32 i = 0; i < 5; i++)
+		createStack(PxTransform(PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f);
 
-		}
-	}
-
-	while (true)
-	{
-		m_PxScene->simulate(1.0 / 60.0f);
-		m_PxScene->fetchResults(true);
-	}
+	createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
 }
 
 World::~World()
@@ -66,6 +89,9 @@ void World::OnTick(float dt)
 {
 	if (m_Paused && --m_PausedStepFrames < 0)
 		return;
+
+	m_PxScene->simulate(1.0 / 60.0f);
+	m_PxScene->fetchResults(true);
 
 	WorldInfo& wi = GetWorldInfo();
 	wi.InhabitedTime += dt;

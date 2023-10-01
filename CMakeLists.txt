@@ -12,6 +12,7 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
 # we manually build shared-lib only the first time. (if doesn't have compiled libs), then we just use/link them instead of recompile them.
 set(BUILD_SHARED_LIBS ON)
@@ -89,14 +90,14 @@ include_directories(lib/json-nlohmann-3.11.2/include)
 include_directories(lib/tinyobjloader-1.0.6)
 include_directories(lib/tinyfd-2.9.3)
 
-include_directories(lib/bullet3/src)
-
+#include_directories(lib/bullet3/src)
 #include_directories(lib/openal-soft/include)
 #include_directories(lib/yaml-cpp/include)
 #include_directories(lib/nbt/include)
 #include_directories(lib/openvr/headers)
 
 #include_directories(lib/vulkan/include)
+
 
 
 add_executable(Ethertia
@@ -186,8 +187,8 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
     add_subdirectory(lib/glfw-3.3.8)
     target_link_libraries(Ethertia glfw)
 
-    add_subdirectory(lib/bullet3)
-    target_link_libraries(Ethertia BulletDynamics BulletCollision LinearMath)
+    #add_subdirectory(lib/bullet3)
+    #target_link_libraries(Ethertia BulletDynamics BulletCollision LinearMath)
 
     add_subdirectory(lib/fastnoise2-0.10.0a)
     target_link_libraries(Ethertia FastNoise2)
@@ -199,7 +200,7 @@ else()
     target_link_directories(Ethertia PUBLIC ${BIN_DIR})
 #    target_link_directories(Eldaria PUBLIC ${BIN_DIR})
 
-    target_link_libraries(Ethertia BulletDynamics BulletCollision LinearMath FastNoise)
+    target_link_libraries(Ethertia FastNoise) # BulletDynamics BulletCollision LinearMath 
 
     if (APPLE)
         target_link_libraries(Ethertia glfw.3 openal)
@@ -231,7 +232,17 @@ target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
 target_link_libraries(Ethertia "vulkan-1")
 
 
+# PhysX
 
+# option(PHYSX_BUILD_TYPE "The build type of PhysX, i.e., one of {debug, checked, profile, release}" "checked")
+target_link_directories(Ethertia PRIVATE "lib/physx-5.2.1/bin/win.x86_64.vc143.mt/debug/")
+target_link_libraries(Ethertia 
+    "PhysXExtensions_static_64"
+    "PhysX_64"
+    "PhysXPvdSDK_static_64"
+    "PhysXCooking_64"
+    "PhysXCommon_64"
+    "PhysXFoundation_64")
 
 
 

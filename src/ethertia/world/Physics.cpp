@@ -59,7 +59,7 @@ void Physics::Release()
 	if (g_PxPVD)
 	{
 		PxPvdTransport* tmp = g_PxPVD->getTransport();
-		PX_RELEASE(g_PxPVD);
+		PX_RELEASE(g_PxPVD); g_PxPVD = nullptr;
 		PX_RELEASE(tmp);
 	}
 	PX_RELEASE(g_PxFoundation);
