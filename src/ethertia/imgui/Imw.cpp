@@ -129,7 +129,7 @@ static void _ShowMainMenu_System()
     ImGui::Separator();
 
     if (ImGui::MenuItem("Terminate")) {
-        Ethertia::shutdown();
+        Ethertia::Shutdown();
     }
 }
 

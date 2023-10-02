@@ -855,7 +855,7 @@ void ImwGame::ShowTitleScreen(bool* _open)
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Terminate", btnSize)) {
-        Ethertia::shutdown();
+        Ethertia::Shutdown();
     }
 
 

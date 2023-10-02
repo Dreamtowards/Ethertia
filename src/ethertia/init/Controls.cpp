@@ -25,7 +25,7 @@ void Controls::initConsoleThread()
     {
         Log::info("Console thread is ready");
 
-        while (Ethertia::isRunning())
+        while (Ethertia::IsRunning())
         {
             std::string line;
             std::getline(std::cin, line);
@@ -367,7 +367,7 @@ void Controls::handleInput()
     EntityPlayer* player = Ethertia::getPlayer();
 
     if (Window::isCloseRequested())
-        Ethertia::shutdown();
+        Ethertia::Shutdown();
 
     Window::SetMouseGrabbed(Ethertia::isIngame());
     Window::SetStickyKeys(!Ethertia::isIngame());

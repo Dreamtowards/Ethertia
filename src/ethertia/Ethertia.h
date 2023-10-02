@@ -79,8 +79,8 @@ public:
     static void PrintMessage(const std::string& msg);  // print @msg on Message Box.
 
 
-    static bool& isRunning();
-    static void shutdown() { isRunning() = false; }     // not immediately shutdown, but after this frame.
+    static bool& IsRunning();
+    static void Shutdown() { IsRunning() = false; }     // not immediately shutdown, but after this frame.
 
 
     static stdx::thread_pool& GetThreadPool();

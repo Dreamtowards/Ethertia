@@ -44,7 +44,7 @@ int main()
 {
     Init();
 
-    while (Ethertia::isRunning())
+    while (Ethertia::IsRunning())
     {
         RunMainLoop();
     }
@@ -84,7 +84,7 @@ static void Init()
     //}
     //OpenVR::init();
 
-    Ethertia::isRunning() = true;
+    Ethertia::IsRunning() = true;
 
     Window::Init(Settings::DisplayWidth, Settings::DisplayHeight, Ethertia::Version::name().c_str());
     RenderEngine::Init();
@@ -352,7 +352,7 @@ bool& Ethertia::isIngame() {
     static bool g_IsControllingGame = false;
     return g_IsControllingGame;
 }
-bool& Ethertia::isRunning() {
+bool& Ethertia::IsRunning() {
     static bool g_Running = false;
     return g_Running;
 }
