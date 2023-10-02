@@ -52,16 +52,17 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
   - [Thaumstrail](https://github.com/thaumstrial)
 - <small>Composition:</small> N/A
 - <small>Libraries:</small>   
-  - [physx-5.2.1](https://github.com/NVIDIA-Omniverse/PhysX) (NVIDIA);  
   - [vulkan](https://www.vulkan.org/) (Khoronos, AMD, LunarG);   
-  - [stb](https://github.com/nothings/stb) (Sean Barret "nothings"; stb_image*, stb_vorbis)  
+  - [physx-5.2.1](https://github.com/NVIDIA-Omniverse/PhysX) (NVIDIA);  
   - [fastnoise2-0.10.0a](https://github.com/Auburn/FastNoise2) (Jordan Peck "Auburn")  
   - [imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (Omar Cornut / ocornut)  
   - [imnodes-0.5](https://github.com/Nelarius/imnodes) (Johann Muszynski "Nelarius")  
   - [imguizmo-1.83](https://github.com/CedricGuillemet/ImGuizmo) (Cedric Guillemet)  
   - [imgui-knobs-0.21.2](https://github.com/DGriffin91/imgui-rs-knobs) (Griffin, Vasiliy Yorkin)  
   - [glm-0.9.9.8](https://github.com/g-truc/glm) (g-truc)  
+  - [stb](https://github.com/nothings/stb) (Sean Barret "nothings"; stb_image*, stb_vorbis)  
   - [enet-2.3.6](https://github.com/zpl-c/enet) (Lee Salzman, Dominik Madarász "zpl-zak")  
+  - [entt-3.12.2](https://github.com/skypjack/entt) (Michele Caini "skypjack")  
   - [msgpack-cppack-0.19](https://github.com/mikeloomisgg/cppack) (Mike Loomis, msgpack spec)  
   - [openvr-1.26.7](https://github.com/ValveSoftware/openvr) (Valve Corp)  
   - [openal-soft-0.23.7.4](https://github.com/kcat/openal-soft) (kcat)  

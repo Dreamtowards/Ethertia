@@ -30,7 +30,7 @@ void Controls::initConsoleThread()
             std::string line;
             std::getline(std::cin, line);
 
-            Ethertia::dispatchCommand(line);
+            Ethertia::DispatchCommand(line);
         }
     });
 }

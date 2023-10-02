@@ -26,23 +26,6 @@ class WorldInfo;
 class EntityPlayer;
 class Window;
 
-//namespace Ethertia
-//{
-//    /// @worldinfo is only required when creating a new world, at the same time @savedir should also be an empty or non-existing folder.
-//    /// @worldinfo 仅在创建新世界时需要, 同时 @savedir 也应该是空或不存在的文件夹 {CNS}
-//    void LoadWorld(const std::string& savedir, const WorldInfo* worldinfo = nullptr);
-//
-//    void UnloadWorld();
-//
-//    void DispatchCommand(const std::string& cmd);
-//
-//    void NotifyMessage(const std::string& msg);
-//
-//    bool IsRunning();
-//    void Shutdown();
-//
-//    bool InMainThread();
-//
 //    // ClientSide Only
 //    World* GetWorld();
 //    EntityPlayer* GetPlayer();
@@ -74,7 +57,7 @@ public:
 
 
     // send chat message (@cmd not '/' leading) or dispatch command ('/' leading).
-    static void dispatchCommand(const std::string& cmd);
+    static void DispatchCommand(const std::string& cmd);
 
     static void PrintMessage(const std::string& msg);  // print @msg on Message Box.
 

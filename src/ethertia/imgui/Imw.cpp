@@ -542,7 +542,7 @@ void Imw::Editor::ShowConsole(bool* _open)
         ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine))
     {
         if (InputBuf[0]) {
-            Ethertia::dispatchCommand(InputBuf);
+            Ethertia::DispatchCommand(InputBuf);
             InputBuf[0] = 0;  // clear.
         }
     }

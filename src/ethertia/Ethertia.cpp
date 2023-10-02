@@ -295,7 +295,7 @@ void Ethertia::UnloadWorld()
 
 
 
-void Ethertia::dispatchCommand(const std::string& cmdline) {
+void Ethertia::DispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
     Log::warn("Not supported yet. cmd {}", cmdline);
 
