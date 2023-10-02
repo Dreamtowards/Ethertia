@@ -47,7 +47,7 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 
 ### **Credits**
 
-- <small>Devlopers:</small>   
+- <small>Developers:</small>   
   - [Dreamtowards](https://elytra.dev/~pris)  
   - [Thaumstrail](https://github.com/thaumstrial)
 - <small>Composition:</small> N/A

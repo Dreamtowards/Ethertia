@@ -361,12 +361,12 @@ float Ethertia::GetPreciseTime() { return (float)Window::PreciseTime(); }
 float Ethertia::GetDelta() { return GetTimer().getDelta(); }
 
 Ethertia::Viewport Ethertia::GetViewport() {
-    if (Imgui::wViewportXYWH.x != Mth::Inf) {
-        glm::vec4 v = Imgui::wViewportXYWH;
-        return { v.x, v.y, v.z, v.w };
-    } else {
+    if (ImwGame::Viewport.x == Mth::Inf) {  // World Viewport Window Closed
         glm::vec2 s = Window::Size();
-        return { 0, 0, s.x, s.y };
+        return {0,0,0,0}; // { 0, 0, s.x, s.y };
+    } else {
+        glm::vec4 v = ImwGame::Viewport;
+        return { v.x, v.y, v.z, v.w };
     }
 }
 

@@ -503,7 +503,7 @@ void ImwGame::ShowGame(bool* _open)
 
     ImVec2 viewSize = Imgui::GetWindowContentSize();
     ImVec2 viewPos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
-    Imgui::wViewportXYWH = { viewPos.x, viewPos.y, viewSize.x, viewSize.y};
+    ImwGame::Viewport = { viewPos.x, viewPos.y, viewSize.x, viewSize.y };
 
     // Viewport Image
     if (ImwGame::WorldImageView)

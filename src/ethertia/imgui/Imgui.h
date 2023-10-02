@@ -19,8 +19,6 @@ class Imgui
 public:
     inline static float GuiScale = 1.0f;
 
-    inline static glm::vec4 wViewportXYWH;
-
     static void Init();
     static void Destroy();
 
