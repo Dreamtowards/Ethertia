@@ -3,6 +3,7 @@
 
 #include <PxPhysicsAPI.h>
 
+#define ETPX_CTX physx::PxPhysics& PhysX = *Physics::Phys();
 
 class Physics
 {

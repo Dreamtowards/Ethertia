@@ -248,13 +248,13 @@ void ImwInspector::ShowInspector(bool* _open)
 
     if (ImGui::BeginPopupContextItem(0, ImGuiPopupFlags_MouseButtonLeft))
     {
-        if (ImGui::MenuItem("std::uint16_t"))
+        if (ImGui::MenuItem("Renderer"))
         {
-            entity.AddComponent<std::uint16_t>();
+            entity.AddComponent<RendererComponent>();
         }
-        if (ImGui::MenuItem("std::string"))
+        if (ImGui::MenuItem("RigidStatic"))
         {
-            entity.AddComponent<std::string>();
+            entity.AddComponent<RigidStaticComponent>();
         }
 
         ImGui::EndPopup();
@@ -376,6 +376,35 @@ static void _InspRenderMesh(MeshRenderComponent& comp)
 }
 
 
+static void _InspRenderer(RendererComponent& comp)
+{
+
+}
+
+static void _InspRigidStatic(RigidStaticComponent& comp)
+{
+    using namespace physx;
+    PxRigidStatic* rigidstatic = comp.RigidStatic;
+
+    static std::vector<PxShape*> _Shapes;
+    PxU32 numShapes = rigidstatic->getNbShapes();
+    _Shapes.resize(numShapes);
+    rigidstatic->getShapes(_Shapes.data(), numShapes);
+
+    ImGui::SeparatorText("Shapes");
+    for (PxShape* shape : _Shapes)
+    {
+        const PxGeometry& geo = shape->getGeometry();
+        PxGeometryType::Enum geoType = geo.getType();
+
+        ImGui::Text("Geometry: %i", (int)geoType);
+
+        static std::vector<PxMaterial*> _Materials;
+        PxU32 numMaterials = shape->getNbMaterials();
+        shape->getMaterials(_Materials.data(), numMaterials);
+    }
+}
+
 
 
 void ImwInspector::InitComponentInspectors()
@@ -384,6 +413,10 @@ void ImwInspector::InitComponentInspectors()
     ImwInspector::AddComponentInspector<TransformComponent>(_InspTransform);
 
     ImwInspector::AddComponentInspector<MeshRenderComponent>(_InspRenderMesh);
+
+    ImwInspector::AddComponentInspector<RendererComponent>(_InspRenderer);
+
+    ImwInspector::AddComponentInspector<RigidStaticComponent>(_InspRigidStatic);
 }
 
 //static void _InspWorld(World* world)

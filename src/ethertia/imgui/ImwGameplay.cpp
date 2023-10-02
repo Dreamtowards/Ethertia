@@ -401,6 +401,7 @@ static void _MoveCamera()
     {
         if (dragRMB && (dragMMB || dragLMB))
         {
+            // Pin XZ
             move.z += -MouseDelta.y * mspd;
             move.x += -MouseDelta.x * mspd;
         }

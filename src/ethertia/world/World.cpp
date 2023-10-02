@@ -7,6 +7,8 @@
 
 #include <ethertia/world/Physics.h>
 
+#include <ethertia/util/Log.h>
+
 
 using namespace physx;
 
@@ -20,6 +22,7 @@ static PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geo
 	dynamic->setAngularDamping(0.5f);
 	dynamic->setLinearVelocity(velocity);
 	dbg_Scene->addActor(*dynamic);
+
 	return dynamic;
 }
 
@@ -71,12 +74,12 @@ World::World()
 
 	PxRigidStatic* aGroundStatic = PxCreatePlane(*_Phys, PxPlane(0, 1, 0, 0), *dbg_PhysMtl);
 	m_PxScene->addActor(*aGroundStatic);
-
-	PxReal stackZ = 10.0f;
-	for (PxU32 i = 0; i < 5; i++)
-		createStack(PxTransform(PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f);
-
-	createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
+	
+	//PxReal stackZ = 10.0f;
+	//for (PxU32 i = 0; i < 5; i++)
+	//	createStack(PxTransform(PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f);
+	//
+	//createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
 }
 
 World::~World()
@@ -105,6 +108,38 @@ void World::OnTick(float dt)
 }
 
 
+Cell& World::GetCell(glm::ivec3 p)
+{
+	auto chunk = GetChunkSystem().GetChunk(Chunk::ChunkPos(p));
+
+	if (!chunk)
+		return Cell::Nil();
+
+	return chunk->LocalCell(Chunk::LocalPos(p));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#pragma region ECS
+
+
 Entity World::CreateEntity()
 {
 	Entity entity{ m_EntityRegistry.create(), this };
@@ -123,13 +158,54 @@ void World::DestroyEntity(entt::entity entity)
 }
 
 
-
-Cell& World::GetCell(glm::ivec3 p)
+template<typename T>
+void World::OnComponentAdded(entt::entity entity, T& comp)
 {
-	auto chunk = GetChunkSystem().GetChunk(Chunk::ChunkPos(p));
-
-	if (!chunk)
-		return Cell::Nil();
-	
-	return chunk->LocalCell(Chunk::LocalPos(p));
+	Log::info("Component Added {}", entt::type_name<T>());
 }
+
+
+template<>
+void World::OnComponentAdded<MeshRenderComponent>(entt::entity entity, MeshRenderComponent& comp)
+{
+
+}
+
+template<>
+void World::OnComponentAdded<RendererComponent>(entt::entity entity, RendererComponent& comp)
+{
+
+}
+
+
+template<>
+void World::OnComponentAdded<RigidStaticComponent>(entt::entity entity, RigidStaticComponent& comp)
+{
+	ETPX_CTX;
+
+	if (!comp.RigidStatic)
+	{
+		comp.RigidStatic = PhysX.createRigidStatic(PxTransform({0,0,0}));
+
+		PxShape* shape = dbg_Phys->createShape(PxBoxGeometry(2.f, 2.f, 2.f), *dbg_PhysMtl);
+		comp.RigidStatic->attachShape(*shape);
+		shape->release();
+
+		ET_ASSERT(comp.RigidStatic);
+	}
+
+	m_PxScene->addActor(*comp.RigidStatic);
+
+}
+template<>
+void World::OnComponentRemove<RigidStaticComponent>(entt::entity entity, RigidStaticComponent& comp)
+{
+	m_PxScene->removeActor(*comp.RigidStatic);
+}
+
+
+
+
+
+#pragma endregion
+

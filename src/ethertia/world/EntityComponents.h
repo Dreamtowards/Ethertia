@@ -40,20 +40,33 @@ struct MeshRenderComponent
 
 
 
-// Physics Collision Geometry
+// Physics Collision Shape
 // UE: 
 struct ColliderComponent
 {
-	physx::PxShape* Shape;
+	physx::PxShape* Shape = nullptr;
+
+	physx::PxMaterial* Material = nullptr;
 };
 
+
+// Graphics Render
 
 struct RendererComponent
 {
+	// Input VertexData
+	// Material: Shader, Uniforms
 
+	int sth;
 };
 
-struct RigidbodyComponent
+
+struct RigidStaticComponent
+{
+	physx::PxRigidStatic* RigidStatic = nullptr;
+};
+
+struct RigidDynamicComponent
 {
 	physx::PxRigidDynamic* RigidDynamic = nullptr;
 };

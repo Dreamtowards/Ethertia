@@ -17,7 +17,7 @@ public:
 	{
 		//STDX_ASSERT(!HasComponent<T>(), "Entity already has the component!");
 		T& component = m_World->registry().emplace<T>(m_EntityId, std::forward<Args>(args)...);
-		// m_World->OnComponentAdded<T>(*this, component);
+		m_World->OnComponentAdded<T>(m_EntityId, component);
 		return component;
 	}
 	
@@ -25,7 +25,8 @@ public:
 	void RemoveComponent()
 	{
 		//STDX_ASSERT(HasComponent<T>(), "Entity does not have the component!");
-		m_World->registry().remove<T>(m_EntityId);
+		T& c = m_World->registry().remove<T>(m_EntityId);
+		m_World->OnComponentRemove(m_EntityId, c);
 	}
 	
 	template<typename T>

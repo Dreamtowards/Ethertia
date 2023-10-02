@@ -50,6 +50,11 @@ public:
 
 	ChunkSystem& GetChunkSystem() { return *m_ChunkSystem; }
 
+	template<typename T>
+	void OnComponentAdded(entt::entity entity, T& component);
+
+	template<typename T>
+	void OnComponentRemove(entt::entity entity, T& component);
 
 	#pragma region WorldInfo
 	
