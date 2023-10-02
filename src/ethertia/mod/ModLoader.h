@@ -1,7 +1,7 @@
 //
 // Created by Dreamtowards on 2023/1/31.
 //
-// dll load for Windows created by Kmroiosn on 2023/02/09. (D)
+// Windows DLL Loading created by Kmroiosn on 2023/02/09. (D)
 //
 
 #ifndef ETHERTIA_MODLOADER_H

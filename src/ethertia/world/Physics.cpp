@@ -55,7 +55,7 @@ void Physics::Init(bool enablePvd, bool recordMemoryAllocations)
 void Physics::Release()
 {
 
-	//PxCloseExtensions();
+	PxCloseExtensions();
 	PX_RELEASE(g_PxCpuDispatcher);
 	PX_RELEASE(g_PxPhysics);
 	if (g_PxPVD)

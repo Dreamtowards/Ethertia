@@ -71,7 +71,7 @@ static void Init()
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
     Settings::LoadSettings();
     //NoiseGen::InitSIMD();
-    Log::info("{}, hardware_concurrency: {}x, {}-endian, cpu: {}", (Loader::os_arch()), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "big" : "little", Loader::cpuid());
+    Log::info("{}, hardware_concurrency: {}x, {}, {}-endian", Loader::os_arch(), std::thread::hardware_concurrency(), Loader::cpuid(), std::endian::native == std::endian::big ? "B" : "L");
 
     g_ThreadPool = std::make_unique<stdx::thread_pool>(std::thread::hardware_concurrency());
     g_MainThreadId = std::this_thread::get_id();
@@ -279,7 +279,7 @@ void Ethertia::UnloadWorld()
 #pragma endregion
 
 
-#pragma region DispatchCommand, PrintMessage
+#pragma region DispatchCommand, PrintMessage, _InitConsoleThread
 
 void Ethertia::DispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
@@ -326,6 +326,23 @@ void Ethertia::PrintMessage(const std::string& msg) {
     Log::info("[MSG/C] ", msg);
 //    GuiMessageList::Inst()->addMessage(msg);
     Imw::Editor::ConsoleMessages.push_back(msg);
+}
+
+
+static void _InitConsoleThread()
+{
+    new std::thread([]()
+    {
+        Log::info("Console thread is ready");
+
+        while (Ethertia::IsRunning())
+        {
+            std::string line;
+            std::getline(std::cin, line);
+
+            Ethertia::DispatchCommand(line);
+        }
+    });
 }
 
 #pragma endregion
@@ -436,20 +453,3 @@ void Camera::update(bool updateMatView)
 }
 
 
-
-
-static void _InitConsoleThread()
-{
-    new std::thread([]()
-    {
-        Log::info("Console thread is ready");
-
-        while (Ethertia::IsRunning())
-        {
-            std::string line;
-            std::getline(std::cin, line);
-
-            Ethertia::DispatchCommand(line);
-        }
-    });
-}
