@@ -33,9 +33,9 @@ static float s_CameraMoveSpeed = 16;
 
 static void _ShowDebugText()
 {
-    Camera& cam = Ethertia::getCamera();
+    Camera& cam = Ethertia::GetCamera();
     World* world = Ethertia::GetWorld();
-    float dt = Ethertia::getDelta();
+    float dt = Ethertia::GetDelta();
 
     std::string strWorldInfo = "--";
     //std::string cellInfo = "nil";
@@ -190,10 +190,11 @@ static void _ShowGizmo(Entity& entity)
     //    ImGui::DragFloat3("Bound Snap value", &_BoundSnapValue[0], 0.5f);
     //}
     //static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+    Camera& cam = Ethertia::GetCamera();
 
     bool manipulated = ImGuizmo::Manipulate(
-        glm::value_ptr(Ethertia::getCamera().matView),
-        glm::value_ptr(Ethertia::getCamera().matProjection),
+        glm::value_ptr(cam.matView),
+        glm::value_ptr(cam.matProjection),
         guizmoOp, guizmoMode,
         glm::value_ptr(mat),
         nullptr,  // delta matrix?
@@ -273,14 +274,14 @@ static void _ShowViewportWidgets()
     }
 
 
-
+    Camera& cam = Ethertia::GetCamera();
     World* world = Ethertia::GetWorld();
 
     if (Dbg::dbg_ViewGizmo)
     {
         static float camLen = 10.0f;
         auto& vp = Ethertia::getViewport();
-        ImGuizmo::ViewManipulate(glm::value_ptr(Ethertia::getCamera().matView), camLen,
+        ImGuizmo::ViewManipulate(glm::value_ptr(cam.matView), camLen,
             ImVec2(vp.right() - 128 - 24, vp.y + 24), ImVec2(128, 128),
             //0x10101010
             0);
@@ -289,8 +290,8 @@ static void _ShowViewportWidgets()
     {
         glm::mat4 iden(1.0f);
         ImGuizmo::DrawGrid(
-            glm::value_ptr(Ethertia::getCamera().matView),
-            glm::value_ptr(Ethertia::getCamera().matProjection),
+            glm::value_ptr(cam.matView),
+            glm::value_ptr(cam.matProjection),
             glm::value_ptr(iden), 
             (float)Dbg::dbg_WorldHintGrids);
     }
@@ -312,7 +313,7 @@ static void _ShowViewportWidgets()
     }
     if (Dbg::dbg_ViewBasis)
     {
-        glm::mat4* pView = &Ethertia::getCamera().matView;
+        glm::mat4* pView = &cam.matView;
         glm::mat4 camView = *pView;  // backup.
         *pView = glm::mat4(1.0f);  // disable view matrix. of RenderWorldLine
         float n = 0.016f;
@@ -441,7 +442,7 @@ static void _MoveCamera()
         s_CameraMoveSpeed += MouseWheel;
         s_CameraMoveSpeed = std::max(0.0f, s_CameraMoveSpeed);
 
-        float spd = Ethertia::getDelta() * s_CameraMoveSpeed;
+        float spd = Ethertia::GetDelta() * s_CameraMoveSpeed;
 
         move *= spd;
         moveaa *= spd;
@@ -456,7 +457,7 @@ static void _MoveCamera()
 
     if (dYaw || dPitch || glm::length2(move) || glm::length2(moveaa))
     {
-        Camera& cam = Ethertia::getCamera();
+        Camera& cam = Ethertia::GetCamera();
         cam.matView = MatView_MoveRotate(cam.matView, move, dYaw, dPitch, len, moveaa);
     }
 }

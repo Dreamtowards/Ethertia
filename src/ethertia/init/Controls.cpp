@@ -363,8 +363,7 @@ void handleHitCursor()
 
 void Controls::handleInput()
 {
-    Camera& camera = Ethertia::getCamera();
-    EntityPlayer* player = Ethertia::getPlayer();
+    Camera& camera = Ethertia::GetCamera();
 
     if (Window::isCloseRequested())
         Ethertia::Shutdown();
@@ -419,7 +418,7 @@ void Controls::handleInput()
 //    RenderEngine::fov += smFov.delta;
 
 
-    float dt = Ethertia::getDelta();
+    float dt = Ethertia::GetDelta();
     camera.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
 
 

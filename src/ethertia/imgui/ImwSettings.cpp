@@ -90,7 +90,7 @@ void Imw::Settings::ShowSettings(bool* pOpen)
 
             ImGui::Combo("Profile", &s_ProfileIdx, "Custom", 1);
 
-            ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
+            ImGui::SliderFloat("FOV", &Ethertia::GetCamera().fov, 0, 180);
             if (ImGui::IsItemHovered()) ImGui::SetTooltip("Field of View.\nNormal: 70\nQuark Pro: 90");
 
             int fpsLimit = ::Settings::s_Vsync ? 0 : ::Settings::s_FpsCap;

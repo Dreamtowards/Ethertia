@@ -189,10 +189,10 @@ static void _ShowMainMenuBar()
 
             ImGui::Separator();
 
-            ImGui::Checkbox("Hit Tracking", &Ethertia::getHitCursor().keepTracking);
-            ImGui::SliderFloat("BrushSize", &Ethertia::getHitCursor().brushSize, 0, 16);
+            ImGui::Checkbox("Hit Tracking", &Ethertia::GetHitCursor().keepTracking);
+            ImGui::SliderFloat("BrushSize", &Ethertia::GetHitCursor().brushSize, 0, 16);
 
-            Camera& cam = Ethertia::getCamera();
+            Camera& cam = Ethertia::GetCamera();
             ImGui::SliderFloat("Camera Smoothness", &cam.m_Smoothness, 0, 5);
             ImGui::SliderFloat("Camera Roll", &cam.eulerAngles.z, -3.14, 3.14);
 
@@ -205,7 +205,7 @@ static void _ShowMainMenuBar()
             ImGui::Separator();
 
 
-            ImGui::SliderFloat("FOV", &Ethertia::getCamera().fov, 0, 180);
+            ImGui::SliderFloat("FOV", &Ethertia::GetCamera().fov, 0, 180);
             ImGui::SliderFloat("ViewDistance", &Settings::s_ViewDistance, 0, 16);
             ImGui::Checkbox("Vsync", &Settings::s_Vsync);
 

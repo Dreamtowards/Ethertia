@@ -159,7 +159,7 @@ void RendererGbuffer::Init()
 void RendererGbuffer::UpdateUniformBuffer(int fifi)
 {
     // UBO Vert
-    Camera& cam = Ethertia::getCamera();
+    Camera& cam = Ethertia::GetCamera();
     g_uboVert.matProjection = cam.matProjection;
     g_uboVert.matView = cam.matView;
 
@@ -402,7 +402,7 @@ void RendererCompose::Init(vk::ImageView gPosition, vk::ImageView gNormal, vk::I
 void RendererCompose::UpdateUniformBuffer(int fifi)
 {
     UBO& ubo = g_UBO;
-    Camera& cam = Ethertia::getCamera();
+    Camera& cam = Ethertia::GetCamera();
 
     ubo.invMatView = glm::inverse(cam.matView);
     ubo.invMatProj = glm::inverse(cam.matProjection);

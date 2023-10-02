@@ -54,9 +54,8 @@ int main()
     return 0;
 }
 
-static Window*      g_Window = nullptr;
-static World*       g_World = nullptr;
-static EntityPlayer*g_Player = nullptr;
+static World*       g_World     = nullptr;
+//static EntityPlayer*g_Player    = nullptr;
 static Timer        g_Timer;
 static HitCursor    g_HitCursor;
 static Profiler     g_Profiler;
@@ -157,15 +156,15 @@ static void Destroy()
 static void RunMainLoop()
 {
     PROFILE("Frame");
-    double time_framebegin = Ethertia::getPreciseTime();
-    Ethertia::getTimer().update(time_framebegin);
-    float dt = Ethertia::getDelta();
+    double time_framebegin = Ethertia::GetPreciseTime();
+    Ethertia::GetTimer().update(time_framebegin);
+    float dt = Ethertia::GetDelta();
     World* world = Ethertia::GetWorld();
 
     {
         PROFILE("Tick");
 
-        while (Ethertia::getTimer().polltick())
+        while (Ethertia::GetTimer().polltick())
         {
             PROFILE("WorldTick");
 
@@ -219,7 +218,7 @@ static void RunMainLoop()
 //            }
 //        }
 
-        Dbg::_fps_frame(Ethertia::getPreciseTime());
+        Dbg::_fps_frame(Ethertia::GetPreciseTime());
 
 //        AudioEngine::checkAlError("Frame");
 //        AudioEngine::setListenerPosition(Ethertia::getCamera().position);
@@ -265,7 +264,7 @@ void Ethertia::UnloadWorld()
 
     Log::info("Unloading World...");
 
-    Ethertia::getHitCursor().reset();
+    Ethertia::GetHitCursor().reset();
 
 
     //Log::info("Cleaning MeshGen");
@@ -364,15 +363,12 @@ stdx::thread_pool& Ethertia::GetThreadPool() { return *g_ThreadPool; }
 bool Ethertia::InMainThread() { return std::this_thread::get_id() == g_MainThreadId; }
 
 
-EntityPlayer* Ethertia::getPlayer() { return g_Player; }
-
-float Ethertia::getPreciseTime() { return (float)Window::PreciseTime(); }
-float Ethertia::getDelta() { return getTimer().getDelta(); }
-Camera& Ethertia::getCamera() { return g_Camera; }
-HitCursor& Ethertia::getHitCursor() { return g_HitCursor; }
-Profiler& Ethertia::getProfiler() { return g_Profiler; }
-Timer& Ethertia::getTimer() { return g_Timer; }
-Window& Ethertia::getWindow() { return *g_Window; }
+float Ethertia::GetPreciseTime() { return (float)Window::PreciseTime(); }
+float Ethertia::GetDelta() { return GetTimer().getDelta(); }
+Camera& Ethertia::GetCamera() { return g_Camera; }
+HitCursor& Ethertia::GetHitCursor() { return g_HitCursor; }
+Profiler& Ethertia::GetProfiler() { return g_Profiler; }
+Timer& Ethertia::GetTimer() { return g_Timer; }
 
 
 const Ethertia::Viewport& Ethertia::getViewport() {

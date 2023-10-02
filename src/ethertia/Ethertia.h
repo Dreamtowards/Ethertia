@@ -5,8 +5,6 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <stdexcept>
-#include <format>
 #include <stdx/thread_pool.h>
 
 #include <ethertia/render/Camera.h>
@@ -19,31 +17,12 @@
 #define ET_VERSION_MINOR 0
 #define ET_VERSION_PATCH 10
 #define ET_VERSION_SNAPSHOT 
+#define ET_VERSION_DATE "2023.10.02"
 
 
 class World;
 class WorldInfo;
-class EntityPlayer;
-class Window;
 
-//    // ClientSide Only
-//    World* GetWorld();
-//    EntityPlayer* GetPlayer();
-//    Window& GetWindow();
-//    Timer& GetTimer();
-//    Scheduler& GetScheduler();
-//    Scheduler& GetAsyncScheduler();
-//    HitCursor& GetHitCursor();
-//    Profiler& GetProfiler();
-//    Camera& GetCamera();
-//
-//
-//    float GetDelta();  /// (previous) frame delta time in seconds.
-//    float GetPreciseTime();  /// precise program-running-time in seconds. !not epoch timestamp.
-//
-//    bool IsIngame();  // is controlling game
-//
-//}
 
 class Ethertia
 {
@@ -55,35 +34,29 @@ public:
 
     static World* GetWorld();
 
-
-    // send chat message (@cmd not '/' leading) or dispatch command ('/' leading).
-    static void DispatchCommand(const std::string& cmd);
-
-    static void PrintMessage(const std::string& msg);  // print @msg on Message Box.
-
-
     static bool& IsRunning();
     static void Shutdown() { IsRunning() = false; }     // not immediately shutdown, but after this frame.
 
-
     static stdx::thread_pool& GetThreadPool();
-    
     static bool InMainThread();
 
+    static float GetDelta();        // (previous) frame delta time in seconds.
+    static float GetPreciseTime();  // precise program-running-time in seconds. !not epoch timestamp.
 
-    static EntityPlayer* getPlayer();
-    static Window& getWindow();
-    static Timer& getTimer();
-    static HitCursor& getHitCursor();
-    static Profiler& getProfiler();
-    static Camera& getCamera();
 
-    static float getDelta();        // (previous) frame delta time in seconds.
-    static float getPreciseTime();  // precise program-running-time in seconds. !not epoch timestamp.
+    static Timer& GetTimer();
+    static Profiler& GetProfiler();
+    static Camera& GetCamera();
+    static HitCursor& GetHitCursor();   // HitResult of World Raycast
+    //static Entity GetPlayer();
 
-    // is controlling the game. (mouse grabbed, wsad etc.)
-    static bool& isIngame();
+    
+    static bool& isIngame();        // is controlling the game. (mouse grabbed, wsad etc.)
 
+
+    // send chat message (@cmd not '/' leading) or dispatch command ('/' leading).
+    static void DispatchCommand(const std::string& cmd);
+    static void PrintMessage(const std::string& msg);  // print @msg on Message Box.
 
 
 
@@ -129,6 +102,6 @@ public:
 
 #define PROFILE_VN_CONCAT_INNR(a, b) a ## b
 #define PROFILE_VN_CONCAT(a, b) PROFILE_VN_CONCAT_INNR(a, b)
-#define PROFILE(x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = Ethertia::getProfiler().push_ap(x)
+#define PROFILE(x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = Ethertia::GetProfiler().push_ap(x)
 #define PROFILE_X(p, x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
 

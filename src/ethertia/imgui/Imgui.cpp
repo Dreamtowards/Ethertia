@@ -365,7 +365,8 @@ void Imgui::TextAlign(const char* text, ImVec2 align) {
 
 bool Imgui::CalcViewportWorldpos(glm::vec3 worldpos, glm::vec2& out_screenpos)
 {
-    glm::vec3 p = Mth::projectWorldpoint(worldpos, Ethertia::getCamera().matView, Ethertia::getCamera().matProjection);
+    auto& cam = Ethertia::GetCamera();
+    glm::vec3 p = Mth::projectWorldpoint(worldpos, cam.matView, cam.matProjection);
 
     auto& vp = Ethertia::getViewport();
     out_screenpos.x = vp.x + p.x * vp.width;

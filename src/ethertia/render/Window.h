@@ -18,6 +18,8 @@
 class Window
 {
 public:
+    Window() = delete;
+
     static void Init(int _w, int _h, const char* _title);
     static void Destroy();
     static double PreciseTime();

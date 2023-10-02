@@ -67,7 +67,7 @@ void Settings::LoadSettings()
 
 
     conf.get("view_distance", s_ViewDistance);
-    conf.get("fov", Ethertia::getCamera().fov);
+    conf.get("fov", Ethertia::GetCamera().fov);
     conf.get("display_width", DisplayWidth);
     conf.get("display_height", DisplayHeight);
     conf.get("vsync", s_Vsync);
@@ -119,7 +119,7 @@ void Settings::SaveSettings()
     glm::vec2 _WindowSize = Window::Size();
 
     conf["view_distance"] = s_ViewDistance;
-    conf["fov"] =           Ethertia::getCamera().fov;
+    conf["fov"] =           Ethertia::GetCamera().fov;
     conf["assets"] =        Settings::Assets;
     conf["display_width"]  =_WindowSize.x;
     conf["display_height"] =_WindowSize.y;
