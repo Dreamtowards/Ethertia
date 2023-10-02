@@ -12,7 +12,6 @@ public:
 
     inline static float gDigSpeedMultiplier = 8.0f;
 
-    static void initConsoleThread();
 
     static void handleInput();
 

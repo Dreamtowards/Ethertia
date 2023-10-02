@@ -19,22 +19,6 @@
 //#include <ethertia/gui/screen/GuiScreenPause.h>
 
 
-void Controls::initConsoleThread()
-{
-    new std::thread([]()
-    {
-        Log::info("Console thread is ready");
-
-        while (Ethertia::IsRunning())
-        {
-            std::string line;
-            std::getline(std::cin, line);
-
-            Ethertia::DispatchCommand(line);
-        }
-    });
-}
-
 
 
 

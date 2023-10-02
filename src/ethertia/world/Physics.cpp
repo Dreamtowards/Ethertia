@@ -4,6 +4,7 @@
 
 #include <ethertia/util/Assert.h>
 #include <ethertia/util/Log.h>
+#include <ethertia/util/BenchmarkTimer.h>
 
 
 using namespace physx;
@@ -18,6 +19,10 @@ PxDefaultCpuDispatcher* g_PxCpuDispatcher = nullptr;
 
 void Physics::Init(bool enablePvd, bool recordMemoryAllocations)
 {
+	BENCHMARK_TIMER;
+	Log::info("PhysX {}.{}.{} initializing..\1",
+		PX_PHYSICS_VERSION_MAJOR, PX_PHYSICS_VERSION_MINOR, PX_PHYSICS_VERSION_BUGFIX);
+
 	g_PxFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, g_PxAllocator, g_PxErrorCallback);
 	if (!g_PxFoundation)
 		ET_ERROR("PxCreateFoundation failed!");
@@ -44,9 +49,6 @@ void Physics::Init(bool enablePvd, bool recordMemoryAllocations)
 
 	g_PxCpuDispatcher = PxDefaultCpuDispatcherCreate(2);
 
-
-	Log::info("PhysX {}.{}.{} initializing..",
-		PX_PHYSICS_VERSION_MAJOR, PX_PHYSICS_VERSION_MINOR, PX_PHYSICS_VERSION_BUGFIX);
 }
 
 

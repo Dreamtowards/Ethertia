@@ -51,7 +51,7 @@ void RenderEngine::Init()
     vkx::Init(Window::Handle(), true);
 
     uint32_t vkApiVersion = vkx::ctx().PhysDeviceProperties.apiVersion;
-    Log::info("vulkan {}.{}.{}, gpu: {}",
+    Log::info("Vulkan {}.{}.{}, {}",
               VK_API_VERSION_MAJOR(vkApiVersion),
               VK_API_VERSION_MINOR(vkApiVersion),
               VK_API_VERSION_PATCH(vkApiVersion),

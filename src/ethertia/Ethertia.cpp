@@ -59,10 +59,10 @@ static World*       g_World     = nullptr;
 static Profiler     g_Profiler;
 static Camera       g_Camera;
 
-
 static std::unique_ptr<stdx::thread_pool> g_ThreadPool;
-
 static std::thread::id g_MainThreadId{};
+
+static void _InitConsoleThread();
 
 
 // System Initialization.
@@ -109,7 +109,7 @@ static void Init()
     // Proc Threads
     //ChunkMeshProc::initThread();
     //ChunkGenProc::initThread();
-    Controls::initConsoleThread();
+    _InitConsoleThread();
 
 
 //    Material::REGISTRY.dbgPrintEntries("Materials");
@@ -433,4 +433,23 @@ void Camera::update(bool updateMatView)
     // ViewFrustum
     m_Frustum.set(matProjection * matView);
 
+}
+
+
+
+
+static void _InitConsoleThread()
+{
+    new std::thread([]()
+    {
+        Log::info("Console thread is ready");
+
+        while (Ethertia::IsRunning())
+        {
+            std::string line;
+            std::getline(std::cin, line);
+
+            Ethertia::DispatchCommand(line);
+        }
+    });
 }

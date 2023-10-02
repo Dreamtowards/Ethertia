@@ -12,11 +12,11 @@
 #include <ethertia/util/Log.h>
 
 
+//#define ET_LOADER_LOADINFO 1
+
 
 #pragma region File, Asset
 
-
-#define ET_LOADER_LOADINFO 1
 
 Loader::DataBlock::DataBlock(void* data, size_t size, const std::string& filename)
         : m_Data(data), m_Size(size), m_Filename(filename)

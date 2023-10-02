@@ -140,7 +140,7 @@ static void InitForVulkan()
 void Imgui::Init()
 {
     BENCHMARK_TIMER;
-    Log::info("Init ImGui.. \1");
+    Log::info("ImGui initializing.. \1");
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
