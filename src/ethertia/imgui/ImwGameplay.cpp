@@ -829,7 +829,7 @@ void ImwGame::ShowTitleScreen(bool* _open)
 
     // LeftBottom Version/Stats
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
-    Imgui::TextAlign(std::format("0 mods loaded.\n{}", Ethertia::Version::name()).c_str(),
+    Imgui::TextAlign(std::format("0 mods loaded.\n{}", Ethertia::GetVersion(true)).c_str(),
                      {0.0f, 1.0f});
 
     // RightBottom Copyright

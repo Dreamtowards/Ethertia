@@ -399,7 +399,7 @@ void Imw::Settings::ShowSettings(bool* pOpen)
         else if (currpanel==Credits)
         {
             ImGui::SetWindowFontScale(1.4f);
-            ImGui::Text("%s", Ethertia::Version::name().c_str());
+            ImGui::Text("%s", Ethertia::GetVersion(true).c_str());
             ImGui::SetWindowFontScale(1.0f);
 
             ImGui::Text("Dev: Eldrine Le Prismarine");

@@ -16,7 +16,7 @@
 #define ET_VERSION_MAJOR 0
 #define ET_VERSION_MINOR 0
 #define ET_VERSION_PATCH 10
-#define ET_VERSION_SNAPSHOT 
+#define ET_VERSION_SNAPSHOT "2023.10a"
 #define ET_VERSION_DATE "2023.10.02"
 
 
@@ -59,6 +59,8 @@ public:
     static void PrintMessage(const std::string& msg);  // print @msg on Message Box.
 
 
+    static const std::string GetVersion(bool fullname = false);     // e.g. "0.0.3", "23w14c *0.0.2" fullname: "Ethertia Alpha 23w14c *0.0.2"
+
 
     struct Viewport
     {
@@ -76,24 +78,6 @@ public:
 
     // game viewport. useful when game required to be rendered in a specific area.
     static const Ethertia::Viewport& getViewport();
-
-    struct Version
-    {
-        inline static const int major = 0;
-        inline static const int minor = 0;
-        inline static const int revision = 3;
-        inline static const char* snapshot = "23w10";  // release: nullptr.
-
-        static const std::string& version_name() {
-            static std::string _Inst = snapshot ? std::format("{} *{}.{}.{}", snapshot, major, minor, revision)
-                                                : std::format("{}.{}.{}", major, minor, revision);
-            return _Inst;
-        }
-        static const std::string& name() {
-            static std::string _Inst = std::format("Ethertia Alpha {}", version_name());
-            return _Inst;
-        }
-    };
 
 
 };

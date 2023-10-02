@@ -85,7 +85,7 @@ static void Init()
 
     Ethertia::IsRunning() = true;
 
-    Window::Init(Settings::DisplayWidth, Settings::DisplayHeight, Ethertia::Version::name().c_str());
+    Window::Init(Settings::DisplayWidth, Settings::DisplayHeight, Ethertia::GetVersion(true).c_str());
     RenderEngine::Init();
     // AudioEngine::init();
     // NetworkSystem::init();
@@ -286,7 +286,7 @@ void Ethertia::UnloadWorld()
 #pragma endregion
 
 
-
+#pragma region DispatchCommand, PrintMessage
 
 void Ethertia::DispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
@@ -335,11 +335,10 @@ void Ethertia::PrintMessage(const std::string& msg) {
     Imw::Editor::ConsoleMessages.push_back(msg);
 }
 
+#pragma endregion
 
 
-
-
-
+#pragma region Getters
 
 bool& Ethertia::isIngame() {
     static bool g_IsControllingGame = false;
@@ -351,11 +350,8 @@ bool& Ethertia::IsRunning() {
 }
 
 World* Ethertia::GetWorld() { return g_World; }
-
 stdx::thread_pool& Ethertia::GetThreadPool() { return *g_ThreadPool; }
-
 bool Ethertia::InMainThread() { return std::this_thread::get_id() == g_MainThreadId; }
-
 
 float Ethertia::GetPreciseTime() { return (float)Window::PreciseTime(); }
 float Ethertia::GetDelta() { return GetTimer().getDelta(); }
@@ -363,6 +359,9 @@ Camera& Ethertia::GetCamera() { return g_Camera; }
 HitCursor& Ethertia::GetHitCursor() { return g_HitCursor; }
 Profiler& Ethertia::GetProfiler() { return g_Profiler; }
 Timer& Ethertia::GetTimer() { return g_Timer; }
+
+#pragma endregion
+
 
 
 const Ethertia::Viewport& Ethertia::getViewport() {
@@ -377,7 +376,19 @@ const Ethertia::Viewport& Ethertia::getViewport() {
 }
 
 
+const std::string Ethertia::GetVersion(bool fullname)
+{
+    static std::string _VerName = ET_VERSION_SNAPSHOT ? 
+        std::format("{} *{}.{}.{}", ET_VERSION_SNAPSHOT, ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH) :
+        std::format("{}.{}.{}", ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH);
 
+    if (fullname)
+    {
+        static std::string _FullVerName = "Ethertia Alpha " + _VerName;
+        return _FullVerName;
+    }
+    return _VerName;
+}
 
 
 
