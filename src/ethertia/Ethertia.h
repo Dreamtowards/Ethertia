@@ -15,6 +15,10 @@
 #include <ethertia/util/Profiler.h>
 #include <ethertia/util/Registry.h>
 
+#define ET_VERSION_MAJOR 0
+#define ET_VERSION_MINOR 0
+#define ET_VERSION_PATCH 10
+#define ET_VERSION_SNAPSHOT 
 
 
 class World;
@@ -72,7 +76,7 @@ public:
     // send chat message (@cmd not '/' leading) or dispatch command ('/' leading).
     static void dispatchCommand(const std::string& cmd);
 
-    static void notifyMessage(const std::string& msg);  // print @msg on Message Box.
+    static void PrintMessage(const std::string& msg);  // print @msg on Message Box.
 
 
     static bool& isRunning();

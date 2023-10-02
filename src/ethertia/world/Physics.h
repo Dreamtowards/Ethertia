@@ -19,4 +19,6 @@ public:
 	static physx::PxPhysics* Phys();
 
 	static physx::PxDefaultCpuDispatcher* CpuDispatcher();
+
+	static const char* GetGeometryTypeName();
 };
