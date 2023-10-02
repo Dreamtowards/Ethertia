@@ -56,8 +56,6 @@ int main()
 
 static World*       g_World     = nullptr;
 //static EntityPlayer*g_Player    = nullptr;
-static Timer        g_Timer;
-static HitCursor    g_HitCursor;
 static Profiler     g_Profiler;
 static Camera       g_Camera;
 
@@ -222,11 +220,6 @@ static void RunMainLoop()
 
 
 
-
-
-
-
-
 #pragma region LoadWorld, UnloadWorld
 
 void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
@@ -340,14 +333,25 @@ void Ethertia::PrintMessage(const std::string& msg) {
 
 #pragma region Getters
 
-bool& Ethertia::isIngame() {
-    static bool g_IsControllingGame = false;
-    return g_IsControllingGame;
-}
 bool& Ethertia::IsRunning() {
-    static bool g_Running = false;
-    return g_Running;
+    static bool _IsRunning = false;
+    return _IsRunning;
 }
+bool& Ethertia::isIngame() {
+    static bool _IsControllingGame = false;
+    return _IsControllingGame;
+}
+
+Timer& Ethertia::GetTimer() {
+    static Timer _Timer;
+    return _Timer;
+}
+HitCursor& Ethertia::GetHitCursor() {
+    static HitCursor _HitResult;
+    return _HitResult;
+}
+Camera& Ethertia::GetCamera() { return g_Camera; }
+Profiler& Ethertia::GetProfiler() { return g_Profiler; }
 
 World* Ethertia::GetWorld() { return g_World; }
 stdx::thread_pool& Ethertia::GetThreadPool() { return *g_ThreadPool; }
@@ -355,34 +359,24 @@ bool Ethertia::InMainThread() { return std::this_thread::get_id() == g_MainThrea
 
 float Ethertia::GetPreciseTime() { return (float)Window::PreciseTime(); }
 float Ethertia::GetDelta() { return GetTimer().getDelta(); }
-Camera& Ethertia::GetCamera() { return g_Camera; }
-HitCursor& Ethertia::GetHitCursor() { return g_HitCursor; }
-Profiler& Ethertia::GetProfiler() { return g_Profiler; }
-Timer& Ethertia::GetTimer() { return g_Timer; }
 
-#pragma endregion
-
-
-
-const Ethertia::Viewport& Ethertia::getViewport() {
-    static Ethertia::Viewport g_Viewport;
+Ethertia::Viewport Ethertia::GetViewport() {
     if (Imgui::wViewportXYWH.x != Mth::Inf) {
         glm::vec4 v = Imgui::wViewportXYWH;
-        g_Viewport = { v.x, v.y, v.z, v.w };
+        return { v.x, v.y, v.z, v.w };
     } else {
-        g_Viewport = {0, 0, Window::Size().x, Window::Size().y};
+        glm::vec2 s = Window::Size();
+        return { 0, 0, s.x, s.y };
     }
-    return g_Viewport;
 }
 
-
-const std::string Ethertia::GetVersion(bool fullname)
+const std::string Ethertia::GetVersion(bool fullname) 
 {
     static std::string _VerName = ET_VERSION_SNAPSHOT ? 
         std::format("{} *{}.{}.{}", ET_VERSION_SNAPSHOT, ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH) :
         std::format("{}.{}.{}", ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH);
 
-    if (fullname)
+    if (fullname) 
     {
         static std::string _FullVerName = "Ethertia Alpha " + _VerName;
         return _FullVerName;
@@ -390,6 +384,7 @@ const std::string Ethertia::GetVersion(bool fullname)
     return _VerName;
 }
 
+#pragma endregion
 
 
 
@@ -433,7 +428,7 @@ void Camera::update(bool updateMatView)
     matView = Mth::viewMatrix(actual_pos, eulerAngles);
 
     // ProjectionMatrix
-    matProjection = glm::perspective(Mth::radians(fov), Ethertia::getViewport().getAspectRatio(), 0.01f, 1000.0f);
+    matProjection = glm::perspective(Mth::radians(fov), Ethertia::GetViewport().AspectRatio(), 0.01f, 1000.0f);
 
     // ViewFrustum
     m_Frustum.set(matProjection * matView);

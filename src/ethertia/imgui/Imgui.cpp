@@ -196,7 +196,7 @@ void Imgui::NewFrame()
     //ImGuizmo::SetOrthographic(Ethertia::GetCamera().IsOrthographic());
     ImGuizmo::BeginFrame();
 
-    auto& vp = Ethertia::getViewport();
+    auto vp = Ethertia::GetViewport();
     ImGuizmo::SetRect(vp.x, vp.y, vp.width, vp.height);
 
 }
@@ -368,7 +368,7 @@ bool Imgui::CalcViewportWorldpos(glm::vec3 worldpos, glm::vec2& out_screenpos)
     auto& cam = Ethertia::GetCamera();
     glm::vec3 p = Mth::projectWorldpoint(worldpos, cam.matView, cam.matProjection);
 
-    auto& vp = Ethertia::getViewport();
+    auto vp = Ethertia::GetViewport();
     out_screenpos.x = vp.x + p.x * vp.width;
     out_screenpos.y = vp.y + p.y * vp.height;
 

@@ -280,7 +280,7 @@ static void _ShowViewportWidgets()
     if (Dbg::dbg_ViewGizmo)
     {
         static float camLen = 10.0f;
-        auto& vp = Ethertia::getViewport();
+        auto vp = Ethertia::GetViewport();
         ImGuizmo::ViewManipulate(glm::value_ptr(cam.matView), camLen,
             ImVec2(vp.right() - 128 - 24, vp.y + 24), ImVec2(128, 128),
             //0x10101010

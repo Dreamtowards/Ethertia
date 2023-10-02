@@ -67,17 +67,12 @@ public:
         float x, y, width, height;
 
         // width/height. return 0 if height==0.
-        float getAspectRatio() const {
-            if (height==0) return 0;
-            return width/height;
-        }
+        float AspectRatio() const { if (height==0) return 0; return width/height; }
         float right() const { return x+width; }
         float bottom() const { return y+height; }
-
     };
-
     // game viewport. useful when game required to be rendered in a specific area.
-    static const Ethertia::Viewport& getViewport();
+    static Ethertia::Viewport GetViewport();
 
 
 };
