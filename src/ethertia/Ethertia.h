@@ -11,7 +11,6 @@
 #include <ethertia/init/HitCursor.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Profiler.h>
-#include <ethertia/util/Registry.h>
 
 #define ET_VERSION_MAJOR 0
 #define ET_VERSION_MINOR 0

@@ -12,7 +12,6 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
 # we manually build shared-lib only the first time. (if doesn't have compiled libs), then we just use/link them instead of recompile them.
 set(BUILD_SHARED_LIBS ON)
@@ -221,6 +220,7 @@ if (MSVC)
         /wd4267  # msvc ignore C4267: implicit conversion possible loss of data e.g. uint32_t count = (size_t)ls.size();
         /wd4244
         /wd4305  # warning C4305: 'initializing': truncation from 'double' to 'float'
+        /wd4018  # warning C4018: '<': signed/unsigned mismatch
     )
 endif()
 
@@ -243,7 +243,8 @@ target_link_libraries(Ethertia
     "PhysXCooking_64"
     "PhysXCommon_64"
     "PhysXFoundation_64")
-
+    
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
 
 
@@ -259,9 +260,9 @@ target_link_libraries(Ethertia
 
 
 #set(NBT_BUILD_SHARED ON)  # required for build shared-library.
-set(NBT_BUILD_TESTS OFF)
-add_subdirectory(lib/nbt)
-target_link_libraries(Ethertia nbt++)
+#set(NBT_BUILD_TESTS OFF)
+#add_subdirectory(lib/nbt)
+#target_link_libraries(Ethertia nbt++)
 
 #target_link_libraries(Ethertia openvr_api)
 
