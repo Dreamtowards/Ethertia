@@ -121,12 +121,6 @@ static void Init()
 //    Recipe::REGISTRY.dbgPrintEntries("Recipes");
 
 
-#ifdef ET_DEBUG
-    // 现在还没做高效能批量存储，现在的离散存储很慢 对磁盘也不太好 所以干脆禁用
-    Log::info("Disabled Chunk Load/Save");
-    Dbg::dbg_NoChunkLoad = true;
-    Dbg::dbg_NoChunkSave = true;
-#endif
 
 }
 
@@ -155,18 +149,18 @@ static void Destroy()
 // MainLoop. called every display frame.
 static void RunMainLoop()
 {
-    PROFILE("Frame");
+    ET_PROFILE_("Frame");
     double time_framebegin = Ethertia::GetPreciseTime();
     Ethertia::GetTimer().update(time_framebegin);
     float dt = Ethertia::GetDelta();
     World* world = Ethertia::GetWorld();
 
     {
-        PROFILE("Tick");
+        ET_PROFILE_("Tick");
 
         while (Ethertia::GetTimer().polltick())
         {
-            PROFILE("WorldTick");
+            ET_PROFILE_("WorldTick");
 
             if (world)
             {
@@ -176,37 +170,37 @@ static void RunMainLoop()
     }
 
     {
-        PROFILE("Input");
+        ET_PROFILE_("Input");
         {
-            PROFILE("PollEvents");
+            ET_PROFILE_("PollEvents");
             Window::PollEvents();
         }
         {
-            PROFILE("HandleInputs");
+            ET_PROFILE_("HandleInputs");
             Controls::handleInput();
         }
     }
     {
-        PROFILE("ProcGUI");
+        ET_PROFILE_("ProcGUI");
 
         {
-            PROFILE("Imgui::NewFrame");
+            ET_PROFILE_("Imgui::NewFrame");
             Imgui::NewFrame();
         }
 
 
-        PROFILE("Imgui::ShowWindows");
+        ET_PROFILE_("Imgui::ShowWindows");
         Imw::ShowDockspaceAndMainMenubar();
         Imgui::ShowWindows();
     }
 
     {
-        PROFILE("Render");
+        ET_PROFILE_("Render");
         RenderEngine::Render();
     }
 
     {
-        PROFILE("FpsCap");
+        ET_PROFILE_("FpsCap");
 //        window.setVSync(Settings::s_Vsync);
 //        window.swapBuffers();
 

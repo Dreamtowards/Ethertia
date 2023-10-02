@@ -205,7 +205,7 @@ void Imgui::NewFrame()
 void Imgui::Render(VkCommandBuffer cmdbuf)
 {
     {
-        PROFILE("Render");
+        ET_PROFILE_("Render");
 
         ImGui::Render();
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdbuf);

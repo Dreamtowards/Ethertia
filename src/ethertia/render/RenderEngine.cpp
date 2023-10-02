@@ -107,7 +107,7 @@ void RenderEngine::Render()
 
     vkx::CommandBuffer cmd{nullptr};
     {
-        PROFILE("BeginFrame");
+        ET_PROFILE_("BeginFrame");
         cmd = vkx::BeginFrame();
     }
 
@@ -117,25 +117,25 @@ void RenderEngine::Render()
     {
         ImwGame::WorldImageView = RendererCompose::rtColor->imageView;
         {
-            PROFILE("CmdWorldGbuffer");
+            ET_PROFILE_("CmdWorldGbuffer");
             RendererGbuffer::RecordCommand(cmd, world->registry());
         }
         {
-            PROFILE("CmdWorldCompose");
+            ET_PROFILE_("CmdWorldCompose");
             RendererCompose::RecordCommand(cmd);
         }
     }
 
     vkx::BeginMainRenderPass(cmd);
     {
-        PROFILE("GUI");
+        ET_PROFILE_("GUI");
 
         Imgui::Render(cmd);
     }
     vkx::EndMainRenderPass(cmd);
 
     {
-        PROFILE("SubmitPresent");
+        ET_PROFILE_("SubmitPresent");
         vkx::SubmitPresent(cmd);
     }
 }

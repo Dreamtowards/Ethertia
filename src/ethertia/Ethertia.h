@@ -100,8 +100,8 @@ public:
 
 
 
-#define PROFILE_VN_CONCAT_INNR(a, b) a ## b
-#define PROFILE_VN_CONCAT(a, b) PROFILE_VN_CONCAT_INNR(a, b)
-#define PROFILE(x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = Ethertia::GetProfiler().push_ap(x)
-#define PROFILE_X(p, x) auto PROFILE_VN_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
+#define ET_MACRO_CONCAT_INNR(a, b) a ## b
+#define ET_MACRO_CONCAT(a, b) ET_MACRO_CONCAT_INNR(a, b)
+#define ET_PROFILE_(x) auto ET_MACRO_CONCAT(_profiler, __COUNTER__) = Ethertia::GetProfiler().push_ap(x)
+#define ET_PROFILE(x, p) auto ET_MACRO_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
 
