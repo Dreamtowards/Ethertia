@@ -121,6 +121,6 @@ void main()
 
     //vec3 _VisualNorm = (FragToCamera + 0.5) / 2.0;;
 
-    FragColor.rgb = Albedo; //(totalDiffuse + totalSpecular);
+    FragColor.rgb = (totalDiffuse + totalSpecular);
     FragColor.a = 1;
 }

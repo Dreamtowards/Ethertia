@@ -242,6 +242,10 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 compRigidStatic.RigidStatic->attachShape(*shape);
                 shape->release();
             }
+            else
+            {
+
+            }
         }
 
         

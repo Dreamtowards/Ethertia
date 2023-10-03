@@ -30,14 +30,14 @@ layout(set = 0, binding = 4) uniform sampler2D texDRAM;  // Disp, Refl, AO, Meta
 
 ///////// Common Util Func /////////
 
-int MaxIdx(vec3 v) {
+int ET_MaxIdx(vec3 v) {
     float a=v.x;
     float b=v.y;
     float c=v.z;
     return a > b ? (a > c ? 0 : 2) : (b > c ? 1 : 2);
 }
 
-float LinearDepth(float perspDepth, float pNear, float pFar) {  // for perspective projection
+float ET_LinearDepth(float perspDepth, float pNear, float pFar) {  // for perspective projection
     float f = pNear * pFar / (pFar + perspDepth * (pNear - pFar)); // simplified. [near, far]
     return f / pFar;  // [0, 1]
 }
@@ -46,7 +46,7 @@ float LinearDepth(float perspDepth, float pNear, float pFar) {  // for perspecti
 
 ///////// Triplanar Mapping /////////
 
-mat3 TriplanarUVs(vec3 FragWorldPos, int MtlTexId)
+mat3 TripUV(vec3 FragWorldPos, int MtlTexId)
 {
     float MtlCap = ubo.MtlTexCap;
     float MtlTexScale = ubo.MtlTexScale;
@@ -64,11 +64,11 @@ mat3 TriplanarUVs(vec3 FragWorldPos, int MtlTexId)
     );
 }
 
-vec4 TriplanarSample(sampler2D tex, vec3 FragWorldPos, int MtlTexId, vec3 blend)
+vec4 TripTex(sampler2D tex, vec3 FragWorldPos, int MtlTexId, vec3 blend)
 {
-    mat3 uvXYZ = TriplanarUVs(FragWorldPos, MtlTexId);
+    mat3 uvXYZ = TripUV(FragWorldPos, MtlTexId);
 
-#ifdef OPT
+#ifdef ET_OPT_FAST
     return (
         texture(tex, uvXYZ[1].xy)
     ).rgba;
@@ -97,31 +97,15 @@ void main()
     vec3 BaryCoord  = fs_in.BaryCoord;
     vec3 MtlIds     = fs_in.MtlIds / BaryCoord;  // wait to test
 
-    int MaxBary_i = MaxIdx(BaryCoord.xyz);
+    int MaxBary_i = ET_MaxIdx(BaryCoord.xyz);
 
 
-//    // when uv.y == 1000 (mtl magic number), means this vertex is a Pure MTL,
-//    // then use Triplanar Mapping etc to generate Albedo, Normal.
-//    bool PureMTL = fract(MtlIds[HighestBaryIdx]) == 0.5;
-//    if (!PureMTL) {
-//        // normal uv.
-//        vec4 diff = texture(diffuseSampler, vec2(TexCoord.x, 1.0 - TexCoord.y)).rgba;
-//        Albedo = diff.rgb;
-//
-//        if (diff.a < 0.1) {
-//            discard;
-//        }
-//    }
-//    else
-//    {
-        // PureMTL. use Triplanar Mapping.
+    vec3 blend = pow(abs(WorldNorm), vec3(ubo.MtlTriplanarBlendPow));  // more pow leads more [sharp at norm, mixing at tex]
+    blend = blend / (blend.x + blend.y + blend.z);
 
-        vec3 blend = pow(abs(WorldNorm), vec3(ubo.MtlTriplanarBlendPow));  // more pow leads more [sharp at norm, mixing at tex]
-             blend = blend / (blend.x + blend.y + blend.z);
+    int MtlId = 5;//int(MtlIds[MaxBary_i]);
 
-        int MtlId = 5;//int(MtlIds[MaxBary_i]);
-
-//#ifndef OPT
+//#ifndef ET_OPT_FAST
 //        // HeightMap Transition.
 //        vec3 heightMapBlend = pow(BaryCoord, vec3(ubo.MtlHeightmapBlendPow));  // 0.5-0.7. lesser -> more mix
 //        float h0 = TriplanarSample(dramSampler, FragPos, int(MtlIds[0]), blend).r * heightMapBlend[0];
@@ -131,44 +115,40 @@ void main()
 //        MtlId = int(MtlIds[MaxDisp_i]);
 //#endif
 
-//        if (MtlId == 0) {
+//        if (MtlId == 0) 
 //            discard;
-//        }
 
-        Albedo = TriplanarSample(texDiff, WorldPos, MtlId, blend).rgb;
+    Albedo = TripTex(texDiff, WorldPos, MtlId, blend).rgb;
 
-        vec4 DRAM = TriplanarSample(texDRAM, WorldPos, MtlId, blend).rgba;
-
+    vec4 DRAM = TripTex(texDRAM, WorldPos, MtlId, blend).rgba;
 
 
-#define UnwrapNorm(uv) (texture(texNorm, uv).rgb * 2.0 - 1.0)
+    // Normal Map
 
-        mat3 uvXYZ = TriplanarUVs(WorldPos, MtlId);
-        vec3 tnormX = UnwrapNorm(uvXYZ[0].xy);  // original texture space normal
-        vec3 tnormY = UnwrapNorm(uvXYZ[1].xy);
-        vec3 tnormZ = UnwrapNorm(uvXYZ[2].xy);
+#define ET_UNWARP_NORM(uv) (texture(texNorm, uv).rgb * 2.0 - 1.0)
 
-        // GPU Gems 3, Triplanar Normal Mapping Method.
-        vec3 Norm = normalize(
-            vec3(0, tnormX.yx)          * blend.x +
-            vec3(tnormY.x, 0, tnormY.y) * blend.y +
-            vec3(tnormZ.xy, 0)          * blend.z +
-            WorldNorm
-        );
+    mat3 uvXYZ = TripUV(WorldPos, MtlId);
+    vec3 tnormX = ET_UNWARP_NORM(uvXYZ[0].xy);  // original texture space normal
+    vec3 tnormY = ET_UNWARP_NORM(uvXYZ[1].xy);
+    vec3 tnormZ = ET_UNWARP_NORM(uvXYZ[2].xy);
 
-//    }
-
-
-    float LnDepth = LinearDepth(gl_FragCoord.z, 0.01, 1000.0);
+    // GPU Gems 3, Triplanar Normal Mapping Method.
+    vec3 Norm = normalize(
+        vec3(0, tnormX.yx)          * blend.x +
+        vec3(tnormY.x, 0, tnormY.y) * blend.y +
+        vec3(tnormZ.xy, 0)          * blend.z +
+        WorldNorm
+    );
 
 
-    //Albedo = texture(texDiff, vec2(WorldPos.x / ubo.MtlTexCap, 1-WorldPos.z)).rgb;
+    float LnDepth = ET_LinearDepth(gl_FragCoord.z, 0.01, 1000.0);
+
 
     // Gbuffer Output
     gPosition.xyz = WorldPos;
     gPosition.w   = LnDepth;  // todo: Disable ColorBlend here
     gNormal.xyz   = Norm;
     gNormal.w     = 1;
-    gAlbedo.xyz   = ((Norm + 1.0) / 2.0);  // Albedo BaryCoord ((WorldNorm + 1.0) / 2.0)
+    gAlbedo.xyz   = Albedo;  // Albedo BaryCoord ((WorldNorm + 1.0) / 2.0)
     gAlbedo.w     = 1;
 }
