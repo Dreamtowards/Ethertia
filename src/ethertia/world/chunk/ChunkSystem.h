@@ -71,10 +71,12 @@ private:
 	std::mutex m_ChunksLock;
 
 public:
+	inline static int cfg_ChunkLoadingMaxConcurrent = 4;
 	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksLoading;
 
 	glm::ivec2 m_TmpLoadDistance{1, 0};
 
+	inline static int cfg_ChunkMeshingMaxConcurrent = 4;
 	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksMeshing;
 private:
 

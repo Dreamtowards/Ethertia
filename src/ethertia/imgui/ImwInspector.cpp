@@ -416,6 +416,7 @@ static void _InspRigidStatic(RigidStaticComponent& comp)
 
         static std::vector<PxMaterial*> _Materials;
         PxU32 numMaterials = shape->getNbMaterials();
+        _Materials.resize(numMaterials);
         shape->getMaterials(_Materials.data(), numMaterials);
     }
 }

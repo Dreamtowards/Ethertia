@@ -65,9 +65,6 @@ static bool _IsChunkInLoadRange(glm::ivec3 chunkpos, glm::ivec3 viewer_chunkpos,
 
 void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddist)
 {
-    static int m_ChunksLoadingMaxConcurrent = 40;
-
-
     auto& threadpool = Ethertia::GetThreadPool();
 
     // todo: Recursive Octree Load.
@@ -81,7 +78,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
         glm::ivec3 chunkpos = rp * 16 + viewer_chunkpos;
 
-        if (m_ChunksLoading.size() > m_ChunksLoadingMaxConcurrent)
+        if (m_ChunksLoading.size() >= cfg_ChunkLoadingMaxConcurrent)
             return false;
         if (GetChunk(chunkpos) || m_ChunksLoading.contains(chunkpos))
             return true;
@@ -180,6 +177,8 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         glm::ivec3 cp = it.first;
         auto chunk = it.second;
 
+        if (m_ChunksMeshing.size() >= cfg_ChunkMeshingMaxConcurrent)
+            break;
         if (!chunk->m_NeedRebuildMesh)
             continue;
         chunk->m_NeedRebuildMesh = false;
@@ -198,6 +197,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         auto [it, succ] = m_ChunksMeshing.try_emplace(cp, task);
     }
 
+
     // Load/Upload ChunkMesh
 
     _TmpChunksBatchErase.clear();
@@ -212,43 +212,39 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         auto chunk = task->get();
         Entity& entity = chunk->entity;
 
-        // Update MeshRender
+        {
+            // Update MeshRender
+            auto& compRenderMesh = entity.GetComponent<MeshRenderComponent>();
+
+            // Delete Old vkx::VertexBuffer
+            if (compRenderMesh.VertexBuffer)
+            {
+                vkx::ctx().Device.waitIdle();
+                delete compRenderMesh.VertexBuffer;
+                compRenderMesh.VertexBuffer = nullptr;
+            }
+
+            VertexData& vtx = *compRenderMesh.VertexData;
+            if (!vtx.empty())
+            {
+                std::unique_ptr<VertexData> indexed(VertexData::MakeIndexed(&vtx));
+
+                // Upload VertexData to GPU.
+                compRenderMesh.VertexBuffer = Loader::LoadVertexData(indexed.get());
+
+                // Update Physics TriangleMesh
+                auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
+
+                auto [pts, tri] = indexed->ExportPoints();
+
+                ETPX_CTX;
+                PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(pts, tri)), *Physics::dbg_DefaultMaterial);
+                compRigidStatic.RigidStatic->attachShape(*shape);
+                shape->release();
+            }
+        }
+
         
-        auto& compRenderMesh = entity.GetComponent<MeshRenderComponent>();
-
-        if (compRenderMesh.VertexBuffer)
-        {
-            // really?
-            vkx::ctx().Device.waitIdle();
-            delete compRenderMesh.VertexBuffer;
-        }
-        compRenderMesh.VertexBuffer = nullptr;
-
-        VertexData& vtx = *compRenderMesh.VertexData;
-        if (vtx.VertexCount())
-        {
-            compRenderMesh.VertexBuffer = Loader::LoadVertexData(&vtx);
-        }
-        
-
-        // Update MeshPhysics
-        if (vtx.VertexCount()) 
-        {
-            VertexData* indexed = VertexData::MakeIndexed(&vtx);
-
-            auto [pts, tri] = indexed->ExportPoints();
-
-            auto* triMesh = Physics::CreateTriangleMesh(pts, tri);
-
-            auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
-
-            ETPX_CTX;
-            PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(triMesh), *Physics::dbg_DefaultMaterial);
-            compRigidStatic.RigidStatic->attachShape(*shape);
-            shape->release();
-
-        }
-
         _TmpChunksBatchErase.push_back(chunkpos);
     }
 

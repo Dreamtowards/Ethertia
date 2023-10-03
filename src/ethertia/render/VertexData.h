@@ -61,6 +61,7 @@ public:
 
     uint32_t VertexCount() const { return IsIndexed() ? Indices.size() : Vertices.size(); }
 
+    bool empty() const { return Vertices.empty(); }
 
     // Fast Add / Remove. if IsIndexed, the compression will decline.
 

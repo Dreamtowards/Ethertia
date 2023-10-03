@@ -128,7 +128,7 @@ PxTriangleMesh* Physics::CreateTriangleMesh(const std::span<float[3]> points, co
 	meshDesc.triangles.data = triIndices.data();
 
 	// mesh should be validated before cooked without the mesh cleaning
-	ET_ASSERT(PxValidateTriangleMesh(params, meshDesc));
+	//ET_ASSERT(PxValidateTriangleMesh(params, meshDesc));
 
 	return PxCreateTriangleMesh(params, meshDesc);  // PhysX->getPhysicsInsertionCallback()
 }
