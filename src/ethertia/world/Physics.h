@@ -8,6 +8,7 @@
 using namespace physx;
 
 #include <span>
+#include <vector>
 
 class Physics
 {

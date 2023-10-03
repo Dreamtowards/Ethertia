@@ -232,12 +232,18 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 // Upload VertexData to GPU.
                 compRenderMesh.VertexBuffer = Loader::LoadVertexData(indexed.get());
 
-                // Update Physics TriangleMesh
+                // Update Physics Shape TriangleMesh
                 auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
 
                 auto [pts, tri] = indexed->ExportPoints();
 
-                compRigidStatic.RigidStatic->detachShape();
+                static std::vector<PxShape*> _Shapes;
+                Physics::GetShapes(*compRigidStatic.RigidStatic, _Shapes);
+                for (PxShape* shape : _Shapes)
+                {
+                    compRigidStatic.RigidStatic->detachShape(*shape);
+                    shape->release();
+                }
 
                 ETPX_CTX;
                 PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(pts, tri)), *Physics::dbg_DefaultMaterial);
@@ -246,6 +252,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             }
             else
             {
+                // Set Empty GPU Mesh & Physics Shape
 
             }
         }

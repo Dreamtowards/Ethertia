@@ -37,6 +37,10 @@ static void _ShowDebugText()
     World* world = Ethertia::GetWorld();
     float dt = Ethertia::GetDelta();
 
+    ETPX_CTX;
+    std::string strPhysX = std::format("Shape: {}, Mtl: {}, TriMesh: {}, ConMesh: {}", 
+        PhysX.getNbShapes(), PhysX.getNbMaterials(), PhysX.getNbTriangleMeshes(), PhysX.getNbConvexMeshes());
+
     std::string strWorldInfo = "--";
     //std::string cellInfo = "nil";
     //std::string chunkInfo = "nil";
@@ -46,13 +50,16 @@ static void _ShowDebugText()
     {
         WorldInfo& wi = world->GetWorldInfo();
 
-        strWorldInfo = std::format("'{}'; daytime: {}; inhabited: {:.2f}s; seed: {}\nChunks: {} / {} loading/loaded.",
+        strWorldInfo = std::format(
+            "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
+            "Chunk: {} loaded. {} loading, {} meshing;",
             wi.Name,
             stdx::daytime(wi.DayTime, true, false),
             wi.InhabitedTime,
             wi.Seed,
+            world->GetChunkSystem().GetChunks().size(),
             world->GetChunkSystem().m_ChunksLoading.size(),
-            world->GetChunkSystem().GetChunks().size());
+            world->GetChunkSystem().m_ChunksMeshing.size());
     //    Chunk* hitChunk = world->getLoadedChunk(cur.position);
     //    if (hitChunk) {
     //        chunkInfo = std::format("GenPop: {}, Inhabited: {}s",
@@ -80,13 +87,15 @@ static void _ShowDebugText()
 
     // kph = mps*3.6
     std::string str = std::format(
-        "cam pos: {}, spd: {}mps {}kph; edt_spd_fac: {}\n" 
+        "camera: pos: {}, spd: {}mps {}kph; edt_spd_fac: {}\n" 
         //"plr ground: {}, collide pts: {}\n"
-        "avg_fps: {}. dt: {}, {}fps\n"
-        "threadpool: threads: {} / {}, tasks: {}\n"
+        "fps: sec_avg: {}. instant: {}, delta: {}\n"
+        "threadpool: {} working / {} threads, pending tasks: {}\n"
         //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
         "\n"
         "World: {}\n"
+        "PhysX: {}\n"
+        "HitResult: \n"
         //"HitChunk: {}\n"
         //"HitCell: {}\n"
         //"\n"
@@ -95,7 +104,7 @@ static void _ShowDebugText()
         //"ChunkMeshing: {}\n"
         //"ChunkSaving:  {}\n"
         "\n"
-        "OS: {}, {} concurrency, {}-endian\n"
+        "OS:  {}, {} concurrency, {}-endian\n"
         "CPU: {}\n"
         "GPU: {}\n"
         "RAM: x GB / x GB"
@@ -105,13 +114,14 @@ static void _ShowDebugText()
         s_CameraMoveSpeed,
         //player->m_OnGround, player->m_NumContactPoints,
     
-        Dbg::dbg_FPS, dt, std::floor(1.0f / dt),
+        Dbg::dbg_FPS, std::floor(1.0f / dt), dt,
 
         thread_pool.num_working_threads(), thread_pool.num_threads(), thread_pool.num_tasks(),
     
         //Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
     
         strWorldInfo,
+        strPhysX,
         //chunkInfo,
         //cellInfo,
         //
