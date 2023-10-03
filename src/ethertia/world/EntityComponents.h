@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
+#include <stdx/stdx.h>
 
 
 // name as TagComponent instead of NameComponent, because 'Tag' could means some 'attached information' like IsEnabled
@@ -16,12 +17,25 @@ struct TagComponent
 };
 
 
+#include <ethertia/world/Physics.h>
+#include <glm/gtc/quaternion.hpp>
 
 struct TransformComponent
 {
 	glm::mat4 Transform;
 
-	glm::vec3& position() { return reinterpret_cast<glm::vec3&>(Transform[3]); }
+	glm::vec3& position() { return stdx::cast<glm::vec3>(Transform[3]); }
+
+	glm::vec3 position() const { return stdx::cast<glm::vec3>(Transform[3]); }
+
+	glm::quat quat() const { return glm::quat_cast(glm::mat3(Transform)); }
+
+	PxTransform PxTransform() const {
+		return {
+			stdx::cast<PxVec3>(position()),
+			stdx::cast<PxQuat>(quat())
+		};
+	}
 };
 
 

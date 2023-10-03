@@ -174,18 +174,16 @@ void World::OnComponentAdded<RigidStaticComponent>(entt::entity entity, RigidSta
 {
 	ETPX_CTX;
 
-	//if (!comp.RigidStatic)
-	//{
-	//	comp.RigidStatic = PhysX.createRigidStatic(PxTransform({0,0,0}));
-	//
-	//	PxShape* shape = dbg_Phys->createShape(PxBoxGeometry(2.f, 2.f, 2.f), *dbg_PhysMtl);
-	//	comp.RigidStatic->attachShape(*shape);
-	//	shape->release();
-	//
-	//	ET_ASSERT(comp.RigidStatic);
-	//}
-	//
-	//m_PxScene->addActor(*comp.RigidStatic);
+	if (!comp.RigidStatic)
+	{
+		auto& trans = Entity{ entity, this }.GetTransform();
+
+		comp.RigidStatic = PhysX.createRigidStatic(trans.PxTransform());
+	
+		ET_ASSERT(comp.RigidStatic);
+	}
+
+	ET_ASSERT(m_PxScene->addActor(*comp.RigidStatic));
 
 }
 template<>

@@ -48,7 +48,7 @@ static void _PutCube(VertexData& vtx, glm::ivec3 lp, Chunk& chunk, Cell& cell)
 {
     for (int face_i = 0; face_i < 6; ++face_i)
     {
-        glm::ivec3 face_dir = stdx::cast<glm::vec3>(&CUBE_NORM[face_i * 18]);   // 18: 3 scalar * 3 vertex * 2 triangle
+        glm::ivec3 face_dir = stdx::cast<glm::vec3>(CUBE_NORM[face_i * 18]);   // 18: 3 scalar * 3 vertex * 2 triangle
 
         Cell neibCell = chunk.GetCell(lp + face_dir, true);
         if (!neibCell.IsSolid())  // !IsOpaque()
@@ -56,9 +56,9 @@ static void _PutCube(VertexData& vtx, glm::ivec3 lp, Chunk& chunk, Cell& cell)
             for (int vert_i = 0; vert_i < 6; ++vert_i)
             {
                 vtx.AddVertex({
-                    stdx::cast<glm::vec3>(&CUBE_POS[face_i * 18 + vert_i * 3]) + glm::vec3(lp),
+                    stdx::cast<glm::vec3>(CUBE_POS[face_i * 18 + vert_i * 3]) + glm::vec3(lp),
                     {0, 0},  // stdx::cast<glm::vec2>(&CUBE_UV[face_i * 12 + vert_i * 2]),
-                    stdx::cast<glm::vec3>(&CUBE_NORM[face_i * 18 + vert_i * 3])
+                    stdx::cast<glm::vec3>(CUBE_NORM[face_i * 18 + vert_i * 3])
                     });
             }
         }

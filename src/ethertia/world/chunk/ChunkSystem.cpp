@@ -125,18 +125,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         auto& compRenderMesh = entity.AddComponent<MeshRenderComponent>();
         compRenderMesh.VertexData = new VertexData();
 
-        {
-            ETPX_CTX;
-
-            auto& compRigidStatic = entity.AddComponent<RigidStaticComponent>();
-            PxRigidStatic* rigid = compRigidStatic.RigidStatic = PhysX.createRigidStatic(PxTransform(stdx::cast<PxVec3>(glm::vec3(chunkpos))));
-
-            PxShape* shape = PhysX.createShape(PxBoxGeometry(2.f, 2.f, 2.f), *Physics::dbg_DefaultMaterial);
-            rigid->attachShape(*shape);
-            shape->release();
-
-            ET_ASSERT(m_World->PhysScene().addActor(*rigid));
-        }
+        auto& compRigidStatic = entity.AddComponent<RigidStaticComponent>();
 
 
         _TmpChunksBatchErase.push_back(chunkpos);

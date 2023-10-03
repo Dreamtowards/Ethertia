@@ -15,16 +15,22 @@ namespace stdx
 		return reinterpret_cast<T*>(&ref);
 	}
 
-	template<typename T>
-	T& cast(void* ptr)
+	//template<typename T, typename V>
+	//T& cast(V* ptr)
+	//{
+	//	return *reinterpret_cast<T*>(ptr);
+	//}
+
+	template<typename T, typename V>
+	T& cast(V& ptr)
 	{
-		return *reinterpret_cast<T*>(ptr);
+		return *reinterpret_cast<T*>(&ptr);
 	}
 
 	template<typename T, typename V>
 	const T& cast(const V& ptr)
 	{
-		return *reinterpret_cast<const T*>(&ptr);
+		return *reinterpret_cast<T*>((void*)&ptr);
 	}
 
 	#pragma endregion
