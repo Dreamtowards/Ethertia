@@ -43,7 +43,7 @@ void ChunkGenerator::GenerateChunk(Chunk& chunk)
 
                 float f3d = noise3d[Idx3(dx,dy,dz)];
 
-                float f = f3d;// -p.y / 40.0f;
+                float f = terr2d + f3d - p.y / 40.0f;
 
                 
                 

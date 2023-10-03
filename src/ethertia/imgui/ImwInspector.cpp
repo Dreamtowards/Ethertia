@@ -384,16 +384,14 @@ static void _InspRenderer(RendererComponent& comp)
 static void _InspRigidStatic(RigidStaticComponent& comp)
 {
     using namespace physx;
-    PxRigidStatic* rigidstatic = comp.RigidStatic;
+    PxRigidStatic& rigidstatic = *comp.RigidStatic;
 
-    static std::vector<PxShape*> _Shapes;
-    PxU32 numShapes = rigidstatic->getNbShapes();
-    _Shapes.resize(numShapes);
-    rigidstatic->getShapes(_Shapes.data(), numShapes);
+    static std::vector<PxShape*> shapes;
+    Physics::GetShapes(rigidstatic, shapes);
 
     //ImGui::TextDisabled("Shapes: %i", numShapes);
-    ImGui::SeparatorText(std::format("Shapes {}", numShapes).c_str());
-    for (PxShape* shape : _Shapes)
+    ImGui::SeparatorText(std::format("Shapes {}", shapes.size()).c_str());
+    for (PxShape* shape : shapes)
     {
         if (ImGui::TreeNode(std::format("Shape {} ", shape->getInternalShapeIndex()).c_str()))
         {
@@ -401,7 +399,7 @@ static void _InspRigidStatic(RigidStaticComponent& comp)
         //ImGui::BeginChild(ImGui::GetID(shape), {0, -1}, true);
         const PxGeometry& geo = shape->getGeometry();
         PxGeometryType::Enum geotype = geo.getType();
-        ImGui::TextDisabled("Geometry: %s", Physics::GetGeometryTypeName(geotype));
+        ImGui::TextDisabled("Geometry: %s", Physics::GeometryName(geotype));
 
         switch (geotype) 
         {
@@ -418,12 +416,10 @@ static void _InspRigidStatic(RigidStaticComponent& comp)
 
         ImGui::Separator();
 
-        static std::vector<PxMaterial*> _Materials;
-        PxU32 numMaterials = shape->getNbMaterials();
-        _Materials.resize(numMaterials);
-        shape->getMaterials(_Materials.data(), numMaterials);
+        static std::vector<PxMaterial*> materials;
+        Physics::GetMaterials(*shape, materials);
 
-        ImGui::TextDisabled("Materials: %i", numMaterials);
+        ImGui::TextDisabled("Materials: %i", materials.size());
         //ImGui::EndChild();
         //ImGui::Separator();
 

@@ -27,9 +27,23 @@ public:
 
 
 
-	static const char* GetGeometryTypeName(physx::PxGeometryType::Enum e);
+	static const char* GeometryName(physx::PxGeometryType::Enum e);
 
 
 
 	static PxTriangleMesh* CreateTriangleMesh(const std::span<float[3]> points, const std::span<PxU32[3]> triIndices);
+
+	static void GetShapes(PxRigidActor& rigid, std::vector<PxShape*>& out)
+	{
+		PxU32 numShapes = rigid.getNbShapes();
+		out.resize(numShapes);
+		rigid.getShapes(out.data(), numShapes);
+	}
+
+	static void GetMaterials(PxShape& shape, std::vector<PxMaterial*>& out)
+	{
+		PxU32 num = shape.getNbMaterials();
+		out.resize(num);
+		shape.getMaterials(out.data(), num);
+	}
 };

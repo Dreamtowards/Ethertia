@@ -85,7 +85,7 @@ PxDefaultCpuDispatcher* Physics::CpuDispatcher() {
 
 
 
-const char* Physics::GetGeometryTypeName(physx::PxGeometryType::Enum e)
+const char* Physics::GeometryName(physx::PxGeometryType::Enum e)
 {
 	switch (e)
 	{

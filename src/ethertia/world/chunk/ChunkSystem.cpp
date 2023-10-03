@@ -237,6 +237,8 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
                 auto [pts, tri] = indexed->ExportPoints();
 
+                compRigidStatic.RigidStatic->detachShape();
+
                 ETPX_CTX;
                 PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(pts, tri)), *Physics::dbg_DefaultMaterial);
                 compRigidStatic.RigidStatic->attachShape(*shape);

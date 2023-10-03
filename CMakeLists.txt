@@ -145,7 +145,7 @@ add_executable(Ethertia
         src/ethertia/world/World.cpp
         src/ethertia/world/Chunk.cpp
         src/ethertia/world/chunk/ChunkSystem.cpp
-        src/ethertia/world/chunk/ChunkGenerator.cpp
+        src/ethertia/world/chunk/gen/ChunkGenerator.cpp
         src/ethertia/world/chunk/meshgen/MeshGen.cpp
 
 
