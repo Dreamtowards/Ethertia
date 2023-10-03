@@ -3,6 +3,7 @@
 #include "ChunkSystem.h"
 #include <ethertia/world/World.h>
 #include <ethertia/world/Entity.h>
+#include <ethertia/world/Physics.h>
 
 #include <ethertia/Ethertia.h>  // thread_pool, viewpos
 
@@ -14,6 +15,9 @@
 
 #include <ethertia/init/MaterialMeshes.h>  // tmp test
 
+#include <stdx/stdx.h>
+
+#define ET_CAST(type, obj) *reinterpret_cast<type*>(&obj)
 
 std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
 {
@@ -113,14 +117,29 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         chunk->m_NeedRebuildMesh = true;  // RequestRemesh
 
         Entity entity = m_World->CreateEntity();
+        chunk->entity = entity;
 
         auto& trans = entity.GetTransform();
         trans.position() = chunkpos;
 
-        auto& rmesh = entity.AddComponent<MeshRenderComponent>();
-        rmesh.VertexData = new VertexData();
+        auto& compRenderMesh = entity.AddComponent<Me2shRenderComponent>();
+        //compRenderMesh.VertexData = new VertexData();
 
-        chunk->entity = entity;
+        Log::info("Add RigidStatic");
+        
+            ETPX_CTX;
+
+            auto& compRigidStatic = entity.AddComponent<RigidStaticComponent>();
+            PxRigidStatic* rigid = compRigidStatic.RigidStatic = PhysX.createRigidStatic(PxTransform(ET_CAST(PxVec3, chunkpos)));
+
+            PxShape* shape = PhysX.createShape(PxBoxGeometry(2.f, 2.f, 2.f), *Physics::dbg_DefaultMaterial);
+            rigid->attachShape(*shape);
+            shape->release();
+
+            ET_ASSERT(m_World->PhysScene().addActor(*rigid));
+
+            Log::info("AddED RigidStatic");
+
 
         _TmpChunksBatchErase.push_back(chunkpos);
     }
@@ -207,7 +226,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         Entity& entity = chunk->entity;
 
         // Update MeshRender
-
+        
         auto* rmesh = &chunk->entity.GetComponent<MeshRenderComponent>();
 
         if (rmesh->VertexBuffer)
@@ -218,12 +237,21 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         }
         rmesh->VertexBuffer = nullptr;
 
-        if (rmesh->VertexData->VertexCount())
+        VertexData& vtx = *rmesh->VertexData;
+        if (vtx.VertexCount())
         {
-            rmesh->VertexBuffer = Loader::LoadVertexData(rmesh->VertexData);
+            rmesh->VertexBuffer = Loader::LoadVertexData(&vtx);
         }
+        
 
         // Update MeshPhysics
+        {
+            std::vector<PxVec3> points;
+
+            auto [pts, tri] = vtx.ExportPoints();
+
+            auto* triMesh = Physics::CreateTriangleMesh(pts, tri);
+        }
 
         _TmpChunksBatchErase.push_back(chunkpos);
     }

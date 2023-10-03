@@ -49,6 +49,9 @@ void Physics::Init(bool enablePvd, bool recordMemoryAllocations)
 
 	g_PxCpuDispatcher = PxDefaultCpuDispatcherCreate(2);
 
+
+
+	Physics::dbg_DefaultMaterial = g_PxPhysics->createMaterial(0.5, 0.5, 0.6);
 }
 
 
@@ -78,4 +81,54 @@ PxPhysics* Physics::Phys() {
 
 PxDefaultCpuDispatcher* Physics::CpuDispatcher() {
 	return g_PxCpuDispatcher;
+}
+
+
+
+const char* Physics::GetGeometryTypeName(physx::PxGeometryType::Enum e)
+{
+	switch (e)
+	{
+	case PxGeometryType::Enum::eSPHERE:		return "Sphere";
+	case PxGeometryType::Enum::ePLANE:		return "Plane";
+	case PxGeometryType::Enum::eCAPSULE:	return "Capsule";
+	case PxGeometryType::Enum::eBOX:		return "Box";
+	case PxGeometryType::Enum::eCONVEXMESH: return "ConvexMesh";
+	case PxGeometryType::Enum::ePARTICLESYSTEM:	return "ParticleSystem";
+	case PxGeometryType::Enum::eTETRAHEDRONMESH:return "TetrahedronMesh";
+	case PxGeometryType::Enum::eTRIANGLEMESH:	return "TriangleMesh";
+	case PxGeometryType::Enum::eHEIGHTFIELD:return "HeightField";
+	case PxGeometryType::Enum::eHAIRSYSTEM: return "HairSystem";
+	case PxGeometryType::Enum::eCUSTOM:		return "Custom";
+	default: return "?";
+	}
+}
+
+
+
+
+PxTriangleMesh* Physics::CreateTriangleMesh(const std::span<float[3]> points, const std::span<PxU32[3]> triIndices)
+{
+	PxTolerancesScale scale;
+	PxCookingParams params(scale);
+	// disable mesh cleaning - perform mesh validation on development configurations
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+	// disable edge precompute, edges are set for each triangle, slows contact generation
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+	// lower hierarchy for internal mesh
+	// params.meshCookingHint = PxMeshCookingHint::eCOOKING_PERFORMANCE;
+
+	PxTriangleMeshDesc meshDesc;
+	meshDesc.points.count = points.size();  // sizeof(float[3])
+	meshDesc.points.stride = sizeof(PxVec3);
+	meshDesc.points.data = points.data();
+
+	meshDesc.triangles.count = triIndices.size();  // sizeof(uint32[3])
+	meshDesc.triangles.stride = 3 * sizeof(PxU32);
+	meshDesc.triangles.data = triIndices.data();
+
+	// mesh should be validated before cooked without the mesh cleaning
+	ET_ASSERT(PxValidateTriangleMesh(params, meshDesc));
+
+	return PxCreateTriangleMesh(params, meshDesc);  // PhysX->getPhysicsInsertionCallback()
 }

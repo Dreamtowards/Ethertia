@@ -89,12 +89,12 @@ include_directories(lib/json-nlohmann-3.11.2/include)
 include_directories(lib/tinyobjloader-1.0.6)
 include_directories(lib/tinyfd-2.9.3)
 
-#include_directories(lib/bullet3/src)
 #include_directories(lib/openal-soft/include)
-#include_directories(lib/yaml-cpp/include)
-#include_directories(lib/nbt/include)
 #include_directories(lib/openvr/headers)
 
+#include_directories(lib/bullet3/src)
+#include_directories(lib/nbt/include)
+#include_directories(lib/yaml-cpp/include)
 #include_directories(lib/vulkan/include)
 
 

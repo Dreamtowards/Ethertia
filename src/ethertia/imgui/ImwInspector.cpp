@@ -353,7 +353,7 @@ void ImwInspector::ShowInspector(bool* _open)
 
 
 
-
+#include <ethertia/world/Physics.h>
 
 
 static void _InspRenderMesh(MeshRenderComponent& comp)
@@ -395,9 +395,24 @@ static void _InspRigidStatic(RigidStaticComponent& comp)
     for (PxShape* shape : _Shapes)
     {
         const PxGeometry& geo = shape->getGeometry();
-        PxGeometryType::Enum geoType = geo.getType();
+        PxGeometryType::Enum geotype = geo.getType();
+        ImGui::Text("Geometry: %s", Physics::GetGeometryTypeName(geotype));
 
-        ImGui::Text("Geometry: %i", (int)geoType);
+        switch (geotype)
+        {
+        case PxGeometryType::Enum::eSPHERE:
+        {
+            PxSphereGeometry& sph = (PxSphereGeometry&)geo;
+            ImGui::DragFloat("Radius", &sph.radius);
+            break;
+        }
+        case PxGeometryType::Enum::ePLANE:
+        {
+            break;
+        }
+        }
+
+        ImGui::Separator();
 
         static std::vector<PxMaterial*> _Materials;
         PxU32 numMaterials = shape->getNbMaterials();

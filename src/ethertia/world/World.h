@@ -56,6 +56,8 @@ public:
 	template<typename T>
 	void OnComponentRemove(entt::entity entity, T& component);
 
+	physx::PxScene& PhysScene() { return *m_PxScene; }
+
 	#pragma region WorldInfo
 	
 	WorldInfo& GetWorldInfo() { return m_WorldInfo; }

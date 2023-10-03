@@ -10,38 +10,34 @@
 #include <ethertia/util/Log.h>
 
 
-using namespace physx;
 
-static PxMaterial* dbg_PhysMtl = nullptr;
-static PxPhysics* dbg_Phys = nullptr;
-static PxScene* dbg_Scene = nullptr;
-
-static PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
-{
-	PxRigidDynamic* dynamic = PxCreateDynamic(*dbg_Phys, t, geometry, *dbg_PhysMtl, 10.0f);
-	dynamic->setAngularDamping(0.5f);
-	dynamic->setLinearVelocity(velocity);
-	dbg_Scene->addActor(*dynamic);
-
-	return dynamic;
-}
-
-static void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
-{
-	PxShape* shape = dbg_Phys->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *dbg_PhysMtl);
-	for (PxU32 i = 0; i < size; i++)
-	{
-		for (PxU32 j = 0; j < size - i; j++)
-		{
-			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
-			PxRigidDynamic* body = dbg_Phys->createRigidDynamic(t.transform(localTm));
-			body->attachShape(*shape);
-			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-			dbg_Scene->addActor(*body);
-		}
-	}
-	shape->release();
-}
+//static PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
+//{
+//	ETPX_CTX;
+//	PxRigidDynamic* dynamic = PxCreateDynamic(PhysX, t, geometry, *Physics::dbg_DefaultMaterial, 10.0f);
+//	dynamic->setAngularDamping(0.5f);
+//	dynamic->setLinearVelocity(velocity);
+//	dbg_Scene->addActor(*dynamic);
+//
+//	return dynamic;
+//}
+//
+//static void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
+//{
+//	PxShape* shape = dbg_Phys->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *Physics::dbg_DefaultMaterial);
+//	for (PxU32 i = 0; i < size; i++)
+//	{
+//		for (PxU32 j = 0; j < size - i; j++)
+//		{
+//			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
+//			PxRigidDynamic* body = dbg_Phys->createRigidDynamic(t.transform(localTm));
+//			body->attachShape(*shape);
+//			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+//			dbg_Scene->addActor(*body);
+//		}
+//	}
+//	shape->release();
+//}
 
 
 World::World()
@@ -52,13 +48,13 @@ World::World()
 
 	// InitPhys
 
-	PxPhysics* _Phys = Physics::Phys();
+	ETPX_CTX;
 
-	PxSceneDesc sceneDesc(_Phys->getTolerancesScale());
+	PxSceneDesc sceneDesc(PhysX.getTolerancesScale());
 	sceneDesc.gravity = { 0, -9.81, 0 };
 	sceneDesc.cpuDispatcher = Physics::CpuDispatcher();
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	m_PxScene = _Phys->createScene(sceneDesc);
+	m_PxScene = PhysX.createScene(sceneDesc);
 
 	if (PxPvdSceneClient* pvdClient = m_PxScene->getScenePvdClient())
 	{
@@ -67,12 +63,7 @@ World::World()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 
-	dbg_Phys = _Phys;
-	dbg_Scene = m_PxScene;
-
-	dbg_PhysMtl = _Phys->createMaterial(0.5, 0.5, 0.6);
-
-	PxRigidStatic* aGroundStatic = PxCreatePlane(*_Phys, PxPlane(0, 1, 0, 0), *dbg_PhysMtl);
+	PxRigidStatic* aGroundStatic = PxCreatePlane(PhysX, PxPlane(0, 1, 0, 0), *Physics::dbg_DefaultMaterial);
 	m_PxScene->addActor(*aGroundStatic);
 	
 	//PxReal stackZ = 10.0f;
@@ -183,18 +174,18 @@ void World::OnComponentAdded<RigidStaticComponent>(entt::entity entity, RigidSta
 {
 	ETPX_CTX;
 
-	if (!comp.RigidStatic)
-	{
-		comp.RigidStatic = PhysX.createRigidStatic(PxTransform({0,0,0}));
-
-		PxShape* shape = dbg_Phys->createShape(PxBoxGeometry(2.f, 2.f, 2.f), *dbg_PhysMtl);
-		comp.RigidStatic->attachShape(*shape);
-		shape->release();
-
-		ET_ASSERT(comp.RigidStatic);
-	}
-
-	m_PxScene->addActor(*comp.RigidStatic);
+	//if (!comp.RigidStatic)
+	//{
+	//	comp.RigidStatic = PhysX.createRigidStatic(PxTransform({0,0,0}));
+	//
+	//	PxShape* shape = dbg_Phys->createShape(PxBoxGeometry(2.f, 2.f, 2.f), *dbg_PhysMtl);
+	//	comp.RigidStatic->attachShape(*shape);
+	//	shape->release();
+	//
+	//	ET_ASSERT(comp.RigidStatic);
+	//}
+	//
+	//m_PxScene->addActor(*comp.RigidStatic);
 
 }
 template<>
