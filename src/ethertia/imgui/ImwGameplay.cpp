@@ -38,21 +38,20 @@ static void _ShowDebugText()
     float dt = Ethertia::GetDelta();
 
     ETPX_CTX;
-    std::string strPhysX = std::format("Shape: {}, Mtl: {}, TriMesh: {}, ConMesh: {}", 
+    std::string strPhysX = std::format("{} shape, {} mtl, {} TriMesh, {} ConMesh", 
         PhysX.getNbShapes(), PhysX.getNbMaterials(), PhysX.getNbTriangleMeshes(), PhysX.getNbConvexMeshes());
 
     std::string strWorldInfo = "--";
     //std::string cellInfo = "nil";
     //std::string chunkInfo = "nil";
     //HitCursor& cur = Ethertia::getHitCursor();
-    //
     if (world)
     {
         WorldInfo& wi = world->GetWorldInfo();
 
         strWorldInfo = std::format(
             "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
-            "Chunk: {} loaded. {} loading, {} meshing;",
+            "Chunk: {} loaded. {} loading, {} meshing, -- saving;",
             wi.Name,
             stdx::daytime(wi.DayTime, true, false),
             wi.InhabitedTime,
@@ -87,22 +86,16 @@ static void _ShowDebugText()
 
     // kph = mps*3.6
     std::string str = std::format(
-        "camera: pos: {}, spd: {}mps {}kph; edt_spd_fac: {}\n" 
-        //"plr ground: {}, collide pts: {}\n"
+        "cam: pos: {}, spd: {}mps {}kph; edt_spd_fac: {}\n" 
         "fps: sec_avg: {}. instant: {}, delta: {}\n"
         "threadpool: {} working / {} threads, pending tasks: {}\n"
         //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
+        //"plr ground: {}, collide pts: {}\n"
         "\n"
         "World: {}\n"
+        "HitResult: p: (0, 0, 0); cell: ; chunk: \n"
+        "\n"
         "PhysX: {}\n"
-        "HitResult: \n"
-        //"HitChunk: {}\n"
-        //"HitCell: {}\n"
-        //"\n"
-        //"task {}, async {}\n"
-        //"ChunkProvide: {}\n"
-        //"ChunkMeshing: {}\n"
-        //"ChunkSaving:  {}\n"
         "\n"
         "OS:  {}, {} concurrency, {}-endian\n"
         "CPU: {}\n"
@@ -121,7 +114,6 @@ static void _ShowDebugText()
         //Dbg::dbg_NumEntityRendered, world ? world->getEntities().size() : 0, world ? world->getLoadedChunks().size() : 0,
     
         strWorldInfo,
-        strPhysX,
         //chunkInfo,
         //cellInfo,
         //
@@ -129,6 +121,7 @@ static void _ShowDebugText()
         //DebugStat::dbg_ChunkProvideState ? DebugStat::dbg_ChunkProvideState : "/",
         //DebugStat::dbg_NumChunksMeshInvalid,
         //DebugStat::dbg_ChunksSaving,
+        strPhysX,
     
         Loader::os_arch(), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "B" : "L",
         Loader::cpuid(),

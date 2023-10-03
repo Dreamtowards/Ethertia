@@ -242,7 +242,6 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 for (PxShape* shape : _Shapes)
                 {
                     compRigidStatic.RigidStatic->detachShape(*shape);
-                    shape->release();
                 }
 
                 ETPX_CTX;
