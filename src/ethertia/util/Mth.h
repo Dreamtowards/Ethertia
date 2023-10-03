@@ -10,10 +10,6 @@
 #include <cmath>
 #include <string>
 
-#include <bullet3/src/LinearMath/btVector3.h>
-#include <bullet3/src/LinearMath/btQuaternion.h>
-#include <bullet3/src/LinearMath/btTransform.h>
-
 #include <ostream>
 
 // glm::vec3 to string
@@ -141,12 +137,12 @@ public:
         return glm::normalize(glm::vec3(glm::rotate(glm::mat4(1), angle, axis) * glm::vec4(p, 0.0f)));
     }
 
-    static btTransform btTransf(const glm::vec3& p, const btQuaternion& rot = btQuaternion::getIdentity()) {
-        return btTransform(rot, btVector3(p.x, p.y, p.z));
-    }
-    static btVector3 btVec3(const glm::vec3& p) {
-        return btVector3(p.x, p.y, p.z);
-    }
+    //static btTransform btTransf(const glm::vec3& p, const btQuaternion& rot = btQuaternion::getIdentity()) {
+    //    return btTransform(rot, btVector3(p.x, p.y, p.z));
+    //}
+    //static btVector3 btVec3(const glm::vec3& p) {
+    //    return btVector3(p.x, p.y, p.z);
+    //}
 
 
     static float pow(float base, float exp) {

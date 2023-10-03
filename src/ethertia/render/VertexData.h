@@ -95,14 +95,14 @@ public:
 
     std::tuple<std::span<float[3]>, std::span<uint32_t[3]>> ExportPoints()//std::span<float[3]> out_Points, std::span<uint32_t[3]> out_TriIndices)
     {
-        int numPoints = Vertices.size();
+        size_t numPoints = Vertices.size();
         glm::vec3* points = new glm::vec3[numPoints];  // TODO: Use RAII
         for (int i = 0; i < numPoints; ++i)
         {
             points[i] = Vertices[i].pos;
         }
 
-        int numTris = Indices.size();
+        size_t numTris = Indices.size() / 3;
         glm::ivec3* triIndices = new glm::ivec3[numTris];
         for (int i = 0; i < numTris; ++i)
         {

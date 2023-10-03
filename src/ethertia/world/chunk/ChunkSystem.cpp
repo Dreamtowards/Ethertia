@@ -122,23 +122,21 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         auto& trans = entity.GetTransform();
         trans.position() = chunkpos;
 
-        auto& compRenderMesh = entity.AddComponent<Me2shRenderComponent>();
-        //compRenderMesh.VertexData = new VertexData();
+        auto& compRenderMesh = entity.AddComponent<MeshRenderComponent>();
+        compRenderMesh.VertexData = new VertexData();
 
-        Log::info("Add RigidStatic");
-        
+        {
             ETPX_CTX;
 
             auto& compRigidStatic = entity.AddComponent<RigidStaticComponent>();
-            PxRigidStatic* rigid = compRigidStatic.RigidStatic = PhysX.createRigidStatic(PxTransform(ET_CAST(PxVec3, chunkpos)));
+            PxRigidStatic* rigid = compRigidStatic.RigidStatic = PhysX.createRigidStatic(PxTransform(stdx::cast<PxVec3>(glm::vec3(chunkpos))));
 
             PxShape* shape = PhysX.createShape(PxBoxGeometry(2.f, 2.f, 2.f), *Physics::dbg_DefaultMaterial);
             rigid->attachShape(*shape);
             shape->release();
 
             ET_ASSERT(m_World->PhysScene().addActor(*rigid));
-
-            Log::info("AddED RigidStatic");
+        }
 
 
         _TmpChunksBatchErase.push_back(chunkpos);
@@ -227,30 +225,39 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
         // Update MeshRender
         
-        auto* rmesh = &chunk->entity.GetComponent<MeshRenderComponent>();
+        auto& compRenderMesh = entity.GetComponent<MeshRenderComponent>();
 
-        if (rmesh->VertexBuffer)
+        if (compRenderMesh.VertexBuffer)
         {
             // really?
             vkx::ctx().Device.waitIdle();
-            delete rmesh->VertexBuffer;
+            delete compRenderMesh.VertexBuffer;
         }
-        rmesh->VertexBuffer = nullptr;
+        compRenderMesh.VertexBuffer = nullptr;
 
-        VertexData& vtx = *rmesh->VertexData;
+        VertexData& vtx = *compRenderMesh.VertexData;
         if (vtx.VertexCount())
         {
-            rmesh->VertexBuffer = Loader::LoadVertexData(&vtx);
+            compRenderMesh.VertexBuffer = Loader::LoadVertexData(&vtx);
         }
         
 
         // Update MeshPhysics
+        if (vtx.VertexCount()) 
         {
-            std::vector<PxVec3> points;
+            VertexData* indexed = VertexData::MakeIndexed(&vtx);
 
-            auto [pts, tri] = vtx.ExportPoints();
+            auto [pts, tri] = indexed->ExportPoints();
 
             auto* triMesh = Physics::CreateTriangleMesh(pts, tri);
+
+            auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
+
+            ETPX_CTX;
+            PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(triMesh), *Physics::dbg_DefaultMaterial);
+            compRigidStatic.RigidStatic->attachShape(*shape);
+            shape->release();
+
         }
 
         _TmpChunksBatchErase.push_back(chunkpos);
