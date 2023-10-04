@@ -40,33 +40,6 @@
 //	shape->release();
 //}
 
-static void _OnAddedRigidStaticComponent(entt::registry& reg, entt::entity eid)
-{
-	ETPX_CTX;
-	RigidStaticComponent& comp = reg.get<RigidStaticComponent>(eid);
-	Entity entity{ eid, Ethertia::GetWorld() };
-	
-	if (!comp.RigidStatic)
-	{
-		auto& trans = entity.GetTransform();
-	
-		comp.RigidStatic = PhysX.createRigidStatic(trans.PxTransform());
-	
-		ET_ASSERT(comp.RigidStatic);
-	}
-	
-	entity.world().PhysScene().addActor(*comp.RigidStatic);
-}
-
-//void OnComponentRemove<RigidStaticComponent>(entt::entity entity, RigidStaticComponent& comp)
-//{
-//	Log::info("Remove RigidStatic");
-//
-//	Physics::ClearShapes(*comp.RigidStatic);
-//
-//	m_PxScene->removeActor(*comp.RigidStatic);
-//}
-
 World::World()
 {
 
@@ -75,14 +48,30 @@ World::World()
 
 	// Init ECS
 
-	//registry().on_construct<RigidStaticComponent>().connect<&_OnAddedRigidStaticComponent>();
-
 	ListenComponent<RigidStaticComponent>(
 		[](Entity entity, RigidStaticComponent& comp) 
 		{
-			Log::info("Comp RigidStaticComponent 11111 Added {}", (size_t)comp.RigidStatic);
+			ETPX_CTX;
+
+			if (!comp.RigidStatic)
+			{
+				auto& trans = entity.GetTransform();
+
+				comp.RigidStatic = PhysX.createRigidStatic(trans.PxTransform());
+
+				ET_ASSERT(comp.RigidStatic);
+			}
+
+			entity.world().PhysScene().addActor(*comp.RigidStatic);
 		},
-		{}
+		[](Entity entity, RigidStaticComponent& comp)
+		{
+			Log::info("Remove RigidStatic");
+			
+			Physics::ClearShapes(*comp.RigidStatic);
+			
+			entity.world().PhysScene().removeActor(*comp.RigidStatic);
+		}
 	);
 	
 
