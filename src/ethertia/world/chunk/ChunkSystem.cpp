@@ -317,7 +317,7 @@ void ChunkSystem::OnTick()
 {
 
     Dbg::dbg_IsChunkModifying = true;
-    _UpdateChunkLoadAndUnload({ 0,0,0 }, { m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x });
+    _UpdateChunkLoadAndUnload(m_ChunkLoadCenter, { m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x });
     Dbg::dbg_IsChunkModifying = false;
 
 }

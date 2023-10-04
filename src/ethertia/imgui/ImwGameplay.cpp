@@ -245,7 +245,8 @@ static void _ShowViewportWidgets()
 
     Entity SelectedEntity = ImwInspector::SelectedEntity;
 
-    static bool s_ShowChunkLoadBound = false;
+    Camera& cam = Ethertia::GetCamera();
+    World* world = Ethertia::GetWorld();
 
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
     ImGui::ArrowButton("Menu", ImGuiDir_Down);
@@ -287,7 +288,12 @@ static void _ShowViewportWidgets()
 
         ImGui::Checkbox("Text Info", &Gizmos::TextInfo);
 
-        ImGui::Checkbox("Chunk Load Bound", &s_ShowChunkLoadBound);
+        ImGui::Separator();
+
+        ImGui::Checkbox("Chunk Load Range", &Gizmos::ChunkLoadRangeAABB);
+        ImGui::Checkbox("Chunks Loading Bound", &Gizmos::ChunksLoadingAABB);
+        ImGui::Checkbox("Chunks Meshing Bound", &Gizmos::ChunksMeshingAABB);
+        ImGui::Checkbox("Chunks Loaded Bound", &Gizmos::ChunksLoadedAABB);
 
         if (ImGui::Button("Reloa Pipeline"))
         {
@@ -297,14 +303,10 @@ static void _ShowViewportWidgets()
         ImGui::EndPopup();
     }
 
-    if (SelectedEntity)
+    if (world && SelectedEntity)
     {
         _ShowGizmo(SelectedEntity);
     }
-
-
-    Camera& cam = Ethertia::GetCamera();
-    World* world = Ethertia::GetWorld();
 
     if (Gizmos::ViewGizmo)
     {
@@ -354,14 +356,40 @@ static void _ShowViewportWidgets()
         *pView = camView;  // restore.
     }
 
-    if (s_ShowChunkLoadBound)
+    if (world)
     {
+        ChunkSystem& chunksys = world->GetChunkSystem();
 
+        if (Gizmos::ChunkLoadRangeAABB)
+        {
+            glm::vec3 p = chunksys.m_ChunkLoadCenter;
+            glm::vec3 ex = glm::vec3{ chunksys.m_TmpLoadDistance.x, chunksys.m_TmpLoadDistance.y, chunksys.m_TmpLoadDistance.x } * 16.0f;
+            Imgui::RenderAABB(AABB{p-ex, p+ex+16.0f}, Colors::GRAY_DARK);
+        }
 
-        //Imgui::RenderAABB(AABB{}, Colors::GRAY);
+        if (Gizmos::ChunksLoadingAABB)
+        {
+            for (auto& it : chunksys.m_ChunksLoading)
+            {
+                Imgui::RenderAABB(AABB{ it.first, it.first + 16 }, Colors::GREEN);
+            }
+        }
+        if (Gizmos::ChunksMeshingAABB)
+        {
+            for (auto& it : chunksys.m_ChunksMeshing)
+            {
+                Imgui::RenderAABB(AABB{ it.first, it.first + 16 }, Colors::YELLOW);
+            }
+        }
+        if (Gizmos::ChunksLoadedAABB)
+        {
+            for (auto& it : chunksys.GetChunks())
+            {
+                Imgui::RenderAABB(AABB{it.first, it.first + 16}, Colors::GRAY);
+            }
+        }
     }
 
-    //World* world = Ethertia::getWorld();
     //if (world) {
     //    if (dbg_AllEntityAABB) {
     //        for (Entity* e : world->m_Entities) {

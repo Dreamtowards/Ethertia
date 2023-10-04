@@ -23,14 +23,21 @@ public:
 
 	struct Gizmos
 	{
+		inline static int
+			WorldGrids = 10;
+
 		inline static bool
 			ViewGizmo = true,
 			ViewBasis = false,
 			WorldBasis = false,
 			TextInfo = false;
 
-		inline static int
-			WorldGrids = 10;
+		inline static bool
+			ChunkLoadRangeAABB = false,
+			ChunksLoadingAABB = false,
+			ChunksMeshingAABB = false,
+			ChunksLoadedAABB = false;
+
 	};
 
 	static void ShowGame(bool* _open);
