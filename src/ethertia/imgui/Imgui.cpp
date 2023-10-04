@@ -224,7 +224,7 @@ void Imgui::Render(VkCommandBuffer cmdbuf)
 
 
 
-
+#include <ethertia/init/Settings.h>
 
 #include <stdx/collection.h>
 
@@ -256,7 +256,11 @@ void Imgui::ShowWindows()
     {
         bool show = true;
 
-        windows[i](&show);
+        {
+            ET_PROFILE_(Imgui::DrawFuncIds[windows[i]]);
+
+            windows[i](&show);
+        }
 
         if (!show)
         {

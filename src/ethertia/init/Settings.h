@@ -25,7 +25,6 @@ public:
     static void SaveSettings();
 
 
-
     inline static bool g_SSAO = true,
                        g_ShadowMapping = true;
 

@@ -10,6 +10,7 @@
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 #include <string>
+#include <map>
 
 #include <ethertia/util/AABB.h>
 
@@ -30,6 +31,9 @@ public:
 
     using DrawFuncPtr = void (*)(bool*);
     inline static std::vector<DrawFuncPtr> DrawFuncList;
+
+    // for Store & Restore opened windows.
+    inline static std::map<DrawFuncPtr, std::string> DrawFuncIds;
 
     static void Show(DrawFuncPtr w);
 

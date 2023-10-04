@@ -26,8 +26,6 @@
 static const char* SETTINGS_FILE = "./settings.json";
 
 
-// for Store & Restore opened windows.
-static std::map<std::string, Imgui::DrawFuncPtr> DrawFuncIds;
 
 
 
@@ -37,21 +35,23 @@ void Settings::LoadSettings()
     if (!Loader::FileExists("./assets"))
         throw std::runtime_error(std::format("default assets directory not found. make sure you are in valid working directory. (current dir: {})", std::filesystem::current_path().string()));
 
-    DrawFuncIds["settings"] = Imw::Settings::ShowSettings;
-    DrawFuncIds["inspector"] = ImwInspector::ShowInspector;
-    DrawFuncIds["hierarchy"] = ImwInspector::ShowHierarchy;
-    DrawFuncIds["worldsettings"] = ImwGame::ShowWorldSettings;
-    DrawFuncIds["profiler"] = Imw::Editor::ShowProfiler;
-    DrawFuncIds["toolbar"] = Imw::Editor::ShowToolbar;
-    DrawFuncIds["console"] = Imw::Editor::ShowConsole;
-    DrawFuncIds["explorer"] = Imw::Editor::ShowExplorer;
-    DrawFuncIds["worldgen"] = Imw::Editor::ShowWorldGen;
-    DrawFuncIds["game"] = ImwGame::ShowGame;
-    DrawFuncIds["game-titlescreen"] = ImwGame::ShowTitleScreen;
-    DrawFuncIds["game-worldlist"] = ImwGame::ShowWorldList;
-    DrawFuncIds["game-worldnew"] = ImwGame::ShowWorldNew;
-    DrawFuncIds["game-titlescreen"] = ImwGame::ShowTitleScreen;
-    DrawFuncIds["dbg-imgui-demowindow"] = ImGui::ShowDemoWindow;
+    auto& DrawFuncIds = Imgui::DrawFuncIds;
+
+    DrawFuncIds[Imw::Settings::ShowSettings] = "settings";
+    DrawFuncIds[ImwInspector::ShowInspector] = "inspector";
+    DrawFuncIds[ImwInspector::ShowHierarchy] = "hierarchy";
+    DrawFuncIds[ImwGame::ShowWorldSettings] = "worldsettings";
+    DrawFuncIds[Imw::Editor::ShowProfiler] = "profiler";
+    DrawFuncIds[Imw::Editor::ShowToolbar] = "toolbar";
+    DrawFuncIds[Imw::Editor::ShowConsole] = "console";
+    DrawFuncIds[Imw::Editor::ShowExplorer] = "explorer";
+    DrawFuncIds[Imw::Editor::ShowWorldGen] = "worldgen";
+    DrawFuncIds[ImwGame::ShowGame] = "game";
+    DrawFuncIds[ImwGame::ShowTitleScreen] = "game-titlescreen";
+    DrawFuncIds[ImwGame::ShowWorldList] = "game-worldlist";
+    DrawFuncIds[ImwGame::ShowWorldNew] = "game-worldnew";
+    DrawFuncIds[ImwGame::ShowTitleScreen] = "game-titlescreen";
+    DrawFuncIds[ImGui::ShowDemoWindow] = "dbg-imgui-demowindow";
 
 
     BENCHMARK_TIMER;
@@ -92,12 +92,12 @@ void Settings::LoadSettings()
     {
         for (const std::string& k : openedwindows)
         {
-            auto it = DrawFuncIds.find(k);
-            if (it == DrawFuncIds.end()) {
-                Log::warn("failed to load unknown window {}", k);
-            } else {
-                Imgui::Show(it->second);
-            }
+            //auto it = DrawFuncIds.find(k);
+            //if (it == DrawFuncIds.end()) {
+            //    Log::warn("failed to load unknown window {}", k);
+            //} else {
+                Imgui::Show(stdx::find_key(DrawFuncIds, k));
+            //}
         }
     }
 
@@ -133,7 +133,7 @@ void Settings::SaveSettings()
 
     std::vector<std::string> openedwindows;
     for (auto& ptr : Imgui::DrawFuncList) {
-        openedwindows.push_back(stdx::find_key(DrawFuncIds, ptr));
+        openedwindows.push_back(Imgui::DrawFuncIds[ptr]);
     }
     conf["windows"] =       openedwindows;
 
