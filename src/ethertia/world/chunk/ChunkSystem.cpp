@@ -17,7 +17,23 @@
 
 #include <stdx/stdx.h>
 
-#define ET_CAST(type, obj) *reinterpret_cast<type*>(&obj)
+
+
+ChunkSystem::ChunkSystem(World* world) : m_World(world) 
+{
+
+}
+
+ChunkSystem::~ChunkSystem()
+{
+
+}
+
+
+
+
+
+
 
 std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
 {
@@ -237,6 +253,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
                 auto [pts, tri] = indexed->ExportPoints();
 
+                // Delete Old Shapes
                 static std::vector<PxShape*> _Shapes;
                 Physics::GetShapes(*compRigidStatic.RigidStatic, _Shapes);
                 for (PxShape* shape : _Shapes)
@@ -244,6 +261,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                     compRigidStatic.RigidStatic->detachShape(*shape);
                 }
 
+                // Attach New Shapes
                 ETPX_CTX;
                 PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(pts, tri)), *Physics::dbg_DefaultMaterial);
                 compRigidStatic.RigidStatic->attachShape(*shape);

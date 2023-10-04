@@ -83,3 +83,5 @@ public:
 #define ET_PROFILE_(x) auto ET_MACRO_CONCAT(_profiler, __COUNTER__) = Ethertia::GetProfiler().push_ap(x)
 #define ET_PROFILE(x, p) auto ET_MACRO_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
 
+
+// #define ET_CAST(type, obj) *reinterpret_cast<type*>(&obj)

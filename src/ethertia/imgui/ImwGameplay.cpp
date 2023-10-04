@@ -13,6 +13,7 @@
 #include <glm/gtx/norm.hpp>
 
 #include <stdx/str.h>
+#include <stdx/collection.h>
 
 #include <ethertia/Ethertia.h>
 #include <ethertia/util/Loader.h>
@@ -37,28 +38,43 @@ static void _ShowDebugText()
     World* world = Ethertia::GetWorld();
     float dt = Ethertia::GetDelta();
 
-    ETPX_CTX;
-    std::string strPhysX = std::format("{} shape, {} mtl, {} TriMesh, {} ConMesh", 
-        PhysX.getNbShapes(), PhysX.getNbMaterials(), PhysX.getNbTriangleMeshes(), PhysX.getNbConvexMeshes());
+    std::string strPxScene = "--";
 
     std::string strWorldInfo = "--";
-    //std::string cellInfo = "nil";
-    //std::string chunkInfo = "nil";
     //HitCursor& cur = Ethertia::getHitCursor();
     if (world)
     {
         WorldInfo& wi = world->GetWorldInfo();
+        ChunkSystem& chunksys = world->GetChunkSystem();
+
+        int ecsNumCompTypes = 0;
+        int ecsNumComps = 0;
+        for (const auto& it : world->registry().storage())
+        {
+            ++ecsNumCompTypes;
+            ecsNumComps += it.second.size();
+        }
 
         strWorldInfo = std::format(
             "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
-            "Chunk: {} loaded. {} loading, {} meshing, -- saving;",
+            "Chunk: {} loaded. {} loading, {} meshing, -- saving;\n"
+            "Entity: {}; components: {}, T: {};",
             wi.Name,
             stdx::daytime(wi.DayTime, true, false),
             wi.InhabitedTime,
             wi.Seed,
-            world->GetChunkSystem().GetChunks().size(),
-            world->GetChunkSystem().m_ChunksLoading.size(),
-            world->GetChunkSystem().m_ChunksMeshing.size());
+            chunksys.GetChunks().size(),
+            chunksys.m_ChunksLoading.size(),
+            chunksys.m_ChunksMeshing.size(),
+            world->registry().size(),
+            ecsNumComps,
+            ecsNumCompTypes);
+
+        PxScene& pScene = world->PhysScene();
+        strPxScene = std::format(
+            "{} rstatic, {} rdynamic, {} constraints;",
+            pScene.getNbActors(PxActorTypeFlag::eRIGID_STATIC), pScene.getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC), pScene.getNbConstraints());
+
     //    Chunk* hitChunk = world->getLoadedChunk(cur.position);
     //    if (hitChunk) {
     //        chunkInfo = std::format("GenPop: {}, Inhabited: {}s",
@@ -75,6 +91,12 @@ static void _ShowDebugText()
     //    }
     }
 
+
+    ETPX_CTX;
+    std::string strPhysX = std::format(
+        "{} shape, {} mtl, {} TriMesh, {} ConMesh;\n"
+        "PxScene: {}",
+        PhysX.getNbShapes(), PhysX.getNbMaterials(), PhysX.getNbTriangleMeshes(), PhysX.getNbConvexMeshes(), strPxScene);
 
     static glm::vec3 CamPosLast;
     glm::vec3 CamPosCurr = glm::inverse(cam.matView)[3];  // HeavyCost!!! try make cache if necessary
@@ -93,9 +115,9 @@ static void _ShowDebugText()
         //"plr ground: {}, collide pts: {}\n"
         "\n"
         "World: {}\n"
-        "HitResult: p: (0, 0, 0); cell: ; chunk: \n"
+        "PhysX: {};\n"
         "\n"
-        "PhysX: {}\n"
+        "HitResult: (0, 0, 0); cell: --; chunk: --;\n"
         "\n"
         "OS:  {}, {} concurrency, {}-endian\n"
         "CPU: {}\n"

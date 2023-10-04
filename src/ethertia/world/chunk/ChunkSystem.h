@@ -25,7 +25,8 @@ class ChunkSystem
 {
 public:
 
-	ChunkSystem(World* world) : m_World(world) {}
+	ChunkSystem(World* world);
+	~ChunkSystem();
 
 	// todo: use SVO to get a chunk in O(logN) time.
 	// get loaded chunk.

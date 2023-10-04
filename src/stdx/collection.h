@@ -48,4 +48,10 @@ namespace stdx
 		}
 		throw std::runtime_error("stdx::find_key error: no such value");
 	}
+
+	template<typename T>
+	size_t itr_count(const T& itr)
+	{
+		return std::distance(itr.cbegin(), itr.cend());
+	}
 }

@@ -247,12 +247,13 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 
 void Ethertia::UnloadWorld()
 {
-    ET_ASSERT(Ethertia::GetWorld() != nullptr);
+    ET_ASSERT(Ethertia::GetWorld());
 
     Log::info("Unloading World...");
 
     Ethertia::GetHitCursor().reset();
 
+    ImwInspector::SelectedEntity = {};
 
     //Log::info("Cleaning MeshGen");
     //ChunkMeshProc::g_Running = -1;
