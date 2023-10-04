@@ -90,6 +90,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
     // Async Generate/Load chunk
     {
         auto _lock = LockRead();
+
         AABB::each(loaddist, [&](glm::ivec3 rp) {
 
             glm::ivec3 chunkpos = rp * 16 + viewer_chunkpos;
@@ -215,8 +216,14 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
             auto task = threadpool.submit([chunk, vtx]() {
 
+                VertexData* tmp = new VertexData();
 
-                MeshGen::GenerateMesh(*chunk.get(), *vtx);
+                MeshGen::GenerateMesh(*chunk.get(), *tmp);
+
+                //VertexData* indexed = 
+                VertexData::MakeIndexed(tmp, vtx);  // for supports TriangleMesh Load for PhysX
+
+                delete tmp;
 
                 return chunk;
                 });
@@ -252,18 +259,17 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 compRenderMesh.VertexBuffer = nullptr;
             }
 
-            VertexData& vtx = *compRenderMesh.VertexData;
-            if (!vtx.empty())
+            VertexData& indexed = *compRenderMesh.VertexData;
+            if (!indexed.empty())
             {
-                std::unique_ptr<VertexData> indexed(VertexData::MakeIndexed(&vtx));
 
                 // Upload VertexData to GPU.
-                compRenderMesh.VertexBuffer = Loader::LoadVertexData(indexed.get());
+                compRenderMesh.VertexBuffer = Loader::LoadVertexData(&indexed);
 
                 // Update Physics Shape TriangleMesh
                 auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
 
-                auto [pts, tri] = indexed->ExportPoints();
+                auto [pts, tri] = indexed.ExportPoints();
 
                 // Delete Old Shapes
                 Physics::ClearShapes(*compRigidStatic.RigidStatic);
