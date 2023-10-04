@@ -56,7 +56,7 @@ static void _ShowDebugText()
 
         {
             ChunkSystem& chunksys = world->GetChunkSystem();
-            auto _lock = chunksys.LockRead();
+            //auto _lock = chunksys.LockRead();
 
             strWorldInfo = std::format(
                 "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
@@ -69,7 +69,7 @@ static void _ShowDebugText()
                 world->registry().size(),
                 ecsNumComps,
                 ecsNumCompTypes,
-                chunksys.GetChunks().size(),
+                chunksys.ChunksCount(),
                 chunksys.m_ChunksLoading.size(),
                 chunksys.m_ChunksMeshing.size());
         }
@@ -371,8 +371,6 @@ static void _ShowViewportWidgets()
             Imgui::RenderAABB(AABB{p-ex, p+ex+16.0f}, Colors::GRAY_DARK);
         }
 
-        auto _lock = chunksys.LockRead();
-
         if (Gizmos::ChunksLoadingAABB)
         {
             for (auto& it : chunksys.m_ChunksLoading)
@@ -389,10 +387,11 @@ static void _ShowViewportWidgets()
         }
         if (Gizmos::ChunksLoadedAABB)
         {
-            for (auto& it : chunksys.GetChunks())
-            {
-                Imgui::RenderAABB(AABB{it.first, it.first + 16}, Colors::GRAY);
-            }
+            chunksys.ForChunks([](auto cp, auto& chunk) {
+
+                Imgui::RenderAABB(AABB{ cp, cp + 16 }, Colors::GRAY);
+                return true;
+            });
         }
     }
 
@@ -842,12 +841,11 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
     if (ImGui::Button("ReMesh All Chunks"))
     {
-        auto _lock = chunksys.LockRead();
-
-        for (auto it : chunksys.GetChunks())
-        {
-            it.second->m_NeedRebuildMesh = true;
-        }
+        chunksys.ForChunks([](auto cp, Chunk& chunk) {
+        
+            chunk.m_NeedRebuildMesh = true;
+            return true;
+        });
     }
 
     ImGui::SliderInt("ChunkLoading MaxConcurrent", &chunksys.cfg_ChunkLoadingMaxConcurrent, 0, 20);

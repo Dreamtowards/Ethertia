@@ -42,11 +42,12 @@ public:
 		return it->second;
 	}
 
-	const std::unordered_map<glm::ivec3, std::shared_ptr<Chunk>>& GetChunks()
-	{
-		return m_Chunks;
-	}
-	void ForChunks(std::function<bool(const glm::ivec3&, const Chunk&)>& fn)
+	//const std::unordered_map<glm::ivec3, std::shared_ptr<Chunk>>& GetChunks()
+	//{
+	//	return m_Chunks;
+	//}
+
+	void ForChunks(const std::function<bool(const glm::ivec3&, Chunk&)>& fn)
 	{
 		auto _lock = LockRead();
 		for (auto& it : m_Chunks)
@@ -55,15 +56,15 @@ public:
 				return;
 		}
 	}
-	void ForChunks(std::function<bool(const glm::ivec3&, Chunk&)>& fn)
-	{
-		auto _lock = LockWrite();
-		for (auto& it : m_Chunks)
-		{
-			if (!fn(it.first, *it.second.get()))
-				return;
-		}
-	}
+	//void ForChunksW(const std::function<bool(const glm::ivec3&, Chunk&)>& fn)
+	//{
+	//	auto _lock = LockWrite();
+	//	for (auto& it : m_Chunks)
+	//	{
+	//		if (!fn(it.first, *it.second.get()))
+	//			return;
+	//	}
+	//}
 
 	// NumChunksLoaded
 	size_t ChunksCount()
