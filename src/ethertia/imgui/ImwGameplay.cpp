@@ -57,18 +57,18 @@ static void _ShowDebugText()
 
         strWorldInfo = std::format(
             "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
-            "Chunk: {} loaded. {} loading, {} meshing, -- saving;\n"
-            "Entity: {}; components: {}, T: {};",
+            "Entity: {}; components: {}, T: {};\n"
+            "Chunk: {} loaded. {} loading, {} meshing, -- saving;",
             wi.Name,
             stdx::daytime(wi.DayTime, true, false),
             wi.InhabitedTime,
             wi.Seed,
-            chunksys.GetChunks().size(),
-            chunksys.m_ChunksLoading.size(),
-            chunksys.m_ChunksMeshing.size(),
             world->registry().size(),
             ecsNumComps,
-            ecsNumCompTypes);
+            ecsNumCompTypes,
+            chunksys.GetChunks().size(),
+            chunksys.m_ChunksLoading.size(),
+            chunksys.m_ChunksMeshing.size());
 
         PxScene& pScene = world->PhysScene();
         strPxScene = std::format(
@@ -115,6 +115,7 @@ static void _ShowDebugText()
         //"plr ground: {}, collide pts: {}\n"
         "\n"
         "World: {}\n"
+        "\n"
         "PhysX: {}\n"
         "\n"
         "HitResult: (0, 0, 0); cell: --; chunk: --;\n"
