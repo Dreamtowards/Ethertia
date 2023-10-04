@@ -66,17 +66,18 @@ void ImwInspector::ShowHierarchy(bool* _open)
         ImGui::EndPopup();
     }
 
+    static int s_ListCountLimit = 100;
+
     ImGui::ArrowButton("##filter", ImGuiDir_Down);
     ImGui::SameLine();
 
     if (ImGui::BeginPopupContextItem(0, ImGuiPopupFlags_MouseButtonLeft))
     {
         bool bol;
-        int s_ListMaxCount = 0;
         ImGui::SeparatorText("Filter");
         ImGui::Checkbox("Exclude OutOfFrustum Entities", &bol);
         // Sort by distance?
-        ImGui::DragInt("List Max Number", &s_ListMaxCount);
+        ImGui::DragInt("List Max Number", &s_ListCountLimit);
         // KeepSelect HitEntity
         // IgnoreChunk Entities
 
@@ -99,9 +100,12 @@ void ImwInspector::ShowHierarchy(bool* _open)
         //ImGui::TableSetupColumn("##Name", ImGuiTableColumnFlags_WidthStretch, 200);
         //ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthFixed, 80);
         //ImGui::TableHeadersRow();
+        int idx = 0;
 
         world->registry().each([&](entt::entity eid) 
             {
+                if (++idx > s_ListCountLimit)
+                    return;
                 Entity entity = { eid, world };
                 auto& tag = entity.GetComponent<TagComponent>();
 
