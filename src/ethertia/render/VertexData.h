@@ -52,8 +52,8 @@ public:
     const void* idx_data() const { return Indices.data(); }
     size_t      idx_size() const { return sizeof(Indices[0]) * Indices.size(); }
 
-    std::span<const char> vtx_span() const { return { (const char*)vtx_data(), vtx_size() }; }
-    std::span<const char> idx_span() const { return { (const char*)idx_data(), idx_size() }; }
+    std::span<const float>      vtx_span() const { return { (const float*)   vtx_data(), vtx_size() / sizeof(float)}; }
+    std::span<const uint32_t>   idx_span() const { return { (const uint32_t*)idx_data(), idx_size() / sizeof(uint32_t) }; }
 
     bool IsIndexed() const { return !Indices.empty(); }
 
@@ -116,7 +116,6 @@ public:
             std::span<float[3]>{ (Float3*)points, numPoints },
             std::span<uint32_t[3]>{ (Int3*)triIndices, numTris });
     }
-
 
     // make an Unique Indexed VertexData. hash-map method.
     static VertexData* MakeIndexed(const VertexData* nonIndexed, VertexData* out = new VertexData());

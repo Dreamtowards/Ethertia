@@ -107,7 +107,7 @@ const char* Physics::GeometryName(physx::PxGeometryType::Enum e)
 
 
 
-PxTriangleMesh* Physics::CreateTriangleMesh(const std::span<float[3]> points, const std::span<PxU32[3]> triIndices)
+PxTriangleMesh* Physics::CreateTriangleMesh(std::span<const float> points, std::span<const uint32_t> indices)
 {
 	PxTolerancesScale scale;
 	PxCookingParams params(scale);
@@ -119,13 +119,13 @@ PxTriangleMesh* Physics::CreateTriangleMesh(const std::span<float[3]> points, co
 	// params.meshCookingHint = PxMeshCookingHint::eCOOKING_PERFORMANCE;
 
 	PxTriangleMeshDesc meshDesc;
-	meshDesc.points.count = points.size();  // sizeof(float[3])
-	meshDesc.points.stride = sizeof(PxVec3);
+	meshDesc.points.count = points.size() / 8;  // sizeof(float[3])
+	meshDesc.points.stride = sizeof(float) * 8;
 	meshDesc.points.data = points.data();
 
-	meshDesc.triangles.count = triIndices.size();  // sizeof(uint32[3])
-	meshDesc.triangles.stride = 3 * sizeof(PxU32);
-	meshDesc.triangles.data = triIndices.data();
+	meshDesc.triangles.count = indices.size() / 3;  // sizeof(uint32[3])
+	meshDesc.triangles.stride = sizeof(uint32_t) * 3;
+	meshDesc.triangles.data = indices.data();
 
 	// mesh should be validated before cooked without the mesh cleaning
 	//ET_ASSERT(PxValidateTriangleMesh(params, meshDesc));

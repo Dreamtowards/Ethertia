@@ -32,7 +32,8 @@ public:
 
 
 
-	static PxTriangleMesh* CreateTriangleMesh(const std::span<float[3]> points, const std::span<PxU32[3]> triIndices);
+	static PxTriangleMesh* CreateTriangleMesh(std::span<const float> points, std::span<const uint32_t> indices);
+
 
 	static void GetShapes(PxRigidActor& rigid, std::vector<PxShape*>& out)
 	{
