@@ -57,6 +57,7 @@ public:
 
 	entt::id_type id() const { return static_cast<entt::id_type>(m_EntityId); }
 	entt::registry& reg() { return m_World->registry(); }
+	World& world() { return *m_World; }
 
 	// GetName, GetTransform
 

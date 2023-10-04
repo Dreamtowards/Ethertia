@@ -4,10 +4,11 @@
 #include "Entity.h"
 
 #include <ethertia/world/chunk/ChunkSystem.h>
-
 #include <ethertia/world/Physics.h>
 
+#include <ethertia/Ethertia.h>
 #include <ethertia/util/Log.h>
+#include <ethertia/util/Assert.h>
 
 
 
@@ -39,26 +40,24 @@
 //	shape->release();
 //}
 
-static void _OnComponentAdded(float val, entt::registry& reg, entt::entity eid)
+static void _OnAddedRigidStaticComponent(entt::registry& reg, entt::entity eid)
 {
-	Log::info("Comp RS Added {}", val);
+	ETPX_CTX;
+	RigidStaticComponent& comp = reg.get<RigidStaticComponent>(eid);
+	Entity entity{ eid, Ethertia::GetWorld() };
+	
+	if (!comp.RigidStatic)
+	{
+		auto& trans = entity.GetTransform();
+	
+		comp.RigidStatic = PhysX.createRigidStatic(trans.PxTransform());
+	
+		ET_ASSERT(comp.RigidStatic);
+	}
+	
+	entity.world().PhysScene().addActor(*comp.RigidStatic);
 }
-//static void _OnComponentAdded(World* world, Entity entity, RigidStaticComponent& comp)
-//{
-//	ETPX_CTX;
-//
-//	if (!comp.RigidStatic)
-//	{
-//		auto& trans = entity.GetTransform();
-//
-//		comp.RigidStatic = PhysX.createRigidStatic(trans.PxTransform());
-//
-//		ET_ASSERT(comp.RigidStatic);
-//	}
-//
-//	ET_ASSERT(m_PxScene->addActor(*comp.RigidStatic));
-//}
-//
+
 //void OnComponentRemove<RigidStaticComponent>(entt::entity entity, RigidStaticComponent& comp)
 //{
 //	Log::info("Remove RigidStatic");
@@ -76,36 +75,16 @@ World::World()
 
 	// Init ECS
 
-	//struct _Tmp
-	//{
-	//	float val;
-	//
-	//	void _OnComponentAdded(entt::registry& reg, entt::entity eid)
-	//	{
-	//		Log::info("Comp RS Added f {}", val);
-	//	}
-	//};
-	//
-	//static _Tmp tmp;
-	//tmp.val = 234.5;
-	//
-	//registry().on_construct<RigidStaticComponent>().connect<&_Tmp::_OnComponentAdded>(&tmp);
+	//registry().on_construct<RigidStaticComponent>().connect<&_OnAddedRigidStaticComponent>();
 
 	ListenComponent<RigidStaticComponent>(
-		[](World* world, Entity entity, RigidStaticComponent& comp) 
+		[](Entity entity, RigidStaticComponent& comp) 
 		{
 			Log::info("Comp RigidStaticComponent 11111 Added {}", (size_t)comp.RigidStatic);
 		},
 		{}
 	);
-
-	ListenComponent<RigidStaticComponent>(
-		[](World* world, Entity entity, RigidStaticComponent& comp)
-		{
-			Log::info("Comp RigidStaticComponent @@@22222 Added {}", (size_t)comp.RigidStatic);
-		},
-		{}
-	);
+	
 
 	// InitPhys
 

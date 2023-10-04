@@ -62,8 +62,9 @@ public:
 	//void OnComponentRemove(entt::entity entity, T& component);
 
 	template<typename ComponentType>
-	using ComponentListener = std::function<void(World*, Entity, ComponentType&)>;
-	
+	using ComponentListener = std::function<void(Entity, ComponentType&)>;
+
+	// Only Listen to the Components that need be Listen
 	template<typename ComponentType>
 	void ListenComponent(ComponentListener<ComponentType> on_construct, ComponentListener<ComponentType> on_destroy)
 	{
@@ -73,17 +74,16 @@ public:
 			ComponentListener<ComponentType> fnCreate;
 			ComponentListener<ComponentType> fnDestroy;
 
-			void OnConstruct(entt::registry& reg, entt::entity eid)
-			{
-				fnCreate(world, Entity{ eid, world }, reg.get<ComponentType>(eid));
+			void OnConstruct(entt::registry& reg, entt::entity eid) {
+				fnCreate(Entity{ eid, world }, reg.get<ComponentType>(eid));
 			}
-			void OnDestroy(entt::registry& reg, entt::entity eid)
-			{
-				fnDestroy(world, Entity{ eid, world }, reg.get<ComponentType>(eid));
+			void OnDestroy(entt::registry& reg, entt::entity eid) {
+				fnDestroy(Entity{ eid, world }, reg.get<ComponentType>(eid));
 			}
 		};
 		CompLsrAdapter* lsr = new CompLsrAdapter();
 		lsr->world = this;
+		// m_DeleteOnWorldDestroy->push_back();
 		// todo: Delete on World Destroy
 
 		if (on_construct)
