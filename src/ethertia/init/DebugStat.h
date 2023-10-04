@@ -28,9 +28,9 @@ public:
     //
     //inline static int dbg_NumEntityRendered = 0;
 
-    inline static glm::vec3 dbg_WorldSunColor = {1,1,1};
-    inline static float dbg_WorldSunColorBrightnessMul = 5;
-    inline static glm::vec3 dbg_ShaderDbgColor = {0.000f, 0.397f, 0.684f};
+    //inline static glm::vec3 dbg_WorldSunColor = {1,1,1};
+    //inline static float dbg_WorldSunColorBrightnessMul = 5;
+    //inline static glm::vec3 dbg_ShaderDbgColor = {0.000f, 0.397f, 0.684f};
 
 
     //inline static bool dbg_EntityGeo = false;
@@ -48,11 +48,11 @@ public:
     //
     //inline static int dbg_WorldHintGrids = 10;
 
-    inline static Profiler dbgProf_ChunkGen;
-    inline static Profiler dbgProf_ChunkMeshGen;
+    //inline static Profiler dbgProf_ChunkGen;
+    //inline static Profiler dbgProf_ChunkMeshGen;
 
     // Terrain Breaking.
-    inline static float dbg_CurrCellBreakingFullTime = 0;
+    //inline static float dbg_CurrCellBreakingFullTime = 0;
 
 
     inline static int dbg_FPS = 0;

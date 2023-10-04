@@ -65,8 +65,8 @@ void Imw::Editor::ShowProfiler(bool* _open)
     static int s_SelectedProfilerIdx = 0;
     static std::pair<const char*, Profiler*> PROFILERS[] = {
             {"MainLoop", &Ethertia::GetProfiler()},
-            {"Chunk Mesh", &Dbg::dbgProf_ChunkMeshGen},
-            {"Chunk Gen/Load/Save", &Dbg::dbgProf_ChunkGen}
+            //{"Chunk Mesh", &Dbg::dbgProf_ChunkMeshGen},
+            //{"Chunk Gen/Load/Save", &Dbg::dbgProf_ChunkGen}
     };
 
 
