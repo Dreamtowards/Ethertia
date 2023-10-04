@@ -91,6 +91,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
 
     ImGui::Separator();
 
+    int listidx = 0;
     ImGui::BeginChild("entitylist", { 0, -ImGui::GetTextLineHeightWithSpacing() });
 
     if (ImGui::BeginTable("table", 2,
@@ -100,12 +101,12 @@ void ImwInspector::ShowHierarchy(bool* _open)
         //ImGui::TableSetupColumn("##Name", ImGuiTableColumnFlags_WidthStretch, 200);
         //ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthFixed, 80);
         //ImGui::TableHeadersRow();
-        int idx = 0;
 
         world->registry().each([&](entt::entity eid) 
             {
-                if (++idx > s_ListCountLimit)
+                if (listidx > s_ListCountLimit)
                     return;
+                ++listidx;
                 Entity entity = { eid, world };
                 auto& tag = entity.GetComponent<TagComponent>();
 
@@ -155,7 +156,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
     ImGui::EndChild();
 
 
-    ImGui::TextDisabled(std::format("{} entity.", world->registry().size()).c_str());
+    ImGui::TextDisabled(std::format("{} entity, {} listed.", world->registry().size(), listidx).c_str());
 
 
 
@@ -362,21 +363,27 @@ void ImwInspector::ShowInspector(bool* _open)
 
 static void _InspRenderMesh(MeshRenderComponent& comp)
 {
-    vkx::VertexBuffer* vbuf = comp.VertexBuffer;
     ImGui::SeparatorText("vkx::VertexBuffer");
-    ImGui::TextDisabled("VertexCount: %i", vbuf->vertexCount);
+    vkx::VertexBuffer* vbuf = comp.VertexBuffer;
+    if (vbuf)
+    {
+        ImGui::TextDisabled("VertexCount: %i", vbuf->vertexCount);
+    }
 
 
-    VertexData* vtx = comp.VertexData;
     ImGui::SeparatorText("VertexData");
-    ImGui::TextDisabled(std::format(
-        "VertexCount: {}\n"
-        "Indices: {}\n"
-        "Vertices: {}",
-        vtx->VertexCount(),
-        vtx->Indices.size(),
-        vtx->Vertices.size()
-    ).c_str());
+    VertexData* vtx = comp.VertexData;
+    if (vtx)
+    {
+        ImGui::TextDisabled(std::format(
+            "VertexCount: {}\n"
+            "Indices: {}\n"
+            "Vertices: {}",
+            vtx->VertexCount(),
+            vtx->Indices.size(),
+            vtx->Vertices.size()
+        ).c_str());
+    }
 }
 
 

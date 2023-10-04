@@ -88,26 +88,29 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
 
     // Async Generate/Load chunk
-    AABB::each(loaddist, [&](glm::ivec3 rp) {
+    {
+        auto _lock = LockRead();
+        AABB::each(loaddist, [&](glm::ivec3 rp) {
 
-        glm::ivec3 chunkpos = rp * 16 + viewer_chunkpos;
+            glm::ivec3 chunkpos = rp * 16 + viewer_chunkpos;
 
-        if (m_ChunksLoading.size() >= cfg_ChunkLoadingMaxConcurrent)
-            return false;
-        if (GetChunk(chunkpos) || m_ChunksLoading.contains(chunkpos))
+            if (m_ChunksLoading.size() >= cfg_ChunkLoadingMaxConcurrent)
+                return false;
+            if (m_Chunks.contains(chunkpos) || m_ChunksLoading.contains(chunkpos))
+                return true;
+
+            auto task = threadpool.submit([this, chunkpos]()
+                {
+                    return _ProvideChunk(chunkpos);
+                });
+
+            auto [it, succ] = m_ChunksLoading.try_emplace(chunkpos, task);
+
+            ET_ASSERT(succ);  // make sure no override
+
             return true;
-
-        auto task = threadpool.submit([this, chunkpos]()
-            {
-                return _ProvideChunk(chunkpos);
-            });
-
-        auto [it, succ] = m_ChunksLoading.try_emplace(chunkpos, task);
-
-        ET_ASSERT(succ);  // make sure no override
-
-        return true;
-    });
+        });
+    }
 
     // Add AsyncGenerated Chunk to World
     static std::vector<glm::ivec3> _TmpChunksBatchErase;  // static: avoid dynamic heap alloc.
@@ -325,8 +328,6 @@ static void _UpdateChunksMeshing()
 void ChunkSystem::OnTick()
 {
 
-    Dbg::dbg_IsChunkModifying = true;
     _UpdateChunkLoadAndUnload(m_ChunkLoadCenter, { m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x });
-    Dbg::dbg_IsChunkModifying = false;
 
 }

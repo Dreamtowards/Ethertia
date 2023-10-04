@@ -269,15 +269,9 @@ public:
 #pragma endregion
 
 
-#include <ethertia/init/DebugStat.h>
-#include <thread>
-#include <chrono>
 
 void MeshGen::GenerateMesh(Chunk& chunk, VertexData& vtx)
 {
-    while (Dbg::dbg_IsChunkModifying)
-        std::this_thread::sleep_for(std::chrono::nanoseconds(1));
-
     MeshGen_SN::SN_Contouring(chunk, vtx);
     return;
 

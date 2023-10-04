@@ -85,9 +85,9 @@ public:
 	}
 
 	[[nodiscard]]
-	std::lock_guard<std::shared_mutex> LockWrite()
+	std::unique_lock<std::shared_mutex> LockWrite()
 	{
-		return std::lock_guard<std::shared_mutex>{m_ChunksLock};
+		return std::unique_lock<std::shared_mutex>{m_ChunksLock};
 	}
 
 	// Chunk Load and Unload are internal managed. so far no reason to expose interface out.

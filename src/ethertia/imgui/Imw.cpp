@@ -79,7 +79,14 @@ static void _ShowMainMenu_System()
 
                 if (ImGui::MenuItem(savedir.path().filename().string().c_str(), std::format("{}", savedir.last_write_time()).c_str()))
                 {
-                    Ethertia::LoadWorld(savedir.path().string());
+                    if (Ethertia::GetWorld())
+                    {
+                        Loader::ShowMessageBox("Error", "Close current world before load new world.");
+                    }
+                    else
+                    {
+                        Ethertia::LoadWorld(savedir.path().string());
+                    }
                 }
                 ImGui::SameLine();
                 ImGui::SmallButton("*");
