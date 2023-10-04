@@ -35,20 +35,18 @@ ChunkSystem::~ChunkSystem()
 
 
 
-std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::vec3 chunkpos)
+std::shared_ptr<Chunk> ChunkSystem::_ProvideChunk(glm::ivec3 chunkpos)
 {
     ET_ASSERT(Chunk::IsChunkPos(chunkpos));
     ET_ASSERT(GetChunk(chunkpos) == nullptr);
 
-    std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(m_World, chunkpos);
+    auto chunk = std::make_shared<Chunk>(m_World, chunkpos);
 
     bool load = false;// m_ChunkLoader->LoadChunk(chunk);
 
     if (!load)
     {
-        // m_ChunkGenerator->GenerateChunk(chunk);
-
-        ChunkGenerator::GenerateChunk(*chunk.get());
+        ChunkGenerator::GenerateChunk(*chunk.get());  // m_ChunkGenerator->GenerateChunk(chunk);
     }
 
     return chunk;
@@ -125,7 +123,10 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
         ET_ASSERT(GetChunk(chunkpos) == nullptr);
         auto chunk = task->get();
-        m_Chunks[chunkpos] = chunk;
+        {
+            auto _lock = LockWrite();
+            m_Chunks[chunkpos] = chunk;
+        }
 
         chunk->m_NeedRebuildMesh = true;  // RequestRemesh
 
@@ -158,25 +159,29 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
     static int m_ChunksUnloadingMaxBatch = 10;
 
     _TmpChunksBatchErase.clear();
-    for (auto it : m_Chunks)
     {
-        glm::ivec3 cp = it.first;
+        auto _lock = LockWrite();
 
-        if (_TmpChunksBatchErase.size() > m_ChunksUnloadingMaxBatch)
-            break;
-        if (_IsChunkInLoadRange(cp, viewer_chunkpos, loaddist * 16))
-            continue;
-        
-        // UnloadChunk
-        auto chunk = it.second;
+        for (auto it : m_Chunks)
+        {
+            glm::ivec3 cp = it.first;
 
-        m_World->DestroyEntity(chunk->entity);
+            if (_TmpChunksBatchErase.size() > m_ChunksUnloadingMaxBatch)
+                break;
+            if (_IsChunkInLoadRange(cp, viewer_chunkpos, loaddist * 16))
+                continue;
 
-        _TmpChunksBatchErase.push_back(cp);
-    }
-    for (auto cp : _TmpChunksBatchErase)
-    {
-        m_Chunks.erase(cp);
+            // UnloadChunk
+            auto chunk = it.second;
+
+            m_World->DestroyEntity(chunk->entity);
+
+            _TmpChunksBatchErase.push_back(cp);
+        }
+        for (auto cp : _TmpChunksBatchErase)
+        {
+            m_Chunks.erase(cp);
+        }
     }
     if (_TmpChunksBatchErase.size())
     {
@@ -188,29 +193,33 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
     // Detect ChunkMeshing
 
-    for (auto it : m_Chunks)
     {
-        glm::ivec3 cp = it.first;
-        auto chunk = it.second;
+        auto _lock = LockRead();
 
-        if (m_ChunksMeshing.size() >= cfg_ChunkMeshingMaxConcurrent)
-            break;
-        if (!chunk->m_NeedRebuildMesh)
-            continue;
-        chunk->m_NeedRebuildMesh = false;
+        for (auto it : m_Chunks)
+        {
+            glm::ivec3 cp = it.first;
+            auto chunk = it.second;
 
-        VertexData* vtx = chunk->entity.GetComponent<MeshRenderComponent>().VertexData;
-        vtx->Clear();
+            if (m_ChunksMeshing.size() >= cfg_ChunkMeshingMaxConcurrent)
+                break;
+            if (!chunk->m_NeedRebuildMesh)
+                continue;
+            chunk->m_NeedRebuildMesh = false;
 
-        auto task = threadpool.submit([chunk, vtx]() {
+            VertexData* vtx = chunk->entity.GetComponent<MeshRenderComponent>().VertexData;
+            vtx->Clear();
+
+            auto task = threadpool.submit([chunk, vtx]() {
 
 
-            MeshGen::GenerateMesh(*chunk.get(), *vtx);
+                MeshGen::GenerateMesh(*chunk.get(), *vtx);
 
-            return chunk;
-        });
+                return chunk;
+                });
 
-        auto [it, succ] = m_ChunksMeshing.try_emplace(cp, task);
+            auto [it, succ] = m_ChunksMeshing.try_emplace(cp, task);
+        }
     }
 
 

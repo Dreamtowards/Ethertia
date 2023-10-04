@@ -39,13 +39,12 @@ static void _ShowDebugText()
     float dt = Ethertia::GetDelta();
 
     std::string strPxScene = "--";
-
     std::string strWorldInfo = "--";
+
     //HitCursor& cur = Ethertia::getHitCursor();
     if (world)
     {
         WorldInfo& wi = world->GetWorldInfo();
-        ChunkSystem& chunksys = world->GetChunkSystem();
 
         int ecsNumCompTypes = 0;
         int ecsNumComps = 0;
@@ -55,20 +54,25 @@ static void _ShowDebugText()
             ecsNumComps += it.second.size();
         }
 
-        strWorldInfo = std::format(
-            "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
-            "Entity: {}; components: {}, T: {};\n"
-            "Chunk: {} loaded. {} loading, {} meshing, -- saving;",
-            wi.Name,
-            stdx::daytime(wi.DayTime, true, false),
-            wi.InhabitedTime,
-            wi.Seed,
-            world->registry().size(),
-            ecsNumComps,
-            ecsNumCompTypes,
-            chunksys.GetChunks().size(),
-            chunksys.m_ChunksLoading.size(),
-            chunksys.m_ChunksMeshing.size());
+        {
+            ChunkSystem& chunksys = world->GetChunkSystem();
+            auto _lock = chunksys.LockRead();
+
+            strWorldInfo = std::format(
+                "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
+                "Entity: {}; components: {}, T: {};\n"
+                "Chunk: {} loaded. {} loading, {} meshing, -- saving;",
+                wi.Name,
+                stdx::daytime(wi.DayTime, true, false),
+                wi.InhabitedTime,
+                wi.Seed,
+                world->registry().size(),
+                ecsNumComps,
+                ecsNumCompTypes,
+                chunksys.GetChunks().size(),
+                chunksys.m_ChunksLoading.size(),
+                chunksys.m_ChunksMeshing.size());
+        }
 
         PxScene& pScene = world->PhysScene();
         strPxScene = std::format(
@@ -366,6 +370,8 @@ static void _ShowViewportWidgets()
             glm::vec3 ex = glm::vec3{ chunksys.m_TmpLoadDistance.x, chunksys.m_TmpLoadDistance.y, chunksys.m_TmpLoadDistance.x } * 16.0f;
             Imgui::RenderAABB(AABB{p-ex, p+ex+16.0f}, Colors::GRAY_DARK);
         }
+
+        auto _lock = chunksys.LockRead();
 
         if (Gizmos::ChunksLoadingAABB)
         {
@@ -836,6 +842,8 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
     if (ImGui::Button("ReMesh All Chunks"))
     {
+        auto _lock = chunksys.LockRead();
+
         for (auto it : chunksys.GetChunks())
         {
             it.second->m_NeedRebuildMesh = true;
