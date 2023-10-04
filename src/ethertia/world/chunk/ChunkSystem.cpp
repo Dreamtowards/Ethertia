@@ -254,12 +254,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 auto [pts, tri] = indexed->ExportPoints();
 
                 // Delete Old Shapes
-                static std::vector<PxShape*> _Shapes;
-                Physics::GetShapes(*compRigidStatic.RigidStatic, _Shapes);
-                for (PxShape* shape : _Shapes)
-                {
-                    compRigidStatic.RigidStatic->detachShape(*shape);
-                }
+                Physics::ClearShapes(*compRigidStatic.RigidStatic);
 
                 // Attach New Shapes
                 ETPX_CTX;

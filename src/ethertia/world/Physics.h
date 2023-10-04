@@ -47,4 +47,14 @@ public:
 		out.resize(num);
 		shape.getMaterials(out.data(), num);
 	}
+
+	static void ClearShapes(PxRigidActor& rigid)
+	{
+		static std::vector<PxShape*> _Shapes;
+		Physics::GetShapes(rigid, _Shapes);
+		for (PxShape* shape : _Shapes)
+		{
+			rigid.detachShape(*shape);
+		}
+	}
 };

@@ -39,12 +39,73 @@
 //	shape->release();
 //}
 
+static void _OnComponentAdded(float val, entt::registry& reg, entt::entity eid)
+{
+	Log::info("Comp RS Added {}", val);
+}
+//static void _OnComponentAdded(World* world, Entity entity, RigidStaticComponent& comp)
+//{
+//	ETPX_CTX;
+//
+//	if (!comp.RigidStatic)
+//	{
+//		auto& trans = entity.GetTransform();
+//
+//		comp.RigidStatic = PhysX.createRigidStatic(trans.PxTransform());
+//
+//		ET_ASSERT(comp.RigidStatic);
+//	}
+//
+//	ET_ASSERT(m_PxScene->addActor(*comp.RigidStatic));
+//}
+//
+//void OnComponentRemove<RigidStaticComponent>(entt::entity entity, RigidStaticComponent& comp)
+//{
+//	Log::info("Remove RigidStatic");
+//
+//	Physics::ClearShapes(*comp.RigidStatic);
+//
+//	m_PxScene->removeActor(*comp.RigidStatic);
+//}
 
 World::World()
 {
 
 	m_ChunkSystem = std::make_unique<ChunkSystem>(this);
 
+
+	// Init ECS
+
+	//struct _Tmp
+	//{
+	//	float val;
+	//
+	//	void _OnComponentAdded(entt::registry& reg, entt::entity eid)
+	//	{
+	//		Log::info("Comp RS Added f {}", val);
+	//	}
+	//};
+	//
+	//static _Tmp tmp;
+	//tmp.val = 234.5;
+	//
+	//registry().on_construct<RigidStaticComponent>().connect<&_Tmp::_OnComponentAdded>(&tmp);
+
+	ListenComponent<RigidStaticComponent>(
+		[](World* world, Entity entity, RigidStaticComponent& comp) 
+		{
+			Log::info("Comp RigidStaticComponent 11111 Added {}", (size_t)comp.RigidStatic);
+		},
+		{}
+	);
+
+	ListenComponent<RigidStaticComponent>(
+		[](World* world, Entity entity, RigidStaticComponent& comp)
+		{
+			Log::info("Comp RigidStaticComponent @@@22222 Added {}", (size_t)comp.RigidStatic);
+		},
+		{}
+	);
 
 	// InitPhys
 
@@ -75,7 +136,14 @@ World::World()
 
 World::~World()
 {
+	Log::info("Destroy Entities");
+	registry().clear();
 
+	//registry().each([this](entt::entity entity) {
+	//	registry().destroy(entity);
+	//});
+
+	Log::info("Delete PxScene");
 	PX_RELEASE(m_PxScene);
 }
 
@@ -143,54 +211,15 @@ Entity World::CreateEntity()
 	return entity;
 }
 
-void World::DestroyEntity(entt::entity entity)
+void World::DestroyEntity(entt::entity entityId)
 {
-	m_EntityRegistry.destroy(entity);
+	Entity entity{ entityId, this };
+
+	m_EntityRegistry.destroy(entityId);
 }
 
 
-template<typename T>
-void World::OnComponentAdded(entt::entity entity, T& comp)
-{
-	Log::info("Component Added {}", entt::type_name<T>());
-}
 
-
-template<>
-void World::OnComponentAdded<MeshRenderComponent>(entt::entity entity, MeshRenderComponent& comp)
-{
-
-}
-
-template<>
-void World::OnComponentAdded<RendererComponent>(entt::entity entity, RendererComponent& comp)
-{
-
-}
-
-
-template<>
-void World::OnComponentAdded<RigidStaticComponent>(entt::entity entity, RigidStaticComponent& comp)
-{
-	ETPX_CTX;
-
-	if (!comp.RigidStatic)
-	{
-		auto& trans = Entity{ entity, this }.GetTransform();
-
-		comp.RigidStatic = PhysX.createRigidStatic(trans.PxTransform());
-	
-		ET_ASSERT(comp.RigidStatic);
-	}
-
-	ET_ASSERT(m_PxScene->addActor(*comp.RigidStatic));
-
-}
-template<>
-void World::OnComponentRemove<RigidStaticComponent>(entt::entity entity, RigidStaticComponent& comp)
-{
-	m_PxScene->removeActor(*comp.RigidStatic);
-}
 
 
 

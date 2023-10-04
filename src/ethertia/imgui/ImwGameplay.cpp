@@ -72,7 +72,7 @@ static void _ShowDebugText()
 
         PxScene& pScene = world->PhysScene();
         strPxScene = std::format(
-            "{} rstatic, {} rdynamic, {} constraints;",
+            "{} rstatic, {} rdynamic, {} constraints",
             pScene.getNbActors(PxActorTypeFlag::eRIGID_STATIC), pScene.getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC), pScene.getNbConstraints());
 
     //    Chunk* hitChunk = world->getLoadedChunk(cur.position);
@@ -94,8 +94,8 @@ static void _ShowDebugText()
 
     ETPX_CTX;
     std::string strPhysX = std::format(
-        "{} shape, {} mtl, {} TriMesh, {} ConMesh;\n"
-        "PxScene: {}",
+        "{} shape, {} mtl, {} TriMesh, {} CovMesh;\n"
+        "PxScene: {};",
         PhysX.getNbShapes(), PhysX.getNbMaterials(), PhysX.getNbTriangleMeshes(), PhysX.getNbConvexMeshes(), strPxScene);
 
     static glm::vec3 CamPosLast;
@@ -115,7 +115,7 @@ static void _ShowDebugText()
         //"plr ground: {}, collide pts: {}\n"
         "\n"
         "World: {}\n"
-        "PhysX: {};\n"
+        "PhysX: {}\n"
         "\n"
         "HitResult: (0, 0, 0); cell: --; chunk: --;\n"
         "\n"

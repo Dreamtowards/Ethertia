@@ -6,6 +6,8 @@
 
 #include <PxPhysicsAPI.h>
 
+#include <ethertia/util/Assert.h>
+
 
 class ChunkSystem;
 
@@ -50,13 +52,51 @@ public:
 
 	ChunkSystem& GetChunkSystem() { return *m_ChunkSystem; }
 
-	template<typename T>
-	void OnComponentAdded(entt::entity entity, T& component);
-
-	template<typename T>
-	void OnComponentRemove(entt::entity entity, T& component);
-
 	physx::PxScene& PhysScene() { return *m_PxScene; }
+
+
+	//template<typename T>
+	//void OnComponentAdded(entt::entity entity, T& component);
+	//
+	//template<typename T>
+	//void OnComponentRemove(entt::entity entity, T& component);
+
+	template<typename ComponentType>
+	using ComponentListener = std::function<void(World*, Entity, ComponentType&)>;
+	
+	template<typename ComponentType>
+	void ListenComponent(ComponentListener<ComponentType> on_construct, ComponentListener<ComponentType> on_destroy)
+	{
+		struct CompLsrAdapter
+		{
+			World* world = nullptr;
+			ComponentListener<ComponentType> fnCreate;
+			ComponentListener<ComponentType> fnDestroy;
+
+			void OnConstruct(entt::registry& reg, entt::entity eid)
+			{
+				fnCreate(world, Entity{ eid, world }, reg.get<ComponentType>(eid));
+			}
+			void OnDestroy(entt::registry& reg, entt::entity eid)
+			{
+				fnDestroy(world, Entity{ eid, world }, reg.get<ComponentType>(eid));
+			}
+		};
+		CompLsrAdapter* lsr = new CompLsrAdapter();
+		lsr->world = this;
+		// todo: Delete on World Destroy
+
+		if (on_construct)
+		{
+			lsr->fnCreate = on_construct;
+			registry().on_construct<ComponentType>().connect<&CompLsrAdapter::OnConstruct>(lsr);
+		}
+		if (on_destroy)
+		{
+			lsr->fnDestroy = on_destroy;
+			registry().on_destroy<ComponentType>().connect<&CompLsrAdapter::OnDestroy>(lsr);
+		}
+	}
 
 	#pragma region WorldInfo
 	
