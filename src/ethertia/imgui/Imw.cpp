@@ -151,14 +151,14 @@ static void _ShowMainMenuBar()
 //            ImGui::Checkbox("DbgNearChunkBoundAABB", &GuiDebugV::dbgChunkBoundAABB);
 //            ImGui::Checkbox("DbgCursorNearCellsInfo", &GuiDebugV::dbgCursorRangeInfo);
 
-            ImGui::Checkbox("MeshingChunks AABB", &Dbg::dbg_MeshingChunksAABB);
-            ImGui::Checkbox("Chunk Mesh Counter", &Dbg::dbg_ChunkMeshedCounter);
-
-            ImGui::Checkbox("NoChunkSave", &Dbg::dbg_NoChunkSave);
-            ImGui::Checkbox("NoChunkLoad", &Dbg::dbg_NoChunkLoad);
-
-            ImGui::Checkbox("PauseThread ChunkMeshing", &Dbg::dbg_PauseThread_ChunkMeshing);
-            ImGui::Checkbox("PauseThread ChunkLoad/Gen/Save", &Dbg::dbg_PauseThread_ChunkLoadGenSave);
+            // ImGui::Checkbox("MeshingChunks AABB", &Dbg::dbg_MeshingChunksAABB);
+            // ImGui::Checkbox("Chunk Mesh Counter", &Dbg::dbg_ChunkMeshedCounter);
+            // 
+            // ImGui::Checkbox("NoChunkSave", &Dbg::dbg_NoChunkSave);
+            // ImGui::Checkbox("NoChunkLoad", &Dbg::dbg_NoChunkLoad);
+            // 
+            // ImGui::Checkbox("PauseThread ChunkMeshing", &Dbg::dbg_PauseThread_ChunkMeshing);
+            // ImGui::Checkbox("PauseThread ChunkLoad/Gen/Save", &Dbg::dbg_PauseThread_ChunkLoadGenSave);
 
             //if (ImGui::Button("Remesh All Chunks")) {
             //    for (auto it : Ethertia::GetWorld()->getLoadedChunks()) {
@@ -177,17 +177,17 @@ static void _ShowMainMenuBar()
             //
             //    ImGui::EndMenu();
             //}
-            ImGui::SliderFloat("Breaking Terrain Interval in CreativeMode", &Settings::gInterval_BreakingTerrain_CreativeMode, 0, 0.5f);
+            //ImGui::SliderFloat("Breaking Terrain Interval in CreativeMode", &Settings::gInterval_BreakingTerrain_CreativeMode, 0, 0.5f);
 
-            ImGui::Separator();
+            //ImGui::Separator();
 
-            ImGui::Checkbox("Text Info", &Dbg::dbg_TextInfo);
-            ImGui::Checkbox("View Gizmo", &Dbg::dbg_ViewGizmo);
-            ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
-            ImGui::Checkbox("World Basis", &Dbg::dbg_WorldBasis);
-            ImGui::SliderInt("World GridSize", &Dbg::dbg_WorldHintGrids, 0, 500);
+            //ImGui::Checkbox("Text Info", &Dbg::dbg_TextInfo);
+            //ImGui::Checkbox("View Gizmo", &Dbg::dbg_ViewGizmo);
+            //ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
+            //ImGui::Checkbox("World Basis", &Dbg::dbg_WorldBasis);
+            //ImGui::SliderInt("World GridSize", &Dbg::dbg_WorldHintGrids, 0, 500);
 
-            ImGui::Separator();
+            //ImGui::Separator();
 
             ImGui::Checkbox("Hit Tracking", &Ethertia::GetHitCursor().keepTracking);
             ImGui::SliderFloat("BrushSize", &Ethertia::GetHitCursor().brushSize, 0, 16);
@@ -216,10 +216,10 @@ static void _ShowMainMenuBar()
             ImGui::Separator();
 
             //ImGui::Checkbox("GBuffers", &dbg_Gbuffer);
-            ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
-            ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
-
-            ImGui::Checkbox("NoVegetable", &Dbg::dbg_NoVegetable);
+            //ImGui::Checkbox("Border/Norm", &Dbg::dbg_EntityGeo);
+            //ImGui::Checkbox("HitEntityGeo", &Dbg::dbg_HitPointEntityGeo);
+            //
+            //ImGui::Checkbox("NoVegetable", &Dbg::dbg_NoVegetable);
 
             ImGui::EndMenu();
         }
@@ -298,7 +298,7 @@ void Imw::ShowDockspaceAndMainMenubar()
     ImVec4 Org = {0.741, 0.345, 0.133, 1.0};
     ImVec4 Dark = {0.176f, 0.176f, 0.176f, 0.700f};
     ImVec4 _col =
-            Dbg::dbg_PauseWorldRender ? Org :
+            //Dbg::dbg_PauseWorldRender ? Org :
             Ethertia::isIngame() ? Dark : Pur;
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, _col);
 

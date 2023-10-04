@@ -81,7 +81,7 @@ public:
 				fnDestroy(Entity{ eid, world }, reg.get<ComponentType>(eid));
 			}
 		};
-		CompLsrAdapter* lsr = new CompLsrAdapter();
+		CompLsrAdapter* lsr = new CompLsrAdapter();  // std::shared_ptr not working here.
 		lsr->world = this;
 		// m_DeleteOnWorldDestroy->push_back();
 		// todo: Delete on World Destroy

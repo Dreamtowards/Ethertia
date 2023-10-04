@@ -21,6 +21,18 @@ public:
 	inline static ImGuizmo::OPERATION	GuizmoOperation = ImGuizmo::TRANSLATE;
 	inline static ImGuizmo::MODE		GuizmoMode		= ImGuizmo::WORLD;
 
+	struct Gizmos
+	{
+		inline static bool
+			ViewGizmo = true,
+			ViewBasis = false,
+			WorldBasis = false,
+			TextInfo = false;
+
+		inline static int
+			WorldGrids = 10;
+	};
+
 	static void ShowGame(bool* _open);
 
 

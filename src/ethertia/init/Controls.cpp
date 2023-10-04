@@ -47,11 +47,11 @@ static void handleKeyPress()
     }
     if (KeyBindings::KEY_DEBUG_INFO.isPressed())
     {
-        bool dbg = !Dbg::dbg_TextInfo;
-        Dbg::dbg_TextInfo =
-        Dbg::dbg_WorldBasis =
-        Dbg::dbg_ViewBasis =
-        Dbg::dbg_ViewGizmo = dbg;
+        bool dbg = !ImwGame::Gizmos::TextInfo;
+        ImwGame::Gizmos::TextInfo =
+        ImwGame::Gizmos::WorldBasis =
+        ImwGame::Gizmos::ViewBasis =
+        ImwGame::Gizmos::ViewGizmo = dbg;
     }
 
     // Follow are Gameplay keys.

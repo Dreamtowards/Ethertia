@@ -240,6 +240,8 @@ static void _ShowGizmo(Entity& entity)
 
 static void _ShowViewportWidgets()
 {
+    using Gizmos = ImwGame::Gizmos;
+
     Entity SelectedEntity = ImwInspector::SelectedEntity;
 
     static bool s_ShowChunkLoadBound = false;
@@ -271,19 +273,20 @@ static void _ShowViewportWidgets()
 
         if (!SelectedEntity) { ImGui::EndDisabled(); }
 
-        ImGui::Separator();
+        ImGui::SeparatorText("Camera");
 
         ImGui::DragFloat("Move Speed", &s_CameraMoveSpeed);
 
-        ImGui::Separator();
+        ImGui::SeparatorText("Gizmos");
 
-        ImGui::DragInt("Hint Grids", &Dbg::dbg_WorldHintGrids);
-        ImGui::Checkbox("View Gizmo", &Dbg::dbg_ViewGizmo);
-        ImGui::Checkbox("View Basis", &Dbg::dbg_ViewBasis);
+        ImGui::Checkbox("View Basis", &Gizmos::ViewBasis);
+        ImGui::Checkbox("View Gizmo", &Gizmos::ViewGizmo);
+        ImGui::Checkbox("World Basis", &Gizmos::WorldBasis);
+        ImGui::DragInt("World Grids", &Gizmos::WorldGrids);
 
-        ImGui::Checkbox("Debug Text Info", &Dbg::dbg_TextInfo);
+        ImGui::Checkbox("Text Info", &Gizmos::TextInfo);
 
-        ImGui::Checkbox("ChunkSystem Load Bound", &s_ShowChunkLoadBound);
+        ImGui::Checkbox("Chunk Load Bound", &s_ShowChunkLoadBound);
 
         if (ImGui::Button("Reloa Pipeline"))
         {
@@ -302,7 +305,7 @@ static void _ShowViewportWidgets()
     Camera& cam = Ethertia::GetCamera();
     World* world = Ethertia::GetWorld();
 
-    if (Dbg::dbg_ViewGizmo)
+    if (Gizmos::ViewGizmo)
     {
         static float camLen = 10.0f;
         auto vp = Ethertia::GetViewport();
@@ -311,32 +314,32 @@ static void _ShowViewportWidgets()
             //0x10101010
             0);
     }
-    if (Dbg::dbg_WorldHintGrids > 0)
+    if (Gizmos::WorldGrids > 0)
     {
         glm::mat4 iden(1.0f);
         ImGuizmo::DrawGrid(
             glm::value_ptr(cam.matView),
             glm::value_ptr(cam.matProjection),
             glm::value_ptr(iden), 
-            (float)Dbg::dbg_WorldHintGrids);
+            (float)Gizmos::WorldGrids);
     }
 
     //if (Dbg::dbg_ChunkMeshedCounter || Dbg::dbg_MeshingChunksAABB)
     //{
     //    DbgShowChunkMeshingAndCounter();
     //}
-    if (Dbg::dbg_TextInfo)
+    if (ImwGame::Gizmos::TextInfo)
     {
         _ShowDebugText();
     }
-    if (Dbg::dbg_WorldBasis)
+    if (ImwGame::Gizmos::WorldBasis)
     {
         float n = 5;
         Imgui::RenderWorldLine({ 0,0,0 }, { n,0,0 }, ImGui::GetColorU32({ 1,0,0,1 }));
         Imgui::RenderWorldLine({ 0,0,0 }, { 0,n,0 }, ImGui::GetColorU32({ 0,1,0,1 }));
         Imgui::RenderWorldLine({ 0,0,0 }, { 0,0,n }, ImGui::GetColorU32({ 0,0,1,1 }));
     }
-    if (Dbg::dbg_ViewBasis)
+    if (Gizmos::ViewBasis)
     {
         glm::mat4* pView = &cam.matView;
         glm::mat4 camView = *pView;  // backup.
@@ -608,7 +611,7 @@ void ImwGame::ShowGame(bool* _open)
     const ImVec2 vpCenter = {viewPos.x + viewSize.x/2, viewPos.y + viewSize.y/2};
 
     // Crosshair
-    if (!Dbg::dbg_ViewBasis)
+    if (!ImwGame::Gizmos::ViewGizmo)
     {
         // want make a 3d Crosshair like MCVR. but it requires a special Pipeline (shaders).
 //        HitCursor& cur = Ethertia::getHitCursor();
@@ -798,16 +801,20 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
 
     ImGui::SeparatorText("Chunk System");
+    ChunkSystem& chunksys = world->GetChunkSystem();
 
-    ImGui::DragInt2("Load Distance", &world->GetChunkSystem().m_TmpLoadDistance.x, 0, 10000);
+    ImGui::DragInt2("Load Distance", &chunksys.m_TmpLoadDistance.x, 0, 10000);
 
     if (ImGui::Button("ReMesh All Chunks"))
     {
-        for (auto it : world->GetChunkSystem().GetChunks())
+        for (auto it : chunksys.GetChunks())
         {
             it.second->m_NeedRebuildMesh = true;
         }
     }
+
+    ImGui::SliderInt("ChunkLoading MaxConcurrent", &chunksys.cfg_ChunkLoadingMaxConcurrent, 0, 20);
+    ImGui::SliderInt("ChunkMeshing MaxConcurrent", &chunksys.cfg_ChunkMeshingMaxConcurrent, 0, 20);
 
     ImGui::End();
 }

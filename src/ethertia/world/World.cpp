@@ -40,6 +40,32 @@
 //	shape->release();
 //}
 
+static void _InitComponentListen(World& world)
+{
+	world.ListenComponent<RigidStaticComponent>(
+		[](Entity entity, RigidStaticComponent& comp)
+		{
+			ETPX_CTX;
+
+			if (!comp.RigidStatic)
+			{
+				comp.RigidStatic = PhysX.createRigidStatic(entity.GetTransform().PxTransform());
+
+				ET_ASSERT(comp.RigidStatic);
+			}
+			entity.world().PhysScene().addActor(*comp.RigidStatic);
+		},
+		[](Entity entity, RigidStaticComponent& comp)
+		{
+			Physics::ClearShapes(*comp.RigidStatic);
+
+			entity.world().PhysScene().removeActor(*comp.RigidStatic);
+		}
+	);
+}
+
+
+
 World::World()
 {
 
@@ -48,32 +74,7 @@ World::World()
 
 	// Init ECS
 
-	ListenComponent<RigidStaticComponent>(
-		[](Entity entity, RigidStaticComponent& comp) 
-		{
-			ETPX_CTX;
-
-			if (!comp.RigidStatic)
-			{
-				auto& trans = entity.GetTransform();
-
-				comp.RigidStatic = PhysX.createRigidStatic(trans.PxTransform());
-
-				ET_ASSERT(comp.RigidStatic);
-			}
-
-			entity.world().PhysScene().addActor(*comp.RigidStatic);
-		},
-		[](Entity entity, RigidStaticComponent& comp)
-		{
-			Log::info("Remove RigidStatic");
-			
-			Physics::ClearShapes(*comp.RigidStatic);
-			
-			entity.world().PhysScene().removeActor(*comp.RigidStatic);
-		}
-	);
-	
+	_InitComponentListen(*this);
 
 	// InitPhys
 
@@ -91,15 +92,7 @@ World::World()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
-
-	PxRigidStatic* aGroundStatic = PxCreatePlane(PhysX, PxPlane(0, 1, 0, 0), *Physics::dbg_DefaultMaterial);
-	m_PxScene->addActor(*aGroundStatic);
 	
-	//PxReal stackZ = 10.0f;
-	//for (PxU32 i = 0; i < 5; i++)
-	//	createStack(PxTransform(PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f);
-	//
-	//createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
 }
 
 World::~World()
