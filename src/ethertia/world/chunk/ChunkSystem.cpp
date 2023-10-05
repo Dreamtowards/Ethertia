@@ -228,7 +228,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             auto task = threadpool.submit([chunk, vtx]() {
 
                 static stdx::object_pool<VertexData> g_VertexBufPool;
-                Log::info("MeshGen VBuf Pool Size: {} acquired, {} remained", g_VertexBufPool.num_aquired(), g_VertexBufPool.num_remained());
+                //Log::info("MeshGen VBuf Pool Size: {} acquired, {} remained", g_VertexBufPool.num_aquired(), g_VertexBufPool.num_remained());
 
                 VertexData* tmp = g_VertexBufPool.acquire();
                 tmp->Clear();

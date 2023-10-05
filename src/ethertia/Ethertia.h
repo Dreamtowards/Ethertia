@@ -47,7 +47,7 @@ public:
     static Profiler& GetProfiler();
     static Camera& GetCamera();
     static HitCursor& GetHitCursor();   // HitResult of World Raycast
-    //static Entity GetPlayer();
+    static Entity& GetPlayer();
 
     
     static bool& isIngame();        // is controlling the game. (mouse grabbed, wsad etc.)

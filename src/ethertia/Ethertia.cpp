@@ -55,7 +55,7 @@ int main()
 }
 
 static World*       g_World     = nullptr;
-//static EntityPlayer*g_Player    = nullptr;
+static Entity       g_Player;
 static Profiler     g_Profiler;
 static Camera       g_Camera;
 
@@ -229,6 +229,9 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
     g_World = new World();// savedir, worldinfo);
     World* world = g_World;
 
+    g_Player = world->CreateEntity();
+    g_Player.GetTag().Name = "Player";
+
     //world->addEntity(getPlayer());
 
     //ChunkMeshProc::g_Running = 1;
@@ -248,29 +251,19 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 void Ethertia::UnloadWorld()
 {
     ET_ASSERT(Ethertia::GetWorld());
-
     Log::info("Unloading World...");
 
     Ethertia::GetHitCursor().reset();
-
     ImwInspector::SelectedEntity = {};
 
-    //Log::info("Cleaning MeshGen");
-    //ChunkMeshProc::g_Running = -1;
-    //Timer::wait_for(&ChunkMeshProc::g_Running, 0);  // before delete chunks
-    //
-    //
     ////Ethertia::GetWorld()->unloadAllChunks();
-    //
-    //Log::info("Cleaning ChunkGen");
-    //ChunkGenProc::g_Running = -1;
-    //Timer::wait_for(&ChunkGenProc::g_Running, 0);
 
-    World* oldWorld = Ethertia::GetWorld();
+    g_World->DestroyEntity(g_Player);
+
+
+
+    delete g_World;
     g_World = nullptr;
-
-
-    delete oldWorld;
 
 
     Log::info("World unloaded.");
@@ -368,10 +361,16 @@ HitCursor& Ethertia::GetHitCursor() {
     static HitCursor _HitResult;
     return _HitResult;
 }
+World* Ethertia::GetWorld() { return g_World; }
+
+Entity& Ethertia::GetPlayer() { 
+    ET_ASSERT(Ethertia::GetWorld()); 
+    return g_Player; 
+}
+
 Camera& Ethertia::GetCamera() { return g_Camera; }
 Profiler& Ethertia::GetProfiler() { return g_Profiler; }
 
-World* Ethertia::GetWorld() { return g_World; }
 stdx::thread_pool& Ethertia::GetThreadPool() { return *g_ThreadPool; }
 bool Ethertia::InMainThread() { return std::this_thread::get_id() == g_MainThreadId; }
 
