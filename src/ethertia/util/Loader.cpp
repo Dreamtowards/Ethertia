@@ -887,9 +887,9 @@ bool Loader::ram(uint64_t* pPrivateUsage, uint64_t* pWorkingSetSize, uint64_t* p
         if (pTotalPhys) *pTotalPhys = statex.ullTotalPhys;
         if (pUsedPhys)  *pUsedPhys = statex.ullTotalPhys - statex.ullAvailPhys;
         
-        std::cout << "Physical RAM: avail/total " << stdx::size_str(statex.ullAvailPhys) << "/" << stdx::size_str(statex.ullTotalPhys) << "\n";
-        std::cout << "Virtual  RAM: avail/total " << stdx::size_str(statex.ullAvailVirtual) << "/" << stdx::size_str(statex.ullTotalVirtual) << "\n";
-        std::cout << "Paging file:  avail/total " << stdx::size_str(statex.ullAvailPageFile) << "/" << stdx::size_str(statex.ullTotalPageFile) << "\n";
+        //std::cout << "Physical RAM: avail/total " << stdx::size_str(statex.ullAvailPhys) << "/" << stdx::size_str(statex.ullTotalPhys) << "\n";
+        //std::cout << "Virtual  RAM: avail/total " << stdx::size_str(statex.ullAvailVirtual) << "/" << stdx::size_str(statex.ullTotalVirtual) << "\n";
+        //std::cout << "Paging file:  avail/total " << stdx::size_str(statex.ullAvailPageFile) << "/" << stdx::size_str(statex.ullTotalPageFile) << "\n";
     }
     if (pPrivateUsage || pWorkingSetSize)
     {
@@ -900,8 +900,8 @@ bool Loader::ram(uint64_t* pPrivateUsage, uint64_t* pWorkingSetSize, uint64_t* p
         if (pPrivateUsage) *pPrivateUsage = pmc.PrivateUsage;
         if (pWorkingSetSize) *pWorkingSetSize = pmc.WorkingSetSize;
 
-        std::cout << "Virtual Memory used: PrivateUsage " << stdx::size_str(pmc.PrivateUsage) << "MB\n";
-        std::cout << "Physical Memory used: WorkingSetSize " << stdx::size_str(pmc.WorkingSetSize) << "MB\n";
+        //std::cout << "Virtual Memory used: PrivateUsage " << stdx::size_str(pmc.PrivateUsage) << "\n";
+        //std::cout << "Physical Memory used: WorkingSetSize " << stdx::size_str(pmc.WorkingSetSize) << "\n";
     }
     return true;
 #else

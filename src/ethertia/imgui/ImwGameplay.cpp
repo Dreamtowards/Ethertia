@@ -101,7 +101,7 @@ static void _ShowDebugText()
         Loader::ram(&_PrivateBytes, &_WorkingSet, &_PhysUsed, &_PhysTotal);
 
         strRAM = std::format(
-            "Private: {} | {}; System: {} / {}",
+            "{} | +dll -pagefile: {}; {} / {}",
             stdx::size_str(_PrivateBytes), stdx::size_str(_WorkingSet),
             stdx::size_str(_PhysUsed), stdx::size_str(_PhysTotal));
     }
