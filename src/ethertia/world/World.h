@@ -23,7 +23,9 @@ public:
 	float DayTime = 0;
 	float DayTimeLength = 60*6;  // in seconds
 
-	float InhabitedTime = 0;
+	float TimeInhabited = 0;
+	uint64_t TimeCreated = 0;
+	uint64_t TimeModified = 0;
 
 };
 
@@ -103,7 +105,6 @@ public:
 	WorldInfo& GetWorldInfo() { return m_WorldInfo; }
 
 	uint64_t GetSeed() const { return m_WorldInfo.Seed; }
-	float& GetInhabitedTime() { return m_WorldInfo.InhabitedTime; }
 
 	const std::string& GetWorldName() const { return m_WorldInfo.Name;  }
 

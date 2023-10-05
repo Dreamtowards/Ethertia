@@ -172,25 +172,19 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
     _TmpChunksBatchErase.clear();
     {
         ET_PROFILE_("Unload");
-        {
-            auto _lock = LockRead();
-            for (auto it : m_Chunks)
-            {
-                glm::ivec3 cp = it.first;
+        ForChunks([&](auto chunkpos, auto chunk) {
 
-                if (_TmpChunksBatchErase.size() > m_ChunksUnloadingMaxBatch)
-                    break;
-                if (_IsChunkInLoadRange(cp, viewer_chunkpos, loaddist * 16))
-                    continue;
+            if (_TmpChunksBatchErase.size() > m_ChunksUnloadingMaxBatch)
+                return false;
+            if (_IsChunkInLoadRange(chunkpos, viewer_chunkpos, loaddist * 16))
+                return true;
 
-                // UnloadChunk
-                auto chunk = it.second;
+            // UnloadChunk
+            m_World->DestroyEntity(chunk->entity);
 
-                m_World->DestroyEntity(chunk->entity);
+            _TmpChunksBatchErase.push_back(chunkpos);
+        });
 
-                _TmpChunksBatchErase.push_back(cp);
-            }
-        }
         auto _lock2 = LockWrite();
         for (auto cp : _TmpChunksBatchErase)
         {
@@ -211,19 +205,20 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         ET_PROFILE_("DetMesh");
         auto _lock = LockRead();
 
-        for (auto it : m_Chunks)
-        {
-            glm::ivec3 cp = it.first;
-            auto chunk = it.second;
+        ForChunks([&](auto chunkpos, auto chunk) {
 
             if (m_ChunksMeshing.size() >= cfg_ChunkMeshingMaxConcurrent)
-                break;
-            if (!chunk->m_NeedRebuildMesh)
-                continue;
+                return false;
+            if (!chunk->m_NeedRebuildMesh)// || chunk->m_NeedRebuildMesh)
+                return true;
+
+            // Queue Chunk MeshGen
+
             chunk->m_NeedRebuildMesh = false;
 
             VertexData* vtx = chunk->entity.GetComponent<MeshRenderComponent>().VertexData;
             vtx->Clear();
+
 
             auto task = threadpool.submit([chunk, vtx]() {
 
@@ -257,10 +252,12 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 //delete tmp;  // todo: use stdx::object_pool instead of new/delete
 
                 return chunk;
-                });
+            });
 
-            auto [it, succ] = m_ChunksMeshing.try_emplace(cp, task);
-        }
+            auto [it, succ] = m_ChunksMeshing.try_emplace(chunkpos, task);
+
+            ET_ASSERT(succ);
+        });
     }
 
 
@@ -282,7 +279,11 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             Entity& entity = chunk->entity;
 
             // the entity may already been Removed from World (ChunkUnload)
-            if (m_World->registry().valid(entity))
+            if (!m_World->registry().valid(entity))
+            {
+                // Release Resource: VertexBuffer
+            }
+            else
             {
                 // Update MeshRender
                 auto& compRenderMesh = entity.GetComponent<MeshRenderComponent>();
@@ -375,7 +376,7 @@ void ChunkSystem::OnTick()
 {
 
     // temp.
-    m_ChunkLoadCenter = Ethertia::GetPlayer().GetTransform().position();
+    m_ChunkLoadCenter = Chunk::ChunkPos(Ethertia::GetPlayer().GetTransform().position());
 
     _UpdateChunkLoadAndUnload(m_ChunkLoadCenter, { m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x });
 

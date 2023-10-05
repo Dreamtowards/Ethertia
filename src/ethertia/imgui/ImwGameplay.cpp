@@ -64,7 +64,7 @@ static void _ShowDebugText()
                 "Chunk: {} loaded. {} loading, {} meshing, -- saving;",
                 wi.Name,
                 stdx::daytime(wi.DayTime, true, false),
-                wi.InhabitedTime,
+                wi.TimeInhabited,
                 wi.Seed,
                 world->registry().size(),
                 ecsNumComps,
@@ -399,7 +399,7 @@ static void _ShowViewportWidgets()
         }
         if (Gizmos::ChunksLoadedAABB)
         {
-            chunksys.ForChunks([](auto cp, auto& chunk) {
+            chunksys.ForChunks([](auto cp, auto chunk) {
 
                 Imgui::RenderAABB(AABB{ cp, cp + 16 }, Colors::GRAY);
                 return true;
@@ -839,7 +839,7 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
     ImGui::InputInt("World Seed", (int*)&wi.Seed);
 
-    ImGui::DragFloat("InhabitedTime", &wi.InhabitedTime);
+    ImGui::DragFloat("Inhabited Time", &wi.TimeInhabited);
 
     ImGui::SliderFloat("DayTime", &wi.DayTime, 0, 1, std::format("{:.5f} {}", wi.DayTime, stdx::daytime(wi.DayTime)).c_str());
 
@@ -853,9 +853,9 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
     if (ImGui::Button("ReMesh All Chunks"))
     {
-        chunksys.ForChunks([](auto cp, Chunk& chunk) {
+        chunksys.ForChunks([](auto cp, auto chunk) {
         
-            chunk.m_NeedRebuildMesh = true;
+            chunk->m_NeedRebuildMesh = true;
             return true;
         });
     }

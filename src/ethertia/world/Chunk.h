@@ -24,6 +24,8 @@ public:
 
 	bool m_NeedRebuildMesh = true;  // MeshingState
 
+	float m_TimeInhabited = 0;  // in sec
+
 	explicit Chunk(World* world, glm::ivec3 chunkpos);
 
 
@@ -81,7 +83,6 @@ private:
 
 	World* m_World = nullptr;  // ptr to the world
 
-	float m_TimeInhabited = 0;  // in sec
 
 	// m_MeshingState;
 

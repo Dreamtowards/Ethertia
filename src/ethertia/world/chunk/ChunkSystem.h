@@ -47,12 +47,12 @@ public:
 	//	return m_Chunks;
 	//}
 
-	void ForChunks(const std::function<bool(const glm::ivec3&, Chunk&)>& fn)
+	void ForChunks(const std::function<bool(const glm::ivec3&, std::shared_ptr<Chunk> chunk)>& fn)
 	{
 		auto _lock = LockRead();
 		for (auto& it : m_Chunks)
 		{
-			if (!fn(it.first, *it.second.get()))
+			if (!fn(it.first, it.second))
 				return;
 		}
 	}
@@ -118,7 +118,7 @@ public:
 	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksLoading;  // MainThread only
 
 	glm::ivec2 m_TmpLoadDistance{1, 0};
-	glm::vec3 m_ChunkLoadCenter = {};
+	glm::ivec3 m_ChunkLoadCenter = {};
 
 	inline static int cfg_ChunkMeshingMaxConcurrent = 4;
 	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksMeshing;  // MainThread only
