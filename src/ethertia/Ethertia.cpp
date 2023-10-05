@@ -225,6 +225,7 @@ static void RunMainLoop()
 void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
 {
     ET_ASSERT(Ethertia::GetWorld() == nullptr);
+    Log::info("Loading world '{}'", savedir);
 
     g_World = new World();// savedir, worldinfo);
     World* world = g_World;
@@ -232,19 +233,7 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
     g_Player = world->CreateEntity();
     g_Player.GetTag().Name = "Player";
 
-    //world->addEntity(getPlayer());
 
-    //ChunkMeshProc::g_Running = 1;
-    //ChunkGenProc::g_Running = 1;
-
-    Log::info("Loading world '{}'", savedir);
-
-
-//    getScheduler()->addTask([](){
-//        // not now. while handling GUI press/click. shouldn't remove gui.
-//        Ethertia::getRootGUI()->removeAllGuis();
-//        Ethertia::getRootGUI()->addGui(GuiIngame::Inst());
-//    });
 
 }
 

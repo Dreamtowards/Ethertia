@@ -281,6 +281,8 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             auto chunk = task->get();
             Entity& entity = chunk->entity;
 
+            // the entity may already been Removed from World (ChunkUnload)
+            if (m_World->registry().valid(entity))
             {
                 // Update MeshRender
                 auto& compRenderMesh = entity.GetComponent<MeshRenderComponent>();
@@ -371,6 +373,9 @@ static void _UpdateChunksMeshing()
 
 void ChunkSystem::OnTick()
 {
+
+    // temp.
+    m_ChunkLoadCenter = Ethertia::GetPlayer().GetTransform().position();
 
     _UpdateChunkLoadAndUnload(m_ChunkLoadCenter, { m_TmpLoadDistance.x, m_TmpLoadDistance.y, m_TmpLoadDistance.x });
 
