@@ -17,6 +17,7 @@
 #include <ethertia/init/MaterialMeshes.h>  // tmp test
 
 #include <stdx/stdx.h>
+#include <stdx/object_pool.h>
 
 
 
@@ -226,7 +227,11 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
             auto task = threadpool.submit([chunk, vtx]() {
 
-                VertexData* tmp = new VertexData();
+                static stdx::object_pool<VertexData> g_VertexBufPool;
+                Log::info("MeshGen VBuf Pool Size: {} acquired, {} remained", g_VertexBufPool.num_aquired(), g_VertexBufPool.num_remained());
+
+                VertexData* tmp = g_VertexBufPool.acquire();
+                tmp->Clear();
 
                 {
                     //BENCHMARK_TIMER;
@@ -242,13 +247,14 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                     //BENCHMARK_TIMER;
 
                     // always ~80% vertices reduced, and ~70% size reduced (plus indices size).  
-                    // Bench x64-Debug: 200vtx->50 = 1.1ms, 1200vtx->250 = 1.9ms, 2000vtx->400 = 2.5ms, 
+                    // Bench x64-Debug: 200vtx->50 = 1.1ms, 1200vtx->250 = 1.9ms, 2000vtx->400 = 2.5ms, | ex: 22000vtx->3500 30ms-120ms, 100,000vtx->7500 350ms
                     VertexData::MakeIndexed(tmp, vtx);  // for supports TriangleMesh Load for PhysX
 
                     //Log::info("MeshGenIndex vtx from {} to {}. compression ratio {} vtx, {} total_size\1", tmp->Vertices.size(), vtx->Vertices.size(), vtx->Vertices.size() / (float)tmp->Vertices.size(), (vtx->idx_size() + vtx->vtx_size()) / (float)(tmp->idx_size() + tmp->vtx_size()) );
                 }
 
-                delete tmp;  // todo: use stdx::object_pool instead of new/delete
+                g_VertexBufPool.release(tmp);
+                //delete tmp;  // todo: use stdx::object_pool instead of new/delete
 
                 return chunk;
                 });
