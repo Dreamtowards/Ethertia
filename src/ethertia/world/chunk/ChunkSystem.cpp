@@ -229,17 +229,20 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 VertexData* tmp = new VertexData();
 
                 {
-                    //BENCHMARK_TIMER;
+                    BENCHMARK_TIMER;
 
+                    // Test x64-Debug: 190vtx=14ms, 2000vtx=33ms, 
                     MeshGen::GenerateMesh(*chunk.get(), *tmp);
 
-                    //Log::info("MeshGen {} vertices \1", tmp->VertexCount());
+                    Log::info("MeshGen {} vertices \1", tmp->VertexCount());
                 }
 
                 if (!tmp->empty())
                 {
                     //BENCHMARK_TIMER;
 
+                    // always ~80% vertices reduced, and ~70% size reduced (plus indices size).  
+                    // Test x64-Debug: 2000 vertices -> 400 used 2.5ms
                     VertexData::MakeIndexed(tmp, vtx);  // for supports TriangleMesh Load for PhysX
 
                     //Log::info("MeshGenIndex vtx from {} to {}. compression ratio {} vtx, {} total_size\1", tmp->Vertices.size(), vtx->Vertices.size(), vtx->Vertices.size() / (float)tmp->Vertices.size(), (vtx->idx_size() + vtx->vtx_size()) / (float)(tmp->idx_size() + tmp->vtx_size()) );
@@ -298,7 +301,13 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
                     // Attach New Shapes
                     ETPX_CTX;
-                    PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(indexed)), *Physics::dbg_DefaultMaterial);
+                    PxShape* shape;
+                    {
+                        BENCHMARK_TIMER;
+                        // BenchTest CreateTriangleMesh x64-Debug: 270vtx=0.8ms, 1200vtx=1.3ms, 2100vtx=1.5ms, 3200vtx=2.2ms, 4000vtx=3.4ms
+                         shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(indexed)), *Physics::dbg_DefaultMaterial);
+                        Log::info("Create PhysX TriangleMesh of {} vertices \1", indexed.VertexCount());
+                    }
                     compRigidStatic.RigidStatic->attachShape(*shape);
                     shape->release();
                 }
