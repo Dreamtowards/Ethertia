@@ -7,10 +7,9 @@
 #include <vector>
 #include <string>
 #include <span>
-#include <tuple>
 
 #include <glm/glm.hpp>
-
+// todo: MOVE to ethertia/util/VertexData.h since this is more common.
 
 // an "interleaved vertex data" structure. (more compact, higher memory access efficiency. compare to 'separate vertex data' struct)
 // unlike VertexBuffer which just a handle/pointer to a block of memory in GPU. (it's data in GPU).
@@ -92,29 +91,6 @@ public:
     {
         Vertices.clear();
         Indices.clear();
-    }
-
-    std::tuple<std::span<float[3]>, std::span<uint32_t[3]>> ExportPoints()//std::span<float[3]> out_Points, std::span<uint32_t[3]> out_TriIndices)
-    {
-        size_t numPoints = Vertices.size();
-        glm::vec3* points = new glm::vec3[numPoints];  // TODO: Use RAII
-        for (int i = 0; i < numPoints; ++i)
-        {
-            points[i] = Vertices[i].pos;
-        }
-
-        size_t numTris = Indices.size() / 3;
-        glm::ivec3* triIndices = new glm::ivec3[numTris];
-        for (int i = 0; i < numTris; ++i)
-        {
-            triIndices[i] = *(glm::ivec3*)&Indices[i * 3];
-        }
-
-        using Float3 = float[3];
-        using Int3 = uint32_t[3];
-        return std::make_tuple(
-            std::span<float[3]>{ (Float3*)points, numPoints },
-            std::span<uint32_t[3]>{ (Int3*)triIndices, numTris });
     }
 
     // make an Unique Indexed VertexData. hash-map method.

@@ -262,23 +262,18 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             VertexData& indexed = *compRenderMesh.VertexData;
             if (!indexed.empty())
             {
-
                 // Upload VertexData to GPU.
                 compRenderMesh.VertexBuffer = Loader::LoadVertexData(&indexed);
 
                 // Update Physics Shape TriangleMesh
                 auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
 
-                //auto [pts, tri] = indexed.ExportPoints();
-
                 // Delete Old Shapes
                 Physics::ClearShapes(*compRigidStatic.RigidStatic);
 
-                auto* trimesh = Physics::CreateTriangleMesh(indexed.vtx_span(), indexed.idx_span());
-
                 // Attach New Shapes
                 ETPX_CTX;
-                PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(trimesh), *Physics::dbg_DefaultMaterial);
+                PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(indexed)), *Physics::dbg_DefaultMaterial);
                 compRigidStatic.RigidStatic->attachShape(*shape);
                 shape->release();
             }

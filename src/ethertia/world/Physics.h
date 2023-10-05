@@ -10,6 +10,8 @@ using namespace physx;
 #include <span>
 #include <vector>
 
+#include <ethertia/render/VertexData.h>
+
 class Physics
 {
 public:
@@ -32,7 +34,9 @@ public:
 
 
 
-	static PxTriangleMesh* CreateTriangleMesh(std::span<const float> points, std::span<const uint32_t> indices);
+	static PxTriangleMesh* CreateTriangleMesh(std::span<const float> vtx, int vtx_stride, std::span<const uint32_t> indices);
+
+	static PxTriangleMesh* CreateTriangleMesh(const VertexData& indexed) { return CreateTriangleMesh(indexed.vtx_span(), 8, indexed.idx_span()); }
 
 
 	static void GetShapes(PxRigidActor& rigid, std::vector<PxShape*>& out)
