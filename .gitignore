@@ -7,6 +7,7 @@ cmake-build-release/*
 # MSVC
 out/
 .vs/
+enc_temp_folder/
 
 run/bin/*
 
