@@ -399,7 +399,7 @@ static void _ShowViewportWidgets()
         }
         if (Gizmos::ChunksLoadedAABB)
         {
-            chunksys.ForChunks([](auto cp, auto chunk) {
+            chunksys.ForChunks([](auto cp, auto& chunk) {
 
                 Imgui::RenderAABB(AABB{ cp, cp + 16 }, Colors::GRAY);
                 return true;
@@ -853,9 +853,9 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
     if (ImGui::Button("ReMesh All Chunks"))
     {
-        chunksys.ForChunks([](auto cp, auto chunk) {
+        chunksys.ForChunks([](auto cp, auto& chunk) {
         
-            chunk->m_NeedRebuildMesh = true;
+            chunk.m_NeedRebuildMesh = true;
             return true;
         });
     }

@@ -172,7 +172,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
     _TmpChunksBatchErase.clear();
     {
         ET_PROFILE_("Unload");
-        ForChunks([&](auto chunkpos, auto chunk) {
+        ForChunks([&](auto chunkpos, auto& chunk) {
 
             if (_TmpChunksBatchErase.size() > m_ChunksUnloadingMaxBatch)
                 return false;
@@ -180,7 +180,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 return true;
 
             // UnloadChunk
-            m_World->DestroyEntity(chunk->entity);
+            m_World->DestroyEntity(chunk.entity);
 
             _TmpChunksBatchErase.push_back(chunkpos);
         });
@@ -205,22 +205,22 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         ET_PROFILE_("DetMesh");
         auto _lock = LockRead();
 
-        ForChunks([&](auto chunkpos, auto chunk) {
+        ForChunks([&](auto chunkpos, auto& chunk) {
 
             if (m_ChunksMeshing.size() >= cfg_ChunkMeshingMaxConcurrent)
                 return false;
-            if (!chunk->m_NeedRebuildMesh)// || chunk->m_NeedRebuildMesh)
+            if (!chunk.m_NeedRebuildMesh)// || chunk->m_NeedRebuildMesh)
                 return true;
 
             // Queue Chunk MeshGen
 
-            chunk->m_NeedRebuildMesh = false;
+            chunk.m_NeedRebuildMesh = false;
 
-            VertexData* vtx = chunk->entity.GetComponent<MeshRenderComponent>().VertexData;
-            vtx->Clear();
+            VertexData* vtx = chunk.entity.GetComponent<MeshRenderComponent>().VertexData;
 
+            auto pChunk = GetChunk(chunkpos);
 
-            auto task = threadpool.submit([chunk, vtx]() {
+            auto task = threadpool.submit([pChunk, vtx]() {
 
                 static stdx::object_pool<VertexData> g_VertexBufPool;
                 //Log::info("MeshGen VBuf Pool Size: {} acquired, {} remained", g_VertexBufPool.num_aquired(), g_VertexBufPool.num_remained());
@@ -228,11 +228,13 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 VertexData* tmp = g_VertexBufPool.acquire();
                 tmp->Clear();
 
+                vtx->Clear();
+
                 {
                     //BENCHMARK_TIMER;
 
                     // Bench x64-Debug: 0vtx~=3-4.5ms, 190vtx=14ms, 1000vtx=21ms, 2000vtx~=25-33ms, 3000vtx=50ms, 4000vtx~=80ms
-                    MeshGen::GenerateMesh(*chunk.get(), *tmp);
+                    MeshGen::GenerateMesh(*pChunk.get(), *tmp);
 
                     //Log::info("MeshGen {} vertices \1", tmp->VertexCount());
                 }
@@ -251,7 +253,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 g_VertexBufPool.release(tmp);
                 //delete tmp;  // todo: use stdx::object_pool instead of new/delete
 
-                return chunk;
+                return pChunk;
             });
 
             auto [it, succ] = m_ChunksMeshing.try_emplace(chunkpos, task);

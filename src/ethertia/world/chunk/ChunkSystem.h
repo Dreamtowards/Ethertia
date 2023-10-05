@@ -47,12 +47,12 @@ public:
 	//	return m_Chunks;
 	//}
 
-	void ForChunks(const std::function<bool(const glm::ivec3&, std::shared_ptr<Chunk> chunk)>& fn)
+	void ForChunks(const std::function<bool(glm::ivec3, Chunk& chunk)>& fn)
 	{
 		auto _lock = LockRead();
 		for (auto& it : m_Chunks)
 		{
-			if (!fn(it.first, it.second))
+			if (!fn(it.first, *it.second.get()))
 				return;
 		}
 	}
