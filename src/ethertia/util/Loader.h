@@ -125,7 +125,8 @@ public:
 
 #pragma region Vulkan: VertexBuffer, Image
 
-
+    // todo: LoadVertexBuffer()  name result, not input. LoadOBJ not LoadOBJFile
+    
     // interleaved vertex data. load to GPU, StagedBuffer.
     static vkx::VertexBuffer* LoadVertexData(const VertexData* vtx);
 

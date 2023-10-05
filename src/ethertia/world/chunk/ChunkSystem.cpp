@@ -10,6 +10,7 @@
 #include <ethertia/util/Assert.h>
 #include <ethertia/util/Math.h>
 #include <ethertia/util/Loader.h>
+#include <ethertia/util/BenchmarkTimer.h>
 
 #include <ethertia/world/chunk/meshgen/MeshGen.h>
 
@@ -227,14 +228,24 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
                 VertexData* tmp = new VertexData();
 
-                MeshGen::GenerateMesh(*chunk.get(), *tmp);
+                {
+                    //BENCHMARK_TIMER;
+
+                    MeshGen::GenerateMesh(*chunk.get(), *tmp);
+
+                    //Log::info("MeshGen {} vertices \1", tmp->VertexCount());
+                }
 
                 if (!tmp->empty())
                 {
+                    //BENCHMARK_TIMER;
+
                     VertexData::MakeIndexed(tmp, vtx);  // for supports TriangleMesh Load for PhysX
+
+                    //Log::info("MeshGenIndex vtx from {} to {}. compression ratio {} vtx, {} total_size\1", tmp->Vertices.size(), vtx->Vertices.size(), vtx->Vertices.size() / (float)tmp->Vertices.size(), (vtx->idx_size() + vtx->vtx_size()) / (float)(tmp->idx_size() + tmp->vtx_size()) );
                 }
 
-                delete tmp;
+                delete tmp;  // todo: use stdx::object_pool instead of new/delete
 
                 return chunk;
                 });

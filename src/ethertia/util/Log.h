@@ -26,8 +26,8 @@ public:
     template<typename... Args>
     static void log(std::ostream& out, const char* _lv, const char* _loc, std::string_view fmt, Args&&... args)
     {
-        static std::mutex g_LogLock;
-        std::lock_guard<std::mutex> _guard(g_LogLock);  // prevents multiple logging in same time. have performance issue.
+        //static std::mutex g_LogLock;
+        //std::lock_guard<std::mutex> _guard(g_LogLock);  // prevents multiple logging in same time. have performance issue.
 
         bool keepline = fmt.back() == '\1';
 
