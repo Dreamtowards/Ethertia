@@ -95,6 +95,17 @@ static void _ShowDebugText()
     //    }
     }
 
+    std::string strRAM;
+    {
+        uint64_t _PrivateBytes, _WorkingSet, _PhysUsed, _PhysTotal;
+        Loader::ram(&_PrivateBytes, &_WorkingSet, &_PhysUsed, &_PhysTotal);
+
+        strRAM = std::format(
+            "Private: {} | {}; System: {} / {}",
+            stdx::size_str(_PrivateBytes), stdx::size_str(_WorkingSet),
+            stdx::size_str(_PhysUsed), stdx::size_str(_PhysTotal));
+    }
+
 
     ETPX_CTX;
     std::string strPhysX = std::format(
@@ -127,7 +138,7 @@ static void _ShowDebugText()
         "OS:  {}, {} concurrency, {}-endian\n"
         "CPU: {}\n"
         "GPU: {}\n"
-        "RAM: x GB / x GB"
+        "RAM: {}"
         ,
         glm::to_string(CamPosCurr).substr(4),
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
@@ -152,7 +163,8 @@ static void _ShowDebugText()
     
         Loader::os_arch(), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "B" : "L",
         Loader::cpuid(),
-        (const char*)vkx::ctx().PhysDeviceProperties.deviceName
+        (const char*)vkx::ctx().PhysDeviceProperties.deviceName,
+        strRAM
     );
 
     ImGui::SetCursorPos({ 0, 48 });

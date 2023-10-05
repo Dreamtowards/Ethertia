@@ -213,14 +213,20 @@ public:
     static void OpenURL(std::string_view url);
 
 
-    static const char* cpuid();
-
-
     // macOS:   darwin-x64  | darwin-arm64
     // Windows: windows-x64 | windows-arm64
     // Linux:   linux-x64   | linux-arm64
     static std::string os_arch();
 
+
+    static const char* cpuid();
+
+
+    // https://stackoverflow.com/questions/1984186/what-is-private-bytes-virtual-bytes-working-set
+    // @param pPrivateUsage: bytes of memory the process has allocated/asked for. (usually) exclude memory-mapped files (i.e. shared DLLs). but include pagefile usage. 
+    // @param pWorkingSet:   non-paged PrivateBytes plus memory-mapped files 
+    static bool ram(uint64_t* pPrivateUsage, uint64_t* pWorkingSetSize = nullptr, uint64_t* pUsedPhys = nullptr, uint64_t* pTotalPhys = nullptr);
+    // memory_stat
 
     /*
     // deprecated: no where used.

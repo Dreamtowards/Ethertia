@@ -867,6 +867,50 @@ const char* Loader::cpuid()
 }
 
 
+#include <stdx/str.h>
+
+
+#ifdef _WIN32
+#include <psapi.h>  // get RAM of current process
+#endif // _WIN32
+
+
+bool Loader::ram(uint64_t* pPrivateUsage, uint64_t* pWorkingSetSize, uint64_t* pUsedPhys, uint64_t* pTotalPhys)
+{
+#ifdef _WIN32
+    if (pUsedPhys || pTotalPhys)
+    {
+        MEMORYSTATUSEX statex;
+        statex.dwLength = sizeof(statex);
+        GlobalMemoryStatusEx(&statex);
+
+        if (pTotalPhys) *pTotalPhys = statex.ullTotalPhys;
+        if (pUsedPhys)  *pUsedPhys = statex.ullTotalPhys - statex.ullAvailPhys;
+        
+        std::cout << "Physical RAM: avail/total " << stdx::size_str(statex.ullAvailPhys) << "/" << stdx::size_str(statex.ullTotalPhys) << "\n";
+        std::cout << "Virtual  RAM: avail/total " << stdx::size_str(statex.ullAvailVirtual) << "/" << stdx::size_str(statex.ullTotalVirtual) << "\n";
+        std::cout << "Paging file:  avail/total " << stdx::size_str(statex.ullAvailPageFile) << "/" << stdx::size_str(statex.ullTotalPageFile) << "\n";
+    }
+    if (pPrivateUsage || pWorkingSetSize)
+    {
+        PROCESS_MEMORY_COUNTERS_EX pmc;
+        if (!GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc)))
+            return false;
+        
+        if (pPrivateUsage) *pPrivateUsage = pmc.PrivateUsage;
+        if (pWorkingSetSize) *pWorkingSetSize = pmc.WorkingSetSize;
+
+        std::cout << "Virtual Memory used: PrivateUsage " << stdx::size_str(pmc.PrivateUsage) << "MB\n";
+        std::cout << "Physical Memory used: WorkingSetSize " << stdx::size_str(pmc.WorkingSetSize) << "MB\n";
+    }
+    return true;
+#else
+    return false;
+#endif
+}
+
+
+
 /*
 
 //const char* Loader::sysname()

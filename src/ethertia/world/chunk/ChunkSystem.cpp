@@ -220,8 +220,10 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
                 MeshGen::GenerateMesh(*chunk.get(), *tmp);
 
-                //VertexData* indexed = 
-                VertexData::MakeIndexed(tmp, vtx);  // for supports TriangleMesh Load for PhysX
+                if (!tmp->empty())
+                {
+                    VertexData::MakeIndexed(tmp, vtx);  // for supports TriangleMesh Load for PhysX
+                }
 
                 delete tmp;
 

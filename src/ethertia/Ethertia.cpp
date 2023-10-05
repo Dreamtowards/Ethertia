@@ -42,6 +42,8 @@ static void RunMainLoop();
 
 int main()
 {
+    uint64_t s;
+    Loader::ram(&s,&s,&s,&s); return 1;
     Init();
 
     while (Ethertia::IsRunning())
