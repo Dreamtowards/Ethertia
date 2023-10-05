@@ -115,8 +115,12 @@ void World::OnTick(float dt)
 	if (m_Paused && --m_PausedStepFrames < 0)
 		return;
 
-	m_PxScene->simulate(1.0 / 60.0f);
-	m_PxScene->fetchResults(true);
+	{
+		ET_PROFILE_("PhysX");
+
+		m_PxScene->simulate(1.0 / 60.0f);
+		m_PxScene->fetchResults(true);
+	}
 
 	WorldInfo& wi = GetWorldInfo();
 	wi.InhabitedTime += dt;
@@ -124,7 +128,11 @@ void World::OnTick(float dt)
 	wi.DayTime -= (int)wi.DayTime;  // keep [0-1]
 
 
-	m_ChunkSystem->OnTick();
+	{
+		ET_PROFILE_("ChunkSystem");
+
+		m_ChunkSystem->OnTick();
+	}
 }
 
 

@@ -73,7 +73,7 @@ static void Init()
     //NoiseGen::InitSIMD();
     Log::info("{}, hardware_concurrency: {}x, {}, {}-endian", Loader::os_arch(), std::thread::hardware_concurrency(), Loader::cpuid(), std::endian::native == std::endian::big ? "B" : "L");
 
-    g_ThreadPool = std::make_unique<stdx::thread_pool>(std::thread::hardware_concurrency());
+    g_ThreadPool = std::make_unique<stdx::thread_pool>(std::min(32u, std::thread::hardware_concurrency()));
     g_MainThreadId = std::this_thread::get_id();
 
     //for (const std::string& modpath : Settings::Mods) {
@@ -156,7 +156,7 @@ static void RunMainLoop()
     {
         ET_PROFILE_("Tick");
 
-        while (Ethertia::GetTimer().polltick())
+        //while (Ethertia::GetTimer().polltick())
         {
             ET_PROFILE_("WorldTick");
 

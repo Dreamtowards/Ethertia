@@ -89,6 +89,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
     // Async Generate/Load chunk
     {
+        ET_PROFILE_("DetLoad");
         auto _lock = LockRead();
 
         AABB::each(loaddist, [&](glm::ivec3 rp) {
@@ -117,44 +118,48 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
     static std::vector<glm::ivec3> _TmpChunksBatchErase;  // static: avoid dynamic heap alloc.
 
     _TmpChunksBatchErase.clear();
-    for (auto it : m_ChunksLoading)
     {
-        glm::ivec3 chunkpos = it.first;
-        auto task = it.second;
+        ET_PROFILE_("Load");
 
-        if (!task->is_completed())
-            continue;
-
-        ET_ASSERT(GetChunk(chunkpos) == nullptr);
-        auto chunk = task->get();
+        for (auto it : m_ChunksLoading)
         {
-            auto _lock = LockWrite();
-            m_Chunks[chunkpos] = chunk;
+            glm::ivec3 chunkpos = it.first;
+            auto task = it.second;
+
+            if (!task->is_completed())
+                continue;
+
+            ET_ASSERT(GetChunk(chunkpos) == nullptr);
+            auto chunk = task->get();
+            {
+                auto _lock = LockWrite();
+                m_Chunks[chunkpos] = chunk;
+            }
+
+            chunk->m_NeedRebuildMesh = true;  // RequestRemesh
+
+            Entity entity = m_World->CreateEntity();
+            chunk->entity = entity;
+
+            auto& trans = entity.GetTransform();
+            trans.position() = chunkpos;
+
+            auto& compRenderMesh = entity.AddComponent<MeshRenderComponent>();
+            compRenderMesh.VertexData = new VertexData();
+
+            auto& compRigidStatic = entity.AddComponent<RigidStaticComponent>();
+
+
+            _TmpChunksBatchErase.push_back(chunkpos);
         }
-
-        chunk->m_NeedRebuildMesh = true;  // RequestRemesh
-
-        Entity entity = m_World->CreateEntity();
-        chunk->entity = entity;
-
-        auto& trans = entity.GetTransform();
-        trans.position() = chunkpos;
-
-        auto& compRenderMesh = entity.AddComponent<MeshRenderComponent>();
-        compRenderMesh.VertexData = new VertexData();
-
-        auto& compRigidStatic = entity.AddComponent<RigidStaticComponent>();
-
-
-        _TmpChunksBatchErase.push_back(chunkpos);
-    }
-    for (auto cp : _TmpChunksBatchErase)
-    {
-        m_ChunksLoading.erase(cp);
-    }
-    if (_TmpChunksBatchErase.size())
-    {
-        Log::info("{} Chunks Loaded", _TmpChunksBatchErase.size());
+        for (auto cp : _TmpChunksBatchErase)
+        {
+            m_ChunksLoading.erase(cp);
+        }
+        if (_TmpChunksBatchErase.size())
+        {
+            Log::info("{} Chunks Loaded", _TmpChunksBatchErase.size());
+        }
     }
 
 
@@ -164,24 +169,27 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
     _TmpChunksBatchErase.clear();
     {
-        auto _lock = LockWrite();
-
-        for (auto it : m_Chunks)
+        ET_PROFILE_("Unload");
         {
-            glm::ivec3 cp = it.first;
+            auto _lock = LockRead();
+            for (auto it : m_Chunks)
+            {
+                glm::ivec3 cp = it.first;
 
-            if (_TmpChunksBatchErase.size() > m_ChunksUnloadingMaxBatch)
-                break;
-            if (_IsChunkInLoadRange(cp, viewer_chunkpos, loaddist * 16))
-                continue;
+                if (_TmpChunksBatchErase.size() > m_ChunksUnloadingMaxBatch)
+                    break;
+                if (_IsChunkInLoadRange(cp, viewer_chunkpos, loaddist * 16))
+                    continue;
 
-            // UnloadChunk
-            auto chunk = it.second;
+                // UnloadChunk
+                auto chunk = it.second;
 
-            m_World->DestroyEntity(chunk->entity);
+                m_World->DestroyEntity(chunk->entity);
 
-            _TmpChunksBatchErase.push_back(cp);
+                _TmpChunksBatchErase.push_back(cp);
+            }
         }
+        auto _lock2 = LockWrite();
         for (auto cp : _TmpChunksBatchErase)
         {
             m_Chunks.erase(cp);
@@ -198,6 +206,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
     // Detect ChunkMeshing
 
     {
+        ET_PROFILE_("DetMesh");
         auto _lock = LockRead();
 
         for (auto it : m_Chunks)
@@ -238,61 +247,67 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
     // Load/Upload ChunkMesh
 
     _TmpChunksBatchErase.clear();
-    for (auto it : m_ChunksMeshing)
     {
-        glm::ivec3 chunkpos = it.first;
-        auto task = it.second;
+        ET_PROFILE_("LoadMesh");
 
-        if (!task->is_completed())
-            continue;
-
-        auto chunk = task->get();
-        Entity& entity = chunk->entity;
-
+        for (auto it : m_ChunksMeshing)
         {
-            // Update MeshRender
-            auto& compRenderMesh = entity.GetComponent<MeshRenderComponent>();
+            glm::ivec3 chunkpos = it.first;
+            auto task = it.second;
 
-            // Delete Old vkx::VertexBuffer
-            if (compRenderMesh.VertexBuffer)
+            if (!task->is_completed())
+                continue;
+
+            auto chunk = task->get();
+            Entity& entity = chunk->entity;
+
             {
-                vkx::ctx().Device.waitIdle();
-                delete compRenderMesh.VertexBuffer;
-                compRenderMesh.VertexBuffer = nullptr;
+                // Update MeshRender
+                auto& compRenderMesh = entity.GetComponent<MeshRenderComponent>();
+
+                // Delete Old vkx::VertexBuffer
+                if (compRenderMesh.VertexBuffer)
+                {
+                    vkx::ctx().Device.waitIdle();
+                    delete compRenderMesh.VertexBuffer;
+                    compRenderMesh.VertexBuffer = nullptr;
+                }
+
+                VertexData& indexed = *compRenderMesh.VertexData;
+                if (!indexed.empty())
+                {
+                    // Upload VertexData to GPU.
+                    compRenderMesh.VertexBuffer = Loader::LoadVertexData(&indexed);
+
+                    // Update Physics Shape TriangleMesh
+                    auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
+
+                    // Delete Old Shapes
+                    Physics::ClearShapes(*compRigidStatic.RigidStatic);
+
+                    // Attach New Shapes
+                    ETPX_CTX;
+                    PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(indexed)), *Physics::dbg_DefaultMaterial);
+                    compRigidStatic.RigidStatic->attachShape(*shape);
+                    shape->release();
+                }
+                else
+                {
+                    // Set Empty GPU Mesh & Physics Shape
+
+                }
+                //delete compRenderMesh.VertexData;
+                //compRenderMesh.VertexData = nullptr;
             }
-
-            VertexData& indexed = *compRenderMesh.VertexData;
-            if (!indexed.empty())
-            {
-                // Upload VertexData to GPU.
-                compRenderMesh.VertexBuffer = Loader::LoadVertexData(&indexed);
-
-                // Update Physics Shape TriangleMesh
-                auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
-
-                // Delete Old Shapes
-                Physics::ClearShapes(*compRigidStatic.RigidStatic);
-
-                // Attach New Shapes
-                ETPX_CTX;
-                PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(indexed)), *Physics::dbg_DefaultMaterial);
-                compRigidStatic.RigidStatic->attachShape(*shape);
-                shape->release();
-            }
-            else
-            {
-                // Set Empty GPU Mesh & Physics Shape
-
-            }
-        }
 
         
-        _TmpChunksBatchErase.push_back(chunkpos);
-    }
+            _TmpChunksBatchErase.push_back(chunkpos);
+        }
 
-    for (auto cp : _TmpChunksBatchErase)
-    {
-        m_ChunksMeshing.erase(cp);
+        for (auto cp : _TmpChunksBatchErase)
+        {
+            m_ChunksMeshing.erase(cp);
+        }
     }
     if (_TmpChunksBatchErase.size())
     {
