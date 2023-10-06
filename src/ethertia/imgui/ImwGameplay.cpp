@@ -536,7 +536,9 @@ static void _MoveCamera()
             // Pivot Rotate
             dYaw += -MouseDelta.x * mspd;
             dPitch += -MouseDelta.y * mspd;
-            len = 16;
+
+            auto& hit = Ethertia::GetHitResult();
+            len = hit ? hit.distance : 32.0f;
         }
         else if (dragMMB)
         {
@@ -555,7 +557,7 @@ static void _MoveCamera()
         if (io.KeysDown[ImGuiKey_Space]) moveaa.y += 1;
 
 
-        s_CameraMoveSpeed += MouseWheel;
+        s_CameraMoveSpeed += MouseWheel * 2;
         s_CameraMoveSpeed = std::max(0.0f, s_CameraMoveSpeed);
 
         float spd = Ethertia::GetDelta() * s_CameraMoveSpeed;

@@ -149,6 +149,6 @@ void main()
     gPosition.w   = LnDepth;  // todo: Disable ColorBlend here
     gNormal.xyz   = Norm;
     gNormal.w     = 1;
-    gAlbedo.xyz   = ((Norm + 1.0) / 2.0);  // Albedo BaryCoord ((Norm + 1.0) / 2.0)
+    gAlbedo.xyz   = Albedo;  // Albedo BaryCoord ((Norm + 1.0) / 2.0)
     gAlbedo.w     = 1;
 }
