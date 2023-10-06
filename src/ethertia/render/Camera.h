@@ -22,7 +22,7 @@ public:
 private:
     // Do not use this, this just temporary for Debug.
     // Actual view pos (3rd view + length)
-    glm::vec3 actual_pos;
+    // glm::vec3 actual_pos;
 public:
 
     glm::vec3 direction;  // readonly. produced by EulerAngles.

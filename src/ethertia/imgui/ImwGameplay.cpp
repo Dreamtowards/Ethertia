@@ -126,7 +126,7 @@ static void _ShowDebugText()
         PhysX.getNbShapes(), PhysX.getNbMaterials(), PhysX.getNbTriangleMeshes(), PhysX.getNbConvexMeshes(), strPxScene);
 
     static glm::vec3 CamPosLast;
-    glm::vec3 CamPosCurr = glm::inverse(cam.matView)[3];  // HeavyCost!!! try make cache if necessary
+    glm::vec3 CamPosCurr = cam.position;  // HeavyCost!!! try make cache if necessary
     glm::vec3 CamPosMoved = CamPosCurr - CamPosLast;
     CamPosLast = CamPosCurr;
     float CamPosMoveSpeedMPS = glm::length(CamPosMoved);
@@ -449,7 +449,7 @@ static void _ShowViewportWidgets()
 }
 
 
-glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta, float pitchDelta, float len = 0.1f, glm::vec3 moveAbsDelta = {0, 0, 0})
+glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta, float pitchDelta, float len = 0.1f, glm::vec3 moveAbsDelta = {0, 0, 0}, glm::vec3* out_Eye = nullptr)
 {
     glm::vec3 right     = glm::vec3(view[0][0], view[1][0], view[2][0]);
     glm::vec3 up        = glm::vec3(view[0][1], view[1][1], view[2][1]);
@@ -473,6 +473,9 @@ glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta
     moveDelta = glm::mat3(invView) * moveDelta;
     pivot  += moveDelta + moveAbsDelta;
     newEye += moveDelta + moveAbsDelta;
+
+    // output view position. since get pos from ViewMatrix is expensive (mat4 inverse)
+    if (out_Eye) *out_Eye = newEye;
 
     return glm::lookAt(newEye, pivot, { 0, 1, 0 });
 }
@@ -557,7 +560,7 @@ static void _MoveCamera()
     if (dYaw || dPitch || glm::length2(move) || glm::length2(moveaa))
     {
         Camera& cam = Ethertia::GetCamera();
-        cam.matView = MatView_MoveRotate(cam.matView, move, dYaw, dPitch, len, moveaa);
+        cam.matView = MatView_MoveRotate(cam.matView, move, dYaw, dPitch, len, moveaa, &cam.position);
     }
 }
 

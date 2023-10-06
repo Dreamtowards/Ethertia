@@ -13,17 +13,10 @@
 
 #include <ethertia/init/KeyBinding.h>
 
-//#include <ethertia/gui/screen/GuiF4Lock.h>
-//#include <ethertia/gui/screen/GuiDebugV.h>
-//#include <ethertia/gui/screen/GuiIngame.h>
-//#include <ethertia/gui/screen/GuiScreenPause.h>
 
 
 
-
-
-
-static void handleKeyPress()
+static void _HandleKeyPress()
 {
     if (KeyBindings::KEY_ESC.isPressed())
     {
@@ -35,7 +28,8 @@ static void handleKeyPress()
     }
     if (KeyBindings::KEY_SCREENSHOT.isPressed())
     {
-        Controls::saveScreenshot();
+        Log::info("Not supported screenshot");
+        //Controls::saveScreenshot();
     }
     if (KeyBindings::KEY_FULLSCREEN.isPressed())
     {
@@ -281,6 +275,26 @@ static void handleKeyPress()
 }
 
 
+static void _HitRaycast()
+{
+    Camera& cam = Ethertia::GetCamera();
+
+    glm::vec3 origin;
+    glm::vec3 dir;
+
+    if (Ethertia::isIngame())
+    {
+
+    }
+    const glm::mat4& matView = cam.matView;
+    glm::vec3 ViewForward = glm::vec3(matView[0][2], matView[1][2], matView[2][2]);
+
+
+
+
+
+}
+
 void handleHitCursor()
 {
 //    World* world = Ethertia::GetWorld();
@@ -345,29 +359,43 @@ void handleHitCursor()
 }
 
 
-void Controls::handleInput()
+void Controls::HandleInput()
 {
-    Camera& camera = Ethertia::GetCamera();
+    Camera& cam = Ethertia::GetCamera();
 
     if (Window::isCloseRequested())
         Ethertia::Shutdown();
+
+
+    _HandleKeyPress();
+
+    _HitRaycast();
+
 
     Window::SetMouseGrabbed(Ethertia::isIngame());
     Window::SetStickyKeys(!Ethertia::isIngame());
 
 
-    // Hit Cursor.
-    handleHitCursor();
-
-    handleKeyPress();
 
 
     //camera.position = Ethertia::getPlayer()->position();
 
-    camera.update(Ethertia::isIngame());
+    cam.update(Ethertia::isIngame());
 
     if (!Ethertia::isIngame())
         return;
+
+
+
+    float dt = Ethertia::GetDelta();
+    cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
+
+
+    if (KeyBindings::KEY_G_CAM_DIST.isKeyDown())
+        cam.len += Window::MouseWheelSum();
+    cam.len = Mth::max(cam.len, 0.0f);
+
+
 
     //// Player Move.
     //
@@ -402,23 +430,13 @@ void Controls::handleInput()
 //    RenderEngine::fov += smFov.delta;
 
 
-    float dt = Ethertia::GetDelta();
-    camera.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
-
-
-    if (KeyBindings::KEY_G_CAM_DIST.isKeyDown())
-        camera.len += Window::MouseWheelSum();
-    camera.len = Mth::max(camera.len, 0.0f);
-
-
-
 
 }
 
 
-void Controls::saveScreenshot()
-{
-    assert("NotSupported");
+//void Controls::saveScreenshot()
+//{
+//    assert("NotSupported");
 //    BitmapImage* img = Ethertia::getWindow().screenshot();
 //
 //    std::string path = Strings::fmt("./screenshots/{}_{}.png", Strings::time_fmt(-1, "%Y-%m-%d_%H.%M.%S"), (Mth::frac(Ethertia::getPreciseTime())*1000.0f));
@@ -438,4 +456,4 @@ void Controls::saveScreenshot()
 //        Loader::savePNG(path, fine_img);
 //        delete img;
 //    });
-}
+//}
