@@ -264,6 +264,11 @@ static void _ShowViewportWidgets()
     Camera& cam = Ethertia::GetCamera();
     World* world = Ethertia::GetWorld();
 
+    if (!world || !world->registry().valid(SelectedEntity))
+    {
+        ImwInspector::SelectedEntity = {};
+    }
+
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
     ImGui::ArrowButton("Menu", ImGuiDir_Down);
 
@@ -316,10 +321,14 @@ static void _ShowViewportWidgets()
             RenderEngine::_ReloadPipeline();
         }
 
+        if (ImGui::Button("Clear VtxBufPool"))
+        {
+            ChunkSystem::g_MeshGen_VertexBufPool.clear();
+        }
         ImGui::EndPopup();
     }
 
-    if (world && SelectedEntity)
+    if (SelectedEntity)
     {
         _ShowGizmo(SelectedEntity);
     }

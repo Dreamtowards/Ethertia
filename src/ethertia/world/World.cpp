@@ -125,7 +125,7 @@ void World::OnTick(float dt)
 	WorldInfo& wi = GetWorldInfo();
 	wi.TimeInhabited += dt;
 	wi.DayTime += dt / wi.DayTimeLength;
-	wi.DayTime -= (int)wi.DayTime;  // keep [0-1]
+	wi.DayTime -= (int)wi.DayTime;  // trunc to [0-1]
 
 
 	{

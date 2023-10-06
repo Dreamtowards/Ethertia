@@ -25,13 +25,7 @@ namespace stdx
 		{
 			assert(m_NumAquired == 0);
 
-			std::lock_guard<std::mutex> _lock(m_PoolLock);
-
-			while (!m_Pool.empty())
-			{
-				delete m_Pool.front();
-				m_Pool.pop();
-			}
+			clear();
 		}
 
 		T* acquire()
@@ -55,6 +49,17 @@ namespace stdx
 			--m_NumAquired;
 			++m_NumRemained;
 			m_Pool.push(obj);
+		}
+
+		void clear()
+		{
+			std::lock_guard<std::mutex> _lock(m_PoolLock);
+
+			while (!m_Pool.empty())
+			{
+				delete m_Pool.front();
+				m_Pool.pop();
+			}
 		}
 
 		int num_aquired() const { return m_NumAquired; }

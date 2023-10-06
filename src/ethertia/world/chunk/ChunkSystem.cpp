@@ -180,6 +180,17 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 return true;
 
             // UnloadChunk
+
+            auto& compRenderMesh = chunk.entity.GetComponent<MeshRenderComponent>();
+
+            // Delete Old vkx::VertexBuffer
+            if (compRenderMesh.VertexBuffer)
+            {
+                vkx::ctx().Device.waitIdle();
+                delete compRenderMesh.VertexBuffer;
+                compRenderMesh.VertexBuffer = nullptr;
+            }
+
             m_World->DestroyEntity(chunk.entity);
 
             _TmpChunksBatchErase.push_back(chunkpos);
@@ -222,10 +233,9 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
             auto task = threadpool.submit([pChunk, vtx]() {
 
-                static stdx::object_pool<VertexData> g_VertexBufPool;
                 //Log::info("MeshGen VBuf Pool Size: {} acquired, {} remained", g_VertexBufPool.num_aquired(), g_VertexBufPool.num_remained());
 
-                VertexData* tmp = g_VertexBufPool.acquire();
+                VertexData* tmp = g_MeshGen_VertexBufPool.acquire();
                 tmp->Clear();
 
                 vtx->Clear();
@@ -250,7 +260,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                     //Log::info("MeshGenIndex vtx from {} to {}. compression ratio {} vtx, {} total_size\1", tmp->Vertices.size(), vtx->Vertices.size(), vtx->Vertices.size() / (float)tmp->Vertices.size(), (vtx->idx_size() + vtx->vtx_size()) / (float)(tmp->idx_size() + tmp->vtx_size()) );
                 }
 
-                g_VertexBufPool.release(tmp);
+                g_MeshGen_VertexBufPool.release(tmp);
                 //delete tmp;  // todo: use stdx::object_pool instead of new/delete
 
                 return pChunk;

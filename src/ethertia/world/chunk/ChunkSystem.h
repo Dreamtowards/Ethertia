@@ -10,6 +10,7 @@
 #include <glm/gtx/hash.hpp>
 
 #include <stdx/thread_pool.h>
+#include <stdx/object_pool.h>
 
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/chunk/ChunkLoader.h>
@@ -122,6 +123,9 @@ public:
 
 	inline static int cfg_ChunkMeshingMaxConcurrent = 4;
 	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksMeshing;  // MainThread only
+
+
+	inline static stdx::object_pool<VertexData> g_MeshGen_VertexBufPool;
 private:
 
 
