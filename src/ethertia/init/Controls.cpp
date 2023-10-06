@@ -277,7 +277,11 @@ static void _HandleKeyPress()
 
 static void _HitRaycast()
 {
+    if (!Ethertia::GetHitResult().enabled)
+        return;
+
     Camera& cam = Ethertia::GetCamera();
+    World* world = Ethertia::GetWorld();
 
     glm::vec3 origin = cam.position;
     glm::vec3 dir = cam.direction();
@@ -287,18 +291,27 @@ static void _HitRaycast()
         // dir = cam.ComputeRay();
     }
 
-    World* world = Ethertia::GetWorld();
 
     glm::vec3 pos;
     glm::vec3 norm;
     PxShape* shape;
     PxRigidActor* actor;
 
+    HitResult& hit = Ethertia::GetHitResult();
+
+    hit = {};  // reset
+
     if (world->Raycast(origin, dir, 100.0f, pos, norm, &shape, &actor))
     {
-        Log::info("Ray Cated");
-    }
+        hit.hit = true;
+        hit.position = pos;
+        hit.normal = norm;
+        hit.distance = glm::length(origin - pos);  // raycast actually provided distance value.
+        
+        hit.entity = { static_cast<entt::entity>((entt::id_type)actor->userData), world };
 
+        hit.hitVoxel = hit.entity.HasComponent<ChunkComponent>();
+    }
 
 }
 

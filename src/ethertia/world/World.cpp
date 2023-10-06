@@ -159,6 +159,8 @@ bool World::Raycast(glm::vec3 origin, glm::vec3 dir, float distance, glm::vec3& 
 
 	if (out_Shape) *out_Shape = hit.shape;
 	if (out_Actor) *out_Actor = hit.actor;
+
+	return true;
 }
 
 

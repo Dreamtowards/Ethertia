@@ -8,7 +8,7 @@
 #include <stdx/thread_pool.h>
 
 #include <ethertia/render/Camera.h>
-#include <ethertia/init/HitCursor.h>
+#include <ethertia/init/HitResult.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Profiler.h>
 
@@ -46,7 +46,7 @@ public:
     static Timer& GetTimer();
     static Profiler& GetProfiler();
     static Camera& GetCamera();
-    static HitCursor& GetHitCursor();   // HitResult of World Raycast
+    static HitResult& GetHitResult();   // HitResult of World Raycast
     static Entity& GetPlayer();
 
     

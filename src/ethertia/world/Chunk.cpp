@@ -27,6 +27,7 @@ void Chunk::_LoadToWorld()
 
     ETPX_CTX;
     comp.RigidStatic = PhysX.createRigidStatic(entity.GetTransform().PxTransform());
+    comp.RigidStatic->userData = (void*)entity.id();
     m_World->PhysScene().addActor(*comp.RigidStatic);
 }
 
@@ -51,7 +52,7 @@ Chunk::~Chunk()
     Physics::ClearShapes(*comp.RigidStatic);
 
     m_World->PhysScene().removeActor(*comp.RigidStatic);
-
+    PX_RELEASE(comp.RigidStatic);
 
     m_World->DestroyEntity(entity);
 

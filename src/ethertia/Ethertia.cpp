@@ -346,8 +346,8 @@ Timer& Ethertia::GetTimer() {
     static Timer _Timer;
     return _Timer;
 }
-HitCursor& Ethertia::GetHitCursor() {
-    static HitCursor _HitResult;
+HitResult& Ethertia::GetHitResult() {
+    static HitResult _HitResult;
     return _HitResult;
 }
 World* Ethertia::GetWorld() { return g_World; }
