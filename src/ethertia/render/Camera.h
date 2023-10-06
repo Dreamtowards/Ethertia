@@ -17,14 +17,11 @@ class Camera
 public:
     glm::vec3 position;  // always sync with matView. since get position from matView is expensive (mat4 inverse). so if you modified matView directly, don't forget update this position
     
-    
-    glm::vec3 eulerAngles;  // ORDER: YXZ
-
-
-    glm::vec3 direction;  // readonly. produced by EulerAngles.
 
     glm::mat4 matView{1.0f};
     glm::mat4 matProjection{1.0f};
+
+    glm::vec3 eulerAngles;  // ORDER: YXZ
 
 
     float fov = 90;
@@ -36,6 +33,11 @@ public:
     /// Smoothness of Camera's Pitch and Yaw.
     /// value is Seconds to the actual Destination Rotation., 0 accidentally means non-smooth.
     float m_Smoothness = 0.0f;
+
+    // Forward Vector of matView
+    glm::vec3 direction() {
+        return -glm::vec3(matView[0][2], matView[1][2], matView[2][2]);  // get transpose.
+    }
 
     void updateMovement(float dt, float mDX, float mDY, bool rotZ)
     {

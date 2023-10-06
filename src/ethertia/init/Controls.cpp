@@ -280,17 +280,24 @@ static void _HitRaycast()
     Camera& cam = Ethertia::GetCamera();
 
     glm::vec3 origin = cam.position;
-    glm::vec3 dir;
+    glm::vec3 dir = cam.direction();
 
-    if (Ethertia::isIngame())
+    if (!Ethertia::isIngame())
     {
-
+        // dir = cam.ComputeRay();
     }
-    const glm::mat4& matView = cam.matView;
-    glm::vec3 ViewForward = glm::vec3(matView[0][2], matView[1][2], matView[2][2]);
 
+    World* world = Ethertia::GetWorld();
 
+    glm::vec3 pos;
+    glm::vec3 norm;
+    PxShape* shape;
+    PxRigidActor* actor;
 
+    if (world->Raycast(origin, dir, 100.0f, pos, norm, &shape, &actor))
+    {
+        Log::info("Ray Cated");
+    }
 
 
 }
@@ -361,21 +368,26 @@ void handleHitCursor()
 
 void Controls::HandleInput()
 {
-    Camera& cam = Ethertia::GetCamera();
-
     if (Window::isCloseRequested())
         Ethertia::Shutdown();
 
-
     _HandleKeyPress();
 
-    _HitRaycast();
+    Camera& cam = Ethertia::GetCamera();
+    World* world = Ethertia::GetWorld();
+
+
+
+
+
+    if (world)
+    {
+        _HitRaycast();
+    }
 
 
     Window::SetMouseGrabbed(Ethertia::isIngame());
     Window::SetStickyKeys(!Ethertia::isIngame());
-
-
 
 
     //camera.position = Ethertia::getPlayer()->position();
