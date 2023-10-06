@@ -152,7 +152,6 @@ static void _ShowDebugText()
         "GPU: {}\n"
         "RAM: {}\n"
         "VRAM: {}\n"
-        "ChunksAliveMem: {}"
         ,
         glm::to_string(CamPosCurr).substr(4),
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
@@ -179,8 +178,7 @@ static void _ShowDebugText()
         Loader::cpuid(),
         (const char*)vkx::ctx().PhysDeviceProperties.deviceName,
         strRAM,
-        strVRAM,
-        Chunk::dbg_ChunkAlive
+        strVRAM
     );
 
     ImGui::SetCursorPos({ 0, 48 });
