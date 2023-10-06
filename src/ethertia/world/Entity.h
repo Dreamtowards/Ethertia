@@ -1,9 +1,11 @@
 
 #pragma once
 
-#include "World.h"
+#include <entt/entt.hpp>
 
-#include "EntityComponents.h"
+#include <ethertia/world/World.h>
+
+#include <ethertia/world/EntityComponents.h>
 
 class Entity
 {

@@ -20,6 +20,7 @@
 #include <ethertia/util/Colors.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/init/DebugStat.h>
+#include <ethertia/init/HitResult.h>
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/chunk/ChunkSystem.h>
 
@@ -125,6 +126,16 @@ static void _ShowDebugText()
         "PxScene: {};",
         PhysX.getNbShapes(), PhysX.getNbMaterials(), PhysX.getNbTriangleMeshes(), PhysX.getNbConvexMeshes(), strPxScene);
 
+    HitResult& hit = Ethertia::GetHitResult();
+    std::string strHitResult = hit.enabled ? "--" : "disabled";
+    if (hit)
+    {
+        strHitResult = std::format(
+            "p: {}, n: {}, d: {}. vox: {}", 
+            glm::to_string(hit.position), glm::to_string(hit.normal), hit.distance, hit.hitVoxel);
+
+    }
+
     static glm::vec3 CamPosLast;
     glm::vec3 CamPosCurr = cam.position;  // HeavyCost!!! try make cache if necessary
     glm::vec3 CamPosMoved = CamPosCurr - CamPosLast;
@@ -145,7 +156,7 @@ static void _ShowDebugText()
         "\n"
         "PhysX: {}\n"
         "\n"
-        "HitResult: (0, 0, 0); cell: --; chunk: --;\n"
+        "HitResult: {}\n"
         "\n"
         "OS:  {}, {} concurrency, {}-endian\n"
         "CPU: {}\n"
@@ -173,6 +184,7 @@ static void _ShowDebugText()
         //DebugStat::dbg_NumChunksMeshInvalid,
         //DebugStat::dbg_ChunksSaving,
         strPhysX,
+        strHitResult,
     
         Loader::os_arch(), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "B" : "L",
         Loader::cpuid(),

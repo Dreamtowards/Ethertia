@@ -4,8 +4,7 @@
 
 #pragma once
 
-
-class Entity;
+#include <ethertia/world/Entity.h>
 
 class HitResult
 {

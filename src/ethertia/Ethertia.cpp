@@ -15,6 +15,7 @@
 #include <ethertia/init/DebugStat.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
+#include <ethertia/init/HitResult.h>
 #include <ethertia/imgui/ImwInspector.h>  // tmp
 //#include <ethertia/mod/ModLoader.h>
 //#include <ethertia/network/client/ClientConnectionProc.h>
@@ -242,7 +243,7 @@ void Ethertia::UnloadWorld()
     ET_ASSERT(Ethertia::GetWorld());
     Log::info("Unloading World...");
 
-    Ethertia::GetHitCursor().reset();
+    Ethertia::GetHitResult() = {};
     ImwInspector::SelectedEntity = {};
 
     ////Ethertia::GetWorld()->unloadAllChunks();

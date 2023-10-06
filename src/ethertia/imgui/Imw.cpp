@@ -196,8 +196,8 @@ static void _ShowMainMenuBar()
 
             //ImGui::Separator();
 
-            ImGui::Checkbox("Hit Tracking", &Ethertia::GetHitCursor().keepTracking);
-            ImGui::SliderFloat("BrushSize", &Ethertia::GetHitCursor().brushSize, 0, 16);
+            //ImGui::Checkbox("Hit Tracking", &Ethertia::GetHitCursor().keepTracking);
+            //ImGui::SliderFloat("BrushSize", &Ethertia::GetHitCursor().brushSize, 0, 16);
 
             Camera& cam = Ethertia::GetCamera();
             ImGui::SliderFloat("Camera Smoothness", &cam.m_Smoothness, 0, 5);

@@ -6,14 +6,13 @@
 
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/init/DebugStat.h>
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
 #include <ethertia/init/Settings.h>
 
 #include <ethertia/init/KeyBinding.h>
 
-
+#include <ethertia/init/HitResult.h>
 
 
 static void _HandleKeyPress()
@@ -310,7 +309,9 @@ static void _HitRaycast()
         
         hit.entity = { static_cast<entt::entity>((entt::id_type)actor->userData), world };
 
-        hit.hitVoxel = hit.entity.HasComponent<ChunkComponent>();
+        // check is valid
+
+        //hit.hitVoxel = hit.entity.HasComponent<ChunkComponent>();
     }
 
 }

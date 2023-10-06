@@ -8,7 +8,6 @@
 #include <stdx/thread_pool.h>
 
 #include <ethertia/render/Camera.h>
-#include <ethertia/init/HitResult.h>
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Profiler.h>
 
@@ -22,6 +21,8 @@
 class World;
 class WorldInfo;
 
+class HitResult;
+class Entity;
 
 class Ethertia
 {
@@ -46,8 +47,8 @@ public:
     static Timer& GetTimer();
     static Profiler& GetProfiler();
     static Camera& GetCamera();
-    static HitResult& GetHitResult();   // HitResult of World Raycast
     static Entity& GetPlayer();
+    static HitResult& GetHitResult();   // HitResult of World Raycast
 
     
     static bool& isIngame();        // is controlling the game. (mouse grabbed, wsad etc.)
