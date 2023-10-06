@@ -116,7 +116,7 @@ private:
 
 	WorldInfo m_WorldInfo;
 
-	std::unique_ptr<ChunkSystem> m_ChunkSystem;
+	ChunkSystem* m_ChunkSystem;
 
 
 	bool m_Paused = false;

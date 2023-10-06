@@ -69,7 +69,7 @@
 World::World()
 {
 
-	m_ChunkSystem = std::make_unique<ChunkSystem>(this);
+	m_ChunkSystem = new ChunkSystem(this);
 
 
 	// Init ECS
@@ -97,6 +97,8 @@ World::World()
 
 World::~World()
 {
+	delete m_ChunkSystem;
+
 	Log::info("Destroy Entities");
 	registry().clear();
 
