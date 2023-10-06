@@ -53,26 +53,27 @@ static void _ShowDebugText()
             ++ecsNumCompTypes;
             ecsNumComps += it.second.size();
         }
+        int ecsNumValidEntity = 0;
+        world->registry().each([&](auto) {
+            ++ecsNumValidEntity;
+        });
 
-        {
-            ChunkSystem& chunksys = world->GetChunkSystem();
-            //auto _lock = chunksys.LockRead();
+        ChunkSystem& chunksys = world->GetChunkSystem();
 
-            strWorldInfo = std::format(
-                "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
-                "Entity: {}; components: {}, T: {};\n"
-                "Chunk: {} loaded. {} loading, {} meshing, -- saving;",
-                wi.Name,
-                stdx::daytime(wi.DayTime, true, false),
-                wi.TimeInhabited,
-                wi.Seed,
-                world->registry().size(),
-                ecsNumComps,
-                ecsNumCompTypes,
-                chunksys.ChunksCount(),
-                chunksys.m_ChunksLoading.size(),
-                chunksys.m_ChunksMeshing.size());
-        }
+        strWorldInfo = std::format(
+            "'{}'; DayTime: {}; Inhabited: {:.2f}s; Seed: {}\n"
+            "Entity: {}; components: {}, T: {};\n"
+            "Chunk: {} loaded. {} loading, {} meshing, -- saving;",
+            wi.Name,
+            stdx::daytime(wi.DayTime, true, false),
+            wi.TimeInhabited,
+            wi.Seed,
+            ecsNumValidEntity,
+            ecsNumComps,
+            ecsNumCompTypes,
+            chunksys.ChunksCount(),
+            chunksys.m_ChunksLoading.size(),
+            chunksys.m_ChunksMeshing.size());
 
         PxScene& pScene = world->PhysScene();
         strPxScene = std::format(

@@ -239,7 +239,7 @@ static void _InspTransform(TransformComponent& comp)
 
 void ImwInspector::ShowInspector(bool* _open)
 {
-    ImGui::Begin("Inspector", _open);
+    ImGui::Begin("Entity Inspector", _open);
 
     Entity entity = SelectedEntity;
     if (!entity) {
