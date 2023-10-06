@@ -12,7 +12,6 @@
 
 #include <ethertia/init/KeyBinding.h>
 
-#include <ethertia/init/HitResult.h>
 
 
 static void _HandleKeyPress()

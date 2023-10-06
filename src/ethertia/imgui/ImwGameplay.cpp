@@ -20,7 +20,6 @@
 #include <ethertia/util/Colors.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/init/DebugStat.h>
-#include <ethertia/init/HitResult.h>
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/chunk/ChunkSystem.h>
 
@@ -130,9 +129,10 @@ static void _ShowDebugText()
     std::string strHitResult = hit.enabled ? "--" : "disabled";
     if (hit)
     {
+        auto p = hit.position;
         strHitResult = std::format(
-            "p: {}, n: {}, d: {}. vox: {}", 
-            glm::to_string(hit.position), glm::to_string(hit.normal), hit.distance, hit.hitVoxel);
+            "p: ({:.02f}, {:.02f}, {:.02f}), d: {:.2f}. vox: {}", 
+            p.x, p.y, p.z, hit.distance, hit.hitVoxel);
 
     }
 
@@ -147,7 +147,7 @@ static void _ShowDebugText()
     // kph = mps*3.6
     std::string str = std::format(
         "cam: pos: {}, spd: {}mps {}kph; edt_spd_fac: {}\n" 
-        "fps: sec_avg: {}. instant: {}, delta: {}\n"
+        "fps: sec_avg: {}. instant: {}, delta: {:.4f}ms\n"
         "threadpool: {} working / {} threads, pending tasks: {}\n"
         //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
         //"plr ground: {}, collide pts: {}\n"
@@ -169,7 +169,7 @@ static void _ShowDebugText()
         s_CameraMoveSpeed,
         //player->m_OnGround, player->m_NumContactPoints,
     
-        Dbg::dbg_FPS, std::floor(1.0f / dt), dt,
+        Dbg::dbg_FPS, std::floor(1.0f / dt), dt*1000.0,
 
         thread_pool.num_working_threads(), thread_pool.num_threads(), thread_pool.num_tasks(),
     

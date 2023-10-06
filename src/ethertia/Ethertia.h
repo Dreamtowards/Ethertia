@@ -11,6 +11,11 @@
 #include <ethertia/util/Timer.h>
 #include <ethertia/util/Profiler.h>
 
+#include <ethertia/world/World.h>
+#include <ethertia/world/Entity.h>
+#include <ethertia/init/HitResult.h>
+
+
 #define ET_VERSION_MAJOR 0
 #define ET_VERSION_MINOR 0
 #define ET_VERSION_PATCH 6
@@ -18,11 +23,11 @@
 #define ET_VERSION_DATE "2023.10.02"
 
 
-class World;
-class WorldInfo;
-
-class HitResult;
-class Entity;
+//class World;
+//class WorldInfo;
+//
+//class HitResult;
+//class Entity;
 
 class Ethertia
 {
