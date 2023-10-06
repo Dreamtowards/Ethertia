@@ -138,17 +138,6 @@ void World::OnTick(float dt)
 }
 
 
-Cell& World::GetCell(glm::ivec3 p)
-{
-	auto chunk = GetChunkSystem().GetChunk(Chunk::ChunkPos(p));
-
-	if (!chunk)
-		return Cell::Nil();
-
-	return chunk->LocalCell(Chunk::LocalPos(p));
-}
-
-
 
 
 

@@ -17,7 +17,8 @@
 #include <ethertia/init/MaterialMeshes.h>  // tmp test
 
 #include <stdx/stdx.h>
-#include <stdx/object_pool.h>
+
+#include <ethertia/world/chunk/gen/ChunkGenerator.h>
 
 
 
@@ -34,6 +35,17 @@ ChunkSystem::~ChunkSystem()
 
 
 
+
+
+const Cell& ChunkSystem::GetCell(glm::ivec3 p)
+{
+    auto chunk = GetChunk(Chunk::ChunkPos(p));
+
+    if (!chunk)
+        return Cell::Nil();
+
+    return chunk->LocalCell(Chunk::LocalPos(p));
+}
 
 
 

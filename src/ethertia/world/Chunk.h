@@ -38,7 +38,7 @@ public:
 
 	Cell& LocalCell(glm::ivec3 localpos) { return m_Cells[Chunk::LocalIdx(localpos)]; }
 
-	Cell GetCell(glm::ivec3 localpos, bool worldwide = false) 
+	const Cell& GetCell(glm::ivec3 localpos, bool worldwide = false) 
 	{ 
 		if (worldwide && !Chunk::IsLocalPos(localpos))
 		{

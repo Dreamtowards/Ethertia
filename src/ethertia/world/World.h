@@ -8,6 +8,7 @@
 
 #include <ethertia/util/Assert.h>
 
+#include <ethertia/world/chunk/ChunkSystem.h>
 
 class ChunkSystem;
 
@@ -50,7 +51,7 @@ public:
 
 	void OnTick(float dt);
 
-	Cell& GetCell(glm::ivec3 p);
+	const Cell& GetCell(glm::ivec3 p) { return GetChunkSystem().GetCell(p); }
 
 	ChunkSystem& GetChunkSystem() { return *m_ChunkSystem; }
 

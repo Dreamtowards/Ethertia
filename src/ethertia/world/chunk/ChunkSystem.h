@@ -11,17 +11,19 @@
 
 #include <stdx/thread_pool.h>
 #include <stdx/object_pool.h>
+#include <ethertia/render/VertexData.h>
 
-#include <ethertia/world/Chunk.h>
-#include <ethertia/world/chunk/ChunkLoader.h>
-#include <ethertia/world/chunk/gen/ChunkGenerator.h>
+//#include <ethertia/world/Chunk.h>
+//#include <ethertia/world/chunk/ChunkLoader.h>
+//
 
 //#include <ethertia/world/chunk/SVO.h>
 
 //#define ET_LOCK_GUARD(mtx) std::lock_guard<std::mutex> _lock(mtx);
 
 class World;
-
+class Chunk;
+class Cell;
 
 class ChunkSystem
 {
@@ -73,6 +75,9 @@ public:
 		auto _lock = LockRead();
 		return m_Chunks.size();
 	}
+
+
+	const Cell& GetCell(glm::ivec3 p);
 
 
 
