@@ -45,6 +45,7 @@ struct TransformComponent
 #include <ethertia/render/VertexData.h>
 #include <vkx/vkx.hpp>
 
+/*
 struct MeshRenderComponent
 {
 	VertexData* VertexData = nullptr;
@@ -83,4 +84,16 @@ struct RigidStaticComponent
 struct RigidDynamicComponent
 {
 	physx::PxRigidDynamic* RigidDynamic = nullptr;
+};
+*/
+
+struct ChunkComponent
+{
+
+	physx::PxRigidStatic* RigidStatic = nullptr;
+
+	VertexData* VertexData = nullptr;
+
+	vkx::VertexBuffer* VertexBuffer = nullptr;
+
 };

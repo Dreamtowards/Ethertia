@@ -40,29 +40,29 @@
 //	shape->release();
 //}
 
-static void _InitComponentListen(World& world)
-{
-	world.ListenComponent<RigidStaticComponent>(
-		[](Entity entity, RigidStaticComponent& comp)
-		{
-			ETPX_CTX;
-
-			if (!comp.RigidStatic)
-			{
-				comp.RigidStatic = PhysX.createRigidStatic(entity.GetTransform().PxTransform());
-
-				ET_ASSERT(comp.RigidStatic);
-			}
-			entity.world().PhysScene().addActor(*comp.RigidStatic);
-		},
-		[](Entity entity, RigidStaticComponent& comp)
-		{
-			Physics::ClearShapes(*comp.RigidStatic);
-
-			entity.world().PhysScene().removeActor(*comp.RigidStatic);
-		}
-	);
-}
+//static void _InitComponentListen(World& world)
+//{
+//	world.ListenComponent<RigidStaticComponent>(
+//		[](Entity entity, RigidStaticComponent& comp)
+//		{
+//			ETPX_CTX;
+//
+//			if (!comp.RigidStatic)
+//			{
+//				comp.RigidStatic = PhysX.createRigidStatic(entity.GetTransform().PxTransform());
+//
+//				ET_ASSERT(comp.RigidStatic);
+//			}
+//			entity.world().PhysScene().addActor(*comp.RigidStatic);
+//		},
+//		[](Entity entity, RigidStaticComponent& comp)
+//		{
+//			Physics::ClearShapes(*comp.RigidStatic);
+//
+//			entity.world().PhysScene().removeActor(*comp.RigidStatic);
+//		}
+//	);
+//}
 
 
 
@@ -74,7 +74,7 @@ World::World()
 
 	// Init ECS
 
-	_InitComponentListen(*this);
+	//_InitComponentListen(*this);
 
 	// InitPhys
 

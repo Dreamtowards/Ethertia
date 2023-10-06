@@ -30,6 +30,9 @@ public:
 
 	~Chunk();
 
+	// we may create Chunk Object in another thread (WorldGen), and later put it into world. so the Ctor just do simple work, while this do world-related init work.
+	void _LoadToWorld();
+
 	inline static int dbg_ChunkAlive = 0;
 
 

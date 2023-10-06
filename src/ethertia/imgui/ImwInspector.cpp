@@ -108,7 +108,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
                     return;
                 ++listidx;
                 Entity entity = { eid, world };
-                auto& tag = entity.GetComponent<TagComponent>();
+                auto& tag = entity.GetTag();
 
                 ImGui::PushID(entity.id());
                 ImGui::TableNextRow();
@@ -253,14 +253,14 @@ void ImwInspector::ShowInspector(bool* _open)
 
     if (ImGui::BeginPopupContextItem(0, ImGuiPopupFlags_MouseButtonLeft))
     {
-        if (ImGui::MenuItem("Renderer"))
-        {
-            entity.AddComponent<RendererComponent>();
-        }
-        if (ImGui::MenuItem("RigidStatic"))
-        {
-            entity.AddComponent<RigidStaticComponent>();
-        }
+        //if (ImGui::MenuItem("Renderer"))
+        //{
+        //    entity.AddComponent<RendererComponent>();
+        //}
+        //if (ImGui::MenuItem("RigidStatic"))
+        //{
+        //    entity.AddComponent<RigidStaticComponent>();
+        //}
 
         ImGui::EndPopup();
     }
@@ -361,83 +361,83 @@ void ImwInspector::ShowInspector(bool* _open)
 #include <ethertia/world/Physics.h>
 
 
-static void _InspRenderMesh(MeshRenderComponent& comp)
-{
-    ImGui::SeparatorText("vkx::VertexBuffer");
-    vkx::VertexBuffer* vbuf = comp.VertexBuffer;
-    if (vbuf)
-    {
-        ImGui::TextDisabled("VertexCount: %i", vbuf->vertexCount);
-    }
+//static void _InspRenderMesh(MeshRenderComponent& comp)
+//{
+//    ImGui::SeparatorText("vkx::VertexBuffer");
+//    vkx::VertexBuffer* vbuf = comp.VertexBuffer;
+//    if (vbuf)
+//    {
+//        ImGui::TextDisabled("VertexCount: %i", vbuf->vertexCount);
+//    }
+//
+//
+//    ImGui::SeparatorText("VertexData");
+//    VertexData* vtx = comp.VertexData;
+//    if (vtx)
+//    {
+//        ImGui::TextDisabled(std::format(
+//            "VertexCount: {}\n"
+//            "Indices: {}\n"
+//            "Vertices: {}",
+//            vtx->VertexCount(),
+//            vtx->Indices.size(),
+//            vtx->Vertices.size()
+//        ).c_str());
+//    }
+//}
 
 
-    ImGui::SeparatorText("VertexData");
-    VertexData* vtx = comp.VertexData;
-    if (vtx)
-    {
-        ImGui::TextDisabled(std::format(
-            "VertexCount: {}\n"
-            "Indices: {}\n"
-            "Vertices: {}",
-            vtx->VertexCount(),
-            vtx->Indices.size(),
-            vtx->Vertices.size()
-        ).c_str());
-    }
-}
+//static void _InspRenderer(RendererComponent& comp)
+//{
+//
+//}
 
-
-static void _InspRenderer(RendererComponent& comp)
-{
-
-}
-
-static void _InspRigidStatic(RigidStaticComponent& comp)
-{
-    using namespace physx;
-    PxRigidStatic& rigidstatic = *comp.RigidStatic;
-
-    static std::vector<PxShape*> shapes;
-    Physics::GetShapes(rigidstatic, shapes);
-
-    //ImGui::TextDisabled("Shapes: %i", numShapes);
-    ImGui::SeparatorText(std::format("Shapes {}", shapes.size()).c_str());
-    for (PxShape* shape : shapes)
-    {
-        if (ImGui::TreeNode(std::format("Shape {} ", shape->getInternalShapeIndex()).c_str()))
-        {
-
-        //ImGui::BeginChild(ImGui::GetID(shape), {0, -1}, true);
-        const PxGeometry& geo = shape->getGeometry();
-        PxGeometryType::Enum geotype = geo.getType();
-        ImGui::TextDisabled("Geometry: %s", Physics::GeometryName(geotype));
-
-        switch (geotype) 
-        {
-        case PxGeometryType::Enum::eSPHERE: 
-        {
-            PxSphereGeometry& sph = (PxSphereGeometry&)geo;
-            ImGui::DragFloat("Radius", &sph.radius);
-            break;
-        }
-        default:
-            ImGui::TextDisabled("Unsupported Geometry Insp");
-            break;
-        }
-
-        ImGui::Separator();
-
-        static std::vector<PxMaterial*> materials;
-        Physics::GetMaterials(*shape, materials);
-
-        ImGui::TextDisabled("Materials: %i", materials.size());
-        //ImGui::EndChild();
-        //ImGui::Separator();
-
-        ImGui::TreePop();
-        }
-    }
-}
+//static void _InspRigidStatic(RigidStaticComponent& comp)
+//{
+//    using namespace physx;
+//    PxRigidStatic& rigidstatic = *comp.RigidStatic;
+//
+//    static std::vector<PxShape*> shapes;
+//    Physics::GetShapes(rigidstatic, shapes);
+//
+//    //ImGui::TextDisabled("Shapes: %i", numShapes);
+//    ImGui::SeparatorText(std::format("Shapes {}", shapes.size()).c_str());
+//    for (PxShape* shape : shapes)
+//    {
+//        if (ImGui::TreeNode(std::format("Shape {} ", shape->getInternalShapeIndex()).c_str()))
+//        {
+//
+//        //ImGui::BeginChild(ImGui::GetID(shape), {0, -1}, true);
+//        const PxGeometry& geo = shape->getGeometry();
+//        PxGeometryType::Enum geotype = geo.getType();
+//        ImGui::TextDisabled("Geometry: %s", Physics::GeometryName(geotype));
+//
+//        switch (geotype) 
+//        {
+//        case PxGeometryType::Enum::eSPHERE: 
+//        {
+//            PxSphereGeometry& sph = (PxSphereGeometry&)geo;
+//            ImGui::DragFloat("Radius", &sph.radius);
+//            break;
+//        }
+//        default:
+//            ImGui::TextDisabled("Unsupported Geometry Insp");
+//            break;
+//        }
+//
+//        ImGui::Separator();
+//
+//        static std::vector<PxMaterial*> materials;
+//        Physics::GetMaterials(*shape, materials);
+//
+//        ImGui::TextDisabled("Materials: %i", materials.size());
+//        //ImGui::EndChild();
+//        //ImGui::Separator();
+//
+//        ImGui::TreePop();
+//        }
+//    }
+//}
 
 
 
@@ -446,10 +446,10 @@ void ImwInspector::InitComponentInspectors()
     
     ImwInspector::AddComponentInspector<TransformComponent>(_InspTransform);
 
-    ImwInspector::AddComponentInspector<MeshRenderComponent>(_InspRenderMesh);
-
-    ImwInspector::AddComponentInspector<RendererComponent>(_InspRenderer);
-
-    ImwInspector::AddComponentInspector<RigidStaticComponent>(_InspRigidStatic);
+    //ImwInspector::AddComponentInspector<MeshRenderComponent>(_InspRenderMesh);
+    //
+    //ImwInspector::AddComponentInspector<RendererComponent>(_InspRenderer);
+    //
+    //ImwInspector::AddComponentInspector<RigidStaticComponent>(_InspRigidStatic);
 }
 

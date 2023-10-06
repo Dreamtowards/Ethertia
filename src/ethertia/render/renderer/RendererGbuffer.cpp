@@ -203,9 +203,9 @@ void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf, const entt::regist
 
     
 
-    for (const auto& [entity, trans, mesh] : entt_reg.view<TransformComponent, MeshRenderComponent>().each())
+    for (const auto& [entity, trans, chunkComp] : entt_reg.view<TransformComponent, ChunkComponent>().each())
     {
-        vkx::VertexBuffer* vtx = mesh.VertexBuffer;
+        vkx::VertexBuffer* vtx = chunkComp.VertexBuffer;
         if (vtx == nullptr)
             continue;
         //// Frustum Culling

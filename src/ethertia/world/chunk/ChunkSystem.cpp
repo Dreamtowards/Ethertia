@@ -145,18 +145,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 m_Chunks[chunkpos] = chunk;
             }
 
-            chunk->m_NeedRebuildMesh = true;  // RequestRemesh
-
-            Entity entity = m_World->CreateEntity();
-            chunk->entity = entity;
-
-            auto& trans = entity.GetTransform();
-            trans.position() = chunkpos;
-
-            auto& compRenderMesh = entity.AddComponent<MeshRenderComponent>();
-            compRenderMesh.VertexData = new VertexData();
-
-            auto& compRigidStatic = entity.AddComponent<RigidStaticComponent>();
+            chunk->_LoadToWorld();
 
 
             _TmpChunksBatchErase.push_back(chunkpos);
@@ -187,18 +176,6 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 return true;
 
             // UnloadChunk
-
-            auto& compRenderMesh = chunk.entity.GetComponent<MeshRenderComponent>();
-
-            // Delete Old vkx::VertexBuffer
-            if (compRenderMesh.VertexBuffer)
-            {
-                vkx::ctx().Device.waitIdle();
-                delete compRenderMesh.VertexBuffer;
-                compRenderMesh.VertexBuffer = nullptr;
-            }
-
-            m_World->DestroyEntity(chunk.entity);
 
             _TmpChunksBatchErase.push_back(chunkpos);
         });
@@ -234,7 +211,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
             chunk.m_NeedRebuildMesh = false;
 
-            VertexData* vtx = chunk.entity.GetComponent<MeshRenderComponent>().VertexData;
+            VertexData* vtx = chunk.entity.GetComponent<ChunkComponent>().VertexData;
 
             auto pChunk = GetChunk(chunkpos);
 
@@ -245,7 +222,6 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 VertexData* tmp = g_MeshGen_VertexBufPool.acquire();
                 tmp->Clear();
 
-                vtx->Clear();
 
                 {
                     //BENCHMARK_TIMER;
@@ -256,6 +232,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                     //Log::info("MeshGen {} vertices \1", tmp->VertexCount());
                 }
 
+                vtx->Clear();
                 if (!tmp->empty())
                 {
                     //BENCHMARK_TIMER;
@@ -305,27 +282,27 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             else
             {
                 // Update MeshRender
-                auto& compRenderMesh = entity.GetComponent<MeshRenderComponent>();
+                auto& comp = entity.GetComponent<ChunkComponent>();
 
                 // Delete Old vkx::VertexBuffer
-                if (compRenderMesh.VertexBuffer)
+                if (comp.VertexBuffer)
                 {
                     vkx::ctx().Device.waitIdle();
-                    delete compRenderMesh.VertexBuffer;
-                    compRenderMesh.VertexBuffer = nullptr;
+                    delete comp.VertexBuffer;
+                    comp.VertexBuffer = nullptr;
                 }
 
-                VertexData& indexed = *compRenderMesh.VertexData;
+                VertexData& indexed = *comp.VertexData;
                 if (!indexed.empty())
                 {
                     // Upload VertexData to GPU.
-                    compRenderMesh.VertexBuffer = Loader::LoadVertexData(&indexed);
+                    comp.VertexBuffer = Loader::LoadVertexData(&indexed);
 
                     // Update Physics Shape TriangleMesh
-                    auto& compRigidStatic = entity.GetComponent<RigidStaticComponent>();
+                    PxRigidStatic& rigid = *comp.RigidStatic;
 
                     // Delete Old Shapes
-                    Physics::ClearShapes(*compRigidStatic.RigidStatic);
+                    Physics::ClearShapes(rigid);
 
                     // Attach New Shapes
                     ETPX_CTX;
@@ -334,7 +311,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                     PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(indexed)), *Physics::dbg_DefaultMaterial);
                     //Log::info("Create PhysX TriangleMesh of {} vertices \1", indexed.VertexCount());
 
-                    compRigidStatic.RigidStatic->attachShape(*shape);
+                    rigid.attachShape(*shape);
                     shape->release();
                 }
                 else
