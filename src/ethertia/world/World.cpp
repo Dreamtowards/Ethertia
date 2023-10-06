@@ -144,6 +144,22 @@ void World::OnTick(float dt)
 
 
 
+bool World::Raycast(glm::vec3 origin, glm::vec3 dir, float distance, glm::vec3& out_Position, glm::vec3& out_Normal, PxShape** out_Shape, PxRigidActor** out_Actor) const
+{
+	PxRaycastBuffer hitbuf;
+	if (!m_PxScene->raycast(stdx::cast<PxVec3>(origin), stdx::cast<PxVec3>(dir), distance, hitbuf))
+		return false;
+	if (!hitbuf.hasBlock)
+		return false;
+
+	PxRaycastHit& hit = hitbuf.block;
+
+	out_Position = stdx::cast<glm::vec3>(hit.position);
+	out_Normal	 = stdx::cast<glm::vec3>(hit.normal);
+
+	if (out_Shape) *out_Shape = hit.shape;
+	if (out_Actor) *out_Actor = hit.actor;
+}
 
 
 

@@ -57,6 +57,9 @@ public:
 
 	physx::PxScene& PhysScene() { return *m_PxScene; }
 
+	bool Raycast(glm::vec3 raypos, glm::vec3 raydir, float raylength,
+		glm::vec3& out_Position, glm::vec3& out_Normal, PxShape** out_Shape = nullptr, PxRigidActor** out_Actor = nullptr) const;
+
 
 	//template<typename T>
 	//void OnComponentAdded(entt::entity entity, T& component);
