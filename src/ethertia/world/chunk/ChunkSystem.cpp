@@ -94,26 +94,33 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
         ET_PROFILE_("DetLoad");
         auto _lock = LockRead();
 
-        AABB::each(loaddist, [&](glm::ivec3 rp) {
-
-            glm::ivec3 chunkpos = rp * 16 + viewer_chunkpos;
-
-            if (m_ChunksLoading.size() >= cfg_ChunkLoadingMaxConcurrent)
-                return false;
-            if (m_Chunks.contains(chunkpos) || m_ChunksLoading.contains(chunkpos))
-                return true;
-
-            auto task = threadpool.submit([this, chunkpos]()
+        glm::ivec3 extent = loaddist;
+        for (int dy = -extent.y; dy <= extent.y; ++dy)
+        { 
+            for (int dx = -extent.x; dx <= extent.x; ++dx)
+            {
+                for (int dz = -extent.z; dz <= extent.z; ++dz)
                 {
-                    return _ProvideChunk(chunkpos);
-                });
+                    if (m_ChunksLoading.size() >= cfg_ChunkLoadingMaxConcurrent)
+                        break;
 
-            auto [it, succ] = m_ChunksLoading.try_emplace(chunkpos, task);
+                    glm::ivec3 chunkpos = glm::ivec3(dx,dy,dz) * 16 + viewer_chunkpos;
 
-            ET_ASSERT(succ);  // make sure no override
+                    if (m_Chunks.contains(chunkpos) || m_ChunksLoading.contains(chunkpos))
+                        continue;
 
-            return true;
-        });
+                    auto task = threadpool.submit([this, chunkpos]()
+                        {
+                            return _ProvideChunk(chunkpos);
+                        });
+
+                    auto [it, succ] = m_ChunksLoading.try_emplace(chunkpos, task);
+
+                    ET_ASSERT(succ);  // make sure no override
+
+                }
+            }
+        }
     }
 
     // Add AsyncGenerated Chunk to World
