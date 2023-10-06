@@ -279,7 +279,7 @@ static void _HitRaycast()
 {
     Camera& cam = Ethertia::GetCamera();
 
-    glm::vec3 origin;
+    glm::vec3 origin = cam.position;
     glm::vec3 dir;
 
     if (Ethertia::isIngame())

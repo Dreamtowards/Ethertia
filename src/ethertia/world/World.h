@@ -4,7 +4,7 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 
-#include <PxPhysicsAPI.h>
+#include <ethertia/world/Physics.h>
 
 #include <ethertia/util/Assert.h>
 

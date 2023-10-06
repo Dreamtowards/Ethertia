@@ -274,7 +274,8 @@ static void _ShowMainMenuBar()
 
             }
             if (ImGui::MenuItem("Save Screenshot", KeyBindings::KEY_SCREENSHOT.keyName())) {
-                Controls::saveScreenshot();
+                //Controls::saveScreenshot();
+                Log::info("Not supported screenshot");
             }
             if (ImGui::MenuItem("Fullscreen", KeyBindings::KEY_FULLSCREEN.keyName(), Window::isFullscreen())) {
                 Window::ToggleFullscreen();
