@@ -131,7 +131,7 @@ void World::OnTick(float dt)
 	{
 		ET_PROFILE_("ChunkSystem");
 
-		m_ChunkSystem->OnTick();
+		m_ChunkSystem->OnTick(dt);
 	}
 }
 

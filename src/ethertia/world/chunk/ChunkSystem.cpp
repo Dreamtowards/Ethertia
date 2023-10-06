@@ -185,7 +185,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             _TmpChunksBatchErase.push_back(chunkpos);
         });
 
-        auto _lock2 = LockWrite();
+        auto _lock = LockWrite();
         for (auto cp : _TmpChunksBatchErase)
         {
             m_Chunks.erase(cp);
@@ -203,13 +203,13 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
     {
         ET_PROFILE_("DetMesh");
-        auto _lock = LockRead();
-
-        ForChunks([&](auto chunkpos, auto& chunk) {
+        ForChunks([&](auto chunkpos, Chunk& chunk) {
 
             if (m_ChunksMeshing.size() >= cfg_ChunkMeshingMaxConcurrent)
                 return false;
-            if (!chunk.m_NeedRebuildMesh)// || chunk->m_NeedRebuildMesh)
+            if (!chunk.m_NeedRebuildMesh)  
+                return true;
+            if (chunk.m_TimeInhabited < 0.4f)  // later mesh. wait neibiough chunks loaded.
                 return true;
 
             // Queue Chunk MeshGen
@@ -374,8 +374,14 @@ static void _UpdateChunksMeshing()
 
 #include <ethertia/init/DebugStat.h>
 
-void ChunkSystem::OnTick()
+void ChunkSystem::OnTick(float dt)
 {
+    ForChunks([&](auto cp, Chunk& chunk) {
+
+        chunk.m_TimeInhabited += dt;
+
+        return true;
+    });
 
     // temp.
     m_ChunkLoadCenter = Chunk::ChunkPos(Ethertia::GetPlayer().GetTransform().position());

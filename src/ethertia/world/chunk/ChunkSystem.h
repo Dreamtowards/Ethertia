@@ -75,7 +75,7 @@ public:
 
 
 
-	void OnTick();
+	void OnTick(float dt);
 
 
 	[[nodiscard]]
