@@ -293,6 +293,13 @@ static void _ShowViewportWidgets()
         ImwInspector::SelectedEntity = {};
     }
 
+    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragPastThreshold(ImGuiMouseButton_Left))
+    {
+        auto& hit = Ethertia::GetHitResult();
+     
+        ImwInspector::SelectedEntity = (hit && hit.entity) ? hit.entity : Entity{};
+    }
+
     Entity SelectedEntity = ImwInspector::SelectedEntity;
 
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
@@ -510,9 +517,9 @@ static void _MoveCamera()
     bool dragMMB = ImGui::IsMouseDown(ImGuiMouseButton_Middle);
     bool dragLMB = ImGui::IsMouseDown(ImGuiMouseButton_Left);
 
-    if (dragRMB || dragMMB)
+    if (dragLMB || dragRMB || dragMMB)
     {
-        if (dragRMB && (dragMMB || dragLMB))
+        if ((dragLMB && keyAltDown) || (dragRMB && dragLMB))
         {
             // Pin XZ
             move.z += -MouseDelta.y * mspd;
@@ -524,21 +531,18 @@ static void _MoveCamera()
             dYaw += -MouseDelta.x * mspd;
             dPitch += -MouseDelta.y * mspd;
         }
+        else if ((dragMMB && keyAltDown) || (dragLMB && keyCtrlDown))
+        {
+            // Pivot Rotate
+            dYaw += -MouseDelta.x * mspd;
+            dPitch += -MouseDelta.y * mspd;
+            len = 16;
+        }
         else if (dragMMB)
         {
-            if (keyAltDown)
-            {
-                // Pivot Rotate
-                dYaw += -MouseDelta.x * mspd;
-                dPitch += -MouseDelta.y * mspd;
-                len = 16;
-            }
-            else
-            {
-                // Pin XY
-                move.x += -MouseDelta.x * mspd;
-                move.y += MouseDelta.y * mspd;
-            }
+            // Pin XY
+            move.x += -MouseDelta.x * mspd;
+            move.y += MouseDelta.y * mspd;
         }
 
         if (io.KeysDown[ImGuiKey_W]) move.z -= 1;
@@ -547,7 +551,7 @@ static void _MoveCamera()
         if (io.KeysDown[ImGuiKey_D]) move.x += 1;
         if (io.KeysDown[ImGuiKey_Q]) move.y -= 1;
         if (io.KeysDown[ImGuiKey_E]) move.y += 1;
-        if (keyCtrlDown) moveaa.y -= 1;
+        if (keyCtrlDown && !dragLMB) moveaa.y -= 1;
         if (io.KeysDown[ImGuiKey_Space]) moveaa.y += 1;
 
 
