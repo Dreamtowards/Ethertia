@@ -16,9 +16,10 @@ public:
     glm::vec3 normal;
     float distance = 0;  // length(origin - hit.position)
 
-    Entity entity;  // always valid if .hit is true.
+    Entity entity;
 
-    bool hitVoxel = false;
+    bool hitVoxel = false;  // if the hit.entity is a chunk.
+
     //Cell* cell = nullptr;  // may invalid even if .hit/.hitTerrain is true.  but the cell.mtl always is valid.
     //float cell_breaking_time = 0;  // sec breaking. >= 0. if not 0 means is breaking.
 

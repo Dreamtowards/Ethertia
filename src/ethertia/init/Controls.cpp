@@ -306,7 +306,16 @@ static void _HitRaycast()
         hit.normal = norm;
         hit.distance = glm::length(origin - pos);  // raycast actually provided distance value.
         
-        hit.entity = { static_cast<entt::entity>((entt::id_type)actor->userData), world };
+        Entity entity = { static_cast<entt::entity>((entt::id_type)actor->userData), world };
+        
+        if (world->registry().valid(entity))
+        {
+            hit.entity = entity;
+
+            hit.hitVoxel = entity.HasComponent<TagComponent>();
+        }
+
+
 
         // check is valid
 

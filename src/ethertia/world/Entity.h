@@ -41,7 +41,7 @@ public:
 	template<typename T>
 	bool HasComponent() const
 	{
-		return m_World->registry().has<T>(m_EntityId);
+		return m_World->registry().any_of<T>(m_EntityId);
 	}
 
 

@@ -131,8 +131,8 @@ static void _ShowDebugText()
     {
         auto p = hit.position;
         strHitResult = std::format(
-            "p: ({:.02f}, {:.02f}, {:.02f}), d: {:.2f}. vox: {}", 
-            p.x, p.y, p.z, hit.distance, hit.hitVoxel);
+            "p: ({:.02f}, {:.02f}, {:.02f}), d: {:.2f}. entity: {}, vox: {}", 
+            p.x, p.y, p.z, hit.distance, hit.entity ? std::to_string(hit.entity.id()) : "nil", hit.hitVoxel);
 
     }
 
@@ -146,8 +146,8 @@ static void _ShowDebugText()
 
     // kph = mps*3.6
     std::string str = std::format(
-        "cam: pos: {}, spd: {}mps {}kph; edt_spd_fac: {}\n" 
-        "fps: sec_avg: {}. instant: {}, delta: {:.4f}ms\n"
+        "cam: p: ({}, {}, {}), spd: {:.2f}mps {:.2f}kph; edt_spd_fac: {}\n" 
+        "fps: sec_avg: {}. curr: {}, delta: {:.4f}ms\n"
         "threadpool: {} working / {} threads, pending tasks: {}\n"
         //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
         //"plr ground: {}, collide pts: {}\n"
@@ -164,7 +164,7 @@ static void _ShowDebugText()
         "RAM: {}\n"
         "VRAM: {}\n"
         ,
-        glm::to_string(CamPosCurr).substr(4),
+        CamPosCurr.x, CamPosCurr.y, CamPosCurr.z, //glm::to_string(CamPosCurr).substr(4),
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
         s_CameraMoveSpeed,
         //player->m_OnGround, player->m_NumContactPoints,
