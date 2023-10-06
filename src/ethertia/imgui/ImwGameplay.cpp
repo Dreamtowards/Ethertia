@@ -106,6 +106,17 @@ static void _ShowDebugText()
             stdx::size_str(_PhysUsed), stdx::size_str(_PhysTotal));
     }
 
+    std::string strVRAM;
+    {
+        VKX_CTX_device_allocator;
+        auto& vkMemProp = vkxc.PhysDeviceMemoryProperties;
+
+        strVRAM = std::format(
+            "local heap: {}",
+            stdx::size_str(vkMemProp.memoryHeaps[0].size)
+            );
+    }
+
 
     ETPX_CTX;
     std::string strPhysX = std::format(
@@ -138,7 +149,9 @@ static void _ShowDebugText()
         "OS:  {}, {} concurrency, {}-endian\n"
         "CPU: {}\n"
         "GPU: {}\n"
-        "RAM: {}"
+        "RAM: {}\n"
+        "VRAM: {}\n"
+        "ChunksAliveMem: {}"
         ,
         glm::to_string(CamPosCurr).substr(4),
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
@@ -164,7 +177,9 @@ static void _ShowDebugText()
         Loader::os_arch(), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "B" : "L",
         Loader::cpuid(),
         (const char*)vkx::ctx().PhysDeviceProperties.deviceName,
-        strRAM
+        strRAM,
+        strVRAM,
+        Chunk::dbg_ChunkAlive
     );
 
     ImGui::SetCursorPos({ 0, 48 });
@@ -259,15 +274,15 @@ static void _ShowViewportWidgets()
 {
     using Gizmos = ImwGame::Gizmos;
 
-    Entity SelectedEntity = ImwInspector::SelectedEntity;
-
     Camera& cam = Ethertia::GetCamera();
     World* world = Ethertia::GetWorld();
 
-    if (!world || !world->registry().valid(SelectedEntity))
+    if (!world || !world->registry().valid(ImwInspector::SelectedEntity))
     {
         ImwInspector::SelectedEntity = {};
     }
+
+    Entity SelectedEntity = ImwInspector::SelectedEntity;
 
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
     ImGui::ArrowButton("Menu", ImGuiDir_Down);

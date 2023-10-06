@@ -28,6 +28,10 @@ public:
 
 	explicit Chunk(World* world, glm::ivec3 chunkpos);
 
+	~Chunk();
+
+	inline static int dbg_ChunkAlive = 0;
+
 
 	Cell& LocalCell(glm::ivec3 localpos) { return m_Cells[Chunk::LocalIdx(localpos)]; }
 
