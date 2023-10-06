@@ -18,15 +18,18 @@ public:
     glm::vec3 position;  // always sync with matView. since get position from matView is expensive (mat4 inverse). so if you modified matView directly, don't forget update this position
     
     
-    float fov = 90;
     glm::vec3 eulerAngles;  // ORDER: YXZ
 
 
     glm::vec3 direction;  // readonly. produced by EulerAngles.
 
-    // readonly.
     glm::mat4 matView{1.0f};
     glm::mat4 matProjection{1.0f};
+
+
+    float fov = 90;
+    float NearPlane = 0.1f;
+    float FarPlane = 1000.0f;
 
     Frustum m_Frustum;
 

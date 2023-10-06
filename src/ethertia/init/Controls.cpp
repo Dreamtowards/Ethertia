@@ -391,10 +391,6 @@ void Controls::HandleInput()
     cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
 
 
-    if (KeyBindings::KEY_G_CAM_DIST.isKeyDown())
-        cam.len += Window::MouseWheelSum();
-    cam.len = Mth::max(cam.len, 0.0f);
-
 
 
     //// Player Move.

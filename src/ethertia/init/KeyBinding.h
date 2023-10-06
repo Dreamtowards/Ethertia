@@ -63,7 +63,6 @@ public:
         KEY_G_ATTACK        {ImGuiKey_MouseLeft,    "Attack/Destroy"},
         KEY_G_PICK          {ImGuiKey_MouseMiddle,  "Pick"},
         // maybe we can make an action menu? like hold Tab in GTA-V then show the menu, we can choose lot actions we want.
-        KEY_G_CAM_DIST      {ImGuiKey_V,            "Camera Distance"},  // temp
         KEY_G_HOLD          {ImGuiKey_F,            "Hold"},
         KEY_G_SITTING       {ImGuiKey_G,            "Sit"}
         ;
