@@ -420,25 +420,3 @@ const std::string Ethertia::GetVersion(bool fullname)
 //}
 
 
-
-void Camera::update(bool updateMatView)
-{
-
-    //direction = Mth::eulerDirection(-eulerAngles.y, -eulerAngles.x);
-    //direction = glm::normalize(direction);
-
-    //actual_pos = position + -direction * len;
-
-    // ViewMatrix
-    if (updateMatView)
-    matView = Mth::viewMatrix(position, eulerAngles);
-
-    // ProjectionMatrix
-    matProjection = glm::perspective(Mth::radians(fov), Ethertia::GetViewport().AspectRatio(), 0.01f, 1000.0f);
-
-    // ViewFrustum
-    m_Frustum.set(matProjection * matView);
-
-}
-
-

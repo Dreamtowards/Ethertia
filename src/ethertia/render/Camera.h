@@ -10,7 +10,7 @@
 #include <ethertia/util/Mth.h>
 #include <ethertia/util/Frustum.h>
 #include <ethertia/util/SmoothValue.h>
-#include <ethertia/util/Log.h>
+
 
 class Camera
 {
@@ -24,9 +24,9 @@ public:
     glm::vec3 eulerAngles;  // ORDER: YXZ
 
 
-    float fov = 90;
-    float NearPlane = 0.1f;
-    float FarPlane = 1000.0f;
+    float fov = 90;  // in deg
+    float zNear = 0.1f;
+    float zFar = 1000.0f;
 
     Frustum m_Frustum;
 
@@ -38,6 +38,26 @@ public:
     glm::vec3 direction() {
         return -glm::vec3(matView[0][2], matView[1][2], matView[2][2]);  // get transpose.
     }
+
+    float GetPerspectiveFar() const { return zFar; }
+    void SetPerspectiveFar(float far) { this->zFar = far; }
+
+    void UpdateMatrix(float projAspectRatio, bool updateViewMat = true)
+    {
+        // ViewMatrix
+        if (updateViewMat)
+        {
+            matView = Mth::viewMatrix(position, eulerAngles);
+        }
+
+        // ProjectionMatrix
+        matProjection = glm::perspective(glm::radians(fov), projAspectRatio, zNear, zFar);
+
+        // ViewFrustum
+        m_Frustum.set(matProjection * matView);
+    }
+
+
 
     void updateMovement(float dt, float mDX, float mDY, bool rotZ)
     {
@@ -64,9 +84,6 @@ public:
         eulerAngles.z = sZ.current;
 
     }
-
-    // update ViewMatrix, ProjectionMatrix, and Frustum, etc.
-    void update(bool updateMatView = true);
 
     bool testFrustum(const AABB& aabb) {
         return m_Frustum.intersects(aabb);

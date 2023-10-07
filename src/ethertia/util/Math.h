@@ -93,7 +93,10 @@ public:
 		return std::isinf(v.x) || std::isinf(v.y) || std::isinf(v.z);
 	}
 
-
+	static bool IsZero(glm::vec3 v)
+	{
+		return v.x == 0 && v.y == 0 && v.z == 0;
+	}
 
 };
 

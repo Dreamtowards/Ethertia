@@ -643,7 +643,6 @@ void ImwGame::ShowGame(bool* _open)
 
 
 
-
     // Hotbar
     //EntityPlayer& player = *Ethertia::getPlayer();
     //int gm = player.getGamemode();

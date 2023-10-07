@@ -237,12 +237,13 @@ target_link_libraries(Ethertia "vulkan-1")
 # option(PHYSX_BUILD_TYPE "The build type of PhysX, i.e., one of {debug, checked, profile, release}" "checked")
 target_link_directories(Ethertia PRIVATE "lib/physx-5.2.1/bin/win.x86_64.vc143.mt/debug/")
 target_link_libraries(Ethertia 
-    "PhysXExtensions_static_64"
     "PhysX_64"
-    "PhysXPvdSDK_static_64"
-    "PhysXCooking_64"
+    "PhysXFoundation_64"
     "PhysXCommon_64"
-    "PhysXFoundation_64")
+    "PhysXCooking_64"
+    "PhysXPvdSDK_static_64"
+    "PhysXExtensions_static_64"
+    "PhysXCharacterKinematic_static_64")
     
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 

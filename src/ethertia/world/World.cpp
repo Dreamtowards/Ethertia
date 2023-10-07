@@ -86,11 +86,31 @@ World::World()
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	m_PxScene = PhysX.createScene(sceneDesc);
 
+	// Setup PVD if it's enabled.
 	if (PxPvdSceneClient* pvdClient = m_PxScene->getScenePvdClient())
 	{
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+	}
+
+	// Character Controller Manager.
+	m_PxControllerManager = PxCreateControllerManager(*m_PxScene);
+	// m_PxControllerManager->setOverlapRecoveryModule(true);
+
+	{
+		PxCapsuleControllerDesc desc{};
+		//desc.maxJumpHeight = 1.5f;
+		desc.position = { 10, 20, 10 };
+		desc.radius = 0.3f;
+		desc.height = 1.8f - 2*desc.radius;
+		desc.material = Physics::dbg_DefaultMaterial;
+
+		PxController* cct = m_PxControllerManager->createController(desc);
+		World::dbg_CCT = cct;
+
+
+
 	}
 	
 }
@@ -106,7 +126,9 @@ World::~World()
 	//	registry().destroy(entity);
 	//});
 
+
 	Log::info("Delete PxScene");
+	PX_RELEASE(m_PxControllerManager);
 	PX_RELEASE(m_PxScene);
 }
 

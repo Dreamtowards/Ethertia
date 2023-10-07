@@ -33,6 +33,7 @@ namespace stdx
 		return *reinterpret_cast<T*>((void*)&ptr);
 	}
 
+
 	#pragma endregion
 
 }

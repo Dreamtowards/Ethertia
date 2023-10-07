@@ -9,6 +9,7 @@
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
 #include <ethertia/init/Settings.h>
+#include <ethertia/util/Math.h>
 
 #include <ethertia/init/KeyBinding.h>
 
@@ -414,16 +415,51 @@ void Controls::HandleInput()
 
     //camera.position = Ethertia::getPlayer()->position();
 
-    cam.update(Ethertia::isIngame());
 
-    if (!Ethertia::isIngame())
-        return;
+    if (Ethertia::isIngame())
+    {
+
+        float dt = Ethertia::GetDelta();
+        cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
+
+        PxController* cct = World::dbg_CCT;
+
+        glm::vec3 disp{};
+        if (Window::isKeyDown(GLFW_KEY_W)) disp.z -= 1;
+        if (Window::isKeyDown(GLFW_KEY_S)) disp.z += 1;
+        if (Window::isKeyDown(GLFW_KEY_A)) disp.x -= 1;
+        if (Window::isKeyDown(GLFW_KEY_D)) disp.x += 1;
+        if (Window::isCtrlKeyDown()) disp.y -= 1;
+        if (Window::isKeyDown(GLFW_KEY_SPACE)) disp.y += 1;
+
+        float yaw = cam.eulerAngles.y;
+        disp = glm::vec3(glm::rotate(glm::mat4(1.0f), yaw, glm::vec3(0, 1, 0)) * glm::vec4(disp, 1.0f));
 
 
+        if (!Math::IsZero(disp))
+        {
+            PxControllerCollisionFlags collisionFlags = cct->move(stdx::cast<PxVec3>(disp), 0.01f, Ethertia::GetDelta(), PxControllerFilters());
 
-    float dt = Ethertia::GetDelta();
-    cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
+            if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN)
+            {
+                // onGround
+            }
+        }
 
+        PxExtendedVec3 p = cct->getFootPosition();
+        cam.position = {p.x, p.y, p.z};
+
+    }
+    else
+    {
+        PxController* cct = World::dbg_CCT;
+        if (cct)
+        {
+            cct->setFootPosition(PxExtendedVec3{ cam.position.x, cam.position.y, cam.position.z });
+        }
+    }
+
+    cam.UpdateMatrix(Ethertia::GetViewport().AspectRatio(), Ethertia::isIngame());
 
 
 

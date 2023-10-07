@@ -57,7 +57,7 @@ public:
 
 	physx::PxScene& PhysScene() { return *m_PxScene; }
 
-	bool Raycast(glm::vec3 raypos, glm::vec3 raydir, float raylength,
+	bool Raycast(glm::vec3 origin, glm::vec3 dir, float maxDistance,
 		glm::vec3& out_Position, glm::vec3& out_Normal, PxShape** out_Shape = nullptr, PxRigidActor** out_Actor = nullptr) const;
 
 
@@ -114,6 +114,8 @@ public:
 
 	#pragma endregion
 
+	inline static PxController* dbg_CCT;
+
 private:
 
 	entt::registry m_EntityRegistry;
@@ -126,5 +128,7 @@ private:
 	bool m_Paused = false;
 	int  m_PausedStepFrames = 0;
 
-	physx::PxScene* m_PxScene = nullptr;
+	PxScene* m_PxScene = nullptr;
+	PxControllerManager* m_PxControllerManager = nullptr;
+
 };
