@@ -29,6 +29,7 @@
 #include <ethertia/world/Physics.h>
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
+#include <ethertia/mod/Lua.h>
 
 #include <thread>
 #include <stdx/str.h>
@@ -80,6 +81,8 @@ static void Init()
     //    ModLoader::LoadMod(modpath);
     //}
     //OpenVR::init();
+
+    Lua::Init();
 
     Ethertia::IsRunning() = true;
 
@@ -266,8 +269,26 @@ void Ethertia::UnloadWorld()
 
 void Ethertia::DispatchCommand(const std::string& cmdline) {
     if (cmdline.empty()) return;
-    Log::warn("Not supported yet. cmd {}", cmdline);
+    
 
+    LUA_CTX;
+
+
+    auto result = lua.script(cmdline, [](lua_State*, sol::protected_function_result pfr) {
+            // pfr will contain things that went wrong, for either loading or executing the script
+            // Can throw your own custom error
+            // You can also just return it, and let the call-site handle the error if necessary.
+            sol::error err = pfr;
+
+            Log::warn("Lua Error: {}", err.what());
+            return pfr;
+        });
+
+    if (result.valid())
+    {
+        // print result str
+    }
+    
 //    if (cmdline[0] != '/') {
 //        if (!NetworkSystem::m_Connection) {
 //            _SendMessage("Failed send chat, you haven't connect a server.");
