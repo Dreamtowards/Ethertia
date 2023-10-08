@@ -287,6 +287,26 @@ static void _ShowMainMenuBar()
             ImGui::EndMenu();
         }
 
+        if (World* world = Ethertia::GetWorld())
+        {
+            ImGui::SameLine(ImGui::GetContentRegionMax().x - 128);
+
+            bool paused = world->IsPaused();
+            if (ImGui::Button(paused ? "Resume" : "Pause"))
+            {
+                world->SetPause(!paused);
+            }
+
+            ImGui::SameLine();
+            if (paused)
+            {
+                if (ImGui::Button("Step"))
+                {
+                    world->SetPauseSteps(1);
+                }
+            }
+        }
+
         ImGui::EndMenuBar();
     }
 
@@ -306,7 +326,7 @@ void Imw::ShowDockspaceAndMainMenubar()
     ImVec4 Org = {0.741, 0.345, 0.133, 1.0};
     ImVec4 Dark = {0.176f, 0.176f, 0.176f, 0.700f};
     ImVec4 _col =
-            //Dbg::dbg_PauseWorldRender ? Org :
+            (Ethertia::GetWorld() && Ethertia::GetWorld()->IsPaused()) ? Org :
             Ethertia::isIngame() ? Dark : Pur;
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, _col);
 

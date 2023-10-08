@@ -116,6 +116,10 @@ public:
 
 	inline static PxController* dbg_CCT;
 
+	bool IsPaused() const { return m_Paused; }
+	void SetPause(bool paused) { m_Paused = paused; }
+	void SetPauseSteps(int steps) { m_PausedStepFrames = steps; }
+
 private:
 
 	entt::registry m_EntityRegistry;

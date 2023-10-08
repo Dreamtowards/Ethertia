@@ -326,7 +326,8 @@ void Ethertia::DispatchCommand(const std::string& cmdline) {
 
 
 
-void Ethertia::PrintMessage(const std::string& msg) {
+void Ethertia::PrintMessage(const std::string& msg) 
+{
     Log::info("[MSG/C] ", msg);
 //    GuiMessageList::Inst()->addMessage(msg);
     Imw::Editor::ConsoleMessages.push_back(msg);

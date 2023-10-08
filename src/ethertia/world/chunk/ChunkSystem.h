@@ -123,7 +123,7 @@ public:
 	inline static int cfg_ChunkLoadingMaxConcurrent = 4;
 	std::unordered_map<glm::ivec3, std::shared_ptr<stdx::thread_pool::task<std::shared_ptr<Chunk>>>> m_ChunksLoading;  // MainThread only
 
-	glm::ivec2 m_TmpLoadDistance{1, 0};
+	glm::ivec2 m_TmpLoadDistance{3, 3};
 	glm::ivec3 m_ChunkLoadCenter = {};
 
 	inline static int cfg_ChunkMeshingMaxConcurrent = 4;
