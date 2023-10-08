@@ -228,9 +228,12 @@ static void _ShowGizmo(Entity& entity)
     auto& guizmoOp = ImwGame::GuizmoOperation;
     auto& guizmoMode = ImwGame::GuizmoMode;
 
-    if (ImGui::IsKeyPressed(ImGuiKey_W)) guizmoOp = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_E)) guizmoOp = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(ImGuiKey_R)) guizmoOp = ImGuizmo::SCALE;
+    if (!ImGui::IsMouseDragging(ImGuiMouseButton_Right))  // if not ViewManipulating
+    {
+        if (ImGui::IsKeyPressed(ImGuiKey_W)) guizmoOp = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_E)) guizmoOp = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_R)) guizmoOp = ImGuizmo::SCALE;
+    }
 
     //if (ImGui::RadioButton("Translate", _GizmoOp == ImGuizmo::TRANSLATE))    _GizmoOp = ImGuizmo::TRANSLATE;  ImGui::SameLine();
     //if (ImGui::RadioButton("Rotate",    _GizmoOp == ImGuizmo::ROTATE))       _GizmoOp = ImGuizmo::ROTATE;     ImGui::SameLine();
