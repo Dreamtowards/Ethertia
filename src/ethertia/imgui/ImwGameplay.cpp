@@ -293,7 +293,7 @@ static void _ShowViewportWidgets()
         ImwInspector::SelectedEntity = {};
     }
 
-    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragPastThreshold(ImGuiMouseButton_Left))
+    if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragPastThreshold(ImGuiMouseButton_Left))
     {
         auto& hit = Ethertia::GetHitResult();
      

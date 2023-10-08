@@ -323,10 +323,11 @@ void Imw::ShowDockspaceAndMainMenubar()
 
     ImVec4 Blu = {0.188, 0.478, 0.776, 1.0};
     ImVec4 Pur = {0.373, 0.157, 0.467, 1.0};
+    ImVec4 DarkRed = {0.525, 0.106, 0.176, 1.0};
     ImVec4 Org = {0.741, 0.345, 0.133, 1.0};
     ImVec4 Dark = {0.176f, 0.176f, 0.176f, 0.700f};
     ImVec4 _col =
-            (Ethertia::GetWorld() && Ethertia::GetWorld()->IsPaused()) ? Org :
+            (Ethertia::GetWorld() && Ethertia::GetWorld()->IsPaused()) ? DarkRed :
             Ethertia::isIngame() ? Dark : Pur;
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, _col);
 
