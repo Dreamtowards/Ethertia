@@ -30,8 +30,10 @@ set(BUILD_STATIC OFF)
 
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(LINUX TRUE)
+    set(ET_LINUX TRUE)
 endif ()
+
+
 
 # BUILD_TARGET = {windows-x64|darwin-arm64|darwin-x64|linux-x64}
 set(BUILD_TARGET "nil")
@@ -43,7 +45,7 @@ elseif (APPLE)
     else()
         set(BUILD_TARGET "darwin-x64")    # x86-64
     endif ()
-elseif(LINUX)
+elseif(ET_LINUX)
     set(BUILD_TARGET "linux-x64")         # x86-64
 endif ()
 set(BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${BUILD_TARGET})
@@ -52,8 +54,9 @@ set(BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${BUILD_TARGET})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR}) 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR})  # for Windows
 
-message("Ethertia Build Env: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR};")
-message("Bin Dir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+message("Ethertia Build Env: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; Bin Dir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+
+
 
 
 
@@ -79,15 +82,18 @@ include_directories(lib/imgui-knobs-0.21.2)
 include_directories(lib/physx-5.2.1/include)
 include_directories(lib/fastnoise2-0.10.0a/include)
 include_directories(lib/glm-0.9.9.8)
+include_directories(lib/entt-3.12.2/src)
 
 include_directories(lib/enet-2.3.6/include)
 include_directories(lib/msgpack-cppack19/include)
-include_directories(lib/entt-3.12.2/src)
 
 include_directories(lib/stb)
 include_directories(lib/json-nlohmann-3.11.2/include)
 include_directories(lib/tinyobjloader-1.0.6)
 include_directories(lib/tinyfd-2.9.3)
+
+include_directories(lib/sol2-3.3.0/include)
+include_directories(lib/lua-5.4.6/src)
 
 #include_directories(lib/openal-soft/include)
 #include_directories(lib/openvr/headers)
@@ -97,10 +103,46 @@ include_directories(lib/tinyfd-2.9.3)
 #include_directories(lib/yaml-cpp/include)
 #include_directories(lib/vulkan/include)
 
+set(LUA_SRC_DIR "lib/lua-5.4.6/src")
+set(LUA_SRC_FILES 
+    "${LUA_SRC_DIR}/lapi.c"
+    "${LUA_SRC_DIR}/lapi.c"
+    "${LUA_SRC_DIR}/lcode.c"
+    "${LUA_SRC_DIR}/lctype.c"
+    "${LUA_SRC_DIR}/ldebug.c"
+    "${LUA_SRC_DIR}/ldo.c"
+    "${LUA_SRC_DIR}/ldump.c"
+    "${LUA_SRC_DIR}/lfunc.c"
+    "${LUA_SRC_DIR}/lgc.c"
+    "${LUA_SRC_DIR}/llex.c"
+    "${LUA_SRC_DIR}/lmem.c"
+    "${LUA_SRC_DIR}/lobject.c"
+    "${LUA_SRC_DIR}/lopcodes.c"
+    "${LUA_SRC_DIR}/lparser.c"
+    "${LUA_SRC_DIR}/lstate.c"
+    "${LUA_SRC_DIR}/lstring.c"
+    "${LUA_SRC_DIR}/ltable.c"
+    "${LUA_SRC_DIR}/ltm.c"
+    "${LUA_SRC_DIR}/lundump.c"
+    "${LUA_SRC_DIR}/lvm.c"
+    "${LUA_SRC_DIR}/lzio.c"
+    "${LUA_SRC_DIR}/lauxlib.c"
+    "${LUA_SRC_DIR}/lbaselib.c"
+    "${LUA_SRC_DIR}/lcorolib.c"
+    "${LUA_SRC_DIR}/ldblib.c"
+    "${LUA_SRC_DIR}/liolib.c"
+    "${LUA_SRC_DIR}/lmathlib.c"
+    "${LUA_SRC_DIR}/loadlib.c"
+    "${LUA_SRC_DIR}/loslib.c"
+    "${LUA_SRC_DIR}/lstrlib.c"
+    "${LUA_SRC_DIR}/ltablib.c"
+    "${LUA_SRC_DIR}/lutf8lib.c"
+    "${LUA_SRC_DIR}/linit.c")
 
 
 add_executable(Ethertia
         lib/tinyfd-2.9.3/tinyfiledialogs.c
+        ${LUA_SRC_FILES}
 
         src/vkx/vkx.cpp
         src/stdx/thread_pool.cpp
@@ -154,11 +196,11 @@ add_executable(Ethertia
 
         src/ethertia/Ethertia.cpp)
 
+
 add_executable(Elytra
         src/ethertia/lang/Elytra.cpp)
 
-
-
+        
 
 
 add_executable(DedicatedServer
@@ -170,11 +212,12 @@ add_library(TwilightForest SHARED
 
         
 add_executable(EthertiaTests 
+    ${LUA_SRC_FILES}
     src/test/test.cpp)
 
 
-#On linux, We can build shared libraries as default.
-if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC)) AND LINUX)
+#On linux, We can build shared libraries as default.  #? why
+if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC)) AND ET_LINUX)
     set(BUILD_SHARED_LIBS ON)
 endif()
 

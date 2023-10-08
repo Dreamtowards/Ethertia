@@ -5,6 +5,8 @@
 
 #include <ethertia/util/Math.h>
 
+#include <sol/sol.hpp>
+
 
 void test(float& v) 
 {
@@ -56,38 +58,15 @@ void test(float& v)
     }
 }
 
-
-#include <chrono>
-class testV
-{
-public:
-    template<typename T>
-    static T GenInt()
-    {
-        static T _i = std::chrono::system_clock::now().time_since_epoch().count();
-        return _i;
-    }
-
-    static int InlintFunc()
-    {
-        return GenInt<int>();
-    }
-
-    static int InlintFunc2()
-    {
-        return GenInt<uint32_t>();
-    }
-};
 int main()
 {
-    Log::info("A: {}", testV::InlintFunc());
+    sol::state sol;
 
-    Log::info("A: {}", testV::InlintFunc());
+    int i = 5;
+    sol.set_function("__intl_test", [&]() { ++i; });
+    sol.script("__intl_test()");
 
-    Log::info("A: {}", testV::InlintFunc2());
-    Log::info("A: {}", testV::InlintFunc2());
-
-    Log::info("A: {}", testV::InlintFunc());
+    Log::info("Val: {}", i);
 
     return 0;
     //for (float i = 0; i < 10000000; ++i)
