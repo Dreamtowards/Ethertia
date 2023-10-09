@@ -97,3 +97,8 @@ struct ChunkComponent
 	vkx::VertexBuffer* VertexBuffer = nullptr;
 
 };
+
+struct NativeScriptComponent
+{
+	// std::function<void()> OnCreate; OnUpdate, OnDestroy
+};

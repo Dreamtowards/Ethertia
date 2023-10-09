@@ -139,17 +139,6 @@ void World::OnTick(float dt)
 	if (m_Paused && --m_PausedStepFrames < 0)
 		return;
 
-	{
-		ET_PROFILE_("PhysX");
-
-		m_PxScene->simulate(1.0 / 60.0f);
-		m_PxScene->fetchResults(true);
-	}
-
-	WorldInfo& wi = GetWorldInfo();
-	wi.TimeInhabited += dt;
-	wi.DayTime += dt / wi.DayTimeLength;
-	wi.DayTime -= (int)wi.DayTime;  // trunc to [0-1]
 
 
 	{
@@ -157,6 +146,30 @@ void World::OnTick(float dt)
 
 		m_ChunkSystem->OnTick(dt);
 	}
+
+
+	{
+		registry().view<NativeScriptComponent>().each([](auto eid, auto& nsc)
+			{
+
+			});
+	}
+
+
+	{
+		ET_PROFILE_("PhysX");
+
+		m_PxScene->simulate(1.0 / 60.0f);
+		m_PxScene->fetchResults(true);
+	}
+	{
+
+	}
+
+	WorldInfo& wi = GetWorldInfo();
+	wi.TimeInhabited += dt;
+	wi.DayTime += dt / wi.DayTimeLength;
+	wi.DayTime -= (int)wi.DayTime;  // trunc to [0-1]
 }
 
 
