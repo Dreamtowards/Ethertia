@@ -24,4 +24,4 @@
 
 
 
-#define ET_ERROR(msg) throw std::runtime_error(msg);
+#define ET_ERROR(...) throw std::runtime_error(std::format(__VA_ARGS__));

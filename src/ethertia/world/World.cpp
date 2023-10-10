@@ -149,10 +149,10 @@ void World::OnTick(float dt)
 
 
 	{
-		registry().view<NativeScriptComponent>().each([](auto eid, auto& nsc)
-			{
-
-			});
+		//registry().view<NativeScriptComponent>().each([](auto eid, auto& nsc)
+		//	{
+		//
+		//	});
 	}
 
 

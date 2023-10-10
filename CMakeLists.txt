@@ -96,12 +96,8 @@ include_directories(lib/sol2-3.3.0/include)
 include_directories(lib/lua-5.4.6/src)
 
 #include_directories(lib/openal-soft/include)
-#include_directories(lib/openvr/headers)
+include_directories(lib/openvr-1.26.7/headers)
 
-#include_directories(lib/bullet3/src)
-#include_directories(lib/nbt/include)
-#include_directories(lib/yaml-cpp/include)
-#include_directories(lib/vulkan/include)
 
 set(LUA_SRC_DIR "lib/lua-5.4.6/src")
 set(LUA_SRC_FILES 
@@ -143,6 +139,8 @@ set(LUA_SRC_FILES
 add_executable(Ethertia
         lib/tinyfd-2.9.3/tinyfiledialogs.c
         ${LUA_SRC_FILES}
+
+        src/ethertia/vr/OpenVR.cpp
 
         src/vkx/vkx.cpp
         src/stdx/thread_pool.cpp
