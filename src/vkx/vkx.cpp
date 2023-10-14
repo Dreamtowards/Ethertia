@@ -1597,13 +1597,14 @@ static void _CreateSwapchain(
     out_SwapchainExtent = surfaceCapabilities.currentExtent;
     assert(surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() && "VkxError: invalid VkSurfaceCapabilitiesKHR.currentExtent.width");
     // 0x0 extent may happens when Window Minimized, and 0x0 will cause fail to create swapchain.
-    out_SwapchainExtent.width  = std::max(1, (int)out_SwapchainExtent.width);
-    out_SwapchainExtent.height = std::max(1, (int)out_SwapchainExtent.height);
+    //out_SwapchainExtent.width  = std::max(1, (int)out_SwapchainExtent.width);
+    //out_SwapchainExtent.height = std::max(1, (int)out_SwapchainExtent.height);
+    assert(out_SwapchainExtent.width > 0 && out_SwapchainExtent.height > 0);
 
     vk::PresentModeKHR surfacePresentMode = vk::PresentModeKHR::eFifo;  // FIFO is vk guaranteed available.
 //    {
 //        for (auto mode : physDevice.getSurfacePresentModesKHR(surfaceKHR)) {
-//            if (mode == vk::PresentModeKHR::eMailbox) // MAILBOX avoid tearing while still maintaining a fairly low latency by rendering new images that are as up-to-date as possible right until the vertical blank.
+//            if (mode == vk::PresentModeKHR::eMailbox)  // MAILBOX avoid tearing while still maintaining a fairly low latency by rendering new images that are as up-to-date as possible right until the vertical blank.
 //                surfacePresentMode = vk::PresentModeKHR::eMailbox;
 //        }
 //    }

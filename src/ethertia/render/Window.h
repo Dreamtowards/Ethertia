@@ -68,7 +68,8 @@ public:
     static const char* GetClipboard();
     static void SetClipboard(const char* str);
 
-
+    static bool IsMinimized();
+    static bool IsMaximized();
 
 
 

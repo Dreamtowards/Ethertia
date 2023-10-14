@@ -37,6 +37,7 @@
 #include "renderer/RendererGbuffer.cpp"
 
 
+
 static vkx::Image* TEX_WHITE = nullptr;
 static vkx::Image* TEX_UVMAP = nullptr;
 
@@ -101,6 +102,9 @@ void RenderEngine::Destroy()
 
 void RenderEngine::Render()
 {
+    /// skip
+    if (Window::IsMinimized())  
+        return;
     if (Window::isFramebufferResized())
         vkx::RecreateSwapchain();
 
@@ -140,9 +144,6 @@ void RenderEngine::Render()
         vkx::SubmitPresent(cmd);
     }
 }
-
-
-
 
 
 

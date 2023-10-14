@@ -97,6 +97,10 @@ public:
 	{
 		return v.x == 0 && v.y == 0 && v.z == 0;
 	}
+	static bool IsZero(glm::vec2 v)
+	{
+		return v.x == 0 && v.y == 0;
+	}
 
 };
 

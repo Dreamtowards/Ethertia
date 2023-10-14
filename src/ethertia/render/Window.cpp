@@ -206,6 +206,14 @@ void Window::SetClipboard(const char* str) {
 }
 
 
+bool Window::IsMinimized() {
+    return glfwGetWindowAttrib(g_GlfwWindow, GLFW_ICONIFIED); 
+}
+bool Window::IsMaximized() {
+    return glfwGetWindowAttrib(g_GlfwWindow, GLFW_MAXIMIZED);
+}
+
+
 //#define UNPACK_win Window* win = (Window*)glfwGetWindowUserPointer(_win)
 
 static void GlfwCallback_FramebufferSize(GLFWwindow* _win, int wid, int hei)
