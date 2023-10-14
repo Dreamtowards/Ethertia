@@ -24,7 +24,6 @@
 //#include <ethertia/network/client/NetworkSystem.h>
 //#include <ethertia/command/Commands.h>
 // #include <ethertia/audio/AudioEngine.h>
-//#include <ethertia/vr/OpenVR.h>
 //#include <ethertia/init/Sounds.h>
 #include <ethertia/world/Physics.h>
 #include <ethertia/imgui/Imgui.h>

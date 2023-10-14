@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.8)
 
 
 # Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-endif()
+#if (POLICY CMP0141)
+#  cmake_policy(SET CMP0141 NEW)
+#  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+#endif()
 
 
 project(Ethertia)
@@ -95,8 +95,9 @@ include_directories(lib/tinyfd-2.9.3)
 include_directories(lib/sol2-3.3.0/include)
 include_directories(lib/lua-5.4.6/src)
 
+#include_directories(lib/openxr-1.0.30/include)
 #include_directories(lib/openal-soft/include)
-include_directories(lib/openvr-1.26.7/headers)
+#include_directories(lib/openvr-1.26.7/headers)
 
 
 set(LUA_SRC_DIR "lib/lua-5.4.6/src")
@@ -140,7 +141,7 @@ add_executable(Ethertia
         lib/tinyfd-2.9.3/tinyfiledialogs.c
         ${LUA_SRC_FILES}
 
-        src/ethertia/vr/OpenVR.cpp
+        #src/ethertia/vr/OpenXR.cpp
 
         src/vkx/vkx.cpp
         src/stdx/thread_pool.cpp
@@ -287,11 +288,14 @@ target_link_libraries(Ethertia
     "PhysXExtensions_static_64"
     "PhysXCharacterKinematic_static_64")
     
+#target_compile_options(Ethertia PRIVATE /MTd)
+
+string(REPLACE "/MDd" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
 
 
-
+message("CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
 
 
 

@@ -735,7 +735,7 @@ glm::vec3 Loader::OpenColorPicker(
         const char* defaultHexRGB,
         const char** out_HexRGB)
 {
-    uint8_t rgb[3] = { defaultColor.x * 255, defaultColor.y * 255, defaultColor.z * 255 };
+    uint8_t rgb[3] = { (uint8_t)(defaultColor.x * 255), (uint8_t)(defaultColor.y * 255), (uint8_t)(defaultColor.z * 255) };
 
     const char* hexResult = tinyfd_colorChooser(title, defaultHexRGB, rgb, rgb);
     if (out_HexRGB) {
