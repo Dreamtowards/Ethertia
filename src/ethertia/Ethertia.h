@@ -22,12 +22,11 @@
 #define ET_VERSION_SNAPSHOT "2023.10a"
 #define ET_VERSION_DATE "2023.10.02"
 
+#define ET_NAMESPACE et
+#define ET_NAMESPACE_BEGIN namespace ET_NAMESPACE {
+#define ET_NAMESPACE_END }
 
-//class World;
-//class WorldInfo;
-//
-//class HitResult;
-//class Entity;
+
 
 class Ethertia
 {
