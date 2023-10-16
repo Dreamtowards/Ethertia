@@ -307,7 +307,7 @@ static void _HitRaycast()
         hit.normal = norm;
         hit.distance = glm::length(origin - pos);  // raycast actually provided distance value.
         
-        Entity entity = { static_cast<entt::entity>((entt::id_type)actor->userData), world };
+        Entity entity = { (entt::entity)(intptr_t)actor->userData, world };
         
         if (world->registry().valid(entity))
         {
@@ -412,7 +412,7 @@ void Controls::HandleInput()
             _SumFPS = 0;
             _LastSec = curr_sec;
 
-            Log::info("avg FPS: {}, {}ms", Controls::DbgAvgFPS, 1.0 / Controls::DbgAvgFPS * 1000);
+            //Log::info("avg FPS: {}, {}ms", Controls::DbgAvgFPS, 1.0 / Controls::DbgAvgFPS * 1000);
         }
     }
 

@@ -190,6 +190,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             // UnloadChunk
 
             _TmpChunksBatchErase.push_back(chunkpos);
+            return true;
         });
 
         auto _lock = LockWrite();
@@ -265,6 +266,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
             auto [it, succ] = m_ChunksMeshing.try_emplace(chunkpos, task);
 
             ET_ASSERT(succ);
+            return true;
         });
     }
 

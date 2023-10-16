@@ -101,40 +101,41 @@ void ImwInspector::ShowHierarchy(bool* _open)
         //ImGui::TableSetupColumn("##Type", ImGuiTableColumnFlags_WidthFixed, 80);
         //ImGui::TableHeadersRow();
 
-        world->registry().each([&](entt::entity eid) 
+        for (const auto& [eid] : world->registry().storage<entt::entity>().each())
+        {
+            if (listidx > s_ListCountLimit)
+                break;
+            ++listidx;
+
+            Entity entity = { eid, world };
+            auto& tag = entity.GetTag();
+
+            ImGui::PushID(entity.id());
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+
+            if (ImGui::Selectable("##sel", SelectedEntity == entity, ImGuiSelectableFlags_SpanAllColumns))
             {
-                if (listidx > s_ListCountLimit)
-                    return;
-                ++listidx;
-                Entity entity = { eid, world };
-                auto& tag = entity.GetTag();
+                SelectedEntity = SelectedEntity == entity ? Entity{} : entity;
+            }
+            Imgui::ItemTooltip(std::format("entt_id: {}", entity.id()));
 
-                ImGui::PushID(entity.id());
-                ImGui::TableNextRow();
+            ImGui::SameLine();
 
-                ImGui::TableNextColumn();
+            if (tag.IsEnabled) {
+                ImGui::Text("%s", tag.Name.c_str());
+            }
+            else {
+                ImGui::TextDisabled("%s", tag.Name.c_str());
+            }
 
-                if (ImGui::Selectable("##sel", SelectedEntity == entity, ImGuiSelectableFlags_SpanAllColumns))
-                {
-                    SelectedEntity = SelectedEntity == entity ? Entity{} : entity;
-                }
-                Imgui::ItemTooltip(std::format("entt_id: {}", entity.id()));
+            ImGui::TableNextColumn();
 
-                ImGui::SameLine();
+            ImGui::TextDisabled("type");
 
-                if (tag.IsEnabled) {
-                    ImGui::Text("%s", tag.Name.c_str());
-                }
-                else {
-                    ImGui::TextDisabled("%s", tag.Name.c_str());
-                }
-
-                ImGui::TableNextColumn();
-
-                ImGui::TextDisabled("type");
-
-                ImGui::PopID();
-            });
+            ImGui::PopID();
+        }
 
         ImGui::EndTable();
     }
@@ -155,7 +156,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
     ImGui::EndChild();
 
 
-    ImGui::TextDisabled(std::format("{} entity, {} listed.", world->registry().size(), listidx).c_str());
+    ImGui::TextDisabled(std::format("{} entity, {} listed.", world->registry().storage<entt::entity>().size(), listidx).c_str());
 
 
 
@@ -314,7 +315,7 @@ void ImwInspector::ShowInspector(bool* _open)
                 name = name.substr(0, name.size() - 9);
             }
             static char _ComponentName[128];
-            std::strncpy(_ComponentName, name.data(), name.size());
+            std::memcpy(_ComponentName, name.data(), name.size());
             _ComponentName[name.size()] = 0;
 
             ImGui::Spacing();
