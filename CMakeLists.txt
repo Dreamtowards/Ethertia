@@ -60,13 +60,13 @@ message("Ethertia Build Env: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_S
 
 
 
-if(WIN32)
-    link_libraries(winmm gdi32 wsock32 ws2_32)  # for enet lib
-
-    if (NOT MSVC)
-        set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")  # disable warning for ENET
-    endif ()
-endif()
+#if(WIN32)
+#    link_libraries(winmm gdi32 wsock32 ws2_32)  # for enet lib
+#
+#    if (NOT MSVC)
+#        set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")  # disable warning for ENET
+#    endif ()
+#endif()
 
 
 
@@ -197,10 +197,6 @@ add_executable(Ethertia
         src/ethertia/Ethertia.cpp)
 
 
-add_executable(Elytra
-        src/ethertia/lang/Elytra.cpp)
-
-        
 
 
 add_executable(DedicatedServer
@@ -229,29 +225,12 @@ if(BUILD_SHARED_LIBS OR BUILD_STATIC)
     add_subdirectory(lib/glfw-3.3.8)
     target_link_libraries(Ethertia glfw)
 
-    #add_subdirectory(lib/bullet3)
-    #target_link_libraries(Ethertia BulletDynamics BulletCollision LinearMath)
-
     add_subdirectory(lib/fastnoise2-0.10.0a)
     target_link_libraries(Ethertia FastNoise2)
 
 #    add_subdirectory(lib/openal-soft)
 #    target_link_libraries(Ethertia OpenAL)
 
-else()
-    target_link_directories(Ethertia PUBLIC ${BIN_DIR})
-#    target_link_directories(Eldaria PUBLIC ${BIN_DIR})
-
-    target_link_libraries(Ethertia FastNoise) # BulletDynamics BulletCollision LinearMath 
-
-    if (APPLE)
-        target_link_libraries(Ethertia glfw.3 openal)
-#        target_link_libraries(Eldaria glfw.3 openal)
-    endif ()
-    if(WIN32)
-        target_link_libraries(Ethertia glfw3 OpenAL32)
-#        target_link_libraries(Eldaria glfw3 OpenAL32)
-    endif()
 endif()
 
 
