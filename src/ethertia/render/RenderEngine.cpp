@@ -11,10 +11,6 @@
 
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/Settings.h>
-//#include <ethertia/entity/EntityDroppedItem.h>
-//#include <ethertia/entity/player/EntityPlayer.h>
-#include <ethertia/init/DebugStat.h>
-
 
 
 #include <ethertia/imgui/Imgui.h>

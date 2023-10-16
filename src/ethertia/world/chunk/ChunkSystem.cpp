@@ -378,7 +378,6 @@ static void _UpdateChunksMeshing()
 
 }
 
-#include <ethertia/init/DebugStat.h>
 
 void ChunkSystem::OnTick(float dt)
 {

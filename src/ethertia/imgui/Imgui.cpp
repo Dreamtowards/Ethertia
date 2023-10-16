@@ -16,7 +16,6 @@
 
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/init/DebugStat.h>
 #include <ethertia/util/Colors.h>
 #include <ethertia/util/BenchmarkTimer.h>
 

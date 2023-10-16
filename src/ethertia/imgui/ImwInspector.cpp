@@ -10,7 +10,6 @@
 
 #include <ethertia/Ethertia.h>
 #include <ethertia/init/Settings.h>
-#include <ethertia/init/DebugStat.h>
 
 #include <ethertia/world/World.h>
 #include <ethertia/world/Entity.h>

@@ -9,7 +9,6 @@
 #include <ethertia/util/Profiler.h>
 #include <ethertia/util/Colors.h>
 #include <ethertia/Ethertia.h>
-#include <ethertia/init/DebugStat.h>
 
 static float _RenderProfilerSection(const Profiler::Section& sec, float x, float y, float full_width, float full_width_time, const std::function<float(const Profiler::Section&)>& timefunc)
 {

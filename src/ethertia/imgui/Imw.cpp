@@ -11,7 +11,6 @@
 #include <ethertia/imgui/ImwInspector.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/init/Settings.h>
-#include <ethertia/init/DebugStat.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/init/KeyBinding.h>
 #include <ethertia/render/Window.h>
