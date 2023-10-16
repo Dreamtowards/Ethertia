@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <ethertia/material/Materials.h>
+#include <ethertia/material/Material.h>
 
 
 class MaterialTextures

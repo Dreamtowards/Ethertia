@@ -4,12 +4,11 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <ethertia/world/Entity.h>
+#include <ethertia/world/chunk/ChunkSystem.h>
 
 #include <ethertia/world/Physics.h>
-
 #include <ethertia/util/Assert.h>
 
-#include <ethertia/world/chunk/ChunkSystem.h>
 
 class ChunkSystem;
 class Cell;
@@ -46,10 +45,6 @@ public:
 
 	Entity entity;
 
-	//entt::entity entity_id = entt::null;
-	//World* _world = nullptr;
-	//Entity entity() { return { entity_id , _world }; }
-
 	bool hitVoxel = false;  // if the hit.entity is a chunk.
 
 	//Cell* cell = nullptr;  // may invalid even if .hit/.hitTerrain is true.  but the cell.mtl always is valid.
@@ -84,7 +79,7 @@ public:
 
 	ChunkSystem& GetChunkSystem() { return *m_ChunkSystem; }
 
-	physx::PxScene& PhysScene() { return *m_PxScene; }
+	PxScene& PhysScene() { return *m_PxScene; }
 
 	bool Raycast(glm::vec3 origin, glm::vec3 dir, float maxDistance,
 		glm::vec3& out_Position, glm::vec3& out_Normal, PxShape** out_Shape = nullptr, PxRigidActor** out_Actor = nullptr) const;

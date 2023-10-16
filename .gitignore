@@ -11,6 +11,7 @@ out/
 enc_temp_folder/
 
 run/bin/*
+run/assets/*.spv
 
 run/settings.json
 run/imgui.ini

@@ -734,7 +734,7 @@ void ImwGame::ShowGame(bool* _open)
 
 
 
-#include <ethertia/item/recipe/Recipe.h>
+//#include <ethertia/item/recipe/Recipe.h>
 
 static void ShowPlayerInventory()
 {

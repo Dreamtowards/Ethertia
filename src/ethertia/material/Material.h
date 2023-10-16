@@ -2,14 +2,14 @@
 // Created by Dreamtowards on 2022/9/11.
 //
 
-#ifndef ETHERTIA_MATERIAL_H
-#define ETHERTIA_MATERIAL_H
+#pragma once
 
 #include <ethertia/util/Registry.h>
 #include <ethertia/item/Item.h>
 #include <ethertia/item/ItemStack.h>
 
 #include <ethertia/render/VertexData.h>
+
 
 class Material
 {
@@ -19,54 +19,123 @@ public:
 
     std::string Id;
 
-    // Dirt: 0.8, Stone: 8, Ore: 16, Furnace: 18, Anvil: 25, Obsidian: 250
-    float m_Hardness = 1;  // seconds to dig via hand.
+    /// Hardness
+    /// Dirt: 0.8, Stone: 8, Ore: 16, Furnace: 18, Anvil: 25, Obsidian: 250
+    float Hardness = 1;  // seconds to dig via hand.
 
 //    // client可能需要一个数字 MtlId, 用于shaders判断vert.MtlId, 用于Atlas缓存mtl_tex索引(离线持久的数字id 直到atlas失效)
 //    // 其实前者还好 可以运行时宏替换shaders取得id. 然而后者 让atlas根据其有效周期自己维护一个离线id吧
 //    // client. for mtl texture rendering
     int m_TexId = 0;
 
-    bool m_CustomMesh = false;
-    VertexData* m_VertexBuffer = nullptr;
+    VertexData* m_CustomMesh = nullptr;
 
-    // vegetable another chunk mesh. NoCollision, Render WavingVertex, Render NoFaceCulling.
-    bool m_IsVegetable = false;
+    /// Vegetable Materials will generated to another mesh., with Double-Sided (NoCulling), NoCollision, WavingVertex Rendering
+    bool IsVegetable = false;
 
     // generate mesh on top of bottom-cell surface. e.g. Crops, Tallgrass.
-    bool m_IsTouchdown = false;
+    //bool m_IsTouchdown = false;
 
-
-    Item* m_MaterialItem = nullptr;
+    // Item of the Material
+    Item* item = nullptr;
 
     struct MtlParams {
         float hardness = 1;
-        bool mesh = false;
+        VertexData* mesh = nullptr;
         bool vege = false;
         bool touchdown = false;  // on top of the bottom cell.  align bottom. alignb
     };
 
-    Material(const std::string& id,
-             const MtlParams& params = {1.0f, false, false, false}
-             ) : Id(id) {
+    Material(
+        const std::string& id,
+        const MtlParams& params = {1.0f, nullptr, false, false}) : Id(id) 
+    {
 
         REGISTRY.regist(this);
 
         m_CustomMesh = params.mesh;
-        m_IsVegetable = params.vege;
-        m_IsTouchdown = params.touchdown;
-        m_Hardness = params.hardness;
+        IsVegetable = params.vege;
+        Hardness = params.hardness;
+
+        std::cout << "Mtl " << id << "\n";
     }
 
-
-    void getDrops(std::vector<ItemStack>& drops)
-    {
-        drops.push_back(ItemStack(m_MaterialItem, 1));
-    }
-
-    const Item* item() const {
-        return m_MaterialItem;
-    }
 };
 
-#endif //ETHERTIA_MATERIAL_H
+
+
+class Materials
+{
+public:
+
+#define ET_DECL_MTL(x, ...) inline static Material* x = new Material{__VA_ARGS__};
+
+    /// use 0/nullptr to represents AIR. since it's convinent and no side effect yet.
+    inline static Material* AIR = nullptr;
+
+    // Smooth Terrain Materials.
+
+    ET_DECL_MTL(GRASS,         "grass",        { .hardness = 0.8 });
+    ET_DECL_MTL(MOSS,          "moss",         { .hardness = 0.8 });
+    ET_DECL_MTL(DIRT,          "black_dirt",   { .hardness = 0.8 });
+    ET_DECL_MTL(DIRT_,         "dirt",         { .hardness = 0.8 });
+    ET_DECL_MTL(SAND,          "sand",         { .hardness = 0.8 });
+    ET_DECL_MTL(FARMLAND,      "farmland",     { .hardness = 0.8 });
+    ET_DECL_MTL(MEADOW,        "meadow",       { .hardness = 0.8 });
+
+    ET_DECL_MTL(LOG,           "oak_log",      { .hardness = 2.2 });
+    ET_DECL_MTL(PLANKS,        "plank",        { .hardness = 1.4 });
+
+    ET_DECL_MTL(STONE,         "stone",        { .hardness = 8.0 });
+    ET_DECL_MTL(TUFF,          "tuff",         { .hardness = 8.0 });
+    ET_DECL_MTL(CONCRETE,      "concrete",     { .hardness = 8.0 });
+    ET_DECL_MTL(ROCK,          "rock",         { .hardness = 8.0 });
+    ET_DECL_MTL(ROCK_MOSSY,    "rock_mossy",   { .hardness = 8.0 });
+    ET_DECL_MTL(ROCK_SMOOTH,   "rock_smooth",  { .hardness = 8.0 });
+    ET_DECL_MTL(CLIFF_ROCK,    "cliff_rock",   { .hardness = 8.0 });
+    ET_DECL_MTL(VOLCANIC_ROCK, "volcanic_rock",{ .hardness = 8.0 });
+    ET_DECL_MTL(JUNGLE_ROCK,   "jungle_rock",  { .hardness = 8.0 });
+    ET_DECL_MTL(DEEPSLATE,     "deepslate",    { .hardness = 14.0 });
+    ET_DECL_MTL(STONE_BRICK,   "stone_brick",  { .hardness = 8.0 });
+    ET_DECL_MTL(BRICK_ROOF,    "brick_roof",   { .hardness = 8.0 });
+
+    ET_DECL_MTL(IRON,          "iron",         { .hardness = 28.0 });
+    ET_DECL_MTL(IRON_TREADPLATE, "iron_treadplate", { .hardness = 28.0 });
+
+
+
+    
+    // Vegetable/Foliage
+    ET_DECL_MTL(WATER,         "water",        { .hardness = INFINITY, .vege = true });
+    //ET_DECL_MTL(LEAVES,        "leaves",       { .hardness = 0, .mesh = true, .vege = true });
+    //ET_DECL_MTL(SPRUCE_LEAVES, "spruce_leaves",{ .hardness = 0, .mesh = true, .vege = true });
+    //ET_DECL_MTL(TALL_GRASS,    "tall_grass",   { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    //ET_DECL_MTL(SHORT_GRASS,   "short_grass",  { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    //ET_DECL_MTL(TALL_FERN,     "tall_fern",    { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    //ET_DECL_MTL(SHRUB,         "shrub",        { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    //ET_DECL_MTL(ROSE_BUSH,     "rose_bush",    { .hardness = 0, .mesh = true, .vege = true, .touchdown=true });
+    //
+    //// Crops
+    //ET_DECL_MTL(CARROTS,       "carrots",      { .hardness = 0, .mesh=true, .vege=true, .touchdown=true });
+    //ET_DECL_MTL(POTATOES,      "potatoes",     { .hardness = 0, .mesh=true, .vege=true, .touchdown=true });
+    //
+    //// Decorations.
+    //ET_DECL_MTL(STOOL,         "stool",        { .hardness = 1.4, .mesh = true });
+    //ET_DECL_MTL(SHORT_STOOL,   "short_stool",  { .hardness = 1.4, .mesh = true });
+    //ET_DECL_MTL(CHAIR,         "chair",        { .hardness = 1.4, .mesh = true });
+    //ET_DECL_MTL(CASH_REGISTER, "cash_register",{ .hardness = 1.4, .mesh = true });
+    //ET_DECL_MTL(LADDER,        "ladder",       { .hardness = 1.4, .mesh = true });
+
+
+    static void Init()
+    {
+
+        // RegisterMtlItems
+    //    for (auto& it : Material::REGISTRY)
+    //    {
+    //        it.second->m_MaterialItem = new Item(it.first, {new ItemComponentMaterial(it.second)});
+    //    }
+    }
+
+
+};

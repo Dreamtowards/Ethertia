@@ -7,7 +7,7 @@
 
 #include <ethertia/item/recipe/Recipe.h>
 #include <ethertia/item/Items.h>
-#include <ethertia/material/Materials.h>
+#include <ethertia/material/Material.h>
 
 class Recipes
 {

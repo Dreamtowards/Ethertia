@@ -4,7 +4,7 @@
 #include <ethertia/world/Chunk.h>
 #include <ethertia/util/NoiseGen.h>
 
-#include <ethertia/material/Materials.h>
+#include <ethertia/material/Material.h>
 
 
 inline static int IdxXZ(int rx, int rz) {

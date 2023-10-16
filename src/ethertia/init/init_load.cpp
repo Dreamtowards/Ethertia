@@ -226,14 +226,14 @@ void MaterialMeshes::Load()
 
     CAPSULE = Loader::LoadOBJ("entity/capsule-1-2.obj");
 
-    for (auto& it : Material::REGISTRY)
-    {
-        const std::string& id = it.first;
-        Material* mtl = it.second;
-
-        if (mtl->m_CustomMesh)
-        {
-            mtl->m_VertexBuffer = Loader::LoadOBJ(std::format("material/{}/mesh.obj", id));
-        }
-    }
+    //for (auto& it : Material::REGISTRY)
+    //{
+    //    const std::string& id = it.first;
+    //    Material* mtl = it.second;
+    //
+    //    if (mtl->m_CustomMesh)
+    //    {
+    //        mtl->m_CustomMeshData = Loader::LoadOBJ(std::format("material/{}/mesh.obj", id));
+    //    }
+    //}
 }

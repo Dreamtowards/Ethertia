@@ -16,7 +16,7 @@
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
 #include <ethertia/init/MaterialTextures.h>
-#include <ethertia/material/Materials.h>
+#include <ethertia/material/Material.h>
 
 
 #include <ethertia/world/World.h>
