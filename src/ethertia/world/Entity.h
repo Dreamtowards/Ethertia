@@ -15,33 +15,25 @@ struct TagComponent
 {
 	std::string Name;
 
-	bool IsEnabled;
+	bool IsEnabled = true;
 
-	TagComponent(const std::string& name, bool enabled = true) : Name(name), IsEnabled(enabled) {}
 };
 
 
 #include <glm/glm.hpp>
-#include <stdx/stdx.h>
-#include <ethertia/world/Physics.h>
 #include <glm/gtc/quaternion.hpp>
+#include <stdx/stdx.h>
 
 struct TransformComponent
 {
 	glm::mat4 Transform;
 
-	glm::vec3& position() { return stdx::cast<glm::vec3>(Transform[3]); }
+	const glm::vec3& position() const { return stdx::cast<glm::vec3>(Transform[3]); }
 
-	glm::vec3 position() const { return stdx::cast<glm::vec3>(Transform[3]); }
+	glm::vec3& position() { return stdx::cast<glm::vec3>(Transform[3]); }
 
 	glm::quat quat() const { return glm::quat_cast(glm::mat3(Transform)); }
 
-	physx::PxTransform PxTransform() const {
-		return {
-			stdx::cast<physx::PxVec3>(position()),
-			stdx::cast<physx::PxQuat>(quat())
-		};
-	}
 };
 
 #pragma endregion

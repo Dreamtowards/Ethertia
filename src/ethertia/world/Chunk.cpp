@@ -26,7 +26,7 @@ void Chunk::_LoadToWorld()
 
 
     ETPX_CTX;
-    comp.RigidStatic = PhysX.createRigidStatic(entity.GetTransform().PxTransform());
+    comp.RigidStatic = PhysX.createRigidStatic(Physics::PxTransform(entity.GetTransform()));
     comp.RigidStatic->userData = (void*)entity.id();
     m_World->PhysScene().addActor(*comp.RigidStatic);
 }

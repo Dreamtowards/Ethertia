@@ -9,8 +9,11 @@ using namespace physx;
 
 #include <span>
 #include <vector>
+#include <stdx/stdx.h>
 
 #include <ethertia/render/VertexData.h>
+
+#include <ethertia/world/Entity.h>
 
 class Physics
 {
@@ -61,5 +64,13 @@ public:
 		{
 			rigid.detachShape(*shape);
 		}
+	}
+
+	static PxTransform PxTransform(const TransformComponent& tc)
+	{
+		return {
+			stdx::cast<PxVec3>(tc.position()),
+			stdx::cast<PxQuat>(tc.quat())
+		};
 	}
 };
