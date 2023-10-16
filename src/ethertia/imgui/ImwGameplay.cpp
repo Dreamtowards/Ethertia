@@ -27,7 +27,7 @@
 #include <ethertia/render/RenderEngine.h>
 
 
-static float s_CameraMoveSpeed = 16;
+static float s_CameraMoveSpeed = 8;
 
 
 #pragma region Viewport Ops
@@ -512,7 +512,7 @@ static void _MoveCamera()
     ImVec2 MouseDelta = io.MouseDelta;
     float  MouseWheel = io.MouseWheel;
 
-    float mspd = 0.2f;
+    float rotateSpeed = 0.2;
 
     bool keyAltDown = Window::isAltKeyDown();
     bool keyCtrlDown = Window::isCtrlKeyDown();
@@ -525,20 +525,20 @@ static void _MoveCamera()
         if ((dragLMB && keyAltDown) || (dragRMB && dragLMB))
         {
             // Pin XZ
-            move.z += -MouseDelta.y * mspd;
-            move.x += -MouseDelta.x * mspd;
+            move.z += -MouseDelta.y;
+            move.x += -MouseDelta.x;
         }
         else if (dragRMB)
         {
             // FPS Rotate
-            dYaw += -MouseDelta.x * mspd;
-            dPitch += -MouseDelta.y * mspd;
+            dYaw += -MouseDelta.x * rotateSpeed;
+            dPitch += -MouseDelta.y * rotateSpeed;
         }
         else if ((dragMMB && keyAltDown) || (dragLMB && keyCtrlDown))
         {
             // Pivot Rotate
-            dYaw += -MouseDelta.x * mspd;
-            dPitch += -MouseDelta.y * mspd;
+            dYaw += -MouseDelta.x * rotateSpeed;
+            dPitch += -MouseDelta.y * rotateSpeed;
 
             auto& hit = Ethertia::GetHitResult();
             len = hit ? hit.distance : 32.0f;
@@ -546,8 +546,8 @@ static void _MoveCamera()
         else if (dragMMB)
         {
             // Pin XY
-            move.x += -MouseDelta.x * mspd;
-            move.y += MouseDelta.y * mspd;
+            move.x += -MouseDelta.x;
+            move.y +=  MouseDelta.y;
         }
 
         if (io.KeysDown[ImGuiKey_W]) move.z -= 1;
