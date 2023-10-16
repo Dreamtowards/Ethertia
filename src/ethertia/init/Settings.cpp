@@ -32,6 +32,13 @@ static const char* SETTINGS_FILE = "./settings.json";
 
 void Settings::LoadSettings()
 {
+    // Hack: attempts modify Working Directory. from e.g. .../bin/windows-x64/ to .../
+    if (std::filesystem::current_path().parent_path().filename() == "bin")
+    {
+        std::filesystem::current_path(std::filesystem::current_path().parent_path().parent_path());
+    }
+
+    // Check working directory
     if (!Loader::FileExists("./assets"))
         throw std::runtime_error(std::format("default assets directory not found. make sure you are in valid working directory. (current dir: {})", std::filesystem::current_path().string()));
 

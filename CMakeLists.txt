@@ -53,6 +53,8 @@ set(ET_BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${ET_BUILD_TARGET})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR}) 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR})  # for Windows
 
+link_directories(${ET_BUILD_TARGET_DIR})
+
 message("Ethertia BuildEnv: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; BinDir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}; CXX_FALGS: ${CMAKE_CXX_FLAGS}")
 
 
@@ -69,6 +71,7 @@ include_directories(lib/imgui-docking)
 include_directories(lib/imguizmo-1.83)
 include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
+include_directories(lib/vulkan-1.3.250.0/include)
 
 include_directories(lib/physx-5.3.0/include)
 include_directories(lib/fastnoise2-0.10.0a/include)
@@ -236,14 +239,14 @@ endif()
 
 
 # Setup Vulkan
-set(VULKAN_SDK "C:/Softwares/VulkanSDK/1.3.250.0")
-target_include_directories(Ethertia PRIVATE "${VULKAN_SDK}/Include/")
-target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
+#set(VULKAN_SDK "C:/Softwares/VulkanSDK/1.3.250.0")
+#target_include_directories(Ethertia PRIVATE "${VULKAN_SDK}/Include/")
+#target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
 target_link_libraries(Ethertia "vulkan-1")
 
 
 # Setup PhysX
-target_link_directories(Ethertia PRIVATE "lib/physx-5.3.0/bin/win.x86_64.vc143.md/debug/")
+#target_link_directories(Ethertia PRIVATE "lib/physx-5.3.0/bin/win.x86_64.vc143.md/debug/")
 target_link_libraries(Ethertia 
     "PhysX_64"
     "PhysXFoundation_64"
