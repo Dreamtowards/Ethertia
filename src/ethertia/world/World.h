@@ -3,6 +3,7 @@
 
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
+#include <ethertia/world/Entity.h>
 
 #include <ethertia/world/Physics.h>
 
@@ -11,6 +12,8 @@
 #include <ethertia/world/chunk/ChunkSystem.h>
 
 class ChunkSystem;
+class Cell;
+class Entity;  // fwd
 
 class WorldInfo
 {
@@ -30,8 +33,34 @@ public:
 
 };
 
-class Cell;
-class Entity;  // fwd
+
+class HitResult
+{
+public:
+	bool enabled = true;
+	bool hit = false;
+
+	glm::vec3 position;
+	glm::vec3 normal;
+	float distance = 0;  // length(origin - hit.position)
+
+	Entity entity;
+
+	//entt::entity entity_id = entt::null;
+	//World* _world = nullptr;
+	//Entity entity() { return { entity_id , _world }; }
+
+	bool hitVoxel = false;  // if the hit.entity is a chunk.
+
+	//Cell* cell = nullptr;  // may invalid even if .hit/.hitTerrain is true.  but the cell.mtl always is valid.
+	//float cell_breaking_time = 0;  // sec breaking. >= 0. if not 0 means is breaking.
+
+
+	operator bool() const { return hit; }
+
+};
+
+
 
 class World
 {

@@ -292,7 +292,7 @@ void ImwInspector::ShowInspector(bool* _open)
     int numEntityComponents = 0;
 
     // for Pools of ComponentType
-    for (const auto& it : entity.reg().storage())
+    for (const auto& it : entity.registry().storage())
     {
         if (auto& c_storage = it.second; c_storage.contains(entity))
         {

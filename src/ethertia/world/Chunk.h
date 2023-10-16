@@ -7,11 +7,8 @@
 #include <ethertia/util/Assert.h>
 #include <ethertia/util/Math.h>
 
-#include <ethertia/world/Entity.h>
+#include <ethertia/world/World.h>
 
-
-
-class World;
 
 class Chunk
 {
@@ -26,12 +23,17 @@ public:
 
 	float m_TimeInhabited = 0;  // in sec
 
+
+
 	explicit Chunk(World* world, glm::ivec3 chunkpos);
 
 	~Chunk();
 
+
+
 	// we may create Chunk Object in another thread (WorldGen), and later put it into world. so the Ctor just do simple work, while this do world-related init work.
 	void _LoadToWorld();
+
 
 
 	Cell& LocalCell(glm::ivec3 localpos) { return m_Cells[Chunk::LocalIdx(localpos)]; }

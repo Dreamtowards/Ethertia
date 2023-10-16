@@ -11,6 +11,11 @@
 #include <ethertia/util/Assert.h>
 
 
+entt::registry& Entity::registry() const
+{
+	return m_World->registry();
+}
+
 
 //static PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
 //{

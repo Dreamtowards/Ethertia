@@ -3,9 +3,51 @@
 
 #include <entt/entt.hpp>
 
-#include <ethertia/world/World.h>
+class World;
+
+
+#pragma region Basic EntityCompnents: TagComponent, TransformComponent
+
+#include <string>
+
+/// named TagComponent instead of NameComponent, because 'Tag' could means some 'attached information' like IsEnabled
+struct TagComponent
+{
+	std::string Name;
+
+	bool IsEnabled;
+
+	TagComponent(const std::string& name, bool enabled = true) : Name(name), IsEnabled(enabled) {}
+};
+
+
+#include <glm/glm.hpp>
+#include <stdx/stdx.h>
+#include <ethertia/world/Physics.h>
+#include <glm/gtc/quaternion.hpp>
+
+struct TransformComponent
+{
+	glm::mat4 Transform;
+
+	glm::vec3& position() { return stdx::cast<glm::vec3>(Transform[3]); }
+
+	glm::vec3 position() const { return stdx::cast<glm::vec3>(Transform[3]); }
+
+	glm::quat quat() const { return glm::quat_cast(glm::mat3(Transform)); }
+
+	physx::PxTransform PxTransform() const {
+		return {
+			stdx::cast<physx::PxVec3>(position()),
+			stdx::cast<physx::PxQuat>(quat())
+		};
+	}
+};
+
+#pragma endregion
 
 #include <ethertia/world/EntityComponents.h>
+
 
 class Entity
 {
@@ -18,7 +60,7 @@ public:
 	T& AddComponent(Args&&... args)
 	{
 		//STDX_ASSERT(!HasComponent<T>(), "Entity already has the component!");
-		T& component = m_World->registry().emplace<T>(m_EntityId, std::forward<Args>(args)...);
+		T& component = registry().emplace<T>(m_EntityId, std::forward<Args>(args)...);
 		//m_World->OnComponentAdded<T>(m_EntityId, component);
 		return component;
 	}
@@ -27,7 +69,7 @@ public:
 	void RemoveComponent()
 	{
 		//STDX_ASSERT(HasComponent<T>(), "Entity does not have the component!");
-		T& c = m_World->registry().remove<T>(m_EntityId);
+		T& c = registry().remove<T>(m_EntityId);
 		//m_World->OnComponentRemove(m_EntityId, c);
 	}
 	
@@ -35,13 +77,13 @@ public:
 	T& GetComponent() 
 	{
 		//STDX_ASSERT(HasComponent<T>(), "Entity does not have the component!");
-		return m_World->registry().get<T>(m_EntityId);
+		return registry().get<T>(m_EntityId);
 	}
 	
 	template<typename T>
 	bool HasComponent() const
 	{
-		return m_World->registry().any_of<T>(m_EntityId);
+		return registry().any_of<T>(m_EntityId);
 	}
 
 
@@ -58,10 +100,8 @@ public:
 	bool operator!=(const Entity& other) const { return !(*this == other); }
 
 	entt::id_type id() const { return static_cast<entt::id_type>(m_EntityId); }
-	entt::registry& reg() { return m_World->registry(); }
 	World& world() { return *m_World; }
-
-	// GetName, GetTransform
+	entt::registry& registry() const;
 
 
 private:
