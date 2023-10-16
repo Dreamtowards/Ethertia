@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.8)
 
 
 # Enable Hot Reload for MSVC compilers if supported.
-#if (POLICY CMP0141)
-#  cmake_policy(SET CMP0141 NEW)
-#  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-#endif()
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
 
 
 project(Ethertia)
@@ -79,7 +79,7 @@ include_directories(lib/imguizmo-1.83)
 include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
 
-include_directories(lib/physx-5.2.1/include)
+include_directories(lib/physx-5.3.0/include)
 include_directories(lib/fastnoise2-0.10.0a/include)
 include_directories(lib/glm-0.9.9.8)
 include_directories(lib/entt-3.12.2/src)
@@ -278,7 +278,7 @@ target_link_libraries(Ethertia "vulkan-1")
 # PhysX
 
 # option(PHYSX_BUILD_TYPE "The build type of PhysX, i.e., one of {debug, checked, profile, release}" "checked")
-target_link_directories(Ethertia PRIVATE "lib/physx-5.2.1/bin/win.x86_64.vc143.mt/debug/")
+target_link_directories(Ethertia PRIVATE "lib/physx-5.3.0/bin/win.x86_64.vc143.md/debug/")
 target_link_libraries(Ethertia 
     "PhysX_64"
     "PhysXFoundation_64"
@@ -288,14 +288,11 @@ target_link_libraries(Ethertia
     "PhysXExtensions_static_64"
     "PhysXCharacterKinematic_static_64")
     
+
 #target_compile_options(Ethertia PRIVATE /MTd)
-
-string(REPLACE "/MDd" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-
-
-
-message("CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
+#string(REPLACE "/MDd" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+#message("CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
 
 
 

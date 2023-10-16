@@ -21,6 +21,9 @@ namespace stdx
 	//	return *reinterpret_cast<T*>(ptr);
 	//}
 
+
+	/// ref cast.
+
 	template<typename T, typename V>
 	T& cast(V& ptr)
 	{

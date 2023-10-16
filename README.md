@@ -53,7 +53,7 @@ __Minecraft + GTAV + VRChat__ &nbsp;/&nbsp; A Sandbox Survival Game, with Vulkan
 - <small>Composition:</small> N/A
 - <small>Libraries:</small>   
   - [vulkan](https://www.vulkan.org/) (Khoronos, AMD, LunarG);   
-  - [physx-5.2.1](https://github.com/NVIDIA-Omniverse/PhysX) (NVIDIA);  
+  - [physx-5.3.0](https://github.com/NVIDIA-Omniverse/PhysX) (NVIDIA);  
   - [fastnoise2-0.10.0a](https://github.com/Auburn/FastNoise2) (Jordan Peck "Auburn")  
   - [imgui-docking-0.89.9](https://github.com/ocornut/imgui/tree/docking) (Omar Cornut / ocornut)  
   - [imnodes-0.5](https://github.com/Nelarius/imnodes) (Johann Muszynski "Nelarius")  
