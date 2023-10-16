@@ -24,10 +24,7 @@ set(BUILD_STATIC OFF)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS}" )
 #set(MAKE_PROGRAM ninja -j10)
 
-#set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
-#set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-#set(CMAKE_CXX_FLAGS_DEBUG "-g")
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -56,19 +53,11 @@ set(ET_BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${ET_BUILD_TARGET})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR}) 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR})  # for Windows
 
-message("Ethertia Build Env: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; Bin Dir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+message("Ethertia BuildEnv: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; BinDir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}; CXX_FALGS: ${CMAKE_CXX_FLAGS}")
 
 
 
 
-
-#if(WIN32)
-#    link_libraries(winmm gdi32 wsock32 ws2_32)  # for enet lib
-#
-#    if (NOT MSVC)
-#        set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")  # disable warning for ENET
-#    endif ()
-#endif()
 
 
 
@@ -99,7 +88,6 @@ include_directories(lib/lua-5.4.6/src)
 
 #include_directories(lib/openxr-1.0.30/include)
 #include_directories(lib/openal-soft/include)
-#include_directories(lib/openvr-1.26.7/headers)
 
 
 set(LUA_SRC_DIR "lib/lua-5.4.6/src")
@@ -194,21 +182,21 @@ add_executable(Ethertia
     #src/ethertia/render/renderer/RendererGbuffer.cpp    
 
     src/ethertia/Ethertia.cpp)
+    
 
-
-
-
-add_executable(DedicatedServer
-        src/ethertia/network/DedicatedServer.cpp)
-
-add_library(TwilightForest SHARED
-        run/mods/TwilightForest/src/TwilightForest.cpp)
-
-
-        
 add_executable(EthertiaTests 
     ${LUA_SRC_FILES}
     src/test/test.cpp)
+
+
+add_executable(DedicatedServer
+    src/ethertia/network/DedicatedServer.cpp)
+
+add_library(TwilightForest SHARED
+    run/mods/TwilightForest/src/TwilightForest.cpp)
+
+
+        
 
 
 #On linux, We can build shared libraries as default.  #? why
@@ -235,7 +223,7 @@ endif()
 
 
 
-
+# Ignore MSVC Compile Warnings.
 if (MSVC)
     target_compile_options(Ethertia PRIVATE
         /wd4267  # msvc ignore C4267: implicit conversion possible loss of data e.g. uint32_t count = (size_t)ls.size();
@@ -246,6 +234,7 @@ if (MSVC)
 endif()
 
 
+
 # Setup Vulkan
 set(VULKAN_SDK "C:/Softwares/VulkanSDK/1.3.250.0")
 target_include_directories(Ethertia PRIVATE "${VULKAN_SDK}/Include/")
@@ -254,8 +243,6 @@ target_link_libraries(Ethertia "vulkan-1")
 
 
 # Setup PhysX
-
-# option(PHYSX_BUILD_TYPE "The build type of PhysX, i.e., one of {debug, checked, profile, release}" "checked")
 target_link_directories(Ethertia PRIVATE "lib/physx-5.3.0/bin/win.x86_64.vc143.md/debug/")
 target_link_libraries(Ethertia 
     "PhysX_64"
@@ -267,43 +254,11 @@ target_link_libraries(Ethertia
     "PhysXCharacterKinematic_static_64")
     
 
-#target_compile_options(Ethertia PRIVATE /MTd)
-#string(REPLACE "/MDd" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-#message("CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
-
-
-
-
-
-
-
-
-
-
-#set(NBT_BUILD_SHARED ON)  # required for build shared-library.
-#set(NBT_BUILD_TESTS OFF)
-#add_subdirectory(lib/nbt)
-#target_link_libraries(Ethertia nbt++)
-
-#target_link_libraries(Ethertia openvr_api)
-
-
-
-
-
-# Vulkan, for Apple Darwin need 2 env variables: (no quote)
-#VK_DRIVER_FILES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json    # a.k.a. VK_ICD_FILENAMES, installable client drivers.
-#VK_LAYER_PATH = /Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/explicit_layer.d           # for validation layer.
-
-#set(VULKAN_SDK "E:/_Dev/VulkanSDK/1.3.243.0")
-#find_package(Vulkan REQUIRED)
-#target_link_libraries(target ${Vulkan_LIBRARIES})
-
-#if (APPLE)
-#    # VK_ICD_FILENAMES=/Users/dreamtowards/VulkanSDK/1.3.236.0/macOS/share/vulkan/icd.d/MoltenVK_icd.json
-#    link_directories(lib/vulkan/bin/darwin-x64)
-#    link_libraries(vulkan.1.3.236)
-#elseif(WIN32)
-#    link_libraries("${CMAKE_SOURCE_DIR}/lib/vulkan/bin/windows-x64/vulkan-1.dll")
-#endif ()
+    
+#if(WIN32)
+#    link_libraries(winmm gdi32 wsock32 ws2_32)  # for enet lib
+#
+#    if (NOT MSVC)
+#        set(CMAKE_CXX_FLAGS "-Wno-deprecated-enum-enum-conversion")  # disable warning for ENET
+#    endif ()
+#endif()
