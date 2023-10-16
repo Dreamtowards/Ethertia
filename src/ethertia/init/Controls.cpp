@@ -400,7 +400,21 @@ void Controls::HandleInput()
     World* world = Ethertia::GetWorld();
 
 
+    {
+        static int _SumFPS = 0;
+        ++_SumFPS;
 
+        double curr_sec = Window::PreciseTime();
+        static double _LastSec{ curr_sec };
+        if (curr_sec - _LastSec > 1.0f)
+        {
+            Controls::DbgAvgFPS = _SumFPS;
+            _SumFPS = 0;
+            _LastSec = curr_sec;
+
+            Log::info("avg FPS: {}, {}ms", Controls::DbgAvgFPS, 1.0 / Controls::DbgAvgFPS * 1000);
+        }
+    }
 
 
     if (world)

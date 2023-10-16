@@ -9,6 +9,7 @@ class Controls
 {
 public:
 
+    inline static int DbgAvgFPS = 0;
 
     static void HandleInput();
 

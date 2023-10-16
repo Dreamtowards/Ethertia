@@ -19,7 +19,7 @@
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Colors.h>
 #include <ethertia/render/Window.h>
-#include <ethertia/init/DebugStat.h>
+#include <ethertia/init/Controls.h>
 #include <ethertia/world/Chunk.h>
 #include <ethertia/world/chunk/ChunkSystem.h>
 
@@ -147,7 +147,7 @@ static void _ShowDebugText()
     // kph = mps*3.6
     std::string str = std::format(
         "cam: p: ({}, {}, {}), spd: {:.2f}mps {:.2f}kph; edt_spd_fac: {}\n" 
-        "fps: sec_avg: {}. curr: {}, delta: {:.4f}ms\n"
+        "fps: avg: {}. curr: {}, delta: {:.4f}ms\n"
         "threadpool: {} working / {} threads, pending tasks: {}\n"
         //"NumEntityRendered: {}/{}, LoadedChunks: {}\n"
         //"plr ground: {}, collide pts: {}\n"
@@ -169,7 +169,7 @@ static void _ShowDebugText()
         s_CameraMoveSpeed,
         //player->m_OnGround, player->m_NumContactPoints,
     
-        Dbg::dbg_FPS, std::floor(1.0f / dt), dt*1000.0,
+        Controls::DbgAvgFPS, std::floor(1.0f / dt), dt*1000.0,
 
         thread_pool.num_working_threads(), thread_pool.num_threads(), thread_pool.num_tasks(),
     
