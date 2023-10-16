@@ -127,15 +127,18 @@ public:
     //ET_DECL_MTL(LADDER,        "ladder",       { .hardness = 1.4, .mesh = true });
 
 
-    static void Init()
-    {
 
-        // RegisterMtlItems
+    // CNS 关于 MaterialItems, 应该每个material对应一个新物品吗? 还是所有的 material 都是同一个 Item::MATERIAL + 额外 MtlId 数据?
+    // 如果是前者, 那么可自定义性很大 一个mtl又可以摆放 又可以吃 又可以当工具.. 然而这种情况不常见?
+    // 如果是后者 那么不会有什么'id污染' 和特例。比如现在加载mtl item的材质时 要特例去读materials的资源 但其实就算后者也要读。
+    // 所以目前用前者 毕竟mtl是核心内容。而且还没发现坏处。
+    //static void _InitMtlItems()
+    //{
     //    for (auto& it : Material::REGISTRY)
     //    {
     //        it.second->m_MaterialItem = new Item(it.first, {new ItemComponentMaterial(it.second)});
     //    }
-    }
+    //}
 
 
 };
