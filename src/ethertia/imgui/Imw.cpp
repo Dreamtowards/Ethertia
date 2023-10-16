@@ -445,7 +445,7 @@ void Imw::ShowItemStack(ItemStack& stack, bool manipulation, float size)
     {
         if (!stack.empty())
         {
-            ImGui::SetTooltip("%s", stack.item()->m_Name.c_str());
+            ImGui::SetTooltip("%s", stack.item()->Id.c_str());
         }
 
         if (manipulation && ImGui::IsKeyPressed(ImGuiKey_MouseLeft, false))

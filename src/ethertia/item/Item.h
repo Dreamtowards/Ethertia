@@ -28,20 +28,19 @@ public:
     inline static Registry<Item> REGISTRY;
 
     // No. later remove. 这个是没必要的，直接把str id硬编码在getRegistryId才是最好的。那是静态内存. 除非用ECS系统
-    std::string m_Name;
+    std::string Id;
 
     // ECS for Items
     std::vector<ItemComponent*> m_Components;
 
     // bool m_Stackable = true;
 
-    Item(const std::string& name, std::initializer_list<ItemComponent*> comps) : m_Name(name), m_Components(comps)
+    Item(const std::string& id, std::initializer_list<ItemComponent*> comps) : Id(id), m_Components(comps)
     {
         REGISTRY.regist(this);
 
     }
 
-    DECL_RegistryId(m_Name);
 
     template<typename T>
     bool hasComponent() const {

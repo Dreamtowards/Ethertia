@@ -8,6 +8,7 @@
 
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/BenchmarkTimer.h>
+#include <ethertia/util/Log.h>
 
 
 

@@ -23,8 +23,6 @@ public:
 
     }
 
-    DECL_RegistryId(m_Result.item()->getRegistryId());
-
 
 };
 

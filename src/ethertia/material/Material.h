@@ -17,7 +17,7 @@ public:
     inline static Registry<Material> REGISTRY;
 
 
-    std::string m_Name;
+    std::string Id;
 
     // Dirt: 0.8, Stone: 8, Ore: 16, Furnace: 18, Anvil: 25, Obsidian: 250
     float m_Hardness = 1;  // seconds to dig via hand.
@@ -46,9 +46,9 @@ public:
         bool touchdown = false;  // on top of the bottom cell.  align bottom. alignb
     };
 
-    Material(const std::string& name,
+    Material(const std::string& id,
              const MtlParams& params = {1.0f, false, false, false}
-             ) : m_Name(name) {
+             ) : Id(id) {
 
         REGISTRY.regist(this);
 
@@ -58,7 +58,6 @@ public:
         m_Hardness = params.hardness;
     }
 
-    DECL_RegistryId(m_Name);
 
     void getDrops(std::vector<ItemStack>& drops)
     {

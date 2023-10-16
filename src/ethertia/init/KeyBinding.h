@@ -5,6 +5,9 @@
 #ifndef ETHERTIA_KEYBINDING_H
 #define ETHERTIA_KEYBINDING_H
 
+#include <string>
+
+
 class KeyBinding
 {
 public:
@@ -12,13 +15,12 @@ public:
 
     ImGuiKey m_Key;
     const ImGuiKey m_DefaultKey;
-    const char* m_Name;
+    std::string Id;
 
-    KeyBinding(const ImGuiKey defkay, const char* name) : m_DefaultKey(defkay), m_Key(defkay), m_Name(name)
+    KeyBinding(const ImGuiKey defkay, const char* id) : m_DefaultKey(defkay), m_Key(defkay), Id(id)
     {
         REGISTRY.regist(this);
     }
-DECL_RegistryId(m_Name);
 
     ImGuiKey key() const {
         return m_Key;

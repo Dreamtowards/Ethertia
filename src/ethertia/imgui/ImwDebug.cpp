@@ -6,6 +6,7 @@
 
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Colors.h>
+#include <ethertia/util/Log.h>
 
 
 void Imw::Debug::ShowDialogs(bool* _open)
