@@ -3,22 +3,23 @@
     "resourcepacks/Clarity/",
     "assets/"
   ],
-  "display_height": 1005,
-  "display_width": 1652,
-  "fov": 68.0,
-  "fullscreen": false,
+  "display_height": 1063.0,
+  "display_width": 1584.0,
+  "fov": 84.08499908447266,
   "graphics.shadow": false,
   "graphics.ssao": false,
   "mods": [],
   "mtl_resolution": 256,
-  "simd_level": "SSE3",
   "view_distance": 2.308000087738037,
   "vsync": false,
-  "window.console": true,
-  "window.entity_insp": false,
-  "window.entity_list": false,
-  "window.settings": true,
-  "window.shader_insp": true,
-  "window.toolbar": false,
-  "window.viewport": true
+  "windows": [
+    "settings",
+    "console",
+    "profiler",
+    "inspector",
+    "explorer",
+    "worldsettings",
+    "game",
+    "hierarchy"
+  ]
 }
