@@ -12,7 +12,6 @@
 #include <ethertia/util/Timer.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/Controls.h>
-#include <ethertia/init/DebugStat.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
 #include <ethertia/imgui/ImwInspector.h>  // tmp
@@ -31,8 +30,8 @@
 #include <ethertia/mod/Lua.h>
 
 #include <thread>
-#include <stdx/str.h>
 #include <stdx/thread_pool.h>
+#include <stdx/str.h>
 
 
 static void Init();
@@ -56,8 +55,8 @@ int main()
 
 static World*       g_World     = nullptr;
 static Entity       g_Player;
-static Profiler     g_Profiler;
 static Camera       g_Camera;
+static Profiler     g_Profiler;
 
 static std::unique_ptr<stdx::thread_pool> g_ThreadPool;
 static std::thread::id g_MainThreadId{};
@@ -150,8 +149,9 @@ static void Destroy()
 static void RunMainLoop()
 {
     ET_PROFILE_("Frame");
-    double time_framebegin = Ethertia::GetPreciseTime();
-    Ethertia::GetTimer().update(time_framebegin);
+
+    double _TimeFrameBegin = Ethertia::GetPreciseTime();
+    Ethertia::GetTimer().update(_TimeFrameBegin);
     float dt = Ethertia::GetDelta();
     World* world = Ethertia::GetWorld();
 
@@ -180,23 +180,28 @@ static void RunMainLoop()
             Controls::HandleInput();
         }
     }
-    {
-        ET_PROFILE_("ProcGUI");
 
+    if (!Window::IsMinimized()) 
+    {
         {
-            ET_PROFILE_("Imgui::NewFrame");
-            Imgui::NewFrame();
+            ET_PROFILE_("ProcGUI");
+
+            {
+                ET_PROFILE_("Imgui::NewFrame");
+                Imgui::NewFrame();
+            }
+
+
+            ET_PROFILE_("Imgui::ShowWindows");
+            Imw::ShowDockspaceAndMainMenubar();
+            Imgui::ShowWindows();
         }
 
+        {
+            ET_PROFILE_("Render");
 
-        ET_PROFILE_("Imgui::ShowWindows");
-        Imw::ShowDockspaceAndMainMenubar();
-        Imgui::ShowWindows();
-    }
-
-    {
-        ET_PROFILE_("Render");
-        RenderEngine::Render();
+            RenderEngine::Render();
+        }
     }
 
     {
@@ -212,7 +217,6 @@ static void RunMainLoop()
 //            }
 //        }
 
-        Dbg::_fps_frame(Ethertia::GetPreciseTime());
 
 //        AudioEngine::checkAlError("Frame");
 //        AudioEngine::setListenerPosition(Ethertia::getCamera().position);

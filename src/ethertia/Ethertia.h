@@ -13,19 +13,16 @@
 
 #include <ethertia/world/World.h>
 #include <ethertia/world/Entity.h>
-#include <ethertia/init/HitResult.h>
 
 
+/// Version
 #define ET_VERSION_MAJOR 0
 #define ET_VERSION_MINOR 0
 #define ET_VERSION_PATCH 6
 #define ET_VERSION_SNAPSHOT "2023.10a"
 #define ET_VERSION_DATE "2023.10.02"
 
-#define ET_NAMESPACE et
-#define ET_NAMESPACE_BEGIN namespace ET_NAMESPACE {
-#define ET_NAMESPACE_END }
-
+#include <ethertia/core.h>
 
 
 class Ethertia
@@ -49,10 +46,10 @@ public:
 
 
     static Timer& GetTimer();
-    static Profiler& GetProfiler();
     static Camera& GetCamera();
     static Entity& GetPlayer();
     static HitResult& GetHitResult();   // HitResult of World Raycast
+    static Profiler& GetProfiler();
 
     
     static bool& isIngame();        // is controlling the game. (mouse grabbed, wsad etc.)
