@@ -30,8 +30,8 @@ public:
 
     VertexData* m_CustomMesh = nullptr;
 
-    /// Vegetable Materials will generated to another mesh., with Double-Sided (NoCulling), NoCollision, WavingVertex Rendering
-    bool IsVegetable = false;
+    /// Foliage/Vegetable Materials will generate to another mesh., with Double-Sided (NoCulling), NoCollision, WavingVertex Rendering
+    bool IsFoliage = false;
 
     // generate mesh on top of bottom-cell surface. e.g. Crops, Tallgrass.
     //bool m_IsTouchdown = false;
@@ -39,22 +39,23 @@ public:
     // Item of the Material
     Item* item = nullptr;
 
-    struct MtlParams {
+    struct MtlParams 
+    {
         float hardness = 1;
-        VertexData* mesh = nullptr;
+        bool mesh = false;
         bool vege = false;
-        bool touchdown = false;  // on top of the bottom cell.  align bottom. alignb
+        //bool touchdown = false;  // on top of the bottom cell.  align bottom. alignb
     };
 
     Material(
         const std::string& id,
-        const MtlParams& params = {1.0f, nullptr, false, false}) : Id(id) 
+        MtlParams params = {}) : Id(id)
     {
 
         REGISTRY.regist(this);
 
-        m_CustomMesh = params.mesh;
-        IsVegetable = params.vege;
+        m_CustomMesh = params.mesh ? (VertexData*)1 : nullptr;  // mark as to be load
+        IsFoliage = params.vege;
         Hardness = params.hardness;
 
         std::cout << "Mtl " << id << "\n";
@@ -68,10 +69,11 @@ class Materials
 {
 public:
 
-#define ET_DECL_MTL(x, ...) inline static Material* x = new Material{__VA_ARGS__};
-
     /// use 0/nullptr to represents AIR. since it's convinent and no side effect yet.
     inline static Material* AIR = nullptr;
+
+
+#define ET_DECL_MTL(x, ...) inline static Material* x = new Material{__VA_ARGS__};
 
     // Smooth Terrain Materials.
 
