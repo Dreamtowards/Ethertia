@@ -12,12 +12,13 @@ project(Ethertia)
 
 set(CMAKE_CXX_STANDARD 20)
 
-
-# we manually build shared-lib only the first time. (if doesn't have compiled libs), then we just use/link them instead of recompile them.
+# perfer use dynamic/shared library for better compile speed and binary size.
 set(BUILD_SHARED_LIBS ON)
 set(BUILD_STATIC OFF)
 #set(CMAKE_BUILD_TYPE "Release")
 
+
+# Setup MultiThreaded Compilation
 #set(CMAKE_BUILD_PARALLEL_LEVEL 10)
 #set(MSVC_COMPILE_FLAGS "/MP")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS}" )
@@ -35,24 +36,25 @@ endif ()
 
 
 
-# BUILD_TARGET = {windows-x64|darwin-arm64|darwin-x64|linux-x64}
-set(BUILD_TARGET "nil")
+# Setup Build Dir
+
+set(ET_BUILD_TARGET "nil")
 if (WIN32)
-    set(BUILD_TARGET "windows-x64")       # x86-64
+    set(ET_BUILD_TARGET "windows-x64")       # x86-64
 elseif (APPLE)
     if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-        set(BUILD_TARGET "darwin-arm64")  # apple silicon, arm64
+        set(ET_BUILD_TARGET "darwin-arm64")  # apple silicon, arm64
     else()
-        set(BUILD_TARGET "darwin-x64")    # x86-64
+        set(ET_BUILD_TARGET "darwin-x64")    # x86-64
     endif ()
 elseif(ET_LINUX)
-    set(BUILD_TARGET "linux-x64")         # x86-64
+    set(ET_BUILD_TARGET "linux-x64")         # x86-64
 endif ()
-set(BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${BUILD_TARGET})
+set(ET_BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${ET_BUILD_TARGET})
 
 # Output of Shared library & Program
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR}) 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BUILD_TARGET_DIR})  # for Windows
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR}) 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR})  # for Windows
 
 message("Ethertia Build Env: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; Bin Dir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 
@@ -138,63 +140,60 @@ set(LUA_SRC_FILES
 
 
 add_executable(Ethertia
-        lib/tinyfd-2.9.3/tinyfiledialogs.c
-        ${LUA_SRC_FILES}
+    lib/tinyfd-2.9.3/tinyfiledialogs.c
+    ${LUA_SRC_FILES}
 
-        #src/ethertia/vr/OpenXR.cpp
+    #src/ethertia/vr/OpenXR.cpp
 
-        src/vkx/vkx.cpp
-        src/stdx/thread_pool.cpp
-        src/stdx/str.cpp
+    src/vkx/vkx.cpp
+    src/stdx/thread_pool.cpp
+    src/stdx/str.cpp
 
-        lib/imgui-docking/imgui.cpp
-        lib/imgui-docking/imgui_draw.cpp
-        lib/imgui-docking/imgui_widgets.cpp
-        lib/imgui-docking/imgui_tables.cpp
-        lib/imgui-docking/imgui_demo.cpp
-        lib/imgui-docking/backends/imgui_impl_glfw.cpp
-        lib/imgui-docking/backends/imgui_impl_vulkan.cpp
+    lib/imgui-docking/imgui.cpp
+    lib/imgui-docking/imgui_draw.cpp
+    lib/imgui-docking/imgui_widgets.cpp
+    lib/imgui-docking/imgui_tables.cpp
+    lib/imgui-docking/imgui_demo.cpp
+    lib/imgui-docking/backends/imgui_impl_glfw.cpp
+    lib/imgui-docking/backends/imgui_impl_vulkan.cpp
 
-        lib/imguizmo-1.83/ImGuizmo.cpp
-        lib/imgui-knobs-0.21.2/imgui-knobs.cpp
-        lib/imgui-imnodes-0.5/imnodes.cpp
+    lib/imguizmo-1.83/ImGuizmo.cpp
+    lib/imgui-knobs-0.21.2/imgui-knobs.cpp
+    lib/imgui-imnodes-0.5/imnodes.cpp
 
-        src/ethertia/imgui/Imgui.cpp
-        src/ethertia/imgui/Imw.cpp
-        src/ethertia/imgui/ImwSettings.cpp
-        src/ethertia/imgui/ImwGameplay.cpp
-        src/ethertia/imgui/ImwInspector.cpp
-        src/ethertia/imgui/ImwProfiler.cpp
-        src/ethertia/imgui/ImwDebug.cpp
-        src/ethertia/imgui/ImwExplorer.cpp
+    src/ethertia/imgui/Imgui.cpp
+    src/ethertia/imgui/Imw.cpp
+    src/ethertia/imgui/ImwSettings.cpp
+    src/ethertia/imgui/ImwGameplay.cpp
+    src/ethertia/imgui/ImwInspector.cpp
+    src/ethertia/imgui/ImwProfiler.cpp
+    src/ethertia/imgui/ImwDebug.cpp
+    src/ethertia/imgui/ImwExplorer.cpp
 
-        src/ethertia/init/init_load.cpp
-
+    src/ethertia/init/init_load.cpp
         
-        src/ethertia/util/Loader.cpp
-        src/ethertia/util/BitmapImage.cpp
-        
-        src/ethertia/util/Maths.cpp
-        src/ethertia/render/VertexData.cpp
+    src/ethertia/util/Loader.cpp
+    src/ethertia/util/BitmapImage.cpp
+    src/ethertia/util/Maths.cpp
+    src/ethertia/render/VertexData.cpp
 
-        src/ethertia/render/Window.cpp
-        src/ethertia/render/RenderEngine.cpp
-        src/ethertia/init/Controls.cpp
-        src/ethertia/init/Settings.cpp
-        src/ethertia/world/Physics.cpp
-        src/ethertia/mod/Lua.cpp
+    src/ethertia/render/Window.cpp
+    src/ethertia/render/RenderEngine.cpp
+    src/ethertia/init/Controls.cpp
+    src/ethertia/init/Settings.cpp
+    src/ethertia/world/Physics.cpp
+    src/ethertia/mod/Lua.cpp
 
-        src/ethertia/world/World.cpp
-        src/ethertia/world/Chunk.cpp
-        src/ethertia/world/chunk/ChunkSystem.cpp
-        src/ethertia/world/chunk/gen/ChunkGenerator.cpp
-        src/ethertia/world/chunk/meshgen/MeshGen.cpp
+    src/ethertia/world/World.cpp
+    src/ethertia/world/Chunk.cpp
+    src/ethertia/world/chunk/ChunkSystem.cpp
+    src/ethertia/world/chunk/gen/ChunkGenerator.cpp
+    src/ethertia/world/chunk/meshgen/MeshGen.cpp
 
+    # src/ethertia/item/ItemComponents.cpp
+    #src/ethertia/render/renderer/RendererGbuffer.cpp    
 
-        # src/ethertia/item/ItemComponents.cpp
-        #src/ethertia/render/renderer/RendererGbuffer.cpp    
-
-        src/ethertia/Ethertia.cpp)
+    src/ethertia/Ethertia.cpp)
 
 
 
@@ -218,7 +217,7 @@ if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC)) AND ET_LINUX)
 endif()
 
 
-if(BUILD_SHARED_LIBS OR BUILD_STATIC)
+if(BUILD_SHARED_LIBS)   # OR BUILD_STATIC
 
     set(GLFW_BUILD_EXAMPLES OFF)
     set(GLFW_BUILD_TESTS OFF)
@@ -254,7 +253,7 @@ target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
 target_link_libraries(Ethertia "vulkan-1")
 
 
-# PhysX
+# Setup PhysX
 
 # option(PHYSX_BUILD_TYPE "The build type of PhysX, i.e., one of {debug, checked, profile, release}" "checked")
 target_link_directories(Ethertia PRIVATE "lib/physx-5.3.0/bin/win.x86_64.vc143.md/debug/")
