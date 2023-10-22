@@ -106,7 +106,6 @@ void ImwInspector::ShowHierarchy(bool* _open)
 
         for (const auto& [eid] : world->registry().storage<entt::entity>().each())
         {
-
             Entity entity = { eid, world };
             if (s_NoChunkEntity && entity.HasComponent<ChunkComponent>())
                 continue;
@@ -472,8 +471,8 @@ static void _InspLight(LightComponent& comp)
 
     if (comp.Type == LightComponent::LightType::eSpot)
     {
-        ImGui::DragFloat("Spot Cone Angle", &comp.ConeAngle);
-        ImGui::DragFloat("Spot Cone Falloff", &comp.ConeFalloff);
+        ImGui::DragFloat("Cone Angle", &comp.ConeAngle);
+        ImGui::DragFloat("Cone Falloff", &comp.ConeFalloff);
     }
     //switch (comp.Type)
     //{

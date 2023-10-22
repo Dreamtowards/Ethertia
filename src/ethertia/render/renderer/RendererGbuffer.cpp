@@ -203,10 +203,10 @@ void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf, const entt::regist
 
     
 
-    for (const auto& [entity, trans, chunkComp] : entt_reg.view<TransformComponent, ChunkComponent>().each())
+    for (const auto& [entity, trans, chunkComp, tag] : entt_reg.view<TransformComponent, ChunkComponent, TagComponent>().each())
     {
         vkx::VertexBuffer* vtx = chunkComp.VertexBuffer;
-        if (vtx == nullptr)
+        if (vtx == nullptr || !tag.IsEnabled)
             continue;
         //// Frustum Culling
         //if (!Ethertia::getCamera().testFrustum(entity->getAABB()))
@@ -415,8 +415,10 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
 
 
     int i = 0;
-    for (const auto& [eid, trans, light] : Ethertia::GetWorld()->registry().view<TransformComponent, LightComponent>().each())
+    for (const auto& [eid, trans, light, tag] : Ethertia::GetWorld()->registry().view<TransformComponent, LightComponent, TagComponent>().each())
     {
+        if (!tag.IsEnabled) continue;
+
         ubo.lights[i] = {
             .position = trans.position(),
             .color = light.Color,
