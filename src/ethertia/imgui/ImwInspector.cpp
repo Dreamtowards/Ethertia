@@ -463,7 +463,7 @@ static void _InspLight(LightComponent& comp)
 
     if (comp.Type == LightComponent::LightType::ePoint || comp.Type == LightComponent::LightType::eSpot)
     {
-        ImGui::DragFloat3("Attenuation", &comp.Attenuation.x, 0.01f);
+        ImGui::DragFloat3("Attenuation", &comp.Attenuation.x, 0.001f);
     }
 
     if (comp.Type == LightComponent::LightType::eSpot)

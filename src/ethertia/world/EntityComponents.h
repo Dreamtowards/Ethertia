@@ -97,8 +97,8 @@ struct LightComponent
 	glm::vec3 Color = {1, 1, 1};
 	float Intensity = 1.0f;
 
-	glm::vec3 Attenuation{0.5, 0.1, 0.01};
+	glm::vec3 Attenuation{0.5, 0.01, 0.001};
 
-	float ConeAngle = 0;
-	float ConeFalloff = 0;
+	float ConeAngle = 40;
+	float ConeFalloff = 10;
 };

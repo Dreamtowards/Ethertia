@@ -420,7 +420,7 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
     {
         if (!tag.IsEnabled) continue;
 
-        glm::vec3 dir = trans.basis() * glm::vec3{ -1, 0, 0 };
+        glm::vec3 dir = trans.basis() * glm::vec3{ 0, -1, 0 };
 
         glm::vec2 coneAng = light.Type != LightComponent::eSpot ? glm::vec2{1, 1} : glm::vec2{
             std::cos(glm::radians(light.ConeAngle - light.ConeFalloff)), 
