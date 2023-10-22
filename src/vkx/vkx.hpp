@@ -23,6 +23,9 @@
 // only actually affects { gl_Position.y -> -.y } (y-inversion of the clip-space to framebuffer-space transform.)
 #define VKX_VIEWPORT_NEG_HEIGHT 1
 
+// enable extension of VK_KHR_fragment_shader_barycentric
+#define VKX_EXT_BARYCENTRIC 1
+
 
 #include <functional>
 #include <iostream>   // for default DebugMessengerCallback impl.

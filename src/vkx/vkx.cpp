@@ -1450,28 +1450,30 @@ static vk::Device _CreateLogicalDevice(
     deviceFeatures.samplerAnisotropy = VK_TRUE;
     deviceInfo.pEnabledFeatures = &deviceFeatures;
 
-    //{
-    //    vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR barycoord{};
-    //
-    //    vk::PhysicalDeviceFeatures2KHR features2{};
-    //    features2.pNext = &barycoord;
-    //
-    //    physDevice.getFeatures2KHR(&features2);
-    //
-    //
-    //}
-    vk::PhysicalDeviceFeatures2 PhysDeviceFeatures2{};
-    
+
+    // pNext extensions
+    void* pExtNext = nullptr;
+
+#ifdef VKX_EXT_BARYCENTRIC
+
     vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR extBaryCoord{};
     extBaryCoord.fragmentShaderBarycentric = true;
-    PhysDeviceFeatures2.pNext = &extBaryCoord;
-    
-    deviceInfo.pNext = PhysDeviceFeatures2.pNext;
+
+    //extBaryCoord.pNext = std::exchange(pExtNext, &extBaryCoord);
+    extBaryCoord.pNext = pExtNext;
+    pExtNext = &extBaryCoord;
+
+#endif // VKX_EXT_BARYCENTRIC
+
+    deviceInfo.pNext = pExtNext;
+
 
     // Device Extensions  (needs check is supported?)
     std::vector<const char*> deviceExtensions = {
             "VK_KHR_swapchain", //VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+#ifdef VKX_EXT_BARYCENTRIC
             "VK_KHR_fragment_shader_barycentric", // VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME
+#endif
 #ifdef VKX_VIEWPORT_NEG_HEIGHT
             // VK_KHR_maintenance1 is required for using negative viewport heights
 		    // Note: This is core as of Vulkan 1.1. So if you target 1.1 you don't have to explicitly enable this
