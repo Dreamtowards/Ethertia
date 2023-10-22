@@ -70,7 +70,36 @@ struct NativeScriptComponent
 };
 
 
+
+
+
 struct RenderableComponent
 {
 
+};
+
+struct LightComponent
+{
+	enum LightType
+	{
+		eDirectional,
+		ePoint,
+		eSpot,
+		Count
+	};
+	inline static const char* LightTypeNames[] = {
+		"Directional",
+		"Point",
+		"Spot"
+	};
+
+	LightType Type = eDirectional;
+	glm::vec3 Color = {1, 1, 1};
+
+	glm::vec3 Direction{};
+
+	glm::vec3 Attenuation{0.5, 0.1, 0.01};
+
+	float ConeAngle = 0;
+	float ConeFalloff = 0;
 };

@@ -255,14 +255,15 @@ void ImwInspector::ShowInspector(bool* _open)
     }
 
     ImGui::Button("+");
+    Imgui::ItemTooltip("Add Component");
     ImGui::SameLine();
 
     if (ImGui::BeginPopupContextItem(0, ImGuiPopupFlags_MouseButtonLeft))
     {
-        //if (ImGui::MenuItem("Renderer"))
-        //{
-        //    entity.AddComponent<RendererComponent>();
-        //}
+        if (ImGui::MenuItem("Light"))
+        {
+            entity.AddComponent<LightComponent>();
+        }
         //if (ImGui::MenuItem("RigidStatic"))
         //{
         //    entity.AddComponent<RigidStaticComponent>();
@@ -445,12 +446,51 @@ void ImwInspector::ShowInspector(bool* _open)
 //    }
 //}
 
+static void _InspLight(LightComponent& comp)
+{
+    if (ImGui::BeginCombo("Type", LightComponent::LightTypeNames[comp.Type]))
+    {
+        for (int i = 0; i < LightComponent::LightType::Count; ++i)
+        {
+            if (ImGui::Selectable(LightComponent::LightTypeNames[i]))
+                comp.Type = (LightComponent::LightType)i;
+        }
+        ImGui::EndCombo();
+    }
 
+    ImGui::ColorEdit3("Color", &comp.Color.x);
+
+    if (comp.Type == LightComponent::LightType::eDirectional || comp.Type == LightComponent::LightType::eSpot)
+    {
+        ImGui::DragFloat3("Direction", &comp.Direction.x, 0.1f);
+    }
+
+    if (comp.Type == LightComponent::LightType::ePoint || comp.Type == LightComponent::LightType::eSpot)
+    {
+        ImGui::DragFloat3("Attenuation", &comp.Attenuation.x, 0.1f);
+    }
+
+    if (comp.Type == LightComponent::LightType::eSpot)
+    {
+        ImGui::DragFloat("Spot Cone Angle", &comp.ConeAngle);
+        ImGui::DragFloat("Spot Cone Falloff", &comp.ConeFalloff);
+    }
+    //switch (comp.Type)
+    //{
+    //case LightComponent::LightType::eDirectional:
+    //    ImGui::DragFloat3("Direction", &comp.Direction.x, 0.1f);
+    //    break;
+    //default:
+    //    throw 1;
+    //}
+}
 
 void ImwInspector::InitComponentInspectors()
 {
     
     ImwInspector::AddComponentInspector<TransformComponent>(_InspTransform);
+
+    ImwInspector::AddComponentInspector<LightComponent>(_InspLight);
 
     //ImwInspector::AddComponentInspector<MeshRenderComponent>(_InspRenderMesh);
     //

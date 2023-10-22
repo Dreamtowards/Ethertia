@@ -14,7 +14,7 @@ struct Light {
     vec3 attenuation;
 
     vec3 direction;
-    vec2 coneAngle;  // xy: inner/outer cos
+    float coneAngle;  // xy: inner/outer cos
 };
 
 layout(set = 0, binding = 0) uniform UBO_T {

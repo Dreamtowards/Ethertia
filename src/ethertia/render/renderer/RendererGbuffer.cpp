@@ -294,7 +294,7 @@ public:
         alignas(16) glm::vec3 attenuation;
 
         alignas(16) glm::vec3 direction;
-        glm::vec2 coneAngle;
+        alignas(16) float coneAngle;
     };
     inline static struct UBO
     {
@@ -413,14 +413,21 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
     //ubo.invMatProj[1][1] *= -1;
     //ubo.invMatProj = glm::inverse(g_UBO.invMatProj);
 
-    ubo.lightCount = 1;
 
-    ubo.lights[0] = {
-            .position = Ethertia::GetPlayer().GetTransform().position(),
-            .color = {3,2,1},
-            .attenuation = {0.3, 0.1, 0.01}
-    };
+    int i = 0;
+    for (const auto& [eid, trans, light] : Ethertia::GetWorld()->registry().view<TransformComponent, LightComponent>().each())
+    {
+        ubo.lights[i] = {
+            .position = trans.position(),
+            .color = light.Color,
+            .attenuation = light.Attenuation,
+            .direction = light.Direction,
+            .coneAngle = light.ConeAngle
+        };
+        ++i;
+    }
 
+    ubo.lightCount = i;
 
     g_UniformBuffers[fifi]->Upload(&g_UBO);
 
