@@ -98,7 +98,7 @@ void main()
         Light light = ubo.lights[i];
 
         bool hasAtten = !IsZero(light.attenuation);
-        bool hasSpot = light.coneAngle.x != 1 && light.coneAngle.y != 1;  // cos(0) == 1
+        bool hasSpot = light.coneAngle.x != 1 || light.coneAngle.y != 1;  // cos(0) == 1
         bool isDirectionalLight = !hasAtten && !hasSpot;
 
         // Diffuse
@@ -119,7 +119,7 @@ void main()
             -sign(toLightTheta - light.coneAngle.x) : 
             InverseLerp(toLightTheta, light.coneAngle.x, light.coneAngle.y));
         t_ = clamp(t_, 0, 1);
-        Atten *= t_;
+        Atten *= hasSpot ? t_ : 1.0;
 
 
         totalDiffuse  += Diffuse * Atten;

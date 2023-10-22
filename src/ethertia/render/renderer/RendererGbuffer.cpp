@@ -422,7 +422,7 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
 
         glm::vec3 dir = trans.basis() * glm::vec3{ -1, 0, 0 };
 
-        glm::vec2 coneAng = glm::vec2{ 
+        glm::vec2 coneAng = light.Type != LightComponent::eSpot ? glm::vec2{1, 1} : glm::vec2{
             std::cos(glm::radians(light.ConeAngle - light.ConeFalloff)), 
             std::cos(glm::radians(light.ConeAngle))
         };
@@ -430,7 +430,7 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
         ubo.lights[i] = {
             .position = trans.position(),
             .color = light.Color * light.Intensity,
-            .attenuation = light.Attenuation,
+            .attenuation = light.Type == LightComponent::eDirectional ? glm::vec3{} : light.Attenuation,
             .direction = dir,
             .coneAngle = coneAng
         };
