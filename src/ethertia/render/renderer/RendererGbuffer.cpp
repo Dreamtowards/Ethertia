@@ -289,12 +289,13 @@ public:
 
     struct Light
     {
+        //uint8_t type = 0;
         alignas(16) glm::vec3 position;
         alignas(16) glm::vec3 color;
         alignas(16) glm::vec3 attenuation;
 
         alignas(16) glm::vec3 direction;
-        alignas(16) float coneAngle;
+        alignas(16) glm::vec2 coneAngle;  // inner/outer cos
     };
     inline static struct UBO
     {
@@ -419,12 +420,19 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
     {
         if (!tag.IsEnabled) continue;
 
+        glm::vec3 dir = trans.basis() * glm::vec3{ -1, 0, 0 };
+
+        glm::vec2 coneAng = glm::vec2{ 
+            std::cos(glm::radians(light.ConeAngle - light.ConeFalloff)), 
+            std::cos(glm::radians(light.ConeAngle))
+        };
+
         ubo.lights[i] = {
             .position = trans.position(),
-            .color = light.Color,
+            .color = light.Color * light.Intensity,
             .attenuation = light.Attenuation,
-            .direction = light.Direction,
-            .coneAngle = light.ConeAngle
+            .direction = dir,
+            .coneAngle = coneAng
         };
         ++i;
     }

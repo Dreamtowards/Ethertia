@@ -1,4 +1,17 @@
 
+bool IsZero(vec2 v) {
+    return v.x == 0 && v.y == 0;
+}
+bool IsZero(vec3 v) {
+    return v.x == 0 && v.y == 0 && v.z == 0;
+}
+
+float InverseLerp(float v, float a, float b)
+{
+    return (v-a) / (b-a);
+}
+
+
 
 float ET_Luminance(vec3 col) {
     return dot(col, vec3(0.2126729, 0.7151522, 0.0721750)); 

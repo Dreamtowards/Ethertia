@@ -14,7 +14,7 @@ struct Light {
     vec3 attenuation;
 
     vec3 direction;
-    float coneAngle;  // xy: inner/outer cos
+    vec2 coneAngle;  // xy: inner/outer cos
 };
 
 layout(set = 0, binding = 0) uniform UBO_T {
@@ -89,7 +89,7 @@ void main()
     vec3 totalSpecular = vec3(0);
 
     float specularIntensity = 0.4;//(1.0 - Roughness) * 0.3;
-    float shininess = 8;
+    float shininess = 68;
 
     totalDiffuse += Albedo * 0.2;  // Ambient.
 
@@ -97,23 +97,30 @@ void main()
     {
         Light light = ubo.lights[i];
 
+        bool hasAtten = !IsZero(light.attenuation);
+        bool hasSpot = light.coneAngle.x != 1 && light.coneAngle.y != 1;  // cos(0) == 1
+        bool isDirectionalLight = !hasAtten && !hasSpot;
+
         // Diffuse
-        vec3 FragToLight = normalize(light.position - WorldPos);
-        vec3 Diffuse = Albedo * light.color * max(0.24, dot(FragToLight, WorldNorm));
+        vec3 toLightDir = isDirectionalLight ? -light.direction : normalize(light.position - WorldPos);
+        vec3 Diffuse = Albedo * light.color * max(0, dot(toLightDir, WorldNorm));
 
         // Specular
-        vec3 halfwayDir = normalize(FragToLight + FragToCamera);
+        vec3 halfwayDir = normalize(toLightDir + FragToCamera);
         vec3 Specular = light.color * specularIntensity * pow(max(dot(halfwayDir, WorldNorm), 0.0), shininess);
 
-        // SpotLight
-        //        if (dot(-FragToLight, LightDir) > coneAngle) {
-        //            FragColor.rgb += LighColor * (1.0 / (distance * 0.3));
-        //        }
-
         // Attenuation
-        float distance = length(light.position - WorldPos);
-        float Atten = dot(light.attenuation, light.attenuation) == 0 ? 1.0 : 
-                      1.0 / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance*distance));
+        float toLightDist = length(light.position - WorldPos);
+        float Atten = !hasAtten ? 1.0 : 1.0 / (light.attenuation.x + light.attenuation.y * toLightDist + light.attenuation.z * (toLightDist*toLightDist));
+
+        // SpotLight
+        float toLightTheta = dot(-toLightDir, light.direction);
+        float t_ = 1.0 - (light.coneAngle.x == light.coneAngle.y ? 
+            -sign(toLightTheta - light.coneAngle.x) : 
+            InverseLerp(toLightTheta, light.coneAngle.x, light.coneAngle.y));
+        t_ = clamp(t_, 0, 1);
+        Atten *= t_;
+
 
         totalDiffuse  += Diffuse * Atten;
         totalSpecular += Specular * Atten;

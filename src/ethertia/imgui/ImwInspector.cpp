@@ -458,21 +458,18 @@ static void _InspLight(LightComponent& comp)
     }
 
     ImGui::ColorEdit3("Color", &comp.Color.x);
+    ImGui::DragFloat("Intensity", &comp.Intensity, 0.1f);
 
-    if (comp.Type == LightComponent::LightType::eDirectional || comp.Type == LightComponent::LightType::eSpot)
-    {
-        ImGui::DragFloat3("Direction", &comp.Direction.x, 0.1f);
-    }
 
     if (comp.Type == LightComponent::LightType::ePoint || comp.Type == LightComponent::LightType::eSpot)
     {
-        ImGui::DragFloat3("Attenuation", &comp.Attenuation.x, 0.1f);
+        ImGui::DragFloat3("Attenuation", &comp.Attenuation.x, 0.01f);
     }
 
     if (comp.Type == LightComponent::LightType::eSpot)
     {
         ImGui::DragFloat("Cone Angle", &comp.ConeAngle);
-        ImGui::DragFloat("Cone Falloff", &comp.ConeFalloff);
+        ImGui::DragFloat("Cone Falloff", &comp.ConeFalloff, 0.2f);
     }
     //switch (comp.Type)
     //{

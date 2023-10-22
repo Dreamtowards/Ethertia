@@ -32,7 +32,9 @@ struct TransformComponent
 
 	glm::vec3& position() { return stdx::cast<glm::vec3>(Transform[3]); }
 
-	glm::quat quat() const { return glm::quat_cast(glm::mat3(Transform)); }
+	glm::mat3 basis() const { return glm::mat3(Transform); }
+
+	glm::quat quat() const { return glm::quat_cast(basis()); }
 
 };
 

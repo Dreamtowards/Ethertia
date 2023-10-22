@@ -95,8 +95,7 @@ struct LightComponent
 
 	LightType Type = eDirectional;
 	glm::vec3 Color = {1, 1, 1};
-
-	glm::vec3 Direction{};
+	float Intensity = 1.0f;
 
 	glm::vec3 Attenuation{0.5, 0.1, 0.01};
 
