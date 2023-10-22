@@ -66,6 +66,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
     }
 
     static int s_ListCountLimit = 100;
+    static bool s_NoChunkEntity = true;
 
     ImGui::ArrowButton("##filter", ImGuiDir_Down);
     ImGui::SameLine();
@@ -80,6 +81,8 @@ void ImwInspector::ShowHierarchy(bool* _open)
         // KeepSelect HitEntity
         // IgnoreChunk Entities
 
+        ImGui::Checkbox("Exclude Chunk Entities", &s_NoChunkEntity);
+
         ImGui::EndPopup();
     }
 
@@ -90,7 +93,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
 
     ImGui::Separator();
 
-    int listidx = 0;
+    int _ListIdx = 0;
     ImGui::BeginChild("entitylist", { 0, -ImGui::GetTextLineHeightWithSpacing() });
 
     if (ImGui::BeginTable("table", 2,
@@ -103,11 +106,14 @@ void ImwInspector::ShowHierarchy(bool* _open)
 
         for (const auto& [eid] : world->registry().storage<entt::entity>().each())
         {
-            if (listidx > s_ListCountLimit)
-                break;
-            ++listidx;
 
             Entity entity = { eid, world };
+            if (s_NoChunkEntity && entity.HasComponent<ChunkComponent>())
+                continue;
+            if (_ListIdx > s_ListCountLimit)
+                break;
+            ++_ListIdx;
+
             auto& tag = entity.GetTag();
 
             ImGui::PushID(entity.id());
@@ -156,7 +162,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
     ImGui::EndChild();
 
 
-    ImGui::TextDisabled(std::format("{} entity, {} listed.", world->registry().storage<entt::entity>().size(), listidx).c_str());
+    ImGui::TextDisabled(std::format("{} entity, {} listed.", world->registry().storage<entt::entity>().size(), _ListIdx).c_str());
 
 
 

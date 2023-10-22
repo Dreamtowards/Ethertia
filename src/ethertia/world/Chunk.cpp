@@ -18,6 +18,7 @@ void Chunk::_LoadToWorld()
 
     // Really? when create chunk object, it might not been put to the world yet
     this->entity = m_World->CreateEntity();
+    entity.GetTag().Name = "Chunk Entity";
 
     entity.GetTransform().position() = chunkpos;
 
