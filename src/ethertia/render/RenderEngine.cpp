@@ -61,8 +61,8 @@ void RenderEngine::Init()
     TEX_UVMAP = Loader::LoadImage("misc/uvmap.png");
 
     //Materials::registerMaterialItems();  // before items tex load.
-    //MaterialTextures::Load();
-    MaterialTextures::ATLAS_DIFFUSE = MaterialTextures::ATLAS_NORM = MaterialTextures::ATLAS_DRAM = TEX_UVMAP;
+    MaterialTextures::Load();
+    //MaterialTextures::ATLAS_DIFFUSE = MaterialTextures::ATLAS_NORM = MaterialTextures::ATLAS_DRAM = TEX_UVMAP;
 
 
     RendererGbuffer::Init();

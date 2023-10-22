@@ -1335,7 +1335,6 @@ static vk::Instance _CreateInstance(
     instInfo.ppEnabledExtensionNames = extensions.data();
 
 
-
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerInfo{};
     if (enableValidationLayer)
     {
@@ -1451,9 +1450,28 @@ static vk::Device _CreateLogicalDevice(
     deviceFeatures.samplerAnisotropy = VK_TRUE;
     deviceInfo.pEnabledFeatures = &deviceFeatures;
 
+    //{
+    //    vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR barycoord{};
+    //
+    //    vk::PhysicalDeviceFeatures2KHR features2{};
+    //    features2.pNext = &barycoord;
+    //
+    //    physDevice.getFeatures2KHR(&features2);
+    //
+    //
+    //}
+    vk::PhysicalDeviceFeatures2 PhysDeviceFeatures2{};
+    
+    vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR extBaryCoord{};
+    extBaryCoord.fragmentShaderBarycentric = true;
+    PhysDeviceFeatures2.pNext = &extBaryCoord;
+    
+    deviceInfo.pNext = PhysDeviceFeatures2.pNext;
+
     // Device Extensions  (needs check is supported?)
     std::vector<const char*> deviceExtensions = {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            "VK_KHR_swapchain", //VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            "VK_KHR_fragment_shader_barycentric", // VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME
 #ifdef VKX_VIEWPORT_NEG_HEIGHT
             // VK_KHR_maintenance1 is required for using negative viewport heights
 		    // Note: This is core as of Vulkan 1.1. So if you target 1.1 you don't have to explicitly enable this
@@ -1466,6 +1484,7 @@ static vk::Device _CreateLogicalDevice(
 
     deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
     deviceInfo.enabledExtensionCount = deviceExtensions.size();
+
 
     vk::Device device = physDevice.createDevice(deviceInfo, vkx::ctx().Allocator);
 
@@ -1736,6 +1755,7 @@ void vkx::Init(
     bool enableValidationLayer)
 {
     auto& i = vkx::ctx();
+
 
     i.Instance = 
     _CreateInstance(enableValidationLayer, vkx::_Glfw_GetRequiredInstanceExtensions());

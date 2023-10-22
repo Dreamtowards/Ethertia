@@ -34,11 +34,18 @@ void main()
     vs_out.WorldPos = WorldPos.xyz;
     vs_out.WorldNorm = normalize(mat3(matModel) * in_norm);
 
+    int  TriId = gl_PrimitiveID;
+    vec3 TriIdCol = vec3(
+        fract(cos(TriId) * 43758.6453),
+        fract(cos(TriId) * 78456.9932),
+        fract(cos(TriId) * 29034.8291)
+    );
 
     // Barycentric Coordinate of the triangle, for material blend.
-    int vi = gl_VertexIndex % 3;
-    vs_out.BaryCoord = vec3(vi==0, vi==1, vi==2);
+    int  vi = gl_VertexIndex % 3;
+    vec3 vm = vec3(vi==0, vi==1, vi==2);
+    vs_out.BaryCoord = TriIdCol;
 
     float MtlId   = floor(in_uv.x);
-    vs_out.MtlIds = vec3(vi==0, vi==1, vi==2) * MtlId;
+    vs_out.MtlIds = vm * MtlId;
 }

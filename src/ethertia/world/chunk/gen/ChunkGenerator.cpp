@@ -54,7 +54,7 @@ void ChunkGenerator::GenerateChunk(Chunk& chunk)
                 } 
                 else if (p.y < 0)
                 {
-                    mtl = Materials::WATER;
+                    mtl = Materials::GRASS;
                 }
 
                 Cell& cell = chunk.LocalCell(lp);

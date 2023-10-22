@@ -1,4 +1,5 @@
 #version 450
+#extension GL_EXT_fragment_shader_barycentric : enable
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
@@ -103,7 +104,7 @@ void main()
     vec3 blend = pow(abs(WorldNorm), vec3(ubo.MtlTriplanarBlendPow));  // more pow leads more [sharp at norm, mixing at tex]
     blend = blend / (blend.x + blend.y + blend.z);
 
-    int MtlId = 5;//int(MtlIds[MaxBary_i]);
+    int MtlId = int(MtlIds[0]);
 
 //#ifndef ET_OPT_FAST
 //        // HeightMap Transition.
@@ -143,12 +144,18 @@ void main()
 
     float LnDepth = ET_LinearDepth(gl_FragCoord.z, 0.01, 1000.0);
 
+    int  TriId = gl_PrimitiveID;
+    vec3 TriIdCol = vec3(
+        fract(cos(TriId) * 43758.6453),
+        fract(cos(TriId) * 78456.9932),
+        fract(cos(TriId) * 29034.8291)
+    );
 
     // Gbuffer Output
     gPosition.xyz = WorldPos;
     gPosition.w   = LnDepth;  // todo: Disable ColorBlend here
     gNormal.xyz   = Norm;
     gNormal.w     = 1;
-    gAlbedo.xyz   = ((WorldNorm + 1.0) / 2.0);  // Albedo BaryCoord ((Norm + 1.0) / 2.0)
+    gAlbedo.xyz   = gl_BaryCoordEXT ;  // Albedo BaryCoord ((Norm + 1.0) / 2.0)
     gAlbedo.w     = 1;
 }

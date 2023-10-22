@@ -20,7 +20,7 @@
 // 我在思考 Mtl 不一定要等于/对应一个 MtlTex
 // 我们可以有很多 Mtl 的轮廓 各种装饰模型 复用MtlTex
 
-static bool MtlTex_LoadResizeTo(const std::string& mtl, std::string_view textype, BitmapImage& dst_resized)
+static bool _MtlTex_LoadResizeTo(const std::string& mtl, std::string_view textype, BitmapImage& dst_resized)
 {
     std::string asset = std::format("material/{}/{}.png", mtl, textype);
     std::string path = Loader::FindAsset(asset);
@@ -44,7 +44,7 @@ static bool MtlTex_LoadResizeTo(const std::string& mtl, std::string_view textype
  * @param textype could be: diff/disp/norm/ao/rough
  * @param px needed resolution in pixel
  */
-static vkx::Image* MtlTex_MakeAtlas(std::string_view textype, int px, const std::string& cache_file, bool composeDRAM = false) 
+static vkx::Image* _MtlTex_MakeAtlas(std::string_view textype, int px, const std::string& cache_file, bool isDRAM = false) 
 {
     BENCHMARK_TIMER;
 
@@ -60,7 +60,7 @@ static vkx::Image* MtlTex_MakeAtlas(std::string_view textype, int px, const std:
         const int n = Material::REGISTRY.size();
         BitmapImage atlas(px * n, px);
 
-        if (composeDRAM)
+        if (isDRAM)
         {
             BitmapImage resized_dram[2] = {  // 0: final resized composed DRAM
                     BitmapImage(px, px),  // Disp
@@ -72,8 +72,8 @@ static vkx::Image* MtlTex_MakeAtlas(std::string_view textype, int px, const std:
             {
                 const std::string& id = it.first;
 
-                MtlTex_LoadResizeTo(id, "disp", resized_dram[0]);
-                MtlTex_LoadResizeTo(id, "rough", resized_dram[1]);
+                _MtlTex_LoadResizeTo(id, "disp", resized_dram[0]);
+                _MtlTex_LoadResizeTo(id, "rough", resized_dram[1]);
                 // BitmapImage img_ao = loadMtlTex(texName, "ao");
                 // BitmapImage img_metal = loadMtlTex(texName, "metal");
 
@@ -99,7 +99,7 @@ static vkx::Image* MtlTex_MakeAtlas(std::string_view textype, int px, const std:
             {
                 const std::string& id = it.first;
 
-                if (MtlTex_LoadResizeTo(id, textype, resized))
+                if (_MtlTex_LoadResizeTo(id, textype, resized))
                 {
                     BitmapImage::CopyPixels(0,0,resized,
                                             i*px, 0, atlas);
@@ -127,9 +127,9 @@ void MaterialTextures::Load()
     }
 
 
-    ATLAS_DIFFUSE = MtlTex_MakeAtlas("diff", TEX_RESOLUTION, "./cache/atlas_diff.png");
-    ATLAS_NORM    = MtlTex_MakeAtlas("norm", TEX_RESOLUTION, "./cache/atlas_norm.png");
-    ATLAS_DRAM    = MtlTex_MakeAtlas("dram", TEX_RESOLUTION, "./cache/atlas_dram.png", true);
+    ATLAS_DIFFUSE = _MtlTex_MakeAtlas("diff", TEX_RESOLUTION, "./cache/atlas_diff.png");
+    ATLAS_NORM    = _MtlTex_MakeAtlas("norm", TEX_RESOLUTION, "./cache/atlas_norm.png");
+    ATLAS_DRAM    = _MtlTex_MakeAtlas("dram", TEX_RESOLUTION, "./cache/atlas_dram.png", true);
 
 
     Log::info("Material Texture Atlases all loaded/generated.\1");

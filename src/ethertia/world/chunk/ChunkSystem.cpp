@@ -324,7 +324,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                     // Bench CreateTriangleMesh x64-Debug: 270vtx=0.8ms, 1200vtx=1.3ms, 2100vtx=1.5ms, 3200vtx=2.2ms, 4000vtx=3.4ms
                     PxShape* shape = PhysX.createShape(PxTriangleMeshGeometry(Physics::CreateTriangleMesh(indexed)), *Physics::dbg_DefaultMaterial);
                     //Log::info("Create PhysX TriangleMesh of {} vertices \1", indexed.VertexCount());
-
+                    
                     rigid.attachShape(*shape);
                     shape->release();
                 }

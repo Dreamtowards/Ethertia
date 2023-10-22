@@ -19,7 +19,7 @@ struct MeshRenderComponent
 
 
 
-// Physics Collision Shape
+// Physics Collision Shape  ColliderableComponent
 // UE: 
 struct ColliderComponent
 {
@@ -67,4 +67,10 @@ struct ChunkComponent
 struct NativeScriptComponent
 {
 	// std::function<void()> OnCreate; OnUpdate, OnDestroy
+};
+
+
+struct RenderableComponent
+{
+
 };
