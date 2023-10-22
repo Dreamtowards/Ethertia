@@ -50,11 +50,11 @@ void ChunkGenerator::GenerateChunk(Chunk& chunk)
                 Material* mtl = nullptr;
                 if (f > 0)
                 {
-                    mtl = Materials::STONE;
+                    mtl = p.x < 0 ? Materials::STONE : Materials::SAND;
                 } 
                 else if (p.y < 0)
                 {
-                    mtl = Materials::GRASS;
+                    mtl = Materials::WATER;
                 }
 
                 Cell& cell = chunk.LocalCell(lp);

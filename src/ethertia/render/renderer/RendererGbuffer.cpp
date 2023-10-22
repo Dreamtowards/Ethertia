@@ -39,7 +39,7 @@ public:
         uint32_t MtlTexCap;
         float MtlTexScale = 3.5;
         float MtlTriplanarBlendPow = 6.0f;
-        float MtlHeightmapBlendPow = 0.6f;
+        float MtlHeightmapBlendPow = 0.48f;
     } g_uboFrag{};
 
     struct PushConstant
@@ -416,7 +416,7 @@ void RendererCompose::UpdateUniformBuffer(int fifi)
     ubo.lightCount = 1;
 
     ubo.lights[0] = {
-            .position = ubo.CameraPos + glm::vec3{0,1,0},
+            .position = Ethertia::GetPlayer().GetTransform().position(),
             .color = {3,2,1},
             .attenuation = {0.3, 0.1, 0.01}
     };

@@ -9,9 +9,10 @@ layout(location = 0) in struct VS_Out
 {
     vec3 WorldPos;
     vec3 WorldNorm;
-    vec3 BaryCoord;
-    vec3 MtlIds;
+    //vec3 MtlIds;
 } fs_in;
+
+layout(location = 2) pervertexEXT in int in_MtlIds[];
 
 layout(location = 0) out vec4 gPosition;
 layout(location = 1) out vec4 gNormal;
@@ -95,8 +96,9 @@ void main()
     vec3 Albedo = vec3(0);
     vec3 WorldPos   = fs_in.WorldPos;
     vec3 WorldNorm  = fs_in.WorldNorm;
-    vec3 BaryCoord  = fs_in.BaryCoord;
-    vec3 MtlIds     = fs_in.MtlIds / BaryCoord;  // wait to test
+    vec3 BaryCoord  = gl_BaryCoordEXT;
+    //vec3 MtlIds     = fs_in.MtlIds / BaryCoord;  // wait to test
+    vec3 MtlIds = vec3(in_MtlIds[0], in_MtlIds[1], in_MtlIds[2]);
 
     int MaxBary_i = ET_MaxIdx(BaryCoord.xyz);
 
@@ -104,17 +106,15 @@ void main()
     vec3 blend = pow(abs(WorldNorm), vec3(ubo.MtlTriplanarBlendPow));  // more pow leads more [sharp at norm, mixing at tex]
     blend = blend / (blend.x + blend.y + blend.z);
 
-    int MtlId = int(MtlIds[0]);
+    int MtlId = int(MtlIds[MaxBary_i]);
 
-//#ifndef ET_OPT_FAST
-//        // HeightMap Transition.
-//        vec3 heightMapBlend = pow(BaryCoord, vec3(ubo.MtlHeightmapBlendPow));  // 0.5-0.7. lesser -> more mix
-//        float h0 = TriplanarSample(dramSampler, FragPos, int(MtlIds[0]), blend).r * heightMapBlend[0];
-//        float h1 = TriplanarSample(dramSampler, FragPos, int(MtlIds[1]), blend).r * heightMapBlend[1];
-//        float h2 = TriplanarSample(dramSampler, FragPos, int(MtlIds[2]), blend).r * heightMapBlend[2];
-//        int MaxDisp_i = MaxIdx(vec3(h0, h1, h2)); 
-//        MtlId = int(MtlIds[MaxDisp_i]);
-//#endif
+    // HeightMap Transition.
+    vec3 heightMapBlend = pow(BaryCoord, vec3(ubo.MtlHeightmapBlendPow));  // 0.5-0.7. lesser -> more mix
+    float h0 = TripTex(texDRAM, WorldPos, int(MtlIds[0]), blend).r * heightMapBlend[0];
+    float h1 = TripTex(texDRAM, WorldPos, int(MtlIds[1]), blend).r * heightMapBlend[1];
+    float h2 = TripTex(texDRAM, WorldPos, int(MtlIds[2]), blend).r * heightMapBlend[2];
+    int MaxDisp_i = ET_MaxIdx(vec3(h0, h1, h2)); 
+    MtlId = int(MtlIds[MaxDisp_i]);
 
 //        if (MtlId == 0) 
 //            discard;
@@ -156,6 +156,6 @@ void main()
     gPosition.w   = LnDepth;  // todo: Disable ColorBlend here
     gNormal.xyz   = Norm;
     gNormal.w     = 1;
-    gAlbedo.xyz   = gl_BaryCoordEXT ;  // Albedo BaryCoord ((Norm + 1.0) / 2.0)
+    gAlbedo.xyz   = Albedo;  // Albedo BaryCoord ((Norm + 1.0) / 2.0)
     gAlbedo.w     = 1;
 }
