@@ -34,19 +34,21 @@ static void InitStyle()
     styl.GrabMinSize = 7;
     styl.FrameBorderSize = 0;
     styl.WindowMenuButtonPosition = ImGuiDir_Right;
-    styl.SeparatorTextBorderSize = 2;
+    styl.SeparatorTextBorderSize = 1;
     styl.DisplaySafeAreaPadding = {0, 0};
     styl.FramePadding = {8, 2};
 
     styl.ScrollbarSize = 10;
     styl.ScrollbarRounding = 2;
     styl.TabRounding = 2;
+    styl.TabBarBorderSize = 0;
 
 
     auto& Col = styl.Colors;
 
 
-    Col[ImGuiCol_TitleBg] = {0.082f, 0.082f, 0.082f, 0.800f};
+    Col[ImGuiCol_TitleBg] = { 0.124f, 0.124f, 0.129f, 0.940f }; // a bit lighter, diff from border.  // old: 0.082f, 0.082f, 0.082f, 0.800f
+
     Col[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
 
     //Col[ImGuiCol_MenuBarBg] = {0,0,0,0};
@@ -55,7 +57,7 @@ static void InitStyle()
 
     Col[ImGuiCol_TabActive] = {0.26f, 0.26f, 0.26f, 1.000f};
     Col[ImGuiCol_TabUnfocusedActive] =
-    Col[ImGuiCol_WindowBg] = {0.176f, 0.176f, 0.176f, 1.000f}; //{0.19f, 0.19f, 0.19f, 1.0f};  // {0.212f, 0.212f, 0.212f, 1.000f};
+    Col[ImGuiCol_WindowBg] = { 0.19f, 0.19f, 0.19f, 1.0f }; //{0.19f, 0.19f, 0.19f, 1.0f};  // {0.212f, 0.212f, 0.212f, 1.000f};
     Col[ImGuiCol_TitleBg] =
     Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
 
@@ -93,6 +95,9 @@ static void InitStyle()
 
     Col[ImGuiCol_HeaderHovered] = { 0.051f, 0.431f, 0.992f, 1.000f };
     Col[ImGuiCol_HeaderActive] = { 0.071f, 0.388f, 0.853f, 1.000f };
+
+    // darker: (0.000f, 0.000f, 0.000f, 0.351f)
+    // gray: (0.323f, 0.333f, 0.357f, 0.596f)
     Col[ImGuiCol_Header] = { 0.106f, 0.298f, 0.789f, 1.000f };  // also for Selectable.
 
     Col[ImGuiCol_CheckMark] =
@@ -186,6 +191,16 @@ void Imgui::Destroy()
 }
 
 
+/*
+
+DockSpace
+  DockNodeUpdate
+    DockNodeUpdateTabBar :16850
+      DockNodeWindowMenuUpdate :16732
+        DockNodeWindowMenuHandler Popup
+  
+
+*/
 
 void Imgui::NewFrame()
 {
