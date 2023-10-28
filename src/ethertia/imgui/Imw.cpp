@@ -321,25 +321,30 @@ void Imw::ShowDockspaceAndMainMenubar()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
 
     ImVec4 Blu = {0.188, 0.478, 0.776, 1.0};
-    ImVec4 Pur = {0.373, 0.157, 0.467, 1.0};
-    ImVec4 DarkRed = {0.525, 0.106, 0.176, 1.0};
+    ImVec4 Pur = {0.373, 0.157, 0.467, 1.0};  
+    ImVec4 DarkRed = {0.525, 0.106, 0.176, 1.0};  // Debug Color
     ImVec4 Org = {0.741, 0.345, 0.133, 1.0};
     ImVec4 Dark = {0.176f, 0.176f, 0.176f, 0.700f};
-    ImVec4 _col =
-            (Ethertia::GetWorld() && Ethertia::GetWorld()->IsPaused()) ? DarkRed :
-            Ethertia::isIngame() ? Dark : Pur;
+    ImVec4 _col = (Ethertia::GetWorld() && Ethertia::GetWorld()->IsPaused()) ? DarkRed :
+                  Ethertia::isIngame() ? Dark : Pur;
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, _col);
+
+    // Color: Darker Border
+    ImGui::PushStyleColor(ImGuiCol_Separator, { 0.000f, 0.000f, 0.000f, 0.500f });
+    ImGui::PushStyleColor(ImGuiCol_SeparatorHovered, { 0.117f, 0.117f, 0.117f, 0.780f });
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
                                     | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                                     | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
     ImGui::Begin("MainDockSpaceWindow", nullptr, window_flags);
-    ImGui::PopStyleColor();
-    ImGui::PopStyleVar();
-    ImGui::PopStyleVar();
 
-    ImGui::DockSpace(ImGui::GetID("MainDockSpace"), {0, 0},
-                     ImGuiDockNodeFlags_PassthruCentralNode);  //ImGuiDockNodeFlags_AutoHideTabBar
+
+
+    ImGui::DockSpace(ImGui::GetID("MainDockSpace"), {0, 0}, ImGuiDockNodeFlags_PassthruCentralNode);  //ImGuiDockNodeFlags_AutoHideTabBar
+
+    ImGui::PopStyleColor(2);
+    ImGui::PopStyleColor(1);
+    ImGui::PopStyleVar(2);
 
     _ShowMainMenuBar();
 

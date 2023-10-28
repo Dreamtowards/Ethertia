@@ -86,9 +86,8 @@ void Imw::Settings::ShowSettings(bool* pOpen)
 
             ImGui::SeparatorText("General");
 
-            int s_ProfileIdx = 0;
-
-            ImGui::Combo("Profile", &s_ProfileIdx, "Custom", 1);
+            //int s_ProfileIdx = 0;
+            //ImGui::Combo("Profile", &s_ProfileIdx, "Custom", 1);
 
             ImGui::SliderFloat("FOV", &Ethertia::GetCamera().fov, 0, 180);
             if (ImGui::IsItemHovered()) ImGui::SetTooltip("Field of View.\nNormal: 70\nQuark Pro: 90");

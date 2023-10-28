@@ -58,6 +58,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
     }
 
     ImGui::Button("+");
+    Imgui::ItemTooltip("New Entity");
     ImGui::SameLine();
     if (ImGui::BeginPopupContextItem(0, ImGuiPopupFlags_MouseButtonLeft))
     {
@@ -69,6 +70,7 @@ void ImwInspector::ShowHierarchy(bool* _open)
     static bool s_NoChunkEntity = true;
 
     ImGui::ArrowButton("##filter", ImGuiDir_Down);
+    Imgui::ItemTooltip("Filter");
     ImGui::SameLine();
 
     if (ImGui::BeginPopupContextItem(0, ImGuiPopupFlags_MouseButtonLeft))

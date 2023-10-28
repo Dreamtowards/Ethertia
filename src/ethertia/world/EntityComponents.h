@@ -75,7 +75,9 @@ struct NativeScriptComponent
 
 struct RenderableComponent
 {
-
+	// RenderPipeline
+	// IsCastShadow
+	// IsReceiveShadow
 };
 
 struct LightComponent

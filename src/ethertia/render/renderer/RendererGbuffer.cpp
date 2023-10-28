@@ -84,7 +84,7 @@ public:
 
 };
 
-static vk::Extent2D g_AttachmentSize{ 1280, 720 };
+static vk::Extent2D g_AttachmentSize{ 1920, 1080 };
 
 
 void RendererGbuffer::Init()

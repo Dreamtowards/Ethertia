@@ -59,6 +59,10 @@ static void InitStyle()
     Col[ImGuiCol_TitleBg] =
     Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
 
+    //Col[ImGuiCol_Separator] = { 0.000f, 0.000f, 0.000f, 0.500f };
+    //Col[ImGuiCol_SeparatorHovered] = {0.117f, 0.117f, 0.117f, 0.780f};
+    //Col[ImGuiCol_SeparatorActive] =  {0.216f, 0.216f, 0.216f, 1.000f};
+
     //Col[ImGuiCol_TitleBg] = {0.297f, 0.297f, 0.298f, 1.000f};
     //Col[ImGuiCol_Button] =
     //Col[ImGuiCol_Header] =
