@@ -37,11 +37,12 @@ static void InitStyle()
     styl.SeparatorTextBorderSize = 1;
     styl.DisplaySafeAreaPadding = {0, 0};
     styl.FramePadding = {8, 2};
+    styl.WindowPadding = { 6, 6 };
 
     styl.ScrollbarSize = 10;
     styl.ScrollbarRounding = 2;
     styl.TabRounding = 2;
-    styl.TabBarBorderSize = 0;
+    styl.TabBarBorderSize = 1;
 
 
     auto& Col = styl.Colors;
@@ -53,8 +54,6 @@ static void InitStyle()
     Col[ImGuiCol_Tab] =
     Col[ImGuiCol_TabUnfocused] = {0,0,0,0};
     Col[ImGuiCol_TabHovered] = { 0.377f, 0.377f, 0.398f, 0.800f };
-
-    Col[ImGuiCol_TabActive] = {0.26f, 0.26f, 0.26f, 1.000f};
 
     Col[ImGuiCol_TabUnfocusedActive] =
     Col[ImGuiCol_WindowBg] = { 0.19f, 0.19f, 0.19f, 1.0f }; //{0.19f, 0.19f, 0.19f, 1.0f};  // {0.212f, 0.212f, 0.212f, 1.000f};
@@ -93,11 +92,15 @@ static void InitStyle()
     Col[ImGuiCol_HeaderActive] = { 0.071f, 0.388f, 0.853f, 1.000f };
 
 
-    Col[ImGuiCol_Border]  = { 0.071f, 0.071f, 0.075f, 1.000f };
+    Col[ImGuiCol_Border]  = { 0.090f, 0.090f, 0.094f, 1.000f };
 
+
+    Col[ImGuiCol_TabActive] = { 0.234f, 0.234f, 0.243f, 1.000f };  // (0.251f, 0.251f, 0.255f, 1.000f)
     Col[ImGuiCol_PopupBg] = { 0.123f, 0.123f, 0.123f, 0.940f };
-    Col[ImGuiCol_TitleBg] = { 0.120f, 0.121f, 0.121f, 1.000f }; // a bit lighter, diff from border.  // old: 0.082f, 0.082f, 0.082f, 0.800f
-    Col[ImGuiCol_TitleBgActive] = { 0.112f, 0.112f, 0.116f, 1.000f };
+
+    Col[ImGuiCol_TitleBg] = { 0.131f, 0.135f, 0.135f, 1.000f }; // a bit lighter, diff from border.  // old: 0.082f, 0.082f, 0.082f, 0.800f
+    Col[ImGuiCol_MenuBarBg] =
+    Col[ImGuiCol_TitleBgActive] = { 0.118f, 0.118f, 0.119f, 1.000f };
 
     // darker: (0.000f, 0.000f, 0.000f, 0.351f)
     // gray: (0.323f, 0.333f, 0.357f, 0.596f)
@@ -199,8 +202,8 @@ void Imgui::Destroy()
 DockSpace
   DockNodeUpdate
     DockNodeUpdateTabBar :16850
-      DockNodeWindowMenuUpdate :16732
-        DockNodeWindowMenuHandler Popup
+      DockNodeWindowMenuUpdate :16732 Popup
+        DockNodeWindowMenuHandler 
   
 
 */

@@ -334,12 +334,14 @@ void Imw::ShowDockspaceAndMainMenubar()
                                     | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
     ImGui::Begin("MainDockSpaceWindow", nullptr, window_flags);
 
-    ImGui::PopStyleColor(1);
-    ImGui::PopStyleVar(2);
 
+    ImGui::PushStyleVar(ImGuiStyleVar_TabBarBorderSize, 0);  // No Dock TabBarBottomBorder seprator.
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {8, 3});  // higher dock TabItem. origin {8, 2}
 
     ImGui::DockSpace(ImGui::GetID("MainDockSpace"), {0, 0}, ImGuiDockNodeFlags_PassthruCentralNode);  //ImGuiDockNodeFlags_AutoHideTabBar
 
+    ImGui::PopStyleColor(1);
+    ImGui::PopStyleVar(4);
 
     _ShowMainMenuBar();
 

@@ -8947,6 +8947,18 @@ void ImGui::TabItemBackground(ImDrawList* draw_list, const ImRect& bb, ImGuiTabI
     draw_list->PathArcToFast(ImVec2(bb.Max.x - rounding, y1 + rounding), rounding, 9, 12);
     draw_list->PathLineTo(ImVec2(bb.Max.x, y2));
     draw_list->PathFillConvex(col);
+
+    // EtPatch
+    if (col == GetColorU32(ImGuiCol_TabActive))  // active
+    {
+        const float y1s = y1 + 2.5f;
+        draw_list->PathLineTo(ImVec2(bb.Min.x, y1s));
+        draw_list->PathArcToFast(ImVec2(bb.Min.x + rounding, y1 + rounding), rounding, 6, 9);
+        draw_list->PathArcToFast(ImVec2(bb.Max.x - rounding, y1 + rounding), rounding, 9, 12);
+        draw_list->PathLineTo(ImVec2(bb.Max.x, y1s));
+        draw_list->PathFillConvex(GetColorU32(ImGuiCol_HeaderActive));
+    }
+
     if (g.Style.TabBorderSize > 0.0f)
     {
         draw_list->PathLineTo(ImVec2(bb.Min.x + 0.5f, y2));
