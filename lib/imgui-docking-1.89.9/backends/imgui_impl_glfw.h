@@ -55,4 +55,6 @@ IMGUI_IMPL_API void     ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int key, 
 IMGUI_IMPL_API void     ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c);
 IMGUI_IMPL_API void     ImGui_ImplGlfw_MonitorCallback(GLFWmonitor* monitor, int event);
 
+inline static float ImGui_EtPatch_MousePosScale = 1.0f;
+
 #endif // #ifndef IMGUI_DISABLE

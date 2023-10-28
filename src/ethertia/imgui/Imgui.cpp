@@ -193,10 +193,11 @@ void Imgui::NewFrame()
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
 
-    //ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GuiScale;
+    // Mouse Doesn't work anymore. MousePos is in ViewportSize coordinate.
+    //ImGui_EtPatch_MousePosScale = Imgui::GuiScale;
 
-    ImGui::GetMainViewport()->Size /= Imgui::GuiScale;
-    ImGui::GetIO().DisplayFramebufferScale *= Imgui::GuiScale;
+    //ImGui::GetMainViewport()->Size *= 1.0f / Imgui::GuiScale;  // Viewport LogicSize. *= invScale
+    //ImGui::GetIO().DisplayFramebufferScale *= Imgui::GuiScale;  // Framebuffer RenderSize
 
 
     ImGuizmo::SetOrthographic(false);
