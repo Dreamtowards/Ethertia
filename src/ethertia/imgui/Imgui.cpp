@@ -59,6 +59,10 @@ static void InitStyle()
     Col[ImGuiCol_TitleBg] =
     Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
 
+    Col[ImGuiCol_PopupBg] = { 0.123f, 0.123f, 0.123f, 0.940f };
+    Col[ImGuiCol_Border] = { 0.070f, 0.070f, 0.070f, 0.500f };
+
+    // Darker Dockspace Border. not working anymore, use Border instead
     //Col[ImGuiCol_Separator] = { 0.000f, 0.000f, 0.000f, 0.500f };
     //Col[ImGuiCol_SeparatorHovered] = {0.117f, 0.117f, 0.117f, 0.780f};
     //Col[ImGuiCol_SeparatorActive] =  {0.216f, 0.216f, 0.216f, 1.000f};
@@ -189,7 +193,7 @@ void Imgui::NewFrame()
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
 
-    ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GuiScale;
+    //ImGui_ImplGlfw_MousePosWindowScale = 1.0f / Imgui::GuiScale;
 
     ImGui::GetMainViewport()->Size /= Imgui::GuiScale;
     ImGui::GetIO().DisplayFramebufferScale *= Imgui::GuiScale;

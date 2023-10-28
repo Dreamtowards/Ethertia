@@ -33,7 +33,7 @@ namespace ImGuiKnobs {
 
             auto *draw_list = ImGui::GetWindowDrawList();
 
-            draw_list->AddBezierCurve(start, arc1, arc2, end, color, thickness, num_segments);
+            draw_list->AddBezierCubic(start, arc1, arc2, end, color, thickness, num_segments);
         }
 
         void draw_arc(ImVec2 center, float radius, float start_angle, float end_angle, float thickness, ImColor color, int num_segments, int bezier_count) {

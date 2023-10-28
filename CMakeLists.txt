@@ -67,7 +67,7 @@ include_directories(src)
 include_directories(lib)
 
 include_directories(lib/glfw-3.3.8/include)
-include_directories(lib/imgui-1.89.9)
+include_directories(lib/imgui-docking-1.89.9)
 include_directories(lib/imguizmo-1.83)
 include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
@@ -140,13 +140,13 @@ add_executable(Ethertia
     src/stdx/thread_pool.cpp
     src/stdx/str.cpp
 
-    lib/imgui-1.89.9/imgui.cpp
-    lib/imgui-1.89.9/imgui_draw.cpp
-    lib/imgui-1.89.9/imgui_widgets.cpp
-    lib/imgui-1.89.9/imgui_tables.cpp
-    lib/imgui-1.89.9/imgui_demo.cpp
-    lib/imgui-1.89.9/backends/imgui_impl_glfw.cpp
-    lib/imgui-1.89.9/backends/imgui_impl_vulkan.cpp
+    lib/imgui-docking-1.89.9/imgui.cpp
+    lib/imgui-docking-1.89.9/imgui_draw.cpp
+    lib/imgui-docking-1.89.9/imgui_widgets.cpp
+    lib/imgui-docking-1.89.9/imgui_tables.cpp
+    lib/imgui-docking-1.89.9/imgui_demo.cpp
+    lib/imgui-docking-1.89.9/backends/imgui_impl_glfw.cpp
+    lib/imgui-docking-1.89.9/backends/imgui_impl_vulkan.cpp
 
     lib/imguizmo-1.83/ImGuizmo.cpp
     lib/imgui-knobs-0.21.2/imgui-knobs.cpp

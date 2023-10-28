@@ -329,22 +329,17 @@ void Imw::ShowDockspaceAndMainMenubar()
                   Ethertia::isIngame() ? Dark : Pur;
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, _col);
 
-    // Color: Darker Border
-    ImGui::PushStyleColor(ImGuiCol_Separator, { 0.000f, 0.000f, 0.000f, 0.500f });
-    ImGui::PushStyleColor(ImGuiCol_SeparatorHovered, { 0.117f, 0.117f, 0.117f, 0.780f });
-
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
                                     | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                                     | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
     ImGui::Begin("MainDockSpaceWindow", nullptr, window_flags);
 
+    ImGui::PopStyleColor(1);
+    ImGui::PopStyleVar(2);
 
 
     ImGui::DockSpace(ImGui::GetID("MainDockSpace"), {0, 0}, ImGuiDockNodeFlags_PassthruCentralNode);  //ImGuiDockNodeFlags_AutoHideTabBar
 
-    ImGui::PopStyleColor(2);
-    ImGui::PopStyleColor(1);
-    ImGui::PopStyleVar(2);
 
     _ShowMainMenuBar();
 
