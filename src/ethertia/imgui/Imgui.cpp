@@ -47,22 +47,18 @@ static void InitStyle()
     auto& Col = styl.Colors;
 
 
-    Col[ImGuiCol_TitleBg] = { 0.124f, 0.124f, 0.129f, 0.940f }; // a bit lighter, diff from border.  // old: 0.082f, 0.082f, 0.082f, 0.800f
 
-    Col[ImGuiCol_TitleBgActive] = {0.082f, 0.082f, 0.082f, 1.000f};
 
     //Col[ImGuiCol_MenuBarBg] = {0,0,0,0};
     Col[ImGuiCol_Tab] =
     Col[ImGuiCol_TabUnfocused] = {0,0,0,0};
+    Col[ImGuiCol_TabHovered] = { 0.377f, 0.377f, 0.398f, 0.800f };
 
     Col[ImGuiCol_TabActive] = {0.26f, 0.26f, 0.26f, 1.000f};
+
     Col[ImGuiCol_TabUnfocusedActive] =
     Col[ImGuiCol_WindowBg] = { 0.19f, 0.19f, 0.19f, 1.0f }; //{0.19f, 0.19f, 0.19f, 1.0f};  // {0.212f, 0.212f, 0.212f, 1.000f};
-    Col[ImGuiCol_TitleBg] =
-    Col[ImGuiCol_TitleBgActive] ={0.128f, 0.128f, 0.128f, 0.940f};
-
-    Col[ImGuiCol_PopupBg] = { 0.123f, 0.123f, 0.123f, 0.940f };
-    Col[ImGuiCol_Border] = { 0.070f, 0.070f, 0.070f, 0.500f };
+    
 
     // Darker Dockspace Border. not working anymore, use Border instead
     //Col[ImGuiCol_Separator] = { 0.000f, 0.000f, 0.000f, 0.500f };
@@ -95,6 +91,13 @@ static void InitStyle()
 
     Col[ImGuiCol_HeaderHovered] = { 0.051f, 0.431f, 0.992f, 1.000f };
     Col[ImGuiCol_HeaderActive] = { 0.071f, 0.388f, 0.853f, 1.000f };
+
+
+    Col[ImGuiCol_Border]  = { 0.071f, 0.071f, 0.075f, 1.000f };
+
+    Col[ImGuiCol_PopupBg] = { 0.123f, 0.123f, 0.123f, 0.940f };
+    Col[ImGuiCol_TitleBg] = { 0.120f, 0.121f, 0.121f, 1.000f }; // a bit lighter, diff from border.  // old: 0.082f, 0.082f, 0.082f, 0.800f
+    Col[ImGuiCol_TitleBgActive] = { 0.112f, 0.112f, 0.116f, 1.000f };
 
     // darker: (0.000f, 0.000f, 0.000f, 0.351f)
     // gray: (0.323f, 0.333f, 0.357f, 0.596f)
