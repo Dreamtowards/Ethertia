@@ -34,6 +34,10 @@ struct TransformComponent
 
 	glm::mat3 basis() const { return glm::mat3(Transform); }
 
+	void set_basis(const glm::mat3& basis) {
+		Transform = basis;
+	}
+
 	glm::quat quat() const { return glm::quat_cast(basis()); }
 
 };

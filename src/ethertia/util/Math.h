@@ -11,6 +11,8 @@ public:
 
 	inline static const float Inf = std::numeric_limits<float>::infinity();
 
+	inline static const float PI = 3.14159265358979323846f;
+
 	static int Floor(float x)
 	{
 		return (int)x - ((int)x > x);

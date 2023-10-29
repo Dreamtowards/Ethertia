@@ -22,9 +22,9 @@ public:
 
 	std::string Name;
 
-	// =t*24hr
+	// =t*24hrl [0.0=AM0, 0.25=AM6, 0.5=PM12, 0.75=PM6]
 	float DayTime = 0;
-	float DayTimeLength = 60*6;  // in seconds
+	float DayTimeLength = 60*2;  // in seconds
 
 	float TimeInhabited = 0;
 	uint64_t TimeCreated = 0;
@@ -151,6 +151,8 @@ private:
 	WorldInfo m_WorldInfo;
 
 	ChunkSystem* m_ChunkSystem;
+
+	Entity m_EntityDayLight;
 
 
 	bool m_Paused = false;

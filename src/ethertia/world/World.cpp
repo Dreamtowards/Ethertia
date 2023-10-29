@@ -9,7 +9,9 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/util/Log.h>
 #include <ethertia/util/Assert.h>
+#include <ethertia/util/Math.h>
 
+#include <glm/gtc/matrix_transform.hpp>
 
 entt::registry& Entity::registry() const
 {
@@ -108,7 +110,7 @@ World::World()
 		//desc.maxJumpHeight = 1.5f;
 		desc.position = { 10, 20, 10 };
 		desc.radius = 0.3f;
-		desc.height = 1.8f - 2*desc.radius;
+		desc.height = 1.8f - 2 * desc.radius;
 		desc.material = Physics::dbg_DefaultMaterial;
 
 		PxController* cct = m_PxControllerManager->createController(desc);
@@ -117,7 +119,18 @@ World::World()
 
 
 	}
-	
+
+
+	{
+		Entity daylight = CreateEntity();
+		m_EntityDayLight = daylight;
+		daylight.GetTag().Name = "DayLight";
+
+		auto& light = daylight.AddComponent<LightComponent>();
+		light.Type = LightComponent::eDirectional;
+
+
+	}
 }
 
 World::~World()
@@ -175,6 +188,16 @@ void World::OnTick(float dt)
 	wi.TimeInhabited += dt;
 	wi.DayTime += dt / wi.DayTimeLength;
 	wi.DayTime -= (int)wi.DayTime;  // trunc to [0-1]
+
+	{
+		m_EntityDayLight.GetTransform().Transform = glm::rotate(glm::mat4(1.0f), Math::Mod(wi.DayTime * 2.0f, 1.0f) * Math::PI * 2.0f, glm::vec3(0, 0, 1));
+
+		auto& light = m_EntityDayLight.GetComponent<LightComponent>();
+
+		float intens = wi.DayTime < 0.5f ? 2.0f * wi.DayTime : 2.0f - 2.0f * wi.DayTime;
+		light.Color = glm::vec3(1.0f) * 0.2f + intens * 0.8f;
+		//light.Intensity = 1.8f;
+	}
 }
 
 

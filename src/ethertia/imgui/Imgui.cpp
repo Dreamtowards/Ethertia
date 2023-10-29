@@ -36,13 +36,14 @@ static void InitStyle()
     styl.WindowMenuButtonPosition = ImGuiDir_Right;
     styl.SeparatorTextBorderSize = 1;
     styl.DisplaySafeAreaPadding = {0, 0};
-    styl.FramePadding = {8, 2};
     styl.WindowPadding = { 6, 6 };
 
     styl.ScrollbarSize = 10;
     styl.ScrollbarRounding = 2;
-    styl.TabRounding = 2;
     styl.TabBarBorderSize = 1;
+    styl.TabRounding = 2;
+    styl.FramePadding = { 8, 2 };
+    styl.FrameRounding = 2;
 
 
     auto& Col = styl.Colors;

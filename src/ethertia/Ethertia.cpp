@@ -120,6 +120,7 @@ static void Init()
 //    Recipe::REGISTRY.dbgPrintEntries("Recipes");
 
 
+    ImwGame::GameDrawFuncs.push_back(ImwGame::ShowTitleScreen);
 
 }
 

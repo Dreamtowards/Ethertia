@@ -593,7 +593,7 @@ void ImwGame::ShowGame(bool* _open)
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
 
-    static bool s_RequestSetBackToLastDock = false;  // when just cancel full viewport
+    static bool s_AlreadySetBackToLastDock = true;  // when just cancel full viewport
 
     // WorkArea: menubars
     if (ImwGame::IsFullwindow)
@@ -604,10 +604,11 @@ void ImwGame::ShowGame(bool* _open)
         ImGui::SetNextWindowSize(viewport->WorkSize - ImVec2(0, H_menu));
 
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize;  // ImGuiWindowFlags_NoDocking
-        s_RequestSetBackToLastDock = true;
-    } else if (s_RequestSetBackToLastDock) {
-        s_RequestSetBackToLastDock = false;
+        s_AlreadySetBackToLastDock = false;
+    } else if (!s_AlreadySetBackToLastDock) {
+        s_AlreadySetBackToLastDock = true;
         ImGui::SetNextWindowDockID(_FullwindowLastValidDockId);
+        ImGui::SetNextWindowFocus();
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
@@ -615,12 +616,26 @@ void ImwGame::ShowGame(bool* _open)
     ImGui::Begin("World", _open, windowFlags);
     ImGui::PopStyleVar(2);
 
-    // ImGuizmo: Make Draw to Current Window. otherwise the draw will behind the window.
-    ImGuizmo::SetDrawlist();
-
     if (ImGui::GetWindowDockID()) {
         _FullwindowLastValidDockId = ImGui::GetWindowDockID();
     }
+
+    // TitleScreen
+    {
+        for (auto& drawfunc : std::vector<Imgui::DrawFuncPtr>(GameDrawFuncs))
+        {
+            bool tmp = true;
+            ImGui::SetCursorPos({ 0, 0 });
+            ImGui::BeginChild(ImGui::GetID(drawfunc));
+            
+            drawfunc(&tmp);
+
+            ImGui::EndChild();
+        }
+    }
+
+    // ImGuizmo: Make Draw to Current Window. otherwise the draw will behind the window.
+    ImGuizmo::SetDrawlist();
 
     ImVec2 viewSize = Imgui::GetWindowContentSize();
     ImVec2 viewPos = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
@@ -919,33 +934,43 @@ void ImwGame::ShowWorldSettings(bool* _open)
 
 void ImwGame::ShowWorldList(bool* _open)
 {
-    ImGui::Begin("Singleplayer", _open);
+    //ImGui::Begin("Singleplayer", _open);
 
-    if (ImGui::Button("New World")) {
+    float btnWidth = 110;
+
+    if (ImGui::Button("New World", { btnWidth, 0 }))
+    {
+
+        WorldInfo worldinfo{
+                .Seed = 100,
+                .Name = "_WorldNameTmp1"
+        };
+        Ethertia::LoadWorld("saves/tmp1", &worldinfo);
+
+        GameDrawFuncs.clear();
+    }
+    if (ImGui::Button("Open World", { btnWidth, 0 })) {
 
     }
-    if (ImGui::Button("Open World")) {
+    if (ImGui::Button("Edit World", { btnWidth, 0 })) {
 
     }
-    if (ImGui::Button("Edit World")) {
+    if (ImGui::Button("Delete World", { btnWidth, 0 })) {
 
     }
-    if (ImGui::Button("Delete World")) {
-
-    }
-    if (ImGui::Button("Refresh")) {
+    if (ImGui::Button("Refresh", { btnWidth, 0 })) {
 
     }
 
-    ImGui::End();
+    //ImGui::End();
 }
 
 void ImwGame::ShowTitleScreen(bool* _open)
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-    ImGui::Begin("TitleScreen", _open);
-    ImGui::PopStyleVar(2);
+    //ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
+    //ImGui::Begin("TitleScreen", _open);
+    //ImGui::PopStyleVar(2);
 
     // Background
 //    ImGui::Image(Texture::DEBUG->texId_ptr(),
@@ -954,14 +979,12 @@ void ImwGame::ShowTitleScreen(bool* _open)
 
     // LeftBottom Version/Stats
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
-    Imgui::TextAlign(std::format("0 mods loaded.\n{}", Ethertia::GetVersion(true)).c_str(),
-                     {0.0f, 1.0f});
+    Imgui::TextAlign(std::format("0 mods loaded.\n{}", Ethertia::GetVersion(true)).c_str(), {0.0f, 1.0f});
 
     // RightBottom Copyright
     ImGui::SetCursorPosY(ImGui::GetWindowHeight());
     ImGui::SetCursorPosX(ImGui::GetWindowWidth());
-    Imgui::TextAlign("Copyright (c) Eldrine Le Prismarine, Do not distribute!",
-                     {1,1});
+    Imgui::TextAlign("Copyright (c) Eldrine Le Prismarine, Do not distribute!", {1,1});
 
     ImVec2 btnSize = {300, 20};
     float btnX = ImGui::GetWindowWidth() / 2 - btnSize.x /2;
@@ -969,7 +992,10 @@ void ImwGame::ShowTitleScreen(bool* _open)
 
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Singleplayer", btnSize)) {
-        Imgui::Show(ImwGame::ShowWorldList);
+        //Imgui::Show(ImwGame::ShowWorldList);
+        //GameDrawFuncs.clear();
+
+        GameDrawFuncs.push_back(ShowWorldList);
     }
     ImGui::SetCursorPosX(btnX);
     if (ImGui::Button("Multiplayer", btnSize)) {
@@ -985,7 +1011,7 @@ void ImwGame::ShowTitleScreen(bool* _open)
     }
 
 
-    ImGui::End();
+    //ImGui::End();
 }
 
 

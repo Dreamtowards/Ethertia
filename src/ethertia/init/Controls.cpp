@@ -423,8 +423,6 @@ void Controls::HandleInput()
     {
         _HitRaycast();
     }
-    else
-        return;
 
 
 
@@ -432,48 +430,75 @@ void Controls::HandleInput()
     //camera.position = Ethertia::getPlayer()->position();
 
 
-    if (Ethertia::isIngame())
+    if (Ethertia::isIngame() && world)
     {
+        using glm::vec3;
+        using glm::vec4;
+        using glm::mat4;
+
+        static vec3 _PlayerVelocity{};
 
         float dt = Ethertia::GetDelta();
         cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
 
         PxController* cct = World::dbg_CCT;
 
-        glm::vec3 disp{};
+        vec3 disp{};
         if (Window::isKeyDown(GLFW_KEY_W)) disp.z -= 1;
         if (Window::isKeyDown(GLFW_KEY_S)) disp.z += 1;
         if (Window::isKeyDown(GLFW_KEY_A)) disp.x -= 1;
         if (Window::isKeyDown(GLFW_KEY_D)) disp.x += 1;
+
+        if (Window::isShiftKeyDown())
+        {
+            disp *= 3.8f;
+        }
+
         if (Window::isCtrlKeyDown()) disp.y -= 1;
         if (Window::isKeyDown(GLFW_KEY_SPACE)) disp.y += 1;
 
-        float yaw = cam.eulerAngles.y;
-        disp = glm::vec3(glm::rotate(glm::mat4(1.0f), yaw, glm::vec3(0, 1, 0)) * glm::vec4(disp, 1.0f));
-
-
-        if (!Math::IsZero(disp))
+        if (Window::isKeyDown(GLFW_KEY_SPACE))  //  jump
         {
-            PxControllerCollisionFlags collisionFlags = cct->move(stdx::cast<PxVec3>(disp), 0.01f, Ethertia::GetDelta(), PxControllerFilters());
+            disp.y += 13;
+        }
 
-            if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN)
-            {
-                // onGround
-            }
+        float yaw = cam.eulerAngles.y;
+        disp = vec3(glm::rotate(mat4(1.0f), yaw, vec3(0, 1, 0)) * vec4(disp, 1.0f));
+
+
+        _PlayerVelocity += disp;
+        _PlayerVelocity *= 0.94f;  // apply damping
+
+
+        PxControllerCollisionFlags collisionFlags = cct->move(stdx::cast<PxVec3>(_PlayerVelocity * dt), 0.01f, dt, PxControllerFilters());
+
+        if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_SIDES) {
+            Log::info("PlayerColl Side");
+        }
+        if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_UP) {
+            Log::info("PlayerColl Up");
+        }
+
+        if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN)
+        {
+            // onGround
+            //Log::info("PlayerColl OnGround");
+        }
+        else
+        {
+            // Apply Gravity
+            _PlayerVelocity += glm::vec3(0, -10.0f, 0);
         }
 
         PxExtendedVec3 p = cct->getFootPosition();
-        cam.position = {p.x, p.y, p.z};
+        cam.position = {p.x, p.y + 1.8f, p.z};
 
     }
-    else
+    else if (world)
     {
-        PxController* cct = World::dbg_CCT;
-        if (cct)
-        {
-            cct->setFootPosition(PxExtendedVec3{ cam.position.x, cam.position.y, cam.position.z });
-        }
+        World::dbg_CCT->setFootPosition(PxExtendedVec3{ cam.position.x, cam.position.y, cam.position.z });
     }
+    
 
     cam.UpdateMatrix(Ethertia::GetViewport().AspectRatio(), Ethertia::isIngame());
 

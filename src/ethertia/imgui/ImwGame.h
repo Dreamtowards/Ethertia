@@ -18,6 +18,8 @@ public:
 
 	inline static VkImageView WorldImageView = nullptr;
 
+	inline static std::vector<Imgui::DrawFuncPtr> GameDrawFuncs;
+
 
 	inline static ImGuizmo::OPERATION	GuizmoOperation = ImGuizmo::TRANSLATE;
 	inline static ImGuizmo::MODE		GuizmoMode		= ImGuizmo::WORLD;

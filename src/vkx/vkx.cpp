@@ -1758,27 +1758,27 @@ void vkx::Init(
 {
     auto& i = vkx::ctx();
 
-
+    
     i.Instance = 
-    _CreateInstance(enableValidationLayer, vkx::_Glfw_GetRequiredInstanceExtensions());
+    _CreateInstance(enableValidationLayer, vkx::_Glfw_GetRequiredInstanceExtensions()); std::printf("VkCreateInst\n");
     i.SurfaceKHR =
-    vkx::_Glfw_CreateSurfaceKHR(i.Instance, surfaceWindowHandle);
+    vkx::_Glfw_CreateSurfaceKHR(i.Instance, surfaceWindowHandle); std::printf("VkCreateSurface\n");
 
     i.PhysDevice =
-    _PickPhysicalDevice(i.Instance, &i.PhysDeviceProperties, &i.PhysDeviceFeatures, &i.PhysDeviceMemoryProperties);
+    _PickPhysicalDevice(i.Instance, &i.PhysDeviceProperties, &i.PhysDeviceFeatures, &i.PhysDeviceMemoryProperties);  std::printf("VkPickPhys\n");
 
-    i.QueueFamily = _FindQueueFamilies(i.PhysDevice, i.SurfaceKHR);
+    i.QueueFamily = _FindQueueFamilies(i.PhysDevice, i.SurfaceKHR);  std::printf("_FindQueueFamilies\n");
     i.Device =
-    _CreateLogicalDevice(i.PhysDevice, i.QueueFamily, &i.GraphicsQueue, &i.PresentQueue);
+    _CreateLogicalDevice(i.PhysDevice, i.QueueFamily, &i.GraphicsQueue, &i.PresentQueue);  std::printf("VkDevice\n");
 
     i.CommandPool =
     _CreateCommandPool(i.QueueFamily.GraphicsFamily);
     i.DescriptorPool =
-    _CreateDescriptorPool();
+    _CreateDescriptorPool();  std::printf("VkDescPool\n");
 
     i.ImageSampler = vkx::CreateImageSampler();
     _CreateSyncObjects();
-    _CreateCommandBuffers();
+    _CreateCommandBuffers();  std::printf("_CreateCommandBuffers\n");
 
     // dependent by CreateMainRenderPass
     // auto surfaceFormats = i.PhysDevice.getSurfaceFormatsKHR(i.SurfaceKHR).front();
@@ -1786,7 +1786,7 @@ void vkx::Init(
     i.SwapchainDepthImageFormat = _FindDepthFormat();
 
     // dependent by CreateSwapchinFramebuffers
-    i.MainRenderPass = _CreateMainRenderPass();
+    i.MainRenderPass = _CreateMainRenderPass();  std::printf("_CreateMainRenderPass\n");
 
     // Create Swapchain
     vkx::RecreateSwapchain(false, true);
