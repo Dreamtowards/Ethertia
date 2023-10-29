@@ -3893,11 +3893,21 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
 void ImGui::RenderArrow(ImDrawList* draw_list, ImVec2 pos, ImU32 col, ImGuiDir dir, float scale)
 {
     const float h = draw_list->_Data->FontSize * 1.00f;
-    float r = h * 0.40f * scale;
     ImVec2 center = pos + ImVec2(h * 0.50f, h * 0.50f * scale);
 
+    if (dir == ImGuiDir_EllipsisV || dir == ImGuiDir_EllipsisH) {
+        float r = 1.3f;
+        float sp = h / 4.0f; //3.6;
+        ImVec2 diff = dir == ImGuiDir_EllipsisV ? ImVec2{0, sp} : ImVec2{sp, 0};
+        draw_list->AddCircleFilled(center - diff, r, col);
+        draw_list->AddCircleFilled(center, r, col);
+        draw_list->AddCircleFilled(center + diff, r, col);
+        return;
+    }
+    float r = h * 0.40f * scale;
+
     float al = 0.32f;  // 'length' of arrow
-    float aw = 0.74f;
+    float aw = 0.75f;
     ImVec2 a, b, c;
     switch (dir)
     {
@@ -3922,11 +3932,11 @@ void ImGui::RenderArrow(ImDrawList* draw_list, ImVec2 pos, ImU32 col, ImGuiDir d
     }
     //draw_list->AddTriangleFilled(center + a, center + b, center + c, col);
 
-    float t = 1.4f;
+    float t = 1.4f;// 4f;
     //draw_list->AddLine(center + a, center + b, col, t);
     //draw_list->AddLine(center + a, center + c, col, t);
     ImVec2 pts[] = { center + b, center + a, center + c };
-    draw_list->AddPolyline(pts, 3, col, ImDrawFlags_None, t);
+    draw_list->AddPolyline(pts, 3, col, ImDrawFlags_RoundCornersAll, t);
 }
 
 void ImGui::RenderBullet(ImDrawList* draw_list, ImVec2 pos, ImU32 col)
@@ -3937,7 +3947,7 @@ void ImGui::RenderBullet(ImDrawList* draw_list, ImVec2 pos, ImU32 col)
 
 void ImGui::RenderCheckMark(ImDrawList* draw_list, ImVec2 pos, ImU32 col, float sz)
 {
-    float thickness = ImMax(sz / 5.0f, 1.0f);
+    float thickness = ImMax(sz / 6.0f, 1.0f);
     sz -= thickness * 0.5f;
     pos += ImVec2(thickness * 0.25f, thickness * 0.25f);
 
@@ -3967,8 +3977,16 @@ void ImGui::RenderArrowPointingAt(ImDrawList* draw_list, ImVec2 pos, ImVec2 half
 // and because the saved space means that the left-most tab label can stay at exactly the same position as the label of a loose window.
 void ImGui::RenderArrowDockMenu(ImDrawList* draw_list, ImVec2 p_min, float sz, ImU32 col)
 {
-    draw_list->AddRectFilled(p_min + ImVec2(sz * 0.20f, sz * 0.15f), p_min + ImVec2(sz * 0.80f, sz * 0.30f), col);
-    RenderArrowPointingAt(draw_list, p_min + ImVec2(sz * 0.50f, sz * 0.85f), ImVec2(sz * 0.30f, sz * 0.40f), ImGuiDir_Down, col);
+    //draw_list->AddRectFilled(p_min + ImVec2(sz * 0.20f, sz * 0.15f), p_min + ImVec2(sz * 0.80f, sz * 0.30f), col);
+    //RenderArrowPointingAt(draw_list, p_min + ImVec2(sz * 0.50f, sz * 0.85f), ImVec2(sz * 0.30f, sz * 0.40f), ImGuiDir_Down, col);
+
+    ImGui::RenderArrow(draw_list, p_min, col, ImGuiDir_EllipsisV);
+    //ImVec2 center = p_min + ImVec2(sz, sz) * 0.5f;
+    //float r = 1.4f;
+    //float sp = sz / 4.2f; //3.6;
+    //draw_list->AddCircleFilled(center + ImVec2(0, -sp), r, col);
+    //draw_list->AddCircleFilled(center, r, col);
+    //draw_list->AddCircleFilled(center + ImVec2(0, +sp), r, col);
 }
 
 static inline float ImAcos01(float x)

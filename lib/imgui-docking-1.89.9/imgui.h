@@ -1449,7 +1449,10 @@ enum ImGuiDir_
     ImGuiDir_Right   = 1,
     ImGuiDir_Up      = 2,
     ImGuiDir_Down    = 3,
-    ImGuiDir_COUNT
+    ImGuiDir_COUNT,
+
+    ImGuiDir_EllipsisV = 10,  // [EtPatch]
+    ImGuiDir_EllipsisH = 11,  // [EtPatch]
 };
 
 // A sorting direction

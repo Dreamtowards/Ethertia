@@ -78,6 +78,8 @@ void Settings::LoadSettings()
     conf.get("display_width", DisplayWidth);
     conf.get("display_height", DisplayHeight);
     conf.get("vsync", s_Vsync);
+    conf.get("full_viewport", ImwGame::IsFullwindow);
+    conf.get("full_viewport_last_dock_id", ImwGame::_FullwindowLastValidDockId);
 
     conf.get("assets", Settings::Assets);
     conf.get("mods", Settings::Mods);
@@ -136,6 +138,8 @@ void Settings::SaveSettings()
     conf["mods"] =          Settings::Mods;
     conf["graphics.ssao"] = Settings::g_SSAO;
     conf["graphics.shadow"]=Settings::g_ShadowMapping;
+    conf["full_viewport"] = ImwGame::IsFullwindow;
+    conf["full_viewport_last_dock_id"] = ImwGame::_FullwindowLastValidDockId;
 
 
     std::vector<std::string> openedwindows;

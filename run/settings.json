@@ -3,9 +3,11 @@
     "resourcepacks/Clarity/",
     "assets/"
   ],
-  "display_height": 1063.0,
-  "display_width": 1584.0,
-  "fov": 84.08499908447266,
+  "display_height": 720.0,
+  "display_width": 1280.0,
+  "fov": 72.25399780273438,
+  "full_viewport": false,
+  "full_viewport_last_dock_id": 5,
   "graphics.shadow": false,
   "graphics.ssao": false,
   "mods": [],
@@ -20,7 +22,6 @@
     "explorer",
     "worldsettings",
     "game",
-    "hierarchy",
-    "dbg-imgui-demowindow"
+    "hierarchy"
   ]
 }

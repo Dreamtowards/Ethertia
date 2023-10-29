@@ -593,21 +593,21 @@ void ImwGame::ShowGame(bool* _open)
 {
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
 
-    static ImGuiID s_ViewportLastDockId = 0;
     static bool s_RequestSetBackToLastDock = false;  // when just cancel full viewport
 
     // WorkArea: menubars
     if (ImwGame::IsFullwindow)
     {
+        float H_menu = 18;
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowPos(viewport->Pos + ImVec2(0, H_menu));
+        ImGui::SetNextWindowSize(viewport->WorkSize - ImVec2(0, H_menu));
 
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize;  // ImGuiWindowFlags_NoDocking
         s_RequestSetBackToLastDock = true;
     } else if (s_RequestSetBackToLastDock) {
         s_RequestSetBackToLastDock = false;
-        ImGui::SetNextWindowDockID(s_ViewportLastDockId);
+        ImGui::SetNextWindowDockID(_FullwindowLastValidDockId);
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
@@ -619,7 +619,7 @@ void ImwGame::ShowGame(bool* _open)
     ImGuizmo::SetDrawlist();
 
     if (ImGui::GetWindowDockID()) {
-        s_ViewportLastDockId = ImGui::GetWindowDockID();
+        _FullwindowLastValidDockId = ImGui::GetWindowDockID();
     }
 
     ImVec2 viewSize = Imgui::GetWindowContentSize();

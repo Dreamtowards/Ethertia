@@ -14,6 +14,7 @@ public:
 	inline static glm::vec4 Viewport;
 
 	inline static bool IsFullwindow = false;
+	inline static ImGuiID _FullwindowLastValidDockId;  // store to settings.json, presistent recover to last dock. 
 
 	inline static VkImageView WorldImageView = nullptr;
 
