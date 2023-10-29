@@ -8842,7 +8842,7 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
     // Render tab shape
     ImDrawList* display_draw_list = window->DrawList;
     const ImU32 tab_col = GetColorU32((held || hovered) ? ImGuiCol_TabHovered : tab_contents_visible ? (tab_bar_focused ? ImGuiCol_TabActive : ImGuiCol_TabUnfocusedActive) : (tab_bar_focused ? ImGuiCol_Tab : ImGuiCol_TabUnfocused));
-    TabItemBackground(display_draw_list, bb, flags, tab_col);
+    TabItemBackground(display_draw_list, bb, (tab_contents_visible && tab_bar_focused) ? (flags | ImGuiTabItemFlags_EtPatch_TopBorder) : flags, tab_col);
     RenderNavHighlight(bb, id);
 
     // Select with right mouse button. This is so the common idiom for context menu automatically highlight the current widget.
@@ -8949,13 +8949,14 @@ void ImGui::TabItemBackground(ImDrawList* draw_list, const ImRect& bb, ImGuiTabI
     draw_list->PathFillConvex(col);
 
     // EtPatch
-    if (col == GetColorU32(ImGuiCol_TabActive))  // active
+    if (flags & ImGuiTabItemFlags_EtPatch_TopBorder)  // active
     {
-        const float y1s = y1 + 2.5f;
-        draw_list->PathLineTo(ImVec2(bb.Min.x, y1s));
-        draw_list->PathArcToFast(ImVec2(bb.Min.x + rounding, y1 + rounding), rounding, 6, 9);
-        draw_list->PathArcToFast(ImVec2(bb.Max.x - rounding, y1 + rounding), rounding, 9, 12);
-        draw_list->PathLineTo(ImVec2(bb.Max.x, y1s));
+        const float y1s = y1  - 1;
+        const float y2s = y1s + 2.5f;
+        draw_list->PathLineTo(ImVec2(bb.Min.x, y2s));
+        draw_list->PathArcToFast(ImVec2(bb.Min.x + rounding, y1s + rounding), rounding, 6, 9);
+        draw_list->PathArcToFast(ImVec2(bb.Max.x - rounding, y1s + rounding), rounding, 9, 12);
+        draw_list->PathLineTo(ImVec2(bb.Max.x, y2s));
         draw_list->PathFillConvex(GetColorU32(ImGuiCol_HeaderActive));
     }
 

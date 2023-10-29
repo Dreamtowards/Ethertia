@@ -416,15 +416,17 @@ void Controls::HandleInput()
         }
     }
 
+    Window::SetMouseGrabbed(Ethertia::isIngame());
+    Window::SetStickyKeys(!Ethertia::isIngame());
 
     if (world)
     {
         _HitRaycast();
     }
+    else
+        return;
 
 
-    Window::SetMouseGrabbed(Ethertia::isIngame());
-    Window::SetStickyKeys(!Ethertia::isIngame());
 
 
     //camera.position = Ethertia::getPlayer()->position();
