@@ -3896,29 +3896,37 @@ void ImGui::RenderArrow(ImDrawList* draw_list, ImVec2 pos, ImU32 col, ImGuiDir d
     float r = h * 0.40f * scale;
     ImVec2 center = pos + ImVec2(h * 0.50f, h * 0.50f * scale);
 
+    float al = 0.32f;  // 'length' of arrow
+    float aw = 0.74f;
     ImVec2 a, b, c;
     switch (dir)
     {
     case ImGuiDir_Up:
     case ImGuiDir_Down:
         if (dir == ImGuiDir_Up) r = -r;
-        a = ImVec2(+0.000f, +0.750f) * r;
-        b = ImVec2(-0.866f, -0.750f) * r;
-        c = ImVec2(+0.866f, -0.750f) * r;
+        a = ImVec2(+0, +al) * r;
+        b = ImVec2(-aw, -al) * r;
+        c = ImVec2(+aw, -al) * r;
         break;
     case ImGuiDir_Left:
     case ImGuiDir_Right:
         if (dir == ImGuiDir_Left) r = -r;
-        a = ImVec2(+0.750f, +0.000f) * r;
-        b = ImVec2(-0.750f, +0.866f) * r;
-        c = ImVec2(-0.750f, -0.866f) * r;
+        a = ImVec2(+al, +0) * r;
+        b = ImVec2(-al, +aw) * r;
+        c = ImVec2(-al, -aw) * r;
         break;
     case ImGuiDir_None:
     case ImGuiDir_COUNT:
         IM_ASSERT(0);
         break;
     }
-    draw_list->AddTriangleFilled(center + a, center + b, center + c, col);
+    //draw_list->AddTriangleFilled(center + a, center + b, center + c, col);
+
+    float t = 1.4f;
+    //draw_list->AddLine(center + a, center + b, col, t);
+    //draw_list->AddLine(center + a, center + c, col, t);
+    ImVec2 pts[] = { center + b, center + a, center + c };
+    draw_list->AddPolyline(pts, 3, col, ImDrawFlags_None, t);
 }
 
 void ImGui::RenderBullet(ImDrawList* draw_list, ImVec2 pos, ImU32 col)
