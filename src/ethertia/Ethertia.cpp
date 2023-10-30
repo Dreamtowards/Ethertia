@@ -65,6 +65,7 @@ static std::thread::id g_MainThreadId{};
 
 static void _InitConsoleThread();
 
+#include <ImProfiler.h>
 
 // System Initialization.
 static void Init()
@@ -124,12 +125,16 @@ static void Init()
 
     ImwGame::GameDrawFuncs.push_back(ImwGame::ShowTitleScreen);
 
+
+    gCPUProfiler.Initialize(8, 3000);
 }
 
 
 // System Cleanup
 static void Destroy()
 {
+    gCPUProfiler.Shutdown();
+
     Settings::SaveSettings();
 
     if (Ethertia::GetWorld()) {
@@ -152,6 +157,7 @@ static void Destroy()
 static void RunMainLoop()
 {
     OPTICK_FRAME("MainThread");
+    PROFILE_FRAME();
 
     double _TimeFrameBegin = Ethertia::GetPreciseTime();
     Ethertia::GetTimer().update(_TimeFrameBegin);
@@ -196,6 +202,7 @@ static void RunMainLoop()
             ET_PROFILE("Imgui::ShowWindows");
             Imw::ShowDockspaceAndMainMenubar();
             Imgui::ShowWindows();
+            DrawProfilerHUD();
         }
 
         {

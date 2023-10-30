@@ -14,7 +14,8 @@
 #include <ethertia/world/Entity.h>
 
 #include <optick.h>
-#define ET_PROFILE(x) OPTICK_EVENT(x)
+#include <ImProfiler.h>
+#define ET_PROFILE(x) OPTICK_EVENT(x); PROFILE_CPU_SCOPE(x);
 
 
 /// Version
