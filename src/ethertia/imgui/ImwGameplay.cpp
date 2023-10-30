@@ -491,8 +491,7 @@ glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta
 
     // newForward shouldn't parallels with Y, or lookAt will produce NaN
     {
-        const float E = 0.05f;
-        static const float rE = glm::length(vec2(E, E));
+        static const float rE = 0.1f;
         vec2 xz{ newForward.x, newForward.z };
         float t = glm::length(xz);
         if (t < rE)
@@ -502,19 +501,6 @@ glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta
             newForward.z = xz.y;
         }
     }
-    //if (std::abs(glm::dot(newForward, glm::vec3(0, 1, 0))) > 0.98f)
-    //{
-    //    // closest to the cone
-    //    if (std::abs(newForward.x) < E && std::abs(newForward.z) < E) {
-    //        if (std::abs(newForward.x) > std::abs(newForward.z)) {
-    //            newForward.x = Math::Sign(newForward.x) * E;
-    //        }
-    //        else 
-    //        {
-    //            newForward.z = Math::Sign(newForward.z) * E;
-    //        }
-    //    }
-    //}
 
 
     glm::vec3 newEye = pivot + newForward * len;
@@ -561,13 +547,7 @@ static void _MoveCamera()
             move.z += -MouseDelta.y;
             move.x += -MouseDelta.x;
         }
-        else if (dragRMB)
-        {
-            // FPS Rotate
-            dYaw += -MouseDelta.x * rotateSpeed;
-            dPitch += -MouseDelta.y * rotateSpeed;
-        }
-        else if ((dragMMB && keyAltDown) || (dragLMB && keyCtrlDown))
+        else if (keyAltDown && (dragMMB || dragLMB))
         {
             // Pivot Rotate
             dYaw += -MouseDelta.x * rotateSpeed;
@@ -580,7 +560,13 @@ static void _MoveCamera()
         {
             // Pin XY
             move.x += -MouseDelta.x;
-            move.y +=  MouseDelta.y;
+            move.y += MouseDelta.y;
+        }
+        else if (dragRMB)
+        {
+            // FPS Rotate
+            dYaw += -MouseDelta.x * rotateSpeed;
+            dPitch += -MouseDelta.y * rotateSpeed;
         }
 
         if (io.KeysDown[ImGuiKey_W]) move.z -= 1;
