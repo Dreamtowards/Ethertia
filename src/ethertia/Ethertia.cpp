@@ -48,7 +48,8 @@ int main()
     //}
 
 
-    wgpu::Device device = adapter.requestDevice(wgpu::DeviceDescriptor{{
+    wgpu::Device device = adapter.requestDevice(
+        wgpu::DeviceDescriptor{{
             .label = "Device",
             .requiredFeaturesCount = 0,
             .requiredFeatures = 0,
@@ -70,12 +71,60 @@ int main()
     wgpu::Queue queue = device.getQueue();
 
 
-    while (!glfwWindowShouldClose(window)) {
-        // Check whether the user clicked on the close button (and any other
-        // mouse/key event, which we don't use so far)
+
+    ;
+    wgpu::SwapChain swapchain = device.createSwapChain(surface, 
+        wgpu::SwapChainDescriptor{{
+            .usage = WGPUTextureUsage_RenderAttachment,
+            .format = surface.getPreferredFormat(adapter),
+            .width = 640,
+            .height = 480,
+            .presentMode = WGPUPresentMode_Fifo,
+        }});
+
+    
+
+
+    while (!glfwWindowShouldClose(window)) 
+    {
         glfwPollEvents();
+
+
+        wgpu::TextureView tex = swapchain.getCurrentTextureView();
+        if (!tex) {
+            Log::info("Outdated");
+        }
+
+        wgpu::RenderPassColorAttachment colorAttachment{ WGPURenderPassColorAttachment  {
+                .view = tex,
+                .resolveTarget = nullptr,
+                .loadOp = wgpu::LoadOp::Clear,
+                .storeOp = wgpu::StoreOp::Store,
+                .clearValue = wgpu::Color(0, 0, 1, 1),
+            }};
+
+        wgpu::CommandEncoder encoder = device.createCommandEncoder({{ .label = "CmdEnc1" }});
+        wgpu::RenderPassEncoder renderPass = encoder.beginRenderPass(
+            wgpu::RenderPassDescriptor{{
+                .label = "RenderPass1",
+                .colorAttachmentCount = 1,
+                .colorAttachments = &colorAttachment,
+                .depthStencilAttachment = nullptr,
+            }});
+
+
+
+        renderPass.end();
+
+
+        tex.release();
+
+        queue.submit(encoder.finish({}));
+
+        swapchain.present();
     }
 
+    swapchain.release();
     device.release();
     adapter.release();
     surface.release();
