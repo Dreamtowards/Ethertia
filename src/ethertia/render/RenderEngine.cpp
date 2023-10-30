@@ -44,11 +44,6 @@ void RenderEngine::Init()
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
 
-    bool _ValidationLayer = false;
-#if defined(ET_DEBUG)
-    //_ValidationLayer = true;
-#endif // defined(ET_DEBUG)
-
     vkx::Init(Window::Handle(), false);
 
     uint32_t vkApiVersion = vkx::ctx().PhysDeviceProperties.apiVersion;

@@ -1,4 +1,32 @@
 
+#include <GLFW/glfw3.h>
+
+
+#define WEBGPU_CPP_IMPLEMENTATION
+#include <webgpu/webgpu.hpp>
+
+int main2()
+{
+    glfwInit();
+    GLFWwindow* window = glfwCreateWindow(640, 480, "WebGPU", NULL, NULL);
+
+    wgpu::Instance instance = wgpu::createInstance({});
+    assert(instance);
+
+    while (!glfwWindowShouldClose(window)) {
+        // Check whether the user clicked on the close button (and any other
+        // mouse/key event, which we don't use so far)
+        glfwPollEvents();
+    }
+
+    instance.release();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
+    return 0;
+}
+
 
 #include <ethertia/Ethertia.h>
 
@@ -52,6 +80,7 @@ int main()
 
     return 0;
 }
+
 
 static World*       g_World     = nullptr;
 static Entity       g_Player;
@@ -445,4 +474,5 @@ const std::string Ethertia::GetVersion(bool fullname)
 //        glEnable(GL_CULL_FACE);  // set back
 //}
 
-
+/*
+*/

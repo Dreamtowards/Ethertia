@@ -238,5 +238,3 @@ namespace FastNoise
         }
     };
 }
-
-#pragma warning( pop )

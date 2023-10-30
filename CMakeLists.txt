@@ -72,6 +72,7 @@ include_directories(lib/imguizmo-1.83)
 include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
 include_directories(lib/vulkan-1.3.250.0/include)
+include_directories(lib/wgpu-0.18.0.1/include)
 
 include_directories(lib/physx-5.3.0/include)
 include_directories(lib/fastnoise2-0.10.0a/include)
@@ -129,7 +130,7 @@ set(LUA_SRC_FILES
     "${LUA_SRC_DIR}/lutf8lib.c"
     "${LUA_SRC_DIR}/linit.c")
 
-
+    
 add_executable(Ethertia
     lib/tinyfd-2.9.3/tinyfiledialogs.c
     ${LUA_SRC_FILES}
@@ -160,29 +161,27 @@ add_executable(Ethertia
     src/ethertia/imgui/ImwProfiler.cpp
     src/ethertia/imgui/ImwDebug.cpp
     src/ethertia/imgui/ImwExplorer.cpp
-
+    
     src/ethertia/init/init_load.cpp
         
     src/ethertia/util/Loader.cpp
     src/ethertia/util/BitmapImage.cpp
     src/ethertia/util/Maths.cpp
     src/ethertia/render/VertexData.cpp
-
+    
     src/ethertia/render/Window.cpp
     src/ethertia/render/RenderEngine.cpp
     src/ethertia/init/Controls.cpp
     src/ethertia/init/Settings.cpp
     src/ethertia/world/Physics.cpp
     src/ethertia/mod/Lua.cpp
-
+    
     src/ethertia/world/World.cpp
     src/ethertia/world/Chunk.cpp
     src/ethertia/world/chunk/ChunkSystem.cpp
     src/ethertia/world/chunk/gen/ChunkGenerator.cpp
     src/ethertia/world/chunk/meshgen/MeshGen.cpp
 
-    # src/ethertia/item/ItemComponents.cpp
-    #src/ethertia/render/renderer/RendererGbuffer.cpp    
 
     src/ethertia/Ethertia.cpp)
     
@@ -199,13 +198,15 @@ add_library(TwilightForest SHARED
     run/mods/TwilightForest/src/TwilightForest.cpp)
 
 
-        
 
+        
 
 #On linux, We can build shared libraries as default.  #? why
 if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC)) AND ET_LINUX)
     set(BUILD_SHARED_LIBS ON)
 endif()
+
+
 
 
 if(BUILD_SHARED_LIBS)   # OR BUILD_STATIC
@@ -256,6 +257,9 @@ target_link_libraries(Ethertia
     "PhysXExtensions_static_64"
     "PhysXCharacterKinematic_static_64")
     
+
+# Wgpu
+target_link_libraries(Ethertia "wgpu_native")
 
     
 #if(WIN32)

@@ -5,6 +5,12 @@
 #include <cmath>
 #include <glm/glm.hpp>
 
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+using glm::mat3;
+using glm::mat4;
+
 class Math
 {
 public:
@@ -69,7 +75,10 @@ public:
 
 
 
-
+	template <typename T> 
+	static int Sign(T val) {
+		return (T(0) < val) - (val < T(0));
+	}
 
 
 	template<typename T>

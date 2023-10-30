@@ -474,6 +474,7 @@ glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta
     glm::vec3 right     = glm::vec3(view[0][0], view[1][0], view[2][0]);
     glm::vec3 up        = glm::vec3(view[0][1], view[1][1], view[2][1]);
     glm::vec3 forward   = glm::vec3(view[0][2], view[1][2], view[2][2]);
+    //right.y = 0;
 
     //view = glm::translate(view, moveDelta.x * right);
     //view = glm::translate(view, moveDelta.y * up); 
@@ -488,6 +489,34 @@ glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta
     glm::mat4 pitchMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(pitchDelta), right);
     glm::vec3 newForward = glm::normalize(glm::mat3(yawMatrix) * glm::mat3(pitchMatrix) * forward);
 
+    // newForward shouldn't parallels with Y, or lookAt will produce NaN
+    {
+        const float E = 0.05f;
+        static const float rE = glm::length(vec2(E, E));
+        vec2 xz{ newForward.x, newForward.z };
+        float t = glm::length(xz);
+        if (t < rE)
+        {
+            xz *= rE / t;
+            newForward.x = xz.x;
+            newForward.z = xz.y;
+        }
+    }
+    //if (std::abs(glm::dot(newForward, glm::vec3(0, 1, 0))) > 0.98f)
+    //{
+    //    // closest to the cone
+    //    if (std::abs(newForward.x) < E && std::abs(newForward.z) < E) {
+    //        if (std::abs(newForward.x) > std::abs(newForward.z)) {
+    //            newForward.x = Math::Sign(newForward.x) * E;
+    //        }
+    //        else 
+    //        {
+    //            newForward.z = Math::Sign(newForward.z) * E;
+    //        }
+    //    }
+    //}
+
+
     glm::vec3 newEye = pivot + newForward * len;
 
     moveDelta = glm::mat3(invView) * moveDelta;
@@ -497,7 +526,11 @@ glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta
     // output view position. since get pos from ViewMatrix is expensive (mat4 inverse)
     if (out_Eye) *out_Eye = newEye;
 
-    return glm::lookAt(newEye, pivot, { 0, 1, 0 });
+    auto m = glm::lookAt(newEye, pivot, { 0, 1, 0 });
+
+    ET_ASSERT(std::isfinite(m[0][0]) && std::isfinite(m[0][1]) && std::isfinite(m[1][0]));
+
+    return m;
 }
 
 static void _MoveCamera()
@@ -574,6 +607,7 @@ static void _MoveCamera()
         // Zoom Z
         move.z += -MouseWheel * s_CameraMoveSpeed;
     }
+
 
 
     if (dYaw || dPitch || glm::length2(move) || glm::length2(moveaa))

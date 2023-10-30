@@ -8,6 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <ethertia/util/Mth.h>
+#include <ethertia/util/Math.h>
+#include <ethertia/util/Assert.h>
 #include <ethertia/util/Frustum.h>
 #include <ethertia/util/SmoothValue.h>
 
@@ -55,6 +57,10 @@ public:
 
         // ViewFrustum
         m_Frustum.set(matProjection * matView);
+
+        ET_ASSERT(Math::IsFinite(matView[0]));
+        ET_ASSERT(Math::IsFinite(position));
+
     }
 
 
