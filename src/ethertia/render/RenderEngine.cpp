@@ -8,6 +8,7 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/util/BenchmarkTimer.h>
+#include <ethertia/util/Log.h>
 
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/Settings.h>
@@ -107,7 +108,7 @@ void RenderEngine::Render()
 
     vkx::CommandBuffer cmd{nullptr};
     {
-        ET_PROFILE_("BeginFrame");
+        ET_PROFILE("BeginFrame");
         cmd = vkx::BeginFrame();
     }
 
@@ -117,25 +118,25 @@ void RenderEngine::Render()
     {
         ImwGame::WorldImageView = RendererCompose::rtColor->imageView;
         {
-            ET_PROFILE_("CmdWorldGbuffer");
+            ET_PROFILE("CmdWorldGbuffer");
             RendererGbuffer::RecordCommand(cmd, world->registry());
         }
         {
-            ET_PROFILE_("CmdWorldCompose");
+            ET_PROFILE("CmdWorldCompose");
             RendererCompose::RecordCommand(cmd);
         }
     }
 
     vkx::BeginMainRenderPass(cmd);
     {
-        ET_PROFILE_("GUI");
+        ET_PROFILE("GUI");
 
         Imgui::Render(cmd);
     }
     vkx::EndMainRenderPass(cmd);
 
     {
-        ET_PROFILE_("SubmitPresent");
+        ET_PROFILE("SubmitPresent");
         vkx::SubmitPresent(cmd);
     }
 }

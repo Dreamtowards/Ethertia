@@ -9,6 +9,7 @@
 
 #include <ethertia/util/Assert.h>
 #include <ethertia/util/Math.h>
+#include <ethertia/util/Log.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/BenchmarkTimer.h>
 
@@ -103,7 +104,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
     // Async Generate/Load chunk
     {
-        ET_PROFILE_("DetLoad");
+        ET_PROFILE("DetLoad");
         auto _lock = LockRead();
 
         glm::ivec3 extent = loaddist;
@@ -140,7 +141,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
     _TmpChunksBatchErase.clear();
     {
-        ET_PROFILE_("Load");
+        ET_PROFILE("Load");
 
         for (auto it : m_ChunksLoading)
         {
@@ -179,7 +180,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
     _TmpChunksBatchErase.clear();
     {
-        ET_PROFILE_("Unload");
+        ET_PROFILE("Unload");
         ForChunks([&](auto chunkpos, auto& chunk) {
 
             if (_TmpChunksBatchErase.size() > m_ChunksUnloadingMaxBatch)
@@ -210,7 +211,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
     // Detect ChunkMeshing
 
     {
-        ET_PROFILE_("DetMesh");
+        ET_PROFILE("DetMesh");
         ForChunks([&](auto chunkpos, Chunk& chunk) {
 
             if (m_ChunksMeshing.size() >= cfg_ChunkMeshingMaxConcurrent)
@@ -275,7 +276,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 
     _TmpChunksBatchErase.clear();
     {
-        ET_PROFILE_("LoadMesh");
+        ET_PROFILE("LoadMesh");
 
         for (auto it : m_ChunksMeshing)
         {

@@ -18,6 +18,7 @@
 #include <ethertia/render/Window.h>
 #include <ethertia/util/Colors.h>
 #include <ethertia/util/BenchmarkTimer.h>
+#include <ethertia/util/Log.h>
 
 
 static void InitStyle()
@@ -235,7 +236,7 @@ void Imgui::NewFrame()
 void Imgui::Render(VkCommandBuffer cmdbuf)
 {
     {
-        ET_PROFILE_("Render");
+        ET_PROFILE("Render");
 
         ImGui::Render();
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdbuf);
@@ -287,7 +288,7 @@ void Imgui::ShowWindows()
         bool show = true;
 
         {
-            ET_PROFILE_(Imgui::DrawFuncIds[windows[i]]);
+            ET_PROFILE(Imgui::DrawFuncIds[windows[i]].c_str());
 
             windows[i](&show);
         }

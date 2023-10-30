@@ -9,10 +9,12 @@
 
 #include <ethertia/render/Camera.h>
 #include <ethertia/util/Timer.h>
-#include <ethertia/util/Profiler.h>
 
 #include <ethertia/world/World.h>
 #include <ethertia/world/Entity.h>
+
+#include <optick.h>
+#define ET_PROFILE(x) OPTICK_EVENT(x)
 
 
 /// Version
@@ -49,7 +51,6 @@ public:
     static Camera& GetCamera();
     static Entity& GetPlayer();
     static HitResult& GetHitResult();   // HitResult of World Raycast
-    static Profiler& GetProfiler();
 
     
     static bool& isIngame();        // is controlling the game. (mouse grabbed, wsad etc.)
@@ -78,12 +79,6 @@ public:
 
 };
 
-
-
-#define ET_MACRO_CONCAT_INNR(a, b) a ## b
-#define ET_MACRO_CONCAT(a, b) ET_MACRO_CONCAT_INNR(a, b)
-#define ET_PROFILE_(x) auto ET_MACRO_CONCAT(_profiler, __COUNTER__) = Ethertia::GetProfiler().push_ap(x)
-#define ET_PROFILE(x, p) auto ET_MACRO_CONCAT(_profiler, __COUNTER__) = p.push_ap(x)
 
 
 // #define ET_CAST(type, obj) *reinterpret_cast<type*>(&obj)

@@ -10,6 +10,7 @@
 #include <ethertia/imgui/Imw.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/util/Math.h>
+#include <ethertia/util/Log.h>
 
 #include <ethertia/init/KeyBinding.h>
 
@@ -391,6 +392,8 @@ void handleHitCursor()
 
 void Controls::HandleInput()
 {
+    OPTICK_EVENT();
+
     if (Window::isCloseRequested())
         Ethertia::Shutdown();
 

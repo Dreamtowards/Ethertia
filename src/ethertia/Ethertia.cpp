@@ -10,6 +10,7 @@
 #include <ethertia/util/Math.h>
 #include <ethertia/util/BenchmarkTimer.h>
 #include <ethertia/util/Timer.h>
+#include <ethertia/util/Log.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/init/ItemTextures.h>
@@ -57,7 +58,6 @@ int main()
 static World*       g_World     = nullptr;
 static Entity       g_Player;
 static Camera       g_Camera;
-static Profiler     g_Profiler;
 
 static std::unique_ptr<stdx::thread_pool> g_ThreadPool;
 static std::thread::id g_MainThreadId{};
@@ -151,7 +151,7 @@ static void Destroy()
 // MainLoop. called every display frame.
 static void RunMainLoop()
 {
-    ET_PROFILE_("Frame");
+    OPTICK_FRAME("MainThread");
 
     double _TimeFrameBegin = Ethertia::GetPreciseTime();
     Ethertia::GetTimer().update(_TimeFrameBegin);
@@ -159,11 +159,10 @@ static void RunMainLoop()
     World* world = Ethertia::GetWorld();
 
     {
-        ET_PROFILE_("Tick");
 
         //while (Ethertia::GetTimer().polltick())
         {
-            ET_PROFILE_("WorldTick");
+            ET_PROFILE("WorldTick");
 
             if (world)
             {
@@ -173,58 +172,39 @@ static void RunMainLoop()
     }
 
     {
-        ET_PROFILE_("Input");
+        ET_PROFILE("Input");
         {
-            ET_PROFILE_("PollEvents");
+            ET_PROFILE("PollEvents");
             Window::PollEvents();
         }
         {
-            ET_PROFILE_("HandleInputs");
+            ET_PROFILE("HandleInputs");
             Controls::HandleInput();
         }
     }
 
     if (!Window::IsMinimized()) 
     {
+        ET_PROFILE("Render");
         {
-            ET_PROFILE_("ProcGUI");
-
+            ET_PROFILE("Gui");
             {
-                ET_PROFILE_("Imgui::NewFrame");
+                ET_PROFILE("Imgui::NewFrame");
                 Imgui::NewFrame();
             }
 
-
-            ET_PROFILE_("Imgui::ShowWindows");
+            ET_PROFILE("Imgui::ShowWindows");
             Imw::ShowDockspaceAndMainMenubar();
             Imgui::ShowWindows();
         }
 
         {
-            ET_PROFILE_("Render");
+            ET_PROFILE("RenderEngine");
 
             RenderEngine::Render();
         }
     }
 
-    {
-        ET_PROFILE_("FpsCap");
-//        window.setVSync(Settings::s_Vsync);
-//        window.swapBuffers();
-
-        // Sync FPS.
-//        if (Settings::s_FpsCap) {
-//            const double till = time_framebegin + (1.0/Settings::s_FpsCap);
-//            while (Ethertia::getPreciseTime() < till) {
-//                Timer::sleep_for(1);
-//            }
-//        }
-
-
-//        AudioEngine::checkAlError("Frame");
-//        AudioEngine::setListenerPosition(Ethertia::getCamera().position);
-//        AudioEngine::setListenerOrientation(Ethertia::getCamera().direction);
-    }
 }
 
 
@@ -386,7 +366,6 @@ Entity& Ethertia::GetPlayer() {
 }
 
 Camera& Ethertia::GetCamera() { return g_Camera; }
-Profiler& Ethertia::GetProfiler() { return g_Profiler; }
 
 stdx::thread_pool& Ethertia::GetThreadPool() { return *g_ThreadPool; }
 bool Ethertia::InMainThread() { return std::this_thread::get_id() == g_MainThreadId; }

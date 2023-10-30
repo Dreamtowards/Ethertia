@@ -73,6 +73,8 @@ include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
 include_directories(lib/vulkan-1.3.250.0/include)
 
+include_directories(lib/optick-1.4.0/include)
+
 include_directories(lib/physx-5.3.0/include)
 include_directories(lib/fastnoise2-0.10.0a/include)
 include_directories(lib/glm-0.9.9.8)
@@ -155,7 +157,6 @@ add_executable(Ethertia
     src/ethertia/imgui/ImwSettings.cpp
     src/ethertia/imgui/ImwGameplay.cpp
     src/ethertia/imgui/ImwInspector.cpp
-    src/ethertia/imgui/ImwProfiler.cpp
     src/ethertia/imgui/ImwDebug.cpp
     src/ethertia/imgui/ImwExplorer.cpp
     
@@ -256,7 +257,11 @@ target_link_libraries(Ethertia
     
 
 # Wgpu
-target_link_libraries(Ethertia "wgpu_native")
+#target_link_libraries(Ethertia "wgpu_native")
+
+
+# Optick
+target_link_libraries(Ethertia "OptickCore")
 
     
 #if(WIN32)

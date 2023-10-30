@@ -43,8 +43,6 @@ public:
 
 
 
-        // ImwProfiler.cpp
-        static void ShowProfiler(bool* _open);
 
 
         static void ShowWorldGen(bool* _open);

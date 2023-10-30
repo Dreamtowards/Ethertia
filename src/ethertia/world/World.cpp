@@ -160,7 +160,7 @@ void World::OnTick(float dt)
 
 
 	{
-		ET_PROFILE_("ChunkSystem");
+		ET_PROFILE("ChunkSystem");
 
 		m_ChunkSystem->OnTick(dt);
 	}
@@ -175,7 +175,7 @@ void World::OnTick(float dt)
 
 
 	{
-		ET_PROFILE_("PhysX");
+		ET_PROFILE("PhysX");
 
 		m_PxScene->simulate(1.0 / 60.0f);
 		m_PxScene->fetchResults(true);

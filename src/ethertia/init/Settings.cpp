@@ -14,6 +14,7 @@
 
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/BenchmarkTimer.h>
+#include <ethertia/util/Log.h>
 #include <ethertia/Ethertia.h>
 #include <ethertia/init/MaterialTextures.h>
 #include <ethertia/render/Window.h>
@@ -48,7 +49,6 @@ void Settings::LoadSettings()
     DrawFuncIds[ImwInspector::ShowInspector] = "inspector";
     DrawFuncIds[ImwInspector::ShowHierarchy] = "hierarchy";
     DrawFuncIds[ImwGame::ShowWorldSettings] = "worldsettings";
-    DrawFuncIds[Imw::Editor::ShowProfiler] = "profiler";
     DrawFuncIds[Imw::Editor::ShowToolbar] = "toolbar";
     DrawFuncIds[Imw::Editor::ShowConsole] = "console";
     DrawFuncIds[Imw::Editor::ShowExplorer] = "explorer";

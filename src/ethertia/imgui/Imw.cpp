@@ -15,6 +15,7 @@
 #include <ethertia/init/KeyBinding.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/util/Loader.h>
+#include <ethertia/util/Log.h>
 #include <ethertia/world/Chunk.h>
 
 
@@ -259,7 +260,6 @@ static void _ShowMainMenuBar()
 
             Imgui::MenuItemToggleShow("Toolbar", Imw::Editor::ShowToolbar);
             Imgui::MenuItemToggleShow("Console", Imw::Editor::ShowConsole);
-            Imgui::MenuItemToggleShow("Profiler", Imw::Editor::ShowProfiler);
 
             ImGui::Separator();
             Imgui::MenuItemToggleShow("Debug Info", Imw::Settings::ShowSettings, KeyBindings::KEY_DEBUG_INFO.keyName());

@@ -18,6 +18,7 @@
 #include <ethertia/Ethertia.h>
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/Colors.h>
+#include <ethertia/util/Log.h>
 #include <ethertia/render/Window.h>
 #include <ethertia/init/Controls.h>
 #include <ethertia/world/Chunk.h>

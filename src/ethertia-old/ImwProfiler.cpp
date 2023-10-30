@@ -2,11 +2,12 @@
 // Created by Dreamtowards on 9/8/2023.
 //
 
+//static void ShowProfiler(bool* _open);
+
 #include "Imw.h"
 
 #include <imgui_internal.h>
 
-#include <ethertia/util/Profiler.h>
 #include <ethertia/util/Colors.h>
 #include <ethertia/Ethertia.h>
 
