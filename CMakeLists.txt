@@ -71,6 +71,7 @@ include_directories(lib/imgui-docking-1.89.9)
 include_directories(lib/imguizmo-1.83)
 include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
+include_directories(lib/imgui-profiler-0.23.10)
 include_directories(lib/vulkan-1.3.250.0/include)
 include_directories(lib/wgpu-0.18.0.1/include)
 include_directories(lib/glfw3wgpu-1.1.0)
@@ -137,7 +138,8 @@ add_executable(Ethertia
     ${LUA_SRC_FILES}
     lib/glfw3wgpu-1.1.0/glfw3webgpu.c
 
-    #src/ethertia/vr/OpenXR.cpp
+    lib/imgui-profiler-0.23.10/Profiler.cpp
+    lib/imgui-profiler-0.23.10/ProfilerWindow.cpp
 
     src/vkx/vkx.cpp
     src/stdx/thread_pool.cpp
