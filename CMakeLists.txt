@@ -72,8 +72,6 @@ include_directories(lib/imguizmo-1.83)
 include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
 include_directories(lib/vulkan-1.3.250.0/include)
-include_directories(lib/wgpu-0.18.0.1/include)
-include_directories(lib/glfw3wgpu-1.1.0)
 
 include_directories(lib/physx-5.3.0/include)
 include_directories(lib/fastnoise2-0.10.0a/include)
@@ -135,7 +133,6 @@ set(LUA_SRC_FILES
 add_executable(Ethertia
     lib/tinyfd-2.9.3/tinyfiledialogs.c
     ${LUA_SRC_FILES}
-    lib/glfw3wgpu-1.1.0/glfw3webgpu.c
 
     src/vkx/vkx.cpp
     src/stdx/thread_pool.cpp
