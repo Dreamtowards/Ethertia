@@ -71,7 +71,6 @@ include_directories(lib/imgui-docking-1.89.9)
 include_directories(lib/imguizmo-1.83)
 include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
-include_directories(lib/imgui-profiler-0.23.10)
 include_directories(lib/vulkan-1.3.250.0/include)
 include_directories(lib/wgpu-0.18.0.1/include)
 include_directories(lib/glfw3wgpu-1.1.0)
@@ -138,9 +137,6 @@ add_executable(Ethertia
     ${LUA_SRC_FILES}
     lib/glfw3wgpu-1.1.0/glfw3webgpu.c
 
-    lib/imgui-profiler-0.23.10/Profiler.cpp
-    lib/imgui-profiler-0.23.10/ProfilerWindow.cpp
-
     src/vkx/vkx.cpp
     src/stdx/thread_pool.cpp
     src/stdx/str.cpp
@@ -157,34 +153,34 @@ add_executable(Ethertia
     lib/imgui-knobs-0.21.2/imgui-knobs.cpp
     lib/imgui-imnodes-0.5/imnodes.cpp
 
-   # src/ethertia/imgui/Imgui.cpp
-   # src/ethertia/imgui/Imw.cpp
-   # src/ethertia/imgui/ImwSettings.cpp
-   # src/ethertia/imgui/ImwGameplay.cpp
-   # src/ethertia/imgui/ImwInspector.cpp
-   # src/ethertia/imgui/ImwProfiler.cpp
-   # src/ethertia/imgui/ImwDebug.cpp
-   # src/ethertia/imgui/ImwExplorer.cpp
-   #
-   # src/ethertia/init/init_load.cpp
-   #     
-   # src/ethertia/util/Loader.cpp
-   # src/ethertia/util/BitmapImage.cpp
-   # src/ethertia/util/Maths.cpp
-   # src/ethertia/render/VertexData.cpp
-   #
-   # src/ethertia/render/Window.cpp
-   # src/ethertia/render/RenderEngine.cpp
-   # src/ethertia/init/Controls.cpp
-   # src/ethertia/init/Settings.cpp
-   # src/ethertia/world/Physics.cpp
-   # src/ethertia/mod/Lua.cpp
-   #
-   # src/ethertia/world/World.cpp
-   # src/ethertia/world/Chunk.cpp
-   # src/ethertia/world/chunk/ChunkSystem.cpp
-   # src/ethertia/world/chunk/gen/ChunkGenerator.cpp
-   # src/ethertia/world/chunk/meshgen/MeshGen.cpp
+    src/ethertia/imgui/Imgui.cpp
+    src/ethertia/imgui/Imw.cpp
+    src/ethertia/imgui/ImwSettings.cpp
+    src/ethertia/imgui/ImwGameplay.cpp
+    src/ethertia/imgui/ImwInspector.cpp
+    src/ethertia/imgui/ImwProfiler.cpp
+    src/ethertia/imgui/ImwDebug.cpp
+    src/ethertia/imgui/ImwExplorer.cpp
+    
+    src/ethertia/init/init_load.cpp
+        
+    src/ethertia/util/Loader.cpp
+    src/ethertia/util/BitmapImage.cpp
+    src/ethertia/util/Maths.cpp
+    src/ethertia/render/VertexData.cpp
+    
+    src/ethertia/render/Window.cpp
+    src/ethertia/render/RenderEngine.cpp
+    src/ethertia/init/Controls.cpp
+    src/ethertia/init/Settings.cpp
+    src/ethertia/world/Physics.cpp
+    src/ethertia/mod/Lua.cpp
+    
+    src/ethertia/world/World.cpp
+    src/ethertia/world/Chunk.cpp
+    src/ethertia/world/chunk/ChunkSystem.cpp
+    src/ethertia/world/chunk/gen/ChunkGenerator.cpp
+    src/ethertia/world/chunk/meshgen/MeshGen.cpp
 
 
     src/ethertia/Ethertia.cpp)

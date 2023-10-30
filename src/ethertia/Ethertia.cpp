@@ -62,9 +62,6 @@ static Profiler     g_Profiler;
 static std::unique_ptr<stdx::thread_pool> g_ThreadPool;
 static std::thread::id g_MainThreadId{};
 
-#include <ImProfiler.h>
-
-static CPUProfiler g_ImProfiler;
 
 static void _InitConsoleThread();
 
@@ -84,8 +81,6 @@ static void Init()
     //    ModLoader::LoadMod(modpath);
     //}
     //OpenVR::init();
-
-    g_ImProfiler.Initialize(8, 1024);
 
     Lua::Init();
 
@@ -157,7 +152,6 @@ static void Destroy()
 static void RunMainLoop()
 {
     ET_PROFILE_("Frame");
-    PROFILE_FRAME();
 
     double _TimeFrameBegin = Ethertia::GetPreciseTime();
     Ethertia::GetTimer().update(_TimeFrameBegin);
