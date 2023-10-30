@@ -1,17 +1,74 @@
 
+#include <glfw3webgpu.h>
+
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 
 #define WEBGPU_CPP_IMPLEMENTATION
 #include <webgpu/webgpu.hpp>
 
-int main2()
+#include <ethertia/util/Log.h>
+
+int main()
 {
     glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow* window = glfwCreateWindow(640, 480, "WebGPU", NULL, NULL);
 
     wgpu::Instance instance = wgpu::createInstance({});
     assert(instance);
+
+
+    wgpu::Surface surface = glfwGetWGPUSurface(instance, window);
+    assert(surface);
+
+    
+    wgpu::Adapter adapter = nullptr;
+    instance.requestAdapter(
+        wgpu::RequestAdapterOptions{{
+            .compatibleSurface = surface,
+            .powerPreference = wgpu::PowerPreference::HighPerformance,
+            .forceFallbackAdapter = false
+        }},
+        [&adapter](wgpu::RequestAdapterStatus status, wgpu::Adapter adap, char const* message) {
+            assert(status == wgpu::RequestAdapterStatus::Success);
+            adapter = adap;
+        });
+    assert(adapter);
+
+
+    //int n = adapter.enumerateFeatures(nullptr);
+    //std::vector<WGPUFeatureName> f;
+    //f.resize(n);
+    //adapter.enumerateFeatures((wgpu::FeatureName*)f.data());
+    //for (auto f_ : f)
+    //{
+    //    Log::info("f {}", (int)f_);
+    //}
+
+
+    wgpu::Device device = adapter.requestDevice(wgpu::DeviceDescriptor{{
+            .label = "Device",
+            .requiredFeaturesCount = 0,
+            .requiredFeatures = 0,
+            .requiredLimits = 0,
+            .defaultQueue = {
+                .nextInChain = nullptr,
+                .label = "DDefault Queue"
+            }
+            //.deviceLostCallback
+            //.deviceLostUserdata
+        }});
+    assert(device);
+
+    device.setUncapturedErrorCallback(
+        [](wgpu::ErrorType type, char const* message) {
+            Log::warn("WGPU Device UncapturedError: {}", message);
+        });
+
+    wgpu::Queue queue = device.getQueue();
+
 
     while (!glfwWindowShouldClose(window)) {
         // Check whether the user clicked on the close button (and any other
@@ -19,6 +76,9 @@ int main2()
         glfwPollEvents();
     }
 
+    device.release();
+    adapter.release();
+    surface.release();
     instance.release();
 
     glfwDestroyWindow(window);
@@ -27,7 +87,7 @@ int main2()
     return 0;
 }
 
-
+/*
 #include <ethertia/Ethertia.h>
 
 #include <ethertia/render/RenderEngine.h>
