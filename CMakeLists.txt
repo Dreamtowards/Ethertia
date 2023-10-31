@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+
 cmake_minimum_required(VERSION 3.0.0)
 project(Ethertia VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
@@ -47,16 +47,22 @@ elseif(ET_LINUX)
     set(ET_BUILD_TARGET "linux-x64")         # x86-64
 endif ()
 
+if (${CMAKE_BUILD_TYPE} MATCHES "Release")
+    set(ET_BUILD_TARGET "${ET_BUILD_TARGET}-release")
+else()
+    set(ET_BUILD_TARGET "${ET_BUILD_TARGET}-debug")
+endif()
 
-set(ET_BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${ET_BUILD_TARGET})
+
 
 # Output of Shared library & Program
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR}) 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR})  # for Windows
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/run/bin/${ET_BUILD_TARGET}) 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})  # for Windows
 
 link_directories(${ET_BUILD_TARGET_DIR})
+link_directories("lib/_bin/${ET_BUILD_TARGET}")
 
-message("Ethertia: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; BinDir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}; CXX_FALGS: ${CMAKE_CXX_FLAGS}")
+message("Ethertia: ${ET_BUILD_TARGET}; (${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}; CXX_FALGS: ${CMAKE_CXX_FLAGS}")
 
 
 
@@ -210,13 +216,13 @@ add_executable(Ethertia
 
 #if(BUILD_SHARED_LIBS)   # OR BUILD_STATIC
 
-    set(GLFW_BUILD_EXAMPLES OFF)
-    set(GLFW_BUILD_TESTS OFF)
-    add_subdirectory(lib/glfw-3.3.8)
-    target_link_libraries(Ethertia glfw)
-
-    add_subdirectory(lib/fastnoise2-0.10.0a)
-    target_link_libraries(Ethertia FastNoise2)
+ #   set(GLFW_BUILD_EXAMPLES OFF)
+ #   set(GLFW_BUILD_TESTS OFF)
+ #   add_subdirectory(lib/glfw-3.3.8)
+ #   target_link_libraries(Ethertia glfw)
+ #
+ #   add_subdirectory(lib/fastnoise2-0.10.0a)
+ #   target_link_libraries(Ethertia FastNoise2)
 
 #    add_subdirectory(lib/openal-soft)
 #    target_link_libraries(Ethertia OpenAL)
@@ -263,6 +269,12 @@ target_link_libraries(Ethertia
 
 # Optick
 target_link_libraries(Ethertia "OptickCore")
+
+
+target_link_libraries(Ethertia "glfw3")
+
+target_link_libraries(Ethertia "FastNoise")
+
 
     
 #if(WIN32)

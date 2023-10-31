@@ -5,6 +5,8 @@ cmake-build-debug/*
 cmake-build-release/*
 build*
 
+lib/_bin/
+
 # MSVC
 out/
 .vs/
