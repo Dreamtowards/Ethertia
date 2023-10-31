@@ -21,7 +21,7 @@
 #define ET_VERSION_MAJOR 0
 #define ET_VERSION_MINOR 0
 #define ET_VERSION_PATCH 3
-#define ET_VERSION_SNAPSHOT "2023.10ec"
+#define ET_VERSION_SNAPSHOT "2023.10ec22"
 #define ET_VERSION_DATE "2023.10.31"
 
 #include <ethertia/core.h>

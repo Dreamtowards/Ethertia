@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.0.0)
+project(Ethertia VERSION 0.1.0 LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 20)
 
 
 # Enable Hot Reload for MSVC compilers if supported.
@@ -8,13 +11,10 @@ if (POLICY CMP0141)
 endif()
 
 
-project(Ethertia)
-
-set(CMAKE_CXX_STANDARD 20)
 
 # perfer use dynamic/shared library for better compile speed and binary size.
-set(BUILD_SHARED_LIBS ON)
-set(BUILD_STATIC OFF)
+#set(BUILD_SHARED_LIBS ON)
+#set(BUILD_STATIC OFF)
 #set(CMAKE_BUILD_TYPE "Release")
 
 
@@ -23,7 +23,6 @@ set(BUILD_STATIC OFF)
 #set(MSVC_COMPILE_FLAGS "/MP")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS}" )
 #set(MAKE_PROGRAM ninja -j10)
-
 
 
 
@@ -47,6 +46,8 @@ elseif (APPLE)
 elseif(ET_LINUX)
     set(ET_BUILD_TARGET "linux-x64")         # x86-64
 endif ()
+
+
 set(ET_BUILD_TARGET_DIR ${CMAKE_SOURCE_DIR}/run/bin/${ET_BUILD_TARGET})
 
 # Output of Shared library & Program
@@ -55,7 +56,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ET_BUILD_TARGET_DIR})  # for Windows
 
 link_directories(${ET_BUILD_TARGET_DIR})
 
-message("Ethertia BuildEnv: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; BinDir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}; CXX_FALGS: ${CMAKE_CXX_FLAGS}")
+message("Ethertia: ${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}; BinDir: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}; CXX_FALGS: ${CMAKE_CXX_FLAGS}")
 
 
 
@@ -184,30 +185,30 @@ add_executable(Ethertia
     src/ethertia/Ethertia.cpp)
     
 
-add_executable(EthertiaTests 
-    ${LUA_SRC_FILES}
-    src/test/test.cpp)
-
-
-add_executable(DedicatedServer
-    src/ethertia/network/DedicatedServer.cpp)
-
-add_library(TwilightForest SHARED
-    run/mods/TwilightForest/src/TwilightForest.cpp)
-
+#add_executable(EthertiaTests 
+#    ${LUA_SRC_FILES}
+#    src/test/test.cpp)
+#
+#
+#add_executable(DedicatedServer
+#    src/ethertia/network/DedicatedServer.cpp)
+#
+#add_library(TwilightForest SHARED
+#    run/mods/TwilightForest/src/TwilightForest.cpp)
+#
 
 
         
 
 #On linux, We can build shared libraries as default.  #? why
-if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC)) AND ET_LINUX)
-    set(BUILD_SHARED_LIBS ON)
-endif()
+#if((NOT (BUILD_SHARED_LIBS OR BUILD_STATIC)) AND ET_LINUX)
+#    set(BUILD_SHARED_LIBS ON)
+#endif()
 
 
 
 
-if(BUILD_SHARED_LIBS)   # OR BUILD_STATIC
+#if(BUILD_SHARED_LIBS)   # OR BUILD_STATIC
 
     set(GLFW_BUILD_EXAMPLES OFF)
     set(GLFW_BUILD_TESTS OFF)
@@ -220,7 +221,7 @@ if(BUILD_SHARED_LIBS)   # OR BUILD_STATIC
 #    add_subdirectory(lib/openal-soft)
 #    target_link_libraries(Ethertia OpenAL)
 
-endif()
+#endif()
 
 
 

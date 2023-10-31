@@ -3,7 +3,7 @@
 
 cmake-build-debug/*
 cmake-build-release/*
-cmake-build-*
+build*
 
 # MSVC
 out/
