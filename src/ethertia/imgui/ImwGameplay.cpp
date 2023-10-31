@@ -646,12 +646,12 @@ void ImwGame::ShowGame(bool* _open)
         for (auto& drawfunc : std::vector<Imgui::DrawFuncPtr>(GameDrawFuncs))
         {
             bool tmp = true;
-            ImGui::SetCursorPos({ 0, 0 });
-            ImGui::BeginChild(ImGui::GetID(drawfunc));
+            ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
+            //ImGui::BeginChild(ImGui::GetID(drawfunc));
             
             drawfunc(&tmp);
 
-            ImGui::EndChild();
+            //ImGui::EndChild();
         }
     }
 

@@ -14,16 +14,15 @@
 #include <ethertia/world/Entity.h>
 
 #include <optick.h>
-#include <ImProfiler.h>
-#define ET_PROFILE(x) OPTICK_EVENT(x); PROFILE_CPU_SCOPE(x);
+#define ET_PROFILE(x) OPTICK_EVENT(x)
 
 
 /// Version
 #define ET_VERSION_MAJOR 0
-#define ET_VERSION_MINOR 1
-#define ET_VERSION_PATCH 0
-#define ET_VERSION_SNAPSHOT "2023.10e"
-#define ET_VERSION_DATE "2023.10.29"
+#define ET_VERSION_MINOR 0
+#define ET_VERSION_PATCH 3
+#define ET_VERSION_SNAPSHOT "2023.10ec"
+#define ET_VERSION_DATE "2023.10.31"
 
 #include <ethertia/core.h>
 
@@ -62,7 +61,7 @@ public:
     static void PrintMessage(const std::string& msg);  // print @msg on Message Box.
 
 
-    static const std::string GetVersion(bool fullname = false);     // e.g. "0.0.3", "23w14c *0.0.2" fullname: "Ethertia Alpha 23w14c *0.0.2"
+    static const std::string GetVersion(bool fullname = false);     // e.g. "0.0.3", "*0.0.2 2023.10ec" fullname: "Ethertia *0.0.2 2023.10ec"
 
 
     struct Viewport

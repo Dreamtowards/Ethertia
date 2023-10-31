@@ -74,7 +74,6 @@ include_directories(lib/imgui-knobs-0.21.2)
 include_directories(lib/vulkan-1.3.250.0/include)
 
 include_directories(lib/optick-1.4.0/include)
-include_directories(lib/imgui-profiler-0.23.10)
 
 include_directories(lib/physx-5.3.0/include)
 include_directories(lib/fastnoise2-0.10.0a/include)
@@ -140,9 +139,6 @@ add_executable(Ethertia
     src/vkx/vkx.cpp
     src/stdx/thread_pool.cpp
     src/stdx/str.cpp
-    
-    lib/imgui-profiler-0.23.10/Profiler.cpp
-    lib/imgui-profiler-0.23.10/ProfilerWindow.cpp
 
     lib/imgui-docking-1.89.9/imgui.cpp
     lib/imgui-docking-1.89.9/imgui_draw.cpp

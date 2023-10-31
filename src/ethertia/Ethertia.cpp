@@ -65,7 +65,6 @@ static std::thread::id g_MainThreadId{};
 
 static void _InitConsoleThread();
 
-#include <ImProfiler.h>
 
 // System Initialization.
 static void Init()
@@ -126,14 +125,12 @@ static void Init()
     ImwGame::GameDrawFuncs.push_back(ImwGame::ShowTitleScreen);
 
 
-    gCPUProfiler.Initialize(8, 3000);
 }
 
 
 // System Cleanup
 static void Destroy()
 {
-    gCPUProfiler.Shutdown();
 
     Settings::SaveSettings();
 
@@ -157,7 +154,6 @@ static void Destroy()
 static void RunMainLoop()
 {
     OPTICK_FRAME("MainThread");
-    PROFILE_FRAME();
 
     double _TimeFrameBegin = Ethertia::GetPreciseTime();
     Ethertia::GetTimer().update(_TimeFrameBegin);
@@ -202,7 +198,6 @@ static void RunMainLoop()
             ET_PROFILE("Imgui::ShowWindows");
             Imw::ShowDockspaceAndMainMenubar();
             Imgui::ShowWindows();
-            DrawProfilerHUD();
         }
 
         {
@@ -393,12 +388,12 @@ Ethertia::Viewport Ethertia::GetViewport() {
 const std::string Ethertia::GetVersion(bool fullname) 
 {
     static std::string _VerName = ET_VERSION_SNAPSHOT ? 
-        std::format("{} *{}.{}.{}", ET_VERSION_SNAPSHOT, ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH) :
+        std::format("*{}.{}.{} {}", ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH, ET_VERSION_SNAPSHOT) :
         std::format("{}.{}.{}", ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH);
 
     if (fullname) 
     {
-        static std::string _FullVerName = "Ethertia Alpha " + _VerName;
+        static std::string _FullVerName = "Ethertia " + _VerName;
         return _FullVerName;
     }
     return _VerName;
