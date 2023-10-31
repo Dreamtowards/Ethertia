@@ -1,0 +1,84 @@
+{
+  "name": "daxa",
+  "version": "2.0.0",
+  "description": "Daxa C++ Vulkan Abstraction",
+  "homepage": "https://github.com/Ipotrick/Daxa",
+  "dependencies": [
+    "vulkan-memory-allocator",
+    "vulkan",
+    "fmt",
+    {
+      "name": "wayland",
+      "default-features": false,
+      "platform": "linux"
+    }
+  ],
+  "default-features": [
+    "utils-imgui",
+    "utils-mem",
+    "utils-pipeline-manager-glslang",
+    "utils-task-graph"
+  ],
+  "features": {
+    "utils-imgui": {
+      "description": "The ImGUI Daxa utility",
+      "dependencies": [
+        "imgui"
+      ]
+    },
+    "utils-mem": {
+      "description": "The Mem Daxa utility"
+    },
+    "utils-pipeline-manager-glslang": {
+      "description": "Build with glslang",
+      "dependencies": [
+        "glslang"
+      ]
+    },
+    "utils-pipeline-manager-dxc": {
+      "description": "Build with dxc",
+      "dependencies": [
+        "dxc"
+      ]
+    },
+    "utils-pipeline-manager-spirv-validation": {
+      "description": "Build with SPIR-V validation",
+      "dependencies": [
+        "spirv-tools"
+      ]
+    },
+    "utils-task-graph": {
+      "description": "The Task-Graph Daxa utility"
+    },
+    "tests": {
+      "description": "Build Tests",
+      "dependencies": [
+        {
+          "name": "glfw3",
+          "features": [
+            "xlib",
+            "wayland"
+          ]
+        },
+        "glfw3",
+        "glm",
+        "stb",
+        "cgltf",
+        {
+          "name": "imgui",
+          "features": [
+            "glfw-binding"
+          ]
+        }
+      ]
+    }
+  },
+  "builtin-baseline": "0fa8459cf3a7caca7adc58f992bc32ff13630684",
+  "vcpkg-configuration": {
+    "overlay-ports": [
+      "./cmake/vcpkg-overlay-ports/dxc",
+      "./cmake/vcpkg-overlay-ports/fsr2",
+      "./cmake/vcpkg-overlay-ports/glfw3"
+    ]
+  }
+}
