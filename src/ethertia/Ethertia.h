@@ -24,7 +24,13 @@
 #define ET_VERSION_SNAPSHOT "2023.10ec22"
 #define ET_VERSION_DATE "2023.10.31"
 
-#include <ethertia/core.h>
+
+/// Namespace
+#define ET_NAMESPACE et
+#define ET_NAMESPACE_BEGIN namespace ET_NAMESPACE {
+#define ET_NAMESPACE_END }
+
+
 
 
 class Ethertia

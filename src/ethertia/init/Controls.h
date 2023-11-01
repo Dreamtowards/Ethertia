@@ -8,6 +8,8 @@
 class Controls
 {
 public:
+    inline static float EditorCameraMoveSpeed = 8;
+
 
     inline static int DbgAvgFPS = 0;
 

@@ -301,6 +301,7 @@ static void _HitRaycast()
 
     hit = {};  // reset
 
+    // todo: bugfix: Ignore Player Self.
     if (world->Raycast(origin, dir, 100.0f, pos, norm, &shape, &actor))
     {
         hit.hit = true;
@@ -390,6 +391,158 @@ void handleHitCursor()
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+glm::mat4 _MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta, float pitchDelta, float len = 0.1f, glm::vec3 moveAbsDelta = { 0, 0, 0 }, glm::vec3* out_Eye = nullptr)
+{
+    glm::vec3 right = glm::vec3(view[0][0], view[1][0], view[2][0]);
+    glm::vec3 up = glm::vec3(view[0][1], view[1][1], view[2][1]);
+    glm::vec3 forward = glm::vec3(view[0][2], view[1][2], view[2][2]);
+    //right.y = 0;
+
+    //view = glm::translate(view, moveDelta.x * right);
+    //view = glm::translate(view, moveDelta.y * up); 
+    //view = glm::translate(view, moveDelta.z * forward);
+
+    glm::mat4 invView = glm::inverse(view);
+
+    glm::vec3 eye = glm::vec3(invView[3]);
+    glm::vec3 pivot = eye - forward * len;
+
+    glm::mat4 yawMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(yawDelta), { 0, 1, 0 });
+    glm::mat4 pitchMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(pitchDelta), right);
+    glm::vec3 newForward = glm::normalize(glm::mat3(yawMatrix) * glm::mat3(pitchMatrix) * forward);
+
+    // newForward shouldn't parallels with Y, or lookAt will produce NaN
+    {
+        static const float rE = 0.1f;
+        vec2 xz{ newForward.x, newForward.z };
+        float t = glm::length(xz);
+        if (t < rE)
+        {
+            xz *= rE / t;
+            newForward.x = xz.x;
+            newForward.z = xz.y;
+        }
+    }
+
+
+    glm::vec3 newEye = pivot + newForward * len;
+
+    moveDelta = glm::mat3(invView) * moveDelta;
+    pivot += moveDelta + moveAbsDelta;
+    newEye += moveDelta + moveAbsDelta;
+
+    // output view position. since get pos from ViewMatrix is expensive (mat4 inverse)
+    if (out_Eye) *out_Eye = newEye;
+
+    auto m = glm::lookAt(newEye, pivot, { 0, 1, 0 });
+
+    ET_ASSERT(std::isfinite(m[0][0]) && std::isfinite(m[0][1]) && std::isfinite(m[1][0]));
+
+    return m;
+}
+
+static void _EditorMoveCamera()
+{
+    float dYaw = 0;
+    float dPitch = 0;
+    glm::vec3 move{};
+    glm::vec3 moveaa{};  // axis align, for mc-like shift space - down up
+    float len = 0.1f;
+
+    vec2 MouseDelta = Window::MouseDelta();
+    float  MouseWheel = Window::MouseWheelSum();
+
+    float rotateSpeed = 0.2;
+
+    bool keyAltDown = Window::isAltKeyDown();
+    bool keyCtrlDown = Window::isCtrlKeyDown();
+    bool dragLMB = Window::isMouseLeftDown();
+    bool dragMMB = Window::isMouseMiddleDown();
+    bool dragRMB = Window::isMouseRightDown();
+
+    if (dragLMB || dragRMB || dragMMB)
+    {
+        if ((dragLMB && keyAltDown) || (dragRMB && dragLMB))
+        {
+            // Pin XZ
+            move.z += -MouseDelta.y;
+            move.x += -MouseDelta.x;
+        }
+        else if (keyAltDown && (dragMMB || dragLMB))
+        {
+            // Pivot Rotate
+            dYaw += -MouseDelta.x * rotateSpeed;
+            dPitch += -MouseDelta.y * rotateSpeed;
+
+            auto& hit = Ethertia::GetHitResult();
+            len = hit ? hit.distance : 32.0f;
+        }
+        else if (dragMMB)
+        {
+            // Pin XY
+            move.x += -MouseDelta.x;
+            move.y += MouseDelta.y;
+        }
+        else if (dragRMB)
+        {
+            // FPS Rotate
+            dYaw += -MouseDelta.x * rotateSpeed;
+            dPitch += -MouseDelta.y * rotateSpeed;
+        }
+
+        auto& io = ImGui::GetIO();
+        if (io.KeysDown[ImGuiKey_W]) move.z -= 1;
+        if (io.KeysDown[ImGuiKey_S]) move.z += 1;
+        if (io.KeysDown[ImGuiKey_A]) move.x -= 1;
+        if (io.KeysDown[ImGuiKey_D]) move.x += 1;
+        if (io.KeysDown[ImGuiKey_Q]) move.y -= 1;
+        if (io.KeysDown[ImGuiKey_E]) move.y += 1;
+        if (keyCtrlDown && !dragLMB) moveaa.y -= 1;
+        if (io.KeysDown[ImGuiKey_Space]) moveaa.y += 1;
+
+
+        Controls::EditorCameraMoveSpeed += MouseWheel * 2;
+        Controls::EditorCameraMoveSpeed = std::max(0.0f, Controls::EditorCameraMoveSpeed);
+
+        float spd = Ethertia::GetDelta() * Controls::EditorCameraMoveSpeed;
+
+        move *= spd;
+        moveaa *= spd;
+
+    }
+    else if (MouseWheel)  // should restrict to Only WindowHovered
+    {
+        // Zoom Z
+        move.z += -MouseWheel * Controls::EditorCameraMoveSpeed;
+    }
+
+
+
+    if (dYaw || dPitch || !Math::IsZero(move) || !Math::IsZero(moveaa))
+    {
+        Camera& cam = Ethertia::GetCamera();
+        cam.matView = _MatView_MoveRotate(cam.matView, move, dYaw, dPitch, len, moveaa, &cam.position);
+    }
+}
+
+
+
 void Controls::HandleInput()
 {
     OPTICK_EVENT();
@@ -422,88 +575,97 @@ void Controls::HandleInput()
     Window::SetMouseGrabbed(Ethertia::isIngame());
     Window::SetStickyKeys(!Ethertia::isIngame());
 
-    if (world)
+
+
+
+    if (!Ethertia::isIngame() && (ImwGame::IsGameWindowHoveredOrFocused))
     {
-        _HitRaycast();
+        _EditorMoveCamera();
     }
-
-
-
 
     //camera.position = Ethertia::getPlayer()->position();
 
-
-    if (Ethertia::isIngame() && world)
+    if (world)
     {
-        using glm::vec3;
-        using glm::vec4;
-        using glm::mat4;
-
-        static vec3 _PlayerVelocity{};
-
-        float dt = Ethertia::GetDelta();
-        cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
-
-        PxController* cct = World::dbg_CCT;
-
-        vec3 disp{};
-        if (Window::isKeyDown(GLFW_KEY_W)) disp.z -= 1;
-        if (Window::isKeyDown(GLFW_KEY_S)) disp.z += 1;
-        if (Window::isKeyDown(GLFW_KEY_A)) disp.x -= 1;
-        if (Window::isKeyDown(GLFW_KEY_D)) disp.x += 1;
-
-        if (Window::isShiftKeyDown())
+        if (Ethertia::isIngame())
         {
-            disp *= 3.8f;
-        }
+            using glm::vec3;
+            using glm::vec4;
+            using glm::mat4;
 
-        if (Window::isCtrlKeyDown()) disp.y -= 1;
-        if (Window::isKeyDown(GLFW_KEY_SPACE)) disp.y += 1;
+            static vec3 _PlayerVelocity{};
 
-        if (Window::isKeyDown(GLFW_KEY_SPACE))  //  jump
-        {
-            disp.y += 13;
-        }
+            float dt = Ethertia::GetDelta();
+            cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
 
-        float yaw = cam.eulerAngles.y;
-        disp = vec3(glm::rotate(mat4(1.0f), yaw, vec3(0, 1, 0)) * vec4(disp, 1.0f));
+            PxController* cct = World::dbg_CCT;
+
+            vec3 disp{};
+            if (Window::isKeyDown(GLFW_KEY_W)) disp.z -= 1;
+            if (Window::isKeyDown(GLFW_KEY_S)) disp.z += 1;
+            if (Window::isKeyDown(GLFW_KEY_A)) disp.x -= 1;
+            if (Window::isKeyDown(GLFW_KEY_D)) disp.x += 1;
+
+            if (Window::isShiftKeyDown())
+            {
+                disp *= 3.8f;
+            }
+
+            if (Window::isCtrlKeyDown()) disp.y -= 1;
+            if (Window::isKeyDown(GLFW_KEY_SPACE)) disp.y += 1;
+
+            if (Window::isKeyDown(GLFW_KEY_SPACE))  //  jump
+            {
+                disp.y += 13;
+            }
+
+            float yaw = cam.eulerAngles.y;
+            disp = vec3(glm::rotate(mat4(1.0f), yaw, vec3(0, 1, 0)) * vec4(disp, 1.0f));
 
 
-        _PlayerVelocity += disp;
-        _PlayerVelocity *= 0.94f;  // apply damping
+            _PlayerVelocity += disp;
+            _PlayerVelocity *= 0.94f;  // apply damping
 
 
-        PxControllerCollisionFlags collisionFlags = cct->move(stdx::cast<PxVec3>(_PlayerVelocity * dt), 0.01f, dt, PxControllerFilters());
+            PxControllerCollisionFlags collisionFlags = cct->move(stdx::cast<PxVec3>(_PlayerVelocity * dt), 0.01f, dt, PxControllerFilters());
 
-        if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_SIDES) {
-            Log::info("PlayerColl Side");
-        }
-        if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_UP) {
-            Log::info("PlayerColl Up");
-        }
+            if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_SIDES) {
+                Log::info("PlayerColl Side");
+            }
+            if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_UP) {
+                Log::info("PlayerColl Up");
+            }
 
-        if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN)
-        {
-            // onGround
-            //Log::info("PlayerColl OnGround");
+            if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN)
+            {
+                // onGround
+                //Log::info("PlayerColl OnGround");
+            }
+            else
+            {
+                // Apply Gravity
+                _PlayerVelocity += glm::vec3(0, -10.0f, 0);
+            }
+
+            PxExtendedVec3 p = cct->getFootPosition();
+            cam.position = {p.x, p.y + 1.8f, p.z};
+
         }
         else
         {
-            // Apply Gravity
-            _PlayerVelocity += glm::vec3(0, -10.0f, 0);
+            //World::dbg_CCT->setFootPosition(PxExtendedVec3{ cam.position.x, cam.position.y, cam.position.z });
         }
-
-        PxExtendedVec3 p = cct->getFootPosition();
-        cam.position = {p.x, p.y + 1.8f, p.z};
-
-    }
-    else if (world)
-    {
-        World::dbg_CCT->setFootPosition(PxExtendedVec3{ cam.position.x, cam.position.y, cam.position.z });
     }
     
 
     cam.UpdateMatrix(Ethertia::GetViewport().AspectRatio(), Ethertia::isIngame());
+
+    if (world)
+    {
+        // After Camera Update.
+        _HitRaycast();
+    }
+
 
 
 

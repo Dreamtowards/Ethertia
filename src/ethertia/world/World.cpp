@@ -114,6 +114,7 @@ World::World()
 		desc.material = Physics::dbg_DefaultMaterial;
 
 		PxController* cct = m_PxControllerManager->createController(desc);
+		//cct->getActor()->userData = (void*)(intptr_t)Ethertia::GetPlayer().id();
 		World::dbg_CCT = cct;
 
 
@@ -209,6 +210,7 @@ void World::OnTick(float dt)
 
 bool World::Raycast(glm::vec3 origin, glm::vec3 dir, float distance, glm::vec3& out_Position, glm::vec3& out_Normal, PxShape** out_Shape, PxRigidActor** out_Actor) const
 {
+
 	PxRaycastBuffer hitbuf;
 	if (!m_PxScene->raycast(stdx::cast<PxVec3>(origin), stdx::cast<PxVec3>(dir), distance, hitbuf))
 		return false;

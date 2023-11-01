@@ -28,8 +28,6 @@
 #include <ethertia/render/RenderEngine.h>
 
 
-static float s_CameraMoveSpeed = 8;
-
 
 #pragma region Viewport Ops
 
@@ -167,7 +165,7 @@ static void _ShowDebugText()
         ,
         CamPosCurr.x, CamPosCurr.y, CamPosCurr.z, //glm::to_string(CamPosCurr).substr(4),
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
-        s_CameraMoveSpeed,
+        Controls::EditorCameraMoveSpeed,
         //player->m_OnGround, player->m_NumContactPoints,
     
         Controls::DbgAvgFPS, std::floor(1.0f / dt), dt*1000.0,
@@ -297,7 +295,7 @@ static void _ShowViewportWidgets()
         ImwInspector::SelectedEntity = {};
     }
 
-    if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragPastThreshold(ImGuiMouseButton_Left))
+    if (!Ethertia::isIngame() && ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragPastThreshold(ImGuiMouseButton_Left))
     {
         auto& hit = Ethertia::GetHitResult();
      
@@ -335,7 +333,7 @@ static void _ShowViewportWidgets()
 
         ImGui::SeparatorText("Camera");
 
-        ImGui::DragFloat("Move Speed", &s_CameraMoveSpeed);
+        ImGui::DragFloat("Move Speed", &Controls::EditorCameraMoveSpeed);
 
         ImGui::SeparatorText("Gizmos");
 
@@ -409,8 +407,8 @@ static void _ShowViewportWidgets()
         glm::mat4* pView = &cam.matView;
         glm::mat4 camView = *pView;  // backup.
         *pView = glm::mat4(1.0f);  // disable view matrix. of RenderWorldLine
-        float n = 0.016f;
-        glm::vec3 o = { 0, 0, -0.1 };
+        float n = 0.1f;
+        glm::vec3 o = { 0, 0, -1.2 };
         glm::mat3 rot(camView);
         Imgui::RenderWorldLine(o, o + rot * glm::vec3(n, 0, 0), ImGui::GetColorU32({ 1,0,0,1 }));
         Imgui::RenderWorldLine(o, o + rot * glm::vec3(0, n, 0), ImGui::GetColorU32({ 0,1,0,1 }));
@@ -470,143 +468,102 @@ static void _ShowViewportWidgets()
 }
 
 
-glm::mat4 MatView_MoveRotate(glm::mat4 view, glm::vec3 moveDelta, float yawDelta, float pitchDelta, float len = 0.1f, glm::vec3 moveAbsDelta = {0, 0, 0}, glm::vec3* out_Eye = nullptr)
-{
-    glm::vec3 right     = glm::vec3(view[0][0], view[1][0], view[2][0]);
-    glm::vec3 up        = glm::vec3(view[0][1], view[1][1], view[2][1]);
-    glm::vec3 forward   = glm::vec3(view[0][2], view[1][2], view[2][2]);
-    //right.y = 0;
-
-    //view = glm::translate(view, moveDelta.x * right);
-    //view = glm::translate(view, moveDelta.y * up); 
-    //view = glm::translate(view, moveDelta.z * forward);
-
-    glm::mat4 invView = glm::inverse(view);
-
-    glm::vec3 eye = glm::vec3(invView[3]);
-    glm::vec3 pivot = eye - forward * len;
-
-    glm::mat4 yawMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(yawDelta), {0, 1, 0});
-    glm::mat4 pitchMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(pitchDelta), right);
-    glm::vec3 newForward = glm::normalize(glm::mat3(yawMatrix) * glm::mat3(pitchMatrix) * forward);
-
-    // newForward shouldn't parallels with Y, or lookAt will produce NaN
-    {
-        static const float rE = 0.1f;
-        vec2 xz{ newForward.x, newForward.z };
-        float t = glm::length(xz);
-        if (t < rE)
-        {
-            xz *= rE / t;
-            newForward.x = xz.x;
-            newForward.z = xz.y;
-        }
-    }
-
-
-    glm::vec3 newEye = pivot + newForward * len;
-
-    moveDelta = glm::mat3(invView) * moveDelta;
-    pivot  += moveDelta + moveAbsDelta;
-    newEye += moveDelta + moveAbsDelta;
-
-    // output view position. since get pos from ViewMatrix is expensive (mat4 inverse)
-    if (out_Eye) *out_Eye = newEye;
-
-    auto m = glm::lookAt(newEye, pivot, { 0, 1, 0 });
-
-    ET_ASSERT(std::isfinite(m[0][0]) && std::isfinite(m[0][1]) && std::isfinite(m[1][0]));
-
-    return m;
-}
-
-static void _MoveCamera()
-{
-    float dYaw = 0;
-    float dPitch = 0;
-    glm::vec3 move{};
-    glm::vec3 moveaa{};  // axis align, for mc-like shift space - down up
-    float len = 0.1f;
-
-    auto& io = ImGui::GetIO();
-    ImVec2 MouseDelta = io.MouseDelta;
-    float  MouseWheel = io.MouseWheel;
-
-    float rotateSpeed = 0.2;
-
-    bool keyAltDown = Window::isAltKeyDown();
-    bool keyCtrlDown = Window::isCtrlKeyDown();
-    bool dragRMB = ImGui::IsMouseDown(ImGuiMouseButton_Right);
-    bool dragMMB = ImGui::IsMouseDown(ImGuiMouseButton_Middle);
-    bool dragLMB = ImGui::IsMouseDown(ImGuiMouseButton_Left);
-
-    if (dragLMB || dragRMB || dragMMB)
-    {
-        if ((dragLMB && keyAltDown) || (dragRMB && dragLMB))
-        {
-            // Pin XZ
-            move.z += -MouseDelta.y;
-            move.x += -MouseDelta.x;
-        }
-        else if (keyAltDown && (dragMMB || dragLMB))
-        {
-            // Pivot Rotate
-            dYaw += -MouseDelta.x * rotateSpeed;
-            dPitch += -MouseDelta.y * rotateSpeed;
-
-            auto& hit = Ethertia::GetHitResult();
-            len = hit ? hit.distance : 32.0f;
-        }
-        else if (dragMMB)
-        {
-            // Pin XY
-            move.x += -MouseDelta.x;
-            move.y += MouseDelta.y;
-        }
-        else if (dragRMB)
-        {
-            // FPS Rotate
-            dYaw += -MouseDelta.x * rotateSpeed;
-            dPitch += -MouseDelta.y * rotateSpeed;
-        }
-
-        if (io.KeysDown[ImGuiKey_W]) move.z -= 1;
-        if (io.KeysDown[ImGuiKey_S]) move.z += 1;
-        if (io.KeysDown[ImGuiKey_A]) move.x -= 1;
-        if (io.KeysDown[ImGuiKey_D]) move.x += 1;
-        if (io.KeysDown[ImGuiKey_Q]) move.y -= 1;
-        if (io.KeysDown[ImGuiKey_E]) move.y += 1;
-        if (keyCtrlDown && !dragLMB) moveaa.y -= 1;
-        if (io.KeysDown[ImGuiKey_Space]) moveaa.y += 1;
-
-
-        s_CameraMoveSpeed += MouseWheel * 2;
-        s_CameraMoveSpeed = std::max(0.0f, s_CameraMoveSpeed);
-
-        float spd = Ethertia::GetDelta() * s_CameraMoveSpeed;
-
-        move *= spd;
-        moveaa *= spd;
-
-    } 
-    else if (MouseWheel && ImGui::IsWindowHovered())
-    {
-        // Zoom Z
-        move.z += -MouseWheel * s_CameraMoveSpeed;
-    }
-
-
-
-    if (dYaw || dPitch || glm::length2(move) || glm::length2(moveaa))
-    {
-        Camera& cam = Ethertia::GetCamera();
-        cam.matView = MatView_MoveRotate(cam.matView, move, dYaw, dPitch, len, moveaa, &cam.position);
-    }
-}
-
-
 #pragma endregion
 
+
+static void _ShowGameHUD()
+{
+
+    const auto& vp = Ethertia::GetViewport();
+    const ImVec2 vpCenter = { vp.x + vp.width / 2, vp.y + vp.height / 2 };
+
+    // Crosshair
+    if (!ImwGame::Gizmos::ViewGizmo)
+    {
+        // want make a 3d Crosshair like MCVR. but it requires a special Pipeline (shaders).
+        HitResult& cur = Ethertia::GetHitResult();
+        float E = 0.4f;
+
+        glm::mat4 mat = glm::inverse(glm::lookAt(cur.position, cur.position + cur.normal, glm::vec3(0, 1, 0)));
+        Imgui::RenderWorldLine(vec3(mat * vec4(-E, 0, 0, 1)), vec3(mat * vec4(E, 0, 0, 1)));
+        Imgui::RenderWorldLine(vec3(mat * vec4(0, -E, 0, 1)), vec3(mat * vec4(0, E, 0, 1)));
+
+        ImVec2 min = vpCenter;
+        ImVec2 size = { 2, 2 };
+        ImGui::RenderFrame(min - size / 2, min + size, ImGui::GetColorU32({ 1,1,1,1 }));
+    }
+
+    // Cell Breaking Time Indicator
+    //HitCursor& cur = Ethertia::getHitCursor();
+    //if (gm == Gamemode::SURVIVAL && cur.cell_breaking_time)
+    //{
+    //    float width = 40;
+    //    float h = 4;
+    //    ImVec2 min = vpCenter + ImVec2(-width/2, -12);
+    //    float perc = cur.cell_breaking_time / Dbg::dbg_CurrCellBreakingFullTime;
+    //
+    //    static ImU32 col_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.8});
+    //    static ImU32 col_fg = ImGui::GetColorU32({0.8, 0.8, 0.8, 1});
+    //    ImGui::RenderFrame(min, min+ImVec2(width, h), col_bg);
+    //    ImGui::RenderFrame(min, min+ImVec2(width * perc, h), col_fg);
+    //}
+
+
+
+
+    // Hotbar
+    //EntityPlayer& player = *Ethertia::getPlayer();
+    //int gm = player.getGamemode();
+    //if (gm == Gamemode::SURVIVAL || gm == Gamemode::CREATIVE)
+    //{
+    //    int hotbarSlots = std::min((int)player.m_Inventory.size(), 8);
+    //
+    //    if (Ethertia::isIngame())
+    //    {
+    //        player.m_HotbarSlot += Mth::signal(-Window::MouseWheelSum());
+    //        player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, hotbarSlots);
+    //    }
+    //
+    //    float hotbarSlotSize = 45;
+    //    float hotbarSlotGap = 4;
+    //    float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * hotbarSlots - hotbarSlotGap;
+    //    const ImVec2 hotbar_min = { vp.x + (vp.width - hotbarWidth) / 2,
+    //                               vp.y + vp.height - hotbarSlotSize - hotbarSlotGap };
+    //    ImVec2 size = { hotbarSlotSize, hotbarSlotSize };
+    //    static ImU32 col_bg = ImGui::GetColorU32({ 0, 0, 0, 0.3 });
+    //    static ImU32 col_bg_sel = ImGui::GetColorU32({ 1, 1, 1, 0.5 });
+    //
+    //    // Player Inventory Hotbar
+    //    ImVec2 min = hotbar_min;
+    //    for (int i = 0; i < hotbarSlots; ++i)
+    //    {
+    //        ImGui::RenderFrame(min, min + size, i == player.m_HotbarSlot ? col_bg_sel : col_bg);
+    //        ItemStack& stack = player.m_Inventory.at(i);
+    //
+    //        if (!stack.empty())
+    //        {
+    //            ImGui::SetCursorScreenPos(min);
+    //            Imw::ShowItemStack(stack, false, hotbarSlotSize);
+    //        }
+    //
+    //        min.x += hotbarSlotSize + hotbarSlotGap;
+    //    }
+    //
+    //    // Player Health
+    //    if (gm == Gamemode::SURVIVAL)
+    //    {
+    //        float healthWidth = hotbarWidth * 0.42f;
+    //        float healthHeight = 4;
+    //        static ImU32 col_health_bg = ImGui::GetColorU32({ 0.3, 0.3, 0.3, 0.6 });
+    //        static ImU32 col_health = ImGui::GetColorU32({ 0.8, 0.3, 0.3, 1 });
+    //        float perc = player.m_Health / 10.0f;
+    //
+    //        min = hotbar_min + ImVec2(0, -healthHeight - 8);
+    //        ImGui::RenderFrame(min, min + ImVec2(healthWidth, healthHeight), col_health_bg);
+    //        ImGui::RenderFrame(min, min + ImVec2(healthWidth * perc, healthHeight), col_health);
+    //    }
+    //}
+}
 
 
 
@@ -641,20 +598,6 @@ void ImwGame::ShowGame(bool* _open)
         _FullwindowLastValidDockId = ImGui::GetWindowDockID();
     }
 
-    // TitleScreen
-    {
-        for (auto& drawfunc : std::vector<Imgui::DrawFuncPtr>(GameDrawFuncs))
-        {
-            bool tmp = true;
-            ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
-            //ImGui::BeginChild(ImGui::GetID(drawfunc));
-            
-            drawfunc(&tmp);
-
-            //ImGui::EndChild();
-        }
-    }
-
     // ImGuizmo: Make Draw to Current Window. otherwise the draw will behind the window.
     ImGuizmo::SetDrawlist();
 
@@ -670,100 +613,28 @@ void ImwGame::ShowGame(bool* _open)
     //ImGui::SetCursorPos({0,0});
     //ImGui::InvisibleButton("PreventsGameWindowDragMove", viewSize);
 
-
-
-    if (ImGui::IsWindowHovered() || ImGui::IsWindowFocused())
-    {
-        _MoveCamera();
-    }
+    IsGameWindowHoveredOrFocused = ImGui::IsWindowHovered() || ImGui::IsWindowFocused();
 
 
     _ShowViewportWidgets();
 
 
+    _ShowGameHUD();
 
-    // Hotbar
-    //EntityPlayer& player = *Ethertia::getPlayer();
-    //int gm = player.getGamemode();
-    //if (gm == Gamemode::SURVIVAL || gm == Gamemode::CREATIVE)
-    //{
-    //    int hotbarSlots = std::min((int)player.m_Inventory.size(), 8);
-    //
-    //    if (Ethertia::isIngame())
-    //    {
-    //        player.m_HotbarSlot += Mth::signal(-Window::MouseWheelSum());
-    //        player.m_HotbarSlot = Mth::clamp(player.m_HotbarSlot, 0, hotbarSlots);
-    //    }
-    //
-    //    float hotbarSlotSize = 45;
-    //    float hotbarSlotGap = 4;
-    //    float hotbarWidth = (hotbarSlotSize + hotbarSlotGap) * hotbarSlots - hotbarSlotGap;
-    //    const ImVec2 hotbar_min = {vp.x + (vp.width-hotbarWidth)/2,
-    //                               vp.y + vp.height - hotbarSlotSize - hotbarSlotGap};
-    //    ImVec2 size = {hotbarSlotSize, hotbarSlotSize};
-    //    static ImU32 col_bg = ImGui::GetColorU32({0, 0, 0, 0.3});
-    //    static ImU32 col_bg_sel = ImGui::GetColorU32({1, 1, 1, 0.5});
-    //
-    //    // Player Inventory Hotbar
-    //    ImVec2 min = hotbar_min;
-    //    for (int i = 0; i < hotbarSlots; ++i)
-    //    {
-    //        ImGui::RenderFrame(min, min+size, i == player.m_HotbarSlot ? col_bg_sel : col_bg);
-    //        ItemStack& stack = player.m_Inventory.at(i);
-    //
-    //        if (!stack.empty())
-    //        {
-    //            ImGui::SetCursorScreenPos(min);
-    //            Imw::ShowItemStack(stack, false, hotbarSlotSize);
-    //        }
-    //
-    //        min.x += hotbarSlotSize + hotbarSlotGap;
-    //    }
-    //
-    //    // Player Health
-    //    if (gm == Gamemode::SURVIVAL)
-    //    {
-    //        float healthWidth = hotbarWidth * 0.42f;
-    //        float healthHeight = 4;
-    //        static ImU32 col_health_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.6});
-    //        static ImU32 col_health = ImGui::GetColorU32({0.8, 0.3, 0.3, 1});
-    //        float perc = player.m_Health / 10.0f;
-    //
-    //        min = hotbar_min + ImVec2(0, -healthHeight - 8);
-    //        ImGui::RenderFrame(min, min+ImVec2(healthWidth, healthHeight), col_health_bg);
-    //        ImGui::RenderFrame(min, min+ImVec2(healthWidth * perc, healthHeight), col_health);
-    //    }
-    //}
-
-    //auto& vp = Ethertia::getViewport();
-    const ImVec2 vpCenter = {viewPos.x + viewSize.x/2, viewPos.y + viewSize.y/2};
-
-    // Crosshair
-    if (!ImwGame::Gizmos::ViewGizmo)
+    // TitleScreen
     {
-        // want make a 3d Crosshair like MCVR. but it requires a special Pipeline (shaders).
-//        HitCursor& cur = Ethertia::getHitCursor();
-//        glm::mat4 matModel = glm::lookAt(cur.position, cur.position + cur.normal, glm::vec3(0, 1, 0));
+        for (auto& drawfunc : std::vector<Imgui::DrawFuncPtr>(GameDrawFuncs))
+        {
+            bool tmp = true;
+            ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
+            //ImGui::BeginChild(ImGui::GetID(drawfunc));
 
-        ImVec2 min = vpCenter;
-        ImVec2 size = {2, 2};
-        ImGui::RenderFrame(min-size/2, min+size, ImGui::GetColorU32({1,1,1,1}));
+            drawfunc(&tmp);
+
+            //ImGui::EndChild();
+        }
     }
 
-    // Cell Breaking Time Indicator
-    //HitCursor& cur = Ethertia::getHitCursor();
-    //if (gm == Gamemode::SURVIVAL && cur.cell_breaking_time)
-    //{
-    //    float width = 40;
-    //    float h = 4;
-    //    ImVec2 min = vpCenter + ImVec2(-width/2, -12);
-    //    float perc = cur.cell_breaking_time / Dbg::dbg_CurrCellBreakingFullTime;
-    //
-    //    static ImU32 col_bg = ImGui::GetColorU32({0.3, 0.3, 0.3, 0.8});
-    //    static ImU32 col_fg = ImGui::GetColorU32({0.8, 0.8, 0.8, 1});
-    //    ImGui::RenderFrame(min, min+ImVec2(width, h), col_bg);
-    //    ImGui::RenderFrame(min, min+ImVec2(width * perc, h), col_fg);
-    //}
 
     ImGui::End();
 }

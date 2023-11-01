@@ -20,6 +20,7 @@ public:
 
 	inline static std::vector<Imgui::DrawFuncPtr> GameDrawFuncs;
 
+	inline static bool IsGameWindowHoveredOrFocused = false;
 
 	inline static ImGuizmo::OPERATION	GuizmoOperation = ImGuizmo::TRANSLATE;
 	inline static ImGuizmo::MODE		GuizmoMode		= ImGuizmo::WORLD;
