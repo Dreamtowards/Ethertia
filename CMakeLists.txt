@@ -19,9 +19,9 @@ endif()
 
 
 # Setup MultiThreaded Compilation
-set(CMAKE_BUILD_PARALLEL_LEVEL 10)
-set(MSVC_COMPILE_FLAGS "/MP")
-set(MAKE_PROGRAM ninja -j10)
+# set(CMAKE_BUILD_PARALLEL_LEVEL 10)
+# set(MSVC_COMPILE_FLAGS "/MP")
+# set(MAKE_PROGRAM ninja -j10)
 
 
 
