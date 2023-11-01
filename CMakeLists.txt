@@ -19,10 +19,9 @@ endif()
 
 
 # Setup MultiThreaded Compilation
-#set(CMAKE_BUILD_PARALLEL_LEVEL 10)
-#set(MSVC_COMPILE_FLAGS "/MP")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS}" )
-#set(MAKE_PROGRAM ninja -j10)
+set(CMAKE_BUILD_PARALLEL_LEVEL 10)
+set(MSVC_COMPILE_FLAGS "/MP")
+set(MAKE_PROGRAM ninja -j10)
 
 
 
@@ -56,8 +55,9 @@ endif()
 
 
 # Output of Shared library & Program
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/run/bin/${ET_BUILD_TARGET}) 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/run/bin/${ET_BUILD_TARGET}/") 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})  # for Windows
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 link_directories(${ET_BUILD_TARGET_DIR})
 link_directories("lib/_bin/${ET_BUILD_TARGET}")
@@ -274,6 +274,7 @@ target_link_libraries(Ethertia "OptickCore")
 target_link_libraries(Ethertia "glfw3")
 
 target_link_libraries(Ethertia "FastNoise")
+
 
 
     

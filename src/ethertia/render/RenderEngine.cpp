@@ -40,10 +40,102 @@ static vkx::Image* TEX_UVMAP = nullptr;
 
 
 
+/*
+#include <daxa/daxa.hpp>
+
+
+#include <GLFW/glfw3.h>
+#if defined(_WIN32)
+#define GLFW_EXPOSE_NATIVE_WIN32
+#elif defined(__linux__)
+#define GLFW_EXPOSE_NATIVE_X11
+#endif
+#include <GLFW/glfw3native.h>
+
+auto get_native_window_handle(GLFWwindow* glfw_window_ptr) -> daxa::NativeWindowHandle
+{
+#if defined(_WIN32)
+    return glfwGetWin32Window(glfw_window_ptr);
+#elif defined(__linux__)
+    return reinterpret_cast<daxa::NativeWindowHandle>(glfwGetX11Window(glfw_window_ptr));
+#endif
+}
+
+auto get_native_window_platform() -> daxa::NativeWindowPlatform
+{
+#if defined(_WIN32)
+    return daxa::NativeWindowPlatform::WIN32_API;
+#elif defined(__linux__)
+    return daxa::NativeWindowPlatform::XLIB_API;
+#endif
+}
+
+void InitDaxa()
+{
+    daxa::Instance instance = daxa::create_instance({});
+
+    daxa::Device device = instance.create_device({
+        .selector = [](daxa::DeviceProperties const& device_props) -> daxa::i32
+        {
+            daxa::i32 score = 0;
+            switch (device_props.device_type)
+            {
+            case daxa::DeviceType::DISCRETE_GPU: score += 10000; break;
+            case daxa::DeviceType::VIRTUAL_GPU: score += 1000; break;
+            case daxa::DeviceType::INTEGRATED_GPU: score += 100; break;
+            default: break;
+            }
+            score += static_cast<daxa::i32>(device_props.limits.max_memory_allocation_count / 100000);
+            return score;
+        },
+        .name = "my device",
+    });
+
+    std::cout << device.properties().device_name << std::endl;
+
+    daxa::Swapchain swapchain = device.create_swapchain({
+        // this handle is given by the windowing API
+        .native_window = get_native_window_handle(Window::Handle()),
+        // The platform would also be retrieved from the windowing API,
+        // or by hard-coding it depending on the OS.
+        .native_window_platform = get_native_window_platform(),
+        // Here we can supply a user-defined surface format selection
+        // function, to rate formats. If you don't care what format the
+        // swapchain images are in, then you can just omit this argument
+        // because it defaults to `daxa::default_format_score(...)`
+        .surface_format_selector = [](daxa::Format format)
+        {
+            switch (format)
+            {
+            case daxa::Format::R8G8B8A8_UINT: return 100;
+            default: return daxa::default_format_score(format);
+            }
+        },
+        .present_mode = daxa::PresentMode::MAILBOX,
+        .image_usage = daxa::ImageUsageFlagBits::TRANSFER_DST,
+        .name = "my swapchain",
+    });
+
+    daxa::ImageId swapchain_image = swapchain.acquire_next_image();
+
+    daxa::CommandRecorder recorder = device.create_command_recorder({ .name = "my command recorder" });
+
+    recorder.pipeline_barrier_image_transition({
+        .waiting_pipeline_access = daxa::AccessConsts::TRANSFER_WRITE,
+        .before_layout = daxa::ImageLayout::UNDEFINED,
+        .after_layout = daxa::ImageLayout::TRANSFER_DST_OPTIMAL,
+        .image_slice = swapchain_image_full_slice,
+        .image_id = swapchain_image,
+    });
+}
+*/
+
 void RenderEngine::Init()
 {
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
+
+    //InitDaxa();
 
     vkx::Init(Window::Handle(), false);
 
@@ -53,6 +145,7 @@ void RenderEngine::Init()
               VK_API_VERSION_MINOR(vkApiVersion),
               VK_API_VERSION_PATCH(vkApiVersion),
               (const char*)vkx::ctx().PhysDeviceProperties.deviceName);
+
 
     Imgui::Init();
 
