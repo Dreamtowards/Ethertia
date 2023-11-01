@@ -1221,11 +1221,15 @@ bool ImGui::RadioButton(const char* label, bool active)
     const ImGuiStyle& style = g.Style;
     const ImGuiID id = window->GetID(label);
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
-
-    const float square_sz = GetFrameHeight();
     const ImVec2 pos = window->DC.CursorPos;
-    const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
-    const ImRect total_bb(pos, pos + ImVec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
+
+
+    ImVec2 check_pos(pos.x, pos.y + style.FramePadding.y - 1.5f);  // [EtPatch]
+    float check_size = GetTextLineHeight() + 3;
+    const ImRect check_bb(check_pos, check_pos + ImVec2(check_size + 1, check_size));
+    const float radius = check_size * 0.5f;// (square_sz - 2.0f) * 0.5f;  // [EtPatch]
+
+    const ImRect total_bb(pos, pos + ImVec2(check_bb.Max.x + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id))
         return false;
@@ -1233,7 +1237,6 @@ bool ImGui::RadioButton(const char* label, bool active)
     ImVec2 center = check_bb.GetCenter();
     center.x = IM_ROUND(center.x);
     center.y = IM_ROUND(center.y);
-    const float radius = (square_sz - 1.0f) * 0.5f;
 
     bool hovered, held;
     bool pressed = ButtonBehavior(total_bb, id, &hovered, &held);
@@ -1245,7 +1248,7 @@ bool ImGui::RadioButton(const char* label, bool active)
     window->DrawList->AddCircleFilled(center, radius, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), num_segment);
     if (active)
     {
-        const float pad = ImMax(1.0f, IM_TRUNC(square_sz / 6.0f));
+        const float pad = ImMax(1.0f, IM_TRUNC(check_size / 6.0f));
         //window->DrawList->AddCircleFilled(center, radius - pad, GetColorU32(ImGuiCol_CheckMark));
         // [EtPatch]
         window->DrawList->AddCircleFilled(center, radius, GetColorU32(ImGuiCol_Header));
@@ -1258,7 +1261,7 @@ bool ImGui::RadioButton(const char* label, bool active)
         window->DrawList->AddCircle(center, radius, GetColorU32(ImGuiCol_Border), num_segment, style.FrameBorderSize);
     }
 
-    ImVec2 label_pos = ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y);
+    ImVec2 label_pos = ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, pos.y + style.FramePadding.y);  // [EtPatch]
     if (g.LogEnabled)
         LogRenderedText(&label_pos, active ? "(x)" : "( )");
     if (label_size.x > 0.0f)
@@ -3070,11 +3073,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
     // Draw frame
     const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
     RenderNavHighlight(frame_bb, id);
-    //RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
-    // [EtPatch]
-    float slider_h = 2;
-    ImVec2 slide_min(frame_bb.Min.x, frame_bb.Min.y + frame_bb.GetHeight() / 2.0f - slider_h / 2.0f);
-    RenderFrame(slide_min, slide_min + ImVec2(frame_bb.GetWidth(), slider_h), frame_col, true, g.Style.FrameRounding);
+    RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     // Slider behavior
     ImRect grab_bb;
@@ -3084,10 +3083,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
 
     // Render grab
     if (grab_bb.Max.x > grab_bb.Min.x)
-    {
-        //window->DrawList->AddRectFilled(grab_bb.Min, grab_bb.Max, GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), style.GrabRounding);
-        window->DrawList->AddCircleFilled(grab_bb.GetCenter(), grab_bb.GetWidth() * 0.5f, GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab));
-    }
+        window->DrawList->AddRectFilled(grab_bb.Min, grab_bb.Max, GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), style.GrabRounding);
 
     // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
     char value_buf[64];
