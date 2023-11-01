@@ -1132,8 +1132,8 @@ bool ImGui::Checkbox(const char* label, bool* v)
         MarkItemEdited(id);
     }
 
-    ImVec2 check_pos(pos.x, pos.y + style.FramePadding.y - 1);  // [EtPatch]
-    float check_size = GetTextLineHeight() + 2;
+    ImVec2 check_pos(pos.x, pos.y + style.FramePadding.y - 1.0f);  // [EtPatch]
+    float check_size = GetTextLineHeight() + 2.0f;
     const ImRect check_bb(check_pos, check_pos + ImVec2(check_size, check_size));
     RenderNavHighlight(total_bb, id);
     RenderFrame(check_bb.Min, check_bb.Max, GetColorU32(*v ? ImGuiCol_Header : /**/(held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding);
@@ -1224,12 +1224,12 @@ bool ImGui::RadioButton(const char* label, bool active)
     const ImVec2 pos = window->DC.CursorPos;
 
 
-    ImVec2 check_pos(pos.x, pos.y + style.FramePadding.y - 1.5f);  // [EtPatch]
-    float check_size = GetTextLineHeight() + 3;
+    ImVec2 check_pos(pos.x, pos.y + style.FramePadding.y - 1);  // [EtPatch]
+    float check_size = GetTextLineHeight() + 2;
     const ImRect check_bb(check_pos, check_pos + ImVec2(check_size + 1, check_size));
     const float radius = check_size * 0.5f;// (square_sz - 2.0f) * 0.5f;  // [EtPatch]
 
-    const ImRect total_bb(pos, pos + ImVec2(check_bb.Max.x + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
+    const ImRect total_bb(pos, pos + ImVec2(check_size + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id))
         return false;
