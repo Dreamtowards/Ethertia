@@ -222,6 +222,8 @@ void Ethertia::LoadWorld(const std::string& savedir, const WorldInfo* worldinfo)
     g_World = new World();// savedir, worldinfo);
     World* world = g_World;
 
+    world->GetWorldInfo().DayTime = 0.25f;  // 6AM
+
     g_Player = world->CreateEntity();
     g_Player.GetTag().Name = "Player";
 

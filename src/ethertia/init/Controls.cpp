@@ -589,16 +589,15 @@ void Controls::HandleInput()
     {
         if (Ethertia::isIngame())
         {
-            using glm::vec3;
-            using glm::vec4;
-            using glm::mat4;
-
-            static vec3 _PlayerVelocity{};
-
             float dt = Ethertia::GetDelta();
+
             cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
 
             PxController* cct = World::dbg_CCT;
+
+            static vec3 _GravityVelocity{};  // Low Damping
+            static vec3 _MovementVelocity{};  // High Damping
+            static bool _OnGround = false;
 
             vec3 disp{};
             if (Window::isKeyDown(GLFW_KEY_W)) disp.z -= 1;
@@ -608,44 +607,40 @@ void Controls::HandleInput()
 
             if (Window::isShiftKeyDown())
             {
-                disp *= 3.8f;
+                disp *= 1.8f;
             }
 
             if (Window::isCtrlKeyDown()) disp.y -= 1;
-            if (Window::isKeyDown(GLFW_KEY_SPACE)) disp.y += 1;
 
-            if (Window::isKeyDown(GLFW_KEY_SPACE))  //  jump
+            if (Window::isKeyDown(GLFW_KEY_SPACE) && _OnGround)  //  jump
             {
-                disp.y += 13;
+                disp.y += 16;
+                Log::info("Jmp");
             }
 
             float yaw = cam.eulerAngles.y;
             disp = vec3(glm::rotate(mat4(1.0f), yaw, vec3(0, 1, 0)) * vec4(disp, 1.0f));
 
 
-            _PlayerVelocity += disp;
-            _PlayerVelocity *= 0.94f;  // apply damping
+            if (_OnGround) {
+                _MovementVelocity *= std::pow(0.002f, dt);  // High Damping due MoveDesire / Friction.
+            } else {
+                _MovementVelocity *= std::pow(0.95f, dt);  // Apply Damping
+                disp *= 0.05f;  // InAir, Less Move
+            }
+            _MovementVelocity += disp;
 
 
-            PxControllerCollisionFlags collisionFlags = cct->move(stdx::cast<PxVec3>(_PlayerVelocity * dt), 0.01f, dt, PxControllerFilters());
-
-            if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_SIDES) {
-                Log::info("PlayerColl Side");
-            }
-            if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_UP) {
-                Log::info("PlayerColl Up");
+            _GravityVelocity += glm::vec3(0, -10.0f, 0) * dt;  // Apply Gravity
+            _GravityVelocity *= std::pow(0.95f, dt);  // Apply Damping
+            if (_OnGround) {
+                //_GravityVelocity = {0, 0,0};
             }
 
-            if (collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN)
-            {
-                // onGround
-                //Log::info("PlayerColl OnGround");
-            }
-            else
-            {
-                // Apply Gravity
-                _PlayerVelocity += glm::vec3(0, -10.0f, 0);
-            }
+
+            PxControllerCollisionFlags collisionFlags = cct->move(stdx::cast<PxVec3>(_MovementVelocity * dt + _GravityVelocity * dt), 0.01f, dt, PxControllerFilters());
+            _OnGround = collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN;
+
 
             PxExtendedVec3 p = cct->getFootPosition();
             cam.position = {p.x, p.y + 1.8f, p.z};
@@ -653,7 +648,7 @@ void Controls::HandleInput()
         }
         else
         {
-            //World::dbg_CCT->setFootPosition(PxExtendedVec3{ cam.position.x, cam.position.y, cam.position.z });
+            World::dbg_CCT->setFootPosition(PxExtendedVec3{ cam.position.x, cam.position.y-1.8f, cam.position.z });
         }
     }
     
