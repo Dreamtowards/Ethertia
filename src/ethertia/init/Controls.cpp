@@ -631,11 +631,10 @@ void Controls::HandleInput()
             _MovementVelocity += disp;
 
 
-            _GravityVelocity += glm::vec3(0, -10.0f, 0) * dt;  // Apply Gravity
-            _GravityVelocity *= std::pow(0.95f, dt);  // Apply Damping
-            if (_OnGround) {
-                //_GravityVelocity = {0, 0,0};
+            if (!_OnGround) {
+                _GravityVelocity += glm::vec3(0, -16.0f, 0) * dt;  // Apply Gravity
             }
+            _GravityVelocity *= std::pow(0.95f, dt);  // Apply Damping
 
 
             PxControllerCollisionFlags collisionFlags = cct->move(stdx::cast<PxVec3>(_MovementVelocity * dt + _GravityVelocity * dt), 0.01f, dt, PxControllerFilters());

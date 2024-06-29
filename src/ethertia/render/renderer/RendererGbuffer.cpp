@@ -184,7 +184,7 @@ void RendererGbuffer::RecordCommand(vk::CommandBuffer cmdbuf, const entt::regist
 
     vkx::CommandBuffer cmd{cmdbuf};
 
-    cmd.BeginRenderPass(RenderPass, Framebuffer, g_AttachmentSize, 
+    cmd.BeginRenderPass(RenderPass, Framebuffer, g_AttachmentSize,
         {
             vkx::ClearValueColor(0, 0.3, 0),
             vkx::ClearValueColor(),
@@ -359,21 +359,20 @@ void RendererCompose::Init(vk::ImageView gPosition, vk::ImageView gNormal, vk::I
     rtColor = vkx::CreateColorImage(g_AttachmentSize, vk::Format::eR8G8B8A8Unorm);
     rtDepth = vkx::CreateDepthImage(g_AttachmentSize, vkxc.SwapchainDepthImageFormat);
 
-    RenderPass = vkx::CreateRenderPass(
-        {
-            vkx::IAttachmentDesc(rtColor->format, vk::ImageLayout::eShaderReadOnlyOptimal),
-            vkx::IAttachmentDesc(rtDepth->format, vk::ImageLayout::eDepthStencilAttachmentOptimal),
-        },
-        vkx::IGraphicsSubpass(
-            vkx::IAttachmentRef(0, vk::ImageLayout::eColorAttachmentOptimal),
-            vkx::IAttachmentRef(1, vk::ImageLayout::eDepthStencilAttachmentOptimal)
-        ));
-
-    Framebuffer = vkx::CreateFramebuffer(g_AttachmentSize, RenderPass,
-        {
-            rtColor->imageView,
-            rtDepth->imageView
-        });
+    //RenderPass = vkx::CreateRenderPass(
+    //    {
+    //        vkx::IAttachmentDesc(rtColor->format, vk::ImageLayout::eShaderReadOnlyOptimal),
+    //        vkx::IAttachmentDesc(rtDepth->format, vk::ImageLayout::eDepthStencilAttachmentOptimal),
+    //    },
+    //    vkx::IGraphicsSubpass(
+    //        vkx::IAttachmentRef(0, vk::ImageLayout::eColorAttachmentOptimal),
+    //        vkx::IAttachmentRef(1, vk::ImageLayout::eDepthStencilAttachmentOptimal)
+    //    ));
+    //Framebuffer = vkx::CreateFramebuffer(g_AttachmentSize, RenderPass,
+    //    {
+    //        rtColor->imageView,
+    //        rtDepth->imageView
+    //    });
 
     // Pipeline, Descriptor
 
@@ -452,11 +451,20 @@ void RendererCompose::RecordCommand(vk::CommandBuffer cmdbuf)
 
     vkx::CommandBuffer cmd{ cmdbuf };
 
-    cmd.BeginRenderPass(RenderPass, Framebuffer, g_AttachmentSize,
-        {
-            vkx::ClearValueColor(0, 0, 0.2f),
-            vkx::ClearValueDepthStencil()
-        });
+    //cmd.BeginRenderPass(RenderPass, Framebuffer, g_AttachmentSize,
+    //    {
+    //        vkx::ClearValueColor(0, 0, 0.2f),
+    //        vkx::ClearValueDepthStencil()
+    //    });
+    cmd.BeginRenderingKHR(
+            vk::Rect2D{{}, g_AttachmentSize},
+            vk::RenderingAttachmentInfoKHR{
+                .imageView = rtColor->imageView,
+                .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+                .loadOp = vk::AttachmentLoadOp::eClear,
+                .storeOp = vk::AttachmentStoreOp::eStore,
+                .clearValue = vk::ClearValue{}
+            });
 
     cmd.SetViewport({}, g_AttachmentSize);
     cmd.SetScissor({}, g_AttachmentSize);
@@ -467,5 +475,6 @@ void RendererCompose::RecordCommand(vk::CommandBuffer cmdbuf)
 
     cmd.Draw(6);
 
-    cmd.EndRenderPass();
+    cmd.EndRenderingKHR();
+    //cmd.EndRenderPass();
 }

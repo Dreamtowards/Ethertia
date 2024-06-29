@@ -78,7 +78,7 @@ include_directories(lib/imgui-docking-1.89.9)
 include_directories(lib/imguizmo-1.83)
 include_directories(lib/imgui-imnodes-0.5)
 include_directories(lib/imgui-knobs-0.21.2)
-include_directories(lib/vulkan-1.3.250.0/include)
+#include_directories(lib/vulkan-1.3.268.0/include)
 
 include_directories(lib/optick-1.4.0/include)
 
@@ -245,9 +245,9 @@ endif()
 
 
 # Setup Vulkan
-#set(VULKAN_SDK "C:/Softwares/VulkanSDK/1.3.250.0")
-#target_include_directories(Ethertia PRIVATE "${VULKAN_SDK}/Include/")
-#target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
+set(VULKAN_SDK "C:/Softwares/VulkanSDK/1.3.250.0")
+target_include_directories(Ethertia PRIVATE "${VULKAN_SDK}/Include/")
+target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
 target_link_libraries(Ethertia "vulkan-1")
 
 

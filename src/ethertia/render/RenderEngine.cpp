@@ -137,7 +137,7 @@ void RenderEngine::Init()
 
     //InitDaxa();
 
-    vkx::Init(Window::Handle(), false);
+    vkx::Init(Window::Handle(), true);
 
     uint32_t vkApiVersion = vkx::ctx().PhysDeviceProperties.apiVersion;
     Log::info("Vulkan {}.{}.{}, {}",

@@ -26,9 +26,12 @@
 // enable extension of VK_KHR_fragment_shader_barycentric
 #define VKX_EXT_BARYCENTRIC 1
 
+#define VKX_EXT_DYNAMIC_RENDERING 1
+
 
 #include <functional>
 #include <iostream>   // for default DebugMessengerCallback impl.
+#include <optional>
 
 
 namespace vkx
@@ -315,6 +318,15 @@ namespace vkx
 		void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t firstVertex = 0, uint32_t firstInstance = 0);
 
 		void DrawIndexed(uint32_t vertexCount);
+
+
+        void BeginRenderingKHR(
+            vk::Rect2D renderArea,
+            vkx_slice_t<vk::RenderingAttachmentInfoKHR> colorAttachments,
+            std::optional<vk::RenderingAttachmentInfoKHR> depthAttachment = {},
+            std::optional<vk::RenderingAttachmentInfoKHR> stencilAttachment = {});
+
+        void EndRenderingKHR();
 
 	};
 

@@ -304,8 +304,8 @@ static bool _IsFormatHasStencilComponent(vk::Format format) {
 }
 static void _TransitionImageLayout(
     vk::Image image,
-    vk::Format format,
     vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+    bool isFormatHasStencilComponent = false,
     uint32_t layerCount = 1)
 {
     vk::ImageMemoryBarrier barrier{};
@@ -321,7 +321,7 @@ static void _TransitionImageLayout(
     barrier.subresourceRange.layerCount = layerCount;
     if (newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
         barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
-        if (_IsFormatHasStencilComponent(format)) {
+        if (isFormatHasStencilComponent) {
             barrier.subresourceRange.aspectMask |= vk::ImageAspectFlagBits::eStencil;
         }
     } else {
@@ -351,6 +351,20 @@ static void _TransitionImageLayout(
 
         srcStage = vk::PipelineStageFlagBits::eTopOfPipe;
         dstStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+    }
+    else if (oldLayout == vk::ImageLayout::eColorAttachmentOptimal && newLayout == vk::ImageLayout::ePresentSrcKHR) {
+        // used by DynamicRendering : before Present, after RenderPass / DrawCalls.
+        barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
+        srcStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+        dstStage = vk::PipelineStageFlagBits::eBottomOfPipe;
+    }
+    else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eColorAttachmentOptimal) {
+        // used by DynamicRendering: before RenderPass/DrawCalls, after Present.
+        barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+
+        srcStage = vk::PipelineStageFlagBits::eTopOfPipe;
+        dstStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     }
     else {
         throw std::invalid_argument("unsupported layout transition!");
@@ -427,8 +441,9 @@ vkx::Image* vkx::CreateDepthImage(vk::Extent2D wh, vk::Format depthFormat)
 
     vkx::Image* img = vkx::CreateColorImage(wh, depthFormat, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::ImageAspectFlagBits::eDepth);
 
-    _TransitionImageLayout(img->image, depthFormat,
-        vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+    _TransitionImageLayout(img->image,
+        vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal,
+        _IsFormatHasStencilComponent(depthFormat));
 
     return img;
 }
@@ -480,12 +495,12 @@ vkx::Image* vkx::CreateStagedImage(
     vk::Image image = vkx::CreateImage(width, height, imageMemory, format, 
         vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled);
 
-    _TransitionImageLayout(image, format,
+    _TransitionImageLayout(image,
         vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
     _CopyBufferToImage(stagingBuffer, image, width, height);
 
-    _TransitionImageLayout(image, format, 
+    _TransitionImageLayout(image,
         vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
     device.destroyBuffer(stagingBuffer, allocator);
@@ -694,6 +709,34 @@ void vkx::CommandBuffer::DrawIndexed(uint32_t vertexCount)
 {
     cmd.drawIndexed(vertexCount, 1, 0, 0, 0);
 }
+
+#if VKX_EXT_DYNAMIC_RENDERING
+
+void vkx::CommandBuffer::BeginRenderingKHR(
+    vk::Rect2D renderArea,
+    vkx_slice_t<vk::RenderingAttachmentInfoKHR> colorAttachments,
+    std::optional<vk::RenderingAttachmentInfoKHR> depthAttachment,
+    std::optional<vk::RenderingAttachmentInfoKHR> stencilAttachment)
+{
+    vk::RenderingInfoKHR renderInfo{
+            .renderArea = renderArea,
+            .layerCount = 1,
+            .colorAttachmentCount = colorAttachments.size(),
+            .pColorAttachments = colorAttachments.data(),
+            .pDepthAttachment = depthAttachment ? &depthAttachment.value() : nullptr,
+            .pStencilAttachment = stencilAttachment ? &stencilAttachment.value() : nullptr
+    };
+
+    //cmd.beginRenderingKHR(renderInfo);
+}
+
+void vkx::CommandBuffer::EndRenderingKHR()
+{
+    //cmd.endRenderingKHR();
+}
+
+#endif // VKX_EXT_DYNAMIC_RENDERING
+
 
 #pragma endregion
 
@@ -1307,7 +1350,7 @@ static vk::Instance _CreateInstance(
         .applicationVersion = VK_MAKE_VERSION(0, 0, 1),
         .pEngineName = "No Engine",
         .engineVersion = VK_MAKE_VERSION(0, 0, 1),
-        .apiVersion = VK_API_VERSION_1_0
+        .apiVersion = VK_API_VERSION_1_3
     };
 
     vk::InstanceCreateInfo instInfo{};
@@ -1454,30 +1497,45 @@ static vk::Device _CreateLogicalDevice(
     // pNext extensions
     void* pExtNext = nullptr;
 
-#ifdef VKX_EXT_BARYCENTRIC
+#if VKX_EXT_BARYCENTRIC
 
     vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR extBaryCoord{};
     extBaryCoord.fragmentShaderBarycentric = true;
-
-    //extBaryCoord.pNext = std::exchange(pExtNext, &extBaryCoord);
-    extBaryCoord.pNext = pExtNext;
-    pExtNext = &extBaryCoord;
+    extBaryCoord.pNext = pExtNext; pExtNext = &extBaryCoord;  //extBaryCoord.pNext = std::exchange(pExtNext, &extBaryCoord);
 
 #endif // VKX_EXT_BARYCENTRIC
+
+#if VKX_EXT_DYNAMIC_RENDERING
+
+    //vk::PhysicalDeviceDynamicRenderingFeaturesKHR extDynamicRendering{};
+    //extDynamicRendering.dynamicRendering = VK_TRUE;
+    //extDynamicRendering.pNext = pExtNext; pExtNext = &extDynamicRendering;
+
+    vk::PhysicalDeviceVulkan13Features vk13{};
+    vk13.dynamicRendering = true;
+
+    vk13.pNext = pExtNext; pExtNext = &vk13;
+
+#endif //VKX_EXT_DYNAMIC_RENDERING
 
     deviceInfo.pNext = pExtNext;
 
 
     // Device Extensions  (needs check is supported?)
     std::vector<const char*> deviceExtensions = {
-            "VK_KHR_swapchain", //VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-#ifdef VKX_EXT_BARYCENTRIC
-            "VK_KHR_fragment_shader_barycentric", // VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME
-#endif
-#ifdef VKX_VIEWPORT_NEG_HEIGHT
+            "VK_KHR_swapchain", //VK_KHR_SWAPCHAIN_EXTENSION_NAME
+#if VKX_VIEWPORT_NEG_HEIGHT
             // VK_KHR_maintenance1 is required for using negative viewport heights
 		    // Note: This is core as of Vulkan 1.1. So if you target 1.1 you don't have to explicitly enable this
             VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+#endif
+#if VKX_EXT_BARYCENTRIC
+            "VK_KHR_fragment_shader_barycentric", // VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME
+#endif
+#if VKX_EXT_DYNAMIC_RENDERING
+            "VK_KHR_create_renderpass2",        // required by VK_KHR_depth_stencil_resolve
+            "VK_KHR_depth_stencil_resolve",     // required by VK_KHR_dynamic_rendering
+            "VK_KHR_dynamic_rendering",     // VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
 #endif
 #ifdef __APPLE__
             "VK_KHR_portability_subset"
@@ -1487,11 +1545,21 @@ static vk::Device _CreateLogicalDevice(
     deviceInfo.ppEnabledExtensionNames = deviceExtensions.data();
     deviceInfo.enabledExtensionCount = deviceExtensions.size();
 
+    //VkPhysicalDeviceFeatures2KHR feat;
+    //feat.features.dev
 
     vk::Device device = physDevice.createDevice(deviceInfo, vkx::ctx().Allocator);
 
     *out_GraphicsQueue = device.getQueue(queueFamily.GraphicsFamily, 0);
     *out_PresentQueue  = device.getQueue(queueFamily.PresentFamily,  0);
+
+#ifdef VKX_EXT_DYNAMIC_RENDERING
+
+
+    //vkCmdBeginRenderingKHR = reinterpret_cast<PFN_vkCmdBeginRenderingKHR>(vkGetDeviceProcAddr(device, "vkCmdBeginRenderingKHR"));
+
+#endif
+
     return device;
 }
 
@@ -1829,12 +1897,11 @@ vk::CommandBuffer vkx::BeginFrame()
 
     // blocking until the CommandBuffer has finished executing
     VKX_CHECK(device.waitForFences(vkxc.CommandBufferFences[fif_i], true, UINT64_MAX));
+    device.resetFences(vkxc.CommandBufferFences[fif_i]);  // reset the fence to the unsignaled state
 
     // acquire swapchain image, and signal SemaphoreImageAcquired[i] when acquired. (when the presentation engine is finished using the image)
     vkxc.CurrentSwapchainImage =
             vkx::check(device.acquireNextImageKHR(vkxc.SwapchainKHR, UINT64_MAX, vkxc.SemaphoreImageAcquired[fif_i]));
-
-    device.resetFences(vkxc.CommandBufferFences[fif_i]);  // reset the fence to the unsignaled state
 
     cmd.Reset();
     cmd.Begin(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
