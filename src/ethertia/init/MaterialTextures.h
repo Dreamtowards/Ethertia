@@ -10,6 +10,7 @@
 #pragma once
 
 #include <ethertia/material/Material.h>
+#include <ethertia/render/glx.h>
 
 
 class MaterialTextures
@@ -21,9 +22,9 @@ public:
     // 128  non-realistic
     inline static int TEX_RESOLUTION = 256;
 
-    inline static vkx::Image* ATLAS_DIFFUSE = nullptr;
-    inline static vkx::Image* ATLAS_NORM    = nullptr;
-    inline static vkx::Image* ATLAS_DRAM    = nullptr;  // DRAM: Disp, Rough, AO, Metal
+    inline static Texture* ATLAS_DIFFUSE = nullptr;
+    inline static Texture* ATLAS_NORM    = nullptr;
+    inline static Texture* ATLAS_DRAM    = nullptr;  // DRAM: Disp, Rough, AO, Metal
 
 
     static void Load();

@@ -30,7 +30,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif ()
 
 
-
 # Setup Build Dir
 
 set(ET_BUILD_TARGET "nil")
@@ -73,6 +72,7 @@ message("Ethertia: ${ET_BUILD_TARGET}; (${CMAKE_BUILD_TYPE}; ${CMAKE_SYSTEM_NAME
 include_directories(src)
 include_directories(lib)
 
+include_directories(lib/glad-gl4.6/include)
 include_directories(lib/glfw-3.3.8/include)
 include_directories(lib/imgui-docking-1.89.9)
 include_directories(lib/imguizmo-1.83)
@@ -140,10 +140,11 @@ set(LUA_SRC_FILES
 
     
 add_executable(Ethertia
+    lib/glad-gl4.6/src/glad.c
     lib/tinyfd-2.9.3/tinyfiledialogs.c
     ${LUA_SRC_FILES}
 
-    src/vkx/vkx.cpp
+#    src/vkx/vkx.cpp
     src/stdx/thread_pool.cpp
     src/stdx/str.cpp
 
@@ -153,7 +154,7 @@ add_executable(Ethertia
     lib/imgui-docking-1.89.9/imgui_tables.cpp
     lib/imgui-docking-1.89.9/imgui_demo.cpp
     lib/imgui-docking-1.89.9/backends/imgui_impl_glfw.cpp
-    lib/imgui-docking-1.89.9/backends/imgui_impl_vulkan.cpp
+    lib/imgui-docking-1.89.9/backends/imgui_impl_opengl3.cpp
 
     lib/imguizmo-1.83/ImGuizmo.cpp
     lib/imgui-knobs-0.21.2/imgui-knobs.cpp
@@ -183,7 +184,7 @@ add_executable(Ethertia
     
     src/ethertia/world/World.cpp
     src/ethertia/world/Chunk.cpp
-    src/ethertia/world/chunk/ChunkSystem.cpp
+#    src/ethertia/world/chunk/ChunkSystem.cpp
     src/ethertia/world/chunk/gen/ChunkGenerator.cpp
     src/ethertia/world/chunk/meshgen/MeshGen.cpp
 
@@ -245,10 +246,10 @@ endif()
 
 
 # Setup Vulkan
-set(VULKAN_SDK "C:/Softwares/VulkanSDK/1.3.250.0")
-target_include_directories(Ethertia PRIVATE "${VULKAN_SDK}/Include/")
-target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
-target_link_libraries(Ethertia "vulkan-1")
+#set(VULKAN_SDK "C:/Softwares/VulkanSDK/1.3.250.0")
+#target_include_directories(Ethertia PRIVATE "${VULKAN_SDK}/Include/")
+#target_link_directories(Ethertia PRIVATE "${VULKAN_SDK}/Lib/")
+#target_link_libraries(Ethertia "vulkan-1")
 
 
 # Setup PhysX
@@ -272,7 +273,6 @@ target_link_libraries(Ethertia "OptickCore")
 
 
 target_link_libraries(Ethertia "glfw3")
-
 target_link_libraries(Ethertia "FastNoise")
 
 

@@ -727,12 +727,12 @@ void vkx::CommandBuffer::BeginRenderingKHR(
             .pStencilAttachment = stencilAttachment ? &stencilAttachment.value() : nullptr
     };
 
-    //cmd.beginRenderingKHR(renderInfo);
+//    cmd.beginRenderingKHR(renderInfo);
 }
 
 void vkx::CommandBuffer::EndRenderingKHR()
 {
-    //cmd.endRenderingKHR();
+//    cmd.endRenderingKHR();
 }
 
 #endif // VKX_EXT_DYNAMIC_RENDERING

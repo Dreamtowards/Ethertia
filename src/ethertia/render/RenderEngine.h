@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <vkx/vkx.hpp>
+#include "glx.h"
 
 
 class RenderEngine

@@ -28,7 +28,7 @@ void Chunk::_LoadToWorld()
 
     ETPX_CTX;
     comp.RigidStatic = PhysX.createRigidStatic(Physics::PxTransform(entity.GetTransform()));
-    comp.RigidStatic->userData = (void*)entity.id();
+    comp.RigidStatic->userData = (void*)(intptr_t)entity.id();
     m_World->PhysScene().addActor(*comp.RigidStatic);
 }
 
@@ -40,7 +40,7 @@ Chunk::~Chunk()
     // Delete Old vkx::VertexBuffer
     if (comp.VertexBuffer)
     {
-        vkx::ctx().Device.waitIdle();
+//        vkx::ctx().Device.waitIdle();
         delete comp.VertexBuffer;
         comp.VertexBuffer = nullptr;
     }

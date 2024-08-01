@@ -2,6 +2,7 @@
 // Created by Dreamtowards on 2023/2/13.
 //
 
+#include "glad-gl4.6/include/glad/glad.h"
 #include "Window.h"
 
 #include <format>
@@ -36,15 +37,17 @@ void Window::Init(int _w, int _h, const char* _title)
 
     glfwSetErrorCallback(_GlfwErrorCallback);
     if (!glfwInit())
-        throw std::runtime_error("failed to init glfw.");
-
+        throw std::runtime_error("Failed to init GLFW.");
     Log::info("GLFW {}", glfwGetVersionString());
 
+//    if (!glfwVulkanSupported())
+//        Log::warn("GLFW Error: Vulkan Not Supported.");
+//    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
 
-    if (!glfwVulkanSupported())
-        Log::warn("GLFW Error: Vulkan Not Supported.");
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);  // disable OpenGL
 
 
     _w = std::max(1, _w); _h = std::max(1, _h);  // couldn't create 0x0 window.
@@ -54,7 +57,10 @@ void Window::Init(int _w, int _h, const char* _title)
         int err = glfwGetError(&err_str);
         throw std::runtime_error(std::format("Failed to init glfw window: {}. ({})", err, err_str));
     }
+    glfwMakeContextCurrent(g_GlfwWindow);
 
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        throw std::runtime_error("Failed to init GLAD.");
 
     // ADJUST
 
@@ -220,6 +226,8 @@ static void GlfwCallback_FramebufferSize(GLFWwindow* _win, int wid, int hei)
 {
     g_FramebufferSize = {wid, hei};
     g_IsFramebufferResized = true;
+
+    glViewport(0, 0, wid, hei);
 }
 
 static void GlfwCallback_WindowSize(GLFWwindow* _win, int wid, int hei)

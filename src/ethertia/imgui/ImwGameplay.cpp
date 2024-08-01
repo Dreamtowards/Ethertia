@@ -106,16 +106,16 @@ static void _ShowDebugText()
             stdx::size_str(_PhysUsed), stdx::size_str(_PhysTotal));
     }
 
-    std::string strVRAM;
-    {
-        VKX_CTX_device_allocator;
-        auto& vkMemProp = vkxc.PhysDeviceMemoryProperties;
-
-        strVRAM = std::format(
-            "local heap: {}",
-            stdx::size_str(vkMemProp.memoryHeaps[0].size)
-            );
-    }
+//    std::string strVRAM;
+//    {
+//        VKX_CTX_device_allocator;
+//        auto& vkMemProp = vkxc.PhysDeviceMemoryProperties;
+//
+//        strVRAM = std::format(
+//            "local heap: {}",
+//            stdx::size_str(vkMemProp.memoryHeaps[0].size)
+//            );
+//    }
 
 
     ETPX_CTX;
@@ -159,9 +159,9 @@ static void _ShowDebugText()
         "\n"
         "OS:  {}, {} concurrency, {}-endian\n"
         "CPU: {}\n"
-        "GPU: {}\n"
+//        "GPU: {}\n"
         "RAM: {}\n"
-        "VRAM: {}\n"
+//        "VRAM: {}\n"
         ,
         CamPosCurr.x, CamPosCurr.y, CamPosCurr.z, //glm::to_string(CamPosCurr).substr(4),
         CamPosMoveSpeedMPS, CamPosMoveSpeedMPS * 3.6f,
@@ -187,9 +187,9 @@ static void _ShowDebugText()
     
         Loader::os_arch(), std::thread::hardware_concurrency(), std::endian::native == std::endian::big ? "B" : "L",
         Loader::cpuid(),
-        (const char*)vkx::ctx().PhysDeviceProperties.deviceName,
-        strRAM,
-        strVRAM
+//        (const char*)vkx::ctx().PhysDeviceProperties.deviceName,
+        strRAM
+//        strVRAM
     );
 
     ImGui::SetCursorPos({ 0, 48 });
@@ -351,10 +351,10 @@ static void _ShowViewportWidgets()
         ImGui::Checkbox("Chunks Meshing Bound", &Gizmos::ChunksMeshingAABB);
         ImGui::Checkbox("Chunks Loaded Bound", &Gizmos::ChunksLoadedAABB);
 
-        if (ImGui::Button("Reloa Pipeline"))
-        {
-            RenderEngine::_ReloadPipeline();
-        }
+//        if (ImGui::Button("Reloa Pipeline"))
+//        {
+//            RenderEngine::_ReloadPipeline();
+//        }
 
         if (ImGui::Button("Clear VtxBufPool"))
         {
@@ -608,7 +608,7 @@ void ImwGame::ShowGame(bool* _open)
     // Viewport Image
     if (ImwGame::WorldImageView)
     {
-        ImGui::Image(Imgui::mapImage(ImwGame::WorldImageView), viewSize);
+        ImGui::Image(ImwGame::WorldImageView->textureIdPtr(), viewSize);
     }
     //ImGui::SetCursorPos({0,0});
     //ImGui::InvisibleButton("PreventsGameWindowDragMove", viewSize);

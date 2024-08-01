@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include <ImGuizmo.h>
+#include <ethertia/render/RenderEngine.h>
 
 
 class ImwGame
@@ -16,7 +17,7 @@ public:
 	inline static bool IsFullwindow = false;
 	inline static ImGuiID _FullwindowLastValidDockId;  // store to settings.json, presistent recover to last dock. 
 
-	inline static VkImageView WorldImageView = nullptr;
+	inline static Texture* WorldImageView = nullptr;
 
 	inline static std::vector<Imgui::DrawFuncPtr> GameDrawFuncs;
 

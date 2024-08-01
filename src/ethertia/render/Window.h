@@ -6,12 +6,11 @@
 
 #include <stdexcept>
 
-#define GLFW_INCLUDE_VULKAN
-#define GLFW_INCLUDE_NONE 1
+//#define GLFW_INCLUDE_VULKAN
+//#define GLFW_INCLUDE_NONE 1
 #include <GLFW/glfw3.h>
 
 #include <glm/vec2.hpp>
-
 
 
 

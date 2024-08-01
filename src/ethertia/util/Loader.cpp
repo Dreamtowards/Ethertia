@@ -7,7 +7,6 @@
 #include <format>
 #include <fstream>
 #include <filesystem>
-#include <vkx/vkx.hpp>
 
 #include <ethertia/util/Log.h>
 
@@ -276,31 +275,6 @@ void Loader::SaveOBJ(const std::string& filename, size_t verts, const float* pos
 #pragma endregion
 
 
-#pragma region Vulkan: VertexBuffer, Image
-
-
-
-vkx::VertexBuffer* Loader::LoadVertexData(const VertexData* vtx)
-{
-    vk::DeviceMemory vtxmem;
-    vk::Buffer vtxbuf = vkx::CreateStagedBuffer(vtx->vtx_data(), vtx->vtx_size(), vtxmem, vk::BufferUsageFlagBits::eVertexBuffer);
-
-    vk::DeviceMemory idxmem{};
-    vk::Buffer idxbuf{};
-    if (vtx->IsIndexed())
-    {
-        idxbuf = vkx::CreateStagedBuffer(vtx->idx_data(), vtx->idx_size(), idxmem, vk::BufferUsageFlagBits::eIndexBuffer);
-    }
-    return new vkx::VertexBuffer(vtxbuf, vtxmem, idxbuf, idxmem, vtx->VertexCount());
-}
-
-
-
-vkx::Image* Loader::LoadImage(const BitmapImage& img)
-{
-    return vkx::CreateStagedImage(img.width(), img.height(), img.pixels());
-}
-
 
 /*
 vkx::Image* Loader::loadCubeMap(const BitmapImage* imgs)
@@ -364,8 +338,8 @@ vkx::Image* Loader::loadCubeMap_3x2(const std::string& filename)
     return Loader::loadCubeMap(imgs);
 }
 
+ */
 
-/*
 
 
 // for OpenGL 3.
@@ -413,25 +387,14 @@ vkx::Image* Loader::loadCubeMap_3x2(const std::string& filename)
 //}
 
 
-// GL4.5
-class VertexArray
-{
-public:
-    GLuint vaoId = 0;
-    GLuint vboId = 0;
-    GLuint iboId = 0;  // if 0 means non-indexed
-    uint32_t vertexCount = 0;
 
-    VertexArray(GLuint vaoId, GLuint vboId, GLuint iboId, uint32_t vertexCount) :
-                vaoId(vaoId), vboId(vboId), iboId(iboId), vertexCount(vertexCount) {}
 
-    bool indexed() const { return iboId != 0; }
-};
 
 // no-idx:  load(vc, {3,2,3}, vtx);
 // idx:     load(vc, {3,2,3}, vtx_data, vtx_size, idx_data);
-VertexArray* loadVertexData(uint32_t vertexCount, std::initializer_list<int> attrib_sizes,
-                    float* vtx_data, uint32_t vtx_size = -1, uint32_t* idx_data = nullptr)
+VertexBufferArrays* LoadVertexBuffers(
+        uint32_t vertexCount, std::initializer_list<int> attrib_sizes,
+        float* vtx_data, uint32_t vtx_size = -1, uint32_t* idx_data = nullptr)
 {
     int stride = 0;
     for (int s : attrib_sizes) { stride += s; }
@@ -462,42 +425,38 @@ VertexArray* loadVertexData(uint32_t vertexCount, std::initializer_list<int> att
     for (int attrib_size : attrib_sizes)
     {
         glEnableVertexArrayAttrib(vaoId, attrib);
-
         glVertexArrayAttribFormat(vaoId, attrib, attrib_size, GL_FLOAT, GL_FALSE, offset);
-
         glVertexArrayAttribBinding(vaoId, attrib, 0);
 
         offset += attrib_size;
         ++attrib;
     }
 
-    return new VertexArray(vaoId, vboId, iboId, vertexCount);
+    return new VertexBufferArrays(vaoId, vboId, iboId, vertexCount);
 }
 
 
 
-*/
+Texture* Loader::LoadTexture(const BitmapImage& img)
+{
+    GLuint texId;
+    glCreateTextures(GL_TEXTURE_2D, 1, &texId);
 
+    glTextureParameteri(texId, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(texId, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(texId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(texId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+    int width = img.width();
+    int height = img.height();
+    void* pixels = img.pixels();
+    glTextureStorage2D(texId, 1, GL_RGBA8, width, height);
+    glTextureSubImage2D(texId, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-//GLuint loadTexture(const BitmapImage& img)
-//{
-//    GLuint texId;
-//    glCreateTextures(GL_TEXTURE_2D, 1, &texId);
-//
-//    glTextureParameteri(texId, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//    glTextureParameteri(texId, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//    glTextureParameteri(texId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//    glTextureParameteri(texId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//
-//    int width = img.width();
-//    int height = img.height();
-//    void* pixels = img.pixels();
-//    glTextureStorage2D(texId, 1, GL_RGBA8, width, height);
-//    glTextureSubImage2D(texId, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-//
-//    // glGenerateTextureMipmap(texId);
-//}
+    // glGenerateTextureMipmap(texId);
+
+    return new Texture(width, height, texId);
+}
 //
 //GLuint loadCubeMap(const BitmapImage* imgs)
 //{

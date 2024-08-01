@@ -9,9 +9,8 @@
 #include <imnodes.h>
 
 #include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_vulkan.h>
+#include <backends/imgui_impl_opengl3.h>
 
-#include <vkx/vkx.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <ethertia/Ethertia.h>
@@ -114,49 +113,6 @@ static void InitStyle()
 }
 
 
-static void ImplImgui_VulkanCheckResult(VkResult r)
-{
-    if (r != VK_SUCCESS) {
-        Log::warn("ImGui Vulkan Error");
-    }
-    vkx::check(r);
-}
-
-static void InitForVulkan()
-{
-    ImGui_ImplGlfw_InitForVulkan(Window::Handle(), true);
-
-    VKX_CTX_device_allocator;
-    ImGui_ImplVulkan_InitInfo initInfo{};
-    initInfo.Instance = vkxc.Instance;
-    initInfo.PhysicalDevice = vkxc.PhysDevice;
-    initInfo.Device = vkxc.Device;
-    initInfo.QueueFamily = vkxc.QueueFamily.GraphicsFamily;
-    initInfo.Queue = vkxc.GraphicsQueue;
-    initInfo.PipelineCache = nullptr;
-    initInfo.DescriptorPool = vkxc.DescriptorPool;
-    initInfo.Subpass = 0;
-    initInfo.MinImageCount = 2;
-    initInfo.ImageCount = vkxc.SwapchainImages.size();
-    initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    initInfo.Allocator = (VkAllocationCallbacks*)vkxc.Allocator;
-    initInfo.CheckVkResultFn = ImplImgui_VulkanCheckResult;
-
-    // Dynamic Rendering, VK_KHR_dynamic_rendering
-    //initInfo.UseDynamicRendering = false;
-    //initInfo.ColorAttachmentFormat = ;
-
-    ImGui_ImplVulkan_Init(&initInfo, vkxc.MainRenderPass);
-
-    vkx::SubmitCommandBuffer([](vk::CommandBuffer cmdbuf)
-    {
-        ImGui_ImplVulkan_CreateFontsTexture(cmdbuf);
-    });
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
-}
-
-
-
 void Imgui::Init()
 {
     BENCHMARK_TIMER;
@@ -168,9 +124,8 @@ void Imgui::Init()
     ImGui::StyleColorsDark();
     InitStyle();
 
-    ImGuiIO& io = ImGui::GetIO();
-
     // Set Before Backend/Impl Init.
+    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |=
             ImGuiConfigFlags_DockingEnable |         // Enable Docking.
             ImGuiConfigFlags_ViewportsEnable;        // Multiple Windows/Viewports
@@ -180,8 +135,8 @@ void Imgui::Init()
 //    io.ConfigViewportsNoTaskBarIcon = true;
 //    ImGui::GetMainViewport()->DpiScale = 4;
 
-
-    InitForVulkan();
+    ImGui_ImplGlfw_InitForOpenGL(Window::Handle(), true);
+    ImGui_ImplOpenGL3_Init();
 
     // ImNodes
     ImNodes::CreateContext();
@@ -193,7 +148,7 @@ void Imgui::Destroy()
 {
     ImNodes::DestroyContext();
 
-    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
@@ -212,8 +167,8 @@ DockSpace
 
 void Imgui::NewFrame()
 {
+    ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
-    ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
 
     // Mouse Doesn't work anymore. MousePos is in ViewportSize coordinate.
@@ -233,13 +188,13 @@ void Imgui::NewFrame()
 }
 
 
-void Imgui::Render(VkCommandBuffer cmdbuf)
+void Imgui::Render()
 {
     {
         ET_PROFILE("Render");
 
         ImGui::Render();
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdbuf);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     // Update Multiple Windows/Viewports
@@ -355,23 +310,6 @@ bool Imgui::InputText(const char* label, std::string& text, const char* hint)
         return false;
     }
 }
-
-
-
-VkDescriptorSet Imgui::mapImage(VkImageView imageView)
-{
-    static std::unordered_map<VkImageView, VkDescriptorSet> _cache;
-
-    auto it = _cache.find(imageView);
-    if (it == _cache.end()) {
-        _cache[imageView] = ImGui_ImplVulkan_AddTexture(vkx::ctx().ImageSampler,
-                                                        imageView,
-                                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    }
-    return _cache[imageView];
-}
-
-
 
 
 // texId: 0=white

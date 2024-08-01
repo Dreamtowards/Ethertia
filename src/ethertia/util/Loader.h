@@ -7,10 +7,9 @@
 #include <span>
 #include <memory>  // std::unique_ptr
 
-#include <vkx/vkx.hpp>
-
 #include <ethertia/render/VertexData.h>
 #include <ethertia/util/BitmapImage.h>
+#include <ethertia/render/RenderEngine.h>
 
 
 class Loader
@@ -123,20 +122,30 @@ public:
 #pragma endregion
 
 
+#pragma region OpenGL: VertexBuffer, Texture
+
+    static Texture* LoadTexture(const BitmapImage& img);
+
+    static Texture* LoadTexture(const std::string& uri) { return Loader::LoadTexture(Loader::LoadPNG(uri)); }
+
+
+
+#pragma endregion
+
 #pragma region Vulkan: VertexBuffer, Image
 
     // todo: LoadVertexBuffer()  name result, not input. LoadOBJ not LoadOBJFile
     
     // interleaved vertex data. load to GPU, StagedBuffer.
-    static vkx::VertexBuffer* LoadVertexData(const VertexData* vtx);
-
-    static vkx::VertexBuffer* LoadVertexData(const std::string& uri) { return Loader::LoadVertexData(std::unique_ptr<VertexData>(Loader::LoadOBJ(uri)).get()); }
-
-
-    // Image ? Texture
-    static vkx::Image* LoadImage(const BitmapImage& img);
-
-    static vkx::Image* LoadImage(const std::string& uri) { return Loader::LoadImage(Loader::LoadPNG(uri)); }
+//    static vkx::VertexBuffer* LoadVertexData(const VertexData* vtx);
+//
+//    static vkx::VertexBuffer* LoadVertexData(const std::string& uri) { return Loader::LoadVertexData(std::unique_ptr<VertexData>(Loader::LoadOBJ(uri)).get()); }
+//
+//
+//    // Image ? Texture
+//    static vkx::Image* LoadImage(const BitmapImage& img);
+//
+//    static vkx::Image* LoadImage(const std::string& uri) { return Loader::LoadImage(Loader::LoadPNG(uri)); }
 
 
     //////////// CUBE MAP IMAGE ////////////

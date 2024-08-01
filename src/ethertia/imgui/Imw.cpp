@@ -428,7 +428,7 @@ void Imw::ItemImage(const Item* item, float size, ImDrawList* dl)
     ImVec2 uvMin = {i/n, 0};
     ImVec2 uvSize = {1.0f/n, 1};
     ImVec2 min = ImGui::GetCursorScreenPos();
-    dl->AddImage(Imgui::mapImage(ItemTextures::ITEM_ATLAS->imageView), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
+    dl->AddImage(ItemTextures::ITEM_ATLAS->textureIdPtr(), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
     ImGui::Dummy({size, size});
 }
 
@@ -476,11 +476,11 @@ void Imw::ShowItemStack(ItemStack& stack, bool manipulation, float size)
 
 
 
-static vkx::Image* _LoadCachedTex(const std::string& p) {
-    static std::map<std::string, vkx::Image*> _Cache;
+static Texture* _LoadCachedTex(const std::string& p) {
+    static std::map<std::string, Texture*> _Cache;
     auto& it = _Cache[p];
     if (!it) {
-        it = Loader::LoadImage(p);
+        it = Loader::LoadTexture(p);
     }
     return it;
 }
@@ -497,7 +497,7 @@ void Imw::Editor::ShowToolbar(bool* _open)
         s_FramePadding = 1,
         s_ItemSpacing = 1;
 
-#define _ET_TOOLBAR_BTN(id) ImGui::ImageButton(id, Imgui::mapImage(_LoadCachedTex(id)->imageView), {s_Size, s_Size}); if (s_Horiz) { ImGui::SameLine();}
+#define _ET_TOOLBAR_BTN(id) ImGui::ImageButton(id, _LoadCachedTex(id)->textureIdPtr(), {s_Size, s_Size}); if (s_Horiz) { ImGui::SameLine();}
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {s_FramePadding, s_FramePadding});
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {s_ItemSpacing, s_ItemSpacing});

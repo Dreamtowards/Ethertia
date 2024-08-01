@@ -4,7 +4,6 @@
 
 
 #include <format>
-#include <vkx/vkx.hpp>
 
 #include <ethertia/util/Loader.h>
 #include <ethertia/util/BenchmarkTimer.h>
@@ -44,14 +43,14 @@ static bool _MtlTex_LoadResizeTo(const std::string& mtl, std::string_view textyp
  * @param textype could be: diff/disp/norm/ao/rough
  * @param px needed resolution in pixel
  */
-static vkx::Image* _MtlTex_MakeAtlas(std::string_view textype, int px, const std::string& cache_file, bool isDRAM = false) 
+static Texture* _MtlTex_MakeAtlas(std::string_view textype, int px, const std::string& cache_file, bool isDRAM = false)
 {
     BENCHMARK_TIMER;
 
     if (Loader::FileExists(cache_file))
     {
-        vkx::Image* t = Loader::LoadImage(cache_file);
-        Log::info(" *{} loaded cached atlas from '{}'. (x{})\1", textype, cache_file, t->height);
+        Texture* t = Loader::LoadTexture(cache_file);
+        Log::info(" *{} loaded cached atlas from '{}'. (x{})\1", textype, cache_file, t->height());
         return t;
     }
     else
@@ -111,7 +110,7 @@ static vkx::Image* _MtlTex_MakeAtlas(std::string_view textype, int px, const std
         // save cached atlas.
         Loader::SavePNG(cache_file, atlas);
 
-        return Loader::LoadImage(atlas);
+        return Loader::LoadTexture(atlas);
     }
 }
 
@@ -144,12 +143,12 @@ void MaterialTextures::Load()
 
 #include "ItemTextures.h"
 
-static vkx::Image* ItemTex_MakeAtlas(const std::string& cache_file, int resolution) {
+static Texture* ItemTex_MakeAtlas(const std::string& cache_file, int resolution) {
 
     if (Loader::FileExists(cache_file)) 
     {
         std::cout << "loading from cache '" << cache_file << "'";
-        return Loader::LoadImage(cache_file);
+        return Loader::LoadTexture(cache_file);
     } 
     else 
     {
@@ -194,7 +193,7 @@ static vkx::Image* ItemTex_MakeAtlas(const std::string& cache_file, int resoluti
         //
         //Loader::SavePNG(cache_file, atlas);
         //
-        //return Loader::LoadImage(atlas);
+//        return Loader::LoadTexture(atlas);
     }
 }
 

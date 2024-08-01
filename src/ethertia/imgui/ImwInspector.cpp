@@ -109,8 +109,8 @@ void ImwInspector::ShowHierarchy(bool* _open)
         for (const auto& [eid] : world->registry().storage<entt::entity>().each())
         {
             Entity entity = { eid, world };
-            if (s_NoChunkEntity && entity.HasComponent<ChunkComponent>())
-                continue;
+//            if (s_NoChunkEntity && entity.HasComponent<ChunkComponent>())  // todo  FIX
+//                continue;
             if (_ListIdx > s_ListCountLimit)
                 break;
             ++_ListIdx;

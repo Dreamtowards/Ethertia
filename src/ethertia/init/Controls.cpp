@@ -5,12 +5,12 @@
 #include "Controls.h"
 
 #include <ethertia/Ethertia.h>
-#include <ethertia/render/Window.h>
 #include <ethertia/imgui/Imgui.h>
 #include <ethertia/imgui/Imw.h>
 #include <ethertia/init/Settings.h>
 #include <ethertia/util/Math.h>
 #include <ethertia/util/Log.h>
+#include <ethertia/render/Window.h>
 
 #include <ethertia/init/KeyBinding.h>
 

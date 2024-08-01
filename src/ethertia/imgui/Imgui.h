@@ -7,7 +7,6 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
-#include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 #include <string>
 #include <map>
@@ -24,7 +23,7 @@ public:
     static void Destroy();
 
     static void NewFrame();
-    static void Render(VkCommandBuffer cmdbuf);
+    static void Render();
 
 
 
@@ -55,8 +54,6 @@ public:
     static bool InputText(const char* label, std::string& text, const char* hint = nullptr);
 
 
-
-    static VkDescriptorSet mapImage(VkImageView imageView);
 
     static void Image(void* texId, ImVec2 size, glm::vec4 color = {1,1,1,1});
     static ImVec2 GetWindowContentSize();

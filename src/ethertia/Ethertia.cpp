@@ -66,7 +66,6 @@ static std::thread::id g_MainThreadId{};
 static void _InitConsoleThread();
 
 
-// System Initialization.
 static void Init()
 {
     BENCHMARK_TIMER_MSG("System initialized in {}.\n");
@@ -76,31 +75,25 @@ static void Init()
 
     g_ThreadPool = std::make_unique<stdx::thread_pool>(std::min(16u, std::thread::hardware_concurrency()));
     g_MainThreadId = std::this_thread::get_id();
+    Ethertia::IsRunning() = true;
 
     //for (const std::string& modpath : Settings::Mods) {
     //    ModLoader::LoadMod(modpath);
     //}
     //OpenVR::init();
-
     Lua::Init();
-
-    Ethertia::IsRunning() = true;
 
     Window::Init(Settings::DisplayWidth, Settings::DisplayHeight, Ethertia::GetVersion(true).c_str());
     RenderEngine::Init();
     // AudioEngine::init();
     // NetworkSystem::init();
-
-
     Physics::Init();
-
     ImwInspector::InitComponentInspectors();  // tmp
 
     // Materials & Items
     MaterialMeshes::Load();
     ItemTextures::Load();
 //    Sounds::load();
-
     //Recipes::init();  // after mtl-items register.
 
     //g_Player = new EntityPlayer();  // before gui init. when gui init, needs get Player ptr. e.g. Inventory
@@ -109,12 +102,10 @@ static void Init()
     //g_Player->setFlying(true);
 
 
-
     // Proc Threads
     //ChunkMeshProc::initThread();
     //ChunkGenProc::initThread();
     _InitConsoleThread();
-
 
 //    Material::REGISTRY.dbgPrintEntries("Materials");
 //    Item::REGISTRY.dbgPrintEntries("Items");
@@ -122,14 +113,10 @@ static void Init()
 //    Command::REGISTRY.dbgPrintEntries("Commands");
 //    Recipe::REGISTRY.dbgPrintEntries("Recipes");
 
-
-    ImwGame::GameDrawFuncs.push_back(ImwGame::ShowTitleScreen);
-
+//    ImwGame::GameDrawFuncs.push_back(ImwGame::ShowTitleScreen);
 
 }
 
-
-// System Cleanup
 static void Destroy()
 {
 
@@ -161,36 +148,28 @@ static void RunMainLoop()
     float dt = Ethertia::GetDelta();
     World* world = Ethertia::GetWorld();
 
+    //while (Ethertia::GetTimer().polltick())
     {
-
-        //while (Ethertia::GetTimer().polltick())
-        {
-            ET_PROFILE("WorldTick");
-
-            if (world)
-            {
-                world->OnTick(dt);
-            }
+        ET_PROFILE("WorldTick");
+        if (world) {
+            world->OnTick(dt);
         }
     }
 
     {
-        ET_PROFILE("Input");
-        {
-            ET_PROFILE("PollEvents");
-            Window::PollEvents();
-        }
-        {
-            ET_PROFILE("HandleInputs");
-            Controls::HandleInput();
-        }
+        ET_PROFILE("WindowPollEvents");
+        Window::PollEvents();
+    }
+    {
+        ET_PROFILE("HandleInputs");
+        Controls::HandleInput();
     }
 
     if (!Window::IsMinimized()) 
     {
         ET_PROFILE("Render");
         {
-            ET_PROFILE("Gui");
+            ET_PROFILE("UI");
             {
                 ET_PROFILE("Imgui::NewFrame");
                 Imgui::NewFrame();
@@ -208,6 +187,8 @@ static void RunMainLoop()
         }
     }
 
+    Imgui::Render();
+    glfwSwapBuffers(Window::Handle());
 }
 
 

@@ -7,7 +7,7 @@
 
 
 #include <ethertia/render/VertexData.h>
-#include <vkx/vkx.hpp>
+#include <ethertia/render/RenderEngine.h>
 
 /*
 struct MeshRenderComponent
@@ -60,14 +60,14 @@ struct ChunkComponent
 
 	VertexData* VertexData = nullptr;
 
-	vkx::VertexBuffer* VertexBuffer = nullptr;
+	VertexBufferArrays* VertexBuffer = nullptr;
 
 };
 
-struct NativeScriptComponent
-{
+//struct NativeScriptComponent
+//{
 	// std::function<void()> OnCreate; OnUpdate, OnDestroy
-};
+//};
 
 
 

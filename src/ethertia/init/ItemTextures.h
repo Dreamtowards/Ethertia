@@ -15,7 +15,7 @@ class ItemTextures
 public:
     inline static const int ITEM_RESOLUTION = 128;
 
-    inline static vkx::Image* ITEM_ATLAS = nullptr;
+    inline static Texture* ITEM_ATLAS = nullptr;
 
 
     static void Load();
