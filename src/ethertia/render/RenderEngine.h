@@ -6,6 +6,7 @@
 
 #include "glx.h"
 
+class World;
 
 class RenderEngine
 {
@@ -15,10 +16,8 @@ public:
     static void Init();
     static void Destroy();
 
-    static void Render();
+    static void RenderWorld(World* world);
 
-    static void _ReloadPipeline();
-
-    inline static bool s_PauseWorldRender = false;
+    inline static bool g_PauseWorldRender = false;
 };
 

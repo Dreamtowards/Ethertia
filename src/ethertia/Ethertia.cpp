@@ -15,7 +15,7 @@
 #include <ethertia/init/Controls.h>
 #include <ethertia/init/ItemTextures.h>
 #include <ethertia/init/MaterialMeshes.h>
-#include <ethertia/imgui/ImwInspector.h>  // tmp
+#include <ethertia/imgui/ImwInspector.h>
 //#include <ethertia/mod/ModLoader.h>
 //#include <ethertia/network/client/ClientConnectionProc.h>
 //#include <ethertia/item/recipe/Recipes.h>
@@ -85,6 +85,7 @@ static void Init()
 
     Window::Init(Settings::DisplayWidth, Settings::DisplayHeight, Ethertia::GetVersion(true).c_str());
     RenderEngine::Init();
+    Imgui::Init();
     // AudioEngine::init();
     // NetworkSystem::init();
     Physics::Init();
@@ -119,7 +120,6 @@ static void Init()
 
 static void Destroy()
 {
-
     Settings::SaveSettings();
 
     if (Ethertia::GetWorld()) {
@@ -129,7 +129,6 @@ static void Destroy()
     // NetworkSystem::deinit();
 
     Physics::Release();
-
 
     RenderEngine::Destroy();
 //    AudioEngine::deinit();
@@ -174,20 +173,19 @@ static void RunMainLoop()
                 ET_PROFILE("Imgui::NewFrame");
                 Imgui::NewFrame();
             }
-
             ET_PROFILE("Imgui::ShowWindows");
             Imw::ShowDockspaceAndMainMenubar();
             Imgui::ShowWindows();
+            Imgui::Render();
         }
 
+        if (world && !Window::IsMinimized())
         {
-            ET_PROFILE("RenderEngine");
-
-            RenderEngine::Render();
+            ET_PROFILE("RenderWorld");
+            RenderEngine::RenderWorld(world);
         }
     }
 
-    Imgui::Render();
     glfwSwapBuffers(Window::Handle());
 }
 
@@ -369,18 +367,18 @@ Ethertia::Viewport Ethertia::GetViewport() {
     }
 }
 
-const std::string Ethertia::GetVersion(bool fullname) 
+const std::string& Ethertia::GetVersion(bool fullname)
 {
-    static std::string _VerName = ET_VERSION_SNAPSHOT ? 
+    static std::string s_VerName = ET_VERSION_SNAPSHOT ?
         std::format("*{}.{}.{} {}", ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH, ET_VERSION_SNAPSHOT) :
         std::format("{}.{}.{}", ET_VERSION_MAJOR, ET_VERSION_MINOR, ET_VERSION_PATCH);
 
     if (fullname) 
     {
-        static std::string _FullVerName = "Ethertia " + _VerName;
-        return _FullVerName;
+        static std::string s_FullVerName = "Ethertia " + s_VerName;
+        return s_FullVerName;
     }
-    return _VerName;
+    return s_VerName;
 }
 
 #pragma endregion

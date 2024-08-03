@@ -177,6 +177,7 @@ add_executable(Ethertia
     
     src/ethertia/render/Window.cpp
     src/ethertia/render/RenderEngine.cpp
+    src/ethertia/render/glx.cpp
     src/ethertia/init/Controls.cpp
     src/ethertia/init/Settings.cpp
     src/ethertia/world/Physics.cpp

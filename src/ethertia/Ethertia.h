@@ -67,7 +67,9 @@ public:
     static void PrintMessage(const std::string& msg);  // print @msg on Message Box.
 
 
-    static const std::string GetVersion(bool fullname = false);     // e.g. "0.0.3", "*0.0.2 2023.10ec" fullname: "Ethertia *0.0.2 2023.10ec"
+    // return: "0.0.3" or snapshot "*0.0.2 2023.10ec"
+    // fullname: "Ethertia *0.0.2 2023.10ec"
+    static const std::string& GetVersion(bool fullname = false);
 
 
     struct Viewport

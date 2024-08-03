@@ -276,7 +276,7 @@ static void _ShowMainMenuBar()
                 //Controls::saveScreenshot();
                 Log::info("Not supported screenshot");
             }
-            if (ImGui::MenuItem("Fullscreen", KeyBindings::KEY_FULLSCREEN.keyName(), Window::isFullscreen())) {
+            if (ImGui::MenuItem("Fullscreen", KeyBindings::KEY_FULLSCREEN.keyName(), Window::IsFullscreen())) {
                 Window::ToggleFullscreen();
             }
             if (ImGui::MenuItem("Controlling Game", KeyBindings::KEY_ESC.keyName(), Ethertia::isIngame())) {
@@ -428,7 +428,7 @@ void Imw::ItemImage(const Item* item, float size, ImDrawList* dl)
     ImVec2 uvMin = {i/n, 0};
     ImVec2 uvSize = {1.0f/n, 1};
     ImVec2 min = ImGui::GetCursorScreenPos();
-    dl->AddImage(ItemTextures::ITEM_ATLAS->textureIdPtr(), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
+    dl->AddImage(ItemTextures::ITEM_ATLAS->idptr(), min, min+ImVec2{size, size}, uvMin, uvMin+uvSize);
     ImGui::Dummy({size, size});
 }
 
@@ -497,7 +497,7 @@ void Imw::Editor::ShowToolbar(bool* _open)
         s_FramePadding = 1,
         s_ItemSpacing = 1;
 
-#define _ET_TOOLBAR_BTN(id) ImGui::ImageButton(id, _LoadCachedTex(id)->textureIdPtr(), {s_Size, s_Size}); if (s_Horiz) { ImGui::SameLine();}
+#define _ET_TOOLBAR_BTN(id) ImGui::ImageButton(id, _LoadCachedTex(id)->idptr(), {s_Size, s_Size}); if (s_Horiz) { ImGui::SameLine();}
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {s_FramePadding, s_FramePadding});
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {s_ItemSpacing, s_ItemSpacing});

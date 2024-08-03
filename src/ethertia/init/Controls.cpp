@@ -547,7 +547,7 @@ void Controls::HandleInput()
 {
     OPTICK_EVENT();
 
-    if (Window::isCloseRequested())
+    if (Window::IsCloseRequested())
         Ethertia::Shutdown();
 
     _HandleKeyPress();

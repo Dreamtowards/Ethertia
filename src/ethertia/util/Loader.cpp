@@ -439,24 +439,44 @@ VertexBufferArrays* LoadVertexBuffers(
 
 Texture* Loader::LoadTexture(const BitmapImage& img)
 {
-    GLuint texId;
-    glCreateTextures(GL_TEXTURE_2D, 1, &texId);
+    return Loader::LoadTexture(img.width(), img.height(), img.pixels());
+}
+
+//Texture* Loader::loadTexture(const BitmapImage& img)
+//{
+//    std::unique_ptr<std::uint32_t> pixels(new uint32_t[img.getWidth() * img.getHeight()]);
+//    img.getVerticalFlippedPixels(pixels.get());
+//
+//    return Loader::loadTexture(img.getWidth(), img.getHeight(), pixels.get());
+//}
+
+Texture* Loader::LoadTexture(int width, int height, void* pixels_VerticalFlipped, int internalformat, int format, int type)
+{
+    auto* tex = Texture::Create(width, height, GL_TEXTURE_2D);
+    GLuint texId = tex->id();
 
     glTextureParameteri(texId, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTextureParameteri(texId, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTextureParameteri(texId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(texId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(texId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
 
-    int width = img.width();
-    int height = img.height();
-    void* pixels = img.pixels();
-    glTextureStorage2D(texId, 1, GL_RGBA8, width, height);
-    glTextureSubImage2D(texId, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glTextureStorage2D(texId, 1, internalformat, width, height);
+    glTextureSubImage2D(texId, 0, 0, 0, width, height, format, type, pixels_VerticalFlipped);
+
+//  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
+//  if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+//     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 if use TextureFilterAnisotropic
+//     float amount = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
+//     glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
+//     LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
+//  }
 
     // glGenerateTextureMipmap(texId);
 
-    return new Texture(width, height, texId);
+    return tex;
 }
+
+
 //
 //GLuint loadCubeMap(const BitmapImage* imgs)
 //{
@@ -480,43 +500,6 @@ Texture* Loader::LoadTexture(const BitmapImage& img)
 //
 //    // glGenerateTextureMipmap(texId);
 //}
-
-
-//Texture* Loader::loadTexture(const BitmapImage& img)
-//{
-//    std::unique_ptr<std::uint32_t> pixels(new uint32_t[img.getWidth() * img.getHeight()]);
-//    img.getVerticalFlippedPixels(pixels.get());
-//
-//    return Loader::loadTexture(img.getWidth(), img.getHeight(), pixels.get());
-//}
-//
-//Texture* Loader::loadTexture(int w, int h, void* pixels_VertFlip, int intlfmt, int fmt, int type)
-//{
-//    auto* tex = Texture::GenTexture(w,h, GL_TEXTURE_2D);
-//    tex->BindTexture();
-//
-//    glTexImage2D(GL_TEXTURE_2D, 0, intlfmt, w, h, 0, fmt, type, pixels_VertFlip);
-//    // glTexSubImage2D();
-//
-//
-//    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
-////        if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
-////            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);  // set 0 if use TextureFilterAnisotropic
-////            float amount = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
-////            glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
-////            LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
-////         }
-//
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
-//
-//    glGenerateMipmap(GL_TEXTURE_2D);
-//
-//    return tex;
-//}
-
 
 //Texture* Loader::loadCubeMap_3x2(const std::string &filepath) {
 //    BitmapImage comp = Loader::loadPNG(filepath);

@@ -128,7 +128,8 @@ public:
 
     static Texture* LoadTexture(const std::string& uri) { return Loader::LoadTexture(Loader::LoadPNG(uri)); }
 
-
+    static Texture* LoadTexture(int width, int height, void* pixels_VerticalFlipped,
+                                int internalformat = GL_RGBA8, int format = GL_RGBA, int pixelDataType = GL_UNSIGNED_BYTE);
 
 #pragma endregion
 

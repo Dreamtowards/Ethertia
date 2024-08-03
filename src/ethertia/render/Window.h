@@ -30,12 +30,11 @@ public:
     static void Centralize();
     void SetTitle(const char* s);
 
-    static bool isCloseRequested();
-    static bool isFramebufferResized();
+    static bool IsCloseRequested();
 
     static void SetFullscreen(GLFWmonitor* monitor = glfwGetPrimaryMonitor());
     static void UnsetFullscreen(int _w = 1280, int _h = 720);
-    static bool isFullscreen();
+    static bool IsFullscreen();
     static void ToggleFullscreen();
 
 
@@ -47,6 +46,8 @@ public:
     static void SetMouseGrabbed(bool grabbed);
     static void SetStickyKeys(bool s);
 
+    static bool IsFramebufferResized();
+    static glm::ivec2 FramebufferSize();
     static glm::vec2 Size();
 //    static glm::vec2 Pos();
 

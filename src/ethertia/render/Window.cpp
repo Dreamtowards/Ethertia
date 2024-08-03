@@ -20,12 +20,13 @@ static void _GlfwErrorCallback(int error, const char* description)
     Log::warn("GLFW Error: {}: {}", error, description);
 }
 
-
-static glm::vec2 g_FramebufferSize;
 static glm::vec2 g_WindowSize;
 static glm::vec2 g_MousePos;
 static glm::vec2 g_MouseDelta;
 static glm::vec2 g_MouseWheel;
+
+static bool g_IsFramebufferResized = false;  // fb-resized may additionally caused by monitor-change, system-scale-change.
+static glm::ivec2 g_FramebufferSize;
 
 static bool g_MouseGrabbed = false;
 static bool g_Patch_GrabbedChanged = false;  // bug patch
@@ -95,15 +96,10 @@ GLFWwindow* Window::Handle() {
 
 
 
-bool Window::isCloseRequested() {
+bool Window::IsCloseRequested() {
     return glfwWindowShouldClose(g_GlfwWindow);
 }
 
-static bool g_IsFramebufferResized = false;  // fb-resized may additionally caused by monitor-change, system-scale-change.
-
-bool Window::isFramebufferResized() {
-    return g_IsFramebufferResized;
-}
 
 void Window::Centralize() {
     const GLFWvidmode* vmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -115,7 +111,6 @@ void Window::Centralize() {
 
 
 static bool g_IsFullscreen = false;
-
 
 void Window::SetFullscreen(GLFWmonitor* monitor)
 {
@@ -133,13 +128,13 @@ void Window::UnsetFullscreen(int w, int h)
     Window::Centralize();
 }
 
-bool Window::isFullscreen() {
+bool Window::IsFullscreen() {
     return g_IsFullscreen;
 }
 
 void Window::ToggleFullscreen()
 {
-    if (isFullscreen()) {
+    if (IsFullscreen()) {
         UnsetFullscreen();
     } else {
         SetFullscreen();
@@ -149,6 +144,12 @@ void Window::ToggleFullscreen()
 
 
 
+bool Window::IsFramebufferResized() {
+    return g_IsFramebufferResized;
+}
+glm::ivec2 Window::FramebufferSize() {
+    return g_FramebufferSize;
+}
 
 
 void Window::PollEvents()

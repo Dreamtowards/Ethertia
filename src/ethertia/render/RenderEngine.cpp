@@ -33,9 +33,6 @@
 
 
 
-//static vkx::Image* TEX_WHITE = nullptr;
-//static vkx::Image* TEX_UVMAP = nullptr;
-
 
 void RenderEngine::Init()
 {
@@ -52,7 +49,6 @@ void RenderEngine::Init()
 //              (const char*)vkx::ctx().PhysDeviceProperties.deviceName);
 
 
-    Imgui::Init();
 
 
 //    TEX_WHITE = Loader::LoadImage(BitmapImage(1, 1, new uint32_t[1]{(uint32_t)~0}));
@@ -94,58 +90,55 @@ void RenderEngine::Destroy()
 //    vkx::Destroy();
 }
 
-void RenderEngine::Render()
+
+
+
+
+
+static void RenderWorldGbuffer(World* world)
 {
-    /// skip
-    if (Window::IsMinimized())  
-        return;
-//    if (Window::isFramebufferResized())
-//        vkx::RecreateSwapchain();
-//
-//    VKX_CTX_device_allocator;
-//
-//    vkx::CommandBuffer cmd{nullptr};
-//    {
-//        ET_PROFILE("BeginFrame");
-//        cmd = vkx::BeginFrame();
-//    }
-//
-//
-//    World* world = Ethertia::GetWorld();
-//    if (world && !s_PauseWorldRender)
-//    {
-//        ImwGame::WorldImageView = RendererCompose::rtColor->imageView;
-//        {
-//            ET_PROFILE("CmdWorldGbuffer");
-//            RendererGbuffer::RecordCommand(cmd, world->registry());
-//        }
-//        {
-//            ET_PROFILE("CmdWorldCompose");
-//            RendererCompose::RecordCommand(cmd);
-//        }
-//    }
-//
-//    vkx::BeginMainRenderPass(cmd);
-//    {
-//        ET_PROFILE("GUI");
-//
-//        Imgui::Render(cmd);
-//    }
-//    vkx::EndMainRenderPass(cmd);
-//
-//    {
-//        ET_PROFILE("SubmitPresent");
-//        vkx::SubmitPresent(cmd);
-//    }
+    static ShaderProgram* g_Shader = ShaderProgram::Create("shaders/gbuffer", [](ShaderProgram& shader) {
+        shader.SetInt("tex_albedo", 0);
+        shader.SetInt("tex_normal", 1);
+        shader.SetInt("tex_dram", 2);
+        shader.SetInt("tex_cap", 21);
+        shader.SetFloat("tex_scale", 1.5f);
+    });
+
+    static Framebuffer* gbufferFBO = Framebuffer::Create(1280, 720, [](Framebuffer& fbo){
+        fbo.AttachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
+        fbo.AttachColorTexture(1, GL_RGB32F, GL_RGB, GL_FLOAT);        // Normals,          f16 *3
+        fbo.AttachColorTexture(2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE); // Albedo,           u8 *3
+        fbo.SetupMRT({0, 1, 2});
+
+        fbo.AttachDepthStencilRenderbuffer();
+    });
+    auto _ = gbufferFBO->BindScoped();
+
+    glClearColor(0, 1, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+    glDisable(GL_BLEND);  // Blending is inhabited in Deferred Rendering.
+
+    glEnable(GL_BLEND);
 }
 
 
+void RenderEngine::RenderWorld(World* world)
+{
+    /// skip
+    if (Window::IsMinimized())
+        return;
 
+    // Gbuffer
+    RenderWorldGbuffer(world);
 
+    // Compose
 
-
-
-
+}
 
 
 //static void renderWorldGeometry(World* world)
