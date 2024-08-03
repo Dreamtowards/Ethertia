@@ -115,8 +115,9 @@ static void RenderWorldGbuffer(World* world)
     });
     auto _ = gbufferFBO->BindScoped();
 
-    glClearColor(0, 1, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+//    glClearColor(0, 1, 0, 1);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glx::Clear();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

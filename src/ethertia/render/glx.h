@@ -14,30 +14,20 @@
 
 #include "ethertia/util/Log.h"
 #include "ethertia/util/Collections.h"
+#include "ethertia/util/BitmapImage.h"
+#include "ethertia/util/Colors.h"
+
+namespace glx
+{
+    void Clear(glm::vec4 color = Colors::BLACK);
+
+    GLuint CheckError(std::string_view phase);
+}
 
 class Texture {
 private:
     Texture() = default;
 public:
-//    Texture(int width, int height, GLuint textureId) : m_Width(width), m_Height(height), m_TextureId(textureId) {}
-
-    int width()  const { return m_Width; }
-    int height() const { return m_Height; }
-
-    int id() const { return m_TextureId; }
-//    int textureId() const { return m_TextureId; }
-
-    void* idptr() const { return (void*)(intptr_t)m_TextureId; }
-//    void* textureIdPtr() const { return (void*)(intptr_t)m_TextureId; }
-
-    int target() const { return m_Target; }
-
-    void Bind(int slot = 0) {
-        glBindTextureUnit(slot, m_TextureId);
-//        glActiveTexture(GL_TEXTURE0+slot);
-//        glBindTexture(target, texId);
-    }
-
     static Texture* Create(int w, int h, int target = GL_TEXTURE_2D) {
         auto* tex = new Texture();
         tex->m_Width = w;
@@ -45,6 +35,33 @@ public:
         tex->m_Target = target;
         glCreateTextures(target, 1, &tex->m_TextureId);
         return tex;
+    }
+    ~Texture() {
+        glDeleteTextures(1, &m_TextureId);
+    }
+
+    [[nodiscard]] int width()  const { return m_Width; }
+    [[nodiscard]] int height() const { return m_Height; }
+
+    [[nodiscard]] int id() const { return m_TextureId; }
+//    int textureId() const { return m_TextureId; }
+
+    [[nodiscard]] void* idptr() const { return (void*)(intptr_t)m_TextureId; }
+//    void* textureIdPtr() const { return (void*)(intptr_t)m_TextureId; }
+
+    [[nodiscard]] int target() const { return m_Target; }
+
+    void Bind(int slot = 0) const {
+        glBindTextureUnit(slot, m_TextureId);
+//        glActiveTexture(GL_TEXTURE0+slot);
+//        glBindTexture(target, texId);
+    }
+
+    BitmapImage* GetTexImage() {
+        void* pixels = new char[m_Width * m_Height * 4];
+        glBindTexture(GL_TEXTURE_2D, m_TextureId);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        return new BitmapImage(m_Width, m_Height, (unsigned int*)pixels);
     }
 
 private:
@@ -61,7 +78,7 @@ public:
     VertexBufferArrays(GLuint vaoId, GLuint vboId, GLuint iboId, size_t vertexCount) :
         m_vaoId(vaoId), m_vboId(vboId), m_iboId(iboId), m_VertexCount(vertexCount) {}
 
-    bool indexed() const { return m_iboId != 0; }
+    [[nodiscard]] bool indexed() const { return m_iboId != 0; }
 
     GLuint m_vaoId = 0;
     GLuint m_vboId = 0;
@@ -112,13 +129,13 @@ public:
     }
 
     struct Uniform {
-        GLint UniformId;
+        int UniformId;
     };
     std::map<const char*, Uniform> m_Uniforms;
 
-    GLint GetUniformId(const char* name) {
+    int GetUniformId(const char* name) {
         auto& u = m_Uniforms[name];
-        GLint loc = u.UniformId;
+        int loc = u.UniformId;
         if (!loc) {
             return u.UniformId = glGetUniformLocation(m_ProgramId, name);
         }

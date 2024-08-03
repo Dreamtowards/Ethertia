@@ -64,11 +64,17 @@ Texture *Framebuffer::InternalAttachTexture2D(int attachment, int internalFormat
 #pragma endregion
 
 
+void glx::Clear(glm::vec4 color) {
+    glClearColor(color.x, color.y, color.z, color.w);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
 
-//BitmapImage* Texture::GetTexImage()
-//{
-//    void* pixels = new char[width * height * 4];
-//    glBindTexture(GL_TEXTURE_2D, texId);
-//    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-//    return new BitmapImage(width, height, (unsigned int*)pixels);
-//}
+GLuint glx::CheckError(std::string_view phase)  {
+    GLuint err;
+    if ((err = glGetError()) != GL_NO_ERROR) {
+        Log::warn("###### GL Error @{} ######", phase);
+        Log::warn("ERR: {}", err);
+        return err;
+    }
+    return 0;
+}
