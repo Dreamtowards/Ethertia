@@ -39,6 +39,8 @@ void RenderEngine::Init()
     BENCHMARK_TIMER;
     Log::info("RenderEngine initializing..");
 
+    glx::InitDebugOutput();
+
 //    vkx::Init(Window::Handle(), true);
 //
 //    uint32_t vkApiVersion = vkx::ctx().PhysDeviceProperties.apiVersion;
@@ -106,17 +108,15 @@ static void RenderWorldGbuffer(World* world)
     });
 
     static Framebuffer* gbufferFBO = Framebuffer::Create(1280, 720, [](Framebuffer& fbo){
-        fbo.AttachColorTexture(0, GL_RGBA32F, GL_RGBA, GL_FLOAT);      // Positions, Depth, f16 *3
-        fbo.AttachColorTexture(1, GL_RGB32F, GL_RGB, GL_FLOAT);        // Normals,          f16 *3
-        fbo.AttachColorTexture(2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE); // Albedo,           u8 *3
-        fbo.SetupMRT({0, 1, 2});
+        fbo.AttachColorTexture(0, GL_RGBA32F);  // Positions, Depth, f16*(3+1)
+        fbo.AttachColorTexture(1, GL_RGB32F);   // Normals,          f16*3
+        fbo.AttachColorTexture(2, GL_RGBA8);    // Albedo,           u8 *3
+        fbo.SetDrawBuffers({0, 1, 2});
 
         fbo.AttachDepthStencilRenderbuffer();
     });
-    auto _ = gbufferFBO->BindScoped();
+    gbufferFBO->Bind();
 
-//    glClearColor(0, 1, 0, 1);
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glx::Clear();
 
     glEnable(GL_DEPTH_TEST);
@@ -124,7 +124,11 @@ static void RenderWorldGbuffer(World* world)
 
     glDisable(GL_BLEND);  // Blending is inhabited in Deferred Rendering.
 
+    g_Shader->Bind();
+
     glEnable(GL_BLEND);
+
+    ImwGame::WorldImageView = gbufferFBO->m_TexColor[0];
 }
 
 
@@ -139,6 +143,7 @@ void RenderEngine::RenderWorld(World* world)
 
     // Compose
 
+    Framebuffer::BindMainFramebuffer();
 }
 
 

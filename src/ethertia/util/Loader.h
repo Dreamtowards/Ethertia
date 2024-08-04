@@ -20,13 +20,15 @@ public:
 
     struct DataBlock
     {
-        const void* data() const;
-        size_t size() const;
+        const void* data() const { return m_Data; }
+        size_t size() const { return m_Size; }
 
         DataBlock(void* data, size_t size, const std::string& filename);
         ~DataBlock();
 
-        operator std::span<const char>() const;
+        operator std::span<const char>() const {
+            return std::span<const char>((const char*)data(), (int)size());
+        }
 
     private:
         void*       m_Data;
@@ -128,7 +130,7 @@ public:
 
     static Texture* LoadTexture(const std::string& uri) { return Loader::LoadTexture(Loader::LoadPNG(uri)); }
 
-    static Texture* LoadTexture(int width, int height, void* pixels_VerticalFlipped,
+    static Texture* LoadTexture(int width, int height, void* pixels_VerticalFlipped = nullptr,
                                 int internalformat = GL_RGBA8, int format = GL_RGBA, int pixelDataType = GL_UNSIGNED_BYTE);
 
 #pragma endregion

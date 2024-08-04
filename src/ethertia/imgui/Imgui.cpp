@@ -217,8 +217,7 @@ void Imgui::Render()
 
 void Imgui::Show(DrawFuncPtr w)
 {
-    if (Has(w))
-    {
+    if (Has(w)) {
         Log::info("Failed to ShowWindow, Existed Already");
         return;
     }

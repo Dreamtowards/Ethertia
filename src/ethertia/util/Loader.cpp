@@ -33,18 +33,6 @@ Loader::DataBlock::~DataBlock()
 #endif
 }
 
-const void* Loader::DataBlock::data() const {
-    return m_Data;
-}
-size_t Loader::DataBlock::size() const {
-    return m_Size;
-}
-Loader::DataBlock::operator std::span<const char>() const {
-    return std::span<const char>((const char*)data(), (int)size());
-}
-
-
-
 
 
 
@@ -452,16 +440,16 @@ Texture* Loader::LoadTexture(const BitmapImage& img)
 
 Texture* Loader::LoadTexture(int width, int height, void* pixels_VerticalFlipped, int internalformat, int format, int type)
 {
-    auto* tex = Texture::Create(width, height, GL_TEXTURE_2D);
-    GLuint texId = tex->id();
+    auto* tex = Texture::Create(width, height, GL_TEXTURE_2D, internalformat);
 
-    glTextureParameteri(texId, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(texId, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTextureParameteri(texId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(texId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  //GL_LINEAR, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST
+    if (pixels_VerticalFlipped) {
+        glTextureSubImage2D(tex->id(), 0, 0, 0, width, height, format, type, pixels_VerticalFlipped);
+    }
 
-    glTextureStorage2D(texId, 1, internalformat, width, height);
-    glTextureSubImage2D(texId, 0, 0, 0, width, height, format, type, pixels_VerticalFlipped);
+//    tex->GenerateMipmap();
+    return tex;
+}
+
 
 //  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.2f);
 //  if (GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
@@ -470,12 +458,6 @@ Texture* Loader::LoadTexture(int width, int height, void* pixels_VerticalFlipped
 //     glTexParameterf(target, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
 //     LOGGER.info("ENABLED GL_EXT_texture_filter_anisotropic");
 //  }
-
-    // glGenerateTextureMipmap(texId);
-
-    return tex;
-}
-
 
 //
 //GLuint loadCubeMap(const BitmapImage* imgs)

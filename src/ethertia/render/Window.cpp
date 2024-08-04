@@ -49,6 +49,7 @@ void Window::Init(int _w, int _h, const char* _title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
 
     _w = std::max(1, _w); _h = std::max(1, _h);  // couldn't create 0x0 window.
