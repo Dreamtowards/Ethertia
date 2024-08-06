@@ -137,6 +137,7 @@ public:
             uint32_t vertexCount, std::initializer_list<int> attrib_sizes,
             const float* vtx_data, uint32_t vtx_size = -1, const uint32_t* idx_data = nullptr)
     {
+        assert(attrib_sizes.size() > 0);
         int stride = 0;
         for (int s : attrib_sizes) { stride += s; }
 
@@ -159,19 +160,51 @@ public:
         GLuint vboId;
         glCreateBuffers(1, &vboId);
         glNamedBufferStorage(vboId, vtx_size, vtx_data, GL_DYNAMIC_STORAGE_BIT);
-        glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, stride);
+        glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, stride * sizeof(float));
 
         int offset = 0;
         int attrib  = 0;
         for (int attrib_size : attrib_sizes)
         {
-            glEnableVertexArrayAttrib(vaoId, attrib);
-            glVertexArrayAttribFormat(vaoId, attrib, attrib_size, GL_FLOAT, GL_FALSE, offset);
+            glVertexArrayAttribFormat(vaoId, attrib, attrib_size, GL_FLOAT, GL_FALSE, offset*sizeof(float));
             glVertexArrayAttribBinding(vaoId, attrib, 0);
+            glEnableVertexArrayAttrib(vaoId, attrib);
 
             offset += attrib_size;
             ++attrib;
         }
+
+//        GLuint vaoId;
+//        glGenVertexArrays(1, &vaoId);
+//        glBindVertexArray(vaoId);
+//
+//        int _scalars = 0;
+//        for (int s : attrib_sizes) { _scalars += s; }
+//        int stride = _scalars * sizeof(float);
+//
+//        GLuint iboId = 0;
+//        if (idx_data)
+//        {
+//            glGenBuffers(1, &iboId);
+//            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
+//            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * vertexCount, idx_data, GL_STATIC_DRAW);
+//        } else {
+//            vtx_size = stride*vertexCount;
+//        }
+//
+//        GLuint vboId;
+//        glGenBuffers(1, &vboId);
+//        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+//        glBufferData(GL_ARRAY_BUFFER, vtx_size, vtx_data, GL_STATIC_DRAW);
+//
+//        int i = 0;
+//        _scalars = 0;
+//        for (int s : attrib_sizes) {
+//            glVertexAttribPointer(i, s, GL_FLOAT, GL_FALSE, stride, (void*)(_scalars*sizeof(float)));
+//            glEnableVertexAttribArray(i);
+//            ++i;
+//            _scalars += s;
+//        }
 
         return new VertexArrays(vaoId, vboId, iboId, vertexCount);
     }
