@@ -302,7 +302,6 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 // Delete Old vkx::VertexBuffer
                 if (comp.VertexBuffer)
                 {
-                    vkx::ctx().Device.waitIdle();
                     delete comp.VertexBuffer;
                     comp.VertexBuffer = nullptr;
                 }
@@ -311,7 +310,7 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 if (!indexed.empty())
                 {
                     // Upload VertexData to GPU.
-                    comp.VertexBuffer = Loader::LoadVertexData(&indexed);
+                    comp.VertexBuffer = VertexArrays::Load(&indexed);
 
                     // Update Physics Shape TriangleMesh
                     PxRigidStatic& rigid = *comp.RigidStatic;

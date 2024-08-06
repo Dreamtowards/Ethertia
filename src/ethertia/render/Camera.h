@@ -41,8 +41,8 @@ public:
         return -glm::vec3(matView[0][2], matView[1][2], matView[2][2]);  // get transpose.
     }
 
-    float GetPerspectiveFar() const { return zFar; }
-    void SetPerspectiveFar(float far) { this->zFar = far; }
+//    float GetPerspectiveFar() const { return zFar; }
+//    void SetPerspectiveFar(float far) { this->zFar = far; }
 
     void UpdateMatrix(float projAspectRatio, bool updateViewMat = true)
     {

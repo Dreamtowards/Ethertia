@@ -15,4 +15,5 @@ void main()
     vec4 worldpos = matModel * vec4(in_pos, 1.0);
 
     gl_Position = matProjection * matView * worldpos;
+    gl_Position.y = -gl_Position.y;
 }

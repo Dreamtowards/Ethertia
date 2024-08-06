@@ -40,10 +40,10 @@ public:
 
 	const Cell& GetCell(glm::ivec3 localpos, bool worldwide = false) 
 	{ 
-//		if (worldwide && !Chunk::IsLocalPos(localpos))
-//		{
-//			return m_World->GetCell(chunkpos + localpos);
-//		}
+		if (worldwide && !Chunk::IsLocalPos(localpos))
+		{
+			return m_World->GetCell(chunkpos + localpos);
+		}
 		return LocalCell(localpos); 
 	}
 

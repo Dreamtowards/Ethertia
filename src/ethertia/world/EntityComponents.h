@@ -60,7 +60,7 @@ struct ChunkComponent
 
 	VertexData* VertexData = nullptr;
 
-	VertexBufferArrays* VertexBuffer = nullptr;
+	VertexArrays* VertexBuffer = nullptr;
 
 };
 

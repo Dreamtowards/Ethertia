@@ -76,7 +76,7 @@ entt::registry& Entity::registry() const
 World::World()
 {
 
-//	m_ChunkSystem = new ChunkSystem(this);
+	m_ChunkSystem = new ChunkSystem(this);
 
 
 	// Init ECS
@@ -136,7 +136,7 @@ World::World()
 
 World::~World()
 {
-//	delete m_ChunkSystem;
+	delete m_ChunkSystem;
 
 	Log::info("Destroy Entities");
 	registry().clear();
@@ -160,11 +160,11 @@ void World::OnTick(float dt)
 
 
 
-//	{
-//		ET_PROFILE("ChunkSystem");
-//
-//		m_ChunkSystem->OnTick(dt);
-//	}
+	{
+		ET_PROFILE("ChunkSystem");
+
+		m_ChunkSystem->OnTick(dt);
+	}
 
 
 	{

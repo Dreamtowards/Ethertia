@@ -30,6 +30,7 @@
 #define ET_NAMESPACE_BEGIN namespace ET_NAMESPACE {
 #define ET_NAMESPACE_END }
 
+using namespace glm;
 
 
 

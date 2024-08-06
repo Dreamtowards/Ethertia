@@ -9,4 +9,5 @@ layout(location = 2) out vec4 gAlbedoRoughness;
 void main()
 {
 
+    gPositionDepth = vec4(1);
 }

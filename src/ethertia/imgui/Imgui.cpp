@@ -97,7 +97,7 @@ static void InitStyle()
 
 
     Col[ImGuiCol_TabActive] = { 0.234f, 0.234f, 0.243f, 1.000f };  // (0.251f, 0.251f, 0.255f, 1.000f)
-    Col[ImGuiCol_PopupBg] = { 0.123f, 0.123f, 0.123f, 0.940f };
+    Col[ImGuiCol_PopupBg] = { 0.123f, 0.123f, 0.123f, 0.980f };
 
     Col[ImGuiCol_TitleBg] = { 0.131f, 0.135f, 0.135f, 1.000f }; // a bit lighter, diff from border.  // old: 0.082f, 0.082f, 0.082f, 0.800f
     Col[ImGuiCol_MenuBarBg] =

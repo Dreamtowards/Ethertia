@@ -376,55 +376,6 @@ vkx::Image* Loader::loadCubeMap_3x2(const std::string& filename)
 
 
 
-
-
-// no-idx:  load(vc, {3,2,3}, vtx);
-// idx:     load(vc, {3,2,3}, vtx_data, vtx_size, idx_data);
-VertexBufferArrays* LoadVertexBuffers(
-        uint32_t vertexCount, std::initializer_list<int> attrib_sizes,
-        float* vtx_data, uint32_t vtx_size = -1, uint32_t* idx_data = nullptr)
-{
-    int stride = 0;
-    for (int s : attrib_sizes) { stride += s; }
-
-    GLuint vaoId;
-    glCreateVertexArrays(1, &vaoId);
-
-    GLuint iboId = 0;
-    if (idx_data) {
-        assert(vtx_size > 0);
-
-        uint32_t idx_size = sizeof(uint32_t) * vertexCount;
-        glCreateBuffers(1, &iboId);
-        glNamedBufferStorage(iboId, idx_size, idx_data, GL_DYNAMIC_STORAGE_BIT);
-        glVertexArrayElementBuffer(vaoId, iboId);
-    } else {
-        assert(vtx_size == -1);
-        vtx_size = stride * sizeof(float) * vertexCount;
-    }
-
-    GLuint vboId;
-    glCreateBuffers(1, &vboId);
-    glNamedBufferStorage(vboId, vtx_size, vtx_data, GL_DYNAMIC_STORAGE_BIT);
-    glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, stride);
-
-    int offset = 0;
-    int attrib  = 0;
-    for (int attrib_size : attrib_sizes)
-    {
-        glEnableVertexArrayAttrib(vaoId, attrib);
-        glVertexArrayAttribFormat(vaoId, attrib, attrib_size, GL_FLOAT, GL_FALSE, offset);
-        glVertexArrayAttribBinding(vaoId, attrib, 0);
-
-        offset += attrib_size;
-        ++attrib;
-    }
-
-    return new VertexBufferArrays(vaoId, vboId, iboId, vertexCount);
-}
-
-
-
 Texture* Loader::LoadTexture(const BitmapImage& img)
 {
     return Loader::LoadTexture(img.width(), img.height(), img.pixels());

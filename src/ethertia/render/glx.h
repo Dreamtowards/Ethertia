@@ -16,6 +16,7 @@
 #include "ethertia/util/Collections.h"
 #include "ethertia/util/BitmapImage.h"
 #include "ethertia/util/Colors.h"
+#include "VertexData.h"
 
 namespace glx
 {
@@ -101,10 +102,10 @@ private:
 };
 
 
-class VertexBufferArrays {
-public:
-    VertexBufferArrays(GLuint vaoId, GLuint vboId, GLuint iboId, size_t vertexCount) :
+class VertexArrays {
+    VertexArrays(GLuint vaoId, GLuint vboId, GLuint iboId, size_t vertexCount) :
         m_vaoId(vaoId), m_vboId(vboId), m_iboId(iboId), m_VertexCount(vertexCount) {}
+public:
 
     [[nodiscard]] bool indexed() const { return m_iboId != 0; }
 
@@ -112,6 +113,68 @@ public:
     GLuint m_vboId = 0;
     GLuint m_iboId = 0;
     size_t m_VertexCount = 0;
+
+    void BindAndDraw() {
+        glBindVertexArray(m_vaoId);
+        if (indexed()) {
+            glDrawElements(GL_TRIANGLES, m_VertexCount, GL_UNSIGNED_INT, 0);
+        } else {
+            glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
+        }
+    }
+
+    static VertexArrays* Load(VertexData* vbuf) {
+        if (vbuf->IsIndexed()) {
+            return Load(vbuf->VertexCount(), {3,2,3}, (const float*)vbuf->vtx_data(),
+                        vbuf->vtx_size(),(const uint32_t*)vbuf->idx_data());
+        } else {
+            return Load(vbuf->VertexCount(), {3,2,3}, (const float*)vbuf->vtx_data());
+        }
+    }
+
+    // attrib_sizes: Interleaved Num Scalars for Each Vertex. e.g. {3,2,3} for {pos, uv, norm}
+    static VertexArrays* Load(
+            uint32_t vertexCount, std::initializer_list<int> attrib_sizes,
+            const float* vtx_data, uint32_t vtx_size = -1, const uint32_t* idx_data = nullptr)
+    {
+        int stride = 0;
+        for (int s : attrib_sizes) { stride += s; }
+
+        GLuint vaoId;
+        glCreateVertexArrays(1, &vaoId);
+
+        GLuint iboId = 0;
+        if (idx_data) {
+            assert(vtx_size > 0);
+
+            uint32_t idx_size = sizeof(uint32_t) * vertexCount;
+            glCreateBuffers(1, &iboId);
+            glNamedBufferStorage(iboId, idx_size, idx_data, GL_DYNAMIC_STORAGE_BIT);
+            glVertexArrayElementBuffer(vaoId, iboId);
+        } else {
+            assert(vtx_size == -1);
+            vtx_size = stride * sizeof(float) * vertexCount;
+        }
+
+        GLuint vboId;
+        glCreateBuffers(1, &vboId);
+        glNamedBufferStorage(vboId, vtx_size, vtx_data, GL_DYNAMIC_STORAGE_BIT);
+        glVertexArrayVertexBuffer(vaoId, 0, vboId, 0, stride);
+
+        int offset = 0;
+        int attrib  = 0;
+        for (int attrib_size : attrib_sizes)
+        {
+            glEnableVertexArrayAttrib(vaoId, attrib);
+            glVertexArrayAttribFormat(vaoId, attrib, attrib_size, GL_FLOAT, GL_FALSE, offset);
+            glVertexArrayAttribBinding(vaoId, attrib, 0);
+
+            offset += attrib_size;
+            ++attrib;
+        }
+
+        return new VertexArrays(vaoId, vboId, iboId, vertexCount);
+    }
 };
 
 
@@ -149,6 +212,7 @@ public:
     void SetMat4(const char* name, const glm::mat4& m) {
         glUniformMatrix4fv(GetUniformId(name), 1, false, &m[0][0]);
     }
+
 
     struct Uniform {
         int UniformId;
@@ -197,7 +261,7 @@ public:
         if (!succ) {
             char infolog[512];
             glGetShaderInfoLog(shader, 512, nullptr, infolog);
-            Log::warn("Failed to compile the {} shader [{}]:\n", StrShaderType(shaderType), errIden, infolog);
+            Log::info("Failed to compile the {} shader [{}]:\n", StrShaderType(shaderType), errIden, infolog);
             return 0;
         }
         return shader;

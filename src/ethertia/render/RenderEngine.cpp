@@ -126,6 +126,30 @@ static void RenderWorldGbuffer(World* world)
 
     g_Shader->Bind();
 
+    Camera& cam = Ethertia::GetCamera();
+    g_Shader->SetMat4("matProjection", cam.matProjection);
+    g_Shader->SetMat4("matView", cam.matView);
+
+    auto& entt_reg = world->registry();
+
+    for (const auto& [entity, trans, chunkComp, tag] : entt_reg.view<TransformComponent, ChunkComponent, TagComponent>().each())
+    {
+        VertexArrays* vtx = chunkComp.VertexBuffer;
+        if (vtx == nullptr || !tag.IsEnabled)
+            continue;
+        //// Frustum Culling
+        //if (!Ethertia::getCamera().testFrustum(entity->getAABB()))
+        //    continue;
+        //if (entity == (void*)Ethertia::getPlayer() && Ethertia::getCamera().len == 0)
+        //    continue;
+
+        g_Shader->SetMat4("matModel", trans.Transform);
+//        cmd.PushConstants(Pipeline->PipelineLayout, vk::ShaderStageFlagBits::eVertex, pc);
+//        cmd.BindVertexBuffers(vtx->vertexBuffer);
+
+        vtx->BindAndDraw();
+    }
+
     glEnable(GL_BLEND);
 
     ImwGame::WorldImageView = gbufferFBO->m_TexColor[0];
