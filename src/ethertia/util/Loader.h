@@ -96,6 +96,23 @@ public:
     // quick save for debug, no compression.
     static void SaveOBJ(const std::string& filename, size_t verts, const float* pos, const float* uv =nullptr, const float* norm =nullptr);
 
+    static void SaveOBJ(const std::string& filename, const VertexData& vbuf) {
+        int vc = vbuf.VertexCount();
+        float* pos  = new float[vc * 3];
+        float* uv   = new float[vc * 2];
+        float* norm = new float[vc * 3];
+        for (int i = 0; i < vc; ++i) {
+            auto& v = vbuf.at(i);
+            pos[i*3]  = v.pos.x;  pos[i*3+1]  = v.pos.y;  pos[i*3+2] = v.pos.z;
+            uv[i*2]  = v.tex.x;   uv[i*2+1]  = v.tex.y;
+            norm[i*3] = v.norm.x; norm[i*3+1] = v.norm.y; norm[i*3+2] = v.norm.z;
+        }
+        SaveOBJ(filename, vc, pos, uv, norm);
+
+        delete[] pos;
+        delete[] uv;
+        delete[] norm;
+    }
 
 
 #pragma endregion

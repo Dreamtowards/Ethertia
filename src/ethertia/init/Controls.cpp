@@ -591,7 +591,7 @@ void Controls::HandleInput()
         {
             float dt = Ethertia::GetDelta();
 
-            cam.updateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
+            cam.UpdateMovement(dt, Window::MouseDelta().x, Window::MouseDelta().y, Window::isKeyDown(GLFW_KEY_Z));
 
             PxController* cct = World::dbg_CCT;
 

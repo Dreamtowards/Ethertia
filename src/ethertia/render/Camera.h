@@ -41,9 +41,6 @@ public:
         return -glm::vec3(matView[0][2], matView[1][2], matView[2][2]);  // get transpose.
     }
 
-//    float GetPerspectiveFar() const { return zFar; }
-//    void SetPerspectiveFar(float far) { this->zFar = far; }
-
     void UpdateMatrix(float projAspectRatio, bool updateViewMat = true)
     {
         // ViewMatrix
@@ -65,7 +62,7 @@ public:
 
 
 
-    void updateMovement(float dt, float mDX, float mDY, bool rotZ)
+    void UpdateMovement(float dt, float mDX, float mDY, bool rotZ)
     {
         float mx = mDX / 200;
         float my = mDY / 200;
@@ -91,7 +88,7 @@ public:
 
     }
 
-    bool testFrustum(const AABB& aabb) {
+    bool TestFrustum(const AABB& aabb) {
         return m_Frustum.intersects(aabb);
     }
 

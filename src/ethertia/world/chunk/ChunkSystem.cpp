@@ -14,7 +14,6 @@
 #include <ethertia/util/BenchmarkTimer.h>
 
 #include <ethertia/world/chunk/meshgen/MeshGen.h>
-
 #include <ethertia/init/MaterialMeshes.h>  // tmp test
 
 #include <stdx/stdx.h>
@@ -96,11 +95,8 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
 {
     auto& threadpool = Ethertia::GetThreadPool();
 
-    // todo: Recursive Octree Load.
-	// Check which chunks Need to be Load
 
     glm::ivec3 viewer_chunkpos = Chunk::ChunkPos(viewpos);
-
 
     // Async Generate/Load chunk
     {
@@ -311,6 +307,8 @@ void ChunkSystem::_UpdateChunkLoadAndUnload(glm::vec3 viewpos, glm::ivec3 loaddi
                 {
                     // Upload VertexData to GPU.
                     comp.VertexBuffer = VertexArrays::Load(&indexed);
+
+                    //Loader::SaveOBJ("tmp.obj", indexed);
 
                     // Update Physics Shape TriangleMesh
                     PxRigidStatic& rigid = *comp.RigidStatic;
