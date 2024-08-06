@@ -174,38 +174,6 @@ public:
             ++attrib;
         }
 
-//        GLuint vaoId;
-//        glGenVertexArrays(1, &vaoId);
-//        glBindVertexArray(vaoId);
-//
-//        int _scalars = 0;
-//        for (int s : attrib_sizes) { _scalars += s; }
-//        int stride = _scalars * sizeof(float);
-//
-//        GLuint iboId = 0;
-//        if (idx_data)
-//        {
-//            glGenBuffers(1, &iboId);
-//            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
-//            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * vertexCount, idx_data, GL_STATIC_DRAW);
-//        } else {
-//            vtx_size = stride*vertexCount;
-//        }
-//
-//        GLuint vboId;
-//        glGenBuffers(1, &vboId);
-//        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-//        glBufferData(GL_ARRAY_BUFFER, vtx_size, vtx_data, GL_STATIC_DRAW);
-//
-//        int i = 0;
-//        _scalars = 0;
-//        for (int s : attrib_sizes) {
-//            glVertexAttribPointer(i, s, GL_FLOAT, GL_FALSE, stride, (void*)(_scalars*sizeof(float)));
-//            glEnableVertexAttribArray(i);
-//            ++i;
-//            _scalars += s;
-//        }
-
         return new VertexArrays(vaoId, vboId, iboId, vertexCount);
     }
 };
@@ -294,7 +262,7 @@ public:
         if (!succ) {
             char infolog[512];
             glGetShaderInfoLog(shader, 512, nullptr, infolog);
-            Log::info("Failed to compile the {} shader [{}]:\n", StrShaderType(shaderType), errIden, infolog);
+            Log::warn("Failed to compile the {} shader [{}]:\n{}", StrShaderType(shaderType), errIden, infolog);
             return 0;
         }
         return shader;

@@ -608,7 +608,7 @@ void ImwGame::ShowGame(bool* _open)
     // Viewport Image
     if (ImwGame::WorldImageView)
     {
-        ImGui::Image(ImwGame::WorldImageView->idptr(), viewSize);
+        ImGui::Image(ImwGame::WorldImageView->idptr(), viewSize, {0,1}, {1,0});
     }
     //ImGui::SetCursorPos({0,0});
     //ImGui::InvisibleButton("PreventsGameWindowDragMove", viewSize);

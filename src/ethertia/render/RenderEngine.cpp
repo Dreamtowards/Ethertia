@@ -117,10 +117,14 @@ static void RenderWorldGbuffer(World* world)
     });
     gbufferFBO->Bind();
 
+    float tm[32*6];
+    static VertexArrays* tmp = VertexArrays::Load(6, {3,2,3}, tm);
+
     glx::Clear();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     glDisable(GL_BLEND);  // Blending is inhabited in Deferred Rendering.
 
@@ -129,6 +133,13 @@ static void RenderWorldGbuffer(World* world)
     Camera& cam = Ethertia::GetCamera();
     g_Shader->SetMat4("matProjection", cam.matProjection);
     g_Shader->SetMat4("matView", cam.matView);
+
+//        g_Shader->SetMat4("matModel", trans.Transform);
+
+//    glBindVertexArray(1);
+//    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+//    tmp->BindAndDraw();
 
     auto& entt_reg = world->registry();
 
